@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / encore un probleme de trigger]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1846&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1846"/>
+	<updated>2012-01-19T11:08:00Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1846</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  encore un probleme de trigger]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12475#p12475"/>
+		<content type="html"><![CDATA[<p>super génial, ça fonctionne parfaitement<br />tout mes remerciements pour ce forumo-guidage de qualité</p>]]></content>
+		<author>
+			<name><![CDATA[Morby]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1512</uri>
+		</author>
+		<updated>2012-01-19T11:08:00Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12475#p12475</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  encore un probleme de trigger]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12472#p12472"/>
+		<content type="html"><![CDATA[<p>Oui, il suffit de faire un RAISE, pour ça. Soit une trace de warning, qui n&#039;annulera pas le traitement, soit carrément déclencher l&#039;arrêt brutal avec une exception.</p><p>Ça donne :</p><p>RAISE WARNING &#039;L&#039;&#039;utilisateur % n&#039;est pas autorisé à donner des droits d&#039;&#039;accès sur le numéro de sujet %&#039;, current_user, NEW.numsujet;</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2012-01-19T10:46:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12472#p12472</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  encore un probleme de trigger]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12470#p12470"/>
+		<content type="html"><![CDATA[<p>quel boulet je suis... <br />Bourvil aurait dit un truc du genre : effectivement ça va marcher bcp moins bien ^^</p><p>le trigger est maintenant opérationnel et fonctionnel, encore merci pour ta patience <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>encore une petite question, d&#039;ordre cosmétique cette fois : <br />pour le cas de figure ou current_user est différent de new.auteur, est-il possible d&#039;afficher dans le prompt un message de type &quot;nous n&#039;êtes pas autorisé à donner des droits d&#039;accès sur ce n° de sujet &quot; ?</p>]]></content>
+		<author>
+			<name><![CDATA[Morby]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1512</uri>
+		</author>
+		<updated>2012-01-19T10:30:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12470#p12470</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  encore un probleme de trigger]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12467#p12467"/>
+		<content type="html"><![CDATA[<p>Si c&#039;est dans le cas d&#039;un INSERT, c&#039;est normal, il n&#039;est pas traité. Un INSERT ne passera sur aucun des RETURN</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2012-01-19T09:43:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12467#p12467</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  encore un probleme de trigger]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12466#p12466"/>
+		<content type="html"><![CDATA[<p>j&#039;ai intégré la fonction TG_OP</p><div class="codebox"><pre><code>CREATE FUNCTION fonction_insert_autorisation() RETURNS TRIGGER AS $$
+DECLARE
+ok boolean;
+BEGIN
+SELECT (current_user = auteur) INTO ok FROM  ALLSUJET WHERE NUMSUJET = NEW.NUMSUJET;
+IF ok THEN
+INSERT INTO LGPAUTH (NUMSUJET,AUTEUR,AUTORISEDTOMODIF) VALUES
+	(NEW.NUMSUJET,
+	current_user,
+	NEW.AUTEUR);
+		IF (TG_OP = &#039;UPDATE&#039;) THEN
+		RETURN NEW;
+		ELSIF (TG_OP = &#039;DELETE&#039;) THEN
+		RETURN OLD;
+		END IF;
+	ELSE RETURN NULL;
+	END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER fonction_insert_autorisation 
+INSTEAD OF INSERT OR DELETE ON AUTORIS
+FOR EACH ROW EXECUTE PROCEDURE fonction_insert_autorisation();</code></pre></div><p>EDIT : j&#039;ai finalement compris pourquoi je partais en boucle...l&#039;insertion effectuée par le trigger a pour effet de redéclencher le meme trigger ^^<br />en mettant le nom de la table originale plutôt que le nom de la vue pour l&#039;insert ça corrige le problème <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>reste maintenant un problème de syntaxe foirée pour mon TG_OP...<br />ERREUR:&#160; le contrôle a atteint la fin de la procédure trigger sans RETURN<br />CONTEXTE : fonction PL/pgsql « fonction_insert_autorisation »</p>]]></content>
+		<author>
+			<name><![CDATA[Morby]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1512</uri>
+		</author>
+		<updated>2012-01-19T09:17:54Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12466#p12466</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  encore un probleme de trigger]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12464#p12464"/>
+		<content type="html"><![CDATA[<p>Vous n&#039;êtes pas &#039;obligé&#039; de faire un trigger différent en cas de delete: vous pouvez très bien utiliser la variable TG_OP qui vous permet de savoir si vous êtes en cours de INSERT/DELETE/UPDATE/TRUNCATE. C&#039;est juste un choix: 4 triggers plus simples, mais avec des risques de duplication de code ou un trigger qui fait tout.</p><p>Pour ce qui est de l&#039;erreur, c&#039;est normal: vous réinsérez sur la vue dans un trigger sur elle-même. Vous partez donc en boucle.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2012-01-19T08:56:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12464#p12464</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  encore un probleme de trigger]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12462#p12462"/>
+		<content type="html"><![CDATA[<p>j&#039;ai suivi vos conseils et me suis référé à la doc, effectivement ça simplifie les choses de zapper la RULE</p><p>j&#039;ai donc modifié ma fonction/trigger comme ceci :</p><div class="codebox"><pre><code>CREATE FUNCTION fonction_insert_autorisation() RETURNS TRIGGER AS $$
+DECLARE
+ok boolean;
+BEGIN
+SELECT (current_user = auteur) INTO ok FROM  ALLSUJET WHERE NUMSUJET = NEW.NUMSUJET;
+IF ok THEN
+INSERT INTO AUTORIS (NUMSUJET,AUTEUR,AUTORISEDTOMODIF) VALUES
+	(NEW.NUMSUJET,
+	current_user,
+	NEW.AUTEUR);
+	RETURN NEW;
+	END IF;
+RETURN NULL;	
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER fonction_insert_autorisation ON AUTORIS;
+CREATE TRIGGER fonction_insert_autorisation 
+INSTEAD OF INSERT ON AUTORIS
+FOR EACH ROW EXECUTE PROCEDURE fonction_insert_autorisation();</code></pre></div><p>il semblerait que je sois obligé de faire un autre trigger/fonction en cas de DELETE sur la table (avec un return OLD si j&#039;ai bien tout compris)</p><br /><p>ceci étant, j&#039;ai toujours le même problème d&#039;erreur au déclenchement du trigger lorsque j&#039;essaye de faire un INSERT sur la vue :</p><div class="codebox"><pre><code>PL/pgSQL function &quot;fonction_insert_autorisation&quot; line 7 at instruction SQL
+instruction SQL « INSERT INTO AUTORIS (NUMSUJET,AUTEUR,AUTORISEDTOMODIF) VALUES
+(NEW.NUMSUJET,
+current_user,
+NEW.AUTEUR) »</code></pre></div><p>ce message d&#039;erreur semble boucler sur lui même, il rempli toute la console, j&#039;en déduis que c&#039;est ma boucle qui déconne.</p><p>comme décrit précédemment, j&#039;ai essayé de modifier la fin de la requete en :<br />...<br />RETURN NEW;<br />ELSE<br />RETURN NULL;<br />END IF;&#160; &#160;<br />END;</p><p>mais ça ne change rien au résultat <img src="http://forums.postgresql.fr/img/smilies/sad.png" width="15" height="15" alt="sad" /></p>]]></content>
+		<author>
+			<name><![CDATA[Morby]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1512</uri>
+		</author>
+		<updated>2012-01-19T08:27:50Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12462#p12462</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  encore un probleme de trigger]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12460#p12460"/>
+		<content type="html"><![CDATA[<p>Si vous êtes en 9.1, oui, oubliez la RULE. Déclarez directement un trigger sur la vue, avec instead of.</p><p>Pour ce qui est des exemples, il y en a un dans la doc:<br /><a href="http://docs.postgresql.fr/9.1/plpgsql-trigger.html" rel="nofollow">http://docs.postgresql.fr/9.1/plpgsql-trigger.html</a> (cherchez INSTEAD OF dans la page), c&#039;est l&#039;exemple 39.5</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2012-01-19T08:02:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12460#p12460</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  encore un probleme de trigger]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12459#p12459"/>
+		<content type="html"><![CDATA[<p>merci mon cher mais vous me parlez un langage qui m&#039;est en grande partie étranger ^^</p><p>en effet je suis bien sous PostgreSQL 9.1 et c&#039;est un nouveau développement, dans le cadre d&#039;un projet que je dois remettre la semaine prochaine et qui comptera pour ma note finale en mars prochain (formation accélérée). En ce qui me concerne, je suis grand débutant, ya encore 3 mois j&#039;ignorais tout des bases de données. En cours, on a pas du tout abordé les triggers sous Postgres, on a eu juste 2h de cours sur les triggers sous Oracle + un TP que je ne suis pas parvenu à faire ayant du retard sur les précédant. ça explique surement en grande partie mon inélégance dans mon approche pour résoudre mon problème.</p><p>Donc d&#039;après vous je peux me passer de la règle qui autorise les inserts sur la vue ?<br />et seulement faire un trigger/fonction qui gèrera à la fois l&#039;autorisation d&#039;insert sur la vue et la vérification auteur=current_user ?</p><p>puis-je abuser de votre gentillesse et vous demander un exemple de code svp ?<br />car pour moi, un petit dessin vaut souvent mieux qu&#039;un long discours ^^</p>]]></content>
+		<author>
+			<name><![CDATA[Morby]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1512</uri>
+		</author>
+		<updated>2012-01-19T07:44:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12459#p12459</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  encore un probleme de trigger]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12458#p12458"/>
+		<content type="html"><![CDATA[<p>Je ne suis pas rentré dans le code, mais faire une rule sur une vue pour rediriger un insert sur une table pour déclencher un trigger, c&#039;est quand même compliqué pour à mon avis pas grand chose…</p><p>Pour alléger tout ça, deux solutions:</p><p>- Faire tout simplement une fonction à appeler pour faire l&#039;insertion, genre «select insere_nouvelle_autorisation(param1,param2);»<br />- Ne supporter que PostgreSQL 9.1 et supérieur (c&#039;est un nouveau développement non ?). Si oui, on peut mettre en 9.1 le trigger directement sur la vue (c&#039;est un trigger INSTEAD OF), ce qui est quand même bien plus élégant.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2012-01-19T07:19:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12458#p12458</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  encore un probleme de trigger]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12457#p12457"/>
+		<content type="html"><![CDATA[<p>merci pour ton aide<br />effectivement je n&#039;avais pas du tout pensé à utiliser un booléen, et quand bien même cette syntaxe m&#039;est complètement inconnue</p><p>voici donc la nouvelle mouture de mon trigger :</p><div class="codebox"><pre><code>CREATE FUNCTION fonction_verif_autorisation() RETURNS TRIGGER AS $$
+DECLARE
+ok boolean;
+BEGIN
+SELECT (current_user = auteur) INTO ok FROM  ALLSUJET WHERE NUMSUJET = NEW.NUMSUJET;
+IF ok THEN
+INSERT INTO AUTORIS (NUMSUJET,AUTEUR,AUTORISEDTOMODIF) VALUES
+	(NEW.NUMSUJET,
+	current_user,
+	NEW.AUTEUR);
+	RETURN NEW;
+	END IF;
+RETURN NULL;	
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE TRIGGER fonction_verif_autorisation BEFORE INSERT OR DELETE ON LGPAUTH
+FOR EACH ROW EXECUTE PROCEDURE fonction_verif_autorisation();</code></pre></div><p>et maintenant j&#039;ai une nouvelle erreur :</p><div class="codebox"><pre><code>PL/pgSQL function &quot;fonction_verif_autorisation&quot; line 7 at instruction SQL
+instruction SQL « INSERT INTO AUTORIS (NUMSUJET,AUTEUR,AUTORISEDTOMODIF) VALUES
+(NEW.NUMSUJET,
+current_user,
+NEW.AUTEUR) »</code></pre></div><p>j&#039;ai essayé de modifier la fin de la requete en :<br />...<br />RETURN NEW;<br />ELSE<br />RETURN NULL;<br />END IF;&#160; &#160; <br />END;</p><p>mais rien n&#039;y fait, je ne trouve pas d&#039;où vient l&#039;erreur <img src="http://forums.postgresql.fr/img/smilies/sad.png" width="15" height="15" alt="sad" /></p>]]></content>
+		<author>
+			<name><![CDATA[Morby]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1512</uri>
+		</author>
+		<updated>2012-01-19T06:30:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12457#p12457</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  encore un probleme de trigger]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12455#p12455"/>
+		<content type="html"><![CDATA[<p>Bonjour.</p><p>La syntaxe est fausse, on ne peut pas écrire &quot;NUMSUJET FROM (SELECT ...&quot;, il faut utiliser une syntaxe sql.<br />Cependant, ce select peut renvoyer plusieurs lignes, il serait préférable de faire un requête qui vérifie directement le bon auteur je pense.</p><p>Exemple :<br />DECLARE<br />ok boolean;<br />SELECT (current_user = auteur) INTO ok FROM&#160; ALLSUJET WHERE NUMSUJET = NEW.NUMSUJET;<br />IF ok THEN<br />...</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2012-01-18T20:44:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12455#p12455</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[encore un probleme de trigger]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12454#p12454"/>
+		<content type="html"><![CDATA[<p>salut tout le monde, de retour avec un autre problème de trigger sur mon mini-wiki</p><p>j&#039;ai une table d&#039;utilisateurs :</p><div class="codebox"><pre class="vscroll"><code>DROP TABLE LGPUTILS CASCADE;
+CREATE TABLE LGPUTILS
+       (NUMUSER SERIAL,
+        NOM VARCHAR(25) PRIMARY KEY,
+	PASSWORD VARCHAR(25) NOT NULL,
+	NBARTICLECREE INTEGER DEFAULT &#039;0&#039;
+	);
+
+-- droits d&#039;accès pour la séquence (SERIAL)
+GRANT USAGE on lgputils_numuser_seq to public;
+
+--création d&#039;une vue LGPUSERNEW qui permet de voir tous les attributs de la table
+DROP VIEW LGPUSERNEW;
+CREATE VIEW LGPUSERNEW AS SELECT * FROM LGPUTILS;
+
+-- donne les droits sur la vue LGPUSERNEW
+grant select on LGPUSERNEW to public;
+grant insert on LGPUSERNEW to public;
+grant update on LGPUSERNEW to public;
+grant delete on LGPUSERNEW to public;
+
+
+-- création d&#039;une règle sur la vue &quot;LGPUSERNEW&quot;
+-- permettant l&#039;insertion de nouveaux utilisateurs avec automatisme : nom = compte utilisateur
+DROP RULE usernew_insert on LGPUSERNEW CASCADE;
+CREATE RULE usernew_insert AS ON INSERT TO LGPUSERNEW DO INSTEAD 
+	INSERT INTO LGPUTILS VALUES 
+	(default, 
+	current_user, 
+	NEW.PASSWORD);</code></pre></div><p>une table de sujets :</p><div class="codebox"><pre><code>DROP TABLE LGPSUJET CASCADE;
+CREATE TABLE LGPSUJET
+       (NUMSUJET SERIAL PRIMARY KEY,
+	AUTEUR VARCHAR(25) REFERENCES LGPUTILS (NOM),
+	TITRE VARCHAR NOT NULL,
+	DATEPARUTION DATE DEFAULT current_date,
+	DATEMODIF DATE DEFAULT current_date,
+	AUTEURMODIF VARCHAR(25) REFERENCES LGPUTILS (NOM),
+	NUMBACKUP INTEGER DEFAULT &#039;1&#039;,
+	NBVUE INTEGER DEFAULT &#039;0&#039;,
+	TEXTE VARCHAR NOT NULL,
+	PROTECTION INTEGER DEFAULT &#039;1&#039;	);
+
+-- droits d&#039;accès pour la séquence (SERIAL)
+GRANT USAGE on lgpsujet_numsujet_seq to public;
+
+-- création d&#039;une vue qui permet de voir tous les sujets de la table
+DROP VIEW ALLSUJET;
+CREATE VIEW ALLSUJET AS SELECT * FROM LGPSUJET;
+grant select on ALLSUJET to public;
+grant insert on ALLSUJET to public;
+
+-- création d&#039;une règle qui permet l&#039;insertion de nouveaux sujets à travers la vue ALLSUJET
+DROP RULE sujet_insert ON ALLSUJET;
+CREATE RULE sujet_insert AS ON INSERT TO ALLSUJET DO INSTEAD
+    INSERT INTO LGPSUJET (auteur, titre, texte) VALUES
+    (current_user,
+    NEW.TITRE,
+    NEW.TEXTE);</code></pre></div><p>et enfin une table pour les autorisations de modification des sujets :</p><div class="codebox"><pre><code>DROP TABLE LGPAUTH CASCADE;	
+CREATE TABLE LGPAUTH
+       (NUMSUJET INTEGER REFERENCES LGPSUJET (NUMSUJET),
+        AUTEUR VARCHAR(25) REFERENCES LGPUTILS (NOM),
+	AUTORISEDTOMODIF VARCHAR(25));
+
+-- création d&#039;une vue sur la table LGPAUTH
+CREATE VIEW AUTORIS AS SELECT * FROM LGPAUTH;
+grant select on AUTORIS to public;
+grant insert on AUTORIS to public;
+grant delete on AUTORIS to public;
+
+-- création d&#039;une règle qui permet l&#039;insertion de nouvelles autorisations
+-- à placer dans un trigger &quot;before&quot;, qui vérifie que auteur = current_user
+DROP RULE donne_autorisation ON AUTORIS;
+CREATE RULE donne_autorisation AS ON INSERT TO AUTORIS DO INSTEAD
+    INSERT INTO LGPAUTH (NUMSUJET,AUTEUR,AUTORISEDTOMODIF) VALUES
+	(NEW.NUMSUJET,
+	current_user,
+	NEW.AUTEUR);</code></pre></div><p>cette table référence un numéro de sujet + le nom de son auteur + le nom de l&#039;utilisateur autorisé à modifier le sujet en colonne 1</p><p>je désire donc créer un trigger qui va vérifier que le current_user qui fait l&#039;insert dans cette table est bien l&#039;auteur du n° de sujet à qui il veut donner l&#039;autorisation de modification à une autre utilisateur<br />pour bien faire les choses, faudrait aussi vérifier que l&#039;utilisateur à qui on veut donner l&#039;autorisation est bien présent dans la table des utilisateurs...</p><p>voici le trigger que j&#039;ai pondu :</p><div class="codebox"><pre><code>DROP FUNCTION fonction_verif_autorisation() CASCADE;
+CREATE FUNCTION fonction_verif_autorisation() RETURNS TRIGGER AS $$
+BEGIN
+IF (NEW.NUMSUJET = NUMSUJET FROM (SELECT NUMSUJET FROM ALLSUJET WHERE auteur=current_user))
+THEN
+INSERT INTO LGPAUTH (NUMSUJET,AUTEUR,AUTORISEDTOMODIF) VALUES
+	(NEW.NUMSUJET,
+	current_user,
+	NEW.AUTEUR);
+	RETURN NEW;
+	END IF;
+RETURN NULL;
+	END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER fonction_verif_autorisation ON lgpsujet;
+CREATE TRIGGER fonction_verif_autorisation BEFORE INSERT OR DELETE ON LGPAUTH
+FOR EACH ROW EXECUTE PROCEDURE fonction_verif_autorisation();</code></pre></div><p>La fonction me fait cette erreur quand j&#039;essaye de l&#039;enregistrer :<br />ERREUR:&#160; erreur de syntaxe sur ou près de « FROM »<br />LIGNE 3 : IF (NEW.NUMSUJET = NUMSUJET FROM (SELECT NUMSUJET FROM ALLSU...<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; ^</p><p>donc problème de syntaxe sur ma requete mais je ne m&#039;en sort pas<br />tout coup de main est bienvenu, merci</p>]]></content>
+		<author>
+			<name><![CDATA[Morby]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1512</uri>
+		</author>
+		<updated>2012-01-18T19:21:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12454#p12454</id>
+	</entry>
+</feed>

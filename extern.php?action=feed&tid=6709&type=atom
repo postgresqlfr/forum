@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Meilleure implémentation d'une CTE récursive en while loop]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=6709&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=6709"/>
+	<updated>2023-12-04T11:01:03Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=6709</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Meilleure implémentation d'une CTE récursive en while loop]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34721#p34721"/>
+		<content type="html"><![CDATA[<p>Merci pour la réponse. Il y a des instances où la première prend autour 20s et la deuxième autour de 100s. La raison d&#039;utiliser plpgsql est que c&#039;est plus expressif que les CTE récursifs où on ne peut pas mettre la variable récursive dans une sous requête.</p>]]></content>
+		<author>
+			<name><![CDATA[postgresqlforumuser]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=11857</uri>
+		</author>
+		<updated>2023-12-04T11:01:03Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34721#p34721</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Meilleure implémentation d'une CTE récursive en while loop]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34720#p34720"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><p>Quel est l&#039;écart entre les 2 approches ?</p><br /><p>Le problème ne vient pas forcément du fait que vous utilisez une boucle while, même si le langage plpgsql n&#039;a jamais été écrit pour être très rapide, mais plutôt du fait que chaque itération à un surcout assez impressionnant du fait que vous créez, supprimez et renommez des tables à chaque itération.&#160; Même si vous pouviez rendre cette fonction plus rapide, je vous déconseillerai de l&#039;utiliser car elle aurait d&#039;autres problèmes, notamment une fragmentation excessive des catalogues systèmes.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2023-12-02T02:39:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34720#p34720</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Meilleure implémentation d'une CTE récursive en while loop]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34719#p34719"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;ai deux requêtes qui calculent une cloture transitive sur un graphe. La première utilise une CTE recursive et la deuxième utilise une boucle WHILE. La première est beaucoup plus rapide que la deuxième. Je voudrais savoir s&#039;il est possible d&#039;améliorer la boucle WHILE pour avoir les mêmes performances. </p><p>Voici la première requête:</p><div class="codebox"><pre><code>CREATE TEMPORARY VIEW const_subquery2 AS
+  (SELECT src AS x, trg AS col1 FROM graph AS t WHERE predicate = &#039;&lt;p&gt;&#039;);
+CREATE TEMPORARY RECURSIVE VIEW fixpoint_relation1_X3 (x) AS
+    SELECT src AS x FROM graph WHERE trg = &#039;&lt;T&gt;&#039; AND predicate = &#039;&lt;p&gt;&#039;
+  UNION 
+    SELECT x FROM (SELECT x AS col1 FROM fixpoint_relation1_X3) AS t NATURAL JOIN const_subquery2;
+SELECT COUNT(*) FROM (SELECT DISTINCT * FROM (SELECT * FROM fixpoint_relation1_X3) AS t) as t3;</code></pre></div><p>Voici la deuxième requête:</p><div class="codebox"><pre><code>CREATE TEMPORARY VIEW const_subquery2 AS
+  (SELECT src AS x, trg AS col1 FROM graph WHERE predicate = &#039;&lt;p&gt;&#039;);
+DO $$BEGIN
+CREATE TEMPORARY TABLE fixpoint_tmp AS
+  (SELECT src AS x FROM graph WHERE trg = &#039;&lt;T&gt;&#039; AND predicate = &#039;&lt;p&gt;&#039;);
+CREATE TEMPORARY TABLE fixpoint_relation1_X3 AS (SELECT * FROM fixpoint_tmp);
+WHILE EXISTS (SELECT 1 FROM fixpoint_relation1_X3) LOOP
+  CREATE TEMPORARY TABLE nouvelles AS
+    (SELECT x FROM (SELECT x AS col1 FROM fixpoint_relation1_X3) AS t NATURAL JOIN const_subquery2 EXCEPT SELECT * FROM fixpoint_tmp);
+  INSERT INTO fixpoint_tmp (SELECT * FROM nouvelles);
+  DROP TABLE fixpoint_relation1_X3;
+  ALTER TABLE nouvelles RENAME TO fixpoint_relation1_X3;
+END LOOP;
+DROP TABLE fixpoint_relation1_X3;
+ALTER TABLE fixpoint_tmp RENAME TO fixpoint_relation1_X3;
+END;$$;
+SELECT COUNT(*) FROM (SELECT DISTINCT * FROM (SELECT * FROM fixpoint_relation1_X3) AS t) as t3;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[postgresqlforumuser]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=11857</uri>
+		</author>
+		<updated>2023-12-01T18:29:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34719#p34719</id>
+	</entry>
+</feed>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / HINT:  No function matches the given name and argument types. You migh]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4178&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4178"/>
+	<updated>2017-04-02T13:38:08Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4178</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  HINT:  No function matches the given name and argument types. You migh]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25160#p25160"/>
+		<content type="html"><![CDATA[<p>Pour une question qui n&#039;a rien à voir avec le premier sujet, merci de créer une autre discussion.</p><p>Concernant votre question, vous êtes sensé récupérer la même chaîne pour le type de données bytea. Et c&#039;est bien ce que vous récupérez. Moi, je récupère une chaîne hexa, vous une chaîne octale parce qu&#039;on ne doit pas avoir la même configuration pour le paramètre byte_output :</p><div class="codebox"><pre><code>postgres=# set bytea_output to hex;
+SET
+postgres=# select decode(encode (&#039;;àavdeyqkjuhdezyug&#039;,&#039;hex&#039;),&#039;hex&#039;);
+                  decode                  
+------------------------------------------
+ \x3bc3a06176646579716b6a756864657a797567
+(1 row)
+
+postgres=# set bytea_output to escape;
+SET
+postgres=# select decode(encode (&#039;;àavdeyqkjuhdezyug&#039;,&#039;hex&#039;),&#039;hex&#039;);
+          decode           
+---------------------------
+ ;\303\240avdeyqkjuhdezyug
+(1 row)</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2017-04-02T13:38:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25160#p25160</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  HINT:  No function matches the given name and argument types. You migh]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25159#p25159"/>
+		<content type="html"><![CDATA[<p>Merci beaucoup Guillaume. J&#039;avais oublié que je n&#039;étais plus sous PL/SQL.<br />Pourrais-je solliciter votre aide encore sur le problème suivant ? :</p><p>select * from decode(encode (&#039;;àavdeyqkjuhdezyug&#039;,&#039;hex&#039;),&#039;hex&#039;) : Je suis sensé avoir la même chaine en retour mais je vois que ce n&#039;est pas le cas.</p><p>&quot;;\303\240avdeyqkjuhdezyug&quot; </p><p>Comment puis-je résoudre ce problème ?</p>]]></content>
+		<author>
+			<name><![CDATA[Majid Haitami]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7457</uri>
+		</author>
+		<updated>2017-04-02T01:12:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25159#p25159</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  HINT:  No function matches the given name and argument types. You migh]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25137#p25137"/>
+		<content type="html"><![CDATA[<p>PostgreSQL a raison (comme très souvent). Cette fonction n&#039;existe pas. La fonction qui existe est crypto_1(text, text, integer, integer, integer, integer, integer). Oui, vous avez déclaré une fonction avec 9 arguments, mais les deux derniers sont des arguments en sortie (mode out). La fonction doit donc s&#039;appeler sans les deux arguments out, et la fonction renverra les deux arguments en résultat. Le plus simple est certainement de regarder les exemples sur <a href="http://docs.postgresql.fr/9.6/sql-createfunction.html" rel="nofollow">http://docs.postgresql.fr/9.6/sql-createfunction.html</a></p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2017-03-29T19:52:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25137#p25137</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[HINT:  No function matches the given name and argument types. You migh]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25136#p25136"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;ai un souci avec l&#039;appel d&#039;une fonction qui me retourne le message cité en objet.</p><p>Ma fonction est déclarée comme suit :</p><p>CREATE OR REPLACE&#160; FUNCTION crypto_1 (&#160; &#160; p_data &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; text,<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; p_key&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; text,<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; p_processing_mode&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; integer, <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; p_cypher_mode&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; integer,<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; p_compress_mode&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; integer, <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; p_compress_level&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; integer,<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; p_datainout&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; integer, <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; out&#160; &#160;p_return_status&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; integer,<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; out&#160; &#160;p_result&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; text)</p><p>L&#039;appel se fait avec les arguments suivants :</p><p>&#160; &#160; select crypto_1&#160; &#160; &#160; &#160; &#160; (&#160; &#160; v_data,<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; v_key,<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; v_encrypt,<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; v_cypher_mode,<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; v_compress_mode,<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; v_compress_level,<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; v_datainout,<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; v_return_status,<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; v_tagdata);</p><p>Sachant que les données passées en argument sont déclarées de même type que les données de la fonction appelée :</p><br /><p>&#160; &#160; v_data &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; text;<br />&#160; &#160; v_key&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; text;<br />&#160; &#160; v_encrypt&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;&#160; &#160; &#160; &#160; &#160;integer := 0;<br />&#160; &#160; v_cypher_mode&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; integer := 0;<br />&#160; &#160; v_compress_mode&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; integer := 0;<br />&#160; &#160; v_compress_level&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; integer := 0;&#160; &#160; <br />&#160; &#160; &#160; &#160; v_datainout&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; integer := 0;&#160; &#160; <br />&#160; &#160; &#160; &#160; v_return_status&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; integer;<br />&#160; &#160; v_tagdata&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; text;</p><p>ERROR:&#160; function crypto_1(text, text, integer, integer, integer, integer, integer, integer, text) does not exist<br />LINE 1: select crypto_1 ( v_data::text ,<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;^<br />HINT:&#160; No function matches the given name and argument types. You might need to add explicit type casts.</p><p>Est-ce que quelqu&#039;un a une idée sur le problème et comment le résoudre ?</p>]]></content>
+		<author>
+			<name><![CDATA[Majid Haitami]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7457</uri>
+		</author>
+		<updated>2017-03-29T16:46:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25136#p25136</id>
+	</entry>
+</feed>

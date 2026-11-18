@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / [Résolu] Problème avec le service Postgresql sur Debian 11]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=6244&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=6244"/>
+	<updated>2022-03-29T07:46:18Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=6244</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] Problème avec le service Postgresql sur Debian 11]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33339#p33339"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><p>Le soucis à l&#039;air réglé. J&#039;ai été modifié le fichier postgresql@.service dans :</p><br /><p>&#160; &#160; var/lib/systemd/system</p><br /><p>j&#039;avais déja cette ligne présente :</p><br /><p>&#160; &#160; After=network.target</p><br /><p>que j&#039;ai transformé sur vos conseils en :</p><br /><p>&#160; &#160; After=network-online.target</p><br /><p>Merci pour votre aide.</p>]]></content>
+		<author>
+			<name><![CDATA[GrosJambon33000]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9826</uri>
+		</author>
+		<updated>2022-03-29T07:46:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33339#p33339</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] Problème avec le service Postgresql sur Debian 11]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33338#p33338"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Et si j&#039;enlève 127.0.0.1 dans la conf et que je laisse uniquement l&#039;IP locale de mon serveur à savoir 192.168.1.2 ?</p></div></blockquote></div><p>Ca enlève celle qui répond et ça garde celle qui ne répond pas (enfin pas tout de suite) donc effectivement ça ne peut pas marcher.</p><p>Encore une fois, si le serveur est protégé de l&#039;extérieur,&#160; listen_addresses=* serait OK.</p><br /><p>Concernant systemd, je viens d&#039;essayer et comme prévu c&#039;est moins simple. Effectivement&#160; faire le changement dans postgresql.service ne semble pas marcher pour moi non plus.</p><p>Sur Debian/Ubuntu l&#039;unité systemd postgresql est en fait un lanceur et pas le service lui-même.<br />La vraie unité est générée pour chaque instance suivant le modèle dans /lib/systemd/postgresql@.service</p><p>Si dans la section [Unit] de ce fichier j&#039;ajoute </p><div class="codebox"><pre><code>After=network-online.target</code></pre></div><p> ça semble marcher pour moi avec une interface DHCP.&#160; Ceci sur un portable Ubuntu 18.04 qui a les mêmes packages Postgres que Debian à peu de choses près, donc que je pense que ce serait pareil sur Debian. A confirmer.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2022-03-28T20:33:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33338#p33338</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] Problème avec le service Postgresql sur Debian 11]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33337#p33337"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>dverite a écrit&#160;:</cite><blockquote><div><p>2) d&#039;une manière plus compliquée mais plus sûre en forçant postgres à attendre que les interfaces soient prêtes via systemd, sans changer listen_addresses.&#160; Il y a une réponse ici qui va dans ce sens:<br /><a href="https://stackoverflow.com/questions/62206481/postgresql12-3-wont-start-on-boot-systemd" rel="nofollow">https://stackoverflow.com/questions/622 … ot-systemd</a></p></div></blockquote></div><p>je viens de tester en rajoutant les 2 lignes :</p><br /><p>&#160; &#160; Wants=network-online.target<br />&#160; &#160; After=network.target network-online.target</p><br /><p>dans le fichier ./etc/systemd/system/multi-user.target.wants/postgresql.service dans la section [unit] mais toujours le même soucis au reboot du serveur.</p>]]></content>
+		<author>
+			<name><![CDATA[GrosJambon33000]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9826</uri>
+		</author>
+		<updated>2022-03-28T20:08:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33337#p33337</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] Problème avec le service Postgresql sur Debian 11]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33336#p33336"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>dverite a écrit&#160;:</cite><blockquote><div><p>Cette erreur ressemble effectivement à ce que je supposais en #2:</p><div class="codebox"><pre><code>2022-03-28 19:13:11.816 CEST [792] LOG:  n&#039;a pas pu lier IPv4 à l&#039;adresse « 192.168.1.2 » : Ne peut attribuer l&#039;adresse demandée
+    2022-03-28 19:13:11.816 CEST [792] ASTUCE :  Un autre postmaster fonctionne-t&#039;il déjà sur le port 5432 ?
+            Sinon, attendez quelques secondes et réessayez.
+    2022-03-28 19:13:11.817 CEST [792] ATTENTION:  n&#039;a pas pu créer le socket d&#039;écoute pour « 192.168.1.2 »</code></pre></div><p>dans le postgresql.conf, il doit y avoir une déclaration du style:</p><div class="codebox"><pre><code>  listen_addresses = 127.0.0.1,192.168.1.2</code></pre></div><p>Ca dit à postgres d&#039;écouter sur ces deux interfaces réseau. Le problème est que si 127.0.0.1 est bien accessible dès que postgres démarre au boot, 192.168.1.2 ne l&#039;est pas. </p><br /><p>Ca devrait pouvoir être corrigé, soit<br />1) de la manière la plus simple en mettant </p><div class="codebox"><pre><code>listen_addresses = * </code></pre></div><p> à la place. Le problème est que s&#039;il y a d&#039;autres interfaces réseau sur la machine, notamment ouvertes sur Internet, pour la sécurité c&#039;est mauvais. Le reste du monde peut joindre votre instance postgres au lieu que ce soit limité à votre réseau local.</p><br /><p>2) d&#039;une manière plus compliquée mais plus sûre en forçant postgres à attendre que les interfaces soient prêtes via systemd, sans changer listen_addresses.&#160; Il y a une réponse ici qui va dans ce sens:<br /><a href="https://stackoverflow.com/questions/62206481/postgresql12-3-wont-start-on-boot-systemd" rel="nofollow">https://stackoverflow.com/questions/622 … ot-systemd</a></p></div></blockquote></div><p>effectivement, je viens de voir ça dans le postgresql.conf.</p><p>Et si j&#039;enlève 127.0.0.1 dans la conf et que je laisse uniquement l&#039;IP locale de mon serveur à savoir 192.168.1.2 ?</p><br /><p>EDIT : je viens de tester et Postgresql ne démarre carrément pas du tout...</p>]]></content>
+		<author>
+			<name><![CDATA[GrosJambon33000]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9826</uri>
+		</author>
+		<updated>2022-03-28T19:44:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33336#p33336</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] Problème avec le service Postgresql sur Debian 11]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33335#p33335"/>
+		<content type="html"><![CDATA[<p>Cette erreur ressemble effectivement à ce que je supposais en #2:</p><div class="codebox"><pre><code>2022-03-28 19:13:11.816 CEST [792] LOG:  n&#039;a pas pu lier IPv4 à l&#039;adresse « 192.168.1.2 » : Ne peut attribuer l&#039;adresse demandée
+    2022-03-28 19:13:11.816 CEST [792] ASTUCE :  Un autre postmaster fonctionne-t&#039;il déjà sur le port 5432 ?
+            Sinon, attendez quelques secondes et réessayez.
+    2022-03-28 19:13:11.817 CEST [792] ATTENTION:  n&#039;a pas pu créer le socket d&#039;écoute pour « 192.168.1.2 »</code></pre></div><p>dans le postgresql.conf, il doit y avoir une déclaration du style:</p><div class="codebox"><pre><code>  listen_addresses = 127.0.0.1,192.168.1.2</code></pre></div><p>Ca dit à postgres d&#039;écouter sur ces deux interfaces réseau. Le problème est que si 127.0.0.1 est bien accessible dès que postgres démarre au boot, 192.168.1.2 ne l&#039;est pas. </p><br /><p>Ca devrait pouvoir être corrigé, soit<br />1) de la manière la plus simple en mettant </p><div class="codebox"><pre><code>listen_addresses = * </code></pre></div><p> à la place. Le problème est que s&#039;il y a d&#039;autres interfaces réseau sur la machine, notamment ouvertes sur Internet, pour la sécurité c&#039;est mauvais. Le reste du monde peut joindre votre instance postgres au lieu que ce soit limité à votre réseau local.</p><br /><p>2) d&#039;une manière plus compliquée mais plus sûre en forçant postgres à attendre que les interfaces soient prêtes via systemd, sans changer listen_addresses.&#160; Il y a une réponse ici qui va dans ce sens:<br /><a href="https://stackoverflow.com/questions/62206481/postgresql12-3-wont-start-on-boot-systemd" rel="nofollow">https://stackoverflow.com/questions/622 … ot-systemd</a></p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2022-03-28T19:40:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33335#p33335</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] Problème avec le service Postgresql sur Debian 11]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33334#p33334"/>
+		<content type="html"><![CDATA[<p>si je modifie mon fichier pg_hba.conf pour lui retirer la ligne :</p><br /><p>&#160; &#160; # IPv4 local connections:<br />&#160; &#160; host&#160; &#160; all&#160; &#160; &#160; &#160; &#160; &#160; &#160;all&#160; &#160; &#160; &#160; &#160; &#160; &#160;127.0.0.1/32&#160; &#160; &#160; &#160; &#160; &#160; md5</p><br /><p>et que je laisse uniquement les lignes concernant l&#039;IP local de mon serveur ainsi que les clients locaux, cela peut régler le soucis ?</p><br /><p>EDIT : j&#039;ai commenté la ligne dans le fichier cela n&#039;a pas arrangé le soucis.</p>]]></content>
+		<author>
+			<name><![CDATA[GrosJambon33000]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9826</uri>
+		</author>
+		<updated>2022-03-28T19:12:55Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33334#p33334</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] Problème avec le service Postgresql sur Debian 11]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33332#p33332"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>dverite a écrit&#160;:</cite><blockquote><div><p>Le plus probable est que l&#039;adresse réseau ne soit pas encore montée quand postgres démarre dans le contexte d&#039;un boot, et donc il n&#039;écoute pas dessus. Il faudrait regarder le log serveur (/var/log/postgresql/postgresql-13-main.log juste après un boot, si c&#039;est ça il y aura des messages d&#039;erreur à ce sujet.</p></div></blockquote></div><p>Merci de votre réponse.</p><br /><p>Voici le contenu des logs suite à un reboot du serveur : </p><br /><p>&#160; &#160; 2022-03-28 19:12:49.937 CEST [789] LOG:&#160; a reçu une demande d&#039;arrêt rapide<br />&#160; &#160; 2022-03-28 19:12:49.968 CEST [789] LOG:&#160; annulation des transactions actives<br />&#160; &#160; 2022-03-28 19:12:49.969 CEST [789] LOG:&#160; processus en tâche de fond « logical replication launcher » (PID 809) a quitté avec le code de sortie 1<br />&#160; &#160; 2022-03-28 19:12:49.972 CEST [804] LOG:&#160; arrêt en cours<br />&#160; &#160; 2022-03-28 19:12:50.133 CEST [789] LOG:&#160; le système de base de données est arrêté<br />&#160; &#160; 2022-03-28 19:13:11.771 CEST [792] LOG:&#160; démarrage de PostgreSQL 13.5 (Debian 13.5-0+deb11u1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 10.2.1-6) 10.2.1 20210110, 64-bit<br />&#160; &#160; 2022-03-28 19:13:11.772 CEST [792] LOG:&#160; en écoute sur IPv4, adresse « 127.0.0.1 », port 5432<br />&#160; &#160; 2022-03-28 19:13:11.816 CEST [792] LOG:&#160; n&#039;a pas pu lier IPv4 à l&#039;adresse « 192.168.1.2 » : Ne peut attribuer l&#039;adresse demandée<br />&#160; &#160; 2022-03-28 19:13:11.816 CEST [792] ASTUCE :&#160; Un autre postmaster fonctionne-t&#039;il déjà sur le port 5432 ?<br />&#160; &#160; &#160; &#160; &#160; &#160; Sinon, attendez quelques secondes et réessayez.<br />&#160; &#160; 2022-03-28 19:13:11.817 CEST [792] ATTENTION:&#160; n&#039;a pas pu créer le socket d&#039;écoute pour « 192.168.1.2 »<br />&#160; &#160; 2022-03-28 19:13:11.819 CEST [792] LOG:&#160; écoute sur la socket Unix « /var/run/postgresql/.s.PGSQL.5432 »<br />&#160; &#160; 2022-03-28 19:13:11.896 CEST [805] LOG:&#160; le système de bases de données a été arrêté à 2022-03-28 19:12:50 CEST<br />&#160; &#160; 2022-03-28 19:13:11.977 CEST [792] LOG:&#160; le système de bases de données est prêt pour accepter les connexions</p><br /><p>Merci d&#039;avance pour votre aide.</p>]]></content>
+		<author>
+			<name><![CDATA[GrosJambon33000]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9826</uri>
+		</author>
+		<updated>2022-03-28T17:16:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33332#p33332</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] Problème avec le service Postgresql sur Debian 11]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33331#p33331"/>
+		<content type="html"><![CDATA[<p>Le plus probable est que l&#039;adresse réseau ne soit pas encore montée quand postgres démarre dans le contexte d&#039;un boot, et donc il n&#039;écoute pas dessus. Il faudrait regarder le log serveur (/var/log/postgresql/postgresql-13-main.log juste après un boot, si c&#039;est ça il y aura des messages d&#039;erreur à ce sujet.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2022-03-28T16:52:54Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33331#p33331</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[[Résolu] Problème avec le service Postgresql sur Debian 11]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33330#p33330"/>
+		<content type="html"><![CDATA[<p>Bonjour, </p><br /><p>J&#039;espère ne pas me tromper de section afin d&#039;exposer mon problème.</p><br /><p>J&#039;ai un serveur perso chez moi avec Debian 11 (totalement à jour) et Postgresql 13.</p><p>J&#039;ai installé sur ce serveur quelques applications qui utilisent postgresql (Nextcloud, Wallabag, ..) et je développe aussi un peu de SQL depuis mes pc clients sur mon LAN. </p><p>Le soucis est que lorsque je dois redémarrer mon serveur pour une raison X ou Y, mon instance postgresql n&#039;est pas accessible immédiatement après le boot.</p><br /><p>je précise que j&#039;ai bien entendu enable le service avec ces 2 commandes :</p><p>&#160; &#160; sudo systemctl enable postgresql</p><p>&#160; &#160; sudo update-rc.d postgresql enable</p><br /><p>rien à y faire, après un reboot mon instance n&#039;est pas accessible par mes applications ou par moi-même lorsque je veux développer. DBeaver me renvoie cette erreur par exemple :</p><p>&#160; &#160; &#160;Connection to server_ip:port refused. Check that the hostname and port are correct and that the postmaster is accepting TCP/IP connections.</p><br /><p>La seule chose que j&#039;ai a faire pour pouvoir rendre mon instance accessible est </p><p>&#160; &#160; sudo systemctl restart postgresql</p><br /><p>Mon fichier start.conf présent dans /etc/postgresql/13/main/ est bien remplie avec la valeur &quot;auto&quot;.</p><br /><p>Et lorsque je reboot mon serveur et que je controle juste après le statut du service postgres j&#039;ai ça en retour :</p><br /><p>&#160; &#160; postgresql.service - PostgreSQL RDBMS<br />&#160; &#160; &#160; &#160; &#160;Loaded: loaded (/lib/systemd/system/postgresql.service; enabled; vendor preset: enabled)<br />&#160; &#160; &#160; &#160; &#160;Active: active (exited) since Mon 2022-03-28 12:48:30 CEST; 2min 10s ago<br />&#160; &#160; &#160; &#160; &#160;Process: 958 ExecStart=/bin/true (code=exited, status=0/SUCCESS)<br />&#160; &#160; &#160; &#160; &#160;Main PID: 958 (code=exited, status=0/SUCCESS)<br />&#160; &#160; &#160; &#160; &#160;CPU: 1ms</p><br /><p>Il faut que je &quot;restart&quot; le service pour que mes applications (et moi-même) puissent accéder à mes bases. </p><br /><p>Je ne sais vraiment pas ou chercher, et je tourne en ronds depuis quelques semaines.</p><br /><p>Merci d&#039;avance pour l&#039;aide que vous pourrez m&#039;apporter.</p>]]></content>
+		<author>
+			<name><![CDATA[GrosJambon33000]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9826</uri>
+		</author>
+		<updated>2022-03-28T16:29:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33330#p33330</id>
+	</entry>
+</feed>

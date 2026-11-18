@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Migration 9.5 vers 9.6 - pas de demarrage du service sous Archlinux]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4015&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4015"/>
+	<updated>2016-12-07T09:41:27Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4015</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Migration 9.5 vers 9.6 - pas de demarrage du service sous Archlinux]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24367#p24367"/>
+		<content type="html"><![CDATA[<p>Je comprends. Maintenant 2 points :<br />- j&#039;utilise Archlinux car c&#039;est la seule distribution qui fonctionne sur mon serveur (Ubuntu et Debian sont trop lourdes, elles ont plante a l&#039;installation)<br />- j&#039;ai une serveur nginx, php qui est operationnel </p><p>Je devrais peut etre changer de SGBD Mysql (qui etait mon premier choix) En tout cas je vous remercie pour votre aide patiente et precieuse. Desole de vous avoir deranger pour des choses aussi triviales.</p>]]></content>
+		<author>
+			<name><![CDATA[tonio_31]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7102</uri>
+		</author>
+		<updated>2016-12-07T09:41:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24367#p24367</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Migration 9.5 vers 9.6 - pas de demarrage du service sous Archlinux]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24366#p24366"/>
+		<content type="html"><![CDATA[<p>C&#039;est, comme cela semble logique, la ligne FATAL qui est importante. Et qui vous dit que les droits ne sont pas bons. Il faut que les droits de /var/lib/postgres/data-9.5 soient 0700.</p><p>De façon plus générale, je pense que vous devriez reconsidérer votre choix d&#039;archlinux: la distribution s&#039;adresse à des utilisateurs expérimentés. Mon but n&#039;est pas d&#039;être vexant, simplement, vous allez avoir de nombreuses galères similaires avec la distribution si vous n&#039;êtes pas déjà très à l&#039;aise avec les systèmes Unix: la plupart des mises à jour majeures de logiciels se passent de cette façon, voire pire (la migration vers python3 ou vers systemd ont été complexes par exemple).</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2016-12-07T08:07:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24366#p24366</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Migration 9.5 vers 9.6 - pas de demarrage du service sous Archlinux]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24365#p24365"/>
+		<content type="html"><![CDATA[<p>J&#039;aurais du y penser. Bref j&#039;ai change le proprietaire du fichier. Voila la log :</p><p>LOG:&#160; skipping missing configuration file &quot;/var/lib/postgres/data-9.5/postgresql.auto.conf&quot;<br />FATAL:&#160; data directory &quot;/var/lib/postgres/data-9.5&quot; has group or world access<br />DETAIL:&#160; Permissions should be u=rwx (0700).</p><p>Je n&#039;ai pas modifie les permissions. Et maintenant on parle d&#039;un fichier postgresql.auto.conf...</p>]]></content>
+		<author>
+			<name><![CDATA[tonio_31]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7102</uri>
+		</author>
+		<updated>2016-12-06T20:40:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24365#p24365</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Migration 9.5 vers 9.6 - pas de demarrage du service sous Archlinux]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24364#p24364"/>
+		<content type="html"><![CDATA[<p>Dans ce cas, c&#039;est que le propriétaire du fichier n&#039;est pas le bon.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2016-12-06T20:28:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24364#p24364</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Migration 9.5 vers 9.6 - pas de demarrage du service sous Archlinux]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24363#p24363"/>
+		<content type="html"><![CDATA[<p>Quand j&#039;execute la commande, voila ce qui est repondu :<br />[tonio@tonio-server tmp]$ &quot;/opt/pgsql-9.5/bin/pg_ctl&quot; -w -l &quot;pg_upgrade_server.log&quot; -D &quot;/var/lib/postgres/data-9.5&quot; -o &quot;-p 50432 -b&#160; -c listen_addresses=&#039;&#039; -c unix_socket_permissions=0700 -c unix_socket_directories=&#039;/var/lib/postgres/data-9.5/global&#039;&quot; start</p><p>waiting for server to start.... stopped waiting<br />pg_ctl: could not start server<br />Examine the log output.</p><p>Quand j&#039;examine la log :<br />LOG:&#160; could not open configuration file &quot;/var/lib/postgres/data-9.5/postgresql.conf&quot;: Permission non accordée<br />FATAL:&#160; configuration file &quot;/var/lib/postgres/data-9.5/postgresql.conf&quot; contains errors</p><p>J&#039;ai donc fait un chmod 700 sur le fichier mais j&#039;ai toujours la meme erreur.</p>]]></content>
+		<author>
+			<name><![CDATA[tonio_31]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7102</uri>
+		</author>
+		<updated>2016-12-06T20:11:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24363#p24363</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Migration 9.5 vers 9.6 - pas de demarrage du service sous Archlinux]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24362#p24362"/>
+		<content type="html"><![CDATA[<p>Essayez de lancer la commande pg_ctl du bas de votre message et regardez ce qu&#039;elle répond.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2016-12-06T17:10:02Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24362#p24362</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Migration 9.5 vers 9.6 - pas de demarrage du service sous Archlinux]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24361#p24361"/>
+		<content type="html"><![CDATA[<p>C&#039;est cela le plus etrange, il n&#039;y a rien a part la date et heure de l&#039;execution du programme. Je ne peux donc pas pointer l&#039;erreur.</p>]]></content>
+		<author>
+			<name><![CDATA[tonio_31]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7102</uri>
+		</author>
+		<updated>2016-12-06T16:41:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24361#p24361</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Migration 9.5 vers 9.6 - pas de demarrage du service sous Archlinux]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24359#p24359"/>
+		<content type="html"><![CDATA[<p>Très étrange, ça laisse entendre que pg_upgrade n&#039;arrive pas à reconnaître le fichier de contrôle de l&#039;ancienne instance.</p><p>Qu&#039;y a t&#039;il dans le fichier pg_upgrade_server.log ?</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2016-12-06T13:11:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24359#p24359</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Migration 9.5 vers 9.6 - pas de demarrage du service sous Archlinux]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24358#p24358"/>
+		<content type="html"><![CDATA[<p>Bon j&#039;ai resolu le probleme PG_VERSION&gt; Maintenant j&#039;ai une erreur plus embetante :</p><p>[tonio@tonio-server global]$ pg_upgrade -b /opt/pgsql-${FROM_VERSION}/bin/ -B /usr/bin/ -d /var/lib/postgres/data-${FROM_VERSION} -D /var/lib/postgres/data<br />Performing Consistency Checks<br />-----------------------------<br />Checking cluster versions&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;ok<br />pg_resetxlog: pg_control exists but is broken or unknown version; ignoring it</p><p>*failure*<br />Consult the last few lines of &quot;pg_upgrade_server.log&quot; for<br />the probable cause of the failure.</p><p>connection to database failed: could not connect to server: No such file or directory<br />&#160; &#160; Is the server running locally and accepting<br />&#160; &#160; connections on Unix domain socket &quot;/var/lib/postgres/data-9.5/global/.s.PGSQL.50432&quot;?</p><br /><p>could not connect to old postmaster started with the command:<br />&quot;/opt/pgsql-9.5/bin/pg_ctl&quot; -w -l &quot;pg_upgrade_server.log&quot; -D &quot;/var/lib/postgres/data-9.5&quot; -o &quot;-p 50432 -b&#160; -c listen_addresses=&#039;&#039; -c unix_socket_permissions=0700 -c unix_socket_directories=&#039;/var/lib/postgres/data-9.5/global&#039;&quot; start<br />Failure, exiting</p><p>La log ne me donne rien. Je ne comprend pas pourquoi il n&#039;arrive pas a lancer le postmaster.</p>]]></content>
+		<author>
+			<name><![CDATA[tonio_31]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7102</uri>
+		</author>
+		<updated>2016-12-06T11:48:54Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24358#p24358</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Migration 9.5 vers 9.6 - pas de demarrage du service sous Archlinux]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24357#p24357"/>
+		<content type="html"><![CDATA[<p>Oups ! desole je n&#039;avais pas vu le premier point de la section troubleshooting. Je peux executer le pg_upgrade mais il s&#039;arrete avec le message suivant : </p><p>Performing Consistency Checks<br />-----------------------------<br />Checking cluster versions&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;<br />could not open version file: /var/lib/postgres/data/PG_VERSION<br />Failure, exiting</p><p>J&#039;ai bien un fichier PG_VERSION aussi je ne comprends pas pourquoi il ne peut pas l&#039;ouvrir.</p>]]></content>
+		<author>
+			<name><![CDATA[tonio_31]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7102</uri>
+		</author>
+		<updated>2016-12-06T10:11:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24357#p24357</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Migration 9.5 vers 9.6 - pas de demarrage du service sous Archlinux]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24355#p24355"/>
+		<content type="html"><![CDATA[<p>Bon j&#039;ai lance les commandes une a une. Je suis arrete sur la derniere ligne avec pg_upgrade car j&#039;ai le message suivant : cannot write to log file pg_upgrade_internal.log<br />. Je ne sais pas ou pg_upgrade ecrit ses logs. Je suis donc bloque.</p>]]></content>
+		<author>
+			<name><![CDATA[tonio_31]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7102</uri>
+		</author>
+		<updated>2016-12-06T09:52:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24355#p24355</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Migration 9.5 vers 9.6 - pas de demarrage du service sous Archlinux]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24354#p24354"/>
+		<content type="html"><![CDATA[<p>Je viens de le retester, la procédure fonctionne parfaitement.</p><p>Soit vous créez un script upgrade_pg.sh, et copiez dedans le contenu, soit vous positionnez en ligne de commande:</p><p>export FROM_VERSION=9.5</p><p>puis vous lancez les commandes une à une (à partir de la commande pacman)</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2016-12-06T06:32:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24354#p24354</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Migration 9.5 vers 9.6 - pas de demarrage du service sous Archlinux]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24353#p24353"/>
+		<content type="html"><![CDATA[<p>Merci pour cette reponse rapide. Je n&#039;ai pas le script d&#039;upgrade propose par le wiki. Quand bien meme je l&#039;aurais je ne peux executer su postgres etant donne que la version installee est la 9.6 et elle plante. Je dois manquer une etape, c&#039;est pour cela que je demande de l&#039;aide.</p>]]></content>
+		<author>
+			<name><![CDATA[tonio_31]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7102</uri>
+		</author>
+		<updated>2016-12-05T21:05:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24353#p24353</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Migration 9.5 vers 9.6 - pas de demarrage du service sous Archlinux]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24352#p24352"/>
+		<content type="html"><![CDATA[<p>c&#039;est bien cela. il faut lancer le script d&#039;upgrade (après avoir migré votre configuration si vous aviez fait du paramétrage spécifique).</p><p>Cela va vous créer une nouvelle instance en 9.6 à la place de l&#039;ancienne, et migrer les fichiers de données dedans. Ça devrait être très rapide</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2016-12-05T17:10:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24352#p24352</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Migration 9.5 vers 9.6 - pas de demarrage du service sous Archlinux]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24351#p24351"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je suis un debutant sur Postgresql. J&#039;ai installe avec succes la version 9.5 sous Archlinux pour faire tourner un serveur nginx, php, postgresql. J&#039;en suis pleinement satisfait. Malheureusement, la mise a jour vers la 9.6 a fait planter le service postgreqsl. Le message d&#039;erreur est le suivant :</p><p>déc. 05 17:42:26 tonio-server postgres[22308]: An old version of the database format was found.<br />déc. 05 17:42:26 tonio-server postgres[22308]: See <a href="https://wiki.archlinux.org/index.php/PostgreSQL#Upgrading_PostgreSQL" rel="nofollow">https://wiki.archlinux.org/index.php/Po … PostgreSQL</a><br />déc. 05 17:42:26 tonio-server systemd[1]: postgresql.service: Control process exited, code=exited status=1<br />déc. 05 17:42:26 tonio-server systemd[1]: Failed to start PostgreSQL database server.<br />-- Subject: L&#039;unité (unit) postgresql.service a échoué</p><p>J&#039;ai donc suivi le tuto donne en lien dans le message d&#039;erreur,&#160; <a href="https://wiki.archlinux.org/index.php/PostgreSQL#Upgrading_PostgreSQL" rel="nofollow">https://wiki.archlinux.org/index.php/Po … PostgreSQL</a>. J&#039;avoue que je suis perdu dans les instructions donnees. Je fais donc appel a la communaute pour m&#039;aider dans la migration. Quelles sont les etapes a respecter ?</p><p>Merci par avance.<br />Antoine</p>]]></content>
+		<author>
+			<name><![CDATA[tonio_31]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7102</uri>
+		</author>
+		<updated>2016-12-05T16:47:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24351#p24351</id>
+	</entry>
+</feed>

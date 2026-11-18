@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Sauvegarde à chaud pg_start_backup et mode mode archive "lite"]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4387&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4387"/>
+	<updated>2017-09-25T09:22:45Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4387</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Sauvegarde à chaud pg_start_backup et mode mode archive "lite"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26115#p26115"/>
+		<content type="html"><![CDATA[<p>En fait, nous passons par un logiciel de sauvegarde (Simpana de Comvault) et c&#039;est lui qui doit sauvegarder les données pour pouvoir bénéficier des avantages de la déduplication. Donc nous devons passer par pg_start_backup et pg_stop_backup.<br />Pour les modes de sauvegardes et restaurations, je suis d&#039;accord mais il nous manquait la possibilité de faire des sauvegardes à chaud sans journalisation.</p>]]></content>
+		<author>
+			<name><![CDATA[philwood]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=584</uri>
+		</author>
+		<updated>2017-09-25T09:22:45Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26115#p26115</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Sauvegarde à chaud pg_start_backup et mode mode archive "lite"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26111#p26111"/>
+		<content type="html"><![CDATA[<p>Ça paraît logique de n&#039;avoir qu&#039;une seule méthode de sauvegarde. Beaucoup plus simple et moins stressant quand une base doit être restaurée en urgence.</p><p>Une autre solution à votre problème serait d&#039;utiliser pg_basebackup avec l&#039;option -x.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2017-09-23T12:16:39Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26111#p26111</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Sauvegarde à chaud pg_start_backup et mode mode archive "lite"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26110#p26110"/>
+		<content type="html"><![CDATA[<p>Ah oui, effectivement, si l&#039;on peut changer archive command à chaud ... c&#039;est encore plus simple !! Ca ne m&#039;était même pas venu à l&#039;esprit ! Je vais tester ça.</p><p>Quand au pg_dump, l&#039;idée est d’avoir un seul mode de sauvegarde (et de restauration) pour toutes nos bases, surtout celle avec une grosse volumétrie. Mais si il n&#039;en tenait qu&#039;à moi ...</p>]]></content>
+		<author>
+			<name><![CDATA[philwood]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=584</uri>
+		</author>
+		<updated>2017-09-22T21:35:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26110#p26110</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Sauvegarde à chaud pg_start_backup et mode mode archive "lite"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26109#p26109"/>
+		<content type="html"><![CDATA[<p>Il n&#039;est en effet pas possible de modifier archive_mode sans redémarrer le serveur. Par contre, il est possible de le faire pour archive_command. Si vous remplacez l&#039;archive_command par &#039;true&#039; par exemple, PostgreSQL pensera avoir archivé le journal de transactions alors que non.</p><p>Ceci étant dit, pourquoi ne pas utiliser pg_dump dans ce cas ? ce serait plus simple.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2017-09-22T17:39:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26109#p26109</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Sauvegarde à chaud pg_start_backup et mode mode archive "lite"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26103#p26103"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous, j&#039;ai été confronté à une base de données qui journalisait énormément (plus de 100 Go de log par jours) et pour rien, car l&#039;application pouvait très bien se contenter d&#039;une restauration à j-1.<br />Nous étions contraint d&#039;activer la journalisation uniquement pour faire des sauvegardes à chaud, la base ne pouvant pas être arrêtée.</p><p>J&#039;ai donc réfléchi à comment activer la journalisation uniquement pendant la phase de pg_start_backup et pg_stop_backup mais comme vous le savez déjà, il faut redémarrer l&#039;instance pour pouvoir prendre en compte le paramètre &quot;archive_mode&quot;.</p><p>J&#039;ai donc crée un fichier tag &quot;backup_in_progress&quot; avant chaque backup, ce qui me permet d&#039;archiver les journaux qui seront strictement nécessaire à la restauration de l&#039;instance. Une fois le backup des datas terminé, je supprime le fichier tag et je sauvegarde mes logs.<br />Ca se traduit par ça dans ma ligne de commande d&#039;archivage : <br />archive_command = &#039;test -f /var/lib/pgsql/var/log/backup_in_progress &amp;&amp; gzip &lt; %p &gt; /var/lib/pgsql/var/journaux/%f || cp %p /dev/null &#039;</p><p>J&#039;ai fait des tests de sauvegardes restaurations, ça fonctionne très bien pour une restauration &quot;à la date du dernier backup&quot;. </p><p>J&#039;aimerais généraliser cette solution pour les mêmes cas de figures (base avec des besoins de haute dispo mais sans besoin de journalisation). On retrouverait ainsi le mode de fonctionnement de SQL Server qui permet de faire de la sauvegarde à chaud sans journaliser les logs.</p><p>Est ce que vous voyez des effets de bords potentielles auquel je n&#039;aurais pas pensé ?</p>]]></content>
+		<author>
+			<name><![CDATA[philwood]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=584</uri>
+		</author>
+		<updated>2017-09-22T09:34:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26103#p26103</id>
+	</entry>
+</feed>

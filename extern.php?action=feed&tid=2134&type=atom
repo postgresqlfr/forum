@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / pg_lsclusters n'affiche rien]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2134&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2134"/>
+	<updated>2012-06-29T15:37:48Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2134</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pg_lsclusters n'affiche rien]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14423#p14423"/>
+		<content type="html"><![CDATA[<p>C&#039;est ok . J&#039;avais mis md5 pour tout le monde dans pg_hba.conf . J&#039;ai mis peer pour postgres en local, tout est parfait maintenant.<br />Je pense que le travail effectué sera utile lors de la migration en 9.2, si j&#039;ai bien compris l&#039;intérêt de l&#039;architecture multi-cluster.<br />Sur ma lancée, je vais peut-être essayer la réplication <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" />))</p>]]></content>
+		<author>
+			<name><![CDATA[MitsuTomoe]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1680</uri>
+		</author>
+		<updated>2012-06-29T15:37:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14423#p14423</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pg_lsclusters n'affiche rien]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14416#p14416"/>
+		<content type="html"><![CDATA[<p>Il ne faut pas confondre l&#039;authentification du démarrage du serveur (utilisateur système) et l&#039;accès aux bases (rôles postgresql). Le fichier .pgpass ne sert qu&#039;à fournir un mot de passes aux binaires clients (psql etc) sur un ou plusieurs rôles de connexion.</p><br /><p>Quel est le message affiché lors du démarrage du cluster ?</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2012-06-29T14:12:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14416#p14416</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pg_lsclusters n'affiche rien]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14412#p14412"/>
+		<content type="html"><![CDATA[<p>C&#039;est (presque) ok :<br />pg_lsclusters<br />Version Cluster&#160; &#160;Port Status Owner&#160; &#160; Data directory&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Log file<br />9.1&#160; &#160; &#160;main&#160; &#160; &#160; 5432 online postgres /var/lib/postgresql/9.1/main&#160; &#160; &#160; &#160;/var/log/postgresql/postgresql-9.1-main.log</p><p>Le seul (petit) souci est que j&#039;ai une erreur d&#039;authentification sur postgres quand je démarre le cluster, mais il passe online quand même.<br />Le password de postgres est dans .pgpass . J&#039;ai regardé dans /usr/bin/pg_ctlcluster, et la même commande (psql -h ... -p xxx -l ) fonctionne en interactif.</p>]]></content>
+		<author>
+			<name><![CDATA[MitsuTomoe]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1680</uri>
+		</author>
+		<updated>2012-06-29T13:52:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14412#p14412</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pg_lsclusters n'affiche rien]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14405#p14405"/>
+		<content type="html"><![CDATA[<p>Pour le démarrage, j&#039;ai un script dans /etc/init.d que j&#039;ai récupéré dans postgresql-contrib . Suite à vos explications, je crois que je comprend mieux maintenant.<br />Si je trouve du temps, j&#039;essaierai de faire ça bien propre. <br />Merci pour votre aide, je pose beaucoup de questions ces temps ci, mais je débute. <br />J&#039;espère apporter ma contribution à la communauté quand j&#039;aurai plus de kms sur Postgres.<br />PS : j&#039;ai découvert l&#039;outil apgdiff, c&#039;est parfait pour synchroniser dev/prod.</p>]]></content>
+		<author>
+			<name><![CDATA[MitsuTomoe]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1680</uri>
+		</author>
+		<updated>2012-06-29T12:21:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14405#p14405</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pg_lsclusters n'affiche rien]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14402#p14402"/>
+		<content type="html"><![CDATA[<p>pg_lsclusters vous affichera les clusters qu&#039;il aura démarré.<br />Comment avez-vous démarré cette instance ?</p><br /><p>Je ne connais pas très bien les outils ubuntu, mais je pense qu&#039;il doit y avoir une étape pg_createcluster, avec le cluster main qui doit être créé par défaut lors du apt-get. C&#039;est pour ça qu&#039;il faudrait d&#039;abord créer/démarrer une instance via les outils ubuntu, puis déplacer le répertoire data vers celui du cluster pour déplacer toutes les données et rester ensuite standard avec ubuntu.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2012-06-29T09:39:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14402#p14402</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pg_lsclusters n'affiche rien]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14401#p14401"/>
+		<content type="html"><![CDATA[<p>J&#039;ai fait le déplacement, ça marche nickel sauf que pg_lsclusters ne m&#039;affiche toujours rien...</p><p> pg_ctl status<br />pg_ctl: server is running (PID: 938)<br />/usr/lib/postgresql/9.1/bin/postgres &quot;-D&quot; &quot;/var/lib/postgresql/9.1/main&quot;<br />postgres@sd-16433:~$ pg_lsclusters<br />Version Cluster&#160; &#160;Port Status Owner&#160; &#160; Data directory&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Log file<br />postgres@sd-16433:~$ pg_ctlcluster 9.1 main reload<br />Error: specified cluster does not exist</p><p>Je crois que je vais laisser tomber, mais ça m&#039;ennuie de ne pas comprendre.</p>]]></content>
+		<author>
+			<name><![CDATA[MitsuTomoe]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1680</uri>
+		</author>
+		<updated>2012-06-29T08:17:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14401#p14401</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pg_lsclusters n'affiche rien]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14391#p14391"/>
+		<content type="html"><![CDATA[<p>merci je vais essayer (après une sauvegarde), j&#039;aimerais que ce soit propre avant qu&#039;il y ait de l&#039;affluence sur le site, dans 1 mois je ne pourrai plus le faire (enfin disons que je n&#039;oserai pas)</p>]]></content>
+		<author>
+			<name><![CDATA[MitsuTomoe]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1680</uri>
+		</author>
+		<updated>2012-06-28T20:41:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14391#p14391</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pg_lsclusters n'affiche rien]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14390#p14390"/>
+		<content type="html"><![CDATA[<p>Vous pouvez effectivement faire comme ça, sinon comme la version majeure est la même, le déplacement du contenu entier du répertoire data suffira. Si vous voulez le faire : il faut éteindre ce serveur, démarrer via pg_cluster voir si tout se passe bien, éteindre le serveur via pg_cluster et déplacer les données de /var/lib/postgresql/data vers /var/lib/postgresql/9.1/main</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2012-06-28T20:33:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14390#p14390</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pg_lsclusters n'affiche rien]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14389#p14389"/>
+		<content type="html"><![CDATA[<p>C&#039;est le 1er serveur que j&#039;ai installé, je ne connaissais ni Ubuntu ni Postgres, j&#039;ai du faire des c* . <br />Pour me remettre dans les clous, je suppose qu&#039;il faudrait faire un pg_dumpall , virer le cluster existant et en recréer un au bon endroit ?</p>]]></content>
+		<author>
+			<name><![CDATA[MitsuTomoe]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1680</uri>
+		</author>
+		<updated>2012-06-28T20:15:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14389#p14389</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pg_lsclusters n'affiche rien]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14388#p14388"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />je pense que vous avez fait un &quot;script maison&quot; pour votre serveur de prod, car son répertoire data n&#039;est pas standard pour ubuntu. Soit le serveur est lancé avec un pg_ctl -D /var/lib/postgresql/data, soit vous avez créé un script pour le lancer au démarrage.<br />Cela n&#039;est pas plus gênant que ça cela dit. Si vous voulez restez standard, vous pouvez toujours le remettre dans le répertoire standard en vérifiant que pg_ctlcluster puisse bien se lancer etc (problème de port à prévoir si les 2 serveurs tournent en parallèle).</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2012-06-28T19:43:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14388#p14388</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[pg_lsclusters n'affiche rien]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14387#p14387"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />je m&#039;occupe de 2 serveurs, dev et prod, que je croyais avoir installé à l&#039;identique (Ubuntu 12.04, Pg 9.1.4) .<br />Sur la prod : <br />postgres@sd-16433:~$ pg_lsclusters<br />Version Cluster&#160; &#160;Port Status Owner&#160; &#160; Data directory&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Log file<br />postgres@sd-16433:~$ pg_ctl status<br />pg_ctl: server is running (PID: 2003)<br />/usr/lib/postgresql/9.1/bin/postgres &quot;-D&quot; &quot;/var/lib/postgresql/data&quot;<br />postgres@sd-16433:~$ </p><p>Sur le dev : <br />postgres@ks3001539:~$ pg_lsclusters<br />Version Cluster&#160; &#160;Port Status Owner&#160; &#160; Data directory&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Log file<br />9.1&#160; &#160; &#160;main&#160; &#160; &#160; 5432 online postgres /var/lib/postgresql/9.1/main&#160; &#160; &#160; &#160;/var/log/postgresql/postgresql-9.1-main.log<br />postgres@ks3001539:~$ pg_ctl status<br />pg_ctl: server is running (PID: 6472)<br />/usr/lib/postgresql/9.1/bin/postgres &quot;-D&quot; &quot;/var/lib/postgresql/9.1/main&quot; &quot;-c&quot; &quot;config_file=/etc/postgresql/9.1/main/postgresql.conf&quot;</p><br /><p>Pourquoi pg_lsclusters ne m&#039;affiche rien en prod ? pg_ctl et pg_dump fonctionnent très bien.</p>]]></content>
+		<author>
+			<name><![CDATA[MitsuTomoe]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1680</uri>
+		</author>
+		<updated>2012-06-28T19:16:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14387#p14387</id>
+	</entry>
+</feed>

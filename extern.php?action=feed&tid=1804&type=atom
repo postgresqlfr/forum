@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Garder INTEGER comme type boolean]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1804&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1804"/>
+	<updated>2011-12-22T15:50:16Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1804</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Garder INTEGER comme type boolean]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12210#p12210"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>ofthestreet a écrit&#160;:</cite><blockquote><div><p>:&#039;( bouh bouh, va falloir modifier du code pour se connecter à postgresql malgré une compatibilité avec h2/sybase/oracle/sqlserver</p></div></blockquote></div><p>Le code cité en exemple ne passe pas sous oracle non plus:</p><div class="codebox"><pre><code>SQL&gt; create table Tutu (isNull_ INTEGER);
+
+Table created.
+
+SQL&gt; insert into Tutu  Values(false);
+insert into Tutu  Values(false)
+                         *
+ERROR at line 1:
+ORA-00984: column not allowed here</code></pre></div><p>Autant pour la compatibilité inter-SGBD, le principe d&#039;utiliser des entiers au lieu des booléens se tient tout à fait, autant une fois qu&#039;on a fait ce choix, que vient faire le mot clef false dans une requête? C&#039;est lui qui n&#039;est pas supporté par tous les SGBDs, et&#160; plus généralement le concept de valeur booléenne en SQL (select 1=1 from dual ne fonctionne pas non plus)</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2011-12-22T15:50:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12210#p12210</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Garder INTEGER comme type boolean]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12209#p12209"/>
+		<content type="html"><![CDATA[<p>Il ne s&#039;agit pas d&#039;emmerdes sans nom. Le nom de l&#039;emmerde est &quot;operator is not unique&quot;, comme l&#039;explique Tom Lane dans ce mail (et beaucoup d&#039;autres, c&#039;est une question qui revient régulièrement) <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>Bref, comme je disais au dessus: ça résout le problème, mais ça peut en créer d&#039;autres (tordus). D&#039;où le choix de quand même poster la «solution« ici, mais avec un gros avertissement.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-12-22T10:44:50Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12209#p12209</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Garder INTEGER comme type boolean]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12208#p12208"/>
+		<content type="html"><![CDATA[<p>Hi tom lane,</p><p>j&#039;ai vu ta remarque (<a href="http://archives.postgresql.org/pgsql-general/2011-01/msg00866.php" rel="nofollow">http://archives.postgresql.org/pgsql-ge … g00866.php</a>) comme quoi c&#039;est pas bien de modifier les tables internes de postgres, mais avec une conversion implicite à l&#039;assignement faite par update de la table pg_cast, ca me permet d&#039;utiliser false et true sur des integers :</p><p>-- <a href="http://docs.postgresql.fr/8.4/catalog-pg-cast.html" rel="nofollow">http://docs.postgresql.fr/8.4/catalog-pg-cast.html</a><br />update pg_cast set castcontext = &#039;a&#039; where oid in (<br />select c.oid&#160; &#160;<br />from pg_cast c<br />inner join pg_type src on src.oid = c.castsource<br />inner join pg_type tgt on tgt.oid = c.casttarget<br />where src.typname = &#039;bool&#039; and tgt.typname = &#039;int4&#039;);</p><p>drop table Tutu;<br />create table Tutu (isNull_ INTEGER);<br />insert into Tutu&#160; Values(false);</p><p>Vais je au devant d&#039;emmerde sans nom ? <img src="http://forums.postgresql.fr/img/smilies/hmm.png" width="15" height="15" alt="hmm" /></p>]]></content>
+		<author>
+			<name><![CDATA[ofthestreet]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1500</uri>
+		</author>
+		<updated>2011-12-22T10:37:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12208#p12208</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Garder INTEGER comme type boolean]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12207#p12207"/>
+		<content type="html"><![CDATA[<p>Oui, ça n&#039;annule pas le contrat de support <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>Si vous avez des bizarreries dans des requêtes, il faudra toujours garder à l&#039;esprit que vous avez fait cette manipulation, et essayer de reproduire le problème sans.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-12-22T10:29:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12207#p12207</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Garder INTEGER comme type boolean]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12206#p12206"/>
+		<content type="html"><![CDATA[<p>Par &quot;non supporté&quot;, Marc veut dire : s&#039;il vous arrive des bricoles à cause de ça, vous ne pouvez vous en prendre qu&#039;à vous-même.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-12-22T10:26:39Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12206#p12206</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Garder INTEGER comme type boolean]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12203#p12203"/>
+		<content type="html"><![CDATA[<p>Bon, méthode de «gourou», non supportée parce qu&#039;on tripote directement une table système:</p><p>UPDATE pg_cast SET castcontext = &#039;i&#039; WHERE oid IN (<br />SELECT c.oid<br />FROM pg_cast c<br />inner join pg_type src ON src.oid = c.castsource<br />inner join pg_type tgt ON tgt.oid = c.casttarget<br />WHERE src.typname LIKE &#039;bool%&#039; AND tgt.typname LIKE &#039;int%&#039;<br />);</p><p>=&gt; Ça rend le cast de booleen vers entier implicite.</p><p>Après, insert into Tutu&#160; Values(cast(false as integer)); passe (0=false, 1=true)</p><p>Si on veut aussi un cast implicite dans l&#039;autre sens, il faut évidemment inverser le src et le tgt dans la requête.</p><p>Mais c&#039;est non supporté: on a fait un update sur une table système.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-12-22T09:54:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12203#p12203</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Garder INTEGER comme type boolean]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12202#p12202"/>
+		<content type="html"><![CDATA[<p>@flo<br />Ceci pose de cout de portage de code. <br />Tu me diras si le code est bien foutu, ceci devrait être concentré dans certaines classes.</p><p>N&#039;y a t il pas un setting de guru dans postgres qui permettrait de impliciter false à 0 et true à 1 ?<br />Comment fait postgres pour reconnaitre &#039;y&#039;, &#039;yes&#039;, &#039;true&#039;, &#039;t&#039;, 1 comme boolean ?<br />Si il est capable de faire ces cast de façon implicite ... ne pourrait on pas lui dire .. heu non non Mr Postgres,&#160; false, c&#039;est désormais l&#039;entier 1 ?</p>]]></content>
+		<author>
+			<name><![CDATA[ofthestreet]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1500</uri>
+		</author>
+		<updated>2011-12-22T09:50:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12202#p12202</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Garder INTEGER comme type boolean]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12200#p12200"/>
+		<content type="html"><![CDATA[<p>Je pense que je ferais comme toi si je devais développer un outil multi-bases. Mais comme je pense qu&#039;il n&#039;y a aucune bonne raison de faire ça, je ne risque pas de me poser la question <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-12-22T09:22:33Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12200#p12200</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Garder INTEGER comme type boolean]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12199#p12199"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>gleu a écrit&#160;:</cite><blockquote><div><p>Le SQL est un standard. L&#039;implémentation des différents moteurs, c&#039;est une autre histoire <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p></div></blockquote></div><p>Oui, ma remarque était purement pratique : quand on tombe dans ce genre de problème, comment faire pour que cela impacte le moins possible le code? (dans le cas où on ne supporte qu&#039;un moteur)</p><p>En pratique, pour ofthestreet qui doit gérer plusieurs moteurs dans le même code, si j&#039;ai bien compris, je ferais plutôt la conversion booléen &lt;-&gt; entiers dans le code de l&#039;application et je gèrerais tout avec des INTEGER en base. C&#039;est pas très beau, mais au moins ce sera le même code pour tous les moteurs.</p>]]></content>
+		<author>
+			<name><![CDATA[flo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=216</uri>
+		</author>
+		<updated>2011-12-22T09:16:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12199#p12199</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Garder INTEGER comme type boolean]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12197#p12197"/>
+		<content type="html"><![CDATA[<p>En fait, il y a une méthode un peu sataniste pour rendre les casts entre integer et boolean implicites, à base de mises à jour de catalogues systèmes. Mais c&#039;est toujours déconseillé de mettre à jour les tables systèmes (surtout pour rendre implicites des casts qui ne le sont pas en temps normal), et non supporté surtout.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-12-22T08:16:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12197#p12197</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Garder INTEGER comme type boolean]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12194#p12194"/>
+		<content type="html"><![CDATA[<p>Le SQL est un standard. L&#039;implémentation des différents moteurs, c&#039;est une autre histoire <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-12-21T20:12:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12194#p12194</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Garder INTEGER comme type boolean]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12193#p12193"/>
+		<content type="html"><![CDATA[<p>Il ne serait pas possible de modifier le nom de la table sous postgres, et d&#039;utiliser le nom original pour créer une vue qui casterait explicitement le type entier en booléen, et ensuite créer une règle ou un trigger sur insertion/modification avec encore une conversion explicite de booléen vers entier ?</p><p>Si le nombre de tables impactées est grand, ça peut être lourd à mettre en place mais ça éviterait de modifier le code ?</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2011-12-21T17:04:02Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12193#p12193</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Garder INTEGER comme type boolean]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12192#p12192"/>
+		<content type="html"><![CDATA[<p>:&#039;( bouh bouh, va falloir modifier du code pour se connecter à postgresql malgré une compatibilité avec h2/sybase/oracle/sqlserver<br />NOTE : pour mysql, c&#039;est une autre galère ... <img src="http://forums.postgresql.fr/img/smilies/sad.png" width="15" height="15" alt="sad" /> le sql c&#039;est vraiment pas un standard ...</p>]]></content>
+		<author>
+			<name><![CDATA[ofthestreet]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1500</uri>
+		</author>
+		<updated>2011-12-21T16:51:54Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12192#p12192</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Garder INTEGER comme type boolean]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12191#p12191"/>
+		<content type="html"><![CDATA[<p>Salut gleu,</p><p>C&#039;est un problème souvent rencontré lors des migrations j&#039;ai l&#039;impression (à partir de bases de données qui ne connaissent pas le type booléen, quel dommage...).<br />Du coup, on est obligé de réécrire toutes les requêtes.</p><p>Y&#039;a pas de truc ou d&#039;astuce alors? <br />(il me semble que le problème c&#039;est que le driver JDBC d&#039;Oracle convertit automatiquement les booléens en entiers, d&#039;où les problèmes de migration ensuite. À vérifier)</p>]]></content>
+		<author>
+			<name><![CDATA[flo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=216</uri>
+		</author>
+		<updated>2011-12-21T16:47:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12191#p12191</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Garder INTEGER comme type boolean]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12190#p12190"/>
+		<content type="html"><![CDATA[<p>Non et non. Un booléen n&#039;est pas un entier et inversement. Je comprends que ce serait plus simple ainsi mais ça apporte aussi son lot d&#039;erreurs. À partir de la version 8.3, PostgreSQL a considérablement renforcé le respect des types en supprimant un certain nombre de conversions implicites qui pouvaient se révéler dangereuses. D&#039;où le fait que la conversion booléen vers entier existe, mais pas de façon implicite.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-12-21T15:56:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12190#p12190</id>
+	</entry>
+</feed>

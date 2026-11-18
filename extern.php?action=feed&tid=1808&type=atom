@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Erreur "pg_query(): 5 is not a valid PostgreSQL link resource"]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1808&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1808"/>
+	<updated>2011-12-26T09:16:26Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1808</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Erreur "pg_query(): 5 is not a valid PostgreSQL link resource"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12225#p12225"/>
+		<content type="html"><![CDATA[<p>effectivement clore votre connexion avant de requeter c&#039;est pas le mieux <img src="http://forums.postgresql.fr/img/smilies/big_smile.png" width="15" height="15" alt="big_smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[kenrio]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=964</uri>
+		</author>
+		<updated>2011-12-26T09:16:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12225#p12225</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Erreur "pg_query(): 5 is not a valid PostgreSQL link resource"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12222#p12222"/>
+		<content type="html"><![CDATA[<p>Je crois qu&#039;il fallait que je poste mon problème pour enfin le trouver.<br />Je fermais la connexion à la base sans la rouvrir pour retaper dedans... Du coup il me ressortait cette erreur.</p><p>J&#039;ai fait une fonction connectionBdd() qui initialise $bdd pour pouvoir balancer ma commande sql avec pg_query puis fermer la connexion avec pg_close.</p><div class="codebox"><pre><code>function ListerLesDjs() {
+	
+        $bdd=connectionBdd();
+	$sql=&quot;SELECT id,nom,prenom,description,adresseinternet,numerotel,email,date_creation,date_derniere_modification FROM DJ ORDER BY id ASC;&quot;;
+	$res=pg_query($bdd,$sql);
+	pg_close($bdd);
+
+        ...</code></pre></div><div class="codebox"><pre><code>function connectionBdd() {
+			$login=&#039;****&#039;;
+			$pass=&#039;****&#039;;
+			$dbname=&#039;****&#039;;
+			$lehost=&#039;****&#039;;
+			$leport=****;
+
+			$bdd=pg_pconnect(&quot;host=$lehost port=$leport dbname=$dbname user=$login password=$pass&quot;);
+
+		// test de connexion :
+			if (!$bdd) {
+				echo(&quot;Problème de connexion à la base\n&quot;);
+				exit();
+			}
+			else {
+				return $bdd;
+			}
+}</code></pre></div><p>C&#039;était simple comme bonjour mais j&#039;avais pas vu.</p><p>Sur ce, je vais déballer mes cadeaux <img src="http://forums.postgresql.fr/img/smilies/wink.png" width="15" height="15" alt="wink" /></p>]]></content>
+		<author>
+			<name><![CDATA[Shipping LAN]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1505</uri>
+		</author>
+		<updated>2011-12-24T23:37:54Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12222#p12222</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Erreur "pg_query(): 5 is not a valid PostgreSQL link resource"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12221#p12221"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous et joyeux Noël à tout le monde <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>Après avoir passé 3 jours à éplucher le web, je n&#039;ai toujours pas trouver la solution à mon problème.</p><br /><p>Sur mon site, je souhaite afficher la liste de contacts et de DJs stockés dans ma base de données.<br />J&#039;ai donc une fonction ListerContacts et ListerDjs qui sont sensiblement équivalentes (seuls les noms de quelques variables et fonctions changent). Néanmoins, lors de l&#039;appel de la fonction ListerDjs, j&#039;ai cette erreur qui s&#039;affiche :<br /><span style="color: #FF0000"></p><div class="codebox"><pre><code>Warning: pg_query(): 5 is not a valid PostgreSQL link resource in /homez.***/***/***/***/sql/fonctionsBDD.php on line 204
+Warning: pg_close(): 5 is not a valid PostgreSQL link resource in /homez.***/***/***/***/sql/fonctionsBDD.php on line 205</code></pre></div><p></span></p><p>Voilà la fonction où est l&#039;erreur :</p><div class="codebox"><pre class="vscroll"><code>function ListerLesDjs($bdd) {
+	global $bdd;
+	
+	$sql=&quot;SELECT id,nom,prenom,description,adresseinternet,numerotel,email,date_creation,date_derniere_modification FROM DJ ORDER BY id ASC;&quot;;
+	$res=pg_query($bdd,$sql);
+	pg_close($bdd);
+	if(!$res) {
+	echo &quot;	La requête &quot;.$sql.&quot; a échouée...
+			&lt;br/&gt;&lt;br/&gt;
+			&lt;a href=&#039;javascript:history.go(-1)&#039;&gt;Retour&lt;/a&gt;&quot;;
+	}
+	$lignes = pg_numrows($res);
+	for($i=0; $i&lt;$lignes; $i++) {
+		$dj[$i] = pg_fetch_array($res, $i);
+		$j=$i+1;
+		
+		$djs.=&quot;	&lt;div style=&#039;float:left;padding:8px&#039;&gt;
+							DJ #&quot;.$j.&quot;
+							&lt;blockquote&gt;
+								Nom : &quot;.$dj[$i][&#039;nom&#039;].&quot;&lt;br/&gt;
+								Prénom : &quot;.$dj[$i][&#039;prenom&#039;].&quot;&lt;br/&gt;
+								Description : &quot;.$dj[$i][&#039;description&#039;].&quot;&lt;br/&gt;
+								Adresse internet : &lt;a href=&#039;&quot;.$dj[$i][&#039;adresseinternet&#039;].&quot;&#039;&gt;&quot;.$dj[$i][&#039;adresseinternet&#039;].&quot;&lt;/a&gt;&lt;br/&gt;
+								Numéro Tél : &quot;.$dj[$i][&#039;numerotel&#039;].&quot;&lt;br/&gt;
+								Email : &quot;.$dj[$i][&#039;email&#039;].&quot;&lt;br/&gt;
+								&lt;br/&gt;
+								&lt;form action=&#039;djs.php&#039; method=&#039;GET&#039;&gt;
+									&lt;input type=&#039;hidden&#039; name=&#039;requete&#039; value=&#039;modifier-dj&#039; /&gt;
+									&lt;input type=&#039;hidden&#039; name=&#039;id&#039; value=&#039;&quot;.$dj[$i][&#039;id&#039;].&quot;&#039; /&gt;
+									&lt;input type=&#039;submit&#039; value=&#039;Modifier&#039; /&gt;
+								&lt;/form&gt;
+								&lt;form action=&#039;djs.php&#039; method=&#039;GET&#039; onclick=\&quot;if(confirm(&#039;Êtes-vous sûr de vouloir supprimer ce DJ ?&#039;)) this.form.submit();else return false\&quot; &gt;
+									&lt;input type=&#039;hidden&#039; name=&#039;requete&#039; value=&#039;supprimer-dj&#039; /&gt;
+									&lt;input type=&#039;hidden&#039; name=&#039;id&#039; value=&#039;&quot;.$dj[$i][&#039;id&#039;].&quot;&#039; /&gt;
+									&lt;input type=&#039;submit&#039; value=&#039;Supprimer&#039; /&gt; 
+								&lt;/form&gt;
+								
+							&lt;/blockquote&gt;
+							&lt;a href=&#039;#djs&#039;&gt;⇑&lt;/a&gt;
+							&lt;br/&gt;&lt;br/&gt;
+						&lt;/div&gt;&quot;;
+	}
+	
+	return $djs;
+}</code></pre></div><p>La requête s&#039;exécute bien quand je la tape directement dans PhpPgAdmin.</p><p>Le problème provient de pg_query, mais je ne vois pas ce que ça peut être. Je l&#039;utilise de la même manière 3 fois dans mon code et ça ne pose pas de soucis.</p><br /><p>Dans le doute, je vous poste mes codes :</p><p>Le fichier fonctionsBDD.php où est l&#039;erreur : <a href="http://pastebin.com/2Abv9m4q" rel="nofollow">http://pastebin.com/2Abv9m4q</a><br />Le fichier djs.php qui appelle fonctionsBDD.php : <a href="http://pastebin.com/4F1eyga6" rel="nofollow">http://pastebin.com/4F1eyga6</a><br />Le fichier contacts.php qui appelle lui aussi fonctionsBDD.php : <a href="http://pastebin.com/8rZQS2gz" rel="nofollow">http://pastebin.com/8rZQS2gz</a><br />Mon index.php qui tape dans les deux fichiers ci-dessus : <a href="http://pastebin.com/JegcAF3D" rel="nofollow">http://pastebin.com/JegcAF3D</a></p><br /><br /><br /><p>Je vous remercie par avance de l&#039;aide précieuse que vous pourrez m&#039;apportez.</p><p>Et encore une fois, JOYEUX NOËL <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[Shipping LAN]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1505</uri>
+		</author>
+		<updated>2011-12-24T22:03:09Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12221#p12221</id>
+	</entry>
+</feed>

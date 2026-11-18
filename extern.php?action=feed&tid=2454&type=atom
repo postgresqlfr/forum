@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Problème décalage date.]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2454&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2454"/>
+	<updated>2013-01-03T18:12:29Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2454</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème décalage date.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16251#p16251"/>
+		<content type="html"><![CDATA[<p>J&#039; ai efface la table et recommencer, pourtant ma requête étaient correcte. Maintenant cela fonctionne. Merci pour votre réponse rapide.</p>]]></content>
+		<author>
+			<name><![CDATA[Moerin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2086</uri>
+		</author>
+		<updated>2013-01-03T18:12:29Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16251#p16251</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème décalage date.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16244#p16244"/>
+		<content type="html"><![CDATA[<p>Ce serait très étonnant que ce soit le cas. J&#039;ai essayé de mon côté et le comportement est correct :</p><div class="codebox"><pre><code>postgres=# create table cour (c1 timestamp, c2 integer, c3 text, c4 integer, c5 boolean, c6 text);
+CREATE TABLE
+postgres=# set datestyle to &#039;DMY&#039;;
+SET
+postgres=# INSERT INTO cour VALUES
+(&#039;17/05/2010&#039;,2,&#039;13:00&#039;,1,true,&#039;XS-785-LI&#039;),
+(&#039;14/06/2010&#039;,1,&#039;12:00&#039;,2,true,&#039;BA-156-GA&#039;),
+(&#039;16/06/2010&#039;,3,&#039;14:00&#039;,2,true,&#039;BA-156-GA&#039;),
+(&#039;26/06/2010&#039;,7,&#039;16:00&#039;,1,true,&#039;BE-253-LN&#039;),
+(&#039;13/07/2010&#039;,6,&#039;10:00&#039;,2,true,&#039;BA-156-GA&#039;),
+(&#039;17/07/2010&#039;,7,&#039;10:00&#039;,1,true,&#039;AE-84-CH&#039;),
+(&#039;27/07/2010&#039;,2,&#039;17:00&#039;,1,true,&#039;BX-38-FG&#039;),
+(&#039;12/08/2010&#039;,4,&#039;12:00&#039;,1,false,&#039;BE-253-LN&#039;),
+(&#039;13/08/2010&#039;,5,&#039;11:00&#039;,1,false,&#039;XS-785-LI&#039;);
+INSERT 0 9
+postgres=# select * from cour;
+         c1          | c2 |  c3   | c4 | c5 |    c6     
+---------------------+----+-------+----+----+-----------
+ 2010-05-17 00:00:00 |  2 | 13:00 |  1 | t  | XS-785-LI
+ 2010-06-14 00:00:00 |  1 | 12:00 |  2 | t  | BA-156-GA
+ 2010-06-16 00:00:00 |  3 | 14:00 |  2 | t  | BA-156-GA
+ 2010-06-26 00:00:00 |  7 | 16:00 |  1 | t  | BE-253-LN
+ 2010-07-13 00:00:00 |  6 | 10:00 |  2 | t  | BA-156-GA
+ 2010-07-17 00:00:00 |  7 | 10:00 |  1 | t  | AE-84-CH
+ 2010-07-27 00:00:00 |  2 | 17:00 |  1 | t  | BX-38-FG
+ 2010-08-12 00:00:00 |  4 | 12:00 |  1 | f  | BE-253-LN
+ 2010-08-13 00:00:00 |  5 | 11:00 |  1 | f  | XS-785-LI
+(9 rows)</code></pre></div><p>Il doit y avoir erreur quelque part de votre côté.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2013-01-03T14:54:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16244#p16244</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Problème décalage date.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16242#p16242"/>
+		<content type="html"><![CDATA[<p>Bonjour,\r</p><p>Je suis un novice dans l&#039;utilisation des bases de données, j&#039;utilise PostgreSQL 9.2 et PgAdmin 1.16.</p><p>Je souhaiterai comprendre la raison pour laquelle, lorsque j&#039;interroge une table, la date qui me revient est avance de 2 ans.</p><p>Select date<br />from cour</p><p>&quot;2012-05-17&quot;<br />&quot;2012-06-14&quot;<br />&quot;2012-06-16&quot;<br />&quot;2012-06-26&quot;<br />&quot;2012-07-13&quot;<br />&quot;2012-07-17&quot;<br />&quot;2012-07-27&quot;<br />&quot;2012-08-12&quot;<br />&quot;2012-08-13&quot;</p><p>Alors qu&#039;a la création de la table les infos étaient datées de 2010.</p><p>INSERT INTO cour VALUES<br />(&#039;17/05/2010&#039;,2,&#039;13:00&#039;,1,true,&#039;XS-785-LI&#039;),<br />(&#039;14/06/2010&#039;,1,&#039;12:00&#039;,2,true,&#039;BA-156-GA&#039;),<br />(&#039;16/06/2010&#039;,3,&#039;14:00&#039;,2,true,&#039;BA-156-GA&#039;),<br />(&#039;26/06/2010&#039;,7,&#039;16:00&#039;,1,true,&#039;BE-253-LN&#039;),<br />(&#039;13/07/2010&#039;,6,&#039;10:00&#039;,2,true,&#039;BA-156-GA&#039;),<br />(&#039;17/07/2010&#039;,7,&#039;10:00&#039;,1,true,&#039;AE-84-CH&#039;),<br />(&#039;27/07/2010&#039;,2,&#039;17:00&#039;,1,true,&#039;BX-38-FG&#039;),<br />(&#039;12/08/2010&#039;,4,&#039;12:00&#039;,1,false,&#039;BE-253-LN&#039;),<br />(&#039;13/08/2010&#039;,5,&#039;11:00&#039;,1,false,&#039;XS-785-LI&#039;);</p><p>Merci d&#039;avance.</p>]]></content>
+		<author>
+			<name><![CDATA[Moerin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2086</uri>
+		</author>
+		<updated>2013-01-03T14:50:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16242#p16242</id>
+	</entry>
+</feed>

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Current schema Null]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4746&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4746"/>
+	<updated>2018-05-19T18:48:32Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4746</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Current schema Null]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27611#p27611"/>
+		<content type="html"><![CDATA[<p>Oui.<br /> Merci à vous deux.</p>]]></content>
+		<author>
+			<name><![CDATA[big1]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7880</uri>
+		</author>
+		<updated>2018-05-19T18:48:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27611#p27611</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Current schema Null]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27610#p27610"/>
+		<content type="html"><![CDATA[<p>Il me semble que Daniel a raison, contrairement à moi. Bien vu, les guillemets doubles <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2018-05-19T17:18:07Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27610#p27610</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Current schema Null]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27609#p27609"/>
+		<content type="html"><![CDATA[<p>Si j&#039;essaie de deviner (parce que vu vos questions, ce n&#039;est vraiment pas simple de comprendre ce que vous voulez... essayez de détailler, d&#039;être clair dans vos demandes), votre search_path est à &quot;edbuser,edbstore&quot; mais vous n&#039;avez pas droit d&#039;accéder à ces schémas. Du coup, vous n&#039;avez un accès qu&#039;au schéma système, à savoir pg_catalog.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2018-05-19T17:16:55Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27609#p27609</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Current schema Null]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27608#p27608"/>
+		<content type="html"><![CDATA[<p>Le problème c&#039;est que le search_path pointe sur un schéma qui n&#039;existe pas du fait d&#039;un pb de syntaxe.<br />Il a été positionné avec une commande du style:</p><p>SET search_path TO &quot;edbuser,edbstore&quot;;</p><p>alors qu&#039;il aurait dû être mis comme ça:</p><p>SET search_path TO edbuser, edbstore;</p><p>ou comme ça (avec guillemets même s&#039;ils ne servent à rien ici puisque tout est en minuscules et acvec des caractères de base)</p><p>SET search_path TO &quot;edbuser&quot; , &quot;edbstore&quot;;</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2018-05-19T17:15:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27608#p27608</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Current schema Null]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27605#p27605"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />en 9.6<br />A-t-il un sens? Lequel?</p><div class="codebox"><pre class="vscroll"><code>Administrateur@edbstore=# select current_schema();
+ current_schema
+----------------
+ NULL
+(1 row)
+
+
+Time: 1,023 ms
+Administrateur@edbstore=# \dn
+   List of schemas
+   Name   |  Owner
+----------+----------
+ edbstore | edbuser
+ edbuser  | edbuser
+ public   | postgres
+(3 rows)
+
+
+Administrateur@edbstore=# show search_path;
+    search_path
+--------------------
+ &quot;edbuser,edbstore&quot;
+(1 row)
+
+Administrateur@edbstore=# select current_schemas(true);
+ current_schemas
+-----------------
+ {pg_catalog}</code></pre></div><p>d&#039;avance merci.</p>]]></content>
+		<author>
+			<name><![CDATA[big1]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7880</uri>
+		</author>
+		<updated>2018-05-19T13:31:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27605#p27605</id>
+	</entry>
+</feed>

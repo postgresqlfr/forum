@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Problème d'insertion avec une clé étrangère non reconnue.]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2807&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2807"/>
+	<updated>2013-10-03T20:57:08Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2807</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème d'insertion avec une clé étrangère non reconnue.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18322#p18322"/>
+		<content type="html"><![CDATA[<p>L&#039;héritage ne fait pas que vous avez les données dans les deux tables. Si vous faites un SELECT sur users, vous la verrez. Si vous faites un SELECT sur users en utilisant la clause ONLY, vous ne la verrez pas.</p><p>Concernant votre problème original, la documentation est très claire : les clés étrangères ne vérifient que la table visée, pas les tables filles. C&#039;est un des inconvénients majeurs du partitionnement avec PostgreSQL.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2013-10-03T20:57:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18322#p18322</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème d'insertion avec une clé étrangère non reconnue.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18319#p18319"/>
+		<content type="html"><![CDATA[<p>oui, j&#039;ai obligé de préciser que j&#039;ai une table user_projects qui herite de users, c&#039;est dans user_projects que j&#039;ai inséré l&#039;utilisateur, cependant dans pgadmin cette utilisateur apparaît aussi dans users mais apparemment pas réellement car java me refuse l&#039;insertion, je pensais que le fait d’insérer un utilisateurs dans user_projects se répercutait sur users, je ne vois pas l&#039;intérêt de l&#039;héritage autrement .</p><div class="codebox"><pre><code>CREATE TABLE users_project
+(
+  mail_address character varying(100),
+  nickname character varying(100),
+  last_name character varying(100),
+  first_name character varying(100),
+  pass character varying(40),
+  phone character varying(14),
+  id integer NOT NULL DEFAULT nextval(&#039;users_id_seq&#039;::regclass),
+  cookie_code character varying(40),
+  date_register date DEFAULT (&#039;now&#039;::text)::date,
+  siren_number character(9)
+)
+INHERITS (users)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE users_project
+  OWNER TO admin;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[stc]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=864</uri>
+		</author>
+		<updated>2013-10-03T18:41:35Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18319#p18319</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème d'insertion avec une clé étrangère non reconnue.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18315#p18315"/>
+		<content type="html"><![CDATA[<p>J&#039;ai testé avec votre schéma (en supprimant la clé étrangère vers la table trafic), et cela fonctionne très bien :</p><div class="codebox"><pre><code>postgres=# insert into projects (id_user) values (10);
+ERROR:  insert or update on table &quot;projects&quot; violates foreign key constraint &quot;fk_user&quot;
+DETAIL:  Key (id_user)=(10) is not present in table &quot;users&quot;.
+postgres=# insert into users (id) values (10);
+INSERT 0 1
+postgres=# insert into projects (id_user) values (10);
+INSERT 0 1</code></pre></div><p>Si PostgreSQL vous indique que la clé 10 n&#039;est pas présente dans la colonne id de la table users, je suis prêt à parier qu&#039;il a raison. Essayez d&#039;insérer un ligne avec id à 10 pour la table users. Si l&#039;insertion échoue, il y a un problème. Si elle réussit, c&#039;est qu&#039;elle manquait vraiment.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2013-10-03T18:13:06Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18315#p18315</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Problème d'insertion avec une clé étrangère non reconnue.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18312#p18312"/>
+		<content type="html"><![CDATA[<p>Bonjour j&#039;ai une table users :</p><div class="codebox"><pre class="vscroll"><code>CREATE TABLE users
+(
+  mail_address character varying(100),
+  nickname character varying(100),
+  last_name character varying(100),
+  first_name character varying(100),
+  pass character varying(40),
+  phone character varying(14),
+  id serial NOT NULL,
+  cookie_code character varying(40),
+  date_register date DEFAULT (&#039;now&#039;::text)::date,
+  siren_number character(9),
+  CONSTRAINT pk_user PRIMARY KEY (id )
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE users
+  OWNER TO admin;
+
+-- Index: pki_user
+
+-- DROP INDEX pki_user;
+
+CREATE INDEX pki_user
+  ON users
+  USING btree
+  (id );</code></pre></div><p>une table projects :</p><div class="codebox"><pre class="vscroll"><code>CREATE TABLE projects
+(
+  id serial NOT NULL,
+  title character varying(100),
+  description text,
+  id_tarif integer,
+  date_rec date DEFAULT (&#039;now&#039;::text)::date,
+  id_user integer NOT NULL,
+  CONSTRAINT pk_project PRIMARY KEY (id ),
+  CONSTRAINT fk_tarif FOREIGN KEY (id_tarif)
+      REFERENCES tarifs (id) MATCH SIMPLE
+      ON UPDATE CASCADE ON DELETE CASCADE,
+  CONSTRAINT fk_user FOREIGN KEY (id_user)
+      REFERENCES users (id) MATCH SIMPLE
+      ON UPDATE CASCADE ON DELETE CASCADE
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE projects
+  OWNER TO admin;
+
+-- Index: fki_tarif
+
+-- DROP INDEX fki_tarif;
+
+CREATE INDEX fki_tarif
+  ON projects
+  USING btree
+  (id_tarif );
+
+-- Index: fki_user
+
+-- DROP INDEX fki_user;
+
+CREATE INDEX fki_user
+  ON projects
+  USING btree
+  (id_user );</code></pre></div><p>j&#039;essaie de faire un insert dans projects en spécifiant pour id_user l&#039;id d&#039;un enregistrement de la table users (et il existe j&#039;ai vérifié)<br />Java lève une exception dont le message est le suivant :</p><div class="quotebox"><blockquote><div><p>ERROR: insert or update on table &quot;projects&quot; violates foreign key constraint &quot;fk_user&quot; Détail : Key (id_user)=(10) is not present in table &quot;users&quot;.</p></div></blockquote></div><p>C&#039;est ma première expérience en postgresql, je suis plus habitué à mySQL, j&#039;ai du louper quelque chose mais je ne vois pas quoi.<br />Merci pour votre aide.</p>]]></content>
+		<author>
+			<name><![CDATA[stc]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=864</uri>
+		</author>
+		<updated>2013-10-03T14:28:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18312#p18312</id>
+	</entry>
+</feed>

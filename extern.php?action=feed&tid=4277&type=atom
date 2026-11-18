@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / The Microsoft Access database engine stopped the process...]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4277&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4277"/>
+	<updated>2017-06-22T15:33:34Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4277</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  The Microsoft Access database engine stopped the process...]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25677#p25677"/>
+		<content type="html"><![CDATA[<p>Voici le trigger qui historise dans le schema &#039;deleted&#039; qui contient toutes les tables du schema public et qui sont vides à l&#039;origine des temps :</p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION public.audit_d()
+  RETURNS trigger AS
+$BODY$
+declare
+        stmt    varchar;
+begin
+
+        insert into public.audit_history
+                (table_name, operation, audit_id, user_name, audit_date)
+        values
+                (TG_TABLE_NAME, TG_OP, old.audit_id, current_user, now());
+
+        stmt :=    &#039;insert into deleted.&#039;
+                || quote_ident(TG_TABLE_NAME)
+                || &#039; select * from public.&#039;
+                || quote_ident(TG_TABLE_NAME)
+                || &#039; where audit_id = $1;&#039;;
+
+        execute stmt using old.audit_id;
+
+        return old;
+
+end; </code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[Michel Depiesse]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5329</uri>
+		</author>
+		<updated>2017-06-22T15:33:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25677#p25677</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  The Microsoft Access database engine stopped the process...]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25676#p25676"/>
+		<content type="html"><![CDATA[<p>Cher Monsieur Vérité,</p><p>Une fois de plus, vous apportez la lumière dans les ténèbres.</p><p>De fait, je suis passé à un système qui historise les records deletés dans un autre schema et qui les delete pour de bon dans le schéma public.</p><p>Ceci dit, Access en front-end d&#039;un db pg marche bien. </p><p>Une fois de plus, un grand merci à vous. Et à Guillaume, bien sûr.</p><p>Bonne soirée à tous les deux</p>]]></content>
+		<author>
+			<name><![CDATA[Michel Depiesse]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5329</uri>
+		</author>
+		<updated>2017-06-22T15:21:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25676#p25676</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  The Microsoft Access database engine stopped the process...]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25675#p25675"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>because you and another user are attempting to change the same data at the same time</p></div></blockquote></div><p>Je crois me souvenir qu&#039;Access avec ODBC détermine ça par le fait que les valeurs qu&#039;il relit d&#039;une ligne lors d&#039;une demande de mise à jour ne sont pas les mêmes que celles qu&#039;il a trouvé quand il a l&#039;a lu précédemment.</p><p>Donc de son point de vue, un trigger qui change la valeur d&#039;une colonne, c&#039;est &quot;another user&quot;.</p><p>C&#039;est aussi pour ça que cette erreur peut survenir sur certains de types de données un peu exotiques, pour lesquels parfois Access ne reconnait pas ce que lui-même a mis dans la table après relecture et réinterprétation via la couche ODBC.</p><p>PS: il faut bien voir qu&#039;un système d&#039;historisation &quot;soft-delete&quot; qui transforme carrément les DELETE en UPDATE est très intrusif et surprenant pour le côté client. Le fait qu&#039;Access/ODBC soit paumé n&#039;est qu&#039;une conséquence parmi d&#039;autres de cette méthode.<br />Personnellement je préfère sans hésiter un système qui historise les lignes effacées en les copiant dans d&#039;autres tables, comme mentionné dans une discussion précédente qui concernait vraisemblablement le même projet:<br /><a href="http://forums.postgresql.fr/viewtopic.php?id=4146" rel="nofollow">http://forums.postgresql.fr/viewtopic.php?id=4146</a></p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2017-06-22T14:02:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25675#p25675</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  The Microsoft Access database engine stopped the process...]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25671#p25671"/>
+		<content type="html"><![CDATA[<p>Si vous n&#039;avez pas de problème sans le trigger, c&#039;est que le trigger est le problème. Maintenant, avec juste un bout de code, je ne vois pas comment on pourrait aller plus loin... surtout quand on n&#039;utilise pas Access (ce qui est mon cas et celui de Marc, je suppose).</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2017-06-21T14:11:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25671#p25671</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  The Microsoft Access database engine stopped the process...]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25669#p25669"/>
+		<content type="html"><![CDATA[<p>Je crains que la solution du problème soit du côté PG.</p><p>J&#039;ai implementé un delete logique au moyen d&#039;un trigger pre delete qui met à jour un champ du record.</p><p>Voici un morceau du trigger function :</p><div class="codebox"><pre><code> stmt :=    &#039;update public.&#039;
+                || quote_ident(TG_TABLE_NAME)
+                || &#039; set deleted_when = now() ,deleted_by = &#039;
+                || &#039;&#039;&#039;&#039;
+                || current_user
+                || &#039;&#039;&#039;&#039;
+		|| &#039; where &#039;;
+
+
+        case TG_TABLE_NAME 
+		when &#039;tblActions_data&#039; then 
+			 stmt := stmt || &#039;&quot;ActionID&quot;  = $1;&#039;;
+			 execute stmt using old.&quot;ActionID&quot;;</code></pre></div><p>Si je disable le trigger, le problème est résolu. N&#039;y aurat-il pas moyen de dire à la fonction de ne pas envoyer de message au front-end ?</p><p>[</p>]]></content>
+		<author>
+			<name><![CDATA[Michel Depiesse]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5329</uri>
+		</author>
+		<updated>2017-06-21T13:40:39Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25669#p25669</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  The Microsoft Access database engine stopped the process...]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25668#p25668"/>
+		<content type="html"><![CDATA[<p>Ce n&#039;est pas vraiment la question. Vous avez un message d&#039;erreur Access. Nous ne pouvons pas grand chose pour vous. À part si vous avez un message d&#039;erreur aussi dans la log de postgres qui nous permettrait d&#039;y voir un peu plus clair.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2017-06-21T11:53:50Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25668#p25668</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  The Microsoft Access database engine stopped the process...]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25667#p25667"/>
+		<content type="html"><![CDATA[<p>Oui et non parce que c&#039;est une migration d&#039;Access vers PG. Le front-end reste en Access. Connaissez-vous une application cliente aussi bonne qu&#039;Access/VBA pour PG ?</p>]]></content>
+		<author>
+			<name><![CDATA[Michel Depiesse]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5329</uri>
+		</author>
+		<updated>2017-06-21T11:38:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25667#p25667</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  The Microsoft Access database engine stopped the process...]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25665#p25665"/>
+		<content type="html"><![CDATA[<p>Non mais ce n&#039;est pas très étonnant vu que c&#039;est un forum sur PostgreSQL.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2017-06-21T11:36:54Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25665#p25665</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[The Microsoft Access database engine stopped the process...]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25664#p25664"/>
+		<content type="html"><![CDATA[<p>...because you and another user are attempting to change the same data at the same time.</p><p>Voilà le message que j&#039;obtiens alors que je suis seul à travailler sur cette base de données.</p><p>Il s&#039;agit d&#039;un recordset dont je mets à jour un record.</p><p>Sur le net, j&#039;ai trouvé des pages qui mettent en cause des champs boolean ou timestamp mais ce n&#039;est pas le cas ici.</p><p>Avez-vous une petite idée ?</p><p>Merci</p>]]></content>
+		<author>
+			<name><![CDATA[Michel Depiesse]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5329</uri>
+		</author>
+		<updated>2017-06-21T11:18:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25664#p25664</id>
+	</entry>
+</feed>

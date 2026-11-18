@@ -1,0 +1,451 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Installer Postgresql sur Debian Lenny, repertoire data]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=220&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=220"/>
+	<updated>2009-03-31T22:14:08Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=220</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Installer Postgresql sur Debian Lenny, repertoire data]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1037#p1037"/>
+		<content type="html"><![CDATA[<p>postmaster est l&#039;ancien nom du processus postgres.</p><p>Le pg_createcluster de Debian utilise initdb, donc pas besoin de l&#039;utiliser. Pour créer plusieurs clusters avec Debian, il suffit de leur donner des noms différents (le premier ayant été appelé main). Attention, cela demandera certainement des modifs mémoire.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2009-03-31T22:14:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1037#p1037</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Installer Postgresql sur Debian Lenny, repertoire data]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1035#p1035"/>
+		<content type="html"><![CDATA[<p>Super ça fonctionne</p><div class="codebox"><pre><code>OPENERP:/etc/postgresql# pg_createcluster 8.3 main
+Creating new cluster (configuration: /etc/postgresql/8.3/main, data: /var/lib/postgresql/8.3/main)...
+Moving configuration file /var/lib/postgresql/8.3/main/postgresql.conf to /etc/postgresql/8.3/main...
+Moving configuration file /var/lib/postgresql/8.3/main/pg_hba.conf to /etc/postgresql/8.3/main...
+Moving configuration file /var/lib/postgresql/8.3/main/pg_ident.conf to /etc/postgresql/8.3/main...
+Configuring postgresql.conf to use port 5432...
+OPENERP:/etc/postgresql# ps -ef | grep postgres
+root      3588  3422  0 10:09 pts/0    00:00:00 grep postgres
+OPENERP:/etc/postgresql# pg_lsclusters
+Version Cluster   Port Status Owner    Data directory                     Log file
+8.3     main      5432 down   postgres /var/lib/postgresql/8.3/main       /var/log/postgresql/postgresql-8.3-main.log
+OPENERP:/etc/postgresql/8.3/main# ls
+environment  pg_hba.conf  pg_ident.conf  postgresql.conf  start.conf</code></pre></div><p>J&#039;ai vu la page de man de pg_createcluster, cela sert pour la création du serveur. J&#039;ai pas rajouté --start à la fin. Le serveur marche en tous les cas j&#039;ai lancer par /etc/init.d/postgresql-8.3 start<br />Après start:</p><div class="codebox"><pre><code>OPENERP:/etc/postgresql/8.3/main# ps -ef | grep postgres
+postgres  3679     1  0 10:16 ?        00:00:00 /usr/lib/postgresql/8.3/bin/postgres -D /var/lib/postgresql/8.3/main -c config_file=/etc/postgresql/8.3/main/postgresql.conf
+postgres  3681  3679  0 10:16 ?        00:00:00 postgres: writer process                                                                                                    
+postgres  3682  3679  0 10:16 ?        00:00:00 postgres: wal writer process                                                                                                
+postgres  3683  3679  0 10:16 ?        00:00:00 postgres: autovacuum launcher process                                                                                       
+postgres  3684  3679  0 10:16 ?        00:00:00 postgres: stats collector process</code></pre></div><p>Par contre où se trouve le fichier de log<br />et le postmaster, cest pas le processus de postgresql</p><br /><p>Dans le man on peut utiliser initdb. Dois je mettre des droits d&#039;accès postgres au main.<br />On peut donc créer autant de serveur (cluster) que l&#039;on veut en changeant les config?<br />Merci les gars</p>]]></content>
+		<author>
+			<name><![CDATA[profem]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=311</uri>
+		</author>
+		<updated>2009-03-31T19:19:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1035#p1035</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Installer Postgresql sur Debian Lenny, repertoire data]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1031#p1031"/>
+		<content type="html"><![CDATA[<p>Alors il faut essayer de créer un cluster :</p><div class="codebox"><pre><code>pg_createcluster 8.3 main</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2009-03-29T14:36:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1031#p1031</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Installer Postgresql sur Debian Lenny, repertoire data]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1030#p1030"/>
+		<content type="html"><![CDATA[<div class="codebox"><pre><code># ps -ef | grep postgres
+root      4605  4603  0 14:02 pts/1    00:00:00 grep postgres
+PC-de-mh:~# pg_lsclusters
+Version Cluster   Port Status Owner    Data directory                     Log file
+PC-de-mh:~#</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[profem]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=311</uri>
+		</author>
+		<updated>2009-03-29T12:10:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1030#p1030</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Installer Postgresql sur Debian Lenny, repertoire data]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1028#p1028"/>
+		<content type="html"><![CDATA[<p>Que donne la commande pg_lsclusters ? à exécuter en tant qu&#039;utilisateur root.</p><p>Chez moi, elle affiche :</p><div class="codebox"><pre><code>root@laptop:~# pg_lsclusters
+Version Cluster   Port Status Owner    Data directory                     Log file
+8.3     main      5433 online postgres /var/lib/postgresql/8.3/main       /var/log/postgresql/postgresql-8.3-main.log</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2009-03-29T07:20:35Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1028#p1028</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Installer Postgresql sur Debian Lenny, repertoire data]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1027#p1027"/>
+		<content type="html"><![CDATA[<p>Quel est le résultat de la commande :<br />ps -ef | grep postgres</p><p>?</p>]]></content>
+		<author>
+			<name><![CDATA[flo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=216</uri>
+		</author>
+		<updated>2009-03-29T06:44:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1027#p1027</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Installer Postgresql sur Debian Lenny, repertoire data]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1025#p1025"/>
+		<content type="html"><![CDATA[<p>Le repertoire&#160; /etc/postgresql n&#039;a pas de&#160; 8.3. Le répertoire /var/lib/postgresql/ est vide lui aussi. Tous les paquets de postgresql se placent dans /usr/share/postgresl/8.3 et /usr/lib/postgresql/8.3/ et pas de main nul part.</p><p>Dois je récupérer la version le site de Postgresql le .bin 8.3.7 plus ou le 8.3.6 du site francophone, plus recent . Le paquet Debian 5.0.0 amd64 ne place pas les paquets au bon endroit. <br />&gt;par exemple pour postgresql-8.3 le serveur fichiers instllé depuis synaptic:<br />-------------------------------------------------------------------------------------------------</p><div class="codebox"><pre class="vscroll"><code>/.
+/usr
+/usr/share
+/usr/share/doc
+/usr/share/doc/postgresql-8.3
+/usr/share/doc/postgresql-8.3/changelog.gz
+/usr/share/doc/postgresql-8.3/copyright
+/usr/share/doc/postgresql-8.3/README
+/usr/share/doc/postgresql-8.3/changelog.Debian.gz
+/usr/share/postgresql
+/usr/share/postgresql/8.3
+/usr/share/postgresql/8.3/sql_features.txt
+/usr/share/postgresql/8.3/system_views.sql
+/usr/share/postgresql/8.3/snowball_create.sql
+/usr/share/postgresql/8.3/postgresql.conf.sample
+/usr/share/postgresql/8.3/information_schema.sql
+/usr/share/postgresql/8.3/pg_ident.conf.sample
+/usr/share/postgresql/8.3/conversion_create.sql
+/usr/share/postgresql/8.3/tsearch_data
+/usr/share/postgresql/8.3/tsearch_data/finnish.stop
+/usr/share/postgresql/8.3/tsearch_data/turkish.stop
+/usr/share/postgresql/8.3/tsearch_data/danish.stop
+/usr/share/postgresql/8.3/tsearch_data/italian.stop
+/usr/share/postgresql/8.3/tsearch_data/spanish.stop
+/usr/share/postgresql/8.3/tsearch_data/portuguese.stop
+/usr/share/postgresql/8.3/tsearch_data/french.stop
+/usr/share/postgresql/8.3/tsearch_data/ispell_sample.dict
+/usr/share/postgresql/8.3/tsearch_data/xsyn_sample.rules
+/usr/share/postgresql/8.3/tsearch_data/german.stop
+/usr/share/postgresql/8.3/tsearch_data/norwegian.stop
+/usr/share/postgresql/8.3/tsearch_data/swedish.stop
+/usr/share/postgresql/8.3/tsearch_data/english.stop
+/usr/share/postgresql/8.3/tsearch_data/ispell_sample.affix
+/usr/share/postgresql/8.3/tsearch_data/hungarian.stop
+/usr/share/postgresql/8.3/tsearch_data/russian.stop
+/usr/share/postgresql/8.3/tsearch_data/dutch.stop
+/usr/share/postgresql/8.3/tsearch_data/thesaurus_sample.ths
+/usr/share/postgresql/8.3/tsearch_data/synonym_sample.syn
+/usr/share/postgresql/8.3/tsearch_data/hunspell_sample.affix
+/usr/share/postgresql/8.3/recovery.conf.sample
+/usr/share/postgresql/8.3/pg_service.conf.sample
+/usr/share/postgresql/8.3/pg_hba.conf.sample
+/usr/share/postgresql/8.3/timezonesets
+/usr/share/postgresql/8.3/timezonesets/Etc.txt
+/usr/share/postgresql/8.3/timezonesets/Australia.txt
+/usr/share/postgresql/8.3/timezonesets/Australia
+/usr/share/postgresql/8.3/timezonesets/India
+/usr/share/postgresql/8.3/timezonesets/Antarctica.txt
+/usr/share/postgresql/8.3/timezonesets/Atlantic.txt
+/usr/share/postgresql/8.3/timezonesets/Asia.txt
+/usr/share/postgresql/8.3/timezonesets/America.txt
+/usr/share/postgresql/8.3/timezonesets/Default
+/usr/share/postgresql/8.3/timezonesets/Pacific.txt
+/usr/share/postgresql/8.3/timezonesets/Europe.txt
+/usr/share/postgresql/8.3/timezonesets/Africa.txt
+/usr/share/postgresql/8.3/timezonesets/Indian.txt
+/usr/share/postgresql/8.3/postgres.description
+/usr/share/postgresql/8.3/postgres.shdescription
+/usr/share/postgresql/8.3/postgres.bki
+/usr/share/postgresql/8.3/man
+/usr/share/postgresql/8.3/man/man1
+/usr/share/postgresql/8.3/man/man1/initdb.1.gz
+/usr/share/postgresql/8.3/man/man1/pg_ctl.1.gz
+/usr/share/postgresql/8.3/man/man1/postgres.1.gz
+/usr/share/postgresql/8.3/man/man1/pg_controldata.1.gz
+/usr/share/postgresql/8.3/man/man1/ipcclean.1.gz
+/usr/share/postgresql/8.3/man/man1/pg_resetxlog.1.gz
+/usr/share/postgresql/8.3/man/man1/postmaster.1.gz
+/usr/share/locale
+/usr/share/locale/tr
+/usr/share/locale/tr/LC_MESSAGES
+/usr/share/locale/tr/LC_MESSAGES/pg_controldata-8.3.mo
+/usr/share/locale/tr/LC_MESSAGES/pg_ctl-8.3.mo
+/usr/share/locale/tr/LC_MESSAGES/initdb-8.3.mo
+/usr/share/locale/tr/LC_MESSAGES/pg_resetxlog-8.3.mo
+/usr/share/locale/tr/LC_MESSAGES/postgres-8.3.mo
+/usr/share/locale/zh_TW
+/usr/share/locale/zh_TW/LC_MESSAGES
+/usr/share/locale/zh_TW/LC_MESSAGES/pg_controldata-8.3.mo
+/usr/share/locale/zh_TW/LC_MESSAGES/pg_ctl-8.3.mo
+/usr/share/locale/zh_TW/LC_MESSAGES/initdb-8.3.mo
+/usr/share/locale/zh_TW/LC_MESSAGES/pg_resetxlog-8.3.mo
+/usr/share/locale/zh_TW/LC_MESSAGES/postgres-8.3.mo
+/usr/share/locale/sv
+/usr/share/locale/sv/LC_MESSAGES
+/usr/share/locale/sv/LC_MESSAGES/pg_controldata-8.3.mo
+/usr/share/locale/sv/LC_MESSAGES/pg_ctl-8.3.mo
+/usr/share/locale/sv/LC_MESSAGES/initdb-8.3.mo
+/usr/share/locale/sv/LC_MESSAGES/pg_resetxlog-8.3.mo
+/usr/share/locale/sv/LC_MESSAGES/postgres-8.3.mo
+/usr/share/locale/sl
+/usr/share/locale/sl/LC_MESSAGES
+/usr/share/locale/sl/LC_MESSAGES/pg_controldata-8.3.mo
+/usr/share/locale/sl/LC_MESSAGES/pg_ctl-8.3.mo
+/usr/share/locale/sl/LC_MESSAGES/initdb-8.3.mo
+/usr/share/locale/sl/LC_MESSAGES/pg_resetxlog-8.3.mo
+/usr/share/locale/sl/LC_MESSAGES/postgres-8.3.mo
+/usr/share/locale/hu
+/usr/share/locale/hu/LC_MESSAGES
+/usr/share/locale/hu/LC_MESSAGES/pg_controldata-8.3.mo
+/usr/share/locale/hu/LC_MESSAGES/pg_resetxlog-8.3.mo
+/usr/share/locale/hu/LC_MESSAGES/postgres-8.3.mo
+/usr/share/locale/nb
+/usr/share/locale/nb/LC_MESSAGES
+/usr/share/locale/nb/LC_MESSAGES/pg_controldata-8.3.mo
+/usr/share/locale/nb/LC_MESSAGES/pg_resetxlog-8.3.mo
+/usr/share/locale/nb/LC_MESSAGES/postgres-8.3.mo
+/usr/share/locale/zh_CN
+/usr/share/locale/zh_CN/LC_MESSAGES
+/usr/share/locale/zh_CN/LC_MESSAGES/pg_controldata-8.3.mo
+/usr/share/locale/zh_CN/LC_MESSAGES/pg_ctl-8.3.mo
+/usr/share/locale/zh_CN/LC_MESSAGES/initdb-8.3.mo
+/usr/share/locale/zh_CN/LC_MESSAGES/pg_resetxlog-8.3.mo
+/usr/share/locale/zh_CN/LC_MESSAGES/postgres-8.3.mo
+/usr/share/locale/es
+/usr/share/locale/es/LC_MESSAGES
+/usr/share/locale/es/LC_MESSAGES/pg_controldata-8.3.mo
+/usr/share/locale/es/LC_MESSAGES/pg_ctl-8.3.mo
+/usr/share/locale/es/LC_MESSAGES/initdb-8.3.mo
+/usr/share/locale/es/LC_MESSAGES/pg_resetxlog-8.3.mo
+/usr/share/locale/es/LC_MESSAGES/postgres-8.3.mo
+/usr/share/locale/pl
+/usr/share/locale/pl/LC_MESSAGES
+/usr/share/locale/pl/LC_MESSAGES/pg_controldata-8.3.mo
+/usr/share/locale/pl/LC_MESSAGES/initdb-8.3.mo
+/usr/share/locale/pl/LC_MESSAGES/postgres-8.3.mo
+/usr/share/locale/de
+/usr/share/locale/de/LC_MESSAGES
+/usr/share/locale/de/LC_MESSAGES/pg_controldata-8.3.mo
+/usr/share/locale/de/LC_MESSAGES/pg_ctl-8.3.mo
+/usr/share/locale/de/LC_MESSAGES/initdb-8.3.mo
+/usr/share/locale/de/LC_MESSAGES/pg_resetxlog-8.3.mo
+/usr/share/locale/de/LC_MESSAGES/postgres-8.3.mo
+/usr/share/locale/af
+/usr/share/locale/af/LC_MESSAGES
+/usr/share/locale/af/LC_MESSAGES/postgres-8.3.mo
+/usr/share/locale/it
+/usr/share/locale/it/LC_MESSAGES
+/usr/share/locale/it/LC_MESSAGES/pg_controldata-8.3.mo
+/usr/share/locale/it/LC_MESSAGES/initdb-8.3.mo
+/usr/share/locale/it/LC_MESSAGES/pg_resetxlog-8.3.mo
+/usr/share/locale/it/LC_MESSAGES/postgres-8.3.mo
+/usr/share/locale/fr
+/usr/share/locale/fr/LC_MESSAGES
+/usr/share/locale/fr/LC_MESSAGES/pg_controldata-8.3.mo
+/usr/share/locale/fr/LC_MESSAGES/pg_ctl-8.3.mo
+/usr/share/locale/fr/LC_MESSAGES/initdb-8.3.mo
+/usr/share/locale/fr/LC_MESSAGES/pg_resetxlog-8.3.mo
+/usr/share/locale/fr/LC_MESSAGES/postgres-8.3.mo
+/usr/share/locale/ru
+/usr/share/locale/ru/LC_MESSAGES
+/usr/share/locale/ru/LC_MESSAGES/pg_controldata-8.3.mo
+/usr/share/locale/ru/LC_MESSAGES/pg_ctl-8.3.mo
+/usr/share/locale/ru/LC_MESSAGES/initdb-8.3.mo
+/usr/share/locale/ru/LC_MESSAGES/pg_resetxlog-8.3.mo
+/usr/share/locale/ru/LC_MESSAGES/postgres-8.3.mo
+/usr/share/locale/hr
+/usr/share/locale/hr/LC_MESSAGES
+/usr/share/locale/hr/LC_MESSAGES/postgres-8.3.mo
+/usr/share/locale/nl
+/usr/share/locale/nl/LC_MESSAGES
+/usr/share/locale/nl/LC_MESSAGES/postgres-8.3.mo
+/usr/share/locale/pt_BR
+/usr/share/locale/pt_BR/LC_MESSAGES
+/usr/share/locale/pt_BR/LC_MESSAGES/pg_controldata-8.3.mo
+/usr/share/locale/pt_BR/LC_MESSAGES/pg_ctl-8.3.mo
+/usr/share/locale/pt_BR/LC_MESSAGES/initdb-8.3.mo
+/usr/share/locale/pt_BR/LC_MESSAGES/pg_resetxlog-8.3.mo
+/usr/share/locale/pt_BR/LC_MESSAGES/postgres-8.3.mo
+/usr/share/locale/ko
+/usr/share/locale/ko/LC_MESSAGES
+/usr/share/locale/ko/LC_MESSAGES/pg_controldata-8.3.mo
+/usr/share/locale/ko/LC_MESSAGES/pg_ctl-8.3.mo
+/usr/share/locale/ko/LC_MESSAGES/initdb-8.3.mo
+/usr/share/locale/ko/LC_MESSAGES/pg_resetxlog-8.3.mo
+/usr/share/locale/ko/LC_MESSAGES/postgres-8.3.mo
+/usr/share/locale/ro
+/usr/share/locale/ro/LC_MESSAGES
+/usr/share/locale/ro/LC_MESSAGES/pg_controldata-8.3.mo
+/usr/share/locale/ro/LC_MESSAGES/pg_ctl-8.3.mo
+/usr/share/locale/ro/LC_MESSAGES/initdb-8.3.mo
+/usr/share/locale/ro/LC_MESSAGES/pg_resetxlog-8.3.mo
+/usr/share/locale/ro/LC_MESSAGES/postgres-8.3.mo
+/usr/share/locale/fa
+/usr/share/locale/fa/LC_MESSAGES
+/usr/share/locale/fa/LC_MESSAGES/pg_controldata-8.3.mo
+/usr/share/locale/cs
+/usr/share/locale/cs/LC_MESSAGES
+/usr/share/locale/cs/LC_MESSAGES/pg_controldata-8.3.mo
+/usr/share/locale/cs/LC_MESSAGES/pg_ctl-8.3.mo
+/usr/share/locale/cs/LC_MESSAGES/initdb-8.3.mo
+/usr/share/locale/cs/LC_MESSAGES/pg_resetxlog-8.3.mo
+/usr/share/locale/cs/LC_MESSAGES/postgres-8.3.mo
+/usr/share/locale/sk
+/usr/share/locale/sk/LC_MESSAGES
+/usr/share/locale/sk/LC_MESSAGES/pg_controldata-8.3.mo
+/usr/share/locale/sk/LC_MESSAGES/pg_ctl-8.3.mo
+/usr/share/locale/sk/LC_MESSAGES/initdb-8.3.mo
+/usr/share/locale/sk/LC_MESSAGES/pg_resetxlog-8.3.mo
+/usr/share/locale/sk/LC_MESSAGES/postgres-8.3.mo
+/usr/share/locale/ta
+/usr/share/locale/ta/LC_MESSAGES
+/usr/share/locale/ta/LC_MESSAGES/pg_controldata-8.3.mo
+/usr/share/locale/ta/LC_MESSAGES/pg_ctl-8.3.mo
+/usr/share/locale/ta/LC_MESSAGES/initdb-8.3.mo
+/usr/share/locale/ta/LC_MESSAGES/pg_resetxlog-8.3.mo
+/usr/lib
+/usr/lib/postgresql
+/usr/lib/postgresql/8.3
+/usr/lib/postgresql/8.3/lib
+/usr/lib/postgresql/8.3/lib/ascii_and_mic.so
+/usr/lib/postgresql/8.3/lib/utf8_and_gbk.so
+/usr/lib/postgresql/8.3/lib/utf8_and_euc_tw.so
+/usr/lib/postgresql/8.3/lib/utf8_and_uhc.so
+/usr/lib/postgresql/8.3/lib/utf8_and_euc_jis_2004.so
+/usr/lib/postgresql/8.3/lib/dict_snowball.so
+/usr/lib/postgresql/8.3/lib/utf8_and_euc_cn.so
+/usr/lib/postgresql/8.3/lib/utf8_and_gb18030.so
+/usr/lib/postgresql/8.3/lib/latin_and_mic.so
+/usr/lib/postgresql/8.3/lib/euc_tw_and_big5.so
+/usr/lib/postgresql/8.3/lib/utf8_and_shift_jis_2004.so
+/usr/lib/postgresql/8.3/lib/euc_kr_and_mic.so
+/usr/lib/postgresql/8.3/lib/euc_cn_and_mic.so
+/usr/lib/postgresql/8.3/lib/utf8_and_johab.so
+/usr/lib/postgresql/8.3/lib/utf8_and_big5.so
+/usr/lib/postgresql/8.3/lib/utf8_and_iso8859.so
+/usr/lib/postgresql/8.3/lib/utf8_and_euc_jp.so
+/usr/lib/postgresql/8.3/lib/utf8_and_ascii.so
+/usr/lib/postgresql/8.3/lib/euc_jis_2004_and_shift_jis_2004.so
+/usr/lib/postgresql/8.3/lib/latin2_and_win1250.so
+/usr/lib/postgresql/8.3/lib/utf8_and_sjis.so
+/usr/lib/postgresql/8.3/lib/utf8_and_cyrillic.so
+/usr/lib/postgresql/8.3/lib/plpgsql.so
+/usr/lib/postgresql/8.3/lib/utf8_and_iso8859_1.so
+/usr/lib/postgresql/8.3/lib/tsearch2.so
+/usr/lib/postgresql/8.3/lib/euc_jp_and_sjis.so
+/usr/lib/postgresql/8.3/lib/utf8_and_win.so
+/usr/lib/postgresql/8.3/lib/utf8_and_euc_kr.so
+/usr/lib/postgresql/8.3/lib/cyrillic_and_mic.so
+/usr/lib/postgresql/8.3/bin
+/usr/lib/postgresql/8.3/bin/pg_ctl
+/usr/lib/postgresql/8.3/bin/ipcclean
+/usr/lib/postgresql/8.3/bin/pg_resetxlog
+/usr/lib/postgresql/8.3/bin/pg_controldata
+/usr/lib/postgresql/8.3/bin/initdb
+/usr/lib/postgresql/8.3/bin/postgres
+/etc
+/etc/init.d
+/etc/init.d/postgresql-8.3
+/usr/share/doc/postgresql-8.3/README.Debian.gz
+/usr/lib/postgresql/8.3/bin/postmaster</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[profem]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=311</uri>
+		</author>
+		<updated>2009-03-29T00:18:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1025#p1025</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Installer Postgresql sur Debian Lenny, repertoire data]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1024#p1024"/>
+		<content type="html"><![CDATA[<p>Beaucoup trop de trucs pour un même poste. Commençons par le début. Vous devez installer PostgreSQL avec les paquets Debian.</p><p>postgresql-8.3 : le serveur<br />postgresql-client-8.3 : les programmes clients (psql, pg_dump, etc.)<br />postgresql-contrib-8.3: modules contrib<br />postgresql-doc-8.3 : documentation<br />postgresql-plperl-8.3 : langage procédural PL/Perl pour PostgreSQL 8.3<br />postgresql-plpython-8.3 : langage procédural PL/Python pour PostgreSQL 8.3<br />postgresql-pltcl-8.3 : langage procédural PL/Tcl pour PostgreSQL 8.3<br />postgresql-server-dev-8.3 : fichiers pour le développement avec PostgreSQL</p><p>Bref, les paquets intéressants sont postgresql-8.3 et postgresql-8.3-client.</p><p>Une fois installé, le répertoire /etc/postgresql doit avoir un répertoire 8.3 qui doit contenir un répertoire main qui doit contenir les fichiers de configuration. Le répertoire /var/lib/postgresql/8.3 doit aussi être créé. Il doit contenir un répertoire main qui doit contenir les répertoires et fichiers du cluster.</p><p>Commencez donc par installer (ou ré-installer) les deux paquets intéressants et vérifiez si vous avez bien les répertoires et fichiers indiqués ci-dessus.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2009-03-28T21:32:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1024#p1024</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Installer Postgresql sur Debian Lenny, repertoire data]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1023#p1023"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />Sur la dernière distribution Debian, lenny, j&#039;ai préinstallé postgresql à l&#039;installation de ma disribution (version 8.3.6-1 de postgresql), mais postgresql ne tourne pas.<br />Il y a plusieurs paquets: postgresql, postgresql-common et postgresql-8.3. client et serveur, c&#039;est plusieurs version de postgresql?<br />N&#039;étant pas un spécialiste système et SGBDR quoi que, mais plutôt un développeur sql python, pour ne pas faire de bétises j&#039;aimerais avoir vos conseils sur la configuration sur une distribution linux sous debian. J&#039;ai suivit la doc pg83 qui me sert énormement, c&#039;est pas commode avec les repertoires qui changent et l&#039;arborescence linux, cela pourrais peut être servir à d&#039;autres utilisateurs. Comme j&#039;avais les paquets installés j&#039;ai zapper la compil, pour une fois. Les repertoires où se trouvent postgresql:</p><div class="codebox"><pre><code>/etc/postgresql vide
+###############
+ls /etc/postgresql-common
+ 	autovacuum.conf  pg_upgradecluster.d  root.crt	user_clusters
+por faire le ménage
+###############
+user:/usr/share/postgresql/8.3# ls
+	contrib			pg_service.conf		recovery.conf
+	conversion_create.sql	pg_service.conf.sample	recovery.conf.sample
+	information_schema.sql	postgres.bki		snowball_create.sql
+	man			postgres.description	sql_features.txt
+	pg_hba.conf		postgresql.conf		system_views.sql
+	pg_hba.conf.sample	postgresql.conf.sample	timezonesets
+	pg_ident.conf		postgres.shdescription	tsearch_data
+	pg_ident.conf.sample	psqlrc.sample
+Ici les fichiers de config
+###############
+/var/lib/postgresql vide
+###############
+/etc/init.d/postgresql-8.3
+J&#039;ai fais /etc/init.d/postgresql-8.3 start. rien pas de [ok]
+pas de processus postmaster.
+###############
+ls /usr/share/postgresql-common
+init.d-functions	pg_wrapper	     testsuite
+maintscripts-functions	run-upgrade-scripts  upgrade-scripts
+pg_checksystem		supported-versions
+PgCommon.pm		t
+###############</code></pre></div><p>Si je me base sur la doc je dois créer un répertoire data dans /usr/local/pgsql/<br />Il n&#039;y a pas de repertoires /usr/local/pgsql (pgsql pour postgresql) mais il y a un repertoire /var/lib/postgresql vide prévu? dans la doc l&#039;emplacement du data est libre.<br />C&#039;est dans le data que se trouve les bases?</p><p>Une première fois j&#039;ai créé le data je sais plus où, je crois dans : <br />/usr/lib/postgresql/8.3/bin/initdb -D /usr/local/postgresql/8.3/data<br />/etc/ini.d/postgres-8.3 -D /usr/local/postgresql/8.3/data &gt;logfile 2&gt;&amp;1 &amp;</p><p>initdb va initialiser la base postgres initiale.<br />J&#039;ai voulu reinstaller postgresql8.3 cela m&#039;a corrompu le paquet. J&#039;étais bien embété. Peut être à cause du cd debian<br />J&#039;ai bien créer la connexion avec pgadmin. J&#039;ai les solutions mais j&#039;ai peur de les appliquer.</p><br /><br /><br /><br /><div class="codebox"><pre><code>#adduser postgres
+adduser : L&#039;utilisateur « postgres » existe déjà.
+J&#039;ai changer le mot de passe sous root en postgres pour tester car postgres il ne reconnait pas au départ. postgres n&#039;est pas un utilisateur système. une fois sous postgres@...$ requete ALTER USER postgres ENCRYPTED PASSWORD &#039;mon_mot_de_passe&#039;; il dois y avoir 2 mots de passes, un système, l&#039;autre pour la base postgres.
+su - postgres 
+postgres@PC-de-...:~$ 
+Le sudo -su ne marche pas. Va savoir...
+$ sudo su -postgres
+
+We trust you have received the usual lecture from the local System
+Administrator. It usually boils down to these three things:
+
+    #1) Respect the privacy of others.
+    #2) Think before you type.
+    #3) With great power comes great responsibility.
+
+[sudo] password for user: 
+postgres marche pas...
+Donc su -postgres avec postgres bien
+après,
+je ma place dans /usr/lib/postgresql/8.3
+ls
+bin &amp; lib
+j&#039;ai psql et creatuser
+$ psql
+psql: could not connect to server: Aucun fichier ou répertoire de ce type
+	Is the server running locally and accepting
+	connections on Unix domain socket &quot;/var/run/postgresql/.s.PGSQL.5432&quot;?
+ça marche pas</code></pre></div><p>Un autre problème les fichiers de config de /usr/share/postgresql/8.3</p><div class="codebox"><pre><code>mes fichiers config de 
+pg_hba.conf:
+#host    all         all         127.0.0.1/32          @authmethod@
+host    all         all         127.0.0.1/32          sameuser ou password ou trust ou md5?
+
+# IPv6 local connections:
+
+#host    all         all         ::1/128               @authmethod@
+host    all         all         ::1/128               md5
+Le poste Les galères du débutant va peut être m&#039;aider
+postgres.conf:
+listen_addresses = &#039;localhost&#039;
+port = 5432
+bonjour_name = &#039;Bonjour PostgreSQL&#039; # il faut rester polis
+la configuration des ressources tout en commenataire pour le moment
+Je sais pas trop faire.Sur un autre poste Debian etch j&#039;avais postgresql 8.1. Je dois gérer une application en python qui utilise comme SGBDR postgres avec des utilisateurs avec des accés concurrents. Je sais pas si les erreurs de concurrences proviennent de la config mémoire qui est en commentaire donc pas optimisé pour un certain nombres d&#039;utilisateurs (qui n&#039;y connaissent rien à l&#039;informatique au passage,) ou bien cela provient du code.dois je toucher au /etc/sysctl.conf et les parametres de pg.conf au risque de bloquer la base. Necessité peut être d&#039;ajouter des verrous. Mais cela nécessite un autre post.</code></pre></div><p>J&#039;aimerais aussi faire tourner aussi une version de postgresql à savoir postgresql8.1 sur le même poste, je me demande si cela étais faisable? et faire tourner soit l&#039;une soit l&#039;autre, car sur lenny j&#039;ai que la version 8.3, les paquets 8.1 n&#039;y figure plus et je dois alors installer 8.1 et le problème de dépendances. où: dans /usr/share/postgresql/8.1? l&#039;ini.d/postgresql8.1 va se créer?<br />Pour résumé c&#039;est l&#039;emplacement de data qui me tracase en premier lieu.<br />Merci</p>]]></content>
+		<author>
+			<name><![CDATA[profem]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=311</uri>
+		</author>
+		<updated>2009-03-28T17:35:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1023#p1023</id>
+	</entry>
+</feed>

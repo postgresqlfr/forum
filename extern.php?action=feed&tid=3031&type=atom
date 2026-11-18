@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Création d'une boucle avec variable]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3031&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3031"/>
+	<updated>2014-03-04T19:10:18Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3031</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Création d'une boucle avec variable]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19341#p19341"/>
+		<content type="html"><![CDATA[<p>Non, pas avec PL/pgsql.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-03-04T19:10:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19341#p19341</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Création d'une boucle avec variable]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19339#p19339"/>
+		<content type="html"><![CDATA[<p>Merci rjuju, ça c&#039;est ce que j &#039;appel de la réactivité !!</p><p>Voici le code final de la fonction qui permet, pour rappel, de générer un tableau HTML à partir de 5 champ et 1 table en entrée :</p><div class="codebox"><pre class="vscroll"><code>CREATE OR REPLACE FUNCTION sortie_tableau_html5(c1 varchar,c2 varchar,c3 varchar,c4 varchar,c5 varchar,var_table varchar)
+RETURNS varchar AS
+$BODY$
+DECLARE
+var_tableau_html varchar;
+var_text text;
+BEGIN
+
+BEGIN
+
+var_tableau_html=&#039;&lt;TABLE BORDER=&quot;0&quot;&gt;&lt;TR align=&quot;center&quot;&gt;&gt;&lt;TH&gt;&#039;||c1||&#039;&lt;/TH&gt; &#039;;
+var_tableau_html=var_tableau_html||&#039;&lt;TH&gt;&#039;||c2||&#039;&lt;/TH&gt; &#039;;
+var_tableau_html=var_tableau_html||&#039;&lt;TH&gt;&#039;||c3||&#039;&lt;/TH&gt; &#039;;
+var_tableau_html=var_tableau_html||&#039;&lt;TH&gt;&#039;||c4||&#039;&lt;/TH&gt; &#039;;
+var_tableau_html=var_tableau_html||&#039;&lt;TH&gt;&#039;||c5||&#039;&lt;/TH&gt;&lt;/TR&gt;&#039;;
+
+raise notice &#039;var_tableau_html : %&#039;,  var_tableau_html;
+
+FOR v_text IN EXECUTE &#039;SELECT DISTINCT &#039;&#039;&lt;TR align=&quot;center&quot;&gt;&lt;td&gt;&#039;&#039;||&#039;||c1||&#039;||&#039;&#039;&lt;/td&gt;&lt;td&gt;&#039;&#039;||&#039;||c2||&#039;||&#039;&#039;&lt;/td&gt;&lt;td&gt;&#039;&#039;||&#039;||c3||&#039;||&#039;&#039;&lt;/td&gt;&lt;td&gt;&#039;&#039;||&#039;||c4||&#039;||&#039;&#039;&lt;/td&gt;&lt;td&gt;&#039;&#039;||&#039;||c5||&#039;||&#039;&#039;&lt;/td&gt;&lt;/TR&gt;&#039;&#039; FROM &#039;||var_table
+LOOP
+
+var_tableau_html=var_tableau_html||v_text;
+
+raise notice &#039;var_tableau_html : %&#039;,  var_tableau_html;
+
+END LOOP;
+
+var_tableau_html=var_tableau_html||&#039;&lt;/TABLE&gt;&#039;;
+return var_tableau_html;
+
+END;
+$BODY$
+LANGUAGE plpgsql VOLATILE
+COST 100;</code></pre></div><p>Question subsidiaire, est-il possible de compter le nombre de colonnes issues d&#039;une requête, par exemple, d&#039;un SELECT * ?</p><p>A très vite.</p><p>Geo-x</p>]]></content>
+		<author>
+			<name><![CDATA[Geo-x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1346</uri>
+		</author>
+		<updated>2014-03-04T09:39:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19339#p19339</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Création d'une boucle avec variable]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19338#p19338"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Vous pouvez construire la partie html directement dans la requête, et remplacer le record par une simple variable text :</p><p>FOR v_text IN EXECUTE &#039;SELECT DISTINCT &lt;td&gt;&#039; || c1 || &#039;&lt;/td&gt;&lt;td&gt;&#039; || ...</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2014-03-04T08:47:31Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19338#p19338</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Création d'une boucle avec variable]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19337#p19337"/>
+		<content type="html"><![CDATA[<p>Bonjour @ tous.</p><p>J&#039;essaie de créer une fonction qui me permettra de renvoyer un tableau au format HTML (sans passer par du PHP).</p><p>Je demande donc en entrée 5 champs (parce que c&#039;est ce dont j&#039;ai besoin) et 1 table </p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION sortie_tableau_html5(c1 varchar,c2 varchar,c3 varchar,c4 varchar,c5 varchar,var_table varchar)</code></pre></div><p>Ensuite je déclare une variable qui contiendra le code HTML </p><div class="codebox"><pre><code>DECLARE var_tableau_html varchar;</code></pre></div><p>Et un record qui me servira plus tard</p><div class="codebox"><pre><code>DECLARE var_titre_tableau record;</code></pre></div><p>Ensuite, je commence à structurer mon tableau en indiquant les titres des colonnes </p><div class="codebox"><pre><code>var_tableau_html=&#039;&lt;TABLE BORDER=&quot;0&quot;&gt;&lt;TR&gt;&lt;TH&gt;&#039;||c1||&#039;&lt;/TH&gt; &#039;;
+var_tableau_html=var_tableau_html||&#039;&lt;TH&gt;&#039;||c2||&#039;&lt;/TH&gt; &#039;;
+var_tableau_html=var_tableau_html||&#039;&lt;TH&gt;&#039;||c3||&#039;&lt;/TH&gt; &#039;;
+var_tableau_html=var_tableau_html||&#039;&lt;TH&gt;&#039;||c4||&#039;&lt;/TH&gt; &#039;;
+var_tableau_html=var_tableau_html||&#039;&lt;TH&gt;&#039;||c5||&#039;&lt;/TH&gt;&lt;/TR&gt;&lt;TR&gt;&#039;;</code></pre></div><p>Mais après ça se complique...Quand je veux faire une boucle sur le résultat de ma requête qui remplira le tableau. Je fais une boucle </p><div class="codebox"><pre><code>FOR var_titre_tableau IN EXECUTE &#039;SELECT DISTINCT &#039;||c1||&#039;,&#039;||c2||&#039;,&#039;||c3||&#039;,&#039;||c4||&#039;,&#039;||c5||&#039; FROM &#039;||var_table 
+LOOP
+var_tableau_html=var_tableau_html||&#039;&lt;TD&gt;&#039;||var_titre_tableau.c1||&#039;&lt;/TD&gt;&#039;;
+var_tableau_html=var_tableau_html||&#039;&lt;TD&gt;&#039;||var_titre_tableau.c2||&#039;&lt;/TD&gt;&#039;;
+var_tableau_html=var_tableau_html||&#039;&lt;TD&gt;&#039;||var_titre_tableau.c3||&#039;&lt;/TD&gt;&#039;;
+var_tableau_html=var_tableau_html||&#039;&lt;TD&gt;&#039;||var_titre_tableau.c4||&#039;&lt;/TD&gt;&#039;;
+var_tableau_html=var_tableau_html||&#039;&lt;TD&gt;&#039;||var_titre_tableau.c5||&#039;&lt;/TD&gt;&#039;;
+END LOOP;</code></pre></div><p>Puis je ferme mon tableau que je renvoie</p><div class="codebox"><pre><code>var_tableau_html=var_tableau_html||&#039;&lt;/TR&gt;&lt;/TABLE&gt;&#039;;
+return var_tableau_html;</code></pre></div><p>Le problème, c&#039;est que la boucle ne fonctionne pas, je n&#039;arrive pas à faire interpréter à ma fonction une grille de lecture sur le résultat de ma requête</p><div class="codebox"><pre><code>ERROR:  record &quot;var_titre_tableau&quot; has no field &quot;c2&quot;</code></pre></div><p>J&#039;ai essayé différents stratagèmes :</p><p>1- Créer ma requête en amont et exécuter après le IN<br />2- Créer plutôt dans ma boucle une requête du type </p><div class="codebox"><pre><code>EXECUTE var_tableau_html=var_tableau_html||&#039;&lt;TD&gt;&#039;||var_titre_tableau.c1||&#039;&lt;/TD&gt;&#039;;</code></pre></div><p>Mais rien n&#039;y fait, ça ne fonctionne pas...</p><p>Z&#039;auriez une explication par hasard ? ;-)</p><p>Geo-x</p>]]></content>
+		<author>
+			<name><![CDATA[Geo-x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1346</uri>
+		</author>
+		<updated>2014-03-04T08:40:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19337#p19337</id>
+	</entry>
+</feed>

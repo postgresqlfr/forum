@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Modification Checkpoint_segments ?]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5728&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5728"/>
+	<updated>2020-03-31T15:57:08Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5728</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Modification Checkpoint_segments ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30991#p30991"/>
+		<content type="html"><![CDATA[<p>Ok je vais voir ce que je peux faire alors, merci.</p>]]></content>
+		<author>
+			<name><![CDATA[kenrio]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=964</uri>
+		</author>
+		<updated>2020-03-31T15:57:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30991#p30991</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Modification Checkpoint_segments ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30990#p30990"/>
+		<content type="html"><![CDATA[<p>Positionner log_checkpoints à on va uniquement ajouter des traces détaillées de l&#039;activité des checkpoints dans le log (càd le journal des messages) de l&#039;instance PostgreSQL: cela doit être tout à fait négligeable par rapport&#160; aux volumes de WAL écrits pendant la MAJ: il n&#039;y a pas d&#039;inquiétude à avoir que ce soit pour la charge processeur, la mémoire ou les disques.</p>]]></content>
+		<author>
+			<name><![CDATA[pifor]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8375</uri>
+		</author>
+		<updated>2020-03-31T14:55:03Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30990#p30990</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Modification Checkpoint_segments ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30989#p30989"/>
+		<content type="html"><![CDATA[<p>Merci de répondre,<br />Non le log_checkpoints est a off.<br />En 1min pendant la mise a jour ( une partie vu qu&#039;on découpe tout pour aider ) j&#039;ai 7 wal de 16mo qui sont produit.<br />Passer log_checkpoints en on ça va pas rajouter une charge serveur alors que je cherche à la réduire ?<br />JE serais bien chaud a mettre temporairement 10 en segment et 0,9 en target.</p>]]></content>
+		<author>
+			<name><![CDATA[kenrio]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=964</uri>
+		</author>
+		<updated>2020-03-31T14:43:02Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30989#p30989</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Modification Checkpoint_segments ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30988#p30988"/>
+		<content type="html"><![CDATA[<p>Est-ce que vous avez des traces détaillées des checkpoints avec log_checkpoints=on ? Si oui, pouvez-vous les partager ?<br />Est-ce que vous avez une estimation du volume de WAL générés pendant la mise à jour et la durée de la mise à jour ?</p><p>En 9.3 Les paramètres checkpoint_xxx sont tous statiques et nécessitent un arrêt/relance. Si vous les modifiez et si log_checkpoints est à off, pensez aussi à mettre&#160; log_checkpoints à on.<br />En général on peut modifier checkpoint_segments et checkpoint_completion_target ensemble: vous pouvez augmenter checkpoint_segments à 10 ou 20 et checkpoint_completion_target à 0,9 pour lisser davantage les écritures.</p>]]></content>
+		<author>
+			<name><![CDATA[pifor]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8375</uri>
+		</author>
+		<updated>2020-03-31T13:46:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30988#p30988</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Modification Checkpoint_segments ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30987#p30987"/>
+		<content type="html"><![CDATA[<p>On a une grosse mise à jour en cours qui fait énormément d&#039;update,select,delete sur 3 tables environs ( plusieurs millions de lignes )<br />J&#039;ai donc fatalement ça qui arrive :</p><p>2020-03-31 13:33:27 CEST [7687]: [93-1] user=,db=,remote= LOG:&#160; checkpoints are occurring too frequently (11 seconds apart)<br />2020-03-31 13:33:27 CEST [7687]: [94-1] user=,db=,remote= HINT:&#160; Consider increasing the configuration parameter &quot;checkpoint_segments&quot;.</p><p>Ma question est plutot comment je dois modifier pour aider la mise à jour pour ensuite revenir à l&#039;état initial ?<br />Par défaut sur mon pg9.3 j&#039;ai laissé :</p><p>#checkpoint_segments = 3&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # in logfile segments, min 1, 16MB each<br />#checkpoint_timeout = 5min&#160; &#160; &#160; &#160; &#160; &#160; &#160; # range 30s-1h<br />#checkpoint_completion_target = 0.5&#160; &#160; &#160;# checkpoint target duration, 0.0 - 1.0</p><p>Je modifie juste le segments ou aussi le target ?<br />De plus cela nécessite t il un restart de pg ? <br />Merci de votre aide.</p>]]></content>
+		<author>
+			<name><![CDATA[kenrio]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=964</uri>
+		</author>
+		<updated>2020-03-31T11:46:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30987#p30987</id>
+	</entry>
+</feed>

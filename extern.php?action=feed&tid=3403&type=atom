@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / pg_restore - Réduire le temps de restauration d'une base]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3403&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3403"/>
+	<updated>2014-12-22T13:41:39Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3403</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pg_restore - Réduire le temps de restauration d'une base]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21234#p21234"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Très bonne nouvelle : grâce aux nouveaux paramètres que vous m&#039;avez conseillés, la restauration a duré 2 jours et 9 heures !<br />Je suis ravi, merci beaucoup à vous, c&#039;est un beau cadeau de fin d&#039;année <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" />.</p><p>J&#039;ai modifié également le fichier système /etc/sysctl.conf pour y ajouter les lignes ci-dessous :<br />kernel.shmall = 2097152<br />kernel.shmmax = 4419829760<br />kernel.shmmni = 4096<br />Sinon j&#039;avais une erreur pour le paramètre &quot;shared memory&quot;.</p><p>Merci Rjuju pour votre complément au sujet des idées d&#039;amélioration, mes réponses à vos questions :<br />- pour l&#039;image disque du serveur : snapshot au niveau système de fichier,<br />- pour la configuration du RAID : c&#039;est du RAID 1 (les 2 disques 146Go et 2To sont doublés).</p><p>Bien cordialement.</p>]]></content>
+		<author>
+			<name><![CDATA[ab_fr_forum_info]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=4534</uri>
+		</author>
+		<updated>2014-12-22T13:41:39Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21234#p21234</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pg_restore - Réduire le temps de restauration d'une base]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21210#p21210"/>
+		<content type="html"><![CDATA[<p>-&gt; découper la base en plusieurs bases</p><p>attention, vous ne pouvez pas faire de requêtes joignant des tables de bases différentes. De toutes façons, avoir des bases différentes n&#039;accélèrera pas la restauration.</p><p>-&gt; sauvegarde PITR</p><p>il faut partir d&#039;une instance existante oui.</p><p>-&gt; migrer en 9.3</p><p>c&#039;est toujours une bonne idée d&#039;utiliser une version plus récente. Votre sauvegarde pg_dump sera plus rapide, mais la restauration devrait être à peu près aussi lente.</p><p>-&gt; changer pour des disques plus rapide ou SSD</p><p>et/ou utiliser un RAID 10, et/ou une carte raid avec un cache en écriture. Quel est la configuration exacte de votre raid pour le moment ? Vous pouvez également avoir un système disque dédié pour le répertoire pg_xlog, ce qui aide beaucoup les performances.</p><p>-&gt; image disque du serveur</p><p>Vous parlez d&#039;un snapshot au niveau système de fichier ou hyperviseur ?</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2014-12-17T00:58:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21210#p21210</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pg_restore - Réduire le temps de restauration d'une base]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21206#p21206"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous.</p><p>Tout d&#039;abord, un très grand merci pour vos conseils.</p><p>Ensuite, effectivement, rien d&#039;autre ne tourne sur cette machine et les données sont bien sur le 2ème disque de 2TO en RAID.<br />Je vais donc faire une nouvelle restauration avec les paramètres conseillés :<br />work_mem = 120MB<br />maintenance_work_mem = 1GB<br />checkpoint_segments = 50<br />shared buffers = 2GB&#160; &#160;<br />full_page_writes = on<br />wal_buffers = 32MB<br />auto_vacuum = off<br />max_connections = 50<br />checkpoint_timeout = 30min&#160; &#160; <br />checkpoint_completion_target = 0.9<br />checkpoint_warning désactivé<br />Nb jobs : 4</p><p>Enfin, pour améliorer la gestion des données, on a émis plusieurs idées et questions :<br />- découper la base de 620GB en plusieurs bases, leur taille sera donc plus réduite, est-ce qu&#039;il vaut mieux plusieurs petites bases à restaurer qu&#039;une seule base très volumineuse ?<br />- étudier la restauration PITR comme vous le suggérez très judicieusement, en même temps je pense qu&#039;il faut faire une première restauration de toutes les données et ensuite il est possible de restaurer les paquets correspondant au différentiel (corrigez-moi si je me trompe),<br />- changer le disque dur pour un plus rapide de 10 000 tpm ou (si le budget le permet) un SSD,<br />- passer à la version 9.3 de postgresql pour faire la parallélisation en sauvegarde et en restauration en format répertoire.<br />- faire une image disque du serveur.</p><p>RDV dans plusieurs jours pour le résultat de la restauration <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" />.</p><p>Bien cordialement.</p>]]></content>
+		<author>
+			<name><![CDATA[ab_fr_forum_info]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=4534</uri>
+		</author>
+		<updated>2014-12-16T16:51:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21206#p21206</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pg_restore - Réduire le temps de restauration d'une base]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21200#p21200"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Effectivement vous gagneriez un temps considérable à faire une restauration PITR au lieu d&#039;un pg_restore.<br />Je suppose que vos données sont stockées sur le 2ème disque de 2To ? Y at&#039;il du RAID sur ce disque ?</p><p>Cordialement,</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2014-12-16T08:52:00Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21200#p21200</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pg_restore - Réduire le temps de restauration d'une base]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21193#p21193"/>
+		<content type="html"><![CDATA[<p>Le paramètre checkpoint_segments pourrait aussi être largement augmenté pour la restauration. Une valeur entre 50 est 100 devrait pouvoir accélérer la restauration.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2014-12-15T22:08:33Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21193#p21193</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pg_restore - Réduire le temps de restauration d'une base]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21192#p21192"/>
+		<content type="html"><![CDATA[<p>maintenance_work_mem pourrait être augmenter (1 Go par exemple). shared_buffers pourrait être augmenter (une valeur de départ serait 2 Go). full_page_writes doit être réactivé. wal_buffers ne peut pas être désactivé, je suppose que vous l&#039;avez configuré à -1, je lui collerais 32 Mo de toute façon. checkpoint_timeout ne peut pas être désactivé, et une valeur haute (style 30 minutes serait appréciable. checkpoint_completion_target ne doit pas être désactivé, et une valeur de 0.9 serait bien. Le checkpoint_warning ne sert à rien, jamais.</p><p>À priori, la machine ne fait que ça. Donc je mettrais 4 en parallélisation.</p><p>En tout cas, 13 jours pour 620 Go, c&#039;est long. Ceci dit, 620 Go sauvegardé avec pg_dump, ça ne ressemble pas à l&#039;idée du siècle. Avez-vous déjà testé une sauvegarde PITR ?</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-12-15T18:08:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21192#p21192</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[pg_restore - Réduire le temps de restauration d'une base]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21189#p21189"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je souhaiterais avoir un avis pour savoir si le temps de restauration de mes données peut être optimisé.<br />Après avoir lu des messages sur plusieurs forums, j&#039;ai fait plusieurs tests en changeant des paramètres dans postgresql.conf et en utilisant l&#039;option de parallélisation de pg_restore. J&#039;ai bien rechargé la config de postgresql en faisant pg_ctl reload.</p><p>J&#039;ai augmenté les paramètres concernant la mémoire, la valeur de checkpoint_segments pour réduire le nombre de vérifications, désactivé l&#039;auto-vacuum... Je ne sais pas quelles sont les valeurs critiques à ne pas dépasser, sauf pour la mémoire car limitée à 8 Go dans ma config.</p><p>Le meilleur temps que j&#039;obtiens est 13 jours pour 620 Go de données regroupées dans une base.</p><p>Il y a sûrement quelque chose qui m&#039;échappe car je suis novice sur ce sujet.</p><p>Merci d&#039;avance pour vos conseils et suggestions.</p><p>Ci-dessous la config pour le meilleur temps :</p><p>PostgreSQL : 9.2<br />Système : Linux<br />Distribution: OpenSUSE 12.2 (Mantis) (x86_64)<br />Disques durs : <br />-1er : 146Go SAS 6Gbit/s 10000tr/min <br />-2ème : 2To Near Line SAS 6Gbit/s 7200tr/min<br />Mémoire : 8 Go<br />CPU : Intel® Xeon® CPU E5503 2.00 GHz cache size 4096 KB 2 processeurs à 2 cœurs chacun</p><p>Dans postgresql.conf:<br />work_mem = 60MB<br />maintenance_work_mem = 512MB<br />checkpoint_segments = 20<br />shared buffers = 512MB&#160; &#160;<br />full_page_writes = off<br />wal_buffers désactivé<br />auto_vacuum = off<br />max_connections = 100 <br />checkpoint_timeout désactivé&#160; &#160; &#160; <br />checkpoint_completion_target désactivé<br />checkpoint_warning désactivé</p><p>Nb jobs : 2</p><p>Extrait du script de sauvegarde :<br />pg_dump -v -Fc -f masauvegarde.bak mabase</p><p>Extrait du script de restauration :<br />pg_restore -j 2 -d mabase -Fc masauvegarde.bak</p>]]></content>
+		<author>
+			<name><![CDATA[ab_fr_forum_info]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=4534</uri>
+		</author>
+		<updated>2014-12-15T17:04:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21189#p21189</id>
+	</entry>
+</feed>

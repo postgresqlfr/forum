@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Suppression des anciens fichiers WAL]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=6568&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=6568"/>
+	<updated>2023-07-02T10:09:54Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=6568</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Suppression des anciens fichiers WAL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34373#p34373"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />Actuellement tous les jours je sauvegarde mon fichier A qui contient tous les WAL<br />Lors de la sauvegarde mensuel, je supprime manuellement les WAL qui précède mon dernier fichier .backup </p><div class="quotebox"><cite>gleu a écrit&#160;:</cite><blockquote><div><p>Vous pouvez utiliser pg_archivecleanup manuellement pour faire ça en lui indiquant le répertoire d&#039;archivage (donc le dossier &quot;A&quot;) et le plus ancien fichier archivé à conserver.</p></div></blockquote></div><p>Ok, donc à moi de le faire et d&#039;indiquer le fichier &quot;butoirs&quot; manuellement pour supprimer les fichiers les plus anciens</p>]]></content>
+		<author>
+			<name><![CDATA[Funky]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9995</uri>
+		</author>
+		<updated>2023-07-02T10:09:54Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34373#p34373</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Suppression des anciens fichiers WAL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34369#p34369"/>
+		<content type="html"><![CDATA[<p>La commande indiquée par archive_cleanup_command est exécutée uniquement lors d&#039;un restartpoint, autrement dit uniquement sur un secondaire. Cela ne semble pas être votre cas ici.</p><p>Si votre dossier &quot;A&quot; ne contient que des WAL archivés, vous pouvez les supprimer comme vous voulez, ça n&#039;empêchera pas PostgreSQL de fonctionner correctement. Cependant, vous devez conserver les WAL nécessaires pour une restauration PITR. Ce répertoire est apparemment cloné sur un serveur distant, mais vous n&#039;indiquez pas à quel fréquence il l&#039;est, ni si les fichiers sources supprimés sont aussi supprimés de la destination lors du clonage. Bref, comme la seule info que j&#039;ai est que vous lancez pg_basebackup une fois par mois, il est essentiel que vous conserviez tous les WAL depuis la dernière sauvegarde. Si vous voulez avoir une rétention plus importante (2, 3 sauvegardes), vous devez garder autant de mois de WAL. Vous pouvez utiliser pg_archivecleanup manuellement pour faire ça en lui indiquant le répertoire d&#039;archivage (donc le dossier &quot;A&quot;) et le plus ancien fichier archivé à conserver.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2023-06-28T06:40:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34369#p34369</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Suppression des anciens fichiers WAL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34364#p34364"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous,</p><p>Je voudrais avoir quelques informations pour la suppression des anciens fichiers WAL.</p><p>Contexte : </p><p>Les fichiers WAL situés dans un dossier &quot;A&quot; qui est sur le même serveur que ma BDD PSQL.<br />Le dossier &quot;A&quot; est sauvegardé grâce au logiciel rclone qui copie/colle les fichiers sur un serveur distant.<br />Tous les mois une sauvegarde pg_basebackup est lancée qui est également sauvegardée sur un serveur distant avec le logiciel rclone</p><p>Au fur et à mesure mon dossier &quot;A&quot; stock tous les fichiers WAL ainsi que les .backup. Ma question est la suivante est-ce possible qu&#039;après un pg_basebackup mes anciens fichiers WAL soit supprimés ainsi que les anciens .backup?</p><p>J&#039;ai vu la commande suivante pg_archivecleanup à paramétrer dans le fichier conf&#039; sur la ligne archive_cleanup_command <br />Mais comment lui indiquer de supprimer les anciens fichiers WAL et .backup ?</p><p>Cordialement,</p><p>Funky</p>]]></content>
+		<author>
+			<name><![CDATA[Funky]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9995</uri>
+		</author>
+		<updated>2023-06-21T10:32:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34364#p34364</id>
+	</entry>
+</feed>

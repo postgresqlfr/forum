@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Performances et plans de requêtes spatiales]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4883&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4883"/>
+	<updated>2018-09-11T06:48:49Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4883</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Performances et plans de requêtes spatiales]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28222#p28222"/>
+		<content type="html"><![CDATA[<p>OK. Merci pour ton aide.</p>]]></content>
+		<author>
+			<name><![CDATA[ced]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=461</uri>
+		</author>
+		<updated>2018-09-11T06:48:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28222#p28222</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Performances et plans de requêtes spatiales]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28221#p28221"/>
+		<content type="html"><![CDATA[<p>Ça peut en effet être la CTE en précalculant et en &quot;stockant&quot; ce résultat intermédiaire.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2018-09-10T15:04:45Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28221#p28221</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Performances et plans de requêtes spatiales]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28218#p28218"/>
+		<content type="html"><![CDATA[<p>Bonjour Guillaume,</p><p>Merci pour ta réponse.<br />Est-ce que ça peut être la CTE et la fonction ST_Transform qui entraînent un si petit nombre de blocs lus dans la deuxième requête par rapport à la troisième ?</p>]]></content>
+		<author>
+			<name><![CDATA[ced]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=461</uri>
+		</author>
+		<updated>2018-09-10T11:24:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28218#p28218</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Performances et plans de requêtes spatiales]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28212#p28212"/>
+		<content type="html"><![CDATA[<p>À mon sens, l&#039;exécution est plus lente sur la première requête parce que le ST_Transform sur e1.geom sera calculé pour chaque ligne de contour_utilisateur_geom à chaque tentative de jointure avec contours.contour_utilisateur_geom (ie, un produit cartésien). Dans la seconde requête, la CTE précalcule une seule fois le ST_Transform, ce qui permet de gagner en exécution. Enfin, il est possible que la durée d&#039;exécution de la troisième requête soit due au plus grand nombre de blocs lus.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2018-09-07T19:36:02Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28212#p28212</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Performances et plans de requêtes spatiales]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28200#p28200"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />Je dispose de deux tables contenant des géométries :<br />* table inv_exp_nm.e1point : contient des points, la géométrie a pour SRID un code de référence spatial &quot;utilisateur&quot; (c&#039;est du Lambert 93 tenant compte de la grille de reprojection lors du changement de référentiel spatial entre Lambert 2 étendu et Lambert 93). Il s&#039;agit donc du SRID 910001 dans ma table spatial_ref_sys ;<br />* table contours.contour_utilisateur_geom : contient des polygones, la géométrie a pour SRID le code EPSG du Lambert 93 (qui ne tient pas compte de la grille de repojection). C&#039;est le SRID 2154.<br />Les géométries des deux tables ont des index spatiaux.<br />Lorsqu&#039;on croise un polygone issu de la table des contours avec la table des points, la solution qui vient de suite consiste à faire une jointure spatiale entre points et polygones avec ST_INTERSECTS, en reprojetant à la volée le polygone en Lambert 93 &quot;maison&quot; (code SRID 910001).<br />Voici la requête :</p><div class="codebox"><pre><code>SELECT npp
+FROM inv_exp_nm.e1point e1
+JOIN contours.contour_utilisateur_geom c ON ST_Intersects(ST_Transform(e1.geom, 2154), c.the_geom) 
+WHERE id_contour = &#039;299&#039;;</code></pre></div><p>Elle met 5 minutes à s&#039;exécuter... Voici son plan d&#039;exécution:</p><div class="quotebox"><blockquote><div><p>Nested Loop&#160; (cost=5.08..363.93 rows=285 width=17) (actual time=457.446..309617.455 rows=12824 loops=1)<br />&#160; Buffers: shared hit=221431<br />&#160; -&gt;&#160; Index Scan using pk_contour_utilisateur_geom on contour_utilisateur_geom c&#160; (cost=0.14..8.16 rows=1 width=70362) (actual time=0.021..0.029 rows=1 loops=1)<br />&#160; &#160; &#160; &#160; Index Cond: ((id_contour)::text = &#039;299&#039;::text)<br />&#160; &#160; &#160; &#160; Buffers: shared hit=2<br />&#160; -&gt;&#160; Bitmap Heap Scan on e1point e1&#160; (cost=4.94..355.48 rows=29 width=49) (actual time=457.420..309610.839 rows=12824 loops=1)<br />&#160; &#160; &#160; &#160; Recheck Cond: (geom &amp;&amp; st_transform(c.the_geom, 910001))<br />&#160; &#160; &#160; &#160; Filter: _st_intersects(geom, st_transform(c.the_geom, 910001))<br />&#160; &#160; &#160; &#160; Rows Removed by Filter: 8892<br />&#160; &#160; &#160; &#160; Heap Blocks: exact=4074<br />&#160; &#160; &#160; &#160; Buffers: shared hit=221429<br />&#160; &#160; &#160; &#160; -&gt;&#160; Bitmap Index Scan on idx_e1point_geom&#160; (cost=0.00..4.93 rows=86 width=0) (actual time=2.678..2.678 rows=21716 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; Index Cond: (geom &amp;&amp; st_transform(c.the_geom, 910001))<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; Buffers: shared hit=173<br />Planning time: 0.205 ms<br />Execution time: 309621.410 ms</p></div></blockquote></div><p>Si on réécrit la requête en isolant la reprojection du polygone dans une CTE, le temps d&#039;exécution (pour un résultat identique) descend à 250 ms !<br />Voici la nouvelle requête :</p><div class="codebox"><pre><code>EXPLAIN (ANALYZE, buffers, timing) 
+WITH contour AS (SELECT ST_Transform(the_geom, 910001) as geom
+    FROM contours.contour_utilisateur_geom
+    WHERE   id_contour = &#039;299&#039;
+) 
+SELECT npp
+FROM inv_exp_nm.e1point e1 
+INNER JOIN  contour ON (ST_Intersects(contour.geom, e1.geom));</code></pre></div><p>Et son plan d&#039;exécution :</p><div class="quotebox"><blockquote><div><p>Nested Loop&#160; (cost=13.10..363.52 rows=285 width=17) (actual time=19.643..252.563 rows=12824 loops=1)<br />&#160; Buffers: shared hit=4265<br />&#160; CTE contour<br />&#160; &#160; -&gt;&#160; Index Scan using pk_contour_utilisateur_geom on contour_utilisateur_geom&#160; (cost=0.14..8.16 rows=1 width=32) (actual time=14.454..14.456 rows=1 loops=1)<br />&#160; &#160; &#160; &#160; &#160; Index Cond: ((id_contour)::text = &#039;299&#039;::text)<br />&#160; &#160; &#160; &#160; &#160; Buffers: shared hit=18<br />&#160; -&gt;&#160; CTE Scan on contour&#160; (cost=0.00..0.02 rows=1 width=32) (actual time=14.508..14.511 rows=1 loops=1)<br />&#160; &#160; &#160; &#160; Buffers: shared hit=18<br />&#160; -&gt;&#160; Bitmap Heap Scan on e1point e1&#160; (cost=4.94..355.04 rows=29 width=49) (actual time=5.130..235.789 rows=12824 loops=1)<br />&#160; &#160; &#160; &#160; Recheck Cond: (contour.geom &amp;&amp; geom)<br />&#160; &#160; &#160; &#160; Filter: _st_intersects(contour.geom, geom)<br />&#160; &#160; &#160; &#160; Rows Removed by Filter: 8892<br />&#160; &#160; &#160; &#160; Heap Blocks: exact=4074<br />&#160; &#160; &#160; &#160; Buffers: shared hit=4247<br />&#160; &#160; &#160; &#160; -&gt;&#160; Bitmap Index Scan on idx_e1point_geom&#160; (cost=0.00..4.93 rows=86 width=0) (actual time=2.683..2.683 rows=21716 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; Index Cond: (contour.geom &amp;&amp; geom)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; Buffers: shared hit=173<br />Planning time: 0.311 ms<br />Execution time: 253.495 ms</p></div></blockquote></div><p>Quand je regarde les plans d&#039;exécution, j&#039;interprète la source du problème dans la première requête sur le filtre qui réaliser la reprojection à chaque bitmap heap scan sur la table des points (c&#039;est là que le temps explose). Je me trompe ?<br />Du coup, comme les deux projections sont du Lambert 93 (et qu&#039;il n&#039;y a pas, dans cette requête du moins, d&#039;autre couche spatiale en jeu avec du Lambert 2 étendu), j&#039;ai mis à jour le SRID de la couche des contours (les polygones) en Lambert 93 &quot;utilisateur&quot; (le code SRID 910001) comme ça :</p><div class="codebox"><pre><code>SELECT updategeometrysrid(&#039;contours&#039;, &#039;contour_utilisateur_geom&#039;, &#039;the_geom&#039;, 910001);</code></pre></div><p>La première requête spatiale devient alors :</p><div class="codebox"><pre><code>SELECT npp
+FROM inv_exp_nm.e1point e1
+JOIN contours.contour_utilisateur_geom c ON ST_Intersects(e1.geom, c.the_geom) 
+WHERE id_contour = &#039;299&#039;;</code></pre></div><p>Elle met 11 secondes à s&#039;exécuter.<br />Voici le plan d&#039;exécution :</p><div class="quotebox"><blockquote><div><p>Nested Loop&#160; (cost=5.08..363.49 rows=18830 width=17) (actual time=15.856..7647.523 rows=12824 loops=1)<br />&#160; Buffers: shared hit=221419<br />&#160; -&gt;&#160; Index Scan using pk_contour_utilisateur_geom on contour_utilisateur_geom c&#160; (cost=0.14..8.16 rows=1 width=70362) (actual time=0.013..0.014 rows=1 loops=1)<br />&#160; &#160; &#160; &#160; Index Cond: ((id_contour)::text = &#039;299&#039;::text)<br />&#160; &#160; &#160; &#160; Buffers: shared hit=2<br />&#160; -&gt;&#160; Bitmap Heap Scan on e1point e1&#160; (cost=4.94..355.04 rows=29 width=49) (actual time=15.840..7643.820 rows=12824 loops=1)<br />&#160; &#160; &#160; &#160; Recheck Cond: (geom &amp;&amp; c.the_geom)<br />&#160; &#160; &#160; &#160; Filter: _st_intersects(geom, c.the_geom)<br />&#160; &#160; &#160; &#160; Rows Removed by Filter: 8892<br />&#160; &#160; &#160; &#160; Heap Blocks: exact=4074<br />&#160; &#160; &#160; &#160; Buffers: shared hit=221417<br />&#160; &#160; &#160; &#160; -&gt;&#160; Bitmap Index Scan on idx_e1point_geom&#160; (cost=0.00..4.93 rows=86 width=0) (actual time=2.637..2.637 rows=21716 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; Index Cond: (geom &amp;&amp; c.the_geom)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; Buffers: shared hit=173<br />Planning time: 0.530 ms<br />Execution time: 7649.239 ms</p></div></blockquote></div><p>Là encore, le nœud critique semble être le Bitmap Heap Scan sur la table des points. La différence avec le plan d&#039;exécution de la deuxième requête semble être la taille des buffers lus en mémoire, qui est plus élevée. Est-ce que c&#039;est ça qui augmente le temps d&#039;exécution ? Si oui, pourquoi cette taille est supérieure avec cette dernière requête ?<br />Merci d&#039;avance pour votre aide,<br />Cédric</p>]]></content>
+		<author>
+			<name><![CDATA[ced]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=461</uri>
+		</author>
+		<updated>2018-09-05T07:58:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28200#p28200</id>
+	</entry>
+</feed>

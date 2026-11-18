@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Problème avec PostGIS]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2179&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2179"/>
+	<updated>2012-07-30T07:11:12Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2179</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème avec PostGIS]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14655#p14655"/>
+		<content type="html"><![CDATA[<p>Là, c&#039;est plutôt à un forum PostGIS qu&#039;il faudrait poser la question <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-07-30T07:11:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14655#p14655</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème avec PostGIS]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14654#p14654"/>
+		<content type="html"><![CDATA[<p>D&#039;accord. Mais en fait la base de données en question n&#039;est faite que de fichiers shape que j&#039;ai importé grâce à la commande shp2pgsql sur mon autre machine.<br />Etant donné que je possède tous ces fichiers sur mon ordinateur aussi, comment puis-je les importer dans ma base de données ? J&#039;ai tenté la fonction shp2pgsql dessus mais la fonction est introuvable ... Elle ne doit peut-être plus exister avec la version de PostGIS que j&#039;utilise. Comment puis-je faire ?</p>]]></content>
+		<author>
+			<name><![CDATA[meley]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1859</uri>
+		</author>
+		<updated>2012-07-29T13:52:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14654#p14654</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème avec PostGIS]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14653#p14653"/>
+		<content type="html"><![CDATA[<p>Tous vos problèmes viennent de là. Sur votre sauvegarde, il y a déjà les objets systèmes de PostGIS. Du coup, à la restauration, il essaie de les recréer, ce qui ne passe pas. De plus, certaines bibliothèques (par exemple liblwgeom) qui existaient sur votre ancienne version de PostGIS n&#039;existent plus sur la version 1.5.</p><p>Ça va vous prendre beaucoup de temps de démêler cet écheveau.</p><p>Généralement, il est conseillé d&#039;installer PostGIS dans un schéma et de toute sauvegarder sauf ce schéma. La restauration se passe beaucoup mieux (sans pour autant dire parfaitement) parce qu&#039;il n&#039;essaie pas de recréer des objets déjà existants. Si vous avez la possibilité de refaire une sauvegarde et que vous aviez bien ajouter les objets systèmes PostGIS dans un schéma particulier, il serait plus simple de refaire la sauvegarde. Sinon vous allez vraiment beaucoup galérer. Il va vous falloir dans ce cas vérifier que toutes les erreurs sont relatives à PostGIS et que cela n&#039;empêche pas que vos données personnelles soient bien restaurées. Bon courage.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-07-28T12:58:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14653#p14653</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème avec PostGIS]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14652#p14652"/>
+		<content type="html"><![CDATA[<p>Alors pour la création de la base j&#039;ai effectué les opération suivantes : <br />&#160; &#160; createdb -U user base_geo<br />&#160; &#160; sudo -i -u postgres<br />&#160; &#160; psql -f /usr/share/postgresql/9.1/contrib/postgis-1.5/postgis.sql&#160; &lt;nom_base_geo&gt;<br />&#160; &#160; psql -f /usr/share/postgresql/9.1/contrib/postgis-1.5/spatial_ref_sys.sql&#160; &lt;nom_base_geo&gt;</p><p>Pour ce qui est de la base de données à importer elle a effectivement été sauvegardé depuis une version plus ancienne de Postgres/PostGis. Il s&#039;agit de la 8.2. Quand à la version sur laquelle je tente l&#039;import c&#039;est la 9.1.4 pour Postgres et la 1.5 pour PostGIS.</p>]]></content>
+		<author>
+			<name><![CDATA[meley]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1859</uri>
+		</author>
+		<updated>2012-07-28T12:43:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14652#p14652</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème avec PostGIS]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14651#p14651"/>
+		<content type="html"><![CDATA[<p>Les types et fonctions qui existent déjà correspondent à des types et fonctions de PostGIS ? Si oui, c&#039;est que votre base n&#039;est pas vierge. Comment l&#039;avez-vous créé ?</p><p>Concernant le fait que liblwgeom.dll n&#039;existe pas, ça me fait penser que vous avez sur cette sauvegarde une ancienne version de PostGIS et que vous essayez de la restaurer sur une version plus récente. Donc, à partir de quelle version de PostgreSQL et de PostGIS a été fait la sauvegarde et sur quelle version de PostgreSQL et de PostGIS essayez-vous de la restaurer ?</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-07-28T12:14:09Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14651#p14651</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème avec PostGIS]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14650#p14650"/>
+		<content type="html"><![CDATA[<p>D&#039;accord. Après il y a plusieurs messages du même genre qui m&#039;indique que plusieurs type et fonction existent déjà.<br />Par contre, j&#039;ai d&#039;autres messages qui eux sont plus intéressant je pense :<br />&#160; &#160; ERROR: could not access file &quot;$libdir/liblwgeom.dll&quot;: Aucun fichier ou dossier de ce type</p>]]></content>
+		<author>
+			<name><![CDATA[meley]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1859</uri>
+		</author>
+		<updated>2012-07-28T12:05:38Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14650#p14650</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème avec PostGIS]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14648#p14648"/>
+		<content type="html"><![CDATA[<p>Tu ne peux rien faire pour ce message. Le langage existe déjà bien, donc pas de soucis. Si tu ne veux plus le voir, il suffit de faire un &quot;droplang plppgsql ta_base&quot; après le écreatedb ta_base&quot;. Regarde le message suivant.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-07-28T06:23:52Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14648#p14648</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème avec PostGIS]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14647#p14647"/>
+		<content type="html"><![CDATA[<p>Merci pour ta réponse rapide. </p><p>La sauvegarde que je restaure était déjà une base de données géographiques oui. <br />Le premier message d&#039;erreur qu&#039;il m&#039;affiche est les suivant :</p><p>ERROR:&#160; language &quot;plpgsql&quot; already exists</p><p>Et il est suivi de beaucoup beaucoup d&#039;autres ...</p><p>Que faut-il que je fasse ??</p><p>Merci pour ton aide</p>]]></content>
+		<author>
+			<name><![CDATA[meley]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1859</uri>
+		</author>
+		<updated>2012-07-28T00:55:03Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14647#p14647</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème avec PostGIS]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14641#p14641"/>
+		<content type="html"><![CDATA[<p>La sauvegarde que vous restaurez contient déjà PostGIS ? ça expliquerait le coup des clés primaires multiples.</p><p>En fait, quand vous avez un problème avec la restauration d&#039;une sauvegarde, il faut trouver le premier message d&#039;erreur, puis le corriger. Relancez la restauration, trouvez de nouveau le premier message d&#039;erreur, le corriger, etc. Il faut avancer comme cela petit à petit, sinon vous n&#039;y arriverez jamais. Donc commencez par créer une base vide, essayez d&#039;y restaurer votre sauvegarde et récupérez le premier message d&#039;erreur. Si vous ne savez pas résoudre ce message, venez ici demander.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-07-27T21:28:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14641#p14641</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Problème avec PostGIS]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14640#p14640"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je viens d&#039;installer PostgreSQL sur mon serveur qui tourne sous Ubuntu. J&#039;ai créée une base de données à laquelle j&#039;ai rajouté la cartouche cartographique. Ensuite, j&#039;importe ma base de données grâce à une sauvegarde avec la commande :<br />&#160; &#160; cat&#160; nom_de_la_base.sql | psql -d&#160; nom_de_la_base</p><p>Là, premiers soucis, durant l&#039;exécution j&#039;ai des erreurs de type : </p><p>ERROR:&#160; multiple primary keys for table &quot;spatial_ref_sys&quot; are not allowed</p><p>ERROR:&#160; multiple primary keys for table &quot;geometry_columns&quot; are not allowed</p><p>et surtout beaucoup de :</p><p>ERROR:&#160; invalid byte sequence for encoding &quot;UTF8&quot;: 0xe96509<br />CONTEXT:&#160; COPY zdu, line 1</p><p>Lorsque j&#039;essaie de voir si la base a été correctement copié, je me connecte avec pgadminIII et lorsque je clique sur mes tables j&#039;ai l&#039;erreur suivante :</p><p>Une erreur s&#039;est produite : <br />ERROR permission denied for relation nom_table</p><p>Alors que je me suis connecté en avec l&#039;user propriétaire de la base de données....</p><p>Comment puis-je régler tout ça s&#039;il vous plais ?</p><p>Merci</p>]]></content>
+		<author>
+			<name><![CDATA[meley]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1859</uri>
+		</author>
+		<updated>2012-07-27T19:55:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14640#p14640</id>
+	</entry>
+</feed>

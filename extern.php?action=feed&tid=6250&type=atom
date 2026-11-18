@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Materialize 25 milliards lignes]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=6250&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=6250"/>
+	<updated>2022-04-08T10:10:37Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=6250</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Materialize 25 milliards lignes]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33365#p33365"/>
+		<content type="html"><![CDATA[<p>Bon, ça a tourné pendant des heures sans aboutir et fait planter mon client.<br />Mais au moins, le métier est d&#039;accord pour migrer sur au moins une v11 (v13 possible si je peux aller sur du Azure PostgreSQL flexible server).</p>]]></content>
+		<author>
+			<name><![CDATA[stephanel]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9932</uri>
+		</author>
+		<updated>2022-04-08T10:10:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33365#p33365</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Materialize 25 milliards lignes]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33363#p33363"/>
+		<content type="html"><![CDATA[<p>Merci. Je vais essayer de le faire (il faut que je planifie avec le métier).</p>]]></content>
+		<author>
+			<name><![CDATA[stephanel]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9932</uri>
+		</author>
+		<updated>2022-04-06T16:12:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33363#p33363</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Materialize 25 milliards lignes]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33362#p33362"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>J&#039;ai aussi du parallelisme sur le merge que je n&#039;ai pas en 9.5 (la doc sur parallel plans ne me donne pas de lien 9.5) et je n&#039;ai jamais travaillé sur cette version, est-ce que ça signifie qu&#039;elle ne fait pas de parallelism ou de façon très limitée ?</p></div></blockquote></div><p>Oui, le parallélisme intra-requête est apparu avec la version 9.6.<br /><a href="https://www.postgresql.org/docs/9.6/parallel-query.html" rel="nofollow">https://www.postgresql.org/docs/9.6/parallel-query.html</a></p><br /><p>Sinon la version 11 date de 2018 et sera obsolète en 2023, il serait préférable de migrer sur la dernière version qui est la 14.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2022-04-06T09:17:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33362#p33362</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Materialize 25 milliards lignes]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33361#p33361"/>
+		<content type="html"><![CDATA[<p>Les 25 milliards, c&#039;est les &quot;25 milliards d&#039;enregistrements que le nœud a produits&quot;, dont la plupart sont ensuite supprimés par le join filter. J&#039;imagine que c&#039;est parce qu&#039;il est obligé de produire ses enregistrements plusieurs fois pour le merge join, si on a n-n id_marque qui correspondent . Pour supprimer le materialize, tu peux essayer de désactiver enable_materialize juste avant d&#039;exécuter cette requête. J&#039;ai déjà eu des environnements où désactiver materialize sur des requêtes apportait de meilleurs résultats... maintenant que j&#039;y repense, la dernière fois, ça devait être une 9.6 <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2022-04-06T09:08:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33361#p33361</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Materialize 25 milliards lignes]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33359#p33359"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Sur une version 9.5 (!!!) en Azure for postgresql single server, j&#039;ai une requête qui met environ 4H à s&#039;exécuter. Il y a une grosse table de presque 200 millions de lignes d&#039;un côté et une autre de quelques centaines de milliers.<br />Dans le plan d&#039;exécution <a href="https://explain.dalibo.com/plan/vmJ" rel="nofollow">https://explain.dalibo.com/plan/vmJ</a>, j&#039;ai une branche avec un SORT de 6096 lignes (actual) suivi ensuite d&#039;un materialize qui a 25 milliards en rows. <br />Ensuite entre le materialize et l&#039;autre branche, j&#039;ai un merge left join qui met 4H à s&#039;exécuter et passe tout son temps à retirer les 25 milliards de lignes.</p><br /><p>En testant sur une v11 (Azure for postgresql single server), je n&#039;ai plus le materialize sur un volume similaire, j&#039;ai le sort et tout de suite le merge left join. Et la requête tourne en une dizaine de min. J&#039;ai aussi du parallelisme sur le merge que je n&#039;ai pas en 9.5 (la doc sur parallel plans ne me donne pas de lien 9.5) et je n&#039;ai jamais travaillé sur cette version, est-ce que ça signifie qu&#039;elle ne fait pas de parallelism ou de façon très limitée ?</p><br /><p>Je suppose que le plannificateur a ce comportement particulier de materialize en 9.5 et pas en 11.<br />Comment est-ce que ce 25 milliards est calculé ? Est-ce juste le plannificateur qui fonctionne comme cela pour l&#039;époque ?<br />Est-ce qu&#039;il y aurait, juste pour ma culture personnelle, une astuce qui permet de supprimer ce materialize (il est prévu de migrer en v11 pour ne pas rester sur une version non supportée - et je pense que ça réglera ce soucis et il suffira d&#039;optimiser ensuite de manière classique) ?<br />Merci.</p>]]></content>
+		<author>
+			<name><![CDATA[stephanel]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9932</uri>
+		</author>
+		<updated>2022-04-06T08:24:21Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33359#p33359</id>
+	</entry>
+</feed>

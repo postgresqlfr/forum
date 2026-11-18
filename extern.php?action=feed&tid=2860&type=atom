@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / [RESOLU] Requête avec count() dans plusieurs tables]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2860&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2860"/>
+	<updated>2013-11-06T12:57:43Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2860</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] Requête avec count() dans plusieurs tables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18595#p18595"/>
+		<content type="html"><![CDATA[<p>Si vous avez plusieurs ventouses (id 1 et id 2) pour une vanne (id 1), la vanne (id 1) va être compté 2 fois dans le count(v.id).<br />Avec le distinct, elle ne va être compté qu&#039;une seule fois.</p>]]></content>
+		<author>
+			<name><![CDATA[arthurr]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=62</uri>
+		</author>
+		<updated>2013-11-06T12:57:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18595#p18595</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] Requête avec count() dans plusieurs tables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18594#p18594"/>
+		<content type="html"><![CDATA[<p>Parfait avec la clause DISTINCT ! Je récupère bien les chiffres voulus. Par contre, après avoir regardé la doc sur ce sujet, je ne comprends pas l&#039;utilisation de DISTINCT sur un gid (clé primaire) car cette colonne est sensée stocker des valeurs uniques... Ça doit tenir au fait que j&#039;interroge plusieurs tables , non ?</p>]]></content>
+		<author>
+			<name><![CDATA[Thomas Williamson]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2202</uri>
+		</author>
+		<updated>2013-11-06T10:26:29Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18594#p18594</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] Requête avec count() dans plusieurs tables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18593#p18593"/>
+		<content type="html"><![CDATA[<p>bonjour,</p><p>je ne connais pas assez bien votre base, mais un DISTINCT dans le count est peut être suffisant :</p><div class="codebox"><pre><code>SELECT 
+  a.insee AS commune, 
+  count(distinct b.gid) AS nb_vanne, 
+  count(distinct c.gid) AS nb_ventouse
+
+FROM commune a
+  LEFT JOIN vanne b ON a.insee = b.insee
+  LEFT JOIN ventouse c ON a.insee = c.insee
+
+WHERE a.insee = &#039;86000&#039;
+
+GROUP BY a.insee ;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[arthurr]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=62</uri>
+		</author>
+		<updated>2013-11-06T10:07:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18593#p18593</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[[RESOLU] Requête avec count() dans plusieurs tables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18592#p18592"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><p>J&#039;ai les tables suivantes :</p><br /><p>- <strong>commune</strong> (gid, insee, nom)<br />- <strong>vanne</strong> (gid, type, date, insee)<br />- <strong>ventouse</strong> (gid, type, date, insee)</p><br /><p>J&#039;exécute la requête suivante pour comptabiliser le nombre de vannes et de ventouses par commune :</p><br /><div class="codebox"><pre><code>SELECT 
+  a.insee AS commune, 
+  count(b.gid) AS nb_vanne, 
+  count(c.gid) AS nb_ventouse
+
+FROM commune a
+  LEFT JOIN vanne b ON a.insee = b.insee
+  LEFT JOIN ventouse c ON a.insee = c.insee
+
+WHERE a.insee = &#039;86000&#039;
+
+GROUP BY a.insee ;</code></pre></div><br /><p>Le résultat de requête me donne 21840 vannes et 21840 ventouses alors que j&#039;en ai en réalité respectivement 312 et 70... En effet, si je supprime l&#039;un des deux <strong>count()</strong> et l&#039;un des deux <strong>LEFT JOIN</strong> correspondant, j&#039;obtiens le bon chiffre. Je ne vois pas trop d&#039;où vient ce problème. Je précise que j&#039;utilise la table <strong>commune</strong> pour pouvoir afficher l&#039;ensemble des communes et non seulement celles référencées dans les tables <strong>vanne</strong> et <strong>ventouse</strong>.</p><br /><p>Merci pour votre avis !</p><br /><p>Thomas</p>]]></content>
+		<author>
+			<name><![CDATA[Thomas Williamson]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2202</uri>
+		</author>
+		<updated>2013-11-06T08:55:50Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18592#p18592</id>
+	</entry>
+</feed>

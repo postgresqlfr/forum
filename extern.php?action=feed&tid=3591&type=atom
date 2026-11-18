@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Trigger postgresql : valeur NEW qui ne remonte pas]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3591&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3591"/>
+	<updated>2015-07-07T07:16:44Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3591</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Trigger postgresql : valeur NEW qui ne remonte pas]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22137#p22137"/>
+		<content type="html"><![CDATA[<p>Bonjour.<br />Pour info j&#039;ai appliqué un trigger similaire sur une table prise au hasard dans ma base de test et j&#039;ai le même résultat.<br />Cordialement<br />JP</p>]]></content>
+		<author>
+			<name><![CDATA[jpl]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5028</uri>
+		</author>
+		<updated>2015-07-07T07:16:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22137#p22137</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Trigger postgresql : valeur NEW qui ne remonte pas]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22134#p22134"/>
+		<content type="html"><![CDATA[<p>En fait j&#039;ai une table dans laquelle je peux trouver plusieurs fois le même numéro de dossier.<br />Lorsque je fais une modification sur l&#039;attribut the_geom ou libelle, je veux que tous les dossiers ayant le même numéro soient impactés, d&#039;où mon NEW.alerte = 1 et le test if avec l&#039;update ... alerte_date = 1.</p><p>exemple&#160; : j&#039;ai un objet avec un identifiant 3121, un libelle de type &#039;Non conforme&#039;,une valeur à 0 dans l&#039;attribut alerte date. Un deuxième dossier a le même numéro (nom_dossier). Je veux que les deux dossier aient une valeur alerte_date égale à 1 lorsque le 3121 bascule en conforme<br />update sig_conformite set libelle = &#039;Conforme&#039; where ogc_fid = 3121;</p><p>Et c&#039;est le cas ! Sauf qu&#039;après l&#039;update, le libelle du 3121 reste à &#039;Non conforme&#039;</p><p>Procédure de création de la table :</p><br /><p><strong>CREATE TABLE sig_conformite<br />(<br />&#160; ogc_fid serial NOT NULL,<br />&#160; id_conformite_travaux integer,<br />&#160; id_travaux integer,<br />&#160; date_convocation date,<br />&#160; date_visite date,<br />&#160; date_conformite date,<br />&#160; observation text,<br />&#160; nom_prenom character varying(75),<br />&#160; libelle character varying(50),<br />&#160; nom_dossier character varying(25),<br />&#160; x double precision,<br />&#160; y double precision,<br />&#160; emplacement character varying(20),<br />&#160; the_geom geometry,<br />&#160; creation boolean, -- Attribut utilisé par le trigger conformite_up_geom<br />&#160; code_insee integer,<br />&#160; alerte_date integer DEFAULT 0, -- Attribut permettant de remonter les problèmes de date de conformié :...<br />&#160; alerte_geom integer DEFAULT 0, -- Attribut permettant de remonter l&#039;absence de géométrie dans les alertes...<br />&#160; CONSTRAINT sig_conformite_pkey PRIMARY KEY (ogc_fid ),<br />&#160; CONSTRAINT enforce_dims_wkb_geometry CHECK (st_ndims(the_geom) = 2),<br />&#160; CONSTRAINT enforce_geotype_wkb_geometry CHECK (geometrytype(the_geom) = &#039;POINT&#039;::text OR the_geom IS NULL),<br />&#160; CONSTRAINT enforce_srid_the_geom CHECK (st_srid(the_geom) = 3944)<br />)<br />WITH (<br />&#160; OIDS=FALSE<br />);<br />ALTER TABLE sig_conformite<br />&#160; OWNER TO postgres;<br />COMMENT ON COLUMN sig_conformite.creation IS &#039;Attribut utilisé par le trigger conformite_up_geom&#039;;<br />COMMENT ON COLUMN sig_conformite.alerte_date IS &#039;Attribut permettant de remonter les problèmes de date de conformié :<br />0 =&gt; on remonrte l&#039;&#039;alerte<br />1 =&gt; l&#039;&#039;alerte n&#039;&#039;est pas remontée&#039;;<br />COMMENT ON COLUMN sig_conformite.alerte_geom IS &#039;Attribut permettant de remonter l&#039;&#039;absence de géométrie dans les alertes<br />0 =&gt; on remonrte l&#039;&#039;alerte<br />1 =&gt; une géométrie existe ou impossible d&#039;&#039;en affecter une&#039;;</strong></p><br /><br /><p><strong>CREATE INDEX sig_conformite_code_insee_idx<br />&#160; ON sig_conformite<br />&#160; USING btree<br />&#160; (code_insee );</strong></p><br /><br /><p><strong>CREATE INDEX sig_conformite_libelle_idx<br />&#160; ON sig_conformite<br />&#160; USING btree<br />&#160; (libelle COLLATE pg_catalog.&quot;default&quot; );</strong></p><br /><br /><p><strong>CREATE INDEX sig_conformite_nom_dossier_idx<br />&#160; ON sig_conformite<br />&#160; USING btree<br />&#160; (nom_dossier COLLATE pg_catalog.&quot;default&quot; );</strong></p><br /><p><strong>CREATE INDEX sig_conformite_ogc_fid_idx<br />&#160; ON sig_conformite<br />&#160; USING btree<br />&#160; (ogc_fid );</strong></p><br /><br /><p><strong>CREATE INDEX sig_conformite_t1_geom_idx<br />&#160; ON sig_conformite<br />&#160; USING gist<br />&#160; (the_geom );</strong></p><br /><p><strong>CREATE TRIGGER t_test_trigger<br />&#160; BEFORE UPDATE OF the_geom, libelle<br />&#160; ON sig_conformite<br />&#160; FOR EACH ROW<br />&#160; EXECUTE PROCEDURE test_trigger();</strong></p>]]></content>
+		<author>
+			<name><![CDATA[jpl]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5028</uri>
+		</author>
+		<updated>2015-07-06T10:29:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22134#p22134</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Trigger postgresql : valeur NEW qui ne remonte pas]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22133#p22133"/>
+		<content type="html"><![CDATA[<p>A priori, vous ne voulez pas faire cet UPDATE mais ceci :</p><p>NEW.alerte_date := 1;</p><p>Si ce n&#039;est pas le cas, merci de fournir un exemple complet (ordre de création de table et de procédure stockée, ainsi que la requête d&#039;UPDATE déclenchant le trigger).</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2015-07-06T10:05:29Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22133#p22133</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Trigger postgresql : valeur NEW qui ne remonte pas]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22132#p22132"/>
+		<content type="html"><![CDATA[<p>Bonjour.<br />J&#039;ai un souci avec un trigger.<br />Celui-ci se déclenche sur un update de champs nommés &#039;the_geom&#039; ou &#039;libelle&#039;.<br />Lorsque je lance un update avec la valeur de libelle = &#039;Conforme&#039; , le trigger se déclenche bien, fait ce qu&#039;il faut, mais par contre le NEW.libelle n&#039;est pas remontée dans ma base, la valeur du champ reste en l&#039;état (avec l&#039;ancienne valeur).</p><p><strong><br />CREATE TRIGGER t_test_trigger<br />&#160; BEFORE UPDATE OF the_geom, libelle<br />&#160; ON sig_conformite<br />&#160; FOR EACH ROW<br />&#160; EXECUTE PROCEDURE test_trigger();</strong></p><p><strong>....<br />BEGIN</strong></p><p><strong>nb_dossier = 0;<br />nb_dossier = count(nom_dossier)from sig_conformite where nom_dossier = NEW.nom_dossier;</strong></p><p><strong>IF NEW.libelle = &#039;Conforme&#039; THEN<br />&#160; &#160; NEW.alerte_date = 1;<br />&#160; &#160; raise notice &#039;nb dossiers :%&#039;, nb_dossier;<br />&#160; &#160; IF nb_dossier &gt; 1 THEN<br />&#160; &#160; &#160; &#160; update sig_conformite set alerte_date = 1 where nom_dossier = NEW.nom_dossier;<br />&#160; &#160; END IF;<br />END IF;</strong></p><p><strong>return NEW;<br />....<br /></strong></p><p>En simplifiant le trigger je me suis rendu compte que c&#039;est la ligne update sig_conformite set alerte_date = 1 where nom_dossier = NEW.nom_dossier&#160; qui met le bazar.<br />Je ne comprend pas pourquoi. J&#039;ai supprimé tous les autres trigger (en cas d&#039;interaction) mais le phénomène perdure. Quand je fais un raise notice sur NEW.libelle la valeur est bien &#039;Conforme&#039;, mais en final dans ma table, elle reste à &#039;Non conforme&#039;.<br />Si quelqu&#039;un à une idée sur la source du problème je suis preneur.<br />Cordialement<br />JP</p>]]></content>
+		<author>
+			<name><![CDATA[jpl]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5028</uri>
+		</author>
+		<updated>2015-07-06T09:52:21Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22132#p22132</id>
+	</entry>
+</feed>

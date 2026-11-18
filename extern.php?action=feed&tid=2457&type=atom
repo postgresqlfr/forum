@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Pgpool et les instructions préparées.]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2457&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2457"/>
+	<updated>2013-01-04T12:54:33Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2457</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Pgpool et les instructions préparées.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16265#p16265"/>
+		<content type="html"><![CDATA[<p>Ok, j&#039;ai donc recommencé avec 5 EXECUTE derrière un PREPARE et pas de loadbalancing ce qui semble confirmer que comme un prepare statement n&#039;est jamais loadbalancé les EXECUTE ne le sont pas non plus derrière.</p><p>Merci encore pour l&#039;éclairage.</p>]]></content>
+		<author>
+			<name><![CDATA[uruvela]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1604</uri>
+		</author>
+		<updated>2013-01-04T12:54:33Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16265#p16265</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Pgpool et les instructions préparées.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16264#p16264"/>
+		<content type="html"><![CDATA[<p>De mémoire il n&#039; y a pas de balance de charge avec les prepare statement, car cela nécessiterait l&#039;exécution du prepare sur chacun des nœuds, ce qui peut poser problème (plusieurs noms pour des requêtes différentes par exemple).</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2013-01-04T11:56:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16264#p16264</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Pgpool et les instructions préparées.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16263#p16263"/>
+		<content type="html"><![CDATA[<p>Une instruction peut être préparée puis utilisée. À priori, pgpool doit pouvoir la prendre en compte dans la répartition de charge. Il faudrait faire un autre test du style:<br /> * connexion<br /> * prepare<br /> * 5 requêtes execute séparées<br /> * déconnexion</p><p>De toute façon, ça n&#039;avait pas de sens de le faire comme vous l&#039;aviez fait. Faire un PREPARE puis un seul EXECUTE casse l&#039;intérêt de la requête préparée.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2013-01-04T11:35:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16263#p16263</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Pgpool et les instructions préparées.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16262#p16262"/>
+		<content type="html"><![CDATA[<p>Ah oui effectivement,merci . C&#039;est donc toujours le cas pour une instructions préparée puisqu&#039;elle n&#039;existe que dans la session en cours et ne peut donc être exécutée que dans celle-ci ?</p>]]></content>
+		<author>
+			<name><![CDATA[uruvela]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1604</uri>
+		</author>
+		<updated>2013-01-04T11:22:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16262#p16262</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Pgpool et les instructions préparées.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16261#p16261"/>
+		<content type="html"><![CDATA[<p>Voilà, indiqué dans la doc : pgpool-II cannot process multi-statement queries.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2013-01-04T11:11:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16261#p16261</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Pgpool et les instructions préparées.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16260#p16260"/>
+		<content type="html"><![CDATA[<p>Je ferais mieux de lire le message complètement avant de répondre. Je crois que le problème vient du fait que vous exécutez deux instructions en même temps, ce qui désactive la répartition de charge.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2013-01-04T11:10:03Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16260#p16260</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Pgpool et les instructions préparées.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16259#p16259"/>
+		<content type="html"><![CDATA[<p>Je ne sais pas exactement comment cela fonctionne dans pgpool mais le comportement ne me paraît pas aberrant. La requête est préparée sur un serveur, les exécutions se font donc sur ce serveur. pgpool pourrait être plus malin et préparer la requête sur les deux serveurs pour pouvoir faire la répartition de l&#039;exécution des requêtes sur les deux serveurs mais d&#039;après vos tests, il ne le fait pas.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2013-01-04T11:06:33Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16259#p16259</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Pgpool et les instructions préparées.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16258#p16258"/>
+		<content type="html"><![CDATA[<p>Bonjour, j&#039;ai deux serveurs (9.1)en streaming replication,le deuxième est en hot standby. J&#039;utilise la 3.2.1 de pgpool.</p><br /><p>Je ne m&#039;étais jamais trop posé la question de comment travaille le parser, et je viens d&#039;étudier la logique du loadbalancing : <a href="http://www.pgpool.net/docs/latest/where_to_send_queries.pdf" rel="nofollow">http://www.pgpool.net/docs/latest/where … ueries.pdf</a> .</p><br /><p>J&#039;ai fait qques tests que je n&#039;arrive pas à comprendre :</p><p>1) Avec une requête du type &quot;SELECT x,y,z FROM A limit 2&quot;, je la lance 100x (dans un script qui ouvre une connexion à chaque itération)&#160; : 50 vont sur le noeud 1 et 50 sur le noeud 2.</p><br /><p>2) Avec une requête du &quot;PREPARE toto(int) as SELECT x,y,z FROM A limit $1; execute toto(2)&quot;, je la lance 100x : les 100 partent sur le noeud 1.</p><br /><p>J&#039;avais l&#039;impression en lisant le schéma de conditionnement, qu&#039;il allait parser la requête dans le prepare et pourtant ça ne semble pas être le cas. </p><br /><p>Je me trompe en lisant le schéma ? (je penche plutôt là dessus)<br />J&#039;ai un loupé dans ma configuration du pgpool ?</p>]]></content>
+		<author>
+			<name><![CDATA[uruvela]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1604</uri>
+		</author>
+		<updated>2013-01-04T11:02:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16258#p16258</id>
+	</entry>
+</feed>

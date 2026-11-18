@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / [RESOLU]requete sur un champs jsonb]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4799&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4799"/>
+	<updated>2018-06-19T07:33:12Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4799</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU]requete sur un champs jsonb]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27848#p27848"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>duple a écrit&#160;:</cite><blockquote><div><p>Par curiosité, quelle est le réel intérêt de stoquer les données ainsi dans un champs json, la modèlisation ne pourrait être autrement ?</p></div></blockquote></div><p>sais pas !!! dans ce cas je ne suis qu&#039;utilisateur !!</p>]]></content>
+		<author>
+			<name><![CDATA[damalaan]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1000</uri>
+		</author>
+		<updated>2018-06-19T07:33:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27848#p27848</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU]requete sur un champs jsonb]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27847#p27847"/>
+		<content type="html"><![CDATA[<p>Par curiosité, quelle est le réel intérêt de stoquer les données ainsi dans un champs json, la modèlisation ne pourrait être autrement ?</p>]]></content>
+		<author>
+			<name><![CDATA[duple]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7434</uri>
+		</author>
+		<updated>2018-06-19T07:30:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27847#p27847</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU]requete sur un champs jsonb]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27842#p27842"/>
+		<content type="html"><![CDATA[<p>Yes merci<br />c&#039;est un peu sportif cette histoire, voilà le code final pour extraire tous les éléments</p><div class="codebox"><pre><code>select client , json_array_elements_text(json_array_elements(champjson::json)-&gt;&#039;d&#039;)::int as pb FROM matable</code></pre></div><p>par contre il&#160; faut &quot;retyper&quot; le jsonb en json sinon ça ne fonctionne pas</p>]]></content>
+		<author>
+			<name><![CDATA[damalaan]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1000</uri>
+		</author>
+		<updated>2018-06-18T12:45:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27842#p27842</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU]requete sur un champs jsonb]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27841#p27841"/>
+		<content type="html"><![CDATA[<p>Dans les 2 exemples montrés, champjson commençe par un crochet, qui signale le début d&#039;un tableau.</p><p>C&#039;est un tableau contenant un objet alors que la notation champjson-&gt;&#039;d&#039; retourne un champ d&#039;un objet, pas d&#039;un tableau d&#039;objets.</p><p>Moralité il faut commençer par sortir l&#039;élement du tableau, par exemple avec la fonction json_array_elements()</p><div class="codebox"><pre><code> select json_array_elements($$[{&quot;a&quot;: &quot;&quot;, &quot;b&quot;: &quot;&quot;, &quot;c&quot;: &quot;&quot;, &quot;d&quot;: [19, 38, 34, 13], &quot;e&quot;: &quot;&quot;}]$$)-&gt;&#039;d&#039;;
+     ?column?     
+------------------
+ [19, 38, 34, 13]</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2018-06-18T11:59:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27841#p27841</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[[RESOLU]requete sur un champs jsonb]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27840#p27840"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>je dois faire une requête sur une table dont un des champs est en jsonb avec un stockage du style :</p><div class="codebox"><pre><code>client, champjson
+1234, [{&quot;a&quot;: &quot;&quot;, &quot;b&quot;: &quot;&quot;, &quot;c&quot;: &quot;&quot;, &quot;d&quot;: [19, 38, 34, 13], &quot;e&quot;: &quot;&quot;}]
+4321,[{&quot;a&quot;: &quot;&quot;, &quot;b&quot;: &quot;&quot;, &quot;c&quot;: &quot;&quot;, &quot;d&quot;: [36], &quot;e&quot;: &quot;&quot;}]</code></pre></div><p>je souhaite que le résultat de ma requête soit ainsi :</p><div class="codebox"><pre><code>1234,19
+1234,38
+1234,34
+1234,13
+4321,36</code></pre></div><p>j&#039;ai donc tenté une requête comme ceci : </p><div class="codebox"><pre><code> select client, champjson-&gt;&#039;d&#039; from matable</code></pre></div><p>et j&#039;obtien</p><div class="codebox"><pre><code>1234,NULL
+4321,NULL</code></pre></div><p>merci de votre aide</p>]]></content>
+		<author>
+			<name><![CDATA[damalaan]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1000</uri>
+		</author>
+		<updated>2018-06-18T10:22:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27840#p27840</id>
+	</entry>
+</feed>

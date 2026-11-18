@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / multi-pgpool]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2983&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2983"/>
+	<updated>2014-02-06T05:09:55Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2983</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  multi-pgpool]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19156#p19156"/>
+		<content type="html"><![CDATA[<p>Désolé pour le vocabulaire : je débarque sur PostgreSQL et ne suis pas un pro des bases de données.</p><p>Mes bases sont sur des serveurs physiques différents. Donc il s&#039;agit d&#039;instances différentes.<br />Je ne sais pas s&#039;il y a d&#039;autres termes &quot;approximatifs&quot;, n&#039;hésitez pas à les relever, je clarifierai au mieux</p><p>De même, pour mieux préciser le contexte, mes objectifs sont :<br />- supporter et privilégier énormément d&#039;accès en consultation. J&#039;ai mis 8 pour l&#039;exemple, ca reste à tuner. C&#039;est peut être 6, voire 4 ... ou plus de 8<br />- d&#039;utiliser tous mes serveurs. L d&#039;abord pour ne pas s&#039;en priver mais aussi parce que es modes actif-passif ont on gros défaut : il faut les vérifier régulièrement et on n&#039;est pas toujours sûr que le relai se fera en cas de panne<br />- de résister assez facilement à une panne de site (j&#039;ai un&#160; &quot;lot&quot; 1 pgpool + 4 postgreSQL déjà actif sur chaque site)<br />- d&#039;avoir une &quot;afffinité de site&quot; sur mes accès BDD (le serveur d&#039;appli accède à un pgpool du même site qui accède à une base du même site pour éviter d&#039;ajouter de la latence et ne pas dégrader les perfs en consultation)</p><p>J&#039;ai &quot;sorti&quot; les services de mise à jour, mais je peux revenir là-dessus. C&#039;est du détail. De même je peux revenir sur mon &quot;affinité de site&quot;, la latence n&#039;étant pas trop mauvaise, s&#039;il s&#039;avère que ca complique.<br />J&#039;ai aussi mis 2 pgpool :<br />- parce que j&#039;ai lu quelque part, de l&#039;auteur lui-même, que 3 à 4 bases était l&#039;idéal pour 1 pgpool. Et si je peux encore rester sur un unique pgpool, j&#039;aimerais bien être rassuré sur la possibilité de scaler &quot;horizontalement&quot; (admettons, je n&#039;ai plus 8 bases, mais 20 ... )<br />- parce que je veux éviter toute interruption de service</p><p>Mais je suis tout neuf sur ces technos, et moyennant le respect des contraintes exprimées ici, j&#039;accepte volontiers les bons conseils et les contre-propositions.</p><p>Merci ,</p>]]></content>
+		<author>
+			<name><![CDATA[jpeg]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3133</uri>
+		</author>
+		<updated>2014-02-06T05:09:55Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19156#p19156</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  multi-pgpool]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19155#p19155"/>
+		<content type="html"><![CDATA[<p>Ça m&#039;a l&#039;air très compliqué, tout ça. Surtout que le vocabulaire approximatif n&#039;aide pas. Pour commencer, vos 8 bases sont sur une même instance ou sur des instances différentes ?</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-02-05T21:04:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19155#p19155</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[multi-pgpool]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19139#p19139"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je souhaiterais mettre en place une architecture de ce type.<br />- 2 sites A et B<br />- 8 bases PgSQL (BDD1 à BDD8), 4 sur chaque site,&#160; avec la streaming replication active. la base maître sur le site A<br />- 1 pgpool sur chaque site (pgpoolA et pgpoolB), tous deux actifs, chacun dispatchant les requêtes sur les bases de son site, sauf la maitre<br />- deux serveurs d&#039;application sur chaque site, utilisant chacun le pgpool local<br />- 1 service &quot;hors PGPool&quot; sur le site A pour alimenter la base maitre en modification (insert, update, delete)<br />- si possible, une surveillance mutuelle entre les 2 pgpool, celui restant actif relançant (ou reprenant les bases). Sinon, tant pis : je fais avec Nagios.</p><p>Est-ce possible ou qu&#039;est-ce qui ne va pas. Notamment :<br />- est-il possible de répartir les bases entre plusieurs pgpool&#160; &#160;? (ce qui me permet d&#039;une part d&#039;éviter les requêtes inter-site et leur latence, et d&#039;autre part de ne pas trop surcharger un pgpool)<br />- est-il possible de ne pas donner accès à la base maître ? (ce qui me permet de ne pas permettre aux utilisateurs &quot;en consultation&quot; d&#039;avoir physiquement accès à la base de mise à jour)<br />- jusqu&#039;où puis-je utiliser les watchdog pgpool dans un tel contexte ?<br />- si ma base maître tombe, puis-je simplement (automatiquement ?) reconfigurer tout ça ?</p><p>Et si je propose un truc complètement absurde, quel type d&#039;alternative proposez-vous ?</p><p>J&#039;avoue que je suis un peu perplexe ...<br />Merci d&#039;avance !</p>]]></content>
+		<author>
+			<name><![CDATA[jpeg]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3133</uri>
+		</author>
+		<updated>2014-02-05T10:12:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19139#p19139</id>
+	</entry>
+</feed>

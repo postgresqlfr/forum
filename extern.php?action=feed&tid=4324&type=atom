@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Récupération de base de données de 9.5 vers 9.6]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4324&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4324"/>
+	<updated>2017-07-24T07:52:51Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4324</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Récupération de base de données de 9.5 vers 9.6]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25840#p25840"/>
+		<content type="html"><![CDATA[<p>Oui merci en effet suite à un échange sur IRC c&#039;est ce qu&#039;il ressort.</p><p>Ceci dit, repasser à la version de potgis 2.2 n&#039;est pas possible pour l&#039;instant : <a href="https://redmine.postgresql.org/issues/2570" rel="nofollow">https://redmine.postgresql.org/issues/2570</a></p>]]></content>
+		<author>
+			<name><![CDATA[Deun]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5491</uri>
+		</author>
+		<updated>2017-07-24T07:52:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25840#p25840</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Récupération de base de données de 9.5 vers 9.6]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25836#p25836"/>
+		<content type="html"><![CDATA[<p>Non, pg_upgrade fait une mise à jour complète de l&#039;instance. Je ne vois que deux possibilités. La première, la plus simple, serait de réinstaller la version 2.2 de PostGIS pour PostgreSQL 9.5. Cela devrait permettre d&#039;utiliser ce système d&#039;upgrade. Si ce n&#039;est pas possible, il faudra faire l&#039;upgrade manuellement (lancer l&#039;ancienne version de PostgreSQL, sauvegarder les bases avec pg_dump, les restaurer dans la nouvelle version).</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2017-07-24T07:18:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25836#p25836</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Récupération de base de données de 9.5 vers 9.6]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25834#p25834"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je viens de mettre à jour mon système (fedora 26), et j&#039;ai, du coup postgresql 9.6 et postgis 2.3, alors qu&#039;avant, j&#039;avis respectivement 9.5 et 2.2.</p><p>J&#039;avais des «tablespace» pour les bdd geo et pour la compta. Ce qui m&#039;intéresse c&#039;est la compta car pas sauvegardée depuis un mois.</p><p>Donc une fois tout installé, j&#039;ai tenté ceci :</p><div class="codebox"><pre><code> 
+sudo postgresql-setup --upgrade --unit postgresql@ancien --new-systemd-unit --datadir /var/www/bdd/postgres/9.5 --port 5433</code></pre></div><p>Ce qui ne fonctionne pas à cause de la nouvelle version de postgis</p><div class="quotebox"><blockquote><div><p>Performing Consistency Checks<br />-----------------------------<br />Checking cluster versions&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;ok<br />Checking database user is the install user&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; ok<br />Checking database connection settings&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;ok<br />Checking for prepared transactions&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; ok<br />Checking for reg* system OID user data types&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; ok<br />Checking for contrib/isn with bigint-passing mismatch&#160; &#160; &#160; &#160;ok<br />Checking for roles starting with &#039;pg_&#039;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; ok<br />Creating dump of global objects&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;ok<br />Creating dump of database schemas<br />&#160; OpenConcerto<br />&#160; evp<br />&#160; postgres</p><p>*failure*</p><p>Consult the last few lines of &quot;pg_upgrade_dump_13336.log&quot; for<br />the probable cause of the failure.<br />Failure, exiting</p></div></blockquote></div><p>et le pg_upgrade_dump_13336.log contient ceci :</p><div class="quotebox"><blockquote><div><p>command: &quot;/usr/bin/pg_dump&quot; --host &#039;/var/lib/pgsql&#039; --port 5433 --username &#039;postgres&#039; --schema-only --quote-all-identifiers --binary-upgrade --format=custom&#160; --file=&quot;pg_upgrade_dump_13336.custom&quot; &#039;dbname=postgres&#039; &gt;&gt; &quot;pg_upgrade_dump_13336.log&quot; 2&gt;&amp;1<br />pg_dump: [programme d&#039;archivage (db)] échec de la requête : ERROR:&#160; could not access file &quot;$libdir/postgis-2.2&quot;: No such file or directory<br />pg_dump: [programme d&#039;archivage (db)] la requête était : SELECT pg_catalog.pg_get_viewdef(&#039;104728&#039;::pg_catalog.oid) AS viewdef<br />command: &quot;/usr/bin/pg_dump&quot; --host &#039;/var/lib/pgsql&#039; --port 5433 --username &#039;postgres&#039; --schema-only --quote-all-identifiers --binary-upgrade --format=custom&#160; --file=&quot;pg_upgrade_dump_13336.custom&quot; &#039;dbname=postgres&#039; &gt;&gt; &quot;pg_upgrade_dump_13336.log&quot; 2&gt;&amp;1<br />pg_dump: [programme d&#039;archivage (db)] échec de la requête : ERROR:&#160; could not access file &quot;$libdir/postgis-2.2&quot;: No such file or directory<br />pg_dump: [programme d&#039;archivage (db)] la requête était : SELECT pg_catalog.pg_get_viewdef(&#039;104728&#039;::pg_catalog.oid) AS viewdef</p></div></blockquote></div><p>Manifestement, ça plante à cause de la version de postgis qui ne correspond pas. Or, les bdd qui en dépendent ne m&#039;intéressent pas.</p><p>Est-il possible de lui dire : fait le job en focalisant uniquement sur «OpenConcerto» ?</p><p>Merci, et bonne journée.</p>]]></content>
+		<author>
+			<name><![CDATA[Deun]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5491</uri>
+		</author>
+		<updated>2017-07-24T07:03:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25834#p25834</id>
+	</entry>
+</feed>

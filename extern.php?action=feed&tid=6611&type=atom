@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / migration d'une infra postresql 12 postgis 3 repliquée bisite en hard]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=6611&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=6611"/>
+	<updated>2023-08-22T08:33:24Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=6611</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  migration d'une infra postresql 12 postgis 3 repliquée bisite en hard]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34485#p34485"/>
+		<content type="html"><![CDATA[<p>Concernant pg_upgrade, cela nécessite les 2 versions des binaires présentes, ainsi que les données présentes localement.&#160; Le reste est libre, sous réserve de ne pas faire de changement d&#039;architecture (32 &lt;-&gt; 64 bits, Windows &lt;-&gt; Linux, Big Endian &lt;-&gt; Little Endian etc), mais pg_upgrade vous prévient avant en cas de problème.&#160; Rien ne vous empêche de ruser pour limiter le temps pour avoir la dernière versions des données sur le nouveau serveur (restaurer une sauvegarde puis appliquer les WAL depuis le serveur principal, faire un rsync une fois le serveur principal éteint...).</p><br /><p>La grosse limitation concerne les versions de la libc / ICU.&#160; En cas de version différentes, il est possible (voire probable en fonction des versions présentes et des collations utilisées) que les index portant sur des données collationnables soient corrompues.&#160; La solution consiste à faire un reindex de tous les index index impactés, mais même faire un pg_upgrade puis réindexer tous les index (puis faire le vacuum/analyze préconisé par pg_upgrade) devrait être beaucoup moins long que tout restaurer à coup de pg_dump / pg_restore.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2023-08-22T08:33:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34485#p34485</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  migration d'une infra postresql 12 postgis 3 repliquée bisite en hard]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34483#p34483"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Oui bien sûr 8 go de ram ^^</p><p>effectivement il y a un slot de replication oui c&#039;est une retauration en parraléle avec le nb de job correspondant au nombre de processeur -1.</p><p>Sauf erreur le pg_upgrade ne peut être utlisé que sur la même machine or je vis à faire évoluer toutes les caractéristiques du serveur (OS, version de Postgres etc et surtout je fais des tests de remontée de bases régulièrement avant les phases de migration afin de n&#039;avoir que peu de mauvaise surprise le week-end choisi!)</p>]]></content>
+		<author>
+			<name><![CDATA[tholot]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8409</uri>
+		</author>
+		<updated>2023-08-21T09:08:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34483#p34483</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  migration d'une infra postresql 12 postgis 3 repliquée bisite en hard]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34476#p34476"/>
+		<content type="html"><![CDATA[<p>J&#039;imagine que vos machine ont 8GB de RAM et non 8MO <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><br /><p>Pour le reste, cela dépend grandement de comment tout est configuré.&#160; S&#039;agit-il d&#039;une restauration en parallèle ? Y a-t-il des slots de réplications ?&#160; En cas de problème, vous aurez à choisir entre ralentir la restauration, sacrifier le serveur secondaire (cad devoir le resynchroniser de 0 plus tard) ou sacrifier le serveur primaire (cad le voir finir en arrêt brutal pour cause de manque d&#039;espace disque dans le répertoire pg_wal).&#160; &#160;À vous de voir ce qui vous convient le mieux.</p><br /><br /><p>Pourquoi ne pas utiliser pg_upgrade pour la montée de versions, à partir d&#039;un réplicat physique / pg_basebackup.&#160; Cela devrait être bien plus efficace qu&#039;un pg_dump/pg_restore.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2023-08-18T09:58:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34476#p34476</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[migration d'une infra postresql 12 postgis 3 repliquée bisite en hard]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34474#p34474"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous,</p><p>Je dispose d&#039;une infra bisite rélié par un lien intranet intersite avec une réplication physique bati sur postgresql 12 et postgis sur deux machines virtuelles.</p><p>afin de faire des tests de migration (en gros 1To de bases de données hébergées) j&#039;ai rajouté 2 machines virtuelles avec OS et postgresql 14 et postgis 3 que j&#039;ai tuné et préréglée pour la replication physique.</p><p>aujourd&#039;hui je me pose la question suivante en terme de performance et de fiabilité de l&#039;opération de migration vis à vis de la réplication par flux </p><p>le déroulé s&#039;effectue comme suit :</p><p>sur l&#039;infra ancienne j&#039;attends la sauvegarde du vendredi soir sur l&#039;infra en version 12 puis je lance la restauration à partir de ce répertoire de sauvegarde sur l&#039;infra 14.</p><p>Question jusqu&#039;alors je laissais ce conclure cette phase de restauration SANS réplication vers le serveur esclave (je l&#039;éteins ou je ne place pas le fichier signal.....)</p><p>puis je profitais du week-end pour faire une copie physique des bases via un rsync et une fois aboutie relancer le serveur esclave.</p><p>je me pose la question suivante est-ce que je prends un risque à laisser la réplication active pendant la phase de restauration des bases qui va solliciter la même machine physique et virtuelle pour restaurer et envoyer les données au serveur secondaire.</p><p>Si vous aves des avis ou des retours à ce sujet. sinon je ferais un retour (pour info 16 processeurs et 8Mo de ram sur le serveur concerné et 1To de données à gérer environ 10h de restauration les dernières années)</p><p>D&#039;avance merci !</p>]]></content>
+		<author>
+			<name><![CDATA[tholot]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8409</uri>
+		</author>
+		<updated>2023-08-18T09:47:29Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34474#p34474</id>
+	</entry>
+</feed>

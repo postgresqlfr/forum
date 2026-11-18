@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / ORDER BY paramétré]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=157&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=157"/>
+	<updated>2009-02-03T16:17:34Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=157</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ORDER BY paramétré]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=676#p676"/>
+		<content type="html"><![CDATA[<p>Merci beaucoup gleu, tu m&#039;enlèves une belle épine du pied.<br />En effet, je n&#039;avais pas parcouru la commande EXECUTE...</p>]]></content>
+		<author>
+			<name><![CDATA[slash]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=224</uri>
+		</author>
+		<updated>2009-02-03T16:17:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=676#p676</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ORDER BY paramétré]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=671#p671"/>
+		<content type="html"><![CDATA[<p>La substitution de variables ne se fait pas. Tu dois créer ta requête dans une variable de type text et faire un OPEN curseur FOR execute ta variable. Autrement dit :</p><div class="codebox"><pre><code>marequete := &#039;SELECT &quot;HIST_EVT_CODE&quot; FROM &quot;HISTORY&quot; ORDER BY &quot;&#039;||Order||&#039;&quot;&#039;;
+OPEN &quot;Curseur&quot; SCROLL FOR EXECUTE marequete;
+RETURN &quot;Curseur&quot;;</code></pre></div><p>Voir <a href="http://docs.postgresql.fr/8.3/plpgsql-cursors.html" rel="nofollow">http://docs.postgresql.fr/8.3/plpgsql-cursors.html</a> pour les détails.</p><p>PS : évite les majuscules dans les noms d&#039;objets avec PostgreSQL, ça devient vite une galère.</p><p>PS2 : j&#039;ai supprimé la virgule en trop entre le nom de colonne et le mot clé FROM.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2009-02-03T15:04:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=671#p671</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[ORDER BY paramétré]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=669#p669"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous,</p><p>Décidément aujourd&#039;hui est la journée ou je n&#039;avance pas...<br />Je rencontre ce problème :</p><p>J&#039;ai une procédure stockée qui me retourne un curseur sur un gros SELECT. Par contre j&#039;aimerai avoir une clause ORDER BY qui soit paramétrable.<br />C&#039;est à dire que l&#039;un des paramètre de ma procédure est un varchar où j&#039;aimerai passer le paramètre de la clause ORDER BY.</p><p>Je n&#039;ai pas de message d&#039;erreur, mais cela ne tri rien :</p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION &quot;PG_GetEvtInfos&quot;(&quot;Curseur&quot; refcursor, &quot;Filter&quot; varchar, &quot;Order&quot; varchar)
+RETURNS refcursor AS
+$$
+BEGIN
+	OPEN &quot;Curseur&quot; SCROLL FOR
+		SELECT 
+		&quot;HIST_EVT_CODE&quot;,
+		FROM &quot;HISTORY&quot; 
+
+		ORDER BY &quot;Order&quot;;
+
+		RETURN &quot;Curseur&quot;;
+END;
+$$
+LANGUAGE plpgsql;</code></pre></div><p>A noter que j&#039;aimerai effectuer la même chose avec la clause WHEN, ceci explique le paramètre &quot;Filter&quot;.</p><p>Si qq&#039;un a une idée, c&#039;est sympa!<br />Merci <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[slash]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=224</uri>
+		</author>
+		<updated>2009-02-03T13:34:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=669#p669</id>
+	</entry>
+</feed>

@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / probleme d'accès à postgres]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=580&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=580"/>
+	<updated>2010-01-19T07:42:59Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=580</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  probleme d'accès à postgres]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=3639#p3639"/>
+		<content type="html"><![CDATA[<p>merci beaucoup pour votre réponse </p><p>j&#039;ai du modifier comme ça le code car il ne trouve pas les paramètres dans la méthode ou constructeur serialier </p><div class="codebox"><pre class="vscroll"><code>class Serializer
+{
+	// Variable for XML object
+	var $urlXML;
+	var $host;
+	var $username;
+	var $password;
+	var $port;
+	var $dbname;
+	var $error = null;
+    var $dbconnect;
+    var $query;
+    var $result;
+    var $persistent;
+
+	//Constructor
+	public function __construct()
+	{
+            $this-&gt;Connect(); 
+	}
+	
+	//method for connecting into the database
+	public function Connect ($Db=&quot;evostream_logs&quot;,$Host=&quot;127.0.0.1&quot;,$PgPort=5432,$User=&quot;postgres&quot;,$pass=&quot;admin&quot;,$persist=0)
+    {
+		// Passed the variable to objet
+    	$this-&gt;dbname=$Db;
+		$this-&gt;host=$Host;
+		$this-&gt;port=$PgPort;
+		$this-&gt;username=$User;
+		$this-&gt;password=$pass;
+		$this-&gt;persistent=$persist;
+            
+    	$connect=&quot;host=&#039;&quot;.$this-&gt;host.&quot;&#039; port=&#039;&quot;.$this-&gt;port.&quot;&#039; dbname=&#039;&quot;.$this-&gt;dbname.&quot;&#039; user=&#039;&quot;.$this-&gt;username.&quot;&#039;&quot;;
+            
+        // if password is not empty
+    	if (!empty($this-&gt;password))
+        {
+          		$connect.=&quot; password=&quot;.$this-&gt;password;
+        }  
+        
+        //Connection persistent
+        if ($this-&gt;persistent)
+        {
+                $this-&gt;dbconnect=pg_pconnect($connect);
+        }else{
+                $this-&gt;dbconnect=pg_connect($connect);
+        }        
+
+        //if not connected
+        if (!$this-&gt;dbconnect)
+        {
+                $this-&gt;error=&quot;cannot connect to database &quot;.$this-&gt;dbname;
+        }        
+    }</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[stomerfull]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=613</uri>
+		</author>
+		<updated>2010-01-19T07:42:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=3639#p3639</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  probleme d'accès à postgres]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=3638#p3638"/>
+		<content type="html"><![CDATA[<p>Oups <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-01-19T07:15:35Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=3638#p3638</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  probleme d'accès à postgres]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=3637#p3637"/>
+		<content type="html"><![CDATA[<p>Que vaut exactement la variable $connect ?</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-01-19T07:14:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=3637#p3637</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  probleme d'accès à postgres]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=3636#p3636"/>
+		<content type="html"><![CDATA[<p>À priori, je dirais que le $username de :</p><div class="codebox"><pre><code>$parseur = new Serializer($dbname,$host,$port,$username,$password,$persistent);</code></pre></div><p>est une chaîne vide.</p><p>Un affichage de $connect dans la méthode Connect() en apporterait la preuve.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-01-19T07:09:31Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=3636#p3636</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[probleme d'accès à postgres]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=3635#p3635"/>
+		<content type="html"><![CDATA[<p>bonjour,<br />j&#039;obtient cet erreur quand j&#039;essaie de se connecter à une base postgres</p><p>Warning: pg_connect() [function.pg-connect]: Unable to connect to PostgreSQL server: FATAL: aucun nom d&#039;utilisateur PostgreSQL n&#039;a été spécifié dans le paquet de démarrage in C:\wamp\www\evostreamclass\serializer.php on line 46</p><p>Warning: pg_query(): supplied argument is not a valid PostgreSQL link resource in C:\wamp\www\evostreamclass\serializer.php on line 129</p><p>Warning: pg_last_error(): supplied argument is not a valid PostgreSQL link resource in C:\wamp\www\evostreamclass\serializer.php on line 77</p><div class="codebox"><pre class="vscroll"><code>&lt;?php
+/*
+* Class for parsing XML file
+* Version  18-01-2010
+*/
+class Serializer
+{
+	// Variable for XML object
+	var $urlXML;
+	var $host;
+	var $username;
+	var $password;
+	var $port;
+	var $dbname;
+	var $error = null;
+    var $dbconnect;
+    var $query;
+    var $result;
+    var $persistent;
+ 
+     
+	
+	
+	//Constructor
+	public function Serializer($Db=&quot;mabase&quot;,$Host=&quot;127.0.0.1&quot;,$PgPort=5432,$User=&quot;postgres&quot;,$pass=&quot;admin&quot;,$persist=0)
+	{
+		 	
+			$this-&gt;dbname=$Db;
+			$this-&gt;host=$Host;
+			$this-&gt;port=$PgPort;
+            $this-&gt;username=$User;
+            $this-&gt;password=$pass;
+            $this-&gt;persistent=$persist;
+            $this-&gt;Connect(); 
+	}
+	
+	//method for connecting into the database
+	public function Connect ()
+    {
+            $connect=&quot;host=&#039;&quot;.$this-&gt;host.&quot;&#039; port=&#039;&quot;.$this-&gt;port.&quot;&#039; dbname=&#039;&quot;.$this-&gt;dbname.&quot;&#039; user=&#039;&quot;.$this-&gt;username.&quot;&#039;&quot;;
+            if (!empty($this-&gt;password))
+                $connect.=&quot; password=&quot;.$this-&gt;password;
+            if ($this-&gt;persistent)
+                $this-&gt;dbconnect=pg_pconnect($connect);
+            else
+                $this-&gt;dbconnect=pg_connect($connect);
+            if (!$this-&gt;dbconnect)
+                $this-&gt;error=&quot;cannot connect to database &quot;.$this-&gt;dbname;
+    }
+ 
+    
+    public function ExecuteQuery($sql)
+    {
+    	$this-&gt;query = new Query($sql,$this-&gt;dbconnect);
+    	$this-&gt;result = $this-&gt;query-&gt;Execute();
+    	$this-&gt;error = $this-&gt;query-&gt;Error();
+    	return $this-&gt;result;
+    }
+	
+ 	public function FetchResult (&amp;$row, $assoc=PGSQL_BOTH)
+    {
+            if (!$this-&gt;error)
+            {
+                 @$arr=pg_fetch_array ($this-&gt;result, $row, $assoc);
+                 return $arr;
+            }
+            else
+            {
+                echo &quot;An error occured, $this-&gt;error&quot;;
+                return null;
+            }
+    }
+   
+    public function Error ()
+    {
+            if (version_compare(phpversion(), &quot;4.2.0&quot;, &quot;ge&quot;)&gt;0)
+                $this-&gt;error=pg_last_error ($this-&gt;dbconnect);
+            return $this-&gt;error;
+   }
+    
+	//Methode for parsin the element
+	public function parser($urlXMLtoparse)
+	{
+		//Passed the urlXML to the object
+		$this-&gt;urlXML = $urlXMLtoparse;
+		
+		//Charging data of the XML
+		$xml = simplexml_load_file($this-&gt;urlXML);
+		
+		// if xml charger
+		if($xml)
+		{
+			// for debugging
+			/*echo &quot;&lt;table border=&#039;1&#039;&gt;&quot;;
+			
+			foreach($xml as $valeur)
+			{
+				echo &quot;&lt;tr&gt;&quot;;
+				foreach($valeur as $cle=&gt;$val)
+				{
+					echo &quot;&lt;td&gt;&quot;.$val.&quot;&lt;/td&gt;&quot;;
+				}
+				echo &quot;&lt;/tr&gt;&quot;;
+			}
+			
+			echo &quot;&lt;/table&gt;&quot;;*/
+			return $xml;
+		}
+	}
+	
+}
+ 
+class Query
+{
+	var $_sql;
+	var $_result;
+	var $_field;
+	var $_dbconnection;
+	var $_error;
+	
+	public function Query($sql,$dbconnection)
+	{
+		$this-&gt;_sql = $sql;
+		$this-&gt;_dbconnection = $dbconnection;	
+	}
+	
+	public function Execute()
+	{
+		$this-&gt;_result = pg_query($this-&gt;_dbconnection,$this-&gt;_sql);
+		$this-&gt;_error = pg_result_error($this-&gt;_result);
+		return $this-&gt;_result;
+	}
+	
+    public function Error()
+    {
+            return $this-&gt;_error;
+    }
+	
+}
+?&gt;
+
+
+require_once(&quot;serializer.php&quot;);
+$parseur = new Serializer($dbname,$host,$port,$username,$password,$persistent);
+$retourParser = $parseur-&gt;parser(&quot;monfichier.xml&quot;);
+ 
+//la requete sql 
+$sql = &quot;select * from clients&quot;;
+if(!$parseur-&gt;ExecuteQuery($sql))
+{
+	 die ($parseur-&gt;Error());
+}
+for ($row=0; $result=$parseur-&gt;FetchResult($row, PGSQL_BOTH); $row++)
+{
+    echo $result[&#039;firstname&#039;];
+}</code></pre></div><p>PS :<br />j&#039;ai installé en local postgresql 8.4</p><p>j&#039;ai mis en place aussi phpgadmin pour une interface convivial comme phpmyadmin</p><br /><p>merci d&#039;avance</p>]]></content>
+		<author>
+			<name><![CDATA[stomerfull]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=613</uri>
+		</author>
+		<updated>2010-01-19T07:05:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=3635#p3635</id>
+	</entry>
+</feed>

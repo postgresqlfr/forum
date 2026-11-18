@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Chevauchement de données]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=6186&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=6186"/>
+	<updated>2022-03-08T08:54:39Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=6186</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Chevauchement de données]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33302#p33302"/>
+		<content type="html"><![CDATA[<p>Ouf rjuju grand merci.<br />Problème résolu.</p>]]></content>
+		<author>
+			<name><![CDATA[Lamethode]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9925</uri>
+		</author>
+		<updated>2022-03-08T08:54:39Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33302#p33302</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Chevauchement de données]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33289#p33289"/>
+		<content type="html"><![CDATA[<p>Cette syntaxe est effectivement invalide.&#160; Vous pouvez utiliser </p><div class="codebox"><pre><code>numange(&quot;mFrom&quot;,&quot;mTo&quot;)</code></pre></div><p> et également ajouter la virgule manquante à votre exemple.</p><br /><p>Veuillez noter également qu&#039;il vous faudra installer btree_gist.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2022-03-07T17:11:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33289#p33289</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Chevauchement de données]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33287#p33287"/>
+		<content type="html"><![CDATA[<p>Je veux bien contourner le problème en créant un champ</p><p>&quot;Overlap&quot; numrange[]</p><p>Ce qui modifierait la contrainte EXCLUDE sous la forme</p><p> EXCLUDE USING GIST (&quot;HoleID&quot; WITH =, &quot;Overlap&quot; WITH &amp;&amp;)</p><p>Mais la question est de savoir comment remplir automatiquement le champ &quot;Overlap&quot; en utilisant les champs &quot;mFrom&quot; et &quot;mTo&quot;?</p>]]></content>
+		<author>
+			<name><![CDATA[Lamethode]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9925</uri>
+		</author>
+		<updated>2022-03-07T17:03:29Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33287#p33287</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Chevauchement de données]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33286#p33286"/>
+		<content type="html"><![CDATA[<p>Voici le scénario 2 avec la contrainte EXCLUDE <br />CREATE TABLE&#160; &quot;DHSample&quot;<br />(<br />&#160; &quot;SampleID&quot; integer NOT NULL,<br />&#160; &#160; &quot;HoleID&quot; character varying(20) ,<br />&#160; &#160; &quot;mFrom&quot; Numeric NOT NULL,<br />&#160; &#160; &quot;mTo&quot; Numeric ,<br />&#160; &#160; &quot;mLoss&quot; numeric,<br />&#160; &#160; &quot;SpleLength&quot; double precision generated always as <br />&#160; &#160; (CASE WHEN &quot;SampleCategory&quot;=&#039;NO SAMPLE&#039; THEN &quot;mTo&quot;-&quot;mFrom&quot; WHEN &quot;SampleCategory&quot;=&#039;QAQC&#039;THEN <br />&#160; &#160;&#160; NULL ELSE &quot;mTo&quot;-&quot;mFrom&quot;-&quot;mLoss&quot; END) stored,<br />&#160; &#160; &quot;SampleCategory&quot; character varying(10)&#160; NOT NULL DEFAULT &#039;SAMPLE&#039;::character varying,<br />&#160; &#160; &#160; &#160; CONSTRAINT &quot;DHSample_pkey&quot; PRIMARY KEY (&quot;SampleID&quot;),<br />&#160; &#160; CONSTRAINT &quot;DHSple_mTo_check&quot; CHECK (&quot;mTo&quot; &gt; &quot;mFrom&quot;),<br />&#160; &#160; &#160; &#160; CONSTRAINT &quot;DHSpleTest_mFrom_check&quot; CHECK (&quot;mFrom&quot; &gt;= 0::numeric)<br />&#160; &#160; &#160; &#160; EXCLUDE USING GIST (&quot;HoleID&quot; WITH =, [&quot;mFrom&quot;,&quot;mTo&quot;] ::numrange WITH &amp;&amp;)<br />)<br />;</p><p>ERROR: ERREUR:&#160; erreur de syntaxe sur ou près de « [ »<br />LINE 15:&#160; &#160; &#160; &#160; &#160;EXCLUDE USING GIST (&quot;HoleID&quot; WITH =, [&quot;mFrom&quot;,&quot;mTo&quot;]...<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; ^</p><br /><p>SQL state: 42601<br />Character: 687</p><br /><p>La table ne se crée pas du tout... Les champs mFrom et mTo doivent obligatoirement être dans la base de données.</p>]]></content>
+		<author>
+			<name><![CDATA[Lamethode]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9925</uri>
+		</author>
+		<updated>2022-03-07T16:58:52Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33286#p33286</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Chevauchement de données]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33285#p33285"/>
+		<content type="html"><![CDATA[<p>Voici le scénario 1 qui fonctionne à merveille sans la contrainte EXCLUDE mais qui accepte éventuellement les chevauchements</p><p>CREATE TABLE&#160; &quot;DHSample&quot;<br />(<br />&#160; &quot;SampleID&quot; integer NOT NULL,<br />&#160; &#160; &quot;HoleID&quot; character varying(20) ,<br />&#160; &#160; &quot;mFrom&quot; Numeric NOT NULL,<br />&#160; &#160; &quot;mTo&quot; Numeric ,<br />&#160; &#160; &quot;mLoss&quot; numeric,<br />&#160; &#160; &quot;SpleLength&quot; double precision generated always as <br />&#160; &#160; (CASE WHEN &quot;SampleCategory&quot;=&#039;NO SAMPLE&#039; THEN &quot;mTo&quot;-&quot;mFrom&quot; WHEN &quot;SampleCategory&quot;=&#039;QAQC&#039;THEN <br />&#160; &#160;&#160; NULL ELSE &quot;mTo&quot;-&quot;mFrom&quot;-&quot;mLoss&quot; END) stored,<br />&#160; &#160; &quot;SampleCategory&quot; character varying(10)&#160; NOT NULL DEFAULT &#039;SAMPLE&#039;::character varying,<br />&#160; &#160; &#160; &#160; CONSTRAINT &quot;DHSample_pkey&quot; PRIMARY KEY (&quot;SampleID&quot;),<br />&#160; &#160; CONSTRAINT &quot;DHSple_mTo_check&quot; CHECK (&quot;mTo&quot; &gt; &quot;mFrom&quot;),<br />&#160; &#160; &#160; &#160; CONSTRAINT &quot;DHSpleTest_mFrom_check&quot; CHECK (&quot;mFrom&quot; &gt;= 0::numeric)<br />)<br />;</p><p>INSERT INTO&#160; &quot;DHSample&quot; (&quot;SampleID&quot;,&quot;HoleID&quot;, &quot;mFrom&quot;, &quot;mTo&quot;, &quot;mLoss&quot;, &quot;SampleCategory&quot;) VALUES (100,&#039;Z1&#039;, 0, 1, -0.2, &#039;SAMPLE&#039;);</p><p>INSERT INTO&#160; &quot;DHSample&quot; (&quot;SampleID&quot;,&quot;HoleID&quot;, &quot;mFrom&quot;, &quot;mTo&quot;, &quot;mLoss&quot;, &quot;SampleCategory&quot;) VALUES (101,&#039;Z1&#039;, 1, 3, 0 , &#039;SAMPLE&#039;);</p><p>INSERT INTO&#160; &quot;DHSample&quot; (&quot;SampleID&quot;,&quot;HoleID&quot;, &quot;mFrom&quot;, &quot;mTo&quot;, &quot;mLoss&quot;, &quot;SampleCategory&quot;) VALUES (102,&#039;Z1&#039;, 2.63, 6.04, 0.17, &#039;SAMPLE&#039;);</p>]]></content>
+		<author>
+			<name><![CDATA[Lamethode]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9925</uri>
+		</author>
+		<updated>2022-03-07T16:54:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33285#p33285</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Chevauchement de données]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33282#p33282"/>
+		<content type="html"><![CDATA[<p>Ce n&#039;est pas un scénario complet. Il manque au moins la contrainte EXCLUDE et quelques INSERT montrant que les données sont quand même insérées, malgré la présence de la contrainte.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2022-03-07T15:47:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33282#p33282</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Chevauchement de données]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33279#p33279"/>
+		<content type="html"><![CDATA[<p>Voici le script de la table :</p><p>CREATE TABLE&#160; &quot;DHSample&quot;<br />(<br />&#160; &quot;SampleID&quot; integer NOT NULL (PK),<br />&#160; &#160; &quot;HoleID&quot; character varying(20) ,<br />&#160; &#160; &quot;mFrom&quot; Numeric NOT NULL,<br />&#160; &#160; &quot;mTo&quot; Numeric ,<br />&#160; &#160; &quot;mLoss&quot; numeric,<br />&#160; &#160; &quot;SpleLength&quot; double precision generated always as <br />&#160; &#160; (CASE WHEN &quot;SampleCategory&quot;=&#039;NO SAMPLE&#039; THEN &quot;mTo&quot;-&quot;mFrom&quot; WHEN &quot;SampleCategory&quot;=&#039;QAQC&#039;THEN <br />&#160; &#160;&#160; NULL ELSE &quot;mTo&quot;-&quot;mFrom&quot;-&quot;mLoss&quot; END) stored,<br />&#160; &#160; &quot;SampleCategory&quot; character varying(10)&#160; NOT NULL DEFAULT &#039;SAMPLE&#039;::character varying,<br />&#160; &#160; CONSTRAINT &quot;DHSple_mTo_check&quot; CHECK (&quot;mTo&quot; &gt; &quot;mFrom&quot;),<br />&#160; &#160; &#160; &#160; CONSTRAINT &quot;DHSpleTest_mFrom_check&quot; CHECK (&quot;mFrom&quot; &gt;= 0::numeric)</p><p>)<br />;</p><p>Il y a un flux important de données et je dois absolument empêcher tout chevauchement entre les données (mFrom et mTo) ayant un même HoleID.</p>]]></content>
+		<author>
+			<name><![CDATA[Lamethode]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9925</uri>
+		</author>
+		<updated>2022-03-07T14:45:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33279#p33279</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Chevauchement de données]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33272#p33272"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>mais cela ne fonctionne toujours pas</p></div></blockquote></div><p>Serait-il possible d&#039;avoir un peu plus de détails?&#160; Idéalement un script contenant le scénario pour reproduire le problème de 0.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2022-03-07T03:28:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33272#p33272</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Chevauchement de données]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33269#p33269"/>
+		<content type="html"><![CDATA[<p>Après avoir transformé les champs début et fin en numeric et lu la documentation,<br />J&#039;ai ajouté un champ Valrange de type numrange[]<br />&#160; j&#039;ai ensuite écrit cette contrainte d&#039;exclusion<br />EXCLUDE USING GIST (&quot;ID&quot; WITH =, &quot;Valrange&quot;(&quot;mFrom&quot;,&quot;mTo&quot;,&#039;[]&#039;::numeric) WITH &amp;&amp;)</p><p>mais cela ne fonctionne toujours pas</p>]]></content>
+		<author>
+			<name><![CDATA[Lamethode]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9925</uri>
+		</author>
+		<updated>2022-03-06T18:36:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33269#p33269</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Chevauchement de données]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33095#p33095"/>
+		<content type="html"><![CDATA[<p>Merci Julien</p>]]></content>
+		<author>
+			<name><![CDATA[Lamethode]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9925</uri>
+		</author>
+		<updated>2022-01-02T21:54:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33095#p33095</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Chevauchement de données]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33094#p33094"/>
+		<content type="html"><![CDATA[<p>Pour les contraintes d&#039;exclusion vous pouvezz consulter la documentation, par exemple :</p><br /><p> * <a href="https://www.postgresql.org/docs/current/ddl-constraints.html#DDL-CONSTRAINTS-EXCLUSION" rel="nofollow">https://www.postgresql.org/docs/current … -EXCLUSION</a><br /> * <a href="https://www.postgresql.org/docs/current/rangetypes.html#RANGETYPES-CONSTRAINT" rel="nofollow">https://www.postgresql.org/docs/current … CONSTRAINT</a></p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2022-01-02T14:17:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33094#p33094</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Chevauchement de données]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33093#p33093"/>
+		<content type="html"><![CDATA[<p>Merci julien.<br />Je vais transformer les doubles précision en numerique</p>]]></content>
+		<author>
+			<name><![CDATA[Lamethode]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9925</uri>
+		</author>
+		<updated>2022-01-02T10:26:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33093#p33093</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Chevauchement de données]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33092#p33092"/>
+		<content type="html"><![CDATA[<p>Merci Guillaume pour ta contribution.<br />Stp peux-tu me mettre sur la voie pour le trigger ou la contrainte exclude?</p>]]></content>
+		<author>
+			<name><![CDATA[Lamethode]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9925</uri>
+		</author>
+		<updated>2022-01-02T10:24:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33092#p33092</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Chevauchement de données]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33090#p33090"/>
+		<content type="html"><![CDATA[<p>Il devrait être possible de déclarer une contrainte d&#039;exclusion avec un cast explicite des double en numeric pour en faire un numrange.&#160; Bien évidemment, cela n&#039;évitera pas les problèmes de précisions liés au type double precision.&#160; Si c&#039;est quelque chose qui peut poser problème, alors modifier la table pour stocker des numeric est effectivement la meilleure chose à faire.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2021-12-31T09:16:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33090#p33090</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Chevauchement de données]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33089#p33089"/>
+		<content type="html"><![CDATA[<p>C&#039;est généralement possible avec la contrainte EXCLUDE, mais il vous faut un champ de type RANGE dans ce cas, et il n&#039;existe pas de RANGE pour le type double precision. Donc je ne vois que deux possibilités :</p><p>* si vous pouvez utiliser un numeric à la place du double precision, transformer les deux champs double precision en un champ numrange, ce qui permettra d&#039;utiliser une contrainte EXCLUDE<br />* écrire un trigger qui réalisera la contrainte.</p><p>La première solution me paraît plus propre et plus simple. C&#039;est en tout cas avec elle que je commencerais.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2021-12-31T08:12:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33089#p33089</id>
+	</entry>
+</feed>

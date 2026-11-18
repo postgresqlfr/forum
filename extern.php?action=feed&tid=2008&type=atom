@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Utilisation de template_postgis et droits d'accès]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2008&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2008"/>
+	<updated>2012-04-13T15:34:59Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2008</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Utilisation de template_postgis et droits d'accès]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13533#p13533"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Si je change le propriétaire de &#039;template_postgis&#039; (ou des 2 tables spatiales) par &#039;eleve&#039;, le problème ne sera que reporté à la prochaine création de base avec un autre utilisateur, non?</p></div></blockquote></div><p>Oui, tout à fait. Mais au moins, vous pourrez faire un REASSIGN après la création de la base.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-04-13T15:34:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13533#p13533</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Utilisation de template_postgis et droits d'accès]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13530#p13530"/>
+		<content type="html"><![CDATA[<p>Merci.<br />Effectivement template_postgis a bien pour propriétaire postgres, mais n&#039;est-ce pas logique puisque cette base découle de l&#039;installation initiale de PostGIS? (au même titre que les bases &#039;postgres&#039;, &#039;postgis&#039;, &#039;template0&#039; et &#039;template1&#039;).<br />Si je change le propriétaire de &#039;template_postgis&#039; (ou des 2 tables spatiales) par &#039;eleve&#039;, le problème ne sera que reporté à la prochaine création de base avec un autre utilisateur, non?</p>]]></content>
+		<author>
+			<name><![CDATA[NicoFromIGN]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1643</uri>
+		</author>
+		<updated>2012-04-13T12:10:50Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13530#p13530</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Utilisation de template_postgis et droits d'accès]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13528#p13528"/>
+		<content type="html"><![CDATA[<p>Le problème vient directement de la base template_postgis. Dans cette base, les deux tables dont vous parlez doivent déjà avoir comme propriétaire l&#039;utilisateur postgres. Connectez-vous sur cette base, et changez le propriétaire. La prochaine création devrait bien se passer.</p><p>Pour infos, CREATE DATABASE ne fait que copier l&#039;autre base. Il n&#039;y a aucun changement de réalisé. Par exemple, le propriétaire et les droits restent identiques à ceux des objets copiés de la base template.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-04-13T11:44:03Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13528#p13528</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Utilisation de template_postgis et droits d'accès]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13527#p13527"/>
+		<content type="html"><![CDATA[<p>*Je travaille avec pgAdmin III. Je réalise mes tests sur une instance de PostgreSQL 8.3 installé en local (localhost).<br />*J&#039;ai tout d&#039;abord créé un nouvel utilisateur &#039;eleve&#039; à partir d&#039;une connexion avec le superutilisateur &#039;postgres&#039;. Je lui ai accordé le droit CREATEDB (ainsi d&#039;ailleurs que CREATEROLE en vue d&#039;autres tests):<br />CREATE ROLE eleve LOGIN<br />&#160; ENCRYPTED PASSWORD &#039;md5dcb3b02a08cd9eb809fba37d0c9b010b&#039;<br />&#160; NOSUPERUSER NOINHERIT CREATEDB CREATEROLE;<br />COMMENT ON ROLE eleve IS &#039;mdp=toto&#039;;<br />*J&#039;ai ensuite créé une nouvelle connexion au serveur (localhost sur port 5432), mais cette fois-ci avec mon nouvel utilisateur &#039;eleve&#039;. Je travaille désormais sur cette connexion.<br />*Je crée alors ma nouvelle base en utilisant le template_postgis et en précisant mon utilisateur &#039;eleve&#039; comme propriétaire:<br />CREATE DATABASE &quot;Maspatialdatabase&quot;<br />&#160; WITH ENCODING=&#039;LATIN9&#039;<br />&#160; &#160; &#160; &#160;OWNER=eleve<br />&#160; &#160; &#160; &#160;TEMPLATE=template_postgis;<br />*Ma nouvelle base est bien créée. Si je cherche à visualiser mes deux tables spatiales dans pgAdmin, celui-ci me prévient &#039;ERROR: permission denied for relation geometry_columns&#039; par exemple. Effectivement, c&#039;est &#039;postgres&#039; qui en est le propriétaire. Cela se confirme si je cherche à ajouter des enregistrements dans la table via SELECT AddGeometryColumn(...).<br />*NB : j&#039;ai le même résultat si je passe en ligne de commande :<br />createdb -O eleve T template_postgis -U eleve my_spatial_database</p>]]></content>
+		<author>
+			<name><![CDATA[NicoFromIGN]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1643</uri>
+		</author>
+		<updated>2012-04-13T11:29:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13527#p13527</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Utilisation de template_postgis et droits d'accès]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13520#p13520"/>
+		<content type="html"><![CDATA[<p>Quel utilisateur utilisez-vous pour ajouter les objets dans cette nouvelle base ? Essayez de donner plutôt les commandes que vous exécutez, ça permettra d&#039;y voir plus clair.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-04-13T09:05:33Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13520#p13520</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Utilisation de template_postgis et droits d'accès]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13518#p13518"/>
+		<content type="html"><![CDATA[<p>Bonjour.</p><p>Je m&#039;interroge sur l&#039;aspect suivant :</p><p>Je crée un base spatiale en utilisant le template_postgis qui a été créé à l&#039;installation de PostGIS.<br />Je précise bien un propriétaire autre que l&#039;utilisateur postgres (cet autre utilisateur a bien le droit CREATEDB, mais il n&#039;est pas Superutilisateur).<br />Résultat : les 2 tables geometry_columns et spatial_ref_sys (ainsi que toutes les fonctions) issues du template conservent postgres comme propriétaire.</p><p>Problème : mon utilisateur propriétaire de la base ne peut pas accéder aux infos des 2 tables de sa base, à moins que postgres&#160; en modifie les droits. Cela me parait illogique. Y a-t-il un remède à cela?</p><p>Faut-il forcément être Superutilisateur pour créer des bases de données spatiales et éventuellement en modifier les droits pour accès d&#039;un utilisateur de plus bas niveau?</p>]]></content>
+		<author>
+			<name><![CDATA[NicoFromIGN]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1643</uri>
+		</author>
+		<updated>2012-04-13T08:57:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13518#p13518</id>
+	</entry>
+</feed>

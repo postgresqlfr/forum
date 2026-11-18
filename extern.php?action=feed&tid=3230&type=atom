@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / [9.4 beta]resultat étrange jointure ou wehre]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3230&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3230"/>
+	<updated>2014-07-21T13:19:18Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3230</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [9.4 beta]resultat étrange jointure ou wehre]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20298#p20298"/>
+		<content type="html"><![CDATA[<p>Salut<br />Merci pour la contribution.<br />En fait le problème vient de l&#039;avant dernière jointure.</p><div class="codebox"><pre><code>INNER JOIN tspecialite ON 
+ tniveau.idspecialite = tniveau.idspecialite </code></pre></div><p>cela crée une jointure croisée.<br />Il faut avouer que c&#039;était pas évident de le dénicher. Le problème a été détecter par une autre personne ailleurs.<br />@+</p>]]></content>
+		<author>
+			<name><![CDATA[alassanediakite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1475</uri>
+		</author>
+		<updated>2014-07-21T13:19:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20298#p20298</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [9.4 beta]resultat étrange jointure ou wehre]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20292#p20292"/>
+		<content type="html"><![CDATA[<p>Le fait que les jointures ne sont pas identiques ?</p><p>D&#039;un côté:</p><p>inner join public.tinscription on&#160; tclasse.idclasse = tinscription.idclasse</p><p>et de l&#039;autre</p><p>FROM tinscription<br /> INNER JOIN tetudiant ON <br /> tetudiant.idetudiant = tinscription.idetudiant</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-07-20T15:26:09Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20292#p20292</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[[9.4 beta]resultat étrange jointure ou wehre]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20259#p20259"/>
+		<content type="html"><![CDATA[<p>Bonjour<br />J&#039;ai une situation assez étrange pour moi.<br />La base de données concerne une école (filière, spécialité, cycle, niveau, classe, étudiant, inscription-&gt;association entre étudiant et classe). Je voulais avoir la liste d&#039;une classe et je suis un peut surpris du résultat.<br />Scénario...<br />I/ avec WHERE <br />SQL</p><div class="codebox"><pre><code>SELECT 
+  tetudiant.leprenom, 
+  tetudiant.lenom
+FROM 
+  public.tinscription, 
+  public.tetudiant, 
+  public.tclasse, 
+  public.tniveau, 
+  public.tcycle, 
+  public.tannee, 
+  public.tspecialite, 
+  public.tfiliere
+WHERE 
+  tetudiant.idetudiant = tinscription.idetudiant AND
+  tclasse.idclasse = tinscription.idclasse AND
+  tniveau.idniveau = tclasse.idniveau AND
+  tcycle.idcycle = tniveau.idcycle AND
+  tannee.idannee = tclasse.idannee AND
+  tspecialite.idspecialite = tniveau.idspecialite AND
+  tfiliere.idfiliere = tspecialite.idfiliere;</code></pre></div><p>sortie...<br />&#160; &quot;Aoua&quot;;&quot;Coulibaly&quot;<br />&quot;Kadiatou&quot;;&quot;Coulibaly&quot;<br />&quot;Bintou&quot;;&quot;Dembélé&quot;<br />&quot;Fatoumata&quot;;&quot;Bagayoko&quot;<br />&quot;Fanta&quot;;&quot;Bouaré&quot;<br />&quot;Amadou&quot;;&quot;Bah&quot;</p><p>II/ avec jointure 1ère forme....<br />SQL....</p><div class="codebox"><pre><code>SELECT 
+  tetudiant.leprenom, 
+  tetudiant.lenom
+from public.tannee inner join 
+  public.tclasse on  tannee.idannee = tclasse.idannee
+  inner join public.tniveau on  tniveau.idniveau = tclasse.idniveau
+  inner join public.tinscription on  tclasse.idclasse = tinscription.idclasse
+  inner join public.tcycle on  tcycle.idcycle = tniveau.idcycle
+  inner join public.tspecialite on  tspecialite.idspecialite = tniveau.idspecialite
+  inner join public.tfiliere on  tfiliere.idfiliere = tspecialite.idfiliere
+  inner join public.tetudiant on tetudiant.idetudiant = tinscription.idetudiant</code></pre></div><p> sortie...<br /> &quot;Aoua&quot;;&quot;Coulibaly&quot;<br />&quot;Kadiatou&quot;;&quot;Coulibaly&quot;<br />&quot;Bintou&quot;;&quot;Dembélé&quot;<br />&quot;Fatoumata&quot;;&quot;Bagayoko&quot;<br />&quot;Fanta&quot;;&quot;Bouaré&quot;<br />&quot;Amadou&quot;;&quot;Bah&quot;</p><p>II/ avec jointure 2ème forme...<br />SQL</p><div class="codebox"><pre><code>SELECT 
+  tetudiant.leprenom, 
+  tetudiant.lenom
+FROM tinscription
+ INNER JOIN tetudiant ON 
+ tetudiant.idetudiant = tinscription.idetudiant 
+ INNER JOIN tclasse ON 
+ tclasse.idclasse = tinscription.idclasse 
+ INNER JOIN tniveau ON 
+ tniveau.idniveau = tclasse.idniveau 
+ INNER JOIN tcycle ON 
+ tcycle.idcycle = tniveau.idcycle 
+ INNER JOIN tannee ON 
+ tannee.idannee = tclasse.idannee 
+ INNER JOIN tspecialite ON 
+ tniveau.idspecialite = tniveau.idspecialite 
+ INNER JOIN tfiliere ON 
+ tfiliere.idfiliere = tspecialite.idfiliere</code></pre></div><p>sortie...<br />&quot;Aoua&quot;;&quot;Coulibaly&quot;<br />&quot;Aoua&quot;;&quot;Coulibaly&quot;<br />&quot;Aoua&quot;;&quot;Coulibaly&quot;<br />&quot;Aoua&quot;;&quot;Coulibaly&quot;<br />&quot;Kadiatou&quot;;&quot;Coulibaly&quot;<br />&quot;Kadiatou&quot;;&quot;Coulibaly&quot;<br />&quot;Kadiatou&quot;;&quot;Coulibaly&quot;<br />&quot;Kadiatou&quot;;&quot;Coulibaly&quot;<br />&quot;Bintou&quot;;&quot;Dembélé&quot;<br />&quot;Bintou&quot;;&quot;Dembélé&quot;<br />&quot;Bintou&quot;;&quot;Dembélé&quot;<br />&quot;Bintou&quot;;&quot;Dembélé&quot;<br />&quot;Fatoumata&quot;;&quot;Bagayoko&quot;<br />&quot;Fatoumata&quot;;&quot;Bagayoko&quot;<br />&quot;Fatoumata&quot;;&quot;Bagayoko&quot;<br />&quot;Fatoumata&quot;;&quot;Bagayoko&quot;<br />&quot;Fanta&quot;;&quot;Bouaré&quot;<br />&quot;Fanta&quot;;&quot;Bouaré&quot;<br />&quot;Fanta&quot;;&quot;Bouaré&quot;<br />&quot;Fanta&quot;;&quot;Bouaré&quot;<br />&quot;Amadou&quot;;&quot;Bah&quot;<br />&quot;Amadou&quot;;&quot;Bah&quot;<br />&quot;Amadou&quot;;&quot;Bah&quot;<br />&quot;Amadou&quot;;&quot;Bah&quot;<br />_____________________________________</p><p>Je constate que la deuxième forme de jointure multiplie par 4 le résultat des deux autres.<br />Avez-vous des explications. Aux besoin, je peux donner le backup (&lt;300KO) en sql de la base.<br />Merci d&#039;avance.</p>]]></content>
+		<author>
+			<name><![CDATA[alassanediakite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1475</uri>
+		</author>
+		<updated>2014-07-10T12:11:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20259#p20259</id>
+	</entry>
+</feed>

@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / logrepli@ppv FATAL:  le système de base de données s'arrête]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=6160&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=6160"/>
+	<updated>2021-10-30T15:40:42Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=6160</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  logrepli@ppv FATAL:  le système de base de données s'arrête]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33001#p33001"/>
+		<content type="html"><![CDATA[<p>Résolu ! </p><p>C&#039;est good !!&#160; L&#039;arrêt et le démarrage sont instantanés. A peine une seconde.</p><p>A noter que j&#039;ai dû purger les anciens slots de réplications qui étaient conservés.<br />Visibles avec la commande : SELECT * FROM pg_replication_slots ;<br />Puis pour supprimer : SELECT pg_drop_replication_slot(slot_name) from pg_replication_slots where slot_name = &#039;ici le nom du slot&#039; ;<br />J&#039;ai réactivé le start et stop dans systemd via la commande service.</p><p>J&#039;ai aussi changé le paramètre donné par Guillaume &quot;wal_retrieve_retry_interval&quot;. Je l&#039;ai mis à 30S. Mais je vais jouer avec pour observer les perfs.</p><p>Vraiment, merci à Guillaume, mais aussi à Julien pour l&#039;aide.</p><p>Vous êtes au top ! </p><p>Cdlt, </p><p>Olivier</p>]]></content>
+		<author>
+			<name><![CDATA[OlivierMans]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9823</uri>
+		</author>
+		<updated>2021-10-30T15:40:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33001#p33001</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  logrepli@ppv FATAL:  le système de base de données s'arrête]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33000#p33000"/>
+		<content type="html"><![CDATA[<p>Bonjour, </p><p>1ère étape.<br />J&#039;ai supprimé toutes les souscriptions et toutes les publications sur maître et slaves.</p><p>A la place des 53 publications (une par table), j&#039;ai créé 2 publications (PUB_IU et PUB_IUD). <br />J&#039;ai fait une publication pour les tables en (Insert, Update) et une Publication pour les tables en (Insert, Update, Delete).</p><p>Déjà, le résultat du ps-ef : </p><p>root@lin01:~# ps -ef |grep postgres<br />postgres&#160; 4530 30279&#160; 0 08:06 ?&#160; &#160; &#160; &#160; 00:00:00 postgres: 11/main: postgres postgres 192.168.0.1(61591) idle<br />postgres&#160; 4532 30279&#160; 0 08:06 ?&#160; &#160; &#160; &#160; 00:00:04 postgres: 11/main: postgres ppv 192.168.0.1(62550) idle<br />postgres 12804 30279&#160; 0 09:08 ?&#160; &#160; &#160; &#160; 00:00:20 postgres: 11/main: postgres ppv 192.168.0.1(65167) idle<br />postgres 12872 30279&#160; 0 09:09 ?&#160; &#160; &#160; &#160; 00:00:00 postgres: 11/main: postgres postgres 192.168.0.1(49685) idle<br />postgres 15134 30279&#160; 0 09:27 ?&#160; &#160; &#160; &#160; 00:00:00 postgres: 11/main: postgres ppv 192.168.0.1(60806) idle<br />postgres 17775 30279&#160; 0 09:46 ?&#160; &#160; &#160; &#160; 00:00:00 postgres: 11/main: walsender logrepli 192.168.94.100(37490) idle<br />postgres 17788 30279&#160; 0 09:46 ?&#160; &#160; &#160; &#160; 00:00:00 postgres: 11/main: walsender logrepli 192.168.94.100(37496) idle<br />postgres 18192 30279&#160; 0 09:48 ?&#160; &#160; &#160; &#160; 00:00:00 postgres: 11/main: walsender logrepli 192.168.92.100(51666) idle<br />postgres 18199 30279&#160; 0 09:49 ?&#160; &#160; &#160; &#160; 00:00:00 postgres: 11/main: walsender logrepli 192.168.92.100(51670) idle<br />postgres 18357 30279&#160; 0 09:50 ?&#160; &#160; &#160; &#160; 00:00:00 postgres: 11/main: walsender logrepli 192.168.0.100(35172) idle<br />postgres 18363 30279&#160; 0 09:50 ?&#160; &#160; &#160; &#160; 00:00:00 postgres: 11/main: walsender logrepli 192.168.0.100(35176) idle<br />postgres 18405 30279&#160; 0 09:51 ?&#160; &#160; &#160; &#160; 00:00:00 postgres: 11/main: walsender logrepli 192.168.91.100(45268) idle<br />postgres 18416 30279&#160; 0 09:51 ?&#160; &#160; &#160; &#160; 00:00:00 postgres: 11/main: walsender logrepli 192.168.91.100(45292) idle<br />postgres 18464 30279&#160; 0 09:52 ?&#160; &#160; &#160; &#160; 00:00:00 postgres: 11/main: walsender logrepli 192.168.93.100(41762) idle<br />postgres 18600 30279&#160; 0 09:53 ?&#160; &#160; &#160; &#160; 00:00:00 postgres: 11/main: walsender logrepli 192.168.93.100(41778) idle</p><p>Comme l&#039;a préconisé Guillaume, je passe de 265 connexions de réplications à la BDD à 10 connexions (sauf erreur de ma part).</p><p>Je vais maintenant tester l&#039;arrêt en mode Fast...</p>]]></content>
+		<author>
+			<name><![CDATA[OlivierMans]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9823</uri>
+		</author>
+		<updated>2021-10-30T09:59:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33000#p33000</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  logrepli@ppv FATAL:  le système de base de données s'arrête]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32999#p32999"/>
+		<content type="html"><![CDATA[<p>Oui, en effet, ça se joue au niveau de la publication.</p><p>Bon, sur ce, moi, je vais me coucher, il se fait tard <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>Bonne continuation, je regarderais demain ce que ça a donné.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2021-10-29T21:38:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32999#p32999</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  logrepli@ppv FATAL:  le système de base de données s'arrête]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32998#p32998"/>
+		<content type="html"><![CDATA[<p>Bon, je vais m&#039;occuper un peu des enfants, à très bientôt. Je vais revoir effectivement les publications et donc les souscriptions.<br />Je laisse ouvert le post, pour mettre à jour dès demain matin.</p>]]></content>
+		<author>
+			<name><![CDATA[OlivierMans]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9823</uri>
+		</author>
+		<updated>2021-10-29T21:38:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32998#p32998</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  logrepli@ppv FATAL:  le système de base de données s'arrête]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32997#p32997"/>
+		<content type="html"><![CDATA[<p>Oui, c&#039;est possible. Vous indiquez la liste de tables en les séparant par une virgule :</p><div class="codebox"><pre><code>CREATE PUBLICATION mypublication FOR TABLE users, departments;</code></pre></div><p>Vous pouvez même les ajouter après :</p><div class="codebox"><pre><code>ALTER PUBLICATION mypublication ADD TABLE users, departments;</code></pre></div><p>Je pense que, suivant les options que vous souhaitez, vous pouvez ne créer que quelques souscriptions. Ce sera beaucoup plus simple à administrer, et bien plus performant.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2021-10-29T21:37:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32997#p32997</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  logrepli@ppv FATAL:  le système de base de données s'arrête]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32996#p32996"/>
+		<content type="html"><![CDATA[<p><a href="https://www.postgresql.org/docs/11/sql-createpublication.html" rel="nofollow">https://www.postgresql.org/docs/11/sql- … ation.html</a><br />Ah oui, il semble y avoir &quot;FOR TABLE&quot;</p>]]></content>
+		<author>
+			<name><![CDATA[OlivierMans]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9823</uri>
+		</author>
+		<updated>2021-10-29T21:35:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32996#p32996</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  logrepli@ppv FATAL:  le système de base de données s'arrête]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32995#p32995"/>
+		<content type="html"><![CDATA[<p>en fait, j&#039;ai fait une publication par table, donc, une souscription par table. Peux-être que ma logique n&#039;est pas la bonne.</p>]]></content>
+		<author>
+			<name><![CDATA[OlivierMans]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9823</uri>
+		</author>
+		<updated>2021-10-29T21:34:00Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32995#p32995</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  logrepli@ppv FATAL:  le système de base de données s'arrête]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32994#p32994"/>
+		<content type="html"><![CDATA[<p>Guillaume ? c&#039;est possible de grouper plusieurs table dans une souscription ?<br />Je peux pas faire sur toutes. Car l&#039;instance maître facture de son côté, donc par exemple : la table purchase ne doit pas être synchronisée vers les slaves.<br />En revanche, s&#039;il est possible de grouper les tables, je vais regarder de près.</p>]]></content>
+		<author>
+			<name><![CDATA[OlivierMans]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9823</uri>
+		</author>
+		<updated>2021-10-29T21:32:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32994#p32994</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  logrepli@ppv FATAL:  le système de base de données s'arrête]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32993#p32993"/>
+		<content type="html"><![CDATA[<p>je teste dès que le serveur a cesser de logguer. Promis, je ferai un retour. Merci énormément pour les conseils prodigués.</p>]]></content>
+		<author>
+			<name><![CDATA[OlivierMans]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9823</uri>
+		</author>
+		<updated>2021-10-29T21:29:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32993#p32993</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  logrepli@ppv FATAL:  le système de base de données s'arrête]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32992#p32992"/>
+		<content type="html"><![CDATA[<p>Ça, c&#039;est une explication sur le &quot;pourquoi la réplication&quot;. Pas sur le &quot;pourquoi autant de souscriptions&quot;. En tout cas, avec autant de souscriptions, je vous prédis des problèmes de performances très très rapidement.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2021-10-29T21:28:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32992#p32992</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  logrepli@ppv FATAL:  le système de base de données s'arrête]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32991#p32991"/>
+		<content type="html"><![CDATA[<p>Merci. Je vais tester. La raison est simple : <br />Le serveur Maître possède des tables communes (tarifs, clients etc...).<br />Les serveurs slaves n&#039;ont pas les droits de modifier ces tables.<br />Donc, en gros, le Boss met à jour les tables communes au siège (exemple :un tarif qui change).<br />ET les slaves eux, se contentent de facturer sans pouvoir toucher aux prix.<br />Le Boss, lui facture les très gros clients sur son instance. Les filiales facturent les moyens et petits clients.</p><p>C&#039;est un résumé, il y a bcp de table communes (client, sociétés, villes, prix, etc...)</p>]]></content>
+		<author>
+			<name><![CDATA[OlivierMans]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9823</uri>
+		</author>
+		<updated>2021-10-29T21:26:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32991#p32991</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  logrepli@ppv FATAL:  le système de base de données s'arrête]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32990#p32990"/>
+		<content type="html"><![CDATA[<p>Je viens de faire un test rapide avec wal_retrieve_retry_interval à 1 ms (valeur totalement stupide, mais c&#039;est un test). Et je reproduis exactement votre problème. Bref, regardez sa valeur, ça pourrait être intéressant.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2021-10-29T21:22:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32990#p32990</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  logrepli@ppv FATAL:  le système de base de données s'arrête]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32989#p32989"/>
+		<content type="html"><![CDATA[<p>C&#039;est étonnant d&#039;avoir fait une souscription par table. Pourquoi n&#039;avez vous pas faire une souscription pour toutes les tables ? parce que chaque souscription va demander au minimum une connexion, donc 53 connexions pour un serveur, mais 260 et qq connexions pour les 5. C&#039;est énorme et je ne comprends pas pourquoi vous faites ça.</p><p>Mais en soit, je ne pense pas que ce soit le problème. Le seul paramètre qui me semble avoir un lien avec votre souci est wal_retrieve_retry_interval. Quel est sa valeur ? (par défaut, c&#039;est 5 secondes).</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2021-10-29T21:21:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32989#p32989</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  logrepli@ppv FATAL:  le système de base de données s'arrête]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32988#p32988"/>
+		<content type="html"><![CDATA[<p>Je viens de démarrer un seul serveur, et ca recommence lors de l&#039;arrêt du publieur : <br />2021-10-29 21:19:11.694 GMT [4413] logrepli@ppv FATAL:&#160; le système de base de données s&#039;arrête<br />2021-10-29 21:19:11.694 GMT [4414] logrepli@ppv FATAL:&#160; le système de base de données s&#039;arrête<br />2021-10-29 21:19:11.699 GMT [4402] logrepli@ppv FATAL:&#160; le système de base de données s&#039;arrête<br />2021-10-29 21:19:11.717 GMT [4418] logrepli@ppv FATAL:&#160; le système de base de données s&#039;arrête<br />2021-10-29 21:19:11.732 GMT [4407] logrepli@ppv FATAL:&#160; le système de base de données s&#039;arrête<br />2021-10-29 21:19:11.732 GMT [4419] logrepli@ppv FATAL:&#160; le système de base de données s&#039;arrête<br />2021-10-29 21:19:11.732 GMT [4420] logrepli@ppv FATAL:&#160; le système de base de données s&#039;arrête<br />2021-10-29 21:19:11.733 GMT [4421] logrepli@ppv FATAL:&#160; le système de base de données s&#039;arrête<br />2021-10-29 21:19:11.737 GMT [4405] logrepli@ppv FATAL:&#160; le système de base de données s&#039;arrête</p>]]></content>
+		<author>
+			<name><![CDATA[OlivierMans]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9823</uri>
+		</author>
+		<updated>2021-10-29T21:19:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32988#p32988</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  logrepli@ppv FATAL:  le système de base de données s'arrête]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32987#p32987"/>
+		<content type="html"><![CDATA[<p>En fonction des tables, je gère les inserts, update, et certaines tables le delete.<br />Mais à cette heure y a pas d&#039;activité sur les BDD. <br />Donc, c&#039;est sûrement, un souci de connexion intempestive. Enfin, c&#039;est une supposition...</p>]]></content>
+		<author>
+			<name><![CDATA[OlivierMans]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9823</uri>
+		</author>
+		<updated>2021-10-29T21:17:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32987#p32987</id>
+	</entry>
+</feed>

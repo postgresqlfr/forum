@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / EXPLAIN ANALYSE - actual time "variable" pourquoi ?]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1748&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1748"/>
+	<updated>2011-11-15T15:32:37Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1748</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  EXPLAIN ANALYSE - actual time "variable" pourquoi ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11820#p11820"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Maintenant, imaginons que le SGBD ait à faire un choix parmi plusieurs possibilités. Le temps mis pour évaluer les autres possibilités (index, recherche séquentielle... qui ne seront pas retenus) est il comptabilisé dans cet &#039;actual time&#039; ou pas du tout ou ailleurs (total runtime ?) ?</p></div></blockquote></div><p>Il est intégré au &quot;total runtime&quot;. Normalement, il devrait être insignifiant mais il peut arriver que cela ne soit pas le cas.</p><div class="quotebox"><blockquote><div><p>Ces temps (actual time) calculés, peuvent ils varier si on fait plusieurs fois le mêmes EXPLAIN ANALYSE&#160; ?</p></div></blockquote></div><p>Oui. C&#039;est typiquement le cas quand vous exécutez la requête une première fois, les données devant être lues sur disque pour être mise en cache, et plusieurs fois après où les données sont directement accessibles du cache. Mais ça peut être aussi pour un tas d&#039;autres raisons. Pour exemple, dans un cas, vous êtes seul à travailler sur le serveur, et dans un autre cas, vous êtes plusieurs à exécuter des requêtes (ou plus exactement à travailler sur le serveur).</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-11-15T15:32:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11820#p11820</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  EXPLAIN ANALYSE - actual time "variable" pourquoi ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11819#p11819"/>
+		<content type="html"><![CDATA[<p>oubliez ma dernière question.</p><br /><p>Ces temps (actual time) calculés, peuvent ils varier si on fait plusieurs fois le mêmes EXPLAIN ANALYSE&#160; ?</p>]]></content>
+		<author>
+			<name><![CDATA[natuse]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1444</uri>
+		</author>
+		<updated>2011-11-15T15:21:45Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11819#p11819</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  EXPLAIN ANALYSE - actual time "variable" pourquoi ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11818#p11818"/>
+		<content type="html"><![CDATA[<p>D&#039;accord.&#160; <br />Maintenant, imaginons que le SGBD ait à faire un choix parmi plusieurs possibilités. Le temps mis pour évaluer les autres possibilités (index, recherche séquentielle... qui ne seront pas retenus) est il comptabilisé dans cet &#039;actual time&#039; ou pas du tout ou ailleurs (total runtime ?) ?</p>]]></content>
+		<author>
+			<name><![CDATA[natuse]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1444</uri>
+		</author>
+		<updated>2011-11-15T14:31:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11818#p11818</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  EXPLAIN ANALYSE - actual time "variable" pourquoi ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11816#p11816"/>
+		<content type="html"><![CDATA[<p>J&#039;ai du mal à croire que vous aurez moins de 0,6 ms, y compris avec un index <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>Le temps qui est indiqué est le temps total, que ce soit un parcours séquentiel, un parcours d&#039;index, une nested loop, un hash join, etc. Pas besoin de multiplier quoi que ce soit.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-11-15T13:53:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11816#p11816</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  EXPLAIN ANALYSE - actual time "variable" pourquoi ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11815#p11815"/>
+		<content type="html"><![CDATA[<p>Merci.<br />Mon réflexe avait été de multiplier par 7 le temps mis pour récupérer la première ligne de manière à obtenir le temps mis pour les 7 lignes. Je suppose que l&#039;index permet justement de s&#039;affranchir de ce coût.<br />Par contre, dans le cas d&#039;une recherche séquentielle, sans index donc, c&#039;est grosso modo une telle multiplication qu&#039;il faut faire&#160; &#160;? Ou c&#039;est bien plus compliqué ?</p><p>Ou bien je suis totalement à coté de la plaque ? <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[natuse]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1444</uri>
+		</author>
+		<updated>2011-11-15T13:48:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11815#p11815</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  EXPLAIN ANALYSE - actual time "variable" pourquoi ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11814#p11814"/>
+		<content type="html"><![CDATA[<p>C&#039;est ça, la première ligne de l&#039;ensemble de résultats pour le noeud en question.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-11-15T13:42:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11814#p11814</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  EXPLAIN ANALYSE - actual time "variable" pourquoi ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11813#p11813"/>
+		<content type="html"><![CDATA[<p>oui</p>]]></content>
+		<author>
+			<name><![CDATA[kenrio]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=964</uri>
+		</author>
+		<updated>2011-11-15T13:28:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11813#p11813</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  EXPLAIN ANALYSE - actual time "variable" pourquoi ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11812#p11812"/>
+		<content type="html"><![CDATA[<p>Merci.<br />&quot;Recupérer la première ligne&quot; <br />qu&#039;entendez vous par &quot;ligne&quot; ? S&#039;agit il de &quot;rows&quot; qui sont en l&#039;occurrence au nombre de 7 ?</p>]]></content>
+		<author>
+			<name><![CDATA[natuse]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1444</uri>
+		</author>
+		<updated>2011-11-15T13:20:52Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11812#p11812</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  EXPLAIN ANALYSE - actual time "variable" pourquoi ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11811#p11811"/>
+		<content type="html"><![CDATA[<p>Ce n&#039;est pas une fourchette. Le premier élément indique le temps pour récupérer la première ligne et le deuxième élément indique le temps pour récupérer toutes les lignes. Le plus intéressant est généralement le deuxième mais le premier a aussi son importance dans le choix du plan d&#039;exécution par PostgreSQL.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-11-15T13:07:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11811#p11811</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[EXPLAIN ANALYSE - actual time "variable" pourquoi ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11810#p11810"/>
+		<content type="html"><![CDATA[<p>Bonjour, </p><p>Je ne parviens pas à comprendre pourquoi un actual time n&#039;est pas une valeur fixe mais une fourchette (dans l&#039;exemple suivant une fourchette de 0,661 à 0,672 ms)<br />exemple :<br />(actual time=0.661..0.672 rows=7 loops=1)</p><p>Par avance merci.<br />CDT</p>]]></content>
+		<author>
+			<name><![CDATA[natuse]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1444</uri>
+		</author>
+		<updated>2011-11-15T13:03:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11810#p11810</id>
+	</entry>
+</feed>

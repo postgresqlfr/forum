@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / connexion depuis un autre serveur]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4789&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4789"/>
+	<updated>2018-06-09T17:44:47Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4789</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  connexion depuis un autre serveur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27806#p27806"/>
+		<content type="html"><![CDATA[<p>Avec cette configuration, le serveur PostgreSQL écoute les demandes sur toutes les interfaces réseau. Donc n&#039;importe qui sur le réseau impacté par ces cartes réseaux peut tenter une connexion au serveur PostgreSQL. Et du coup, tout dépend de votre configuration du fichier pg_hba.conf.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2018-06-09T17:44:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27806#p27806</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  connexion depuis un autre serveur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27805#p27805"/>
+		<content type="html"><![CDATA[<p>Merci Guillaume.<br />J&#039;ai mis dans postgresql.conf :</p><div class="codebox"><pre><code>listen_addresses=&#039;*&#039;</code></pre></div><p>Et ça marche.</p><p>Quel en est le danger au niveau de sécurité?</p><p>Merci encore.</p>]]></content>
+		<author>
+			<name><![CDATA[big1]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7880</uri>
+		</author>
+		<updated>2018-06-09T17:37:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27805#p27805</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  connexion depuis un autre serveur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27801#p27801"/>
+		<content type="html"><![CDATA[<p>&quot;Connection refused&quot; est un message de la couche réseau indiquant qu&#039;il n&#039;y a pas de service qui écoute à l&#039;adresse IP et au port indiqués.<br />Généralement c&#039;est dû au fait que le serveur distant n&#039;est pas configuré pour écouter l&#039;interface réseau sur laquelle la connexion arrive.</p><p>Dans postgresql.conf, c&#039;est le paramètre <strong>listen_addresses</strong> qui dit quelles interfaces réseaux doivent être écoutées par le service. Par défaut c&#039;est uniquement localhost ce qui interdit effectivement les connexions distantes.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2018-06-09T13:20:45Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27801#p27801</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  connexion depuis un autre serveur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27798#p27798"/>
+		<content type="html"><![CDATA[<p>Ce message n&#039;a rien à voir avec la configuration du pg_hba.conf. Il indique que psql n&#039;arrive pas à joindre le serveur PostgreSQL sur l&#039;IP 192.168.56.71. Soit PostgreSQL n&#039;écoute pas sur la bonne interface réseau (voir la configuration de listen_addresses), soit un équipement réseau (firewall, routeur, etc) interdit cette connexion.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2018-06-09T13:00:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27798#p27798</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[connexion depuis un autre serveur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27796#p27796"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />en 10 sous Oracle Linux.<br />Je peux me connecter à la base testdb depuis le serveur rac1 sur lequel la base est installée.</p><div class="codebox"><pre><code>[postgres@rac1 ~]$ psql -d testdb -U rep
+psql (10.0)
+Type &quot;help&quot; for help.
+
+testdb=&gt; </code></pre></div><br /><p>Je ne peux pas me connecter à une base qui est sur un autre serveur (rac1) depuis le serveur (rac2):</p><div class="codebox"><pre><code>[postgres@rac2 ~]$ psql -d testdb -h rac1.localdomain -p 5432 -U rep
+psql: could not connect to server: Connection refused
+	Is the server running on host &quot;rac1.localdomain&quot; (192.168.56.71) and accepting
+	TCP/IP connections on port 5432?</code></pre></div><p>Dans pg_hba.conf&#160; de rac1 j&#039;ai:</p><div class="codebox"><pre><code>host   testdb           rep              192.168.56.72/32               trust</code></pre></div><p>J&#039;ai mis dans le fichier postgresql.conf&#160; sur rac1/testdb:</p><div class="codebox"><pre><code>log_connections = on
+logging_collector = on         
+log_directory = &#039;/u01/app/pgdatabase/pglog/db_logs&#039;                     # directory where log files are written,
+                                        # can be absolute or relative to PGDATA
+log_filename = &#039;postgresql-%Y-%m-%d_%H%M%S.log&#039; </code></pre></div><p>Mais apparemment la connexion à distance n&#039;est pas tracée.</p><p>Merci pour vos lumières.</p>]]></content>
+		<author>
+			<name><![CDATA[big1]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7880</uri>
+		</author>
+		<updated>2018-06-09T08:39:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27796#p27796</id>
+	</entry>
+</feed>

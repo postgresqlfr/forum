@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Recherche date d'atteinte d'un seuil]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3223&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3223"/>
+	<updated>2014-07-16T12:10:17Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3223</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Recherche date d'atteinte d'un seuil]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20261#p20261"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />Merci pour votre aide, ci dessous la fonction finalement éditée :</p><div class="codebox"><pre class="vscroll"><code>DROP FUNCTION IF EXISTS fct_return_datestplus(date, integer, double precision) CASCADE;
+CREATE OR REPLACE FUNCTION fct_return_datestplus(p_dat_initiale date, p_station integer, p_st double precision)
+  RETURNS date AS
+$BODY$
+  DECLARE
+  v_date date;
+  BEGIN
+      -- récupération de la date correspondante
+	SELECT INTO v_date dat_meteo
+	FROM (
+	    SELECT dat_meteo, sum(tmoy) OVER (ORDER BY dat_meteo) as cumul
+	    FROM qry_var_tmoy
+	    WHERE dat_meteo &gt; (p_dat_initiale) AND id_station = p_station
+	) s
+	WHERE s.cumul &gt;= p_st
+	ORDER BY dat_meteo
+	LIMIT 1;
+    RETURN v_date;
+  END 
+;$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+COMMENT ON FUNCTION fct_return_datestplus(date, integer, double precision) IS &#039;
+fct_return_datestplus: fonction permettant de calculer la date a partir d&#039;&#039;une 
+date initiale et d&#039;&#039;un cumul de temperature depuis cette date.
+Remarques :
+- le cumul commence le lendemain de la date initiale renseignee &gt; (p_dat_initiale).
+- pas de prise en compte d&#039;&#039;une temperature de base ou temperature max 
+EXAMPLE 1 :
+SELECT fct_return_datestplus(&#039;&#039;2007-05-08&#039;&#039;, 1801, 30);
+&#039;;</code></pre></div><p>qry_var_tmoy est une table qui regroupe les température moyennes quotidiennes,<br />id_station est un identifiant de station meteo</p>]]></content>
+		<author>
+			<name><![CDATA[Fanch]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3597</uri>
+		</author>
+		<updated>2014-07-16T12:10:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20261#p20261</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Recherche date d'atteinte d'un seuil]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20233#p20233"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Vous pouvez le faire en une seule requête, par exemple avec vos donnée trouver la date 2007-05-09 +70° cumulés :</p><div class="codebox"><pre><code>SELECT dat_meteo
+FROM (
+    SELECT dat_meteo, sum(value) OVER (ORDER BY dat_meteo) as cumul
+    FROM latable
+    WHERE dat_meteo &gt; (&#039;2007-05-09&#039;)
+) s
+WHERE s.cumul &gt;= 70
+ORDER BY dat_meteo
+LIMIT 1;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2014-07-04T18:13:29Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20233#p20233</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Recherche date d'atteinte d'un seuil]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20232#p20232"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Mon problème se pose sur des données climatiques de la forme:</p><div class="codebox"><pre><code>id     dat_meteo        value
+231  &quot;2007-05-08&quot;    15.35
+232  &quot;2007-05-09&quot;    16.4
+233  &quot;2007-05-10&quot;    17.8
+234  &quot;2007-05-11&quot;    16.25
+235  &quot;2007-05-12&quot;    16.35
+236  &quot;2007-05-13&quot;    18.4
+237  &quot;2007-05-14&quot;    13.7</code></pre></div><p>Il s&#039;agit d&#039;une table ou à chaque jour est associée une valeur d&#039;un paramètre, ici la température moyenne du jour. J&#039;aimerais construire une fonction qui me permette, à partir d&#039;une date initiale, de trouver la date à laquelle la somme des valeurs cumulées depuis cette date atteint au moins 200. Typiquement j&#039;ai une date de floraison, par exemple le 2007-05-08, je veux connaitre la date 2007-05-08 + 200 degrés cumulés.</p><p>Le codage de fonction sous postgres est encore bien mystérieux pour moi, je ne sais pas vraiment comment m&#039;y prendre ...<br />Merci</p>]]></content>
+		<author>
+			<name><![CDATA[Fanch]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3597</uri>
+		</author>
+		<updated>2014-07-04T09:16:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20232#p20232</id>
+	</entry>
+</feed>

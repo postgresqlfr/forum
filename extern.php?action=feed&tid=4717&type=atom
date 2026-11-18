@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / INSERT INTO à partir d'un SELECT]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4717&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4717"/>
+	<updated>2018-05-15T18:36:04Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4717</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  INSERT INTO à partir d'un SELECT]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27557#p27557"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je suis effectivement arrivé à la même conclusion que vous et j&#039;ai utilisé UPDATE pour l&#039;insertion des données dans les enregistrements existants.<br />J&#039;ai juste eu un problème avec votre formulation directe qui n&#039;a pas fonctionné (sans que je sache très bien pourquoi), aussi j&#039;ai utilisé un AS avec une table temporaire :<br />UPDATE&#160; departements&#160; SET nomregions = regions_temp.nomregions<br />FROM (<br />SELECT regions.nomregions AS nomregions<br />FROM regions<br />JOIN departements<br />ON ST_CONTAINS(regions.geom, departements.geom)<br />)<br />AS regions_temp;</p><p>Merci pour votre contribution!</p>]]></content>
+		<author>
+			<name><![CDATA[robinson]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8040</uri>
+		</author>
+		<updated>2018-05-15T18:36:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27557#p27557</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  INSERT INTO à partir d'un SELECT]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27554#p27554"/>
+		<content type="html"><![CDATA[<p>Si je comprends l&#039;objectif, l&#039;opération que vous voulez faire est un UPDATE, pas un INSERT.<br />Un INSERT c&#039;est uniquement pour insérer une nouvelle ligne, donc un nouveau département si on parle<br />d&#039;une table où il y a une ligne par département.</p><p>Ici après avoir ajouté une colonne nomregion par ALTER TABLE, il s&#039;agirait plutôt de mettre à jour le contenu<br />de cette colonne pour chaque département pré-existant.</p><p>La requête doit être du style:</p><div class="codebox"><pre><code>UPDATE  departements  SET nomregion =
+  (SELECT regions.nomregions
+    FROM regions
+   WHERE  ST_CONTAINS(regions.geom, departements.geom)
+ );</code></pre></div><p>Le SELECT entre parenthèses est une sous-requête corrélée, c&#039;est-à-dire que pour chaque ligne de departements, le moteur va l&#039;exécuter avec la valeur de departements.geom correspondant à cette ligne-là, et va mettre à jour le nomregion de cette ligne-là avec le résultat correspondant.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2018-05-15T11:33:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27554#p27554</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  INSERT INTO à partir d'un SELECT]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27534#p27534"/>
+		<content type="html"><![CDATA[<p>Merci pour votre prompte réponse. Je comprends mieux pourquoi la commande ne marche pas, mais dans ce cas comment insérer une colonne dans une table à partir d&#039;une jointure sur cette propre table?<br />J&#039;ai fait des essais et il est possible de faire un CREATE TABLE satisfaisant avec le SELECT tel qu&#039;il est écrit, c&#039;est à dire créer une copie de la table &#039;departements&#039; avec les résultats de la jointure et des données de base, mais comment éditer une table existante? C&#039;est un peu fastidieux de devoir recréer une table à chaque fois puis de supprimer l&#039;ancienne... Ce problème se pose d&#039;ailleurs pour associer des clés primaires et étrangères sans passer par de la saisie manuelle.<br />Cordialement</p>]]></content>
+		<author>
+			<name><![CDATA[robinson]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8040</uri>
+		</author>
+		<updated>2018-05-14T14:43:45Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27534#p27534</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  INSERT INTO à partir d'un SELECT]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27533#p27533"/>
+		<content type="html"><![CDATA[<p>bonjour,</p><p>quand vous faites un insert dans votre colonne nomregion, il ajoute une ligne dans la table departements. La colonne nomdept étant définie comme not null et que vous n&#039;envoyez rien dans cette colonne, c&#039;est normal que vous ayez cette erreur.</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2018-05-14T14:02:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27533#p27533</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[INSERT INTO à partir d'un SELECT]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27530#p27530"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Dans le cadre d&#039;une migration d&#039;une base de données géographique depuis un SIG (shapefiles) vers PostgreSQL, je dois créer l&#039;architecture relationnelle de la base à partir des données existantes.<br />A partir de deux tables existantes représentant deux niveaux de découpage de zones géographiques (par exemple les &#039;departements&#039; et les &#039;regions&#039;, comprenant les colonnes &#039;nomdept&#039;/&#039;nomregion&#039; - clé primaires, et leur &#039;geometrie&#039;), je souhaite intégrer sur la table &#039;departements&#039; la colonne &#039;nomregion&#039; avec une contrainte de clé étrangère se référant à la clé primaire &#039;nomregion de la table &#039;regions&#039;. Bien sûr, je souhaite aussi que le &#039;nomdept&#039; corresponde au &#039;nomregion&#039; qui contient sa &#039;geometrie&#039;.<br />J&#039;ai d&#039;abord créé la colonne &#039;nomregion&#039; dans la table &#039;departements&#039; (je n&#039;ai pas trouvé de solution pour que la requête renvoie directement la création d&#039;une nouvelle colonne) :</p><p>ALTER TABLE departements ADD COLUMN nomregion VARCHAR <br />CONSTRAINT nomregion<br />REFERENCES regions (nomregion);</p><p>Puis : </p><p>INSERT INTO departements (nomregion)<br />SELECT regions.nomregions<br />FROM regions<br />JOIN departements<br />ON ST_CONTAINS(regions.geom, departements.geom)</p><p>Mais j&#039;obtiens une erreur <br />&quot;null value in column &quot;nomdept&quot; violates not-null constraint<br />DETAIL:&#160; Failing row contains (null, null, exemplenomdept).&quot;</p><p>Sauf que :<br />- La commande select seule renvoie bien les données voulues<br />- je ne comprends pas d’où sortent les valeurs NULL sachant que j&#039;ai bien spécifié que l&#039;INSERT ne portait que sur la colonne &#039;nomregion&#039;</p><p>J&#039;ai bien essayé un ON CONFLICT DO UPDATE ou DO NOTHING mais ces commandes ne sont pas reconnues (bizarre...).</p><p>Vous avez une idée d&#039;où pourrait venir l&#039;erreur? Ou d&#039;une meilleure formulation / fonction à employer (j&#039;ai testé avec UPDATE mais ça ne marche pas trop avec les jointures spatiales j&#039;ai l&#039;impression).</p><p>Merci d&#039;avance!</p>]]></content>
+		<author>
+			<name><![CDATA[robinson]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8040</uri>
+		</author>
+		<updated>2018-05-14T13:56:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27530#p27530</id>
+	</entry>
+</feed>

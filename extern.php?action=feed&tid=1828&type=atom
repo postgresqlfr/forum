@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Prb avec fonction current_date dans une règle]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1828&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1828"/>
+	<updated>2012-01-08T00:58:50Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1828</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Prb avec fonction current_date dans une règle]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12347#p12347"/>
+		<content type="html"><![CDATA[<p>merci bcp pour cette lumineuse explication, j&#039;essayerais ça demain car là, j&#039;ai les paupières qui tombent ^^</p><p>EDIT : ça fonctionne nickel, encore merci<br />sujet clos</p>]]></content>
+		<author>
+			<name><![CDATA[Morby]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1512</uri>
+		</author>
+		<updated>2012-01-08T00:58:50Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12347#p12347</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Prb avec fonction current_date dans une règle]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12344#p12344"/>
+		<content type="html"><![CDATA[<p>Vous n&#039;indiquez pas dans la commande INSERT les colonnes que vous voulez utiliser pour l&#039;insertion. Donc pour lui, default se refaire à la première colonne (numsujet), current_user à la deuxième (auteur), NEW.TITRE à la troisième (titre), NEW.TEXTE à la quatrième. Or la quatrième est dateparution, de type date, et NEW.TEXTE est de type varchar. D&#039;où le fait qu&#039;il vous indique que &quot;la colonne « dateparution » est de type date mais l&#039;expression est de type character varying&quot;.</p><p>Vous devriez avoir plus de chance en indiquant les colonnes... comme ceci :</p><div class="codebox"><pre><code>CREATE RULE sujet_insert AS ON INSERT TO ALLSUJET DO INSTEAD
+    INSERT INTO LGPSUJET (numsujet, auteur, titre, texte) VALUES
+    (default,
+    current_user,
+    NEW.TITRE,
+    NEW.TEXTE);</code></pre></div><p>D&#039;ailleurs, vous l&#039;avez fait pour l&#039;exemple que vous avez utilisé pour montrer que le INSERT fonctionne...</p><p>Et tant qu&#039;on y est, pas la peine d&#039;indiquer la première colonne, elle a une valeur par défaut.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-01-07T23:12:31Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12344#p12344</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Prb avec fonction current_date dans une règle]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12341#p12341"/>
+		<content type="html"><![CDATA[<p>suite de mon mini-wiki sous postgres</p><p>table des utilisateurs :</p><div class="quotebox"><blockquote><div><p>DROP TABLE LGPUTILS CASCADE;<br />CREATE TABLE LGPUTILS<br />&#160; &#160; &#160; &#160;(NUMUSER SERIAL,<br />&#160; &#160; &#160; &#160; NOM VARCHAR(25) PRIMARY KEY,<br />&#160; &#160; PASSWORD VARCHAR(25) NOT NULL,<br />&#160; &#160; NBARTICLECREE INTEGER DEFAULT &#039;0&#039;<br />&#160; &#160; );</p><p>-- droits d&#039;accès pour la séquence (SERIAL)<br />GRANT USAGE on lgputils_numuser_seq to public;</p><p>--création d&#039;une vue qui permet de voir tous les attributs de la table<br />DROP VIEW LGPUSERNEW;<br />CREATE VIEW LGPUSERNEW AS SELECT * FROM LGPUTILS;</p><p>grant select on LGPUSERNEW to public;<br />grant insert on LGPUSERNEW to public;<br />grant update on LGPUSERNEW to public;</p><p>-- création d&#039;une règle sur la vue &quot;LGPUSERNEW&quot;<br />-- permettant l&#039;insertion de nouveaux utilisateurs avec automatisme : nom = compte utilisateur<br />DROP RULE usernew_insert on LGPUSERNEW CASCADE;<br />CREATE RULE usernew_insert AS ON INSERT TO LGPUSERNEW DO INSTEAD <br />&#160; &#160; INSERT INTO LGPUTILS VALUES <br />&#160; &#160; (default, <br />&#160; &#160; current_user, <br />&#160; &#160; NEW.PASSWORD);</p></div></blockquote></div><p>table des sujets</p><div class="quotebox"><blockquote><div><p>DROP TABLE LGPSUJET CASCADE;<br />CREATE TABLE LGPSUJET<br />&#160; &#160; &#160; &#160;(NUMSUJET SERIAL PRIMARY KEY,<br />&#160; &#160; AUTEUR VARCHAR(25) REFERENCES LGPUTILS (NOM),<br />&#160; &#160; TITRE VARCHAR NOT NULL,<br />&#160; &#160; DATEPARUTION DATE DEFAULT current_date,<br />&#160; &#160; DATEMODIF DATE DEFAULT current_date,<br />&#160; &#160; AUTEURMODIF VARCHAR(25) REFERENCES LGPUTILS (NOM),<br />&#160; &#160; NUMBACKUP INTEGER DEFAULT &#039;1&#039;,<br />&#160; &#160; NBVUE INTEGER DEFAULT &#039;0&#039;,<br />&#160; &#160; TEXTE VARCHAR NOT NULL,<br />&#160; &#160; PROTECTION INTEGER DEFAULT &#039;1&#039;<br />&#160; &#160; );</p><p>-- droits d&#039;accès pour la séquence (SERIAL)<br />GRANT USAGE on lgpsujet_numsujet_seq to public;</p><p>-- création d&#039;une vue qui permet de voir tous les sujets de la table<br />CREATE VIEW ALLSUJET AS SELECT * FROM LGPSUJET;</p><p>grant select on ALLSUJET to public;<br />grant insert on ALLSUJET to public;</p></div></blockquote></div><p>l&#039;idée est que lorsque un utilisateur créé un sujet l&#039;insert se fait à travers une vue &quot;ALLSUJET&quot;, la requete se présente sous cette forme :<br />INSERT INTO LGPSUJET (TITRE,TEXTE) <br />&#160; &#160; VALUES&#160; (&#039;test-creation&#039;,&#039;texte muet&#039;);<br />- le n° de sujet est automatique avec la fonction &quot;serial&quot;<br />- le nom de l&#039;auteur est automatique avec la fonction &quot;current_user&quot;<br />- les dates de parution et de modification prennent automatiquement la date du jour (DEFAULT current_date)</p><p>j&#039;essaye donc de créer ma vue &quot;ALLSUJET&quot; :</p><div class="quotebox"><blockquote><div><p>DROP RULE sujet_insert ON ALLSUJET;<br />CREATE RULE sujet_insert AS ON INSERT TO ALLSUJET DO INSTEAD<br />&#160; &#160; INSERT INTO LGPSUJET VALUES <br />&#160; &#160; (default,<br />&#160; &#160; current_user,<br />&#160; &#160; NEW.TITRE,<br />&#160; &#160; NEW.TEXTE);</p></div></blockquote></div><p>et là, c&#039;est le drame :</p><div class="quotebox"><blockquote><div><p>ERREUR:&#160; la colonne « dateparution » est de type date mais l&#039;expression est de type character varying<br />LIGNE 6 : NEW.TEXTE);<br />&#160; &#160; &#160; &#160; &#160; ^<br />ASTUCE : Vous devez réécrire l&#039;expression ou lui appliquer une transformation de type.</p></div></blockquote></div><p><strong>je ne comprend pas du tout l&#039;erreur...<br /></strong></p><p>par acquis de conscience j&#039;ai fait un test d&#039;insert directement dans la table et ça fonctionne très bien :</p><p>INSERT INTO LGPSUJET (TITRE,TEXTE) VALUES&#160; (&#039;test-creation&#039;,&#039;texte muet&#039;);</p><p>select * from lgpsujet;<br /> numsujet | auteur |&#160; &#160; &#160;titre&#160; &#160; &#160;| dateparution | datemodif&#160; | auteurmodif | numbackup | nbvue |&#160; &#160;texte&#160; &#160; | protection <br />----------+--------+---------------+--------------+------------+-------------+-----------+-------+------------+------------<br />&#160; &#160; &#160; &#160; 1 |&#160; &#160; &#160; &#160; | test-creation | 2012-01-07&#160; &#160;| 2012-01-07 |&#160; &#160; &#160; &#160; &#160; &#160; &#160;|&#160; &#160; &#160; &#160; &#160;1 |&#160; &#160; &#160;0 | texte muet |&#160; &#160; &#160; &#160; &#160; 1</p><p>galère galère... <img src="http://forums.postgresql.fr/img/smilies/sad.png" width="15" height="15" alt="sad" /></p>]]></content>
+		<author>
+			<name><![CDATA[Morby]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1512</uri>
+		</author>
+		<updated>2012-01-07T20:46:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12341#p12341</id>
+	</entry>
+</feed>

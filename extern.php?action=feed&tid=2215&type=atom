@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / [Résolu] fonction qui ne marche pas en trigger]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2215&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2215"/>
+	<updated>2012-08-27T13:34:44Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2215</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] fonction qui ne marche pas en trigger]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14933#p14933"/>
+		<content type="html"><![CDATA[<div class="codebox"><pre><code>select((select length(nom) from tcommunes where oid=19694)/2)
+sortie de données : 3</code></pre></div><p>Toujours rien avec le code de gleu !<br />Je viens de refaire un test avec la fonction sans trigger : ça marche nickel avec un select test_while() ! !</p><p>J&#039;ai peut-être un souci de paramétrage ou autre sur mon serveur postgresql 8.4 !</p><p>Je teste sur un autre serveur ......</p><br /><br /><p>EDIT : bon pareil sur un autre serveur identique ! !</p><p>Pris d&#039;un doute, je vire mes tables et fonctions de tests.</p><p>Je fais un copier coller de la doc posgresql, section trigger :</p><div class="codebox"><pre class="vscroll"><code>CREATE TABLE emp (
+    nom_employe       text NOT NULL,
+    salaire           integer
+);
+        
+CREATE TABLE emp_audit( 
+    operation         char(1)   NOT NULL,
+    tampon            timestamp NOT NULL,
+    id_utilisateur    text      NOT NULL,
+    nom_employe       text      NOT NULL,
+    salaire           integer
+);
+        
+CREATE OR REPLACE FUNCTION audit_employe() RETURNS TRIGGER AS $emp_audit$
+BEGIN
+    --
+    -- Ajoute une ligne dans emp_audit pour refléter l&#039;opération réalisée
+    -- sur emp,
+    -- utilise la variable spéciale TG_OP pour cette opération.
+    --
+    IF (TG_OP = &#039;DELETE&#039;) THEN
+        INSERT INTO emp_audit SELECT &#039;D&#039;, now(), user, OLD.*;
+        RETURN OLD;
+    ELSIF (TG_OP = &#039;UPDATE&#039;) THEN
+        INSERT INTO emp_audit SELECT &#039;U&#039;, now(), user, NEW.*;
+        RETURN NEW;
+    ELSIF (TG_OP = &#039;INSERT&#039;) THEN
+        INSERT INTO emp_audit SELECT &#039;I&#039;, now(), user, NEW.*;
+        RETURN NEW;
+    END IF;
+    RETURN NULL; -- le résultat est ignoré car il s&#039;agit d&#039;un trigger AFTER
+END;
+$emp_audit$ language plpgsql;
+        
+CREATE TRIGGER emp_audit
+    AFTER INSERT OR UPDATE OR DELETE ON emp
+    FOR EACH ROW EXECUTE PROCEDURE audit_employe();</code></pre></div><p>J&#039;execute, je fais un update de emp : ok le trigger marche !</p><p>je modifie rapidement l&#039;exemple en incorporant le code de la boucle while :</p><div class="codebox"><pre class="vscroll"><code>CREATE OR REPLACE FUNCTION audit_employe() RETURNS TRIGGER AS $emp_audit$
+DECLARE
+compteur integer := 1;
+-- total integer :=5;
+total integer := (select((select length(nom) from tcommunes where oid=19694)/2));
+BEGIN
+    --
+    -- Ajoute une ligne dans emp_audit pour refléter l&#039;opération réalisée
+    -- sur emp,
+    -- utilise la variable spéciale TG_OP pour cette opération.
+    --
+while total &gt; compteur    
+loop 
+IF (TG_OP = &#039;DELETE&#039;) THEN
+        INSERT INTO emp_audit SELECT &#039;D&#039;, now(), user, OLD.*;
+        RETURN OLD;
+    ELSIF (TG_OP = &#039;UPDATE&#039;) THEN
+        INSERT INTO emp_audit SELECT &#039;U&#039;, now(), user, NEW.*;
+       -- RETURN NEW;
+    ELSIF (TG_OP = &#039;INSERT&#039;) THEN
+        INSERT INTO emp_audit SELECT &#039;I&#039;, now(), user, NEW.*;
+      --  RETURN NEW;
+    END IF;
+compteur := compteur +1;
+end loop;
+    RETURN NULL; -- le résultat est ignoré car il s&#039;agit d&#039;un trigger AFTER
+END;
+$emp_audit$ language plpgsql;</code></pre></div><p>et là....miracle : ça marche !</p><p>Soulagé, même si je ne comprends pas pourquoi le 1er code ne marchait pas !</p><p>Surement qu&#039;a force de faire des &quot;drop-create-table-function&quot; dans tout les sens, ça faisait une bouillie pas très digeste pour postgresql.</p><p>Pour information, ces tests avaient pour objectif de me permettre de réaliser un trigger qui, lors de la modification d&#039;un champ type &quot;commentaire&quot;, doit analyser le contenu , et en fonction de ce contenu réaliser une boucle de type select.</p><p>Voilà, merci pour votre aide qui m&#039;a été bien utile dans la compréhension des boucles et déclencheurs.</p>]]></content>
+		<author>
+			<name><![CDATA[fr2ed]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1779</uri>
+		</author>
+		<updated>2012-08-27T13:34:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14933#p14933</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] fonction qui ne marche pas en trigger]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14932#p14932"/>
+		<content type="html"><![CDATA[<p>Donc tout me laisse penser que votre requête de calcul de total ne renvoit pas ce que vous voulez. À mon avis, elle vous renvoit 0...</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-08-27T13:02:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14932#p14932</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] fonction qui ne marche pas en trigger]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14931#p14931"/>
+		<content type="html"><![CDATA[<p>Ça marche parfaitement pour moi une fois que je supprime le &quot;RETURN NEW&quot;. J&#039;ai ce code :</p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION public.test_while()
+ RETURNS trigger 
+ LANGUAGE plpgsql 
+AS $function$
+
+DECLARE
+compteur integer := 1;
+total integer := 5;
+BEGIN
+   
+while total &gt; compteur
+loop
+
+insert into test_audit (nom_employe,salaire) values (&#039;fred&#039;,(select (1+compteur)));
+compteur :=compteur+1;
+end loop;
+RETURN NULL;
+END
+$function$;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-08-27T13:00:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14931#p14931</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] fonction qui ne marche pas en trigger]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14930#p14930"/>
+		<content type="html"><![CDATA[<div class="codebox"><pre><code>compteur integer := 1;
+total integer := 5;
+--total integer := (select((select length(nom) from tcommunes where oid=19694)/2));</code></pre></div><p>toujours aucune ligne insérée !!</p><p>Est-il possible de vérifier l&#039;execution d&#039;un trigger&#160; (log ou autres) ?</p><p>On dirait que c&#039;est le mix loop+trigger qui le chagrine ! ? ! </p><p>Ne maitrisant pas encore le sujet, j&#039;avais fait des tests : loop sans trigger ok, trigger sans loop ok !</p><p>Depuis que j&#039;essaie de mélanger les 2 : rien !</p>]]></content>
+		<author>
+			<name><![CDATA[fr2ed]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1779</uri>
+		</author>
+		<updated>2012-08-27T12:52:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14930#p14930</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] fonction qui ne marche pas en trigger]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14929#p14929"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><p>vu qu&#039;il s&#039;agit d&#039;un trigger AFTER UPDATE, RETURN NEW ou RETURN NULL aura le même effet. Le premier return quittera le trigger, donc dans votre cas il y aura au mieux une ligne insérée.&#160; SI aucune ligne n&#039;est insérée, peut-être que la requête initialisant la variable compteur pose problème. Si vous l&#039;initialisez avec une valeur fixe, une ligne est-elle insérée ?</p><br /><p>Sinon oui, il lancera la fonction avec le contenu présent au moment de l&#039;appel.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2012-08-27T12:21:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14929#p14929</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] fonction qui ne marche pas en trigger]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14928#p14928"/>
+		<content type="html"><![CDATA[<p>Merci pour les indications.... j&#039;ai encore un peu de mal avec les boucles !</p><p>j&#039;ai modifié mon script avec les return selon ce que j&#039;ai pu comprendre :</p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION test_while() RETURNS trigger AS $BODY$
+
+DECLARE
+compteur integer := 1;
+total integer := (select((select length(nom) from tcommunes where oid=19694)/2));
+BEGIN
+   
+while total &gt; compteur
+loop
+
+insert into test_audit (nom_employe,salaire) values (&#039;fred&#039;,(select (1+compteur)));
+RETURN NEW;
+compteur :=compteur+1;
+end loop;
+RETURN NULL;
+END
+$BODY$
+LANGUAGE plpgsql VOLATILE;</code></pre></div><p>...mais le résultat est toujours le même : pas d&#039;erreur mais aucune insertion dans ma table !</p><p>Question subsidiaire : quand je modifie une fonction trigger, je pars du principe que le trigger va lancer la fonction modifié donc inutile de le re-créer ! J&#039;ai bon ??</p>]]></content>
+		<author>
+			<name><![CDATA[fr2ed]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1779</uri>
+		</author>
+		<updated>2012-08-27T11:48:33Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14928#p14928</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] fonction qui ne marche pas en trigger]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14911#p14911"/>
+		<content type="html"><![CDATA[<p>Le fonction trigger devrait au moins faire un RETURN NEW. Je n&#039;ai pas regardé le reste, mais c&#039;est déjà un pré-requis.</p><p>Par ailleurs les oid ne sont pas recommandés dans les tables. Pas depuis au moins 5 ou 6 versions majeures au moins.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2012-08-23T15:07:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14911#p14911</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[[Résolu] fonction qui ne marche pas en trigger]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14910#p14910"/>
+		<content type="html"><![CDATA[<p>J&#039;ai créé la fonction suivante pour tester la boucle while :</p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION test_while() RETURNS void AS $BODY$
+
+DECLARE
+compteur integer := 1;
+total integer := (select((select length(nom) from tcommunes where oid=19694)/2));
+BEGIN
+   
+while total &gt; compteur
+loop
+
+insert into test_audit (nom_employe,salaire) values (&#039;fred&#039;,(select (1+compteur)));
+compteur :=compteur+1;
+end loop;
+END
+$BODY$
+LANGUAGE plpgsql VOLATILE;</code></pre></div><p>Cette fonction marche très bien !</p><p>Mais je souhaite la déclencher avec un trigger, donc je la modifie comme suit :</p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION test_while() RETURNS trigger AS $BODY$
+
+DECLARE
+compteur integer := 1;
+total integer := (select((select length(nom) from tcommunes where oid=19694)/2));
+BEGIN
+   
+while total &gt; compteur
+loop
+
+insert into test_audit (nom_employe,salaire) values (&#039;fred&#039;,(select (1+compteur)));
+compteur :=compteur+1;
+end loop;
+END
+$BODY$
+LANGUAGE plpgsql VOLATILE;</code></pre></div><p>je crée mon trigger pour que ma procédure se lance à la modification de ma table test : </p><div class="codebox"><pre><code>CREATE TRIGGER trigger_audit
+    AFTER UPDATE ON test
+    EXECUTE PROCEDURE test_while();</code></pre></div><p>Mais quand je modifie ma table test... rien ne se passe ! ! ! Je ne comprends vraiment pas.<br />Merci de votre aide...</p>]]></content>
+		<author>
+			<name><![CDATA[fr2ed]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1779</uri>
+		</author>
+		<updated>2012-08-23T15:00:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14910#p14910</id>
+	</entry>
+</feed>

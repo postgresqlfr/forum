@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Serveur Rsyslog]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3088&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3088"/>
+	<updated>2014-04-25T09:56:43Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3088</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Serveur Rsyslog]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19735#p19735"/>
+		<content type="html"><![CDATA[<p>Il est possible d&#039;augmenter encore la valeur du STATISTICS; Pas sûr que ça aura un grand impact. Mais bon, à essayer.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-04-25T09:56:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19735#p19735</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Serveur Rsyslog]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19733#p19733"/>
+		<content type="html"><![CDATA[<p>Je ne pense pas que cela soit que la volumétrie qui ai impacter sur la durée de la requete à ce point. actuellement je suis à 46M de logs pour 60M hier (apres-midi) (16h)<br />ce qui est certains c&#039;est que l&#039;analyse y est pour beaucoup, les requêtes simples (1filtre) sont beaucoup plus rapides, le problème c&#039;est que quand je dis beaucoup plus rapide c&#039;est -30s<br />ce qui n&#039;est toujours pas suffisant pour l&#039;utilisation qu&#039;on souhaitent en faire.</p><br /><p>j&#039;avais commencer à spliter les données car je pensais que ce que j&#039;aurais gagner en performance ne serrait pas suffisant&#160; (20/30% de gain)<br />Et l&#039;avantage c&#039;est que cela me permet en même temps de trier mes données.</p><br /><p>Je vais me renseigner sur l&#039;autovacuum, en tous cas merci pour ton aide.<br />Bonne journée</p>]]></content>
+		<author>
+			<name><![CDATA[dragondark]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=327</uri>
+		</author>
+		<updated>2014-04-25T08:34:33Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19733#p19733</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Serveur Rsyslog]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19730#p19730"/>
+		<content type="html"><![CDATA[<p>VACUUM et ANALYZE sont par défaut exécutés automatiquement quand les tables en ont besoin (suivant la configuration évidemment) grâce à l&#039;autovacuum. Il est tout à fait possible qu&#039;ils ne soient pas exécutés si la configuration n&#039;est pas adéquate.</p><p>Quant à l&#039;améloration de durée d&#039;exécution, il est clair que si vous faites plusieurs changements en même temps, il est impossible de savoir lequel a permis de gagner réellement. Si vous supprimez pratiquement 50% de la volumétrie de la base, comparez les deux durées d&#039;exécution n&#039;a pas de sens.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-04-25T07:57:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19730#p19730</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Serveur Rsyslog]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19729#p19729"/>
+		<content type="html"><![CDATA[<div class="codebox"><pre><code>rsyslog=&gt; ALTER TABLE systemevents ALTER fromhost SET STATISTICS 1000;
+ALTER TABLE
+rsyslog=&gt; ANALYZE systemevents;
+ANALYZE
+rsyslog=&gt; EXPLAIN ANALYZE SELECT * FROM systemevents WHERE fromhost = &#039;XXXX&#039; ORDER BY id desc LIMIT 20 ;
+                                                                      QUERY PLAN
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=26482.21..26482.26 rows=20 width=952) (actual time=8417.810..8417.831 rows=20 loops=1)
+   -&gt;  Sort  (cost=26482.21..26499.58 rows=6949 width=952) (actual time=8417.806..8417.813 rows=20 loops=1)
+         Sort Key: id
+         Sort Method:  top-N heapsort  Memory: 30kB
+         -&gt;  Index Scan using nomequipement on systemevents  (cost=0.00..26297.30 rows=6949 width=952) (actual time=0.184..8412.708 rows=2686 loops=1)
+               Index Cond: ((fromhost)::text = &#039;XXXX&#039;::text)
+ Total runtime: 8419.195 ms
+(7 rows)</code></pre></div><p>Les résultat sont bien plus intéressant, une requêtes sur cette base est beaucoup plus rapide</p><br /><p>maintenant une question de fonctionnalité à quel moment la commande ANALYSE est-elle lancé automatiquement ? si elle est lancé.<br />Même question pour le VACUUM, est-ce qu&#039;il faut le lancer manuellement ou elle se lance automatiquement de temps en temps ?.</p><br /><p>Dans tous les cas Merci beaucoup pour tous les debug.<br />Il semblerais que les requêtes soient beaucoup plus rapide, après je sais pas si c&#039;est le changement du temps d&#039;analyse des stats pour en améliorer l&#039;effet (si j&#039;ai bien compris) ou du au faite que j&#039;ai grandement réduit la base (40% en moins).<br />Surement que les deux on du jouer.</p><br /><p>Merci encore<br />Cordialement<br />Dragondark De Lonlindil</p>]]></content>
+		<author>
+			<name><![CDATA[dragondark]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=327</uri>
+		</author>
+		<updated>2014-04-25T07:16:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19729#p19729</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Serveur Rsyslog]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19724#p19724"/>
+		<content type="html"><![CDATA[<p>Il vous faut faire un ALTER TABLE SET STATISTICS, puis un ANALYZE. Par exemple :</p><div class="codebox"><pre><code>ALTER TABLE systemevents ALTER fromhost SET STATISTICS 1000;
+ANALYZE systemevents;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-04-24T20:09:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19724#p19724</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Serveur Rsyslog]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19718#p19718"/>
+		<content type="html"><![CDATA[<div class="codebox"><pre><code>rsyslog=&gt; EXPLAIN ANALYZE SELECT * FROM systemevents WHERE fromhost = &#039;XXXX&#039; ORDER BY id desc LIMIT 20 ;
+                                                                              QUERY PLAN                                                                      
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=0.00..26274.76 rows=20 width=957) (actual time=182283.090..238288.456 rows=20 loops=1)
+   -&gt;  Index Scan Backward using systemevents_pkey on systemevents  (cost=0.00..85295739.77 rows=64926 width=957) (actual time=182283.086..238288.407 rows=20 loops=1)
+         Filter: ((fromhost)::text = &#039;XXXX&#039;::text)
+ Total runtime: 238294.565 ms
+(4 rows)
+
+rsyslog=&gt; SELECT count(*) FROM  systemevents WHERE fromhost = &#039;XXXX&#039;;
+ count
+-------
+  2750
+(1 row)
+
+rsyslog=&gt;</code></pre></div><p>je viens de retest voir si j&#039;avais pas fait une erreur mais non c&#039;est bien le calcule qu&#039;il fait.</p><br /><p>si c&#039;est bien ca que tu regardais.<br />une idée pour lui faire recalculer ces valeurs ?</p>]]></content>
+		<author>
+			<name><![CDATA[dragondark]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=327</uri>
+		</author>
+		<updated>2014-04-24T12:11:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19718#p19718</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Serveur Rsyslog]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19708#p19708"/>
+		<content type="html"><![CDATA[<p>Donc il sait que la table contient moins de 0,59% d&#039;occurence de XXXX. Ce qui est confirmé avec le SELECT count(*) de XXXX et total.</p><p>Ce qui est étonnant, c&#039;est que son estimation du nombre de lignes renvoyées avec le filtre sur fromhost est un peu à l&#039;ouest (70k au lieu de 2k). Il serait intéressant d&#039;augmenter le niveau de stats pour cette colonne.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-04-23T19:55:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19708#p19708</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Serveur Rsyslog]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19700#p19700"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>alors le premier résultat me liste une partie des équipements, en peu de temps</p><div class="codebox"><pre><code>rsyslog=&gt; SELECT * FROM pg_stats WHERE tablename=&#039;systemevents&#039; and attname=&#039;fromhost&#039;;
+ schemaname |  tablename   | attname  | null_frac | avg_width | n_distinct | most_common_vals  |                                                                                          most_common_freqs                                                                                          |  histogram_bounds  | correlation
+------------+--------------+----------+-----------+-----------+------------+-------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+--------------------+-------------
+ public     | systemevents | fromhost |         0 |        12 |        217 | {liste 21 eqt)    | {0.188233,0.175833,0.1531,0.0981667,0.0623,0.0125,0.0121,0.0111667,0.0110667,0.0106333,0.0105667,0.00946667,0.00826667,0.00823333,0.00773333,0.00723333,0.0068,0.0064,0.00603333,0.00603333,0.0059} | {liste 100 eqt)    |    0.307883</code></pre></div><p>pour l&#039;equipement, (il apparait pas dans la liste des équipements qui se trouvais dans la requete précédente</p><div class="codebox"><pre><code>rsyslog=&gt; SELECT count(*) FROM systemevents WHERE fromhost=&#039;XXXX&#039;;
+ count
+-------
+  2838
+(1 row)</code></pre></div><p>je dois être à peu prés vers les 80M d&#039;enregistrement (ça stagne car je limite à 3mois d&#039;enregistrement)<br />Et environ 600 équipements</p><br /><br /><br /><p>&#039;-&#039;</p><div class="codebox"><pre><code>rsyslog-&gt; \d+ systemevents
+ERROR:  column &quot;reltriggers&quot; does not exist at character 41
+LINE 1: SELECT relhasindex, relkind, relchecks, reltriggers, relhasr...</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[dragondark]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=327</uri>
+		</author>
+		<updated>2014-04-23T07:58:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19700#p19700</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Serveur Rsyslog]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19699#p19699"/>
+		<content type="html"><![CDATA[<p>Et que donne un &quot;SELECT * FROM pg_stats WHERE tablename=&#039;systemevents&#039; and attname=&#039;fromhost&#039;&quot; ?</p><p>Que donnent aussi un &quot;SELECT count(*) FROM systemevents&quot; et un &quot;SELECT count(*) FROM systemevents WHERE fromhost=&#039;XXXX&#039;&quot; ? (XXXX ayant la même valeur que dans la requête pour laquelle vous avez donné le EXPLAIN ANALYZE).</p><p>Et enfin, que donne un &quot;\d systemevents&quot; ?</p><p>Merci.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-04-22T21:11:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19699#p19699</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Serveur Rsyslog]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19694#p19694"/>
+		<content type="html"><![CDATA[<p>Ma configuration actuellement : </p><div class="codebox"><pre><code># cat /evnt_log/postgresDB/postgresql.conf | grep ^[a-zA-Z0-9]
+listen_addresses = &#039;*&#039;
+max_connections = 10                    # (change requires restart)
+shared_buffers = 1536MB                 # min 128kB
+work_mem = 256MB                        # min 64kB
+maintenance_work_mem = 512MB            # min 1MB
+wal_buffers = 12MB                      # min 32kB
+checkpoint_segments = 16                # in logfile segments, min 1, 16MB each
+checkpoint_completion_target = 0.8      # checkpoint target duration, 0.0 - 1.0
+effective_cache_size = 4GB
+logging_collector = on                  # Enable capturing of stderr and csvlog
+log_directory = &#039;pg_log&#039;                # directory where log files are written,
+log_filename = &#039;postgresql-%a.log&#039;      # log file name pattern,
+log_truncate_on_rotation = on           # If on, an existing log file of the
+log_rotation_age = 1d                   # Automatic rotation of logfiles will
+log_rotation_size = 0                   # Automatic rotation of logfiles will
+datestyle = &#039;iso, mdy&#039;
+lc_messages = &#039;en_US.UTF-8&#039;                     # locale for system error message
+lc_monetary = &#039;en_US.UTF-8&#039;                     # locale for monetary formatting
+lc_numeric = &#039;en_US.UTF-8&#039;                      # locale for number formatting
+lc_time = &#039;en_US.UTF-8&#039;                         # locale for time formatting
+default_text_search_config = &#039;pg_catalog.english&#039;</code></pre></div><p>&gt;Pour une des requêtes qui sont très très longue;</p><div class="codebox"><pre><code>rsyslog=&gt; EXPLAIN ANALYZE SELECT * FROM systemevents WHERE fromhost = &#039;XXXX&#039; ORDER BY id desc LIMIT 20 ;
+                                                                              QUERY PLAN
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+---------
+ Limit  (cost=0.00..26158.94 rows=20 width=957) (actual time=129134.836..131515.164 rows=20 loops=1)
+   -&gt;  Index Scan Backward using systemevents_pkey on systemevents  (cost=0.00..94773822.13 rows=72460 width=957) (actual time=129134.833..131515.142 rows=20
+loops=1)
+         Filter: ((fromhost)::text = &#039;XXXX&#039;::text)
+ Total runtime: 131515.293 ms
+(4 rows)
+
+rsyslog=&gt;</code></pre></div><p>Je suis entrain de coder pour faire un split des données dans plusieurs tables voir si cela arrangerais les choses.<br />en attendant d&#039;avoir d&#039;autres solutions.</p><br /><p>à noté que si l&#039;équipement et le nombre de ligne demandé sont dans les dernières la requete est très rapide mais ceux qui envoient beaucoup de log sont rarement ceux qui nous intéresse ^^</p>]]></content>
+		<author>
+			<name><![CDATA[dragondark]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=327</uri>
+		</author>
+		<updated>2014-04-22T13:54:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19694#p19694</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Serveur Rsyslog]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19676#p19676"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>est-ce que je ne peux pas la laisser supprimé? quel intérêt elle à dans mon environnement ? (je ne suis pas sur de saisir complément l’intérêt des index)</p></div></blockquote></div><p>Ce n&#039;est pas qu&#039;un index, c&#039;est une contrainte. Sans elle, le contrôle des données est supprimé. Est-ce que cela a une conséquence ou non dans ce cas précis, aucune idée. Mais bon, une table sans clé primaire, ça ressemble plus à une erreur qu&#039;autre chose.</p><div class="quotebox"><blockquote><div><p>est-ce qu&#039;une version plus récente que 8.4 existe ? d&#039;après les liens de téléchargement directe j&#039;en ai pas vue mais c&#039;est peut être moi qui n&#039;ai pas bien regardé hmm<br /><a href="http://www.postgresql.org/download/linux/redhat/" rel="nofollow">http://www.postgresql.org/download/linux/redhat/</a></p></div></blockquote></div><p>L&#039;URL ci-dessus indique les versions de PostgreSQL proposé par la distribution. Pas les versions qui ont été disponibles après. Vous avez plutôt intérêt à aller regarder sur <a href="http://yum.postgresql.org/" rel="nofollow">http://yum.postgresql.org/</a></p><div class="quotebox"><blockquote><div><p>ma dernière solution serrait de diviser en plusieurs tables</p></div></blockquote></div><p>Il faudrait déjà déterminer quel est le problème avant de se lancer dans ce genre de complexité affreuse.</p><p>Commencez déjà par fournir un EXPLAIN ANALYZE de votre requête avec la définition des tables concernées et de leurs index, ainsi que la configuration de PostgreSQL.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-04-18T20:48:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19676#p19676</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Serveur Rsyslog]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19670#p19670"/>
+		<content type="html"><![CDATA[<p>Bon j&#039;ai essayer de faire sans la Pkid voir ce que cela donnais, mais cela ne m&#039;arrange pas sauf dans les cas ou j&#039;ai besoin d&#039;information directement sur le host<br />car un simple :</p><div class="codebox"><pre><code>SELECT receivedat,message FROM systemevents order by id desc LIMIT 25;</code></pre></div><p>dure 15ans alors qu&#039;avant ne durais qu&#039;une seconde <img src="http://forums.postgresql.fr/img/smilies/hmm.png" width="15" height="15" alt="hmm" /><br />faut que je trouve une autre solution</p><br /><p>actuellement j&#039;utilise une&#160; RedHat RHEL 6.2 x86_64<br />est-ce qu&#039;une version plus récente que 8.4 existe ? d&#039;après les liens de téléchargement directe j&#039;en ai pas vue mais c&#039;est peut être moi qui n&#039;ai pas bien regardé <img src="http://forums.postgresql.fr/img/smilies/hmm.png" width="15" height="15" alt="hmm" /><br /><a href="http://www.postgresql.org/download/linux/redhat/" rel="nofollow">http://www.postgresql.org/download/linux/redhat/</a></p><br /><p>je ne sais plus vraiment quoi regarder maintenant :x</p><p>ma dernière solution serrait de diviser en plusieurs tables</p>]]></content>
+		<author>
+			<name><![CDATA[dragondark]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=327</uri>
+		</author>
+		<updated>2014-04-17T07:36:07Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19670#p19670</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Serveur Rsyslog]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19664#p19664"/>
+		<content type="html"><![CDATA[<p>C&#039;est le genre de raisons ou cela me soule les processus entreprise &gt;&lt;&quot;<br />où les versions date d&#039;il y a 5 ans.</p><br /><p>L&#039;idée est bien;</p><div class="codebox"><pre><code>rsyslog=&gt; EXPLAIN SELECT * FROM systemevents WHERE fromhost = &#039;XXXX&#039; ORDER BY id desc LIMIT 10;
+                                          QUERY PLAN
+-----------------------------------------------------------------------------------------------
+ Limit  (cost=255199.89..255199.92 rows=10 width=957)
+   -&gt;  Sort  (cost=255199.89..255376.89 rows=70797 width=957)
+         Sort Key: id
+         -&gt;  Bitmap Heap Scan on systemevents  (cost=1680.96..253670.00 rows=70797 width=957)
+               Recheck Cond: ((fromhost)::text = &#039;XXXX&#039;::text)
+               -&gt;  Bitmap Index Scan on nomequipement  (cost=0.00..1663.26 rows=70797 width=0)
+                     Index Cond: ((fromhost)::text = &#039;XXXX&#039;::text)</code></pre></div><p>Bon par contre j&#039;ai merder ^^&#039;,<br />Tu avais une erreur dans le mot CONSTRAINT, mais j&#039;avais pas prévu qu&#039;il m’arrête toute la procédure, donc quand je l&#039;ai corrigé, le rollback n&#039;était plus d’actualité <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /><br />est-ce que je ne peux pas la laisser supprimé? quel intérêt elle à dans mon environnement ? (je ne suis pas sur de saisir complément l’intérêt des index)</p><br /><div class="codebox"><pre><code>rsyslog=&gt; ALTER TABLE systemevents ADD PRIMARY KEY (id);
+NOTICE:  ALTER TABLE / ADD PRIMARY KEY will create implicit index &quot;systemevents_pkey&quot; for table &quot;systemevents&quot;
+ALTER TABLE</code></pre></div><p>j&#039;ai augmenter le work_mem a 256M et le max connexion à 10</p><div class="codebox"><pre><code>rsyslog=&gt; EXPLAIN SELECT * FROM systemevents WHERE fromhost = &#039;XXXX&#039; ORDER BY id desc LIMIT 10;
+                                                    QUERY PLAN
+------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=0.00..13071.17 rows=10 width=957)
+   -&gt;  Index Scan Backward using systemevents_pkey on systemevents  (cost=0.00..93162177.33 rows=71273 width=957)
+         Filter: ((fromhost)::text = &#039;XXXX&#039;::text)
+(3 rows)
+
+rsyslog=&gt;</code></pre></div><p>j&#039;ai tester une requête sans le pkid, et elle était beaucoup plus rapide. la c&#039;est revenu comme avant <img src="http://forums.postgresql.fr/img/smilies/hmm.png" width="15" height="15" alt="hmm" /></p><br /><p>Je te remercie pour l&#039;aide que tu m&#039;apportes</p>]]></content>
+		<author>
+			<name><![CDATA[dragondark]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=327</uri>
+		</author>
+		<updated>2014-04-15T07:52:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19664#p19664</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Serveur Rsyslog]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19660#p19660"/>
+		<content type="html"><![CDATA[<p>PostgreSQL peut utiliser deux index pour la clause WHERE. Il ne peut pas utiliser un index pour la clause WHERE et un autre pour la clause ORDER BY pour la requête que vous indiquez.</p><p>Un moyen de tester l&#039;autre index serait de faire ceci :</p><div class="codebox"><pre><code>BEGIN;
+ALTER TABLE systemevents DROP CONTRAINST systemevents_pkey;
+EXPLAIN SELECT * FROM systemevents WHERE fromhost = &#039;XXXX&#039; ORDER BY id desc LIMIT 10;
+ROLLBACK;</code></pre></div><p>(surtout faire un ROLLBACK pour annuler la suppression de la contrainte)</p><p>Le mieux est évidemment de faire un EXPLAIN ANALYZE.</p><p>Une hypothèse possible est que la valeur du work_mem est trop basse pour que PostgreSQL se dise qu&#039;il peut faire le tri en mémoire. Et du coup, il préfère faire le tri par l&#039;index. Sans compter que son estimation du besoin en mémoire est trop fort dans ces versions là, ce qui avait tendance à favoriser l&#039;utilisation des index pour les tris. Et il me semble que cela n&#039;a été corrigé que sur les versions récentes (donc out la 8.4).</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-04-14T20:30:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19660#p19660</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Serveur Rsyslog]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19657#p19657"/>
+		<content type="html"><![CDATA[<p>Il semblerait que cela vienne du ORDER BY id</p><div class="codebox"><pre><code>rsyslog=&gt; EXPLAIN SELECT * FROM systemevents WHERE fromhost = &#039;XXXX&#039; LIMIT 10;
+                                            QUERY PLAN
+---------------------------------------------------------------------------------------------------
+ Limit  (cost=0.00..36.24 rows=10 width=957)
+   -&gt;  Index Scan using nomequipement on systemevents  (cost=0.00..256534.19 rows=70797 width=957)
+         Index Cond: ((fromhost)::text = &#039;XXXX&#039;::text)
+(3 rows)
+
+rsyslog=&gt;</code></pre></div><p>Cela ne peux pas utiliser deux indexes ?</p><p>sur une recherche plus compliqué ça semble fonctionner</p><div class="codebox"><pre><code>rsyslog=&gt;
+EXPLAIN SELECT * FROM systemevents WHERE fromhost = &#039;XXXX&#039; AND devicereportedtime &lt; &#039;2014-03-01&#039; AND devicereportedtime &gt; &#039;2014-04-01&#039; ORDER BY id desc LIMIT 10;
+                                                                                                            QUERY PLAN
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=11074.79..11074.81 rows=10 width=957)
+   -&gt;  Sort  (cost=11074.79..11075.67 rows=354 width=957)
+         Sort Key: id
+         -&gt;  Bitmap Heap Scan on systemevents  (cost=9655.47..11067.14 rows=354 width=957)
+               Recheck Cond: (((fromhost)::text = &#039;XXXX&#039;::text) AND (devicereportedtime &lt; &#039;2014-03-01 00:00:00&#039;::timestamp without time zone) AND (devicereportedtime &gt; &#039;2014-04-01 00:00:00&#039;::timestamp without time zone))
+               -&gt;  BitmapAnd  (cost=9655.47..9655.47 rows=354 width=0)
+                     -&gt;  Bitmap Index Scan on nomequipement  (cost=0.00..1655.19 rows=70797 width=0)
+                           Index Cond: ((fromhost)::text = &#039;XXXX&#039;::text)
+                     -&gt;  Bitmap Index Scan on timereporting  (cost=0.00..7999.86 rows=380724 width=0)
+                           Index Cond: ((devicereportedtime &lt; &#039;2014-03-01 00:00:00&#039;::timestamp without time zone) AND (devicereportedtime &gt; &#039;2014-04-01 00:00:00&#039;::timestamp without time zone))
+(10 rows)
+
+rsyslog=&gt;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[dragondark]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=327</uri>
+		</author>
+		<updated>2014-04-14T15:12:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19657#p19657</id>
+	</entry>
+</feed>

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Trigger SUM/ GROUP BY postgresql]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5803&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5803"/>
+	<updated>2020-07-20T20:47:07Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5803</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Trigger SUM/ GROUP BY postgresql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31376#p31376"/>
+		<content type="html"><![CDATA[<p>S&#039;il s&#039;agit de simple consultation avec QGIS, il me semble plus simple de créer une vue :</p><div class="codebox"><pre><code>CREATE VIEW surfaces AS
+  WITH cte AS (SELECT SUM(surfaces) AS total, site FROM table GROUP BY site)
+  SELECT gid,secteur,site,type_surf,surface,code_ent,convention,cte.total AS surface_to FROM table t LEFT JOIN cte ON t.site = cte.site</code></pre></div><p>et d&#039;utiliser cette vue au lieu de la table dans QGIS; ce qui permet de &quot;laisser tomber&quot; la colonne &quot;surface_to&quot; de la table et le trigger.</p>]]></content>
+		<author>
+			<name><![CDATA[jmarsac]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7302</uri>
+		</author>
+		<updated>2020-07-20T20:47:07Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31376#p31376</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Trigger SUM/ GROUP BY postgresql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31374#p31374"/>
+		<content type="html"><![CDATA[<p>Ce n&#039;est pas si simple parce que vous allez avoir rapidement un problème de récursion. Si vous aveez un trigger sur UPDATE qui fait lui même un UPDATE de la même table, ça va de nouveau déclencher le trigger, qui va de nouveau faire un UPDATE qui va lui-même déclencher encore le trigger. Et ça continuera indéfinimment. Plus exactement, ça continuera jusqu&#039;à avoir rempli la pile d&#039;éxécution. Le problème vient surtout du fait que vos données ne sont pas correctement normalisées. Vous devriez avoir une table pour le site (avec nom du site et surface totale) et une table pour les éléments (avec la surface de chaque élément).</p><p>Sans changer la strtucture de la base, il va falloir vérifier le retour de la fonction pg_trigger_depth() pour s&#039;assurer qu&#039;il s&#039;agit du premier appel du trigger, et faire un UPDATE du style &quot;UPDATE table SET surface_to = (SELECT SUM(...) FROM table WHERE site=NEW.site) WHERE site=NEW.site&quot; (syntaxe à revoir mais l&#039;idée est là.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2020-07-20T12:19:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31374#p31374</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Trigger SUM/ GROUP BY postgresql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31372#p31372"/>
+		<content type="html"><![CDATA[<p>gid&#160; &#160; secteur&#160; &#160; site&#160; &#160; type_surf&#160; &#160; surface&#160; &#160; code_ent&#160; &#160; convention&#160; &#160; surface_to<br />201&#160; &#160; ZAC&#160; &#160; BEAU SOLEIL NORD&#160; &#160; 02&#160; &#160; 233.164802191769&#160; &#160; &#160; &#160; &#160; &#160; 7316<br />202&#160; &#160; ZAC&#160; &#160; BEAU SOLEIL NORD&#160; &#160; 01&#160; &#160; 150.222470300527&#160; &#160; &#160; &#160; &#160; &#160; 7316<br />203&#160; &#160; ZAC&#160; &#160; BEAU SOLEIL NORD&#160; &#160; 01&#160; &#160; 181.560618462796&#160; &#160; &#160; &#160; &#160; &#160; 7316<br />204&#160; &#160; ZAC&#160; &#160; BEAU SOLEIL NORD&#160; &#160; 01&#160; &#160; 100.418935165886&#160; &#160; &#160; &#160; &#160; &#160; 7316<br />205&#160; &#160; ZAC&#160; &#160; BEAU SOLEIL NORD&#160; &#160; 01&#160; &#160; 111.748459693281&#160; &#160; &#160; &#160; &#160; &#160; 7316<br />206&#160; &#160; ZAC&#160; &#160; BEAU SOLEIL NORD&#160; &#160; 01&#160; &#160; 56.2034740272345&#160; &#160; &#160; &#160; &#160; &#160; 7316<br />207&#160; &#160; ZAC&#160; &#160; BEAU SOLEIL NORD&#160; &#160; 01&#160; &#160; 15.8995911087728&#160; &#160; &#160; &#160; &#160; &#160; 7316<br />208&#160; &#160; ZAC&#160; &#160; BEAU SOLEIL NORD&#160; &#160; 01&#160; &#160; 3533.98304339476&#160; &#160; &#160; &#160; &#160; &#160; 7316<br />300&#160; &#160; ZAC&#160; &#160; BEAU SOLEIL NORD&#160; &#160; 02&#160; &#160; 2902.80650284431&#160; &#160; &#160; &#160; &#160; &#160; 7316<br />200&#160; &#160; ZAC&#160; &#160; BEAU SOLEIL NORD&#160; &#160; 01&#160; &#160; 17.3674759944427&#160; &#160; &#160; &#160; &#160; &#160; 7316<br />348&#160; &#160; ZAC&#160; &#160; BEAU SOLEIL SUD&#160; &#160; 02&#160; &#160; 13440.8542233807&#160; &#160; &#160; &#160; &#160; &#160; 59846<br />349&#160; &#160; ZAC&#160; &#160; BEAU SOLEIL SUD&#160; &#160; 02&#160; &#160; 5631.21243781833&#160; &#160; &#160; &#160; &#160; &#160; 59846<br />350&#160; &#160; ZAC&#160; &#160; BEAU SOLEIL SUD&#160; &#160; 02&#160; &#160; 17990.8078116016&#160; &#160; &#160; &#160; &#160; &#160; 59846<br />351&#160; &#160; ZAC&#160; &#160; BEAU SOLEIL SUD&#160; &#160; 02&#160; &#160; 20049.4232475934&#160; &#160; &#160; &#160; &#160; &#160; 59846<br />352&#160; &#160; ZAC&#160; &#160; BEAU SOLEIL SUD&#160; &#160; 02&#160; &#160; 2626.74934858792&#160; &#160; &#160; &#160; &#160; &#160; 59846</p><br /><p>Je souhaite que si un utilisateur créé une entité sur le site &quot;BEAU SOLEIL NORD&quot; ou supprime un entité, que comme mon champs surface (mis à jour automatiquement), mon calcul de surface_to (qui correspond à la sum des surfaces sur un site) se mette à jour automatiquement afin que tous ce qui en découle (statistique...) se mette à jour directement sans intervention d&#039;un utilisateur.</p>]]></content>
+		<author>
+			<name><![CDATA[charlene C]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8977</uri>
+		</author>
+		<updated>2020-07-20T11:50:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31372#p31372</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Trigger SUM/ GROUP BY postgresql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31371#p31371"/>
+		<content type="html"><![CDATA[<p>Ce qui est logique. Avec un &quot;NEW.colonne :=&quot;, vous essayez d&#039;affecter une valeur à une colonne d&#039;une ligne supprimée. Je pense que le mieux serait de fournir un exemple complet avec quelques lignes de la table pour qu&#039;on comprenne mieux ce que vous voulez faire.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2020-07-20T11:34:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31371#p31371</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Trigger SUM/ GROUP BY postgresql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31370#p31370"/>
+		<content type="html"><![CDATA[<p>Je n&#039;ai effectivement plus d&#039;erreur en préfixant new.site mais il ne me fait quand même pas la surface par site. <br />Il me renvoi la surface de la nouvelle entité. </p><p>De plus j&#039;ai cette fois un nouveau message d&#039;erreur lors de la suppression de l&#039;entité et je suis obligé de rendre inactif le trigger pour supprimer mon entité. <br />Erreur du fournisseur de données :<br />&#160; &#160; &#160; Erreur PostGIS lors de la suppression d&#039;entité : ERREUR:&#160; l&#039;enregistrement « new » n&#039;est pas encore affectée<br />&#160; &#160; DETAIL:&#160; La structure de ligne d&#039;un enregistrement pas encore affecté est indéterminée.<br />&#160; &#160; CONTEXT:&#160; instruction SQL « SELECT SUM(ST_Area(new.geom))group by new.site »<br />&#160; &#160; fonction PL/pgsql pole_technique.calcul_surf_total_site(), ligne 2 à affectation</p>]]></content>
+		<author>
+			<name><![CDATA[charlene C]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8977</uri>
+		</author>
+		<updated>2020-07-20T10:46:02Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31370#p31370</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Trigger SUM/ GROUP BY postgresql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31369#p31369"/>
+		<content type="html"><![CDATA[<p>L&#039;erreur de la colonne est due au fait que vous ne l&#039;avez pas préfixé du nom de la table (NEW) alors que vous l&#039;avez bien fait pour surface_total et geom.</p><p>Il me semble toujours qu&#039;il faudrait changer la requête (et notamment abandonner le GROUP BY site) mais je ne sais pas exactement par quoi actuellement.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2020-07-20T10:25:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31369#p31369</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Trigger SUM/ GROUP BY postgresql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31368#p31368"/>
+		<content type="html"><![CDATA[<p>Alors je me suis peut être mal exprimé ou j&#039;ai peut être mal construit ma requête mais voilà ce que je veux et ce que j&#039;ai : </p><p>J&#039;ai 1 table surfenh dans lequel j&#039;ai des colonnes dont site, surface, surface_par_site...<br />Je veux que ma colonne surface_par_site me renvoi une surface en fonction du site. Pour un site, j&#039;aurai donc 1 surface_par_site qui se répétera (oui c&#039;est un peu bête peut être). J&#039;ai donc 100 entités qui ont des surfaces différentes, sur 20 sites. J&#039;aurai donc au final sur ma colonne surface_par_site 100 entités mais seulement 20 sommes différentes. </p><p>Pour information j&#039;ai déjà testé : <br />BEGIN<br />NEW.surface_total:=SUM(ST_Area(new.geom))group by &quot;site&quot;;<br />RETURN NEW;<br />END;</p><p>ou </p><p>BEGIN<br />NEW.surface_total:=SUM(ST_Area(new.geom))group by &#039;site&#039;;<br />RETURN NEW;<br />END;</p><p>Il me renvoi toujours la même erreur.</p>]]></content>
+		<author>
+			<name><![CDATA[charlene C]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8977</uri>
+		</author>
+		<updated>2020-07-20T10:16:54Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31368#p31368</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Trigger SUM/ GROUP BY postgresql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31367#p31367"/>
+		<content type="html"><![CDATA[<p>Généralement, les problèmes de nom proviennent de l&#039;ajout de majuscules dans le nom problématique, auquel cas, il faut placer le nom entre colonne.</p><p>Ceci étant, la requête n&#039;a pas de sens pour moi. Quand un fait un GROUP BY sur un SUM, on s&#039;attend à récupérer plusieurs lignes. Or, vous affectez le résultat du SUMM à une colonne. Comment une colonne pourrait enresgitrer plusieurs valeurs pour la même ligne (celle en cours de mise à jour) ?</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2020-07-20T09:55:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31367#p31367</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Trigger SUM/ GROUP BY postgresql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31366#p31366"/>
+		<content type="html"><![CDATA[<p>Je souhaiterais que dans ma base se mette à jour automatique ma colonne surf total par site.</p><p>J&#039;ai donc mis en place un trigger fonction :</p><p>BEGIN<br />NEW.surface_total:=SUM(ST_Area(new.geom))group by site;<br />RETURN NEW;<br />END;</p><p>Puis appliquer mon trigger sur ma couche.</p><p>Hors lorsque j’essaie d&#039;ajouter une entité dans ma table sous QGIS et d&#039;enregistrer pour voir le résultat voilà le message d&#039;erreur que j&#039;ai :</p><p>Erreur PostGIS lors de l&#039;ajout d&#039;entité : ERREUR:&#160; la colonne « site » n&#039;existe pas<br />LINE 1: SELECT SUM(ST_Area(new.geom))group by site</p><p>Je ne comprend pas car ma colonne site existe bien.</p><p>Si vous avez des pistes, je suis preneuse....</p>]]></content>
+		<author>
+			<name><![CDATA[charlene C]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8977</uri>
+		</author>
+		<updated>2020-07-20T09:51:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31366#p31366</id>
+	</entry>
+</feed>

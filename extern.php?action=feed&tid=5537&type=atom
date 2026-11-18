@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / invalid resource manager ID 114 at 16C/59A6E268 - dois-je m'inquiéter?]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5537&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5537"/>
+	<updated>2019-06-20T07:57:51Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5537</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  invalid resource manager ID 114 at 16C/59A6E268 - dois-je m'inquiéter?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29902#p29902"/>
+		<content type="html"><![CDATA[<p>A priori non, pas besoin de s&#039;inquiéter. Déjà, il s&#039;agit d&#039;un niveau LOG. Ce serait un vrai problème, le message aurait un niveau plus important (comme ERROR ou FATAL). De plus, le message en lui-même indique que l&#039;enregistrement dans le journal de transaction n&#039;est pas reconnu. Il est donc ignoré. Il est possible que ce soit le dernier enregistrement à moitié écrit.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2019-06-20T07:57:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29902#p29902</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[invalid resource manager ID 114 at 16C/59A6E268 - dois-je m'inquiéter?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29901#p29901"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>j&#039;ai un postgres 10.6 sous linux, un &quot;master&quot; (port 5432) et un &quot;slave&quot; (port 5444, même machine) en mode &quot;hot standby&quot; (streaming replication).<br />le recovery.conf:</p><div class="codebox"><pre><code>standby_mode = &#039;on&#039;
+primary_conninfo = &#039;user=postgres passfile=&#039;&#039;/var/lib/pgsql/.pgpass&#039;&#039; host=127.0.0.1 port=5432 sslmode=prefer sslcompression=1 krbsrvname=postgres target_session_attrs=any&#039;
+trigger_file = &#039;/mnt/pgdata/standbydir/remove_ext_to_switchover&#039;
+restore_command = &#039;cp /mnt/pgdata/wal/%f %p&#039;</code></pre></div><p>J&#039;ai créé le fichier /mnt/pgdata/standbydir/remove_ext_to_switchover<br />=&gt; log:</p><div class="codebox"><pre><code>2019-06-20 06:44:52.748 CEST [32383] LOG:  trigger file found: /mnt/pgdata/standbydir/remove_ext_to_switchover
+2019-06-20 06:44:52.749 CEST [32402] FATAL:  terminating walreceiver process due to administrator command
+cp: cannot stat ‘/mnt/pgdata/wal/000000010000016C00000059’: No such file or directory
+2019-06-20 06:44:52.770 CEST [32383] LOG:  invalid resource manager ID 114 at 16C/59A6E268
+2019-06-20 06:44:52.771 CEST [32383] LOG:  redo done at 16C/59A6E230
+2019-06-20 06:44:52.771 CEST [32383] LOG:  last completed transaction was at log time 2019-06-20 06:43:56.733303+02
+cp: cannot stat ‘/mnt/pgdata/wal/000000010000016C00000059’: No such file or directory
+cp: cannot stat ‘/mnt/pgdata/wal/00000002.history’: No such file or directory
+2019-06-20 06:44:52.802 CEST [32383] LOG:  selected new timeline ID: 2
+2019-06-20 06:44:52.886 CEST [32383] LOG:  archive recovery complete
+cp: cannot stat ‘/mnt/pgdata/wal/00000001.history’: No such file or directory
+2019-06-20 06:44:53.006 CEST [32381] LOG:  database system is ready to accept connections</code></pre></div><p>Ca a l&#039;air de fonctionner correctement, mais il y a quand même un message:<br /><strong>2019-06-20 06:44:52.770 CEST [32383] LOG:&#160; invalid resource manager ID 114 at 16C/59A6E268</strong></p><p>Dois-je m&#039;en inquiéter?</p><p>Merci!</p>]]></content>
+		<author>
+			<name><![CDATA[albourg]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7029</uri>
+		</author>
+		<updated>2019-06-20T06:05:39Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29901#p29901</id>
+	</entry>
+</feed>

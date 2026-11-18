@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Requête lente sur une table partionné.]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3415&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3415"/>
+	<updated>2015-01-09T09:12:56Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3415</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête lente sur une table partionné.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21290#p21290"/>
+		<content type="html"><![CDATA[<p>Ça fait du 500000 lignes par seconde dans le meilleur des cas. En effet, je vois difficilement comment faire mieux.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2015-01-09T09:12:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21290#p21290</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête lente sur une table partionné.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21289#p21289"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Merci pour ce retour. En fait il reste une seule table de 2013 qui n&#039;a pas correctement été supprimée. Sinon dans le explain, il passe bien dans les table de history_uint_y2014m10d11 à history_uint_y2015m01d05.</p><p>Pour le coup en me relisant je viens de comprendre pourquoi il passe dans autant de tables :</p><p>La condition de recherche est sur clock &lt;= XXXXXX. Donc il teste toutes les entrées dans toutes les tables où clock est inférieur à XXXXX.</p><p>Chaque table contient en moyenne 12 000 000 de lignes. Pour le coup je ne vois pas comment réduire le temps d&#039;exécution de la requête. Actuellement elle prend environ 22 s et 5minutes en fonction de la charge du serveur.</p><p>Jérémy.</p>]]></content>
+		<author>
+			<name><![CDATA[JeremyM]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=4623</uri>
+		</author>
+		<updated>2015-01-09T08:35:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21289#p21289</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête lente sur une table partionné.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21285#p21285"/>
+		<content type="html"><![CDATA[<p>Sur l&#039;EXPLAIN, je ne vois que les tables de octobre 2014 à janvier 2015. Or sur la définition de la table, on voit des partitions à partir de 2013. Donc il ne les parcourt pas toutes.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2015-01-08T19:54:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21285#p21285</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Requête lente sur une table partionné.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21284#p21284"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;ai la problématique suivante:<br />Le requête suivante select max(clock) from history_uint where itemid=xxxx AND clock &lt;= xxxxxx est très lente.<br />Après vérification du plan d&#039;exécution, il s&#039;avère que le planificateur passe dans toutes les tables filles de history_uint.</p><p>J&#039;utilise PostgreSQL 9.0.4.<br />La structure de la table est la suivante :</p><div class="codebox"><pre class="vscroll"><code>                        Table &quot;public.history_uint&quot;
+ Column |     Type      |          Modifiers          | Storage | Description 
+--------+---------------+-----------------------------+---------+-------------
+ itemid | bigint        | not null                    | plain   | 
+ clock  | integer       | not null default 0          | plain   | 
+ value  | numeric(20,0) | not null default 0::numeric | main    | 
+ ns     | integer       | not null default 0          | plain   | 
+Indexes:
+    &quot;history_uint_1_tmp&quot; btree (itemid, clock)
+Triggers:
+    insert_history_uint_trigger BEFORE INSERT ON history_uint FOR EACH ROW EXECUTE PROCEDURE history_uint_insert_trigger()
+Child tables: history_uint_y2013m08d15,
+              history_uint_y2014m10d11,
+              history_uint_y2014m10d12,
+              history_uint_y2014m10d13,
+              history_uint_y2014m10d14,
+              history_uint_y2014m10d15,
+              history_uint_y2014m10d16,
+              history_uint_y2014m10d17,
+              history_uint_y2014m10d18,
+              history_uint_y2014m10d19,
+              history_uint_y2014m10d20,
+              history_uint_y2014m10d21,
+              history_uint_y2014m10d22,
+              history_uint_y2014m10d23,
+              history_uint_y2014m10d24,
+              history_uint_y2014m10d25,
+              history_uint_y2014m10d26,
+              history_uint_y2014m10d27,
+              history_uint_y2014m10d28,
+              history_uint_y2014m10d29,
+              history_uint_y2014m10d30,
+              history_uint_y2014m10d31,
+              history_uint_y2014m11d01,
+              history_uint_y2014m11d02,
+              history_uint_y2014m11d03,
+              history_uint_y2014m11d04,
+              history_uint_y2014m11d05,
+              history_uint_y2014m11d06,
+              history_uint_y2014m11d07,
+              history_uint_y2014m11d08,
+              history_uint_y2014m11d09,
+              history_uint_y2014m11d10,
+              history_uint_y2014m11d11,
+              history_uint_y2014m11d12,
+              history_uint_y2014m11d13,
+              history_uint_y2014m11d14,
+              history_uint_y2014m11d15,
+              history_uint_y2014m11d16,
+              history_uint_y2014m11d17,
+              history_uint_y2014m11d18,
+              history_uint_y2014m11d19,
+              history_uint_y2014m11d20,
+              history_uint_y2014m11d21,
+              history_uint_y2014m11d22,
+              history_uint_y2014m11d23,
+              history_uint_y2014m11d24,
+              history_uint_y2014m11d25,
+              history_uint_y2014m11d26,
+              history_uint_y2014m11d27,
+              history_uint_y2014m12d28,
+              history_uint_y2014m12d29,
+              history_uint_y2014m12d30,
+              history_uint_y2014m12d31,
+              history_uint_y2015m01d01,
+              history_uint_y2015m01d02,
+              history_uint_y2015m01d03,
+              history_uint_y2015m01d04,
+              history_uint_y2015m01d05,
+              history_uint_y2015m01d06,
+              history_uint_y2015m01d07,
+              history_uint_y2015m01d08,
+              history_uint_y2015m01d09,
+              history_uint_y2015m01d10
+Has OIDs: yes</code></pre></div><p>Chacune des table contient environ 12 000 000 de lignes, et il y a une rotation sur 4 mois.<br />Un explain de la requête est disponible ici : <a href="http://explain.depesz.com/s/UCgi" rel="nofollow">http://explain.depesz.com/s/UCgi</a></p><br /><p>Voici la structure des tables history_uint_yxxxxmxxdxx</p><div class="codebox"><pre><code>                   Table &quot;public.history_uint_y2015m01d10&quot;
+ Column |     Type      |          Modifiers          | Storage | Description 
+--------+---------------+-----------------------------+---------+-------------
+ itemid | bigint        | not null                    | plain   | 
+ clock  | integer       | not null default 0          | plain   | 
+ value  | numeric(20,0) | not null default 0::numeric | main    | 
+ ns     | integer       | not null default 0          | plain   | 
+Indexes:
+    &quot;history_uint_y2015m01d10_1&quot; btree (itemid, clock)
+Check constraints:
+    &quot;history_uint_y2015m01d10_clock_check&quot; CHECK (clock &gt;= 1420848000 AND clock &lt; 1420934400)
+Inherits: history_uint
+Has OIDs: yes</code></pre></div><br /><p>Là j&#039;avoue que je sèche totalement et toute aide serai la bienvenue.</p><p>Merci.</p>]]></content>
+		<author>
+			<name><![CDATA[JeremyM]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=4623</uri>
+		</author>
+		<updated>2015-01-08T15:45:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21284#p21284</id>
+	</entry>
+</feed>

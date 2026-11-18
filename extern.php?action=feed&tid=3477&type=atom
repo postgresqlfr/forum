@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / optimisation de l'efficacité du vacuum]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3477&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3477"/>
+	<updated>2015-03-12T12:39:56Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3477</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  optimisation de l'efficacité du vacuum]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21668#p21668"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>La question est surtout de savoir si cette volumétrie finit par se stabiliser et à quel moment.</p></div></blockquote></div><p>Oui elle se stabilise.</p><div class="quotebox"><blockquote><div><p>Pour revenir aux fondamentaux, un DELETE laissera un emplacement vide dans un bloc de la table. Sans VACUUM, ce bloc ne peut pas être réutilisé. Si vous estimez que la fragmentation ne fait qu&#039;augmenter, c&#039;est que vous n&#039;exécutez pas assez de VACUUM.</p></div></blockquote></div><p>Ok donc il faut que j&#039;execute un VACUUM à la fin de chaque boucle. Et il ne faut pas que j&#039;évite de relancer une boucle d’écriture avant que le vacuum soit fini, sinon l&#039;espace des lignes supprimées ne peut être réutilisé.<br />Ainsi je devrais pouvoir maintenir un ratio &quot;taille de table possible / taille de table optimale&quot; inférieur à 2.</p>]]></content>
+		<author>
+			<name><![CDATA[guig]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=4778</uri>
+		</author>
+		<updated>2015-03-12T12:39:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21668#p21668</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  optimisation de l'efficacité du vacuum]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21667#p21667"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Après le VACUUM la taille de la table n&#039;a pas diminué?</p></div></blockquote></div><p>Un VACUUM ne fait pas diminuer la taille d&#039;une table. Plus exactement, il peut le faire dans un cas très spécifique. Suffisamment spécifique pour être trop rare. Seule l&#039;option FULL permet de gagner de la place sur disque. Avec l&#039;inconvénient dont personne ne veut, à savoir un verrou exclusif sur la table.</p><div class="quotebox"><blockquote><div><p>De plus, j&#039;imagine qu&#039;avoir des tables fragmentées réduit les performances des select, n&#039;est ce pas?</p></div></blockquote></div><p>Oui, si la table a du mal à tenir en mémoire. Là, 322 Mo, non quoi <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /> Maintenant, si les tables ont une volumétrie plus importante, ça peut être un soucis. Ceci dit, une table un peu fragmentée aura tendance à améliorer les performances des UPDATE.</p><div class="quotebox"><blockquote><div><p>En production, j&#039;ai observé des cas où ma table après la première boucle faisait 3Go (ce qui correspondait environ à la taille de mes données plus le HeapTupleHeaderData), après 5 ou 6 boucles, j&#039;étais à 10Go (après un vacuum).</p></div></blockquote></div><p>La question est surtout de savoir si cette volumétrie finit par se stabiliser et à quel moment.</p><p>Pour revenir aux fondamentaux, un DELETE laissera un emplacement vide dans un bloc de la table. Sans VACUUM, ce bloc ne peut pas être réutilisé. Si vous estimez que la fragmentation ne fait qu&#039;augmenter, c&#039;est que vous n&#039;exécutez pas assez de VACUUM.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2015-03-12T12:11:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21667#p21667</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  optimisation de l'efficacité du vacuum]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21665#p21665"/>
+		<content type="html"><![CDATA[<p>Merci pour votre réponse.</p><div class="quotebox"><blockquote><div><p>Il serait bon de faire un VACUUM entre les deux. Ça permettrait au COPY de réutiliser les emplacements libérés par les DELETE, à condition qu&#039;il n&#039;y ait pas d&#039;anciennes transactions pouvant toujours voir les lignes supprimées.</p></div></blockquote></div><p>Je n&#039;ai pas de transaction pouvant voir les lignes supprimées, mais pour des raisons de performance je ne peux pas me permettre de faire un vacuum entre chaque delete et copy, enfin je pense. Pour vous donner quelques détails supplémentaires:<br />- la table object_data contient les résultats d&#039;un calcul qui est plus rapide (de l&#039;ordre de 10) que l&#039;écriture en base des résultats.<br />- les actions delete + copy sont faites par bloc d&#039;event<br />- Pour des raisons de performance, ces écritures de bloc sont fait en parallèle<br />Du coup je ne vois pas trop comment faire un vacuum dans ces conditions. Si cette stratégie favorise la fragmentation de la table, avez vous des idées de modifications pour réduire la taille de ma table tout en gardant de bonne performance d’écriture?</p><div class="quotebox"><blockquote><div><p>C&#039;est-à-dire ? quel effet espérez-vous ?</p></div></blockquote></div><p>Après le VACUUM la taille de la table n&#039;a pas diminué? Certainement parce que l&#039;auto vacuum était déja passé.</p><div class="quotebox"><blockquote><div><p>En soi, que la table fasse 81 Mo ou 322 Mo, ça n&#039;a pas vraiment une grosse importance.</p></div></blockquote></div><p>Dans mon cas je pense que si. Dans mon exemple, j&#039;ai 1000 event et 1000 object, en réalité les volumétries sont plus important: 10000*10000 potentiellement. Le nombre de colonne de la table est aussi plus important. J&#039;ai plusieurs tables de ce type dans mon schéma. Et surtout, ce schéma peut être multiplié plusieurs centaines de fois.<br />De plus, j&#039;imagine qu&#039;avoir des tables fragmentées réduit les performances des select, n&#039;est ce pas?</p><div class="quotebox"><blockquote><div><p>Quel comportement voudriez-vous ? et pour être clair, une table sans fragmentation, c&#039;est impossible alors qu&#039;une table à la fragmentation contenue, c&#039;est réalisable.</p></div></blockquote></div><p>En production, j&#039;ai observé des cas où ma table après la première boucle faisait 3Go (ce qui correspondait environ à la taille de mes données plus le HeapTupleHeaderData), après 5 ou 6 boucles, j&#039;étais à 10Go (après un vacuum).<br />Ceci me pose des problèmes, les requêtes select sont plus lentes et surtout la consommation d&#039;espace disque devient très importantes. Je comprends que je ne peux pas empêcher la fragmentation, je voudrais la contenir au maximum et je ne suis pas sur que ce soit actuellement mon cas. Je suis inquiet du rapport : taille de table possible / taille de table optimale (ici 322/81 =&gt; 4).</p>]]></content>
+		<author>
+			<name><![CDATA[guig]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=4778</uri>
+		</author>
+		<updated>2015-03-12T11:05:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21665#p21665</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  optimisation de l'efficacité du vacuum]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21656#p21656"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Fréquemment, dans une application c++, je parcours l&#039;ensemble des event pour mettre à jour les données de chaque object dans la table object_data (implémenté à l&#039;aide d&#039;un &quot;delete where event_id=?&quot; puis d&#039;un &quot;copy de l&#039;ensemble des object pour l&#039;event concerné&quot;).</p></div></blockquote></div><p>Il serait bon de faire un VACUUM entre les deux. Ça permettrait au COPY de réutiliser les emplacements libérés par les DELETE, à condition qu&#039;il n&#039;y ait pas d&#039;anciennes transactions pouvant toujours voir les lignes supprimées.</p><div class="quotebox"><blockquote><div><p>Suite à ce test, le vacuum était ensuite sans effet.</p></div></blockquote></div><p>C&#039;est-à-dire ? quel effet espérez-vous ?</p><div class="quotebox"><blockquote><div><p>Ce comportement vous parait-il normal? est-il évitable?</p></div></blockquote></div><p>Normal, peut être pas. Pas surprenant, en tout cas. Évitable, tout dépend de ce que vous voulez éviter. En soi, que la table fasse 81 Mo ou 322 Mo, ça n&#039;a pas vraiment une grosse importance.</p><p>D&#039;autre part, on a l&#039;impression qu&#039;il y a une stabilisation à 322 Mo. Est-ce vraiment le cas ?</p><div class="quotebox"><blockquote><div><p>Est ce qu&#039;une modification du fillfactor peut avoir un effet bénéfique?</p></div></blockquote></div><p>Une modification du FILLFACTOR est bénéfique pour les performances des mises à jour. Vous n&#039;avez jamais parlé de mise à jour.</p><div class="quotebox"><blockquote><div><p>Vaut-il mieux laisser l&#039;auto vacuum actif sur cette table ou bien est-il préférable de le désactiver le temps de la mise à jour de la table?</p></div></blockquote></div><p>Pour moi, il est préférable de laisser l&#039;autovacuum actif globalement ou table par table tant qu&#039;on n&#039;a pas démontré son côté néfaste dans un cas particulier. Ce n&#039;est pas le cas ici.</p><p>En fait, j&#039;en reviens à ma remarque. Quel comportement voudriez-vous ? et pour être clair, une table sans fragmentation, c&#039;est impossible alors qu&#039;une table à la fragmentation contenue, c&#039;est réalisable.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2015-03-11T21:55:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21656#p21656</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[optimisation de l'efficacité du vacuum]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21655#p21655"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />Je cherche à savoir s&#039;il est possible d&#039;optimiser la taille d&#039;une table sans avoir à exécuter un vacuum full (la table doit restée disponible pour l&#039;utilisateur).<br />Mes tables ressemblent à ceci:</p><div class="codebox"><pre><code>CREATE TABLE event (
+    id integer NOT NULL,
+    &quot;time&quot; timestamp(6) without time zone DEFAULT now() NOT NULL,
+    info text NOT NULL
+);
+CREATE TABLE object (
+    id integer NOT NULL,
+    name text DEFAULT &#039;&#039;::text NOT NULL
+);
+CREATE TABLE object_data (
+    object_id integer NOT NULL,
+    event_id integer NOT NULL,
+    field1 double precision NOT NULL,
+    field2 double precision NOT NULL,
+    field3 double precision NOT NULL,
+    field4 double precision NOT NULL,
+    field5 double precision NOT NULL,
+    field6 double precision NOT NULL
+);</code></pre></div><p>Fréquemment, dans une application c++, je parcours l&#039;ensemble des event pour mettre à jour les données de chaque object dans la table object_data (implémenté à l&#039;aide d&#039;un &quot;delete where event_id=?&quot; puis d&#039;un &quot;copy de l&#039;ensemble des object pour l&#039;event concerné&quot;).<br />Après 5 à 6 boucles, la taille de la table a augmenté significativement et le vacuum n&#039;a presque aucun effet.</p><p>Par exemple, pour un nombre d&#039;entrées d&#039;1 million (1000 events et 1000 objects), la taille de ma table object_data évolue de la façon suivante:<br />boucle 1: taille=81Mo<br />boucle 2: taille=161Mo<br />boucle 3: taille=242Mo<br />boucle 4: taille=261Mo<br />boucle 5: taille=322Mo<br />boucle 6: taille=322Mo<br />boucle 7: taille=322Mo</p><p>Suite à ce test, le vacuum était ensuite sans effet.<br />Ce comportement vous parait-il normal? est-il évitable?<br />Est ce qu&#039;une modification du fillfactor peut avoir un effet bénéfique?<br />Vaut-il mieux laisser l&#039;auto vacuum actif sur cette table ou bien est-il préférable de le désactiver le temps de la mise à jour de la table?<br />D&#039;autres idées?</p><p>Merci d&#039;avance</p>]]></content>
+		<author>
+			<name><![CDATA[guig]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=4778</uri>
+		</author>
+		<updated>2015-03-11T17:54:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21655#p21655</id>
+	</entry>
+</feed>

@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / requete SELECT  à 4 tables]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2476&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2476"/>
+	<updated>2013-01-22T09:02:47Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2476</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  requete SELECT  à 4 tables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16391#p16391"/>
+		<content type="html"><![CDATA[<p>merci à vous marc,<br />je republie la requete au complet pour les autres..</p><p>**//</p><p>SELECT tmp1.*,&#160; coalesce(sum(A3.dpa * A3.quantite),0) as Cout_pieces, tmp1.Cout_MO + coalesce(sum(A3.dpa * A3.quantite),0) as total <br />FROM<br />&#160; (SELECT E1.id_entete_ot,<br />&#160; &#160; &#160; &#160; &#160; E1.date_ot,<br />&#160; &#160; &#160; &#160; &#160; E1.service,<br />&#160; &#160; &#160; &#160; &#160; E2.nro_equipement,<br />&#160; &#160; &#160; &#160; &#160; E2.designation,<br />&#160; &#160; &#160; &#160; &#160; E2.nom_organe,<br />&#160; &#160; &#160; &#160; &#160; E1.description,<br />&#160; &#160; &#160; &#160; &#160; E2.id_equipement, <br />&#160; &#160; &#160; &#160; &#160; coalesce(sum(O2.temps),0) AS Temps,<br />&#160; &#160; &#160; &#160; &#160; coalesce(sum(O2.temps * O2.cout_pe),0) AS Cout_MO&#160; &#160; &#160; &#160; &#160; &#160;<br />&#160; &#160;FROM entete_ot E1<br />&#160; &#160;LEFT OUTER JOIN equipements E2 ON (E1.id_equipement = E2.id_equipement)<br />&#160; &#160;LEFT OUTER JOIN ot O2 ON (E1.id_entete_ot = O2.id_entete_ot)<br />where E1.date_ot between &#039;01/01/2012&#039; and &#039;31/12/2012&#039; and E1.service like &#039;ACCREDITATION QUALITE%&#039; and E2.type_equipement like &#039;%&#039; and lower(E2.nom_organe) like &#039;%&#039; and lower(E2.designation) like &#039;%&#039; <br />&#160; &#160;GROUP BY E1.id_entete_ot,<br />&#160; &#160; &#160; &#160; &#160; &#160; E1.date_ot,<br />&#160; &#160; &#160; &#160; &#160; &#160; E1.service,<br />&#160; &#160; &#160; &#160; &#160; &#160; E2.nro_equipement,<br />&#160; &#160; &#160; &#160; &#160; &#160; E2.designation,<br />&#160; &#160; &#160; &#160; &#160; &#160; E2.nom_organe,<br />&#160; &#160; &#160; &#160; &#160; &#160; E1.description,<br />&#160; &#160; &#160; &#160; &#160; &#160; E2.id_equipement) AS tmp1<br />LEFT JOIN articles_ot A3 ON (tmp1.id_entete_ot = A3.id_entete_ot)<br />GROUP BY tmp1.id_entete_ot,<br />&#160; &#160; &#160; &#160; &#160; &#160; tmp1.date_ot,<br />&#160; &#160; &#160; &#160; &#160; &#160; tmp1.service,<br />&#160; &#160; &#160; &#160; &#160; &#160; tmp1.nro_equipement,<br />&#160; &#160; &#160; &#160; &#160; &#160; tmp1.designation,<br />&#160; &#160; &#160; &#160; &#160; &#160; tmp1.nom_organe,<br />&#160; &#160; &#160; &#160; &#160; &#160; tmp1.description,<br />&#160; &#160; &#160; &#160; &#160; &#160; tmp1.id_equipement,<br />&#160; &#160; &#160; &#160; &#160; &#160; tmp1.temps,<br />&#160; &#160; &#160; &#160; &#160; &#160; tmp1.Cout_MO</p>]]></content>
+		<author>
+			<name><![CDATA[unisol]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=540</uri>
+		</author>
+		<updated>2013-01-22T09:02:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16391#p16391</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  requete SELECT  à 4 tables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16390#p16390"/>
+		<content type="html"><![CDATA[<p>Il faut utiliser la fonction coalesce sur les valeurs NULL dans ce genre de cas:</p><p>coalesce(null,0) renvoie 0. Par exemple:<br />coalesce(sum(O2.temps * O2.cout_pe),0) + coalesce(sum(A3.dpa * A3.quantite),0) as Cout_Total</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2013-01-22T08:07:07Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16390#p16390</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  requete SELECT  à 4 tables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16389#p16389"/>
+		<content type="html"><![CDATA[<p>Nickel, merci ça marche !!!!<br />ma valeur n&#039;est plus démultipliée.<br />encore une chose, avez vous une solution pour que mon addition se fasse, lorsque<br />une somme renvoi un null ?</p>]]></content>
+		<author>
+			<name><![CDATA[unisol]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=540</uri>
+		</author>
+		<updated>2013-01-22T08:04:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16389#p16389</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  requete SELECT  à 4 tables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16388#p16388"/>
+		<content type="html"><![CDATA[<div class="codebox"><pre class="vscroll"><code>SELECT tmp1.*,  sum(A3.dpa * A3.quantite) as Cout_pieces
+FROM
+  (SELECT E1.id_entete_ot,
+          E1.date_ot,
+          E1.service,
+          E2.nro_equipement,
+          E2.designation,
+          E2.nom_organe,
+          E1.description,
+          sum(O2.temps) AS Temps,
+          E2.id_equipement
+   FROM entete_ot E1
+   LEFT OUTER JOIN equipements E2 ON (E1.id_equipement = E2.id_equipement)
+   LEFT OUTER JOIN ot O2 ON (E1.id_entete_ot = O2.id_entete_ot)
+   GROUP BY E1.id_entete_ot,
+            E1.date_ot,
+            E1.service,
+            E2.nro_equipement,
+            E2.designation,
+            E2.nom_organe,
+            E1.description,
+            E2.id_equipement) AS tmp1
+LEFT JOIN articles_ot A3 ON (tmp1.id_entete_ot = A3.id_entete_ot)
+GROUP BY tmp1.id_entete_ot,
+            tmp1.date_ot,
+            tmp1.service,
+            tmp1.nro_equipement,
+            tmp1.designation,
+            tmp1.nom_organe,
+            tmp1.description,
+            tmp1.id_equipement,
+            tmp1.temps</code></pre></div><p>Devrait fonctionner non ?</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2013-01-22T07:53:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16388#p16388</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  requete SELECT  à 4 tables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16387#p16387"/>
+		<content type="html"><![CDATA[<p>vous avez publié un post apres moi, <br />si, je souhaite en effet utiliser A3, j&#039;avais ommis&#160; de l&#039;ajouter dans ma requete.</p>]]></content>
+		<author>
+			<name><![CDATA[unisol]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=540</uri>
+		</author>
+		<updated>2013-01-22T07:46:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16387#p16387</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  requete SELECT  à 4 tables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16386#p16386"/>
+		<content type="html"><![CDATA[<p>Vous n&#039;avez pas A3 du tout dans les colonnes du SELECT. Ne le mettez donc pas dans la liste des tables à joindre dans ce cas.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2013-01-22T07:33:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16386#p16386</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  requete SELECT  à 4 tables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16385#p16385"/>
+		<content type="html"><![CDATA[<p>En effet j&#039;ai ommis d&#039;ajouter l&#039;utilisation de A3<br />voici ce que je souhaiterais<br />*//<br />SELECT <br />&#160; &#160;E1.id_entete_ot, E1.date_ot, E1.service, E2.nro_equipement, E2.designation, E2.nom_organe, E1.description, <br />&#160; &#160;sum(O2.temps) as Temps, <br />&#160; &#160;sum(O2.temps * O2.cout_pe) as Cout_MO, <br />&#160; &#160;sum(A3.dpa * A3.quantite) as Cout_pieces, <br />&#160; &#160;sum(O2.temps * O2.cout_pe) + sum(A3.dpa * A3.quantite) as Cout_Total, <br />&#160; &#160;E2.id_equipement<br />FROM <br />&#160; &#160;entete_ot E1 left outer join equipements E2 on (E1.id_equipement = E2.id_equipement) <br />&#160; &#160;left outer join ot O2 on (E1.id_entete_ot = O2.id_entete_ot)&#160; <br />&#160; &#160;left outer join articles_ot A3 on (E1.id_entete_ot = A3.id_entete_ot)<br />group by <br />&#160; &#160;E1.id_entete_ot, E1.date_ot, E1.service, E2.nro_equipement, E2.designation, E2.nom_organe, E1.description, E2.id_equipement<br />*//<br />pour être complet dans, il se peut, que par exemple des valeurs n&#039;existes pas :<br />sum(A3.dpa * A3.quantite) as Cout_pieces, -&gt; renvoi NULL<br />sum(O2.temps * O2.cout_pe) -&gt; = 50<br />ce qui a pour effet de ne pas additionner <br />sum(O2.temps * O2.cout_pe) + sum(A3.dpa * A3.quantite) as Cout_Total, <br />50 + NULL = NULL<br />comment solutionner cette partie ?</p><p>merci par avance,</p>]]></content>
+		<author>
+			<name><![CDATA[unisol]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=540</uri>
+		</author>
+		<updated>2013-01-22T07:29:31Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16385#p16385</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  requete SELECT  à 4 tables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16384#p16384"/>
+		<content type="html"><![CDATA[<p>En l&#039;état, vu que vous n&#039;utilisez pas les enregistrements de A3 dans la requête, ne le mettez tout simplement pas…</p><p>Après, ça dépend de ce que vous voulez vraiment faire des enregistrements de A3 dans le résultat final. Ce que vous souhaitez réellement, ça ne serait pas la jointure entre </p><p>SELECT E1.id_entete_ot, E1.date_ot, E1.service, E2.nro_equipement, E2.designation, E2.nom_organe, E1.description, sum(O2.temps) as Temps, E2.id_equipement<br />FROM entete_ot E1 left outer join equipements E2 on (E1.id_equipement = E2.id_equipement) <br />left outer join ot O2 on (E1.id_entete_ot = O2.id_entete_ot) <br />group by E1.id_entete_ot, E1.date_ot, E1.service, E2.nro_equipement, E2.designation, E2.nom_organe, E1.description, E2.id_equipement</p><p>et A3 ?</p><p>si oui, écrivez tout simplement:</p><div class="quotebox"><blockquote><div><p>SELECT *<br />FROM<br />&#160; (SELECT E1.id_entete_ot,<br />&#160; &#160; &#160; &#160; &#160; E1.date_ot,<br />&#160; &#160; &#160; &#160; &#160; E1.service,<br />&#160; &#160; &#160; &#160; &#160; E2.nro_equipement,<br />&#160; &#160; &#160; &#160; &#160; E2.designation,<br />&#160; &#160; &#160; &#160; &#160; E2.nom_organe,<br />&#160; &#160; &#160; &#160; &#160; E1.description,<br />&#160; &#160; &#160; &#160; &#160; sum(O2.temps) AS Temps,<br />&#160; &#160; &#160; &#160; &#160; E2.id_equipement<br />&#160; &#160;FROM entete_ot E1<br />&#160; &#160;LEFT OUTER JOIN equipements E2 ON (E1.id_equipement = E2.id_equipement)<br />&#160; &#160;LEFT OUTER JOIN ot O2 ON (E1.id_entete_ot = O2.id_entete_ot)<br />&#160; &#160;GROUP BY E1.id_entete_ot,<br />&#160; &#160; &#160; &#160; &#160; &#160; E1.date_ot,<br />&#160; &#160; &#160; &#160; &#160; &#160; E1.service,<br />&#160; &#160; &#160; &#160; &#160; &#160; E2.nro_equipement,<br />&#160; &#160; &#160; &#160; &#160; &#160; E2.designation,<br />&#160; &#160; &#160; &#160; &#160; &#160; E2.nom_organe,<br />&#160; &#160; &#160; &#160; &#160; &#160; E1.description,<br />&#160; &#160; &#160; &#160; &#160; &#160; E2.id_equipement) AS tmp1<br />LEFT JOIN articles_ot A3 ON (tmp1.id_entete_ot = A3.id_entete_ot)</p></div></blockquote></div>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2013-01-22T06:22:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16384#p16384</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  requete SELECT  à 4 tables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16383#p16383"/>
+		<content type="html"><![CDATA[<p>bah, je souhaiterais une valeur qui ne soit pas démultiplié...</p>]]></content>
+		<author>
+			<name><![CDATA[unisol]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=540</uri>
+		</author>
+		<updated>2013-01-21T22:35:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16383#p16383</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  requete SELECT  à 4 tables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16378#p16378"/>
+		<content type="html"><![CDATA[<p>C&#039;est à dire que vous avez la valeur multipliée par le nombre d&#039;enregistrements de A3 liés à E1 ? C&#039;est normal.</p><p>Que voulez-vous faire exactement ?</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2013-01-21T14:38:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16378#p16378</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[requete SELECT  à 4 tables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16374#p16374"/>
+		<content type="html"><![CDATA[<p>bonjour,<br />j&#039;ai une requete de ce type<br />//**<br />SELECT E1.id_entete_ot, E1.date_ot, E1.service, E2.nro_equipement, E2.designation, E2.nom_organe, E1.description, sum(O2.temps) as Temps, E2.id_equipement </p><p>FROM entete_ot E1 left outer join equipements E2 on (E1.id_equipement = E2.id_equipement) <br />left outer join ot O2 on (E1.id_entete_ot = O2.id_entete_ot)&#160; </p><p>group by E1.id_entete_ot, E1.date_ot, E1.service, E2.nro_equipement, E2.designation, E2.nom_organe, E1.description, E2.id_equipement </p><p>//**</p><p>la colonne Temps est correctement calculée.</p><p>si je modifie la clause FROM comme ceci avec une requete à 4 tables :</p><p>//**<br />SELECT E1.id_entete_ot, E1.date_ot, E1.service, E2.nro_equipement, E2.designation, E2.nom_organe, E1.description, sum(O2.temps) as Temps, E2.id_equipement </p><p>FROM entete_ot E1 left outer join equipements E2 on (E1.id_equipement = E2.id_equipement) <br />left outer join ot O2 on (E1.id_entete_ot = O2.id_entete_ot)&#160; <br />left outer join articles_ot A3 on (E1.id_entete_ot = A3.id_entete_ot)</p><p>group by E1.id_entete_ot, E1.date_ot, E1.service, E2.nro_equipement, E2.designation, E2.nom_organe, E1.description, E2.id_equipement </p><p>//**</p><p>la colonne Temps se voit démultiplié et renvoit une valeur incorrecte</p><p>le schema souhaité est :<br />pour une valeur E1 -&gt; une valeur E2<br />pour une valeur E1 -&gt; une ou plusieurs valeurs O2<br />pour une valeur E1 -&gt; une ou plusieurs valeurs A3</p><p>merci pour votre aide.</p>]]></content>
+		<author>
+			<name><![CDATA[unisol]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=540</uri>
+		</author>
+		<updated>2013-01-21T12:42:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16374#p16374</id>
+	</entry>
+</feed>

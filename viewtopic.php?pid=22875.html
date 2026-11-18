@@ -1,0 +1,476 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr" lang="fr" dir="ltr">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Pourquoi un hash join alors que la table ne tient pas en mémoire / Optimisation / Forums PostgreSQL.fr</title>
+<link rel="stylesheet" type="text/css" href="style/Postgresql.css" />
+<link rel="canonical" href="viewtopic.php%3Fid=3731.html" title="Page 1" />
+<link rel="alternate" type="application/atom+xml" href="extern.php%3Faction=feed&amp;tid=3731&amp;type=atom" title="Flux Atom de la discussion" />
+</head>
+
+<body>
+
+<div id="top">
+  <div id="pgHeader">
+    <span id="pgHeaderLogoLeft">
+      <a href="index.html" title="PostgreSQL"><img src="https://www.postgresql.fr/lib/tpl/tortoise/images/hdr_left.png" width="230" height="80" alt="PostgreSQL" /></a>
+    </span>
+    <span id="pgHeaderLogoRight">
+      <a href="index.html" title="La base de donnees la plus sophistiquee au monde."><img src="https://www.postgresql.fr/lib/tpl/tortoise/images/hdr_right.png" width="210" height="80" alt="La base de donnees la plus sophistiquee au monde." /></a>
+    </span>
+  </div>
+</div>
+
+<div class="pgTopNav">
+  <div class="pgTopNavLeft"> 
+    <img src="https://www.postgresql.fr/lib/tpl/tortoise/images/nav_lft.png" width="7" height="23" alt="" />
+  </div>
+  <div class="pgTopNavRight">
+    <img src="https://www.postgresql.fr/lib/tpl/tortoise/images/nav_rgt.png" width="7" height="23" alt="" />
+  </div>
+  <ul class="pgTopNavList">
+    <li><a href="https://www.postgresql.fr/" title="Accueil">Accueil</a></li>
+    <li><a href="https://blog.postgresql.fr/" title="Lire les actualités">Actualit&eacute;s</a></li>
+    <li><a href="https://docs.postgresql.fr/" title="Lire la documentation officielle">Documentation</a></li>
+    <li><a href="https://forums.postgresql.fr/" title="Pour poser des questions">Forums</a></li>
+    <li><a href="https://www.postgresql.fr/asso/" title="La vie de l'association">Association</a></li>
+    <li><a href="https://www.postgresql.fr/entreprises:accueil" title="Groupe de Travail PostgreSQL Entreprises">Entreprises</a></li>
+    <li><a href="https://www.postgresql.fr/devel:accueil" title="Informations pour les d&eacute;veloppeurs/traducteurs">D&eacute;veloppeurs</a></li>
+    <li><a href="https://planete.postgresql.fr" title="La plan&egrave;te francophone sur PostgreSQL">Plan&egrave;te</a></li>
+    <li><a href="https://www.postgresql.fr/support/" title="Support sur PostgreSQL">Support</a></li>
+  </ul>
+
+
+</div>
+<div id="punviewtopic" class="pun">
+<div class="top-box"><div><!-- Top Corners --></div></div>
+<div class="punwrap">
+
+<div id="brdheader" class="block">
+	<div class="box">
+		<div id="brdtitle" class="inbox">
+			<h1><a href="index.php.html">Forums PostgreSQL.fr</a></h1>
+			<div id="brddesc">Le forum officiel de la communauté francophone de PostgreSQL</div>
+		</div>
+		<div id="brdmenu" class="inbox">
+			<ul>
+				<li id="navindex" class="isactive"><a href="index.php.html">Accueil</a></li>
+				<li id="navuserlist"><a href="userlist.php.html">Liste des membres</a></li>
+				<li id="navsearch"><a href="search.php.html">Recherche</a></li>
+				<li id="navregister"><a href="register.php.html">Inscription</a></li>
+				<li id="navlogin"><a href="login.php.html">Identification</a></li>
+			</ul>
+		</div>
+		<div id="brdwelcome" class="inbox">
+			<p class="conl">Vous n'êtes pas identifié(e).</p>
+			<ul class="conr">
+				<li><span>Contributions&#160;: <a href="search.php%3Faction=show_recent.html" title="Trouver les discussions comportant des messages récents.">Récentes</a> | <a href="search.php%3Faction=show_unanswered.html" title="Trouver les discussions sans réponse.">Sans réponse</a></span></li>
+			</ul>
+			<div class="clearer"></div>
+		</div>
+	</div>
+</div>
+
+
+
+<div id="brdmain">
+<div class="linkst">
+	<div class="inbox crumbsplus">
+		<ul class="crumbs">
+			<li><a href="index.php.html">Accueil</a></li>
+			<li><span>»&#160;</span><a href="viewforum.php%3Fid=8.html">Optimisation</a></li>
+			<li><span>»&#160;</span><strong><a href="viewtopic.php%3Fid=3731.html">Pourquoi un hash join alors que la table ne tient pas en mémoire</a></strong></li>
+		</ul>
+		<div class="pagepost">
+			<p class="pagelink conl"><span class="pages-label">Pages&#160;: </span><strong class="item1">1</strong></p>
+		</div>
+		<div class="clearer"></div>
+	</div>
+</div>
+
+<div id="p22873" class="blockpost rowodd firstpost blockpost1">
+	<h2><span><span class="conr">#1</span> <a href="viewtopic.php%3Fpid=22873.html#p22873">31/12/2015 11:32:12</a></span></h2>
+	<div class="box">
+		<div class="inbox">
+			<div class="postbody">
+				<div class="postleft">
+					<dl>
+						<dt><strong><a href="profile.php%3Fid=5492.html">rigaux</a></strong></dt>
+						<dd class="usertitle"><strong>Membre</strong></dd>
+					</dl>
+				</div>
+				<div class="postright">
+					<h3>Pourquoi un hash join alors que la table ne tient pas en mémoire</h3>
+					<div class="postmsg">
+						<p>Bonjour tout le monde,</p><p>Je cherche à comprendre le fonctionnement de l&#039;optimiseur (parce ce que je vais être amené à l&#039;expliquer moi-même).</p><p>J&#039;ai créé une base assez volumineuse dont le schéma est donné ci-dessous. J&#039;ai 5M de films, 20M d&#039;artistes, la taille des tables est supérieure au GO, j&#039;ai limité la taille du cache à 256MO (effective_cache_size = 256MB).</p><p>J&#039;exécute la requête suivante: explain select * from&#160; Film as f, Artiste as a&#160; where id_realisateur =&#160; a.id </p><p>Je m&#039;attends à un parcours séquentiel de Film, combiné avec accès à l&#039;index d&#039;artiste. Mais Postgres applique un hash join.</p><p>&quot;Hash Join&#160; (cost=709777.86..1838467.53 rows=5729727 width=402)&quot;<br />&quot;&#160; Hash Cond: (a.id = f.id_realisateur)&quot;<br />&quot;&#160; -&gt;&#160; Seq Scan on artiste a&#160; (cost=0.00..340480.70 rows=20514170 width=21)&quot;<br />&quot;&#160; -&gt;&#160; Hash&#160; (cost=352788.27..352788.27 rows=5729727 width=381)&quot;<br />&quot;&#160; &#160; &#160; &#160; -&gt;&#160; Seq Scan on film f&#160; (cost=0.00..352788.27 rows=5729727 width=381)&quot;</p><br /><p>Je ne comprends pas vraiment pourquoi, la table ne tient pas en mémoire. De fait l&#039;exécution prend une éternité. Si j&#039;interdis le hash join, c&#039;est le bon algo (selon moi) qui est choisi et le temps de réponse devient correct.</p><p>Je découvre postgres, jusqu&#039;à présent j&#039;étais plutôt sur Oracle. Merci d&#039;avance pour toute suggestion!</p><br /><p>CREATE TABLE Artiste (<br />&#160; id integer NOT NULL,<br />&#160; nom varchar(30) NOT NULL,<br />&#160; prenom varchar(30) NOT NULL,<br />&#160; annee_naissance integer DEFAULT NULL,<br />&#160; primary key (id)<br />) ;</p><p>CREATE TABLE Film (<br />&#160; id integer NOT NULL,<br />&#160; titre varchar(50) NOT NULL,<br />&#160; annee integer NOT NULL,<br />&#160; id_realisateur integer&#160; NOT NULL,<br />&#160; genre varchar(30) NOT NULL,<br />&#160; resume text,<br />&#160; code_pays varchar(4) NOT NULL,<br />&#160; version integer,<br />&#160; primary key (id),<br />&#160; foreign key (id_realisateur) references Artiste(id),<br />&#160; foreign key (code_pays) references Pays(code)<br />) ;</p>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="inbox">
+			<div class="postfoot clearb">
+				<div class="postfootleft"><p><span>Hors ligne</span></p></div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="p22875" class="blockpost roweven">
+	<h2><span><span class="conr">#2</span> <a href="viewtopic.php%3Fpid=22875.html#p22875">31/12/2015 12:07:27</a></span></h2>
+	<div class="box">
+		<div class="inbox">
+			<div class="postbody">
+				<div class="postleft">
+					<dl>
+						<dt><strong><a href="profile.php%3Fid=1368.html">rjuju</a></strong></dt>
+						<dd class="usertitle"><strong>Administrateur</strong></dd>
+					</dl>
+				</div>
+				<div class="postright">
+					<h3>Re&#160;: Pourquoi un hash join alors que la table ne tient pas en mémoire</h3>
+					<div class="postmsg">
+						<p>Bonjour,</p><p>le paramètre effective_cache_size ne sert qu&#039;à donner à postgres une estimation de la taille du cache du système d&#039;exploitation. Concrètement, diminuer ce paramètre aura pour conséquence de moins utiliser les index.</p><br /><p>Quel est le plan qui selon vous est le bon ? Si ce plan est plus efficace, c&#039;est à priori parce que la configuration de postgres ne reflète pas les performances de votre système (je pense principalement aux paramètres effective_cache_size et random_page cost). Sans beaucoup plus de détails (quantité de mémoire, type de disque, type de raid, configuration postgres, différents plans d&#039;exécution etc) difficile de vous aider plus.</p>
+					</div>
+					<div class="postsignature postmsg"><hr /><p>Julien.<br /><a href="https://rjuju.github.io/" rel="nofollow">https://rjuju.github.io/</a></p></div>
+				</div>
+			</div>
+		</div>
+		<div class="inbox">
+			<div class="postfoot clearb">
+				<div class="postfootleft"><p><span>Hors ligne</span></p></div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="p22878" class="blockpost rowodd">
+	<h2><span><span class="conr">#3</span> <a href="viewtopic.php%3Fpid=22878.html#p22878">31/12/2015 14:55:23</a></span></h2>
+	<div class="box">
+		<div class="inbox">
+			<div class="postbody">
+				<div class="postleft">
+					<dl>
+						<dt><strong><a href="profile.php%3Fid=312.html">Marc Cousin</a></strong></dt>
+						<dd class="usertitle"><strong>Membre</strong></dd>
+					</dl>
+				</div>
+				<div class="postright">
+					<h3>Re&#160;: Pourquoi un hash join alors que la table ne tient pas en mémoire</h3>
+					<div class="postmsg">
+						<p>Par ailleurs, un hash join n&#039;a pas besoin que la plus petite table tienne entièrement en mémoire. C&#039;est mieux (plus performant), mais il s&#039;en sort en partitionnant les tables de hachage (l&#039;algo utilisé est celui-ci: <a href="https://en.wikipedia.org/wiki/Hash_join#Hybrid_hash_join" rel="nofollow">https://en.wikipedia.org/wiki/Hash_join … _hash_join</a>)</p><p>On peut voir le nombre de partitions utilisées à l&#039;exécution avec explain analyze.</p>
+					</div>
+					<div class="postsignature postmsg"><hr /><p>Marc.</p></div>
+				</div>
+			</div>
+		</div>
+		<div class="inbox">
+			<div class="postfoot clearb">
+				<div class="postfootleft"><p><span>Hors ligne</span></p></div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="p22883" class="blockpost roweven">
+	<h2><span><span class="conr">#4</span> <a href="viewtopic.php%3Fpid=22883.html#p22883">01/01/2016 10:47:14</a></span></h2>
+	<div class="box">
+		<div class="inbox">
+			<div class="postbody">
+				<div class="postleft">
+					<dl>
+						<dt><strong><a href="profile.php%3Fid=3.html">gleu</a></strong></dt>
+						<dd class="usertitle"><strong>Administrateur</strong></dd>
+					</dl>
+				</div>
+				<div class="postright">
+					<h3>Re&#160;: Pourquoi un hash join alors que la table ne tient pas en mémoire</h3>
+					<div class="postmsg">
+						<p>Un &quot;EXPLAIN (ANALYZE, BUFFERS)&quot; de la requête pour les deux plans permettrait d&#039;en dire plus, surtout si c&#039;est accompagné de la configuration complète de PostgreSQL.</p>
+					</div>
+					<div class="postsignature postmsg"><hr /><p>Guillaume.</p></div>
+				</div>
+			</div>
+		</div>
+		<div class="inbox">
+			<div class="postfoot clearb">
+				<div class="postfootleft"><p><span>Hors ligne</span></p></div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="p22885" class="blockpost rowodd">
+	<h2><span><span class="conr">#5</span> <a href="viewtopic.php%3Fpid=22885.html#p22885">02/01/2016 14:32:45</a></span></h2>
+	<div class="box">
+		<div class="inbox">
+			<div class="postbody">
+				<div class="postleft">
+					<dl>
+						<dt><strong><a href="profile.php%3Fid=5492.html">rigaux</a></strong></dt>
+						<dd class="usertitle"><strong>Membre</strong></dd>
+					</dl>
+				</div>
+				<div class="postright">
+					<h3>Re&#160;: Pourquoi un hash join alors que la table ne tient pas en mémoire</h3>
+					<div class="postmsg">
+						<p>Bonjour,</p><p>Merci beaucoup de votre aide. Pour moi, le &quot;bon&quot; plan est le suivant: le système parcourt une à une les lignes de la table Film, et pour chaque ligne accède à l&#039;index sur la clé primaire de Artiste. Cela permet d&#039;obtenir quasi instantanément la première ligne du résultat, et les lignes suivantes très rapidement à chaque appel du &quot;fetch&quot;. C&#039;est ce qui est appliqué par oracle en tout cas. </p><p>L&#039;inconvénient du hash join c&#039;est qu&#039;il faut hacher toute la table Film (2 GO quand même) dans la phase de préparation. Ne connaissant pas bien Postgres, je ne sais pas pourquoi c&#039;est la solution choisie. Il se peut que je cherche à optimiser le temps de réponse, alors que PG optimise le temps d&#039;exécution global?</p><p>Ci-dessous le PEX avec analyze et buffers, et la configuration</p><p>&quot;Hash Join&#160; (cost=709777.86..1838467.53 rows=5729727 width=402) (actual time=118145.485..198654.683 rows=5400000 loops=1)&quot;<br />&quot;&#160; Hash Cond: (a.id = f.id_realisateur)&quot;<br />&quot;&#160; Buffers: shared hit=294 read=430539, temp read=381444 written=379398&quot;<br />&quot;&#160; -&gt;&#160; Seq Scan on artiste a&#160; (cost=0.00..340480.70 rows=20514170 width=21) (actual time=0.018..18057.600 rows=20200000 loops=1)&quot;<br />&quot;&#160; &#160; &#160; &#160; Buffers: shared hit=130 read=135209&quot;<br />&quot;&#160; -&gt;&#160; Hash&#160; (cost=352788.27..352788.27 rows=5729727 width=381) (actual time=118059.100..118059.100 rows=5400000 loops=1)&quot;<br />&quot;&#160; &#160; &#160; &#160; Buckets: 1024&#160; Batches: 1024&#160; Memory Usage: 2318kB&quot;<br />&quot;&#160; &#160; &#160; &#160; Buffers: shared hit=161 read=295330, temp written=269755&quot;<br />&quot;&#160; &#160; &#160; &#160; -&gt;&#160; Seq Scan on film f&#160; (cost=0.00..352788.27 rows=5729727 width=381) (actual time=0.452..40701.681 rows=5400000 loops=1)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; Buffers: shared hit=161 read=295330&quot;<br />&quot;Planning time: 20.733 ms&quot;<br />&quot;Execution time: 199343.278 ms&quot;</p><p>Fichier de configuration: je n&#039;ai changé que effective_cache_size = 256MB. Il me semble que réduire la taille du cache encourage l&#039;utilisation des index...</p><p># -----------------------------<br /># PostgreSQL configuration file<br /># -----------------------------<br />#<br /># This file consists of lines of the form:<br />#<br />#&#160; &#160;name = value<br />#<br /># (The &quot;=&quot; is optional.)&#160; Whitespace may be used.&#160; Comments are introduced with<br /># &quot;#&quot; anywhere on a line.&#160; The complete list of parameter names and allowed<br /># values can be found in the PostgreSQL documentation.<br />#<br /># The commented-out settings shown in this file represent the default values.<br /># Re-commenting a setting is NOT sufficient to revert it to the default value;<br /># you need to reload the server.<br />#<br /># This file is read on server startup and when the server receives a SIGHUP<br /># signal.&#160; If you edit the file on a running system, you have to SIGHUP the<br /># server for the changes to take effect, or use &quot;pg_ctl reload&quot;.&#160; Some<br /># parameters, which are marked below, require a server shutdown and restart to<br /># take effect.<br />#<br /># Any parameter can also be given as a command-line option to the server, e.g.,<br /># &quot;postgres -c log_connections=on&quot;.&#160; Some parameters can be changed at run time<br /># with the &quot;SET&quot; SQL command.<br />#<br /># Memory units:&#160; kB = kilobytes&#160; &#160; &#160; &#160; Time units:&#160; ms&#160; = milliseconds<br />#&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; MB = megabytes&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;s&#160; &#160;= seconds<br />#&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; GB = gigabytes&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;min = minutes<br />#&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; TB = terabytes&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;h&#160; &#160;= hours<br />#&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;d&#160; &#160;= days</p><br /><p>#------------------------------------------------------------------------------<br /># FILE LOCATIONS<br />#------------------------------------------------------------------------------</p><p># The default values of these variables are driven from the -D command-line<br /># option or PGDATA environment variable, represented here as ConfigDir.</p><p>#data_directory = &#039;ConfigDir&#039;&#160; &#160; &#160; &#160; # use data in another directory<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # (change requires restart)<br />#hba_file = &#039;ConfigDir/pg_hba.conf&#039;&#160; &#160; # host-based authentication file<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # (change requires restart)<br />#ident_file = &#039;ConfigDir/pg_ident.conf&#039;&#160; &#160; # ident configuration file<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # (change requires restart)</p><p># If external_pid_file is not explicitly set, no extra PID file is written.<br />#external_pid_file = &#039;&#039;&#160; &#160; &#160; &#160; &#160; &#160; # write an extra PID file<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # (change requires restart)</p><br /><p>#------------------------------------------------------------------------------<br /># CONNECTIONS AND AUTHENTICATION<br />#------------------------------------------------------------------------------</p><p># - Connection Settings -</p><p>listen_addresses = &#039;*&#039;&#160; &#160; &#160; &#160; # what IP address(es) to listen on;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # comma-separated list of addresses;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # defaults to &#039;localhost&#039;; use &#039;*&#039; for all<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # (change requires restart)<br />port = 5432&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # (change requires restart)<br />max_connections = 100&#160; &#160; &#160; &#160; &#160; &#160; # (change requires restart)<br /># Note:&#160; Increasing max_connections costs ~400 bytes of shared memory per<br /># connection slot, plus lock space (see max_locks_per_transaction).<br />#superuser_reserved_connections = 3&#160; &#160; # (change requires restart)<br />#unix_socket_directories = &#039;/tmp&#039;&#160; &#160; # comma-separated list of directories<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # (change requires restart)<br />#unix_socket_group = &#039;&#039;&#160; &#160; &#160; &#160; &#160; &#160; # (change requires restart)<br />#unix_socket_permissions = 0777&#160; &#160; &#160; &#160; # begin with 0 to use octal notation<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # (change requires restart)<br />#bonjour = off&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # advertise server via Bonjour<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # (change requires restart)<br />#bonjour_name = &#039;&#039;&#160; &#160; &#160; &#160; &#160; &#160; # defaults to the computer name<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # (change requires restart)</p><p># - Security and Authentication -</p><p>#authentication_timeout = 1min&#160; &#160; &#160; &#160; # 1s-600s<br />#ssl = off&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # (change requires restart)<br />#ssl_ciphers = &#039;HIGH:MEDIUM:+3DES:!aNULL&#039; # allowed SSL ciphers<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # (change requires restart)<br />#ssl_prefer_server_ciphers = on&#160; &#160; &#160; &#160; # (change requires restart)<br />#ssl_ecdh_curve = &#039;prime256v1&#039;&#160; &#160; &#160; &#160; # (change requires restart)<br />#ssl_renegotiation_limit = 0&#160; &#160; &#160; &#160; # amount of data between renegotiations<br />#ssl_cert_file = &#039;server.crt&#039;&#160; &#160; &#160; &#160; # (change requires restart)<br />#ssl_key_file = &#039;server.key&#039;&#160; &#160; &#160; &#160; # (change requires restart)<br />#ssl_ca_file = &#039;&#039;&#160; &#160; &#160; &#160; &#160; &#160; # (change requires restart)<br />#ssl_crl_file = &#039;&#039;&#160; &#160; &#160; &#160; &#160; &#160; # (change requires restart)<br />#password_encryption = on<br />#db_user_namespace = off</p><p># GSSAPI using Kerberos<br />#krb_server_keyfile = &#039;&#039;<br />#krb_caseins_users = off</p><p># - TCP Keepalives -<br /># see &quot;man 7 tcp&quot; for details</p><p>#tcp_keepalives_idle = 0&#160; &#160; &#160; &#160; # TCP_KEEPIDLE, in seconds;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # 0 selects the system default<br />#tcp_keepalives_interval = 0&#160; &#160; &#160; &#160; # TCP_KEEPINTVL, in seconds;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # 0 selects the system default<br />#tcp_keepalives_count = 0&#160; &#160; &#160; &#160; # TCP_KEEPCNT;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # 0 selects the system default</p><br /><p>#------------------------------------------------------------------------------<br /># RESOURCE USAGE (except WAL)<br />#------------------------------------------------------------------------------</p><p># - Memory -</p><p>shared_buffers = 128MB&#160; &#160; &#160; &#160; &#160; &#160; # min 128kB<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # (change requires restart)<br />#huge_pages = try&#160; &#160; &#160; &#160; &#160; &#160; # on, off, or try<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # (change requires restart)<br />#temp_buffers = 8MB&#160; &#160; &#160; &#160; &#160; &#160; # min 800kB<br />#max_prepared_transactions = 0&#160; &#160; &#160; &#160; # zero disables the feature<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # (change requires restart)<br /># Note:&#160; Increasing max_prepared_transactions costs ~600 bytes of shared memory<br /># per transaction slot, plus lock space (see max_locks_per_transaction).<br /># It is not advisable to set max_prepared_transactions nonzero unless you<br /># actively intend to use prepared transactions.<br />#work_mem = 4MB&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # min 64kB<br />#maintenance_work_mem = 64MB&#160; &#160; &#160; &#160; # min 1MB<br />#autovacuum_work_mem = -1&#160; &#160; &#160; &#160; # min 1MB, or -1 to use maintenance_work_mem<br />#max_stack_depth = 2MB&#160; &#160; &#160; &#160; &#160; &#160; # min 100kB<br />dynamic_shared_memory_type = posix&#160; &#160; # the default is the first option<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # supported by the operating system:<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;posix<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;sysv<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;windows<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;mmap<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # use none to disable dynamic shared memory</p><p># - Disk -</p><p>#temp_file_limit = -1&#160; &#160; &#160; &#160; &#160; &#160; # limits per-session temp file space<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # in kB, or -1 for no limit</p><p># - Kernel Resource Usage -</p><p>#max_files_per_process = 1000&#160; &#160; &#160; &#160; # min 25<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # (change requires restart)<br />#shared_preload_libraries = &#039;&#039;&#160; &#160; &#160; &#160; # (change requires restart)</p><p># - Cost-Based Vacuum Delay -</p><p>#vacuum_cost_delay = 0&#160; &#160; &#160; &#160; &#160; &#160; # 0-100 milliseconds<br />#vacuum_cost_page_hit = 1&#160; &#160; &#160; &#160; # 0-10000 credits<br />#vacuum_cost_page_miss = 10&#160; &#160; &#160; &#160; # 0-10000 credits<br />#vacuum_cost_page_dirty = 20&#160; &#160; &#160; &#160; # 0-10000 credits<br />#vacuum_cost_limit = 200&#160; &#160; &#160; &#160; # 1-10000 credits</p><p># - Background Writer -</p><p>#bgwriter_delay = 200ms&#160; &#160; &#160; &#160; &#160; &#160; # 10-10000ms between rounds<br />#bgwriter_lru_maxpages = 100&#160; &#160; &#160; &#160; # 0-1000 max buffers written/round<br />#bgwriter_lru_multiplier = 2.0&#160; &#160; &#160; &#160; # 0-10.0 multipler on buffers scanned/round</p><p># - Asynchronous Behavior -</p><p>#effective_io_concurrency = 1&#160; &#160; &#160; &#160; # 1-1000; 0 disables prefetching<br />#max_worker_processes = 8</p><br /><p>#------------------------------------------------------------------------------<br /># WRITE AHEAD LOG<br />#------------------------------------------------------------------------------</p><p># - Settings -</p><p>#wal_level = minimal&#160; &#160; &#160; &#160; &#160; &#160; # minimal, archive, hot_standby, or logical<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # (change requires restart)<br />#fsync = on&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # turns forced synchronization on or off<br />#synchronous_commit = on&#160; &#160; &#160; &#160; # synchronization level;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # off, local, remote_write, or on<br />#wal_sync_method = fsync&#160; &#160; &#160; &#160; # the default is the first option<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # supported by the operating system:<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;open_datasync<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;fdatasync (default on Linux)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;fsync<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;fsync_writethrough<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;open_sync<br />#full_page_writes = on&#160; &#160; &#160; &#160; &#160; &#160; # recover from partial page writes<br />#wal_log_hints = off&#160; &#160; &#160; &#160; &#160; &#160; # also do full page writes of non-critical updates<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # (change requires restart)<br />#wal_buffers = -1&#160; &#160; &#160; &#160; &#160; &#160; # min 32kB, -1 sets based on shared_buffers<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # (change requires restart)<br />#wal_writer_delay = 200ms&#160; &#160; &#160; &#160; # 1-10000 milliseconds</p><p>#commit_delay = 0&#160; &#160; &#160; &#160; &#160; &#160; # range 0-100000, in microseconds<br />#commit_siblings = 5&#160; &#160; &#160; &#160; &#160; &#160; # range 1-1000</p><p># - Checkpoints -</p><p>#checkpoint_segments = 3&#160; &#160; &#160; &#160; # in logfile segments, min 1, 16MB each<br />#checkpoint_timeout = 5min&#160; &#160; &#160; &#160; # range 30s-1h<br />#checkpoint_completion_target = 0.5&#160; &#160; # checkpoint target duration, 0.0 - 1.0<br />#checkpoint_warning = 30s&#160; &#160; &#160; &#160; # 0 disables</p><p># - Archiving -</p><p>#archive_mode = off&#160; &#160; &#160; &#160; # allows archiving to be done<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # (change requires restart)<br />#archive_command = &#039;&#039;&#160; &#160; &#160; &#160; # command to use to archive a logfile segment<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # placeholders: %p = path of file to archive<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;%f = file name only<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # e.g. &#039;test ! -f /mnt/server/archivedir/%f &amp;&amp; cp %p /mnt/server/archivedir/%f&#039;<br />#archive_timeout = 0&#160; &#160; &#160; &#160; # force a logfile segment switch after this<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # number of seconds; 0 disables</p><br /><p>#------------------------------------------------------------------------------<br /># REPLICATION<br />#------------------------------------------------------------------------------</p><p># - Sending Server(s) -</p><p># Set these on the master and on any standby that will send replication data.</p><p>#max_wal_senders = 0&#160; &#160; &#160; &#160; # max number of walsender processes<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # (change requires restart)<br />#wal_keep_segments = 0&#160; &#160; &#160; &#160; # in logfile segments, 16MB each; 0 disables<br />#wal_sender_timeout = 60s&#160; &#160; # in milliseconds; 0 disables</p><p>#max_replication_slots = 0&#160; &#160; # max number of replication slots<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # (change requires restart)</p><p># - Master Server -</p><p># These settings are ignored on a standby server.</p><p>#synchronous_standby_names = &#039;&#039;&#160; &#160; # standby servers that provide sync rep<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # comma-separated list of application_name<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # from standby(s); &#039;*&#039; = all<br />#vacuum_defer_cleanup_age = 0&#160; &#160; # number of xacts by which cleanup is delayed</p><p># - Standby Servers -</p><p># These settings are ignored on a master server.</p><p>#hot_standby = off&#160; &#160; &#160; &#160; &#160; &#160; # &quot;on&quot; allows queries during recovery<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # (change requires restart)<br />#max_standby_archive_delay = 30s&#160; &#160; # max delay before canceling queries<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # when reading WAL from archive;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # -1 allows indefinite delay<br />#max_standby_streaming_delay = 30s&#160; &#160; # max delay before canceling queries<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # when reading streaming WAL;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # -1 allows indefinite delay<br />#wal_receiver_status_interval = 10s&#160; &#160; # send replies at least this often<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # 0 disables<br />#hot_standby_feedback = off&#160; &#160; &#160; &#160; # send info from standby to prevent<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # query conflicts<br />#wal_receiver_timeout = 60s&#160; &#160; &#160; &#160; # time that receiver waits for<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # communication from master<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # in milliseconds; 0 disables</p><br /><p>#------------------------------------------------------------------------------<br /># QUERY TUNING<br />#------------------------------------------------------------------------------</p><p># - Planner Method Configuration -</p><p>#enable_bitmapscan = on<br />#enable_hashagg = on<br />#enable_hashjoin = on<br />#enable_indexscan = on<br />#enable_indexonlyscan = on<br />#enable_material = on<br />#enable_mergejoin = on<br />#enable_nestloop = on<br />#enable_seqscan = on<br />#enable_sort = on<br />#enable_tidscan = on</p><p># - Planner Cost Constants -</p><p>#seq_page_cost = 1.0&#160; &#160; &#160; &#160; &#160; &#160; # measured on an arbitrary scale<br />#random_page_cost = 4.0&#160; &#160; &#160; &#160; &#160; &#160; # same scale as above<br />#cpu_tuple_cost = 0.01&#160; &#160; &#160; &#160; &#160; &#160; # same scale as above<br />#cpu_index_tuple_cost = 0.005&#160; &#160; &#160; &#160; # same scale as above<br />#cpu_operator_cost = 0.0025&#160; &#160; &#160; &#160; # same scale as above<br />effective_cache_size = 256MB </p><p># - Genetic Query Optimizer -</p><p>#geqo = on<br />#geqo_threshold = 12<br />#geqo_effort = 5&#160; &#160; &#160; &#160; &#160; &#160; # range 1-10<br />#geqo_pool_size = 0&#160; &#160; &#160; &#160; &#160; &#160; # selects default based on effort<br />#geqo_generations = 0&#160; &#160; &#160; &#160; &#160; &#160; # selects default based on effort<br />#geqo_selection_bias = 2.0&#160; &#160; &#160; &#160; # range 1.5-2.0<br />#geqo_seed = 0.0&#160; &#160; &#160; &#160; &#160; &#160; # range 0.0-1.0</p><p># - Other Planner Options -</p><p>#default_statistics_target = 100&#160; &#160; # range 1-10000<br />#constraint_exclusion = partition&#160; &#160; # on, off, or partition<br />#cursor_tuple_fraction = 0.1&#160; &#160; &#160; &#160; # range 0.0-1.0<br />#from_collapse_limit = 8<br />#join_collapse_limit = 8&#160; &#160; &#160; &#160; # 1 disables collapsing of explicit<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # JOIN clauses</p><br /><p>#------------------------------------------------------------------------------<br /># ERROR REPORTING AND LOGGING<br />#------------------------------------------------------------------------------</p><p># - Where to Log -</p><p>log_destination = &#039;stderr&#039;&#160; &#160; &#160; &#160; # Valid values are combinations of<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # stderr, csvlog, syslog, and eventlog,<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # depending on platform.&#160; csvlog<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # requires logging_collector to be on.</p><p># This is used when logging to stderr:<br />logging_collector = on&#160; &#160; &#160; &#160; # Enable capturing of stderr and csvlog<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # into log files. Required to be on for<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # csvlogs.<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # (change requires restart)</p><p># These are only used if logging_collector is on:<br />#log_directory = &#039;pg_log&#039;&#160; &#160; &#160; &#160; # directory where log files are written,<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # can be absolute or relative to PGDATA<br />#log_filename = &#039;postgresql-%Y-%m-%d_%H%M%S.log&#039;&#160; &#160; # log file name pattern,<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # can include strftime() escapes<br />#log_file_mode = 0600&#160; &#160; &#160; &#160; &#160; &#160; # creation mode for log files,<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # begin with 0 to use octal notation<br />#log_truncate_on_rotation = off&#160; &#160; &#160; &#160; # If on, an existing log file with the<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # same name as the new log file will be<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # truncated rather than appended to.<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # But such truncation only occurs on<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # time-driven rotation, not on restarts<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # or size-driven rotation.&#160; Default is<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # off, meaning append to existing files<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # in all cases.<br />#log_rotation_age = 1d&#160; &#160; &#160; &#160; &#160; &#160; # Automatic rotation of logfiles will<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # happen after that time.&#160; 0 disables.<br />#log_rotation_size = 10MB&#160; &#160; &#160; &#160; # Automatic rotation of logfiles will<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # happen after that much log output.<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # 0 disables.</p><p># These are relevant when logging to syslog:<br />#syslog_facility = &#039;LOCAL0&#039;<br />#syslog_ident = &#039;postgres&#039;</p><p># This is only relevant when logging to eventlog (win32):<br />#event_source = &#039;PostgreSQL&#039;</p><p># - When to Log -</p><p>#client_min_messages = notice&#160; &#160; &#160; &#160; # values in order of decreasing detail:<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;debug5<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;debug4<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;debug3<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;debug2<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;debug1<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;log<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;notice<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;warning<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;error</p><p>#log_min_messages = warning&#160; &#160; &#160; &#160; # values in order of decreasing detail:<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;debug5<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;debug4<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;debug3<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;debug2<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;debug1<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;info<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;notice<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;warning<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;error<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;log<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;fatal<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;panic</p><p>#log_min_error_statement = error&#160; &#160; # values in order of decreasing detail:<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;debug5<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;debug4<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;debug3<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;debug2<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;debug1<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;info<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;notice<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;warning<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;error<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;log<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;fatal<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;panic (effectively off)</p><p>#log_min_duration_statement = -1&#160; &#160; # -1 is disabled, 0 logs all statements<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # and their durations, &gt; 0 logs only<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # statements running at least this number<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # of milliseconds</p><br /><p># - What to Log -</p><p>#debug_print_parse = off<br />#debug_print_rewritten = off<br />#debug_print_plan = off<br />#debug_pretty_print = on<br />#log_checkpoints = off<br />#log_connections = off<br />#log_disconnections = off<br />#log_duration = off<br />#log_error_verbosity = default&#160; &#160; &#160; &#160; # terse, default, or verbose messages<br />#log_hostname = off<br />log_line_prefix = &#039;%t &#039;&#160; &#160; &#160; &#160; &#160; &#160; # special values:<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;%a = application name<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;%u = user name<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;%d = database name<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;%r = remote host and port<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;%h = remote host<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;%p = process ID<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;%t = timestamp without milliseconds<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;%m = timestamp with milliseconds<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;%i = command tag<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;%e = SQL state<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;%c = session ID<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;%l = session line number<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;%s = session start timestamp<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;%v = virtual transaction ID<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;%x = transaction ID (0 if none)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;%q = stop here in non-session<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160; &#160; &#160; processes<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;%% = &#039;%&#039;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # e.g. &#039;&lt;%u%%%d&gt; &#039;<br />#log_lock_waits = off&#160; &#160; &#160; &#160; &#160; &#160; # log lock waits &gt;= deadlock_timeout<br />#log_statement = &#039;none&#039;&#160; &#160; &#160; &#160; &#160; &#160; # none, ddl, mod, all<br />#log_temp_files = -1&#160; &#160; &#160; &#160; &#160; &#160; # log temporary files equal or larger<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # than the specified size in kilobytes;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # -1 disables, 0 logs all temp files<br />log_timezone = &#039;Europe/Paris&#039;</p><br /><p>#------------------------------------------------------------------------------<br /># RUNTIME STATISTICS<br />#------------------------------------------------------------------------------</p><p># - Query/Index Statistics Collector -</p><p>#track_activities = on<br />#track_counts = on<br />#track_io_timing = off<br />#track_functions = none&#160; &#160; &#160; &#160; &#160; &#160; # none, pl, all<br />#track_activity_query_size = 1024&#160; &#160; # (change requires restart)<br />#update_process_title = on<br />#stats_temp_directory = &#039;pg_stat_tmp&#039;</p><br /><p># - Statistics Monitoring -</p><p>#log_parser_stats = off<br />#log_planner_stats = off<br />#log_executor_stats = off<br />#log_statement_stats = off</p><br /><p>#------------------------------------------------------------------------------<br /># AUTOVACUUM PARAMETERS<br />#------------------------------------------------------------------------------</p><p>#autovacuum = on&#160; &#160; &#160; &#160; &#160; &#160; # Enable autovacuum subprocess?&#160; &#039;on&#039;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # requires track_counts to also be on.<br />#log_autovacuum_min_duration = -1&#160; &#160; # -1 disables, 0 logs all actions and<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # their durations, &gt; 0 logs only<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # actions running at least this number<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # of milliseconds.<br />#autovacuum_max_workers = 3&#160; &#160; &#160; &#160; # max number of autovacuum subprocesses<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # (change requires restart)<br />#autovacuum_naptime = 1min&#160; &#160; &#160; &#160; # time between autovacuum runs<br />#autovacuum_vacuum_threshold = 50&#160; &#160; # min number of row updates before<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # vacuum<br />#autovacuum_analyze_threshold = 50&#160; &#160; # min number of row updates before<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # analyze<br />#autovacuum_vacuum_scale_factor = 0.2&#160; &#160; # fraction of table size before vacuum<br />#autovacuum_analyze_scale_factor = 0.1&#160; &#160; # fraction of table size before analyze<br />#autovacuum_freeze_max_age = 200000000&#160; &#160; # maximum XID age before forced vacuum<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # (change requires restart)<br />#autovacuum_multixact_freeze_max_age = 400000000&#160; &#160; # maximum multixact age<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # before forced vacuum<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # (change requires restart)<br />#autovacuum_vacuum_cost_delay = 20ms&#160; &#160; # default vacuum cost delay for<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # autovacuum, in milliseconds;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # -1 means use vacuum_cost_delay<br />#autovacuum_vacuum_cost_limit = -1&#160; &#160; # default vacuum cost limit for<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # autovacuum, -1 means use<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # vacuum_cost_limit</p><br /><p>#------------------------------------------------------------------------------<br /># CLIENT CONNECTION DEFAULTS<br />#------------------------------------------------------------------------------</p><p># - Statement Behavior -</p><p>#search_path = &#039;&quot;$user&quot;,public&#039;&#160; &#160; &#160; &#160; # schema names<br />#default_tablespace = &#039;&#039;&#160; &#160; &#160; &#160; # a tablespace name, &#039;&#039; uses the default<br />#temp_tablespaces = &#039;&#039;&#160; &#160; &#160; &#160; &#160; &#160; # a list of tablespace names, &#039;&#039; uses<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # only default tablespace<br />#check_function_bodies = on<br />#default_transaction_isolation = &#039;read committed&#039;<br />#default_transaction_read_only = off<br />#default_transaction_deferrable = off<br />#session_replication_role = &#039;origin&#039;<br />#statement_timeout = 0&#160; &#160; &#160; &#160; &#160; &#160; # in milliseconds, 0 is disabled<br />#lock_timeout = 0&#160; &#160; &#160; &#160; &#160; &#160; # in milliseconds, 0 is disabled<br />#vacuum_freeze_min_age = 50000000<br />#vacuum_freeze_table_age = 150000000<br />#vacuum_multixact_freeze_min_age = 5000000<br />#vacuum_multixact_freeze_table_age = 150000000<br />#bytea_output = &#039;hex&#039;&#160; &#160; &#160; &#160; &#160; &#160; # hex, escape<br />#xmlbinary = &#039;base64&#039;<br />#xmloption = &#039;content&#039;<br />#gin_fuzzy_search_limit = 0</p><p># - Locale and Formatting -</p><p>datestyle = &#039;iso, mdy&#039;<br />#intervalstyle = &#039;postgres&#039;<br />timezone = &#039;Europe/Paris&#039;<br />#timezone_abbreviations = &#039;Default&#039;&#160; &#160; &#160;# Select the set of available time zone<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # abbreviations.&#160; Currently, there are<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;Default<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;Australia (historical usage)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;India<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # You can create your own file in<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # share/timezonesets/.<br />#extra_float_digits = 0&#160; &#160; &#160; &#160; &#160; &#160; # min -15, max 3<br />#client_encoding = sql_ascii&#160; &#160; &#160; &#160; # actually, defaults to database<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # encoding</p><p># These settings are initialized by initdb, but they can be changed.<br />lc_messages = &#039;C&#039;&#160; &#160; &#160; &#160; &#160; &#160; # locale for system error message<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # strings<br />lc_monetary = &#039;C&#039;&#160; &#160; &#160; &#160; &#160; &#160; # locale for monetary formatting<br />lc_numeric = &#039;C&#039;&#160; &#160; &#160; &#160; &#160; &#160; # locale for number formatting<br />lc_time = &#039;C&#039;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # locale for time formatting</p><p># default configuration for text search<br />default_text_search_config = &#039;pg_catalog.english&#039;</p><p># - Other Defaults -</p><p>#dynamic_library_path = &#039;$libdir&#039;<br />#local_preload_libraries = &#039;&#039;<br />#session_preload_libraries = &#039;&#039;</p><br /><p>#------------------------------------------------------------------------------<br /># LOCK MANAGEMENT<br />#------------------------------------------------------------------------------</p><p>#deadlock_timeout = 1s<br />#max_locks_per_transaction = 64&#160; &#160; &#160; &#160; # min 10<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # (change requires restart)<br /># Note:&#160; Each lock table slot uses ~270 bytes of shared memory, and there are<br /># max_locks_per_transaction * (max_connections + max_prepared_transactions)<br /># lock table slots.<br />#max_pred_locks_per_transaction = 64&#160; &#160; # min 10<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # (change requires restart)</p><br /><p>#------------------------------------------------------------------------------<br /># VERSION/PLATFORM COMPATIBILITY<br />#------------------------------------------------------------------------------</p><p># - Previous PostgreSQL Versions -</p><p>#array_nulls = on<br />#backslash_quote = safe_encoding&#160; &#160; # on, off, or safe_encoding<br />#default_with_oids = off<br />#escape_string_warning = on<br />#lo_compat_privileges = off<br />#quote_all_identifiers = off<br />#sql_inheritance = on<br />#standard_conforming_strings = on<br />#synchronize_seqscans = on</p><p># - Other Platforms and Clients -</p><p>#transform_null_equals = off</p><br /><p>#------------------------------------------------------------------------------<br /># ERROR HANDLING<br />#------------------------------------------------------------------------------</p><p>#exit_on_error = off&#160; &#160; &#160; &#160; &#160; &#160; # terminate session on any error?<br />#restart_after_crash = on&#160; &#160; &#160; &#160; # reinitialize after backend crash?</p><br /><p>#------------------------------------------------------------------------------<br /># CONFIG FILE INCLUDES<br />#------------------------------------------------------------------------------</p><p># These options allow settings to be loaded from files other than the<br /># default postgresql.conf.</p><p>#include_dir = &#039;conf.d&#039;&#160; &#160; &#160; &#160; &#160; &#160; # include files ending in &#039;.conf&#039; from<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # directory &#039;conf.d&#039;<br />#include_if_exists = &#039;exists.conf&#039;&#160; &#160; # include file only if it exists<br />#include = &#039;special.conf&#039;&#160; &#160; &#160; &#160; # include file</p><br /><p>#------------------------------------------------------------------------------<br /># CUSTOMIZED OPTIONS<br />#------------------------------------------------------------------------------</p><p># Add settings for extensions here</p>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="inbox">
+			<div class="postfoot clearb">
+				<div class="postfootleft"><p><span>Hors ligne</span></p></div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="p22886" class="blockpost roweven">
+	<h2><span><span class="conr">#6</span> <a href="viewtopic.php%3Fpid=22886.html#p22886">02/01/2016 17:41:50</a></span></h2>
+	<div class="box">
+		<div class="inbox">
+			<div class="postbody">
+				<div class="postleft">
+					<dl>
+						<dt><strong><a href="profile.php%3Fid=3.html">gleu</a></strong></dt>
+						<dd class="usertitle"><strong>Administrateur</strong></dd>
+					</dl>
+				</div>
+				<div class="postright">
+					<h3>Re&#160;: Pourquoi un hash join alors que la table ne tient pas en mémoire</h3>
+					<div class="postmsg">
+						<p>Avec un cache aussi petit (au niveau PostgreSQL comme au niveau noyau), cela me semble logique qu&#039;il ne veuille surtout pas utiliser un index qui est bien plus cher à parcourir qu&#039;une table. Le problème principal du plan est que la table de hachage ne tient pas en mémoire, ce qui cause des écritures sur disque qui ralentissent l&#039;exécution de la requête.</p><p>J&#039;aimerais bien voir ce que donnerait le plan d&#039;exécution avec les jointures par hachage désactivées. Faites un enable_hashjoin to off, puis refaites le EXPLAIN et collez le résultat ici. Ça nous permettra d&#039;aller plus loin dans l&#039;analyse.</p><p>Et après, il serait bon de revoir la configuration de PostgreSQL. Notamment shared_buffers, work_mem et effective_cache_size. De combien de mémoire dispose le serveur ?</p>
+					</div>
+					<div class="postsignature postmsg"><hr /><p>Guillaume.</p></div>
+				</div>
+			</div>
+		</div>
+		<div class="inbox">
+			<div class="postfoot clearb">
+				<div class="postfootleft"><p><span>Hors ligne</span></p></div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="p22887" class="blockpost rowodd">
+	<h2><span><span class="conr">#7</span> <a href="viewtopic.php%3Fpid=22887.html#p22887">02/01/2016 18:15:46</a></span></h2>
+	<div class="box">
+		<div class="inbox">
+			<div class="postbody">
+				<div class="postleft">
+					<dl>
+						<dt><strong><a href="profile.php%3Fid=5492.html">rigaux</a></strong></dt>
+						<dd class="usertitle"><strong>Membre</strong></dd>
+					</dl>
+				</div>
+				<div class="postright">
+					<h3>Re&#160;: Pourquoi un hash join alors que la table ne tient pas en mémoire</h3>
+					<div class="postmsg">
+						<p>Voici avec la jointure par hachage désactivée. ca correspond au plan que j&#039;attends</p><p>&quot;Merge Join&#160; (cost=3992318.43..4807065.34 rows=5729727 width=402)&quot;<br />&quot;&#160; Merge Cond: (a.id = f.id_realisateur)&quot;<br />&quot;&#160; -&gt;&#160; Index Scan using artiste_pkey on artiste a&#160; (cost=0.44..668878.99 rows=20514170 width=21)&quot;<br />&quot;&#160; -&gt;&#160; Materialize&#160; (cost=3992315.13..4020963.76 rows=5729727 width=381)&quot;<br />&quot;&#160; &#160; &#160; &#160; -&gt;&#160; Sort&#160; (cost=3992315.13..4006639.45 rows=5729727 width=381)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; Sort Key: f.id_realisateur&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; -&gt;&#160; Seq Scan on film f&#160; (cost=0.00..352788.27 rows=5729727 width=381)&quot;</p><br /><p>Ce qui m&#039;échappe c&#039;est pourquoi PGSQL ne choisit pas ce plan. Normalement l&#039;index est petit et est beaucoup plus efficace à utiliser qu&#039;un parcours séquentiel?</p><p>Je suis sur un Mac Book pro, 4GO de RAM.</p>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="inbox">
+			<div class="postfoot clearb">
+				<div class="postfootleft"><p><span>Hors ligne</span></p></div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="p22888" class="blockpost roweven">
+	<h2><span><span class="conr">#8</span> <a href="viewtopic.php%3Fpid=22888.html#p22888">02/01/2016 18:55:49</a></span></h2>
+	<div class="box">
+		<div class="inbox">
+			<div class="postbody">
+				<div class="postleft">
+					<dl>
+						<dt><strong><a href="profile.php%3Fid=3.html">gleu</a></strong></dt>
+						<dd class="usertitle"><strong>Administrateur</strong></dd>
+					</dl>
+				</div>
+				<div class="postright">
+					<h3>Re&#160;: Pourquoi un hash join alors que la table ne tient pas en mémoire</h3>
+					<div class="postmsg">
+						<p>Encore une fois, un &quot;EXPLAIN (ANALYZE, BUFFERS)&quot;, plutôt qu&#039;un &quot;EXPLAIN&quot; tout court qui ne dit rien.</p><p>Tout ce que l&#039;EXPLAIN nous permet de dire là, c&#039;est que le coût est deux fois plus important avec un Merge Join qu&#039;avec un Hash Join, d&#039;où le choix du Hash Join. Ce coût si important est dû à l&#039;opération de tri nécessaire sur la colonne id_realisateur qui n&#039;est pas indexée. Il serait pertinent qu&#039;elle le soit étant une colonne référencée dans une clé étrangère.</p>
+					</div>
+					<div class="postsignature postmsg"><hr /><p>Guillaume.</p></div>
+				</div>
+			</div>
+		</div>
+		<div class="inbox">
+			<div class="postfoot clearb">
+				<div class="postfootleft"><p><span>Hors ligne</span></p></div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="p22889" class="blockpost rowodd">
+	<h2><span><span class="conr">#9</span> <a href="viewtopic.php%3Fpid=22889.html#p22889">02/01/2016 19:10:47</a></span></h2>
+	<div class="box">
+		<div class="inbox">
+			<div class="postbody">
+				<div class="postleft">
+					<dl>
+						<dt><strong><a href="profile.php%3Fid=5492.html">rigaux</a></strong></dt>
+						<dd class="usertitle"><strong>Membre</strong></dd>
+					</dl>
+				</div>
+				<div class="postright">
+					<h3>Re&#160;: Pourquoi un hash join alors que la table ne tient pas en mémoire</h3>
+					<div class="postmsg">
+						<p>Ok je comprends mieux. Postgres cherche à fusionner deux listes triées: l&#039;index de artiste et la colonne id_realisateur</p><p>En ajoutant set enable_sort=off j&#039;obtiens exactement le plan d&#039;exécution que j&#039;attends, sans avoir à créer un index supplémentaire.</p><p>&quot;Nested Loop&#160; (cost=0.44..45788415.64 rows=5729727 width=402) (actual time=0.382..57633.488 rows=5400000 loops=1)&quot;<br />&quot;&#160; Buffers: shared hit=21444359 read=483647 written=3204&quot;<br />&quot;&#160; -&gt;&#160; Seq Scan on film f&#160; (cost=0.00..352788.27 rows=5729727 width=381) (actual time=0.356..7129.131 rows=5400000 loops=1)&quot;<br />&quot;&#160; &#160; &#160; &#160; Buffers: shared read=295491&quot;<br />&quot;&#160; -&gt;&#160; Index Scan using artiste_pkey on artiste a&#160; (cost=0.44..7.92 rows=1 width=21) (actual time=0.007..0.008 rows=1 loops=5400000)&quot;<br />&quot;&#160; &#160; &#160; &#160; Index Cond: (id = f.id_realisateur)&quot;<br />&quot;&#160; &#160; &#160; &#160; Buffers: shared hit=21444359 read=188156 written=3204&quot;<br />&quot;Planning time: 7.825 ms&quot;<br />&quot;Execution time: 58538.947 ms&quot;</p><p>Et mon temps d&#039;exécution tombe à 58s, presque 4 fois moins qu&#039;en permettant le tri. Pourquoi postgres ne choisit-il pas cette solution qui semble bien meilleure? </p><p>Merci beaucoup en tout cas de vos remarques. Si vous avez des explications je suis preneur, je creuse la question de mon côté.</p><p>PR</p>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="inbox">
+			<div class="postfoot clearb">
+				<div class="postfootleft"><p><span>Hors ligne</span></p></div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="p22890" class="blockpost roweven">
+	<h2><span><span class="conr">#10</span> <a href="viewtopic.php%3Fpid=22890.html#p22890">02/01/2016 19:29:39</a></span></h2>
+	<div class="box">
+		<div class="inbox">
+			<div class="postbody">
+				<div class="postleft">
+					<dl>
+						<dt><strong><a href="profile.php%3Fid=3.html">gleu</a></strong></dt>
+						<dd class="usertitle"><strong>Administrateur</strong></dd>
+					</dl>
+				</div>
+				<div class="postright">
+					<h3>Re&#160;: Pourquoi un hash join alors que la table ne tient pas en mémoire</h3>
+					<div class="postmsg">
+						<p>Hé bien, là-aussi, le coût calculé est prohibitif par rapport au Hash Join. Il est de 45 millions dans le cas du Nested Loop, et de 1,8 million dans le cas du Hash Join. Il n&#039;y a pas photo pour lui :-)</p><p>Le coût de 45 millions est principalement dû à la lecture de l&#039;index (7.92*5400000 donne en gros 42.7 millions, à comparer au 45.7 millions globalement). Ce qu&#039;il ne sait pas, c&#039;est que l&#039;index est majoritairement en cache. Si on voulait simuler ça, une idée serait de faire un &quot;SET random_page_cost TO 1&quot;, puis de nouveau l&#039;EXPLAIN (après avoir remis enable_hashjoin et enable_sort à on).</p><p>De combien de mémoire dispose le serveur ?</p>
+					</div>
+					<div class="postsignature postmsg"><hr /><p>Guillaume.</p></div>
+				</div>
+			</div>
+		</div>
+		<div class="inbox">
+			<div class="postfoot clearb">
+				<div class="postfootleft"><p><span>Hors ligne</span></p></div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="p22891" class="blockpost rowodd">
+	<h2><span><span class="conr">#11</span> <a href="viewtopic.php%3Fpid=22891.html#p22891">02/01/2016 20:47:03</a></span></h2>
+	<div class="box">
+		<div class="inbox">
+			<div class="postbody">
+				<div class="postleft">
+					<dl>
+						<dt><strong><a href="profile.php%3Fid=5492.html">rigaux</a></strong></dt>
+						<dd class="usertitle"><strong>Membre</strong></dd>
+					</dl>
+				</div>
+				<div class="postright">
+					<h3>Re&#160;: Pourquoi un hash join alors que la table ne tient pas en mémoire</h3>
+					<div class="postmsg">
+						<p>D&#039;accord, ça devient de plus en plus clair.</p><p>En fait le hash join optimise le temps total d&#039;exécution, mais le temps de réponse (start-up cost dans la doc postgres) est nettement moins bon à cause de la phase<br />de pré-processing. Normal.</p><p>L&#039;algo basé sur les index optimise le temps de réponse, au détriment du temps total d&#039;exécution. C&#039;est logique car le plan engendre beaucoup d&#039;accès aléatoires, mais c&#039;est mieux si on traite les lignes une à une dans une appli.</p><p>En tout cas, j&#039;ai les explications qu&#039;il me faut. Merci encore: je continue mes explorations.</p>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="inbox">
+			<div class="postfoot clearb">
+				<div class="postfootleft"><p><span>Hors ligne</span></p></div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="postlinksb">
+	<div class="inbox crumbsplus">
+		<div class="pagepost">
+			<p class="pagelink conl"><span class="pages-label">Pages&#160;: </span><strong class="item1">1</strong></p>
+		</div>
+		<ul class="crumbs">
+			<li><a href="index.php.html">Accueil</a></li>
+			<li><span>»&#160;</span><a href="viewforum.php%3Fid=8.html">Optimisation</a></li>
+			<li><span>»&#160;</span><strong><a href="viewtopic.php%3Fid=3731.html">Pourquoi un hash join alors que la table ne tient pas en mémoire</a></strong></li>
+		</ul>
+		<div class="clearer"></div>
+	</div>
+</div>
+</div>
+
+<div id="brdfooter" class="block">
+	<h2><span>Pied de page des forums</span></h2>
+	<div class="box">
+		<div id="brdfooternav" class="inbox">
+			<div class="conl">
+				<form id="qjump" method="get" action="http://forum.postgresql.fr/viewforum.php">
+					<div><label><span>Atteindre<br /></span>
+					<select name="id" onchange="window.location=('viewforum.php?id='+this.options[this.selectedIndex].value)">
+						<optgroup label="PostgreSQL.fr">
+							<option value="2">Site PostgreSQL.fr</option>
+							<option value="3">Association PostgreSQLfr</option>
+							<option value="18">Événements</option>
+							<option value="17">Publications</option>
+						</optgroup>
+						<optgroup label="Technique">
+							<option value="6">Général</option>
+							<option value="7">Installation</option>
+							<option value="26">Migration</option>
+							<option value="8" selected="selected">Optimisation</option>
+							<option value="9">Sécurité</option>
+							<option value="19">Réplication</option>
+						</optgroup>
+						<optgroup label="Logiciels">
+							<option value="30">pgAdmin4</option>
+							<option value="27">PgAdmin3</option>
+							<option value="29">phpPgAdmin</option>
+							<option value="28">PSQL</option>
+						</optgroup>
+						<optgroup label="Langages procéduraux">
+							<option value="20">PL/pgSQL</option>
+							<option value="22">PL/Tcl</option>
+							<option value="23">PL/Perl</option>
+							<option value="24">PL/Python</option>
+							<option value="25">Autres langages</option>
+						</optgroup>
+						<optgroup label="Interfaces">
+							<option value="10">PHP</option>
+							<option value="11">Perl</option>
+							<option value="12">Python</option>
+							<option value="13">C et C++</option>
+							<option value="14">.NET</option>
+							<option value="15">Java</option>
+							<option value="16">ODBC</option>
+						</optgroup>
+						<optgroup label="Emploi">
+							<option value="4">Offres</option>
+							<option value="5">Demandes</option>
+						</optgroup>
+					</select></label>
+					<input type="submit" value="Aller" accesskey="g" />
+					</div>
+				</form>
+			</div>
+			<div class="conr">
+				<p id="feedlinks"><span class="atom"><a href="extern.php%3Faction=feed&amp;tid=3731&amp;type=atom">Flux Atom de la discussion</a></span></p>
+				<p id="poweredby">Propulsé par <a href="http://fluxbb.org/">FluxBB</a></p>
+			</div>
+			<div class="clearer"></div>
+		</div>
+	</div>
+</div>
+
+</div>
+<div class="end-box"><div><!-- Bottom corners --></div></div>
+</div>
+
+</body>
+</html>

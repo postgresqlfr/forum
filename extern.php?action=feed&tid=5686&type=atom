@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / pg_stat_user_tables pour vues simples et vues materializées]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5686&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5686"/>
+	<updated>2020-02-07T13:57:40Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5686</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pg_stat_user_tables pour vues simples et vues materializées]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30640#p30640"/>
+		<content type="html"><![CDATA[<p>Sur la première sous-requête, pg_stat_user_tables contient des statistiques uniquement pour les tables et vues matérialisées (donc comme il n&#039;y a pas de tables dans ce schéma pour vous, vous n&#039;y retrouvez que les vues matérialisées).</p><p>Sur la deuxième sous-requête, cela attaque le schéma information_schema que je connais très peu, donc prendre le reste avec des pincettes. Vous interrogez la vue columns. Celle-ci ne renvoie que les colonnes de chaque table. Une vue n&#039;a de colonnes qu&#039;au moment où on l&#039;exécute, l&#039;info n&#039;est pas connu avant (ou même après). Donc logiue que vous n&#039;y trouviez pas les colonnes des vues dans cette vue.</p><p>Personnellement, je ferais une requête sur pg_class et pg_attribute pour retrouver les infos sur les vues et vues matérialisées. Ceci étant dit, cela ne vous donnera ni le nombre de lignes ni le nombre de colonnes pour les vues. Vous n&#039;aurez ces informations que pour les vues matérialisées.</p><p>Enfin, dernier point, n_live_tup n&#039;est pas forcément exact. Ça peut même être très loin de la réalité.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2020-02-07T13:57:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30640#p30640</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pg_stat_user_tables pour vues simples et vues materializées]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30636#p30636"/>
+		<content type="html"><![CDATA[<p>Merci pour votre réponse.</p><p>Cependant, la requête fonctionne bien sur les vues (dans le schéma en question je n&#039;ai que des vues, aucune table). Peut-être que je n&#039;utilise pas les bonnes fonctions ?</p><p>En fait la sous-requête &#039;a&#039; ne sort les infos que les vues matérialisées et la sous-requête &#039;b&#039;, que les infos des vues simples. Or, je voudrais que ces 2 sous-requêtes prennent en comptes les 2 types de vue.</p>]]></content>
+		<author>
+			<name><![CDATA[User2020]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8789</uri>
+		</author>
+		<updated>2020-02-07T12:51:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30636#p30636</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pg_stat_user_tables pour vues simples et vues materializées]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30633#p30633"/>
+		<content type="html"><![CDATA[<p>Une vue ne contient pas de données, ce n&#039;est qu&#039;une requête préenregistrée. Il vous faut donc faire un SELECT count(*) sur chaque vue, ce qui n&#039;est pas forcément une bonne idée pour les performances.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2020-02-07T11:22:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30633#p30633</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[pg_stat_user_tables pour vues simples et vues materializées]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30632#p30632"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>je souhaite récupérer le nombre de colonnes et de lignes des vues d&#039;un schéma. J&#039;ai des vues simples (23) et des vues matérialisées (13). Seulement, le script ne me sort les résultats que pour les vues matérialisées.<br />Mon script est le suivant :</p><p>with a AS (<br />SELECT schemaname,relname,n_live_tup <br />&#160; FROM pg_stat_user_tables<br />&#160; WHERE schemaname IN (&#039;Schema&#039;)<br />&#160; ),</p><p>b AS (<br />select table_name, count(*) as column_count <br />from information_schema.&quot;columns&quot;<br />where table_schema IN (&#039;Schema&#039;)<br />GROUP by table_name order by column_count<br />&#160; )</p><p>SELECT a.*, b.column_count <br />FROM<br />a<br />FULL JOIN b ON a.relname = b.table_name<br />ORDER BY schemaname, relname<br />;</p><p>Un idée ?</p><p>Merci</p>]]></content>
+		<author>
+			<name><![CDATA[User2020]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8789</uri>
+		</author>
+		<updated>2020-02-07T11:09:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30632#p30632</id>
+	</entry>
+</feed>

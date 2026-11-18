@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Like d'une valeur dynamique]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2449&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2449"/>
+	<updated>2012-12-31T15:33:33Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2449</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Like d'une valeur dynamique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16232#p16232"/>
+		<content type="html"><![CDATA[<p>Merci pour vos retours, </p><p>@MitsuTomoe vous avez tout compris, et l&#039;exemple est réel </p><p>@rjuju merci pour l&#039;exemple de requête ,</p><div class="codebox"><pre><code>LIKE &#039;%&#039; || tableville.ville || &#039;%&#039;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[youssef]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=259</uri>
+		</author>
+		<updated>2012-12-31T15:33:33Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16232#p16232</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Like d'une valeur dynamique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16230#p16230"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>comme le dit MitsuTomoe, il est en effet préférable d&#039;avoir une meilleur structure pour stocker l&#039;adresse. Une adresse est normalisée par la poste (32 caractères par ligne, tout en majuscule...), surtout pour l&#039;envoi en masses par les entreprises.</p><br /><p>En l&#039;état, pour votre requête, il faudrait faire quelque chose du genre:</p><br /><p>SELECT * FROM table_adrs<br />JOIN table_ville ON tableville.dep=75 AND table_adrs LIKE &#039;%&#039; || tableville.ville || &#039;%&#039;</p><p>mais les problèmes de nom de rue donnés par MitsuTomoe seront présent, avec en plus des performances désastreuses.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2012-12-31T10:32:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16230#p16230</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Like d'une valeur dynamique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16229#p16229"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />si je comprend bien votre colonne Table_adrs contient l&#039;adresse sous forme non structurée, par exemple &quot;10 rue des Alouettes 75006 PARIS&quot; ?<br />Dans ce cas, vous ne pourrez jamais faire de recherche exacte. Comment distinguer &quot;12 rue de Paris 11100 NARBONNE&quot; de &quot;1 rue de la Paix 75009 PARIS&quot; ?<br />Si la saisie a été standardisée, vous pouvez essayer de transformer votre champ Table_adrs en une structure adresse correcte :<br />complément adresse, numéro voie, type voie, nom_voie, distrib speciale, lieudit, code postal, cedex, numéro insee commune.<br />Une petite procédure pourrait traiter 99% des cas, une revue et correction manuelle s&#039;imposant pour le reste.<br />Ai-je tout compris ou votre exemple n&#039;était-il pas réel ?</p>]]></content>
+		<author>
+			<name><![CDATA[MitsuTomoe]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1680</uri>
+		</author>
+		<updated>2012-12-31T10:01:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16229#p16229</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Like d'une valeur dynamique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16228#p16228"/>
+		<content type="html"><![CDATA[<p>Pour ce cas j&#039;ai pas vraiment de requête mais juste un exemple, </p><p>imaginons deux tables avec un champ adresse qu&#039;on nommé Table_adrs , et une 2eme table avec les villes et leur code département,&#160; qu&#039;on va appeler table_ville </p><p>l&#039;objectif et d&#039;avoir les lignes de table_adrs qui appartienne à des villes d&#039;un département donné </p><div class="codebox"><pre><code>-- liste des villes d&#039;un département 
+select ville from table_ville where dep=&#039;75&#039; </code></pre></div><div class="codebox"><pre><code>-- liste des adresses d&#039;une ville par exemple &#039;PARIS&#039;
+select *  from table_adrs where adresse like &#039;%PARIS%&#039; </code></pre></div><p>la question est : <br />y a t il une (option/fonction/syntaxe)&#160; qui va permettre de combiner ces 2 requêtes en une seule<br />et permettre de passer le résultats de la première&#160; dans le motif de like. </p><p>j&#039;espère que c&#039;est mieux claire maintenant</p><p>Merci</p>]]></content>
+		<author>
+			<name><![CDATA[youssef]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=259</uri>
+		</author>
+		<updated>2012-12-31T09:39:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16228#p16228</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Like d'une valeur dynamique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16220#p16220"/>
+		<content type="html"><![CDATA[<p>Montrez la requête entière si vous voulez qu&#039;on puisse vous aider....</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-12-28T12:16:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16220#p16220</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Like d'une valeur dynamique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16219#p16219"/>
+		<content type="html"><![CDATA[<p>je pars déjeuné donc j&#039;ai pas la réponse mais si ça fonctionne et j&#039;en doute niveau performance ça doit être proche du zéro ^^</p>]]></content>
+		<author>
+			<name><![CDATA[kenrio]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=964</uri>
+		</author>
+		<updated>2012-12-28T11:35:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16219#p16219</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Like d'une valeur dynamique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16218#p16218"/>
+		<content type="html"><![CDATA[<p>Bonjour </p><p>svp, est ce qu&#039;il y a une syntaxe qui permet d&#039;utiliser la clause like avec le résultat d&#039;une requête.</p><p>un peu comme&#160; (exemple)&#160; : </p><div class="codebox"><pre><code>where 
+adresse like &#039;% (select ville from villes where dep =&#039;75&#039;  ) %&#039;</code></pre></div><p>pour savoir si il y a des adresses appartenant à des villes du 75 </p><p>je sais pas si l&#039;exemple est parlant ou pas, c&#039;est le premier que mes cellule grises m&#039;ont envoyé <img src="http://forums.postgresql.fr/img/smilies/tongue.png" width="15" height="15" alt="tongue" /></p><p>Merci à vous</p>]]></content>
+		<author>
+			<name><![CDATA[youssef]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=259</uri>
+		</author>
+		<updated>2012-12-28T11:19:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16218#p16218</id>
+	</entry>
+</feed>

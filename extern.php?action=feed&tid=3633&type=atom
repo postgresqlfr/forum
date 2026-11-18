@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / requete crosstab]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3633&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3633"/>
+	<updated>2015-08-24T14:37:11Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3633</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  requete crosstab]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22355#p22355"/>
+		<content type="html"><![CDATA[<p>Malheureusement, il faut obligatoirement 3 étapes avec crosstab lorsque la liste des colonnes est variable.</p><p>- 1: récupérer la liste des colonnes via une requête SQL, du style </p><div class="codebox"><pre><code>select distinct nature from voirie;</code></pre></div><br /><p>- 2: injecter cette liste dans une requête SQL crosstab à 2 paramètres, plus une déclaration de type de retour</p><p>Cette requête va ressembler à ce modèle (que je reprends de la question, je ne sais pas si elle est juste)</p><div class="codebox"><pre><code>SELECT *
+     FROM crosstab(&#039;
+        SELECT INSEE,nature,sum(longeur_ml)
+                FROM voirie
+                group by INSEE,nature
+                order by nature&#039;,
+
+         &#039;SELECT nature
+                FROM voirie
+                group by nature
+                order by nature&#039;) 
+AS ct
+(
+&quot;enrobé&quot; numeric(10,2),
+&quot;bicouche&quot; numeric(10,2),
+&quot;graviers&quot; numeric(10,2),
+&quot;sablé&quot; numeric(10,2)
+.... etc ...
+)</code></pre></div><p>(encore que généralement on trie par la 1ere colonne qui serait ici INSEE, et non la 2eme, à vérifier).</p><br /><p>- 3: exécuter cette requête.</p><br /><p>Il n&#039;est pas possible d&#039;encapsuler ces étapes en une seule fonction sur le serveur, sinon crosstab le ferait.</p><p>En ce qui concerne le plantage de postgresql, ce n&#039;est biensûr pas normal, même s&#039;il y a beaucoup de colonnes.<br />Ca pourrait donner lieu à un rapport de bug surtout si c&#039;est reproductible, et si les versions de postgres et crosstab sont à jour et bien identifiées.</p><p>Une autre option est de pivoter le résultat côté client au lieu de le faire côté serveur. Mais il faut écrire un bout de programme client.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2015-08-24T14:37:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22355#p22355</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[requete crosstab]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22336#p22336"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous<br />Je suis sous 9.4.<br />J&#039;ai une table voirie avec 3 champs<br />INSEE (text)&#160; &#160; nature (text)&#160; &#160; &#160;longeur (integre)<br />1&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;A&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; 5<br />2&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;B&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; 2<br />1&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;C&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; 3<br />1&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;A&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; 6</p><p>je voudrais le faire évoluer en <br />INSEE&#160; &#160; &#160; TOTAL (sum de longueur),&#160; &#160; nature_A&#160; &#160; &#160; &#160; &#160; nature_B&#160; &#160; &#160; &#160;nature_C<br />1&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;14&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; 11&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; 0&#160; &#160; &#160; &#160; &#160; &#160; &#160; 3<br />2&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; 2&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; 0&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; 2&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; 0</p><p>DOnc j&#039;ai pris la fonction crosstab (c&#039;est faire un tableau croisé dynamique de excel )<br />avec deux requetes&#160; :&#160; &#160;crosstab(text source_sql, text category_sql)</p><p>SELECT * <br />&#160; &#160; &#160;FROM crosstab(&#039;<br />&#160; &#160; &#160; &#160; SELECT INSEE,nature,sum(longeur_ml)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; FROM voirie<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; group by INSEE,nature<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; order by nature&#039;,</p><p>&#160; &#160; &#160; &#160; &#160;&#039;SELECT nature<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; FROM voirie<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; group by nature<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; order by nature&#039;) </p><p>Les deux requetes fonctionnent individuellement, c&#039;est pour la suite que j&#039;ai un souci ...</p><p>option 1 (ce qui m&#039;arrangerait)<br />La liste des colonnes seraient variables, les valeurs différentes de &quot;nature&quot; aujourd&#039;hui sont de 44 différentes mais demain ça sera peut être 30 ou 50, donc je souhaiterais que les entetes de champ soit automatiques en fonction des variables du champ nature ... </p><p>option 2 je défini les noms de champs<br />Et comme j&#039;ai pas trouvé comment faire, j&#039;ai fait avec la définition des champs mais ca ne marche pas non plus &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; <br />En fait après avoir recommencé ma requete je fais tombé le serveur&#160; ... server closed the connection unexpectedly<br />&#160; &#160; This probably means the server terminated abnormally<br />&#160; &#160; before or while processing the request.</p><p>Pour la suite de la requete voici ce que j&#039;ai préparé<br />AS<br />(<br />&quot;enrobé&quot; numeric(10,2),<br />&quot;bicouche&quot; numeric(10,2),<br />&quot;graviers&quot; numeric(10,2),<br />&quot;sablé&quot; numeric(10,2)<br />))<br />et c&#039;est là ou ça fait tombé postgresql ... ma base est trop importante ? J&#039;ai 44 natures différentes ...</p><p>Alors si quelqu&#039;un a des conseils, une idée des corrections je suis preneuse, je débute ... </p><p>Merci<br />Aurélie</p>]]></content>
+		<author>
+			<name><![CDATA[evaporite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5155</uri>
+		</author>
+		<updated>2015-08-21T13:38:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22336#p22336</id>
+	</entry>
+</feed>

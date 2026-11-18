@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Type booléen - Surcharge d'opérateur]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1503&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1503"/>
+	<updated>2011-06-24T07:56:00Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1503</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Type booléen - Surcharge d'opérateur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10032#p10032"/>
+		<content type="html"><![CDATA[<p>Cela ne fonctionnera qu&#039;avec un superutilisateur. Les utilisateurs standards sont protégés contre ça.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-06-24T07:56:00Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10032#p10032</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Type booléen - Surcharge d'opérateur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10022#p10022"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p><strong>Environnement :</strong><br />PostgreSQL 9.0.4 sur WindowsServer2008<br />Client MS-Access 2007 lié à une base de données PostgreSQL</p><p>Le type booléen entre un client MS-Access (quelle que soit la version) et un serveur PostgreSQL pose problème.<br />MS-Access envoie à PostgreSQL -1 pour true et 0 pour false. <br />Lorsqu&#039;une clause WHERE du client comporte une expression utilisant un champ de type booléen elle ne peut pas être évaluée par PostgreSQL.</p><p>Ce qui déclenche l’erreur suivante : </p><div class="codebox"><pre><code>ERROR:  operator does not exist: boolean = integer</code></pre></div><p>Pour résoudre ce problème nous avons surchargé l&#039;opérateur d&#039;égalité afin qu&#039;il accepte ce type d&#039;argument en créant un opérateur, qui lui appelle une fonction personnalisée pour effectuer la comparaison</p><div class="codebox"><pre class="vscroll"><code>create function prospicio_dvlp_demo.integer2boolean (boolean, integer) returns boolean as &#039;
+begin
+        if $1 isnull then
+               return null;
+        end if;
+
+        if $1 is true then
+               if $2 &lt;&gt; 0 then
+                       return true;
+               end if;
+        else
+               if $2 = 0 then
+                       return true;
+               end if;
+        end if;
+        
+        return false;
+end;
+&#039; language &#039;plpgsql&#039;;
+
+
+create operator prospicio_dvlp_demo.= (
+        leftarg = boolean,
+        rightarg = integer,
+        procedure = integer2boolean,
+        commutator = &#039;=&#039;,
+        negator = &#039;&lt;&gt;&#039;,
+        restrict = eqsel,
+        join = eqjoinsel
+);</code></pre></div><p><strong>Le problème : </strong><br />- L&#039;opérateur et la fonction se trouvent dans un schéma nommé, autre que public.<br />- Le chemin de recherche des objets de base de données&#160; est le schéma de même nom que l&#039;utilisateur connecté et pg_catalog.<br />- Les utilisateurs ne sont pas propriétaire du schéma contenant l&#039;opérateur surchargé, donc, celui-ci n&#039;est pas trouvé.<br />- Il n’est semble-t-il pas possible de donner des droits sur l’opérateur créé, malgré que cet opérateur soit un objet. De toute manière, cela ne résoudrait pas nécessairement le problème.</p><p>A votre avis y a-t-il moyen de faire en sorte que cet opérateur soit &quot;trouvé&quot; sans le mettre dans le schéma public de la base de données?</p><p>D&#039;avance merci pour vos conseils.</p><p>Sylvie</p>]]></content>
+		<author>
+			<name><![CDATA[sbouchard]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=35</uri>
+		</author>
+		<updated>2011-06-23T07:38:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10022#p10022</id>
+	</entry>
+</feed>

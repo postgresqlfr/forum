@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / cannot perform INSERT RETURNING]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4103&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4103"/>
+	<updated>2017-08-01T11:23:10Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4103</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  cannot perform INSERT RETURNING]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25880#p25880"/>
+		<content type="html"><![CDATA[<p>Le problème ne semble pas propre à QGis, j&#039;ai déjà pu constater ce problème lorsque j&#039;ai voulu faire une insertion dans une vue regroupant deux tables directement dans Postgres.</p>]]></content>
+		<author>
+			<name><![CDATA[Geo-x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1346</uri>
+		</author>
+		<updated>2017-08-01T11:23:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25880#p25880</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  cannot perform INSERT RETURNING]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25879#p25879"/>
+		<content type="html"><![CDATA[<p>Je crois que j&#039;ai trouvé en fait, il faut renseigner de nouveau la définition de la vue dans la clause RETURNING... Le code qui semble fonctionner est le suivant :</p><div class="codebox"><pre><code>CREATE OR REPLACE RULE _insert AS
+    ON INSERT TO public.test_cables DO INSTEAD ( 
+    INSERT INTO cablage_pays_gex.cable (id_cable, identifiant, id_nb_fo, id_type_cable, geom)
+  VALUES (nextval(&#039;cablage_pays_gex.cable_id_cable_seq&#039;::regclass), 
+          new.&quot;Id_SIEA&quot;, 
+          ( SELECT nb_fo.id_nb_fo
+           FROM infos_pays_gex.nb_fo
+          WHERE new.&quot;Nb_FO&quot; = nb_fo.nb_fo), 
+          ( SELECT type_cable.id_type_cable
+           FROM infos_pays_gex.type_cable
+          WHERE new.&quot;Cable&quot;::text = type_cable.type::text), 
+          new.geom)
+          RETURNING id_cable, identifiant, id_nb_fo, (select type from infos_pays_gex.type_cable where id_type_cable = cable.id_type_cable), geom;
+);</code></pre></div><p>Franchement je ne comprends pas pourquoi il est nécessaire de faire ce qui me paraît complètement délirant, d&#039;autant plus que tout fonctionne bien avec la règle UPDATE. J&#039;ai vraiment l&#039;impression que c&#039;est QGIS qui complique les choses en essayant de déterminer quelle sera la vue au fur et à mesure au lieu de simplement interroger le serveur de nouveau...</p><p>Bref, merci de votre aide.</p>]]></content>
+		<author>
+			<name><![CDATA[Girish]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7692</uri>
+		</author>
+		<updated>2017-08-01T10:06:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25879#p25879</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  cannot perform INSERT RETURNING]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25878#p25878"/>
+		<content type="html"><![CDATA[<p>D&#039;une manière générale, dans le RETURNING, lorsque vous souhaitez afficher : un champ caractère vide vous pouvez mettre : </p><div class="codebox"><pre><code>&#039;&#039; AS monchamp</code></pre></div><p> s&#039;il s&#039;agit d&#039;un champ nombre vous pouvez mettre : </p><div class="codebox"><pre><code>0 AS monchamp</code></pre></div><p> dans les deux cas vous pouvez mettre : </p><div class="codebox"><pre><code>NULL AS monchamp</code></pre></div><p>Si je regarde votre exemple, votre INSERT ne concerne pas le champ &#039;type_cable&#039;, par conséquent, il faut que vous le déclariez dans le RETURNING au même titre que le champ &#039;nb_fo&#039; avec : </p><div class="codebox"><pre><code>NULL AS monchamp</code></pre></div><p> ou&#160; </p><div class="codebox"><pre><code>&#039;&#039; AS monchamp</code></pre></div><p> ou&#160; </p><div class="codebox"><pre><code>0 AS monchamp</code></pre></div><p> selon le type de champ.</p>]]></content>
+		<author>
+			<name><![CDATA[Geo-x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1346</uri>
+		</author>
+		<updated>2017-08-01T10:02:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25878#p25878</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  cannot perform INSERT RETURNING]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25877#p25877"/>
+		<content type="html"><![CDATA[<p>Je vous remercie pour votre réponse. Malheureusement j&#039;ai beau tout mettre dans l&#039;ordre, et renseigner la totalité des champs de la vue, j&#039;ai quand même l&#039;erreur. </p><p>Auriez-vous encore un peu de temps à m&#039;accorder pour m&#039;aider à résoudre la situation ?</p><p>J&#039;ai fait un test avec une nouvelles vue, plus simple et une nouvelle règle :</p><div class="codebox"><pre><code>CREATE OR REPLACE VIEW public.test_cables AS 
+ SELECT cable.id_cable AS &quot;Id_Axians&quot;,
+    cable.identifiant AS &quot;Id_SIEA&quot;,
+    nb_fo.nb_fo AS &quot;Nb_FO&quot;,
+    type_cable.type AS &quot;Cable&quot;,
+    cable.geom
+   FROM cablage_pays_gex.cable
+     LEFT JOIN infos_pays_gex.nb_fo ON nb_fo.id_nb_fo = cable.id_nb_fo
+     LEFT JOIN infos_pays_gex.type_cable ON type_cable.id_type_cable = cable.id_type_cable;
+
+CREATE OR REPLACE RULE _insert AS
+    ON INSERT TO public.test_cables DO INSTEAD ( INSERT INTO cablage_pays_gex.cable (id_cable, identifiant, id_nb_fo, id_type_cable, geom)
+  VALUES (nextval(&#039;cablage_pays_gex.cable_id_cable_seq&#039;::regclass), 
+          new.&quot;Id_SIEA&quot;, 
+          ( SELECT nb_fo.id_nb_fo
+           FROM infos_pays_gex.nb_fo
+          WHERE new.&quot;Nb_FO&quot; = nb_fo.nb_fo), 
+          ( SELECT type_cable.id_type_cable
+           FROM infos_pays_gex.type_cable
+          WHERE new.&quot;Cable&quot;::text = type_cable.type::text), 
+          new.geom)
+          RETURNING id_cable, identifiant, id_nb_fo, id_type_cable, geom;
+);</code></pre></div><p>Je pense avoir suivi la logique, pourtant j&#039;ai comme message d&#039;erreur :</p><div class="codebox"><pre><code>ERREUR: l&#039;entrée 4 de la liste RETURNING a un type différent de la colonne « Cable »
+État SQL :42P17
+Détail :l&#039;entrée de la liste RETURNING a le type integer alors que la colonne a le type character varying.</code></pre></div><p>J&#039;ai l&#039;impression que quelque part PostgreSQL indique qu&#039;il devrait avoir un VARCHAR puisque le champs de la vue est effectivement un VARCHAR... Mais encore une fois je suis perdu quant à savoir que faire.</p>]]></content>
+		<author>
+			<name><![CDATA[Girish]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7692</uri>
+		</author>
+		<updated>2017-08-01T09:56:38Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25877#p25877</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  cannot perform INSERT RETURNING]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25876#p25876"/>
+		<content type="html"><![CDATA[<p>Je vous ai donné dans l&#039;exemple un RETURNING en lien avec le code que vous m&#039;aviez fourni, par conséquent, dans votre table complète, la colonne geom n&#039;est pas en troisième position mais en dernière position.</p><p>Si vous appliquez tel quel l&#039;exemple fournit, vous dites dans votre régle ce que votre vue doit afficher dans une 15aine de champs alors qu&#039;il faudrait lui dire pour une 30aine (champs de votre table). Il faut, dans votre clause RETURNING, que vous disiez ce qu&#039;il doit renvoyer au niveau de votre vue pour les lignes nouvellement insérées.</p><p>Exemple :<br />&gt; Table : </p><div class="codebox"><pre><code>champ1, champ2, champ3,champ4,champ5</code></pre></div><p>&gt; Régle d&#039;insertion : </p><div class="codebox"><pre><code>INSERT INTO (champ1,champ3,champ5) VALUES (new.champ1,new.champ3,new.champ5) RETURNING champ1, &#039;&#039; AS champ2, champ3, 0 AS champ4,champ5</code></pre></div><p>Vous dites ainsi à votre vue ce qu&#039;il faut qu&#039;elle affiche pour ces lignes nouvellement insérées.<br />Concernant QGis, je ne sais pas s&#039;il s&#039;agit de l&#039;évolution de Postgres qui inclut cette contrainte, ou si c&#039;est celle de QGis...</p><p>Geo-x</p>]]></content>
+		<author>
+			<name><![CDATA[Geo-x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1346</uri>
+		</author>
+		<updated>2017-08-01T08:41:31Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25876#p25876</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  cannot perform INSERT RETURNING]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25875#p25875"/>
+		<content type="html"><![CDATA[<p>Bonjour Geo-x,</p><p>Et là je me dis que j&#039;aurais pu me douter qu&#039;il pouvait y avoir du spatial d&#039;impliqué étant donné votre Pseudo ^^</p><p>Donc, j&#039;ai essayé cela, mais j&#039;ai un message d&#039;erreur :</p><div class="codebox"><pre><code>ERREUR:  l&#039;entrée 3 de la liste RETURNING a un type différent de la colonne « Nb_FO »
+DETAIL:  l&#039;entrée de la liste RETURNING a le type character varying alors que la colonne a le type integer.</code></pre></div><p>Je ne mets aussi à jour que certains champs de ma table (d&#039;autres sont renseignés avec des triggers de manière indépendante).</p><p>Si besoin, la définition de la vue en question : </p><div class="codebox"><pre class="vscroll"><code>CREATE OR REPLACE VIEW zapm_01436_00001.cables AS 
+ SELECT cable.id_cable AS &quot;Id_Axians&quot;,
+    cable.identifiant AS &quot;Id_SIEA&quot;,
+    nb_fo.nb_fo AS &quot;Nb_FO&quot;,
+    type_cable.type AS &quot;Cable&quot;,
+    role_fibre.role AS &quot;Role&quot;,
+    type_fo.designation AS &quot;Fibre&quot;,
+    round(st_length(cable.geom)::numeric, 1) AS &quot;Longueur&quot;,
+    situation.situation AS &quot;Situation&quot;,
+    dossier.designation_axians AS &quot;Dossier&quot;,
+    cable.commentaire AS &quot;Comments&quot;,
+    cable.dms AS &quot;DMS&quot;,
+    etat.etat AS &quot;Etat&quot;,
+    type_affichage.type_affichage AS &quot;Affichage&quot;,
+    cable.user_modif AS &quot;Modifieur&quot;,
+    cable.date_modif AS &quot;Modifié&quot;,
+    cable.user_create AS &quot;Créateur&quot;,
+    cable.date_create AS &quot;Créé&quot;,
+    cable.cause_abandon AS &quot;C_abandon&quot;,
+    cable.date_abandon AS &quot;Abandonné&quot;,
+    cable.user_abandon AS &quot;Abandon&quot;,
+    cable.xlbl,
+    cable.ylbl,
+    cable.olbl,
+    cable.t_pol AS &quot;Taille&quot;,
+    cable.c_pol AS &quot;Col_text&quot;,
+    cable.c_cad AS &quot;Col_cadre&quot;,
+    cable.cad_lbl AS &quot;Cadre ?&quot;,
+    cable.com AS &quot;Affiché ?&quot;,
+    cable.xlbl1,
+    cable.ylbl1,
+    cable.olbl1,
+    cable.geom
+   FROM cablage_pays_gex.cable
+     LEFT JOIN infos_pays_gex.nb_fo ON nb_fo.id_nb_fo = cable.id_nb_fo
+     LEFT JOIN infos_pays_gex.type_cable ON type_cable.id_type_cable = cable.id_type_cable
+     LEFT JOIN infos_pays_gex.role_fibre ON role_fibre.id_role_fibre = cable.id_role_fibre
+     LEFT JOIN infos_pays_gex.type_fo ON type_fo.id_type_fo = cable.id_type_fo
+     LEFT JOIN infos_pays_gex.etat ON cable.id_etat = etat.id_etat
+     LEFT JOIN infos_pays_gex.affichage ON affichage.id_affichage = cable.id_cable AND affichage.vue::text = &#039;cables&#039;::text AND affichage.schema_dossier::text = &#039;ZAPM_01436_00001&#039;::text
+     LEFT JOIN infos_pays_gex.type_affichage ON type_affichage.id_type_affichage = affichage.id_type_affichage
+     LEFT JOIN geo_pays_gex.dossier ON dossier.id_dossier = cable.id_dossier
+     LEFT JOIN infos_pays_gex.situation ON situation.id_situation = cable.id_situation;</code></pre></div><p>Pourquoi dans votre suggestion n&#039;avez-vous pas ajouté de &quot;champs fantôme&quot; comme vous l&#039;aviez fait dans votre solution ?</p><p>Quoiqu&#039;il en soit je ne comprends ni le principe, ni pourquoi entre QGIS 2.14 et 2.18 quelque chose a changé (et qu&#039;est ce qui a changé), sauriez-vous m&#039;éclairer ?</p><p>Je vous remercie de votre attention.<br />Girish</p>]]></content>
+		<author>
+			<name><![CDATA[Girish]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7692</uri>
+		</author>
+		<updated>2017-08-01T08:17:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25875#p25875</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  cannot perform INSERT RETURNING]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25874#p25874"/>
+		<content type="html"><![CDATA[<p>Bonjour Girish.</p><p>Dans l&#039;exemple évoqué plus haut, il s&#039;agissait d&#039;effectuer une insertion sur quelques champs de la table et non sur l&#039;intégralité.<br />Afin que cette insertion puisse fonctionner, il fallait pouvoir &quot;déclarer&quot; l&#039;intégralité des champs de la table d&#039;où le RETURNING (...) appelant tous les champs de la table.</p><p>Donc pour répondre à votre question : Quels sont les champs renseignés dans la clause RETURNING ? &gt; Tous les champs de votre table (ou de vos tables)</p><p>Cela donnera quelque chose du genre : </p><div class="codebox"><pre><code>RETURNING id_cable, identifiant, geom, dms, commentaire, longueur, id_type_cable, id_nb_fo, id_role_fibre, id_type_fo, xlbl, ylbl, olbl, t_pol, c_pol, c_cad, cad_lbl, com, xlbl1, ylbl1, olbl1, id_etat, id_dossier, id_situation;</code></pre></div><p>Pour information, dans mon cas également il s&#039;agissait d&#039;un travail avec QGis :-)</p><p>Geo-x</p>]]></content>
+		<author>
+			<name><![CDATA[Geo-x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1346</uri>
+		</author>
+		<updated>2017-08-01T07:43:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25874#p25874</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  cannot perform INSERT RETURNING]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25873#p25873"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je remonte ce sujet, car je ne comprends pas la solution (et je n&#039;arrive pas à la faire fonctionner). J&#039;ai le même type d&#039;erreur (concernant le type dans la clause RETURNING). <br />Quels sont les champs renseignés dans la clause RETURNING ?<br />Que sont ces &quot;colonnes supplémentaires&quot; auxquelles vous faites référence ?</p><p>Mes vues sont plus complexe que celles présentées puisqu&#039;elles font appel à d&#039;autres tables liées à ma table originelle par des clés étrangères (ou des relations spatiales, je travaille avec PostGIS).</p><p>Pourriez-vous élaborer ? Ce qui suit est un exemple de règle (complexe, comme je l&#039;annonçais), et pour information je cherche à travailler avec un logiciel tiers (QGIS), et tout fonctionnait bien sans besoin de clause RETURNING dans une version, mais plus dans la suivante puisqu&#039;il m&#039;est retourné le message d&#039;erreur indiqué dans la question d&#039;origine (&quot;ERROR:&#160; cannot perform INSERT RETURNING on relation &quot;view_table&quot; suivi de HINT:&#160; You need an unconditional ON INSERT DO INSTEAD rule with a RETURNING clause.&quot;) :</p><div class="codebox"><pre><code>CREATE OR REPLACE RULE _insert AS
+    ON INSERT TO zapm_01436_00001.cables DO INSTEAD ( INSERT INTO cablage_pays_gex.cable (id_cable, identifiant, geom, dms, commentaire, longueur, id_type_cable, id_nb_fo, id_role_fibre, id_type_fo, xlbl, ylbl, olbl, t_pol, c_pol, c_cad, cad_lbl, com, xlbl1, ylbl1, olbl1, id_etat, id_dossier, id_situation)
+  VALUES (nextval(&#039;cablage_pays_gex.cable_id_cable_seq&#039;::regclass), new.&quot;Id_SIEA&quot;, new.geom, new.&quot;DMS&quot;, new.&quot;Comments&quot;, round(st_length(new.geom)), ( SELECT type_cable.id_type_cable
+           FROM infos_pays_gex.type_cable
+          WHERE new.&quot;Cable&quot;::text = type_cable.type::text), ( SELECT nb_fo.id_nb_fo
+           FROM infos_pays_gex.nb_fo
+          WHERE new.&quot;Nb_FO&quot; = nb_fo.nb_fo), ( SELECT role_fibre.id_role_fibre
+           FROM infos_pays_gex.role_fibre
+          WHERE new.&quot;Role&quot;::text = role_fibre.role::text), ( SELECT type_fo.id_type_fo
+           FROM infos_pays_gex.type_fo
+          WHERE new.&quot;Fibre&quot;::text = type_fo.designation::text), new.xlbl, new.ylbl, new.olbl, new.&quot;Taille&quot;, new.&quot;Col_text&quot;, new.&quot;Col_cadre&quot;, new.&quot;Cadre ?&quot;, new.&quot;Affiché ?&quot;, new.xlbl1, new.ylbl1, new.olbl1, ( SELECT etat.id_etat
+           FROM infos_pays_gex.etat
+          WHERE new.&quot;Etat&quot;::text = etat.etat::text), ( SELECT dossier.id_dossier
+           FROM geo_pays_gex.dossier
+          WHERE dossier.designation_axians::text = new.&quot;Dossier&quot;::text), ( SELECT situation.id_situation
+           FROM infos_pays_gex.situation
+          WHERE new.&quot;Situation&quot;::text = situation.situation::text));</code></pre></div><p>Merci.</p>]]></content>
+		<author>
+			<name><![CDATA[Girish]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7692</uri>
+		</author>
+		<updated>2017-08-01T06:58:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25873#p25873</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  cannot perform INSERT RETURNING]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24795#p24795"/>
+		<content type="html"><![CDATA[<p>J&#039;ai compris d’où venait le problème.<br />Comme indiqué ma vue reprend des champs de la table mais crée des colonnes supplémentaires en calculant des indicateurs.<br />La vue doit pouvoir afficher les colonnes concernant ces indicateurs, du coup il faut l&#039;intégrer dnas le <strong>RETURNING</strong> même si ce sont des valeurs &quot;fantômes&quot; du genre</p><div class="codebox"><pre><code>CREATE OR REPLACE RULE &quot;_INSERT&quot; AS
+ON INSERT TO view_table DO INSTEAD  INSERT INTO table (id, wkb_geometry, nom) 
+VALUES (new.id, new.wkb_geometry, new.nom)
+RETURNING id, wkb_geometry, nom, 0::numeric AS indicateur1, 0::numeric AS indicateur2;</code></pre></div><p>Il est nécessaire d&#039;utiliser la même technique, si la vue comporte également un <strong>ON UPDATE</strong>.</p><p>Geo-x</p>]]></content>
+		<author>
+			<name><![CDATA[Geo-x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1346</uri>
+		</author>
+		<updated>2017-02-07T07:18:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24795#p24795</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  cannot perform INSERT RETURNING]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24794#p24794"/>
+		<content type="html"><![CDATA[<p>Comment est définie la vue ? et quelle est votre version de PostgreSQL ?</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2017-02-06T19:36:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24794#p24794</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  cannot perform INSERT RETURNING]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24782#p24782"/>
+		<content type="html"><![CDATA[<p>Bonjour Gleu.<br />J&#039;utilise les triggers pour les tables uniquement mais pas pour les vues, je ne sais pas forcément comment les utiliser correctement.</p><p>Comment feriez-vous ?</p>]]></content>
+		<author>
+			<name><![CDATA[Geo-x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1346</uri>
+		</author>
+		<updated>2017-02-06T10:36:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24782#p24782</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  cannot perform INSERT RETURNING]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24781#p24781"/>
+		<content type="html"><![CDATA[<p>Pourquoi passez-vous par une règle ? il est connu qu&#039;elles sont très difficiles à écrire correctement et qu&#039;il est nettement préférable de passer par un trigger, beaucoup plus simple à mettre en place et à maintenir.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2017-02-06T10:34:09Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24781#p24781</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  cannot perform INSERT RETURNING]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24780#p24780"/>
+		<content type="html"><![CDATA[<p>Et malheureusement non, j&#039;ai tenté mais j&#039;ai ce message qui apparait : <strong>ERROR:&#160; RETURNING list&#039;s entry 30 has different type from column &quot;stat_view&quot;</strong></p><p>Si j’interprète correctement, c&#039;est parce qu&#039;il y a dans ma vue des colonnes qu&#039;il n&#039;y a pas dans la table source. Alors j&#039;ai essayé de faire quelque chose du genre </p><div class="codebox"><pre><code>RETURNING table.nom,table.wkb_geometry,(...)</code></pre></div><p>, mais pas mieux...</p><p>Les <strong>new.col1</strong> renvoient des valeurs type &#039;blablabla&#039;, habituellement ça fonctionne :-)</p>]]></content>
+		<author>
+			<name><![CDATA[Geo-x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1346</uri>
+		</author>
+		<updated>2017-02-06T10:27:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24780#p24780</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  cannot perform INSERT RETURNING]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24779#p24779"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>et comme ça est-ce que ça marche :</p><div class="quotebox"><blockquote><div><p>CREATE OR REPLACE RULE &quot;_INSERT&quot; AS<br />ON INSERT TO view_table DO INSTEAD&#160; INSERT INTO table (id, wkb_geometry, nom) <br />VALUES (new.id, new.wkb_geometry, new.nom) RETURNING table.*;</p></div></blockquote></div><p>par contre les insert doivent avoir cette forme :</p><div class="quotebox"><blockquote><div><p>INSERT INTO view_table (id, wkb_geometry, nom) values (1,&#039;blabla&#039;, &#039;blabla&#039;) returning id;</p></div></blockquote></div><p>Mais je ne garantie pas que ça marche comme ça...</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2017-02-06T10:23:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24779#p24779</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[cannot perform INSERT RETURNING]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24776#p24776"/>
+		<content type="html"><![CDATA[<p>Bonjour @ tous.</p><p>J&#039;ai créé une vue avec quelques règles associées pour le cas notamment, d&#039;insertions.</p><p>Cette règle semble cependant connaître quelques dysfonctionnements puisque je reçois le message d&#039;erreur suivant : <strong>ERROR:&#160; cannot perform INSERT RETURNING on relation &quot;view_table&quot;</strong> suivi de <strong>HINT:&#160; You need an unconditional ON INSERT DO INSTEAD rule with a RETURNING clause.</strong></p><p>Je ne comprends pas ce que cela veut dire. Ma règle d&#039;insertion ressemble à ceci (en simplifié pour vous éviter le gros pavé) :</p><div class="codebox"><pre><code>CREATE OR REPLACE RULE &quot;_INSERT&quot; AS
+ON INSERT TO view_table DO INSTEAD  INSERT INTO table (id, wkb_geometry, nom) 
+VALUES (new.id, new.wkb_geometry, new.nom);</code></pre></div><p>Avez-vous une idée qui me premettrait de sortir de ce pétrin ?</p><p>Par avance merci.</p><p>Geo-x</p>]]></content>
+		<author>
+			<name><![CDATA[Geo-x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1346</uri>
+		</author>
+		<updated>2017-02-06T09:29:38Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24776#p24776</id>
+	</entry>
+</feed>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / creation de trigger avec pgAdmin3]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2824&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2824"/>
+	<updated>2013-10-17T09:05:16Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2824</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  creation de trigger avec pgAdmin3]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18424#p18424"/>
+		<content type="html"><![CDATA[<p>Merci beaucoup ! Effectivement c&#039;était un problème de casse. ça va maintenant !</p>]]></content>
+		<author>
+			<name><![CDATA[doumib]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2770</uri>
+		</author>
+		<updated>2013-10-17T09:05:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18424#p18424</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  creation de trigger avec pgAdmin3]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18421#p18421"/>
+		<content type="html"><![CDATA[<p>Il faut utiliser des &quot; pour spécifier la casse, par exemple new.&quot;NOM&quot;, sinon les champs seront considérés comme en minuscule.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2013-10-16T15:43:38Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18421#p18421</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  creation de trigger avec pgAdmin3]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18420#p18420"/>
+		<content type="html"><![CDATA[<p>salut&#160; ! comme je l&#039;ai dit, j&#039;utilise pgAdmin3. Donc voici la définition de mes tables:</p><p>pour la table eleve:</p><br /><p>CREATE TABLE eleve<br />(<br />&#160; &quot;NOM&quot; character varying(50) NOT NULL,<br />&#160; &quot;PRENOM&quot; character varying(50) NOT NULL,<br />&#160; &quot;NUM&quot; integer NOT NULL,<br />&#160; &quot;CLASSE&quot; character varying(10) NOT NULL,<br />&#160; CONSTRAINT &quot;clé2&quot; PRIMARY KEY (&quot;NUM&quot; )<br />)<br />WITH (<br />&#160; OIDS=FALSE<br />);<br />ALTER TABLE eleve<br />&#160; OWNER TO postgres;</p><p>pour la table&#160; nouveau_depart :</p><p>CREATE TABLE nouveau_depart<br />(<br />&#160; &quot;NOM_C&quot; character varying(50) NOT NULL,<br />&#160; &quot;PRENOM_C&quot; character varying(50) NOT NULL,<br />&#160; &quot;NUM_C&quot; integer NOT NULL,<br />&#160; &quot;CLASSE_C&quot; character varying(10) NOT NULL,<br /> CONSTRAINT &quot;clé3&quot; PRIMARY KEY (&quot;NUM_C&quot; )<br />)<br />WITH (<br />&#160; OIDS=FALSE<br />);<br />ALTER TABLE nouveau_depart<br />&#160; OWNER TO postgres;</p><p>Par ailleurs, le code de la fonction trigger est:</p><p>CREATE OR REPLACE FUNCTION ft_eleve()<br />&#160; RETURNS trigger AS<br />$BODY$begin<br />INSERT INTO nouveau_depart<br />VALUES (NEW.NOM, NEW.PRENOM, NEW.NUM, NEW.CLASSE);<br />RETURN NEW;<br />end;$BODY$<br />&#160; LANGUAGE plpgsql VOLATILE<br />&#160; COST 100;<br />ALTER FUNCTION ft_eleve()<br />&#160; OWNER TO postgres;</p><br /><p>Et voici le trigger lui-même:</p><p>CREATE TRIGGER insert_after_eleve<br />&#160; AFTER INSERT<br />&#160; ON eleve<br />&#160; FOR EACH ROW<br />&#160; EXECUTE PROCEDURE ft_eleve();</p><br /><p>merci beaucoup pour votre comprehension !</p>]]></content>
+		<author>
+			<name><![CDATA[doumib]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2770</uri>
+		</author>
+		<updated>2013-10-16T15:36:06Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18420#p18420</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  creation de trigger avec pgAdmin3]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18407#p18407"/>
+		<content type="html"><![CDATA[<p>Il serait bon de donner le code exact de la procédure stockée, ainsi que la définition exacte des tables. En l&#039;occurence, vu le message de PostgreSQL? je ne peut que déduire que la table eleve n&#039;a pas de champ nom.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2013-10-14T21:19:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18407#p18407</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[creation de trigger avec pgAdmin3]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18405#p18405"/>
+		<content type="html"><![CDATA[<p>salut ! je suis nouveau sur le forum. Et je suis nouveau également dans l&#039;utilisation de postgresql.<br />Je veux utiliser un trigger pour inserer des données dans une table (que je nomme nouveau_depart) de ma BD après insertion des donées dans une autre table qui est nommée eleve (qui a pour colonnes : NOM, PRENOM, NUM, CLASSE ). Les colonnes de la table nouveau_depart sont NOM_C, PRENOM_C, NUM_C, CLASSE_C<br />j&#039;utilise pgAdmin3. Dans ma fonction trigger , j&#039;utilise le code suivant:</p><p>begin<br />INSERT INTO nouveau_depart<br />VALUES (NEW.NOM, NEW.PRENOM, NEW.NUM, NEW.CLASSE);<br />RETURN NEW;<br />end;</p><p> ensuite la creation du&#160; trigger sur ma table eleve me donne ceci:</p><p>CREATE TRIGGER insert_after_eleve<br />&#160; &#160;AFTER INSERT ON eleve<br />&#160; &#160;FOR EACH ROW<br />&#160; &#160;EXECUTE PROCEDURE ft_eleve;</p><br /><p>Mais lorsqu&#039; une insertion veut se faire dans la table eleve, le message d&#039;erreur suivant apparait:</p><p>une erreur s&#039;est produite:</p><p>&quot; ERREUR: l&#039;enregistrement &quot;new&quot; n&#039;a pas de champs &quot;nom&quot;<br />CONTEXT: SQL statement &quot;INSERT INTO nouveau_depart<br />VALUES (NEW.NOM, NEW.PRENOM, NEW.NUM, NEW.CLASSE);</p><br /><p>J&#039;ai vraiment besoin d&#039;aide !<br />merci</p>]]></content>
+		<author>
+			<name><![CDATA[doumib]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2770</uri>
+		</author>
+		<updated>2013-10-14T11:55:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18405#p18405</id>
+	</entry>
+</feed>

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Gestion des intervalles de dates]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4523&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4523"/>
+	<updated>2018-01-24T15:43:40Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4523</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Gestion des intervalles de dates]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26709#p26709"/>
+		<content type="html"><![CDATA[<p>Je me réponds après quelques essais !!<br />J&#039;avais comme l&#039;intuition que LATERAL pourrait venir à mon secours....</p><div class="codebox"><pre><code>SELECT a.ech, lat.lot, a.ana, a.ech_dh,lat.lot_dh FROM ech a, 
+	LATERAL (SELECT * FROM lot b WHERE b.ana = a.ana AND a.ech_dh&gt;=b.lot_dh ORDER BY lot_dh DESC LIMIT 1) lat</code></pre></div><p>J&#039;ai toujours du mal à appréhender la logique de LATERAL....si vous avez un bon tuto par là, je suis preneur !</p>]]></content>
+		<author>
+			<name><![CDATA[damalaan]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1000</uri>
+		</author>
+		<updated>2018-01-24T15:43:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26709#p26709</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Gestion des intervalles de dates]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26688#p26688"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Dans le cadre d&#039;une gestion de stock et d&#039;analyses, j&#039;ai les 2 tables suivantes (simplifiées pour l&#039;exemple):</p><div class="codebox"><pre class="vscroll"><code>CREATE TABLE public.lot (
+	lot varchar NULL, --numero de lot
+	ana varchar NULL, --analyse realise avec le lot
+	lot_dh timestamp NULL --date d&#039;activation du lot
+)
+
+INSERT INTO public.lot (lot,ana,lot_dh) VALUES 
+(&#039;lot1&#039;,&#039;ST&#039;,&#039;2017-12-31 08:03:54.000&#039;)
+,(&#039;lot2&#039;,&#039;C&#039;,&#039;2018-01-05 12:12:54.000&#039;)
+,(&#039;lot3&#039;,&#039;FT&#039;,&#039;2018-01-10 12:03:54.000&#039;)
+,(&#039;lot5&#039;,&#039;C&#039;,&#039;2018-01-15 15:15:54.000&#039;)
+,(&#039;lot6&#039;,&#039;FT&#039;,&#039;2018-01-14 11:13:14.000&#039;)
+,(&#039;lot4&#039;,&#039;ST&#039;,&#039;2018-01-02 18:03:54.000&#039;)
+
+
+CREATE TABLE public.ech (
+	ana varchar NULL, --analyse
+	ech_dh timestamp NULL, --date/heure de realisation de l&#039;analyse
+	ech int4 NULL --numero echantillon
+)
+INSERT INTO public.ech (ana,ech_dh,ech) VALUES 
+(&#039;ST&#039;,&#039;2017-12-31 08:02:54.000&#039;,1)
+,(&#039;C&#039;,&#039;2018-01-05 12:12:59.000&#039;,2)
+,(&#039;FT&#039;,&#039;2018-01-05 12:12:59.000&#039;,2)
+,(&#039;ST&#039;,&#039;2018-01-15 17:12:59.000&#039;,3)
+,(&#039;FT&#039;,&#039;2018-01-15 17:12:59.000&#039;,3)
+,(&#039;C&#039;,&#039;2018-01-15 17:12:59.000&#039;,3)</code></pre></div><p>Le but est de retrouver le lot utilisé pour l&#039;échantillon pour telle ou telle analyse.<br />Par exemple, on sait donc que le lot4 servira à faire l&#039;analyse ST, et qu&#039;il est actif à partir du 02/01/2017 18:03:54<br />Donc, tant qu&#039;un nouveau lot réalisant cette analyse n&#039;est pas activé, les échantillons seront faits avec le lot 4.</p><p>Pour que l&#039;utilisateur puisse obtenir une traçabilité je pensais donc à cette requête avec une reconstitution d&#039;intervalle de date, et qui permet de retourner les échantillons avec les lots utilisés</p><div class="codebox"><pre class="vscroll"><code>WITH a AS(
+	SELECT
+		lot,
+		ana,
+		lot_dh AS date_val_deb,
+		lead(
+			lot_dh,
+			1
+		) OVER(PARTITION BY ana	ORDER BYlot_dh ASC) AS date_val_fin
+	FROM
+		lot
+	ORDER BY
+		ana,
+		lot
+),
+b AS(
+	SELECT
+		lot,
+		ana,
+		CASE
+			WHEN date_val_deb IS NULL THEN &#039;(,&#039; || date_val_fin || &#039;)&#039;
+			WHEN date_val_fin IS NULL THEN &#039;[&#039; || date_val_deb || &#039;,)&#039;
+			ELSE &#039;[&#039; || date_val_deb || &#039;,&#039; || date_val_fin || &#039;)&#039;
+		END::tsrange AS plage_val_lot
+	FROM
+		a
+) SELECT
+	ech,
+	lot,
+	ech.ana,
+	ech_dh,
+	plage_val_lot
+FROM
+	ech
+LEFT JOIN b ON
+	ech.ana = b.ana
+WHERE
+	ech_dh &lt; @ plage_val_lot = TRUE</code></pre></div><p>ce qui me donne </p><div class="codebox"><pre><code>ech |lot  |ana |ech_dh              |plage_val_lot                                 |
+----|-----|----|--------------------|----------------------------------------------|
+2   |lot2 |C   |2018-01-05 12:12:59 |[&quot;2018-01-05 12:12:54&quot;,&quot;2018-01-15 15:15:54&quot;) |
+3   |lot5 |C   |2018-01-15 17:12:59 |[&quot;2018-01-15 15:15:54&quot;,)                      |
+3   |lot6 |FT  |2018-01-15 17:12:59 |[&quot;2018-01-14 11:13:14&quot;,)                      |
+3   |lot4 |ST  |2018-01-15 17:12:59 |[&quot;2018-01-02 18:03:54&quot;,)                      |</code></pre></div><p>Y aurait il plus simple ? plus efficace ?<br />Merci d&#039;avance</p>]]></content>
+		<author>
+			<name><![CDATA[damalaan]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1000</uri>
+		</author>
+		<updated>2018-01-18T13:32:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26688#p26688</id>
+	</entry>
+</feed>

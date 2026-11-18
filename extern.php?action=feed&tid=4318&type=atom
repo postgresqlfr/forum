@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / REPLICATION : WAL dans pg_xlog non supprimé]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4318&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4318"/>
+	<updated>2021-05-11T08:36:14Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4318</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  REPLICATION : WAL dans pg_xlog non supprimé]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32424#p32424"/>
+		<content type="html"><![CDATA[<p>erreur ne pas ternir compte</p>]]></content>
+		<author>
+			<name><![CDATA[stephane.lorek]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9486</uri>
+		</author>
+		<updated>2021-05-11T08:36:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32424#p32424</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  REPLICATION : WAL dans pg_xlog non supprimé]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25855#p25855"/>
+		<content type="html"><![CDATA[<p>Pareil, je ne comprends pas trop le problème que vous cherchez à résoudre.&#160; Dans tous les cas si les journaux s&#039;entassent c&#039;est qu&#039;il y a un problème.&#160; Et il faut résoudre ce problème à la source, plutôt que supprimer des journaux de transaction dans le répertorie pg_xlog (et oui utiliser pg_archivecleanup, faire des rm revient au même, il s&#039;agit d&#039;une suppression qui n&#039;est pas effectuée nativement et c&#039;est le meilleur moyen de corrompre votre instance).</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2017-07-26T11:14:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25855#p25855</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  REPLICATION : WAL dans pg_xlog non supprimé]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25851#p25851"/>
+		<content type="html"><![CDATA[<p>Pas d&#039;objection particulière, je ne comprends pas ce que vous faites.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2017-07-25T19:32:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25851#p25851</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  REPLICATION : WAL dans pg_xlog non supprimé]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25848#p25848"/>
+		<content type="html"><![CDATA[<p>Je met un bilan de résultat pour ceux qui sont intéressés:<br />gleu&gt; normalement si je comprends bien, si archive_mode=on et la commande archive_command est renseignée avec une copie , les wal seront transmis vers l&#039;emplacement définis dans archive_command. Par conséquent, si l&#039;on ne met rien dans archive_command les wal ainsi seront entassés dans pg_xlog et seront toujours en attente de copie (wal.ready). Avec un test, j&#039;ai utilisé archivecleanup commande depuis la réplique vu que la réplique connait quel est le wal déjà joué donc déjà mise en .done qu&#039;on peut supprimer. Je rappelle que l&#039;objectif ici est de seulement supprimer les wal déjà joués pour réduire et éviter le gonflement d&#039;espace occupé par les wal en attentes de copie. Une fois les wal déjà joué supprimés, on désactive archive_mode. Et ainsi postgresql reprend son jeu normal sans mode d&#039;archivage. Cette opération à été testé sur une base de test avec un résultat positif<br />Peut être avez vous des objections à ceux ci ?<br />rjuju&gt; Mettre archive_command à false, je viens de tester, çà ne résolu pas le problème, d&#039;ailleurs je ne comprends pas pourquoi.<br />Par contre, je pense que l&#039;idée est assez la même ou presque, une autre astuce (plus bas) vérifiée et mise en application résolu bien le problème. <br />Puisque dans le cas où l&#039;on ne dispose pas de serveur de réplique et/ou que l&#039;on aime pas trop utiliser la commande archivecleanup, pour supprimer les wal supprimables on peut utiliser la méthode suivante. Tout simplement, on ne désactive pas archive_mode mais cependant on met archive_command = &#039;/bin/true&#039;. Cela conduira en quelque sorte à une illusion de copie, qui va entrainer ainsi de mettre les wal.ready en wal.done sur le master qui effacera les wal pouvant être supprimé. Postgresql gardera ensuite dans pg_xlog les wal nécessaires à son mode de vie normal selon vos paramétrages.<br />En tout cas, merci beaucoup aux aides et conseils que vous avez apporter pour ce sujet.</p>]]></content>
+		<author>
+			<name><![CDATA[duple]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7434</uri>
+		</author>
+		<updated>2017-07-25T10:53:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25848#p25848</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  REPLICATION : WAL dans pg_xlog non supprimé]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25809#p25809"/>
+		<content type="html"><![CDATA[<p>Vous ne devez jamais toucher au contenu du répertoire pg_xlog. pg_archivecleanup, comme son nom l&#039;indique, sert à nettoyer les archives, pas pg_xlog.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2017-07-18T18:24:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25809#p25809</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  REPLICATION : WAL dans pg_xlog non supprimé]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25808#p25808"/>
+		<content type="html"><![CDATA[<p>Je ne comprends pas, comment çà manuel?<br />L&#039;option %r de pg_acrchivecleanup est manuel&#160; vous dites ?</p>]]></content>
+		<author>
+			<name><![CDATA[duple]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7434</uri>
+		</author>
+		<updated>2017-07-18T12:32:06Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25808#p25808</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  REPLICATION : WAL dans pg_xlog non supprimé]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25803#p25803"/>
+		<content type="html"><![CDATA[<p>Parce qu&#039;il ne faut <strong>jamais</strong> toucher au contenu du répertoire pg_xlog manuellement.&#160; Vous risquez par exemple d&#039;empêcher le maître de pouvoir redémarrer suite à un arrêt brutal, et donc de corrompre l&#039;instance.&#160; Après vous faites comme vous voulez.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2017-07-18T09:53:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25803#p25803</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  REPLICATION : WAL dans pg_xlog non supprimé]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25799#p25799"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><div class="quotebox"><cite>gleu a écrit&#160;:</cite><blockquote><div><p>J&#039;ai l&#039;impression que vous essayez de vous en sortir sans faire d&#039;archivage. C&#039;est une très mauvaise idée et ça va vous péter à la figure. Configurez l&#039;archivage, et ça ira beaucoup mieux</p></div></blockquote></div><p>&gt;&gt;&gt; Vous voulez sans doute parler si la réplication s&#039;arrête durant un certain laps de temps et qu&#039;il faudra la reconstruire pour la redémarrer n&#039;ayant plus les jeux de wal nécessaires pour rattraper le master non ? Ou quels autres inconvénients signalez vous ?</p><div class="quotebox"><cite>rjuju a écrit&#160;:</cite><blockquote><div><p>Il ne faut surtout pas utiliser pg_archivecleanup sur le répertoire pg_xlog du serveur primaire</p></div></blockquote></div><p>Pourquoi ? On a fait un jeu de test sur pg_archivecleanup hier soir et çà à marcher pourtant !!! Mais j&#039;aimerai quand même savoir la raison pour que vous déconseillez cette méthode.<br />Auparavant, on avait déjà désactive archive_mode durant un certain laps de temps mais les wal dans pg_xlog ne diminuaient pas, et engager toujours l&#039;espace disque. Puis on a monté le répertoire dans la réplique, qu&#039;on a ensuite purgé les pgxlog avec pg_arhivecleanup command, et çà marchait.</p>]]></content>
+		<author>
+			<name><![CDATA[duple]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7434</uri>
+		</author>
+		<updated>2017-07-18T06:24:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25799#p25799</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  REPLICATION : WAL dans pg_xlog non supprimé]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25797#p25797"/>
+		<content type="html"><![CDATA[<p>Vous pouvez soit positionner archive_mode à off et redémarrer, soit positionner archive_command à &#039;false&#039; et recharger la configuration.</p><br /><p>Il ne faut surtout pas utiliser pg_archivecleanup sur le répertoire pg_xlog du serveur primaire.</p><br /><p>Dans votre configuration, si vous arrêter votre serveur secondaire suffisamment longtemps (le temps que plus de 100 journaux de transactions soient écrits), il sera nécessaire de le recréer de zéro.&#160; Ce n&#039;est pas une mauvaise choise en soit, tout dépend de ce que vous voulez.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2017-07-17T19:15:33Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25797#p25797</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  REPLICATION : WAL dans pg_xlog non supprimé]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25796#p25796"/>
+		<content type="html"><![CDATA[<p>J&#039;ai l&#039;impression que vous essayez de vous en sortir sans faire d&#039;archivage. C&#039;est une très mauvaise idée et ça va vous péter à la figure. Configurez l&#039;archivage, et ça ira beaucoup mieux.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2017-07-17T19:11:06Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25796#p25796</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  REPLICATION : WAL dans pg_xlog non supprimé]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25795#p25795"/>
+		<content type="html"><![CDATA[<p>MASTER SETUP<br />Step1: paramétrage postgresql.conf<br />wal_level = replica<br />max_wal_senders = 8<br />max_wal_size = 1GB<br />hot_standby = on<br />Step2: Creation de l&#039;utilisateur pour la replication <br />Step3: Parametrage de pg_dba.conf<br />SLAVE SETUP<br />Step4: Arrêt de l&#039;instance<br />Step5: Restauration du master pour créer la replique avec &gt;&gt;&gt; pg_basebackup <br />Step6: Copie/coller du postgresql.conf du master vers le slave<br />Step7: Creation du recovery.conf<br />standby_mode = on<br />primary_conninfo = &#039;host=masterhost user=userrepl&#039;<br />Step8: Démarrage du slave</p><p>&gt;&gt;&gt;&gt; Je précise ici qu&#039;on a mis archive_command = &#039;&#039; sur le maitre<br />Je pense que le problème vient d&#039;ici, on a désactivé l&#039;archive_command sans pour autant mis archive_mode = &#039;off&#039; donc archive_mode toujours activé les fichiers dans pg_xlog/archive_status sont tous mit en .ready et en attente de copie par archive_command, du coup les wal dans pg_xlog s&#039;accumulent et prennent de l&#039;espace.<br />Pour solutionner nous pensons à mettre archive_mode = &#039;off&#039; puis redémarrer le master. Monter pg_xlog dans le serveur de replique et inserrer pg_archivecleanup dans recovery.conf pour supprimer les wal qui ne sont plus utiles dans le repertoire pg_xlog monté.</p><p>Qu&#039;en pensez vous ? Nous allons faire un jeu de test.</p>]]></content>
+		<author>
+			<name><![CDATA[duple]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7434</uri>
+		</author>
+		<updated>2017-07-17T15:40:02Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25795#p25795</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  REPLICATION : WAL dans pg_xlog non supprimé]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25788#p25788"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>&gt;&gt;&gt;C&#039;est à dire que le système actuel n&#039;utilise pas d&#039;archive command dans postgresql.conf.</p></div></blockquote></div><p>Comment effectuez-vous la réplication exactement ?</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2017-07-17T10:24:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25788#p25788</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  REPLICATION : WAL dans pg_xlog non supprimé]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25785#p25785"/>
+		<content type="html"><![CDATA[<p>select * from pg_stat_archiver &gt;&gt;</p><p>archived_count&#160; &#160; last_archived_wal&#160; &#160; last_archived_time&#160; &#160; failed_count&#160; &#160; last_failed_wal&#160; &#160; last_failed_time&#160; &#160; stats_reset<br />0&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;0&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; 2017-07-15 12:41:24.872644+00</p>]]></content>
+		<author>
+			<name><![CDATA[duple]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7434</uri>
+		</author>
+		<updated>2017-07-17T08:30:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25785#p25785</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  REPLICATION : WAL dans pg_xlog non supprimé]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25784#p25784"/>
+		<content type="html"><![CDATA[<p>Merci pour cette réponse.</p><div class="quotebox"><cite>rjuju a écrit&#160;:</cite><blockquote><div><p>C&#039;est-à-dire ? Parce que dit comme ça ça ressemble à une très très mauvaise idée. Les WALs doivent être archivés avant d&#039;être rejoué.</p></div></blockquote></div><p>&gt;&gt;&gt;C&#039;est à dire que le système actuel n&#039;utilise pas d&#039;archive command dans postgresql.conf.</p><p>Pour les autres information:</p><p>select * from pg_stat_archiver &gt;&gt;</p><p>archived_count&#160; &#160; last_archived_wal&#160; &#160; last_archived_time&#160; &#160; failed_count&#160; &#160; last_failed_wal&#160; &#160; last_failed_time&#160; &#160; stats_reset<br />0&#160; &#160; &#160; &#160; &#160; &#160; 0&#160; &#160; &#160; &#160; &#160; &#160; 2017-07-15 12:41:24.872644+00</p><br /><p>select * from pg_replication_slots &gt;&gt; Aucun resultat</p><p>wal_keep_segments = 100 </p><p> Effectivement, je crois que vous aviez raison. Faudrait peut être diminuer wal_keep_segments ? Justement puisque le système n&#039;utilise pas archive_command&#160; on a préféré définir wal_keep_segments à 100.</p><p>Pouvez vous conseiller sur la bonne solution à prendre ?</p>]]></content>
+		<author>
+			<name><![CDATA[duple]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7434</uri>
+		</author>
+		<updated>2017-07-17T08:29:21Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25784#p25784</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  REPLICATION : WAL dans pg_xlog non supprimé]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25783#p25783"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>duple a écrit&#160;:</cite><blockquote><div><p>J&#039;ai monté une base replique sur un autre serveur en mode streaming en utilisant les paramètres de postgres de façon à ce que le slave joue les WAL directement depuis l&#039;emplacement pg_xlog de serveur maitre.</p></div></blockquote></div><p>C&#039;est-à-dire ? Parce que dit comme ça ça ressemble à une très très mauvaise idée. Les WALs doivent être archivés avant d&#039;être rejoué.</p><div class="quotebox"><blockquote><div><p>Est ce normal que ces fichiers wal dans pg_xlog ne sont pas supprimés, comment fait on pour y remédier car on commence à manquer d&#039;espace disque.</p></div></blockquote></div><p>Non, vous avez quelque chose qui les retient.&#160; Ça peut être l&#039;une de ces raisons :</p><p>- l&#039;archivage ne fonctionne pas (voir dans pg_stat_archiver)<br />- un slot de réplication inutilisé (voir dans pg_replication_slots)<br />- un wal_keep_segments trop haut</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2017-07-17T07:24:39Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25783#p25783</id>
+	</entry>
+</feed>

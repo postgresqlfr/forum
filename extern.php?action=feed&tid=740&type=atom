@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Appel de deux fonctions ou jointure??]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=740&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=740"/>
+	<updated>2010-04-20T13:49:48Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=740</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Appel de deux fonctions ou jointure??]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4622#p4622"/>
+		<content type="html"><![CDATA[<p>Merci</p>]]></content>
+		<author>
+			<name><![CDATA[R.Seif]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=733</uri>
+		</author>
+		<updated>2010-04-20T13:49:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4622#p4622</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Appel de deux fonctions ou jointure??]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4620#p4620"/>
+		<content type="html"><![CDATA[<p>Très clairement la jointure sera gagnante.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-04-20T13:46:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4620#p4620</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Appel de deux fonctions ou jointure??]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4619#p4619"/>
+		<content type="html"><![CDATA[<div class="codebox"><pre class="vscroll"><code>create OR replace FUNCTION mape_get_ip(inet) RETURNS integer
+AS $$
+	DECLARE
+	addr ALIAS for $1;
+	ipid  integer;
+BEGIN
+	select into ipid ip from ips where ips.ip= addr;
+return ipid;
+end;$$
+	LANGUAGE plpgsql;
+
+--------------------------------------------------------------------------------------
+create OR replace FUNCTION mape_get_peer(inet,integer) RETURNS integer
+AS $$
+	DECLARE
+        addr ALIAS FOR $1;
+        port ALIAS FOR $2;
+        ipid integer;
+        peerid integer;
+
+BEGIN
+	-- Get the ID corresponding to the address
+	select into ipid mape_get_ip(addr);
+
+	IF ipid &gt;= 1
+	then
+		select into peerid id FROM peers WHERE peers.ip = addr AND peers.port = port;
+		return peerid;
+	else
+		return 0;
+	end IF;
+
+end;$$
+	LANGUAGE plpgsql;
+----------------------------------------------------------------------------------------
+
+select into peerid mape_get_peer(p_addr,p_port);</code></pre></div><p>ou bien</p><div class="codebox"><pre><code>create or replace FUNCTION mape_get_peer(inet,integer) RETURNS integer
+AS $$
+	DECLARE
+        addr ALIAS for $1;
+        port ALIAS for $2;
+        --ipid integer;
+        peerid integer;
+
+BEGIN	
+	select into peerid id from peers, ips
+		where peers.ip = ips.ip and peers.id = ips.id and peers.ip = addr and peers.port = port;
+
+	if peerid &gt; 0		
+		return peerid;
+	else
+		return 0;
+	end IF;
+
+end;$$
+	LANGUAGE plpgsql;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[R.Seif]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=733</uri>
+		</author>
+		<updated>2010-04-20T13:36:06Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4619#p4619</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Appel de deux fonctions ou jointure??]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4615#p4615"/>
+		<content type="html"><![CDATA[<p>Je ne vois pas ce qu&#039;on peut répondre d&#039;autres que : ça dépend. Avec un peu plus de détails, il serait plus facile d&#039;émettre un avis éclairé. À priori, utiliser des fonctions n&#039;est pas un gain de perfs... mais bon, tout dépend du cas.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-04-20T12:24:03Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4615#p4615</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Appel de deux fonctions ou jointure??]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4613#p4613"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je me demandais c koi la solution la plus optimale?<br />est ce d&#039;opter à chaque fois à l&#039;appel de deux fonctions chacune scanne une table et rende un résultalt, ou bien faire une jointure entre les deux table avec toutes les conditions et rendre un seul résultat????</p>]]></content>
+		<author>
+			<name><![CDATA[R.Seif]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=733</uri>
+		</author>
+		<updated>2010-04-20T09:54:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4613#p4613</id>
+	</entry>
+</feed>

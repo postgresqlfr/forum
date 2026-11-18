@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Table obèse...mais pourquoi ?]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3299&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3299"/>
+	<updated>2014-09-16T16:15:22Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3299</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Table obèse...mais pourquoi ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20606#p20606"/>
+		<content type="html"><![CDATA[<p>La réponse est simple : c&#039;est le temps de transférer les informations du serveur vers pgAdmin, et le temps pour pgAdmin d&#039;afficher ces informations dans son grid. La requête est très rapide du côté de PostgreSQL, c&#039;est très lent du côté des clients. Du coup, votre logiciel FME est encore plus lent que pgAdmin, ce qui est une performance en soi !</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-09-16T16:15:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20606#p20606</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Table obèse...mais pourquoi ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20604#p20604"/>
+		<content type="html"><![CDATA[<p>Affirmatif, sur PG Admin c&#039;est le temps que cette requête met.<br />Par ailleurs lorsque je lis cette table à partir du logiciel FME, il me faut environ quatre heures pour lire à peine les enregistrements.</p><p>En fait, je suis tout simplement en train de me demander si le problème ne vient pas des géométries présentes dans ma table.<br />Je continue à creuser et vous fait un retour si je trouve des réponses.</p>]]></content>
+		<author>
+			<name><![CDATA[Geo-x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1346</uri>
+		</author>
+		<updated>2014-09-16T15:59:39Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20604#p20604</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Table obèse...mais pourquoi ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20602#p20602"/>
+		<content type="html"><![CDATA[<p>Concernant la taille, je ne la trouve pas si énorme que ça. 1,3 Go, c&#039;est rien. J&#039;étais aujourd&#039;hui chez un client dont une table faisait 13 Go. ET là-aussi, ce n&#039;est pas une grosse table.</p><p>Concernant votre deuxième commentaire, où voyez-vous qu&#039;elle a pris 134567 ms ? dans pgAdmin je parie ?</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-09-16T15:44:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20602#p20602</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Table obèse...mais pourquoi ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20598#p20598"/>
+		<content type="html"><![CDATA[<p>Autre fait étrange.</p><p>Je viens d&#039;effectuer une requête qui m&#039;a pris 134 567 ms, là ou cette même requête avec un EXPLAIN ANALYZE m&#039;indique :</p><div class="codebox"><pre><code>&quot;Seq Scan on &quot;9_parcelle&quot;  (cost=0.00..3590.40 rows=15355 width=4043020) (actual time=0.026..23.919 rows=15385 loops=1)&quot;
+&quot;  Filter: (surface &lt; 500::double precision)&quot;
+&quot;Total runtime: 24.524 ms&quot;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[Geo-x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1346</uri>
+		</author>
+		<updated>2014-09-16T07:55:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20598#p20598</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Table obèse...mais pourquoi ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20597#p20597"/>
+		<content type="html"><![CDATA[<p>Bonjour gleu.</p><p>Je vais tenter de répondre à vos questions.</p><p>Ma table contient 53 872 enregistrements pour 77 colonnes dont voici les différents types :</p><p>&quot;USER-DEFINED&quot; (correspond au type geometry (Polygon))<br />&quot;character&quot;<br />&quot;character varying&quot;<br />&quot;double precision&quot;<br />&quot;integer&quot;<br />&quot;text&quot;</p><p>En terme de taille, si je l&#039;interroge de la façon suivante :</p><div class="codebox"><pre><code>SELECT
+   relname as &quot;Table&quot;,
+   pg_size_pretty(pg_total_relation_size(relid)) As &quot;Size&quot;,
+   pg_size_pretty(pg_total_relation_size(relid) - pg_relation_size(relid)) as &quot;External Size&quot;
+   FROM pg_catalog.pg_statio_user_tables ORDER BY pg_total_relation_size(relid) DESC;</code></pre></div><p>J&#039;obtiens le résultat de 665Mb en Size et 642Mb en External Size.</p><p>Si ils vous manquent des informations n&#039;hésitez pas.</p><p>Cordialement.</p><p>Geo-x</p>]]></content>
+		<author>
+			<name><![CDATA[Geo-x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1346</uri>
+		</author>
+		<updated>2014-09-16T07:01:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20597#p20597</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Table obèse...mais pourquoi ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20594#p20594"/>
+		<content type="html"><![CDATA[<p>Il va falloir donner franchement BEAUCOUP plus de détails. Quelle est la taille de la table, quelle nombre d&#039;enregistrements elle a, quel est sa définition (colonnes) ? avec ça, on pourra juger si elle est grosse ou pas. Le fait que la sauvegarde SQL fasse 30 Go ne veut absolument rien dire, surtout si elle contient des objets binaires.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-09-15T21:17:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20594#p20594</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Table obèse...mais pourquoi ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20593#p20593"/>
+		<content type="html"><![CDATA[<p>Bonsoir rjuju.</p><p>J&#039;ai tenté de sauvegarder ma table en SQL et cette sauvegarde a généré un fichier .sql pesant...30 Go...!</p><p>En revanche je n&#039;ai pas tenté la comparaison avec l&#039;autre table en terme d&#039;enregistrement mais juste en terme d&#039;ouverture des 100 premières lignes et là, c&#039;est édifiant.</p><p>Geo-x</p>]]></content>
+		<author>
+			<name><![CDATA[Geo-x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1346</uri>
+		</author>
+		<updated>2014-09-15T21:03:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20593#p20593</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Table obèse...mais pourquoi ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20591#p20591"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Tout dépend de quel est le problème exactement. Qu&#039;entendez-vous par obèse ? Avez-vous comparé la volumétrie de ces deux tables ?</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2014-09-15T16:06:55Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20591#p20591</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Table obèse...mais pourquoi ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20588#p20588"/>
+		<content type="html"><![CDATA[<p>Bonjour @ tous.</p><p>Comme vous pouvez le constaer j&#039;ai une table obèse mais je ne sais absolument pas pourquoi... J&#039;ai une table1 qui contient plus de 100 000 enregistrements et qui ne pose aucun souci de gestion, et à côté j&#039;ai cette fameuse table2 qui compte le même nombre de colonne que table1, et qui ne compte que 54 000 enregistrements et qui pourtant pose d&#039;énormes souci de lenteurs.</p><p>J&#039;ai testé le VACUUM, l&#039;indexage etc... mais rien n&#039;y fait.</p><p>Existe-t-il une façon d&#039;identifier la source du problème?</p><p>Par avance merci de votre aide.</p><p>Geo-x</p>]]></content>
+		<author>
+			<name><![CDATA[Geo-x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1346</uri>
+		</author>
+		<updated>2014-09-15T16:01:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20588#p20588</id>
+	</entry>
+</feed>

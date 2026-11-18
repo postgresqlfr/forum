@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / problème de notice]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=250&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=250"/>
+	<updated>2009-05-15T07:02:21Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=250</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  problème de notice]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1447#p1447"/>
+		<content type="html"><![CDATA[<p>merci pour tes précisions mais finalement on a décidé de supprimer complètement slony et de le recréer complètement à chaque changement<br />merci beaucoup qd meme <img src="http://forums.postgresql.fr/img/smilies/tongue.png" width="15" height="15" alt="tongue" /></p>]]></content>
+		<author>
+			<name><![CDATA[schauby]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=307</uri>
+		</author>
+		<updated>2009-05-15T07:02:21Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1447#p1447</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  problème de notice]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1445#p1445"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>schauby a écrit&#160;:</cite><blockquote><div><p>je veux&#160; donc utiliser slony avec 2 bases. problème, lorsque je teste un failover il me bloque sur une notice disant &quot; failednode : set 1 has no other direct receivers&quot;. (...)</p></div></blockquote></div><p>Bonjour, </p><p>Vous avez 2 noeuds en réplication avec Slony et vous voulez réaliser un failover ?</p><p>Une autre solution consiste simplement à rendre le deuxième noeud (celui sur lequel vousvoulez basculer) indépendant, puisque de toute façon, il reste seul.</p><p>Dans ce cas, vous pouvez effectuer la requête suivante sur ce noeud : </p><p>&lt;code&gt;<br />select _replication.uninstallnode();<br />drop schema _replication cascade;<br />&lt;/code&gt;</p><p>Votre noeud redevient indépendant. Lorsque le noeud tombé est réparé, vous pouvez réinitialiser une réplication.</p><div class="quotebox"><cite>schauby a écrit&#160;:</cite><blockquote><div><p>j&#039;ai également une autre question : je n&#039;ai pas bien compris comment marche en interne le failover, ne devrait-il pas me lancer un service slon sur le nouveaux maitre, ou le fait qu&#039;aucun slon ne se lance est-il du au fait que je n&#039;ai plus qu&#039;un seul maitre ?<br />si cela se passe comme je le pense, est-ce que je devrait &quot;initialiser&quot; un service slon sans le lancé, en prévision&#160; du retour du maitre après une panne? <br />enfin voilà quoi comme vous pouvez le voir je maitrise pas encore particulièrement le fonctionnement interne de la bête <img src="http://forums.postgresql.fr/img/smilies/tongue.png" width="15" height="15" alt="tongue" /><br />merci d&#039;avance</p></div></blockquote></div><p>Le failover consiste à expliquer à l&#039;ensemble des noeuds de la réplication que le maître n&#039;existe plus. De ce fait, un de ses souscripteurs est promu nouveau maître pour l&#039;ensemble des autres noeuds.</p><p>Le démon de gestion du noeud supprimé est arrêté. Mais il y a déjà des démons pour les autres noeuds, et slony n&#039;a donc aucune raison de démarrer un nouveau processus.</p>]]></content>
+		<author>
+			<name><![CDATA[SAS]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=23</uri>
+		</author>
+		<updated>2009-05-14T12:43:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1445#p1445</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  problème de notice]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1428#p1428"/>
+		<content type="html"><![CDATA[<p>bon je reposte pour expliquer la solution a ce probleme.<br />donc , pour eviter qu&#039;un notice vous coupe votre script slony, il faut envoyer la sortie de chaque commande dans un fichier de log de la manière suivante /<br />slon -regservice Slony-I&#160; &gt;&gt;C:/slony/Test/log.txt 2&gt;&amp;1</p><p>cela va donc renvoyer le resultat dans le fichier C:/slony/Test/log.txt<br />ça marche sur windows, après pour le reste je sait pas trop <img src="http://forums.postgresql.fr/img/smilies/tongue.png" width="15" height="15" alt="tongue" /></p>]]></content>
+		<author>
+			<name><![CDATA[schauby]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=307</uri>
+		</author>
+		<updated>2009-05-13T14:59:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1428#p1428</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  problème de notice]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1262#p1262"/>
+		<content type="html"><![CDATA[<p>oki,<br /> je te remercie beaucoup, je vais continuer de chercher pour le problème de notice ( j&#039;ai comme dans l&#039;idée que je vais avoir du mal <img src="http://forums.postgresql.fr/img/smilies/tongue.png" width="15" height="15" alt="tongue" /> )<br />bonne continuation</p>]]></content>
+		<author>
+			<name><![CDATA[schauby]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=307</uri>
+		</author>
+		<updated>2009-04-21T07:02:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1262#p1262</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  problème de notice]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1260#p1260"/>
+		<content type="html"><![CDATA[<p>Je n&#039;ai pas de réponse actuellement pour la première questions. Par contre...</p><div class="quotebox"><blockquote><div><p>ne devrait-il pas me lancer un service slon sur le nouveaux maitre</p></div></blockquote></div><p>Non. Les scripts slonik ne lancent jamais de service. Le failover va simplement déclarer le noeud désigné comme étant le noeud maître pour le set indiqué. Le démon slon doit donc être lancé manuellement après coup. (sauf s&#039;ils s&#039;exécutaient sur un serveur autre que le maître, auquel cas ils sont toujours vivants)</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2009-04-20T21:35:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1260#p1260</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[problème de notice]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1258#p1258"/>
+		<content type="html"><![CDATA[<p>bonjour, <br />comme vous vous en doutez, si je poste c&#039;est que j&#039;ai un pitit problème. alors voilà. je veux&#160; donc utiliser slony avec 2 bases. problème, lorsque je teste un failover il me bloque sur une notice disant &quot; failednode : set 1 has no other direct receivers&quot;. j&#039;ai fait quelques recherches et j&#039;ai vu que d&#039;autre avait également eu ce problème...mais que personne n&#039;y avait répondu ( de ce que j&#039;ai vu en tout cas <img src="http://forums.postgresql.fr/img/smilies/tongue.png" width="15" height="15" alt="tongue" /> ).<br />donc , est-ce que quelqu&#039;un aurait une idée de la manière de me sortir de là? je n&#039;ai pas trouver de moyen de passer outre les notices.</p><p>j&#039;ai également une autre question : je n&#039;ai pas bien compris comment marche en interne le failover, ne devrait-il pas me lancer un service slon sur le nouveaux maitre, ou le fait qu&#039;aucun slon ne se lance est-il du au fait que je n&#039;ai plus qu&#039;un seul maitre ?<br />si cela se passe comme je le pense, est-ce que je devrait &quot;initialiser&quot; un service slon sans le lancé, en prévision&#160; du retour du maitre après une panne? <br />enfin voilà quoi comme vous pouvez le voir je maitrise pas encore particulièrement le fonctionnement interne de la bête <img src="http://forums.postgresql.fr/img/smilies/tongue.png" width="15" height="15" alt="tongue" /><br />merci d&#039;avance</p>]]></content>
+		<author>
+			<name><![CDATA[schauby]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=307</uri>
+		</author>
+		<updated>2009-04-20T15:40:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1258#p1258</id>
+	</entry>
+</feed>

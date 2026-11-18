@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Nombre de lignes retournées]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4685&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4685"/>
+	<updated>2018-04-29T03:56:57Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4685</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Nombre de lignes retournées]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27411#p27411"/>
+		<content type="html"><![CDATA[<p>Merci Julien.</p>]]></content>
+		<author>
+			<name><![CDATA[big1]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7880</uri>
+		</author>
+		<updated>2018-04-29T03:56:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27411#p27411</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Nombre de lignes retournées]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27408#p27408"/>
+		<content type="html"><![CDATA[<p>Il s&#039;agit d&#039;un nombre estimé de ligne.&#160; Si vous n&#039;avez pas effectué d&#039;ANALYZE sur la table, postgres ne risque pas de faire une estimation correcte.&#160; Width correspond à la largeur moyenne d&#039;une ligne (encore une fois, ANALYZE aide).</p><p>Je vous conseille de lire <a href="https://www.postgresql.org/docs/current/static/using-explain.html" rel="nofollow">https://www.postgresql.org/docs/current … plain.html</a> si vous voulez comprendre comment lire un plan d&#039;exécution postgres.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2018-04-27T19:48:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27408#p27408</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Nombre de lignes retournées]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27407#p27407"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Voilà une table:</p><div class="codebox"><pre><code> CREATE TABLE test(id SERIAL PRIMARY KEY, data JSONB);</code></pre></div><p>Voici le contenu:</p><div class="codebox"><pre><code> 1 | {&quot;parent&quot;: null, &quot;children&quot;: [2, 3]}
+ 2 | {&quot;parent&quot;: 1, &quot;children&quot;: [4, 5]}
+ 3 | {&quot;parent&quot;: 1, &quot;children&quot;: []}
+ 4 | {&quot;parent&quot;: 2, &quot;children&quot;: []}
+ 5 | {&quot;parent&quot;: 2, &quot;children&quot;: []}</code></pre></div><p>Je fais afficher l&#039;explain plan pour la requête suivante:</p><div class="codebox"><pre><code>postgres@postgres=# explain SELECT *
+FROM test x1
+  LEFT JOIN test x2
+    ON x1.id = (x2.data-&gt;&gt;&#039;parent&#039;)::INT;
+ Hash Right Join  (cost=38.58..83.50 rows=1270 width=72)
+   Hash Cond: (((x2.data -&gt;&gt; &#039;parent&#039;::text))::integer = x1.id)
+   -&gt;  Seq Scan on test x2  (cost=0.00..22.70 rows=1270 width=36)
+   -&gt;  Hash  (cost=22.70..22.70 rows=1270 width=36)
+         -&gt;  Seq Scan on test x1  (cost=0.00..22.70 rows=1270 width=36)</code></pre></div><p>Je ne comprends pas pour quoi 1270 lignes ont été traitées?<br />Que veut dire width ici? <br />merci pour vos lumières.</p>]]></content>
+		<author>
+			<name><![CDATA[big1]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7880</uri>
+		</author>
+		<updated>2018-04-27T15:12:09Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27407#p27407</id>
+	</entry>
+</feed>

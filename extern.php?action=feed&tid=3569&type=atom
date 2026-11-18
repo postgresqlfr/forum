@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Log shipping - WAL non rejoué sur le secours]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3569&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3569"/>
+	<updated>2015-07-01T06:52:03Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3569</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Log shipping - WAL non rejoué sur le secours]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22114#p22114"/>
+		<content type="html"><![CDATA[<p>Pour info le même problème s&#039;est reproduit ce matin</p><p>J&#039;ai eu le temps de tester un redémarrage de Postgresql sur le secours et la réplication a bien repris</p><p>Bizarre quand-même, peut-être un bug dans la version 9.0, car j&#039;ai d&#039;autres serveurs en log shipping avec config identique mais en version plus récente (&gt;=9.1) et je n&#039;ai jamais rencontré ce problème</p>]]></content>
+		<author>
+			<name><![CDATA[jeff]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=4953</uri>
+		</author>
+		<updated>2015-07-01T06:52:03Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22114#p22114</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Log shipping - WAL non rejoué sur le secours]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22036#p22036"/>
+		<content type="html"><![CDATA[<p>Comme c&#039;est arrivé un week-end, je n&#039;ai malheureusement pas pu tester un redémarrage du standby<br />Merci pour la réponse</p>]]></content>
+		<author>
+			<name><![CDATA[jeff]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=4953</uri>
+		</author>
+		<updated>2015-06-10T06:08:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22036#p22036</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Log shipping - WAL non rejoué sur le secours]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22034#p22034"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Quelqu&#039;un a-t-il déjà rencontré un problème similaire ?</p></div></blockquote></div><p>Pas de souvenir en tout cas.</p><div class="quotebox"><blockquote><div><p>Y a-t-il d&#039;autres logs et/ou traces que je peux activer pour avoir + d&#039;infos si le problème se reproduit ?</p></div></blockquote></div><p>Pas à ma connaissance. pg_standby est un outil très simple. Le seul truc que je vois serait de redémarrer le standby. Peut-être qu&#039;il détectera la présence du fichier.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2015-06-09T19:21:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22034#p22034</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Log shipping - WAL non rejoué sur le secours]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22028#p22028"/>
+		<content type="html"><![CDATA[<p>Bonjour</p><p>J&#039;ai une config log shipping simple avec 1 nominal et 1 secours, en version 9.0<br />Le nominal envoie les WALs par commande &quot;scp&quot;<br />Or, récemment, le secours s&#039;est &quot;figé&quot; car il n&#039;a pas pu rejouer un WAL (alors qu&#039;il était bien présent)<br />Dans la log du secours, j&#039;ai :</p><div class="codebox"><pre><code>Jun  6 19:04:57 serveur_secours postgres[2082]: [167785-1] user=,db= LOG:  restored log file &quot;000000030000041B000000BB&quot; from archive
+Jun  6 19:05:02 serveur_secours postgres[2082]: [167786-1] user=,db= LOG:  restored log file &quot;000000030000041B000000BC&quot; from archive
+Jun  6 19:05:02 serveur_secours postgres[2082]: [167787-1] user=,db= LOG:  restored log file &quot;000000030000041B000000BD&quot; from archive
+Jun  6 19:05:02 serveur_secours postgres[2082]: [167788-1] user=,db= LOG:  restored log file &quot;000000030000041B000000BE&quot; from archive
+Jun  6 19:05:07 serveur_secours postgres[2082]: [167789-1] user=,db= LOG:  restored log file &quot;000000030000041B000000BF&quot; from archive</code></pre></div><p>--&gt; et puis plus rien après</p><p>Le WAL suivant (le 000000030000041B000000C0) était bien présent sur le secours, avait la même taille que les autres WALS (16777216 octets, donc à priori pas un problème de fichier corrompu suite un un problème réseau lors du transfert scp), mais n&#039;a jamais était rejoué, comme si Postgresql n&#039;avait pas vu qu&#039;il était là</p><p>Contenu de mon fichier recovery.conf sur le secours :</p><div class="codebox"><pre><code>restore_command=&#039;/apps/pgsql/9.0/bin/pg_standby -d -k 255 -t  /home/postgres/stoprestore_9.0.file /datas/pglogs/9.0/shipped_logs/ %f %p &gt;&gt;/logs/pgsql/log_shipping/9.0/pg_standby.log 2&gt;&gt;/logs/pgsql/log_shipping/9.0/pg_standby.log&#039;</code></pre></div><p>Contenu du fichier pg_standby.log :</p><div class="codebox"><pre class="vscroll"><code>Trigger file            : /home/postgres/stoprestore_9.0.file
+Waiting for WAL file    : 000000030000041B000000BD
+WAL file path           : /datas/pglogs/9.0/shipped_logs//000000030000041B000000BD
+Restoring to            : pg_xlog/RECOVERYXLOG
+Sleep interval          : 5 seconds
+Max wait interval       : 0 forever
+Command for restore     : cp &quot;/datas/pglogs/9.0/shipped_logs//000000030000041B000000BD&quot; &quot;pg_xlog/RECOVERYXLOG&quot;
+Keep archive history    : 000000030000041A000000BD and later
+running restore         : OK
+
+Trigger file            : /home/postgres/stoprestore_9.0.file
+Waiting for WAL file    : 000000030000041B000000BE
+WAL file path           : /datas/pglogs/9.0/shipped_logs//000000030000041B000000BE
+Restoring to            : pg_xlog/RECOVERYXLOG
+Sleep interval          : 5 seconds
+Max wait interval       : 0 forever
+Command for restore     : cp &quot;/datas/pglogs/9.0/shipped_logs//000000030000041B000000BE&quot; &quot;pg_xlog/RECOVERYXLOG&quot;
+Keep archive history    : 000000030000041A000000BE and later
+running restore         : OK
+
+Trigger file            : /home/postgres/stoprestore_9.0.file
+Waiting for WAL file    : 000000030000041B000000BF
+WAL file path           : /datas/pglogs/9.0/shipped_logs//000000030000041B000000BF
+Restoring to            : pg_xlog/RECOVERYXLOG
+Sleep interval          : 5 seconds
+Max wait interval       : 0 forever
+Command for restore     : cp &quot;/datas/pglogs/9.0/shipped_logs//000000030000041B000000BF&quot; &quot;pg_xlog/RECOVERYXLOG&quot;
+Keep archive history    : 000000030000041A000000BF and later
+WAL file not present yet. Checking for trigger file...
+running restore         : OK</code></pre></div><p>--&gt; Et puis plus rien après</p><br /><p>Pourtant rien d&#039;anormal s&#039;est passé sur le serveur (pas de filesystem plein, pb réseau, pb mémoire ou autre)</p><p>Quelqu&#039;un a-t-il déjà rencontré un problème similaire ?<br />Y a-t-il d&#039;autres logs et/ou traces que je peux activer pour avoir + d&#039;infos si le problème se reproduit ?</p><p>Merci d&#039;avance</p>]]></content>
+		<author>
+			<name><![CDATA[jeff]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=4953</uri>
+		</author>
+		<updated>2015-06-09T07:12:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22028#p22028</id>
+	</entry>
+</feed>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / MAXSTRLEN dans ts_parser]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4782&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4782"/>
+	<updated>2018-06-09T12:44:13Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4782</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  MAXSTRLEN dans ts_parser]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27797#p27797"/>
+		<content type="html"><![CDATA[<p>Une approche plus orthodoxe serait de faire un dictionnaire personnalisé qui éliminerait les léxèmes dépassant la longueur en question, qui peut d&#039;ailleurs être un paramètre du dictionnaire.</p><br /><p>L&#039;inconvénient c&#039;est qu&#039;il faut le faire en C. Mais si vous en êtes à recompiler postgres, ce n&#039;est pas forcément un problème.</p><br /><p>Le code à produire est très simple en s&#039;inspirant de&#160; src/backend/tsearch/dict_simple.c.</p><p>Les exemples dans contrib dict_int, dict_xsyn permettent aussi de voir comment packager ça dans une extension avec les déclarations de dictionnaire qui vont bien.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2018-06-09T12:44:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27797#p27797</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  MAXSTRLEN dans ts_parser]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27764#p27764"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>rjuju a écrit&#160;:</cite><blockquote><div><p>Attention, il s&#039;agit d&#039;octets et non de caractères.&#160; Selon l&#039;encodage et les caractères utilisés, vous pouvez avez bien plus d&#039;un octet par caractère.&#160; Cette constante est également utilisée comme taille maximale de token utilisable dans un tsvector ou un tsquery.</p><br /><p>Sinon, je ne sais pas trop ce que donnerait l&#039;utilisation d&#039;un binaire ainsi modifié sur une base de données avec des index déjà créés sur du contenu qui serait alors ignoré.</p></div></blockquote></div><br /><p>Ah oui bonne remarque pour la taille en octets.</p><p>Autrement, on est bien d&#039;accord, il faut refaire les ts_vector et les index sur la base après ça.</p><p>Bon je vais essayer, sur mon P9 de bench.</p>]]></content>
+		<author>
+			<name><![CDATA[herve.lefebvre]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=506</uri>
+		</author>
+		<updated>2018-06-08T06:02:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27764#p27764</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  MAXSTRLEN dans ts_parser]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27759#p27759"/>
+		<content type="html"><![CDATA[<p>Attention, il s&#039;agit d&#039;octets et non de caractères.&#160; Selon l&#039;encodage et les caractères utilisés, vous pouvez avez bien plus d&#039;un octet par caractère.&#160; Cette constante est également utilisée comme taille maximale de token utilisable dans un tsvector ou un tsquery.</p><br /><p>Sinon, je ne sais pas trop ce que donnerait l&#039;utilisation d&#039;un binaire ainsi modifié sur une base de données avec des index déjà créés sur du contenu qui serait alors ignoré.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2018-06-07T18:51:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27759#p27759</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[MAXSTRLEN dans ts_parser]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27752#p27752"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Le ts_parser est par défaut compilé avec :</p><p>#define IGNORE_LONGLEXEME&#160; 1</p><p>(défini dans src/backend/tsearch/ts_parse.c )</p><p>ce qui fait que lors de l&#039;appel à to_tsvector() les lexèmes d&#039;une longueur supérieure à MAXSTRLEN sont ignorés.</p><p>Ce qui est très bien.</p><p>Cependant, dans src/include/tsearch/ts_type.h on a :</p><p>#define MAXSTRLEN ( (1&lt;&lt;11) - 1)</p><p>soit 2047.</p><p>Dans la mesure où en français le mot le plus long est de 26 lettres - et que je ne suis pas certain que dans les autres langues il soit pertinent non plus d&#039;indexer des mots d&#039;une telle longueur - je suis bien tenté de recompiler avec comme modification :</p><p>#define MAXSTRLEN ( (1&lt;&lt;6) - 1)</p><p>soit 63 lettres.</p><p>(ceci afin de me débarrasser de l&#039;indexation de chaînes interminables purement parasites).</p><p>Pensez-vous que cela puisse avoir des effets de bord quelque part ?</p>]]></content>
+		<author>
+			<name><![CDATA[herve.lefebvre]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=506</uri>
+		</author>
+		<updated>2018-06-07T11:00:54Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27752#p27752</id>
+	</entry>
+</feed>

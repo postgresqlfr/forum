@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Recheche FULL TEXT avec PostgreSQL]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=71&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=71"/>
+	<updated>2008-11-24T09:13:05Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=71</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Recheche FULL TEXT avec PostgreSQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=319#p319"/>
+		<content type="html"><![CDATA[<p>Merci pour l&#039;information, cela m&#039;intéresse de savoir que comportement est normal.<br />Pour la partie synonymes, j&#039;ai déjà fait l&#039;essai, mais cela n&#039;est pas très satisfaisant, <br />car cela oblige à mettre toutes les villes dans le dictionnaire de synomymes <br />(Nantes n&#039;était qu&#039;un exemple) et ensuite j&#039;ai peur effectivement des effets de bords !<br />Voici la manip ou cas ou cela intéresserait quelqu&#039;un...je me suis basé sur la documentation en<br />français (merci au traducteur), chapitre 12.6.3 Dictionnaire des synonymes <a href="http://docs.postgresql.fr/8.3/textsearch-dictionaries.html" rel="nofollow">http://docs.postgresql.fr/8.3/textsearc … aries.html</a> </p><p>1 export SHAREDIR=/post834/pgsql/share<br />2 cd $SHAREDIR/tsearch_data<br />3 vi my_mysynonym.syn<br />&#160; &#160;nantes nan<br />4 CREATE TEXT SEARCH DICTIONARY my_synonym(<br />&#160; &#160; &#160; TEMPLATE = synonym,<br />&#160; &#160; &#160; SYNONYMS = my_synonyms);<br />5 ALTER TEXT SEARCH CONFIGURATION french ALTER MAPPING<br />&#160; FOR asciiword WITH my_synonym, french_stem;</p><p>6 Essai avec ts_debug :</p><p>SELECT * FROM ts_debug(&#039;french&#039;, &#039;nantes&#039;);</p><p>&#160; &#160;alias&#160; &#160;|&#160; &#160;description&#160; &#160;| token |&#160; dictionaries |&#160; dictionary&#160; | lexemes<br />-----------+-----------------+-------+---------------+--------------+---------<br />asciiword | Word, all ASCII | nantes| {my_synonym,french_stem} | my_synonym | {nan}</p><br /><p>7 essai avec to_tsquery :</p><p>SELECT * FROM ville where tsv @@ to_tsquery(&#039;nan&#039;);</p><p>localité |&#160; &#160; &#160; &#160;description&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; |&#160; &#160; &#160; &#160; &#160; &#160; tsv&#160; &#160; &#160; &#160; &#160; &#160; &#160;<br />----------+--------------------------------------------+----------------------------<br />nantes&#160; &#160;| la ville de nantes est presque en bretagne | &#039;nan&#039;:1,5 &#039;vill&#039;:3 &#039;bretagn&#039;:9</p><p>Et encore merci pour votre aide !<br />Cela sera intéressant d&#039;avoir un article sur la &quot;recherche full text&quot; car cela n&#039;est pas très simple au départ. <br />Re-pub !</p>]]></content>
+		<author>
+			<name><![CDATA[GLAURENT]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=38</uri>
+		</author>
+		<updated>2008-11-24T09:13:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=319#p319</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Recheche FULL TEXT avec PostgreSQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=313#p313"/>
+		<content type="html"><![CDATA[<p>J&#039;en profite pour me faire de la pub <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>Le numéro 111 du GNU/Linux Magazine France comprendra un article de 8 pages sur la recherche plein texte. Il y a une explication sur l&#039;ajout de dictionnaire (à mon souvenir).</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2008-11-21T17:14:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=313#p313</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Recheche FULL TEXT avec PostgreSQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=312#p312"/>
+		<content type="html"><![CDATA[<p>C&#039;est en dur dans le dictionnaire. Le seul moyen serait d&#039;ajouter son propre dictionnaire ou d&#039;ajouter un dictionnaire des synonymes en indiquant que nan est un synonyme de Nantes. Ce n&#039;est pas difficile à faire mais ça parait un peu dangereux. Une personne qui chercherait nan pour, je ne sais pas, nanti par exemple, se trouverait avec des liens sur Nantes uniquement.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2008-11-21T17:12:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=312#p312</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Recheche FULL TEXT avec PostgreSQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=303#p303"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Tu peux regarder aussi le projet de Dimitri Fontaine, &quot;prefix&quot;, cela peut-être une bonne alternative pour nan -&gt; nantes:</p><p><a href="http://prefix.projects.postgresql.org/" rel="nofollow">http://prefix.projects.postgresql.org/</a>&#160; <br /><a href="http://cvs.pgfoundry.org/cgi-bin/cvsweb.cgi/prefix/prefix/" rel="nofollow">http://cvs.pgfoundry.org/cgi-bin/cvsweb … ix/prefix/</a>&#160; <br /><a href="http://pgsql.tapoueh.org/site/html/prefix/index.html" rel="nofollow">http://pgsql.tapoueh.org/site/html/prefix/index.html</a>&#160; <br /><a href="http://pgsql.tapoueh.org/site/html/news/pgloader-prefix.pdf" rel="nofollow">http://pgsql.tapoueh.org/site/html/news … prefix.pdf</a> </p><p>Bonne journée,</p>]]></content>
+		<author>
+			<name><![CDATA[jpargudo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=22</uri>
+		</author>
+		<updated>2008-11-21T08:53:33Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=303#p303</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Recheche FULL TEXT avec PostgreSQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=302#p302"/>
+		<content type="html"><![CDATA[<p>Merci, pour votre aide.</p><p>En fait j&#039;avais mis 2 exemples &quot;nan&quot; et &quot;ant&quot;, et effectivement ant n&#039;est pas dans la racine, mais par contre &quot;nan&quot; y est, mais avec une longueur de 3 caractères.<br />Visiblement le lexeme de Nantes étant &quot;nant&quot; et pas &quot;nan&quot;, est-il possible de diminuer la longueur de ce lexeme ? Ou bien est-ce impossible car c&#039;est peut être en dur dans le dictionnaire ?<br />Si vous avez d&#039;autres informations à ce sujet .<br />Merci encore.</p>]]></content>
+		<author>
+			<name><![CDATA[GLAURENT]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=38</uri>
+		</author>
+		<updated>2008-11-21T08:35:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=302#p302</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Recheche FULL TEXT avec PostgreSQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=297#p297"/>
+		<content type="html"><![CDATA[<p>C&#039;est un fonctionnement normal. La recherche plein texte est une recherche basée sur la langue. Avant d&#039;effectuer la recherche, le moteur récupère les racines des mots et la recherche ne se fait que sur la racine. Chercher ant pour récupérer Nantes ne peut pas fonctionner car les racines des deux mots sont différentes.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2008-11-18T17:26:06Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=297#p297</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Recheche FULL TEXT avec PostgreSQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=293#p293"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;aimerai avoir des informations au sujet de la recherche FULL TEXT dans Postgresql. </p><p>Par exemple, lorsque je fait une recherche dans une table pour retrouver un texte qui contient la ville de Nantes, si je fait une recherche avec &#039;nantes&#039; ou &#039;nant&#039; cela fonctionne, par contre si je fait une recherche avec &#039;nan&#039; ou &#039;ant&#039; cela ne fonctionne pas !<br />A priori le lexeme de Nantes serait &#039;nant&#039; et pas &#039;nan&#039; ou &#039;ant&#039; (voir la commande SELECT * FROM ts_debug(&#039;french&#039;, &#039;nantes&#039;)!</p><p>Je ne sait pas si ce fonctionnement est normal, et si il existe un moyen pour contourner ce problème ?</p><p>Merci pour votre aide .</p><p>----------------------------------------------------------------------------------------------------------------------------<br />La version de Postgres :<br />&#160; <br />&#160; &#160;Postgresql 8.3.4<br />----------------------------------------------------------------------------------------------------------------------------<br />L&#039;ordre de création de la table :</p><p>&#160; CREATE DATABASE texto with encoding = &#039;UTF8&#039;;</p><p>&#160; &#160;CREATE TABLE ville (<br />&#160; &#160; &#160;localité&#160; &#160; text,<br />&#160; &#160; &#160;description text,<br />&#160; &#160; &#160;tsv&#160; &#160; &#160; &#160; &#160;tsvector<br />&#160; );<br />----------------------------------------------------------------------------------------------------------------------------<br />L&#039;ordre de création du trigger :</p><p>&#160; &#160;CREATE TRIGGER tsvectorupdate BEFORE INSERT OR UPDATE<br />&#160; &#160;ON ville FOR EACH ROW EXECUTE PROCEDURE<br />&#160; &#160;tsvector_update_trigger(tsv, &#039;pg_catalog.french&#039;, localité, description);<br />----------------------------------------------------------------------------------------------------------------------------<br />L&#039;insertion de données de tests dans la table :</p><p>&#160; &#160;INSERT INTO ville VALUES(&#039;nantes&#039;, &#039;la ville de nantes est en bretagne&#039;);<br />&#160; &#160;INSERT INTO ville VALUES(&#039;nan&#039;, &#039;nan est un mot&#039;);<br />&#160; &#160;INSERT INTO ville VALUES(&#039;ant&#039;, &#039;ant est un mot&#039;);<br />&#160; &#160;INSERT INTO ville VALUES(&#039;Mantes&#039;, &#039;la ville de mantes est dans les yvelines en IDF&#039;);<br />----------------------------------------------------------------------------------------------------------------------------<br />Les différentes requêtes de tests : </p><p>1 requête :<br />SELECT * FROM ville where tsv @@ to_tsquery(&#039;nantes&#039;);</p><p> localité |&#160; &#160; &#160; &#160;description&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; |&#160; &#160; &#160; &#160; &#160; &#160; tsv&#160; &#160; &#160; &#160; &#160; &#160; &#160;<br />----------+--------------------------------------------+----------------------------<br /> nantes&#160; &#160;| la ville de nantes est presque en bretagne | &#039;nant&#039;:1,5 &#039;vill&#039;:3 &#039;bretagn&#039;:9</p><p>2 requête :<br />SELECT * FROM ville where tsv @@ to_tsquery(&#039;nant&#039;);</p><p> localité |&#160; &#160; &#160; &#160;description&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; |&#160; &#160; &#160; &#160; &#160; &#160; tsv&#160; &#160; &#160; &#160; &#160; &#160; &#160;<br />----------+--------------------------------------------+----------------------------<br /> nantes&#160; &#160;| la ville de nantes est presque en bretagne | &#039;nant&#039;:1,5 &#039;vill&#039;:3 &#039;bretagn&#039;:9</p><p>3 requête :<br />SELECT * FROM ville where tsv @@ to_tsquery(&#039;nan&#039;);</p><p> localité |&#160; &#160; description&#160; &#160; &#160; &#160;|&#160; &#160; &#160; &#160;tsv&#160; &#160; &#160; &#160; &#160; &#160; &#160;<br />----------+----------------------+----------------------------<br /> nan&#160; &#160; &#160; |&#160; &#160;nan est un mot&#160; &#160; &#160;| &#039;mot&#039;:5 &#039;nan&#039;:1,2</p><p>4 requête :<br />SELECT * FROM ville where tsv @@ to_tsquery(&#039;ant&#039;);</p><p> localité |&#160; &#160; description&#160; &#160; &#160; &#160;|&#160; &#160; &#160; &#160;tsv&#160; &#160; &#160; &#160; &#160; &#160; &#160;<br />----------+----------------------+----------------------------<br /> ant&#160; &#160; &#160; |&#160; &#160;ant est un mot&#160; &#160; &#160;| &#039;ant&#039;:1,2 &#039;mot&#039;:5</p><p>Les deux premières requêtes remontent correctement la ville de Nantes, par contres les deux autres ne remontent pas la vile de Nantes !</p><p>Avec les fonctions ts_debut et ts_lexize on visualise le lexeme qui est &#039;nant&#039;:</p><p>SELECT * FROM ts_debug(&#039;french&#039;, &#039;nantes&#039;);</p><p>&#160; &#160;alias&#160; &#160;|&#160; &#160;description&#160; &#160;| token |&#160; dictionaries |&#160; dictionary&#160; | lexemes <br />-----------+-----------------+-------+---------------+--------------+---------<br /> asciiword | Word, all ASCII | nantes| {french_stem} | french_stem | {nant}</p><p>SELECT ts_lexize(&#039;french_stem&#039;,&#039;nantes&#039;);</p><p>ts_lexize<br />---------<br />{nant}<br />(1 row)</p><p>Gérald LAURENT</p>]]></content>
+		<author>
+			<name><![CDATA[GLAURENT]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=38</uri>
+		</author>
+		<updated>2008-11-18T09:18:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=293#p293</id>
+	</entry>
+</feed>

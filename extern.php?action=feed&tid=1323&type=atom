@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / clause not exists dans une requete]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1323&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1323"/>
+	<updated>2011-03-31T14:06:22Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1323</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  clause not exists dans une requete]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8709#p8709"/>
+		<content type="html"><![CDATA[<p>Evidemment ça marche nickel!!!!</p><p>Ces fichues requêtes imbriquées, je ne sais pas si j&#039;y arriverai un jour, mon cerveau ne suit pas!!!!</p><p>merci</p>]]></content>
+		<author>
+			<name><![CDATA[damalaan]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1000</uri>
+		</author>
+		<updated>2011-03-31T14:06:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8709#p8709</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  clause not exists dans une requete]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8706#p8706"/>
+		<content type="html"><![CDATA[<p>Pour l&#039;UPDATE (à faire dans une seconde passe, une fois qu&#039;on a inséré ce qui manque), quelque chose comme ça:</p><p>UPDATE tbl_valeur_mg<br />SET mg_val=tbl_temp2_tm2.tm2_mg<br />FROM<br />&#160; tbl_tournee_trn, <br />&#160; tbl_temp2_tm2<br />WHERE <br />&#160; tbl_tournee_trn.trn_date_prel = tbl_temp2_tm2.tm2_date_prel AND<br />&#160; tbl_tournee_trn.trn_esp = tbl_temp2_tm2.tm2_esp AND<br />&#160; tbl_tournee_trn.trn_tournee = tbl_temp2_tm2.tm2_tournee AND<br />&#160; tbl_tournee_trn.trn_usine = tbl_temp2_tm2.tm2_usine AND<br />&#160; tbl_valeur_mg.trn_id= tbl_tournee_trn.trn_id AND<br />&#160; tbl_valeur_mg.mg_matricule=tbl_temp2_tm2.tm2_matricule</p><p>Évidemment, on constate qu&#039;il manque toujours un UPSERT ou MERGE chez PostgreSQL. C&#039;est gênant dans ce genre de requête…</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-03-31T13:44:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8706#p8706</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  clause not exists dans une requete]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8704#p8704"/>
+		<content type="html"><![CDATA[<p>Ignorer (à l&#039;arrache, sans tests, évidemment):</p><p>INSERT INTO tbl_valeur_mg (trn_id, mg_matricule, mg_val)</p><p>SELECT <br />&#160; tbl_tournee_trn.trn_id, <br />&#160; tbl_temp2_tm2.tm2_matricule, <br />&#160; tbl_temp2_tm2.tm2_mg<br />FROM <br />&#160; tbl_tournee_trn, <br />&#160; tbl_temp2_tm2<br />WHERE <br />&#160; tbl_tournee_trn.trn_date_prel = tbl_temp2_tm2.tm2_date_prel AND<br />&#160; tbl_tournee_trn.trn_esp = tbl_temp2_tm2.tm2_esp AND<br />&#160; tbl_tournee_trn.trn_tournee = tbl_temp2_tm2.tm2_tournee AND<br />&#160; tbl_tournee_trn.trn_usine = tbl_temp2_tm2.tm2_usine AND<br />&#160; NOT EXISTS (SELECT 1 FROM tbl_valeur_mg mg_tmp WHERE mg_tmp.trn_id= tbl_tournee_trn.trn_id AND mg_tmp.mg_matricule=tbl_temp2_tm2.tm2_matricule)</p><p>Au passage, on est content d&#039;avoir la contrainte, puisque la sous-requête va pouvoir s&#039;appuyer sur son index au besoin… et il faut que tbl_valeur_mg ne bouge pas pendant l&#039;opération, donc pas d&#039;autre batch en train de faire pareil en même temps.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-03-31T13:38:38Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8704#p8704</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  clause not exists dans une requete]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8700#p8700"/>
+		<content type="html"><![CDATA[<p>...ignorer...</p><p>ceci dit pour ma culture perso, je suis intéressé par les 2!!</p>]]></content>
+		<author>
+			<name><![CDATA[damalaan]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1000</uri>
+		</author>
+		<updated>2011-03-31T13:26:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8700#p8700</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  clause not exists dans une requete]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8699#p8699"/>
+		<content type="html"><![CDATA[<p>Ok, donc dans l&#039;insert, que voulez vous faire en cas de doublon ? Remplacer l&#039;enregistrement par la nouvelle valeur, ou ignorer la nouvelle valeur ?</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-03-31T13:24:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8699#p8699</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  clause not exists dans une requete]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8696#p8696"/>
+		<content type="html"><![CDATA[<p>ok pour la contrainte (même s&#039;il n&#039;y aura jamais de saisie manuelle, uniquement de l&#039;import de masse)</p><p>Le doublon est effectivement basé sur les 2 premières colonnes<br />trn_id&#160; &#160; &#160; &#160; &#160;mg_matricule&#160; &#160; &#160; &#160; &#160;mg_val<br />53205&#160; &#160; &#160; &#160; 1&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;42.3<br />53205&#160; &#160; &#160; &#160; 2&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;42.3 --&gt;pas doublon<br />53210&#160; &#160; &#160; &#160; 1&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;42.3--&gt;pas doublon<br />53205&#160; &#160; &#160; &#160; 1&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;42.3--&gt;doublon</p>]]></content>
+		<author>
+			<name><![CDATA[damalaan]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1000</uri>
+		</author>
+		<updated>2011-03-31T13:23:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8696#p8696</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  clause not exists dans une requete]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8694#p8694"/>
+		<content type="html"><![CDATA[<p>Non, il faut avant tout que vous mettiez des contraintes d&#039;intégrité dans la base. Vous n&#039;arriverez jamais à garantir n&#039;avoir pas de bug dans le code applicatif.</p><p>Par contre, il faut AUSSI que la fonction PL supprime les doublons.</p><p>C&#039;est un doublon sur l&#039;ensemble des 3 colonnes ? qu&#039;est ce qui définit exactement un doublon dans la table tbl_valeur_mg ?</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-03-31T13:17:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8694#p8694</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  clause not exists dans une requete]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8693#p8693"/>
+		<content type="html"><![CDATA[<p>il s&#039;agit des doublons par rapport aux colonnes <br />&#160; trn_id bigserial NOT NULL,<br />&#160; mg_matricule integer NOT NULL,<br />&#160; mg_val numeric(4,1) NOT NULL,</p><p>de la table tbl_valeur_mg</p><p>&quot;rien n&#039;empêche leur insertion au niveau de PostgreSQL en tout cas.&quot;<br />et effectivement c&#039;est bien là mon problème!!!</p><p>autant je l&#039;ai bien fait sur la table tbl_tournee_trn autant sur tbl_valeur_mg je ne sais pas comment le mettre en place<br />je peux mettre un index (c&#039;est d&#039;ailleurs ce que j&#039;ai fait sur la première table) mais ça me fera planter la fonction en cas de doublons, il faut donc que je le gère lors de l&#039;insertion.</p>]]></content>
+		<author>
+			<name><![CDATA[damalaan]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1000</uri>
+		</author>
+		<updated>2011-03-31T13:14:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8693#p8693</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  clause not exists dans une requete]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8690#p8690"/>
+		<content type="html"><![CDATA[<p>Les doublons par rapport à quels colonnes ? rien n&#039;empêche leur insertion au niveau de PostgreSQL en tout cas.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-03-31T13:07:02Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8690#p8690</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[clause not exists dans une requete]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8688#p8688"/>
+		<content type="html"><![CDATA[<p>Bonjour</p><p>j&#039;ai la fonction suivante qui me permet d’importer un fichier csv dans deux tables finales (en 1--n)<br />Le principe est le suivant :<br />-j&#039;importe le fichier brute dans la tbl_import<br />-je mets en forme mes valeurs dans la tbl_temp2_tm2<br />-je mets un certain nb de valeurs dans la table tbl_tournee_trn (avec une clause WHERE NOT EXISTS pour ne pas avoir de doublon)<br />-et je termine par mettre dans la table tbl_valeur_mg les valeurs (du côté n de la relation)</p><p>Mon problème est sur cette dernière étape: je viens de m&#039;apercevoir que je ne gère pas les doublons possibles dans cette table. Je l&#039;ai constaté en en important plusqieurs fois le même fichier.</p><p>Je ne sais pas où placer cette condition qui je pense doit être un truc du genre WHERE NOT EXISTS</p><div class="codebox"><pre class="vscroll"><code>-- Function: import(text)
+
+-- DROP FUNCTION import(text);
+
+CREATE OR REPLACE FUNCTION import(text)
+  RETURNS void AS
+$BODY$
+
+DECLARE
+ordre_sql varchar;
+
+BEGIN
+-- on efface les tables temporaires
+delete from tbl_import;
+delete from tbl_temp2_tm2;
+
+-- on importe le fichier
+SET client_encoding TO &#039;LATIN1&#039;;
+ordre_sql := &#039;COPY tbl_import FROM &#039;&#039;&#039; || $1 || &#039;&#039;&#039; WITH CSV HEADER DELIMITER &#039;&#039;;&#039;&#039;&#039;;
+execute ordre_sql;
+
+-- on transforme tous les champs en données numériques et on les insère dans la 2è table temp 
+INSERT INTO tbl_temp2_tm2 (tm2_date_prel, tm2_tournee, tm2_esp, tm2_usine, tm2_matricule, tm2_mg)
+
+
+SELECT  
+	
+		to_number((
+		(substring(annnee,3,2) ||
+		(case CHAR_LENGTH(mois)
+		when 1 then &#039;0&#039;||mois
+		when 2 then mois
+		end)
+		|| decade)), &#039;999999&#039;) as date_prel, 
+		
+		to_number(tournee || tour, &#039;9999&#039;) as tournee, 
+		
+		(case espece
+		when &#039;Vache &#039; then 1
+		Else  2
+		end) as esp,
+		
+		to_number(usine, &#039;9999&#039;),
+
+		to_number(matricule, &#039;999999&#039;),
+
+		to_number(replace(mg, &#039;,&#039;, &#039;.&#039;),&#039;99.9&#039;)
+from tbl_import where
+annnee not like &#039;an%&#039;
+and
+decade like &#039;01&#039; or decade like &#039;02&#039; or decade like &#039;03&#039;
+and
+usine not like &#039;9999&#039;;
+
+-- on insère les tournées dans la table tbl_tournee_trn
+
+INSERT INTO 
+tbl_tournee_trn (trn_date_prel, trn_tournee, trn_esp, trn_usine)
+
+
+SELECT DISTINCT
+tm2_date_prel, tm2_tournee, tm2_esp, tm2_usine FROM tbl_temp2_tm2
+WHERE NOT EXISTS 
+	(SELECT *
+	FROM tbl_tournee_trn
+	WHERE 
+	tbl_tournee_trn.trn_date_prel = tbl_temp2_tm2.tm2_date_prel AND
+	tbl_tournee_trn.trn_esp = tbl_temp2_tm2.tm2_esp AND
+	tbl_tournee_trn.trn_tournee = tbl_temp2_tm2.tm2_tournee AND
+	tbl_tournee_trn.trn_usine = tbl_temp2_tm2.tm2_usine);
+
+-- on insère les valeurs mg dans la tbl_valeur_mg --et mon problème est là!!!!!
+INSERT INTO tbl_valeur_mg (trn_id, mg_matricule, mg_val)
+
+SELECT 
+  tbl_tournee_trn.trn_id, 
+  tbl_temp2_tm2.tm2_matricule, 
+  tbl_temp2_tm2.tm2_mg
+FROM 
+  tbl_tournee_trn, 
+  tbl_temp2_tm2
+WHERE 
+  tbl_tournee_trn.trn_date_prel = tbl_temp2_tm2.tm2_date_prel AND
+  tbl_tournee_trn.trn_esp = tbl_temp2_tm2.tm2_esp AND
+  tbl_tournee_trn.trn_tournee = tbl_temp2_tm2.tm2_tournee AND
+  tbl_tournee_trn.trn_usine = tbl_temp2_tm2.tm2_usine;
+      
+            
+END;
+$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+ALTER FUNCTION import(text) OWNER TO postgres;</code></pre></div><p>code de la table _tournee_trn</p><div class="codebox"><pre><code>-- Table: tbl_tournee_trn
+
+-- DROP TABLE tbl_tournee_trn;
+
+CREATE TABLE tbl_tournee_trn
+(
+  trn_date_prel integer NOT NULL,
+  trn_esp integer NOT NULL,
+  trn_tournee integer NOT NULL,
+  trn_usine integer NOT NULL,
+  trn_id bigserial NOT NULL,
+  trn_chauffeur integer,
+  CONSTRAINT &quot;clé_primaire&quot; PRIMARY KEY (trn_id),
+  CONSTRAINT &quot;clé_2&quot; UNIQUE (trn_date_prel, trn_esp, trn_tournee, trn_usine)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE tbl_tournee_trn OWNER TO postgres;</code></pre></div><p>code de la table tbl_valeur_mg</p><div class="codebox"><pre><code>-- Table: tbl_valeur_mg
+
+-- DROP TABLE tbl_valeur_mg;
+
+CREATE TABLE tbl_valeur_mg
+(
+  mg_id bigserial NOT NULL,
+  trn_id bigserial NOT NULL,
+  mg_matricule integer NOT NULL,
+  mg_val numeric(4,1) NOT NULL,
+  CONSTRAINT pk PRIMARY KEY (mg_id),
+  CONSTRAINT fk FOREIGN KEY (trn_id)
+      REFERENCES tbl_tournee_trn (trn_id) MATCH FULL
+      ON UPDATE CASCADE ON DELETE CASCADE
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE tbl_valeur_mg OWNER TO postgres;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[damalaan]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1000</uri>
+		</author>
+		<updated>2011-03-31T12:50:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8688#p8688</id>
+	</entry>
+</feed>

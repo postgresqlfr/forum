@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / postgresl.auto.conf]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=6610&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=6610"/>
+	<updated>2023-08-19T15:47:40Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=6610</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  postgresl.auto.conf]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34481#p34481"/>
+		<content type="html"><![CDATA[<p>La partie ALTER SYSTEM est géré via <a href="https://github.com/postgres/postgres/blob/master/src/backend/utils/misc/guc.c#L4450" rel="nofollow">https://github.com/postgres/postgres/bl … uc.c#L4450</a>.&#160; La lecture du fichier généré se trouve probablement dans le même fichier, sinon il faut fouiller.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2023-08-19T15:47:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34481#p34481</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  postgresl.auto.conf]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34477#p34477"/>
+		<content type="html"><![CDATA[<p>Bonjour rjuju,</p><p>Merci d&#039;avoir pris le temps pour répondre à ma question.<br /><strong><em>... Si vous avez lu tout le code source de postgres en rapport à ce fichier et tout compris,...</em></strong><br />Tu pourras STP me donner le lien vers le code source de ce mécanisme?</p><p>Par avance merci</p>]]></content>
+		<author>
+			<name><![CDATA[lemjid]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1579</uri>
+		</author>
+		<updated>2023-08-18T13:58:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34477#p34477</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  postgresl.auto.conf]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34475#p34475"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>&quot;So basically avoid to modify it manually as this is used for ALTER SYSTEM. When a parameter is modified, a temporary file called postgresql.auto.conf.temp is created to rollback to the original state in case of error.&quot;</p><p>Quel est l&#039;empleur du mot &quot;basically&quot;? juste pour la forme!? ou il y a vraiment une contrainte technique?</p></div></blockquote></div><br /><p>La signification est &quot;n&#039;y touchez pas sous risque de casser quelque chose&quot;.&#160; Si vous avez lu tout le code source de postgres en rapport à ce fichier et tout compris, vous pouvez évidemment modifier le fichier selon ce que vous voulez faire mais si vous tentez un rapport de bug commençant par &quot;j&#039;ai modifié le fichier qui commence par merci de ne pas modifier ce fichier&quot;, personne ne daignera répondre.</p><br /><div class="quotebox"><blockquote><div><p>1- Est ce que le comportement était toujours comme ceci ou il a changé pour ce fichier de configuration &quot;postgresql.auto.conf&quot;.<br />2- A quel moment le fichier &quot;postgresql.auto.conf.temp&quot; apparait, car je n&#039;ai pas pu mettre la main dessus ( comment faire un test correctement pour le voir?).<br />3- Hormis l&#039;aspect interactif du changement des paramètres journalisés dans ce fichier quel est le plus par rapport aux paramètres (include_dir, include et include_if_exists)?<br />4- la mise en garde au début du fichier (Do not édit....), c&#039;est pourquoi à votre avis?</p></div></blockquote></div><p>1- j&#039;imagine que le comportement a toujours été le même, mais cela n&#039;a pas d&#039;importance.&#160; Ne le modifiez pas manuellement sauf si vous savez ce que vous faites.</p><p>2- il apparait de manière temporaire afin de garantir la durabilité du fichier.&#160; C&#039;est un détail d&#039;implémentation que vous pouvez ignorer.</p><p>3- Cela n&#039;a aucun rapport avec les possibiligés d&#039;inclusion d&#039;autre fichier.&#160; C&#039;est un mode de configuration via sql qui aura la priorité, tel que documenté.</p><p>4- tout modifications pourrait &quot;casser&quot; ALTER SYSTEM.&#160; Encore une fois n&#039;y touchez pas manuellement.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2023-08-18T09:49:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34475#p34475</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[postgresl.auto.conf]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34473#p34473"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;utilise la version 14.5 de PostgreSQL avec RedHat8.5</p><p>Dans le fichier de configuration &quot;postgresql.auto.conf&quot; on trouve les mentions suivantes:<br /># Do not edit this file manually!<br /># It will be overwritten by the ALTER SYSTEM command.</p><p>Il se trouve qu&#039;il a les mêmes comportements que le fichier postgtresql.conf.<br />* on peut modifier, supprimer, ajouter manuellement n&#039;importe quel paramètre de PostgreSQL avec un éditeur (tel que vi, vim...) après un reload ou restart, il prend en compte.</p><p>J&#039;avais une (mauvaise) compréhension que les paramètres (dans postgresql.auto.conf), ne seront prises en compte que s&#039;ils sont mises ou modifiés via les ordre SQL &quot;ALTER...set/reset&#160; &lt;param&gt; ;</p><p>J&#039;ai vu dans dans un article de Michael Paquier ce commentaire:<br />&quot;So basically avoid to modify it manually as this is used for ALTER SYSTEM. When a parameter is modified, a temporary file called postgresql.auto.conf.temp is created to rollback to the original state in case of error.&quot;<br />Quel est l&#039;empleur du mot &quot;basically&quot;? juste pour la forme!? ou il y a vraiment une contrainte technique?</p><p>Mes interrogations:<br />1- Est ce que le comportement était toujours comme ceci ou il a changé pour ce fichier de configuration &quot;postgresql.auto.conf&quot;.<br />2- A quel moment le fichier &quot;postgresql.auto.conf.temp&quot; apparait, car je n&#039;ai pas pu mettre la main dessus ( comment faire un test correctement pour le voir?).<br />3- Hormis l&#039;aspect interactif du changement des paramètres journalisés dans ce fichier quel est le plus par rapport aux paramètres (include_dir, include et include_if_exists)?<br />4- la mise en garde au début du fichier (Do not édit....), c&#039;est pourquoi à votre avis?</p><p>Merci pour vos réponses</p><p>B.LEMJID</p>]]></content>
+		<author>
+			<name><![CDATA[lemjid]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1579</uri>
+		</author>
+		<updated>2023-08-18T08:51:35Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34473#p34473</id>
+	</entry>
+</feed>

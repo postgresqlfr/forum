@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Retourner plusieurs lignes d'une table grace à une procédure stockée]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1712&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1712"/>
+	<updated>2011-10-29T10:56:06Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1712</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Retourner plusieurs lignes d'une table grace à une procédure stockée]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11609#p11609"/>
+		<content type="html"><![CDATA[<p>Oui, mais je pense avoir trouvé <a href="http://www.postgresonline.com/journal/archives/201-returns-table.html" rel="nofollow">mieux ici</a>.<br />La solution RETRUN SETOF est trop lourde à mettre en place. </p><p>Je te remercie !</p>]]></content>
+		<author>
+			<name><![CDATA[guk92]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1398</uri>
+		</author>
+		<updated>2011-10-29T10:56:06Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11609#p11609</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Retourner plusieurs lignes d'une table grace à une procédure stockée]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11552#p11552"/>
+		<content type="html"><![CDATA[<p>Oui c&#039;est possible, mais il ne faut pas passer par des paramètres retour mais par un RETURN SETOF record</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2011-10-25T14:01:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11552#p11552</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Retourner plusieurs lignes d'une table grace à une procédure stockée]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11550#p11550"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;ai voulu créer un programme de test dans lequel j&#039;affiche le contenu de ma table en utilisant une procédure stockée, le problème est que je ne reçois qu&#039;une seule ligne sur les 200 de ma table !</p><p><span class="bbu">Voici mon code Java :</span></p><div class="codebox"><pre><code>System.out.println(&quot;---Début test---&quot;);
+CallableStatement call = con.prepareCall(&quot;{call p_maProcedureT1()}&quot;);
+call.execute();
+ResultSet resultat = call.getResultSet();
+ 
+while(resultat.next()){
+	System.out.println(&quot;Colonne 1 : &quot; + resultat.getInt(1) + &quot; Colonne 2 : &quot;+ resultat.getInt(2));
+}
+resultat.close();
+call.close();
+System.out.println(&quot;---Fin test---&quot;);</code></pre></div><p><span class="bbu">Voici l&#039;affichage console :</span></p><div class="quotebox"><blockquote><div><p>---Début test---<br />Colonne 1 : 176 Colonne 2 : 1<br />---Fin test---</p></div></blockquote></div><p>Je me suis rendu compte qu&#039;en ajoutant un ORDER BY id à ma procédure que je recevais la première ligne de la table, <strong>mais ça s&#039;arrête là, je ne reçois qu&#039;une seule ligne sur les 200 de ma table.</strong></p><p><span class="bbu">Voici ma procédure PL/pgSQL :</span></p><div class="codebox"><pre><code>CREATE FUNCTION p_maproceduret1(out identifiant integer, out valeur integer)
+AS
+$BODY$
+BEGIN
+ 
+SELECT id, vala INTO identifiant, valeur FROM t1 ORDER BY id;
+ 
+END;
+$BODY$
+LANGUAGE plpgsql;</code></pre></div><p>Je me sers de variable en mode OUT pour récupérer mes résultats et sans mettre les &quot;?&quot; dans :</p><div class="codebox"><pre><code>CallableStatement call = con.prepareCall(&quot;{call p_maProcedureT1()}&quot;);</code></pre></div><p>Je sais que ça paraît bizarre mais ça fonctionne et je n&#039;ai pas réussis à faire autrement bien que j&#039;ai suivi <a href="http://java.developpez.com/faq/jdbc/?page=callablestatement" rel="nofollow">le tutoriel Callable Statement</a>.</p><p><span style="color: blue">1. Peut-on retourner plusieurs lignes d&#039;une table à partir d&#039;une procédure stockée ?<br />2. D&#039;où pourrait venir mon problème ? (coté Java ou PostgreSQL) <br />3. Est-ce que je me suis trompé dans la syntaxe ? <br />4. Pourriez-vous me montrer un exemple simple pour l&#039;affichage de mes 2 colonnes avec une procédure ?</span></p><br /><p>Je ne sais plus trop quoi faire, je suis sur ce problème depuis plusieurs jours <img src="http://forums.postgresql.fr/img/smilies/sad.png" width="15" height="15" alt="sad" /></p><br /><p>Je vous remercie pour votre aide. <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[guk92]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1398</uri>
+		</author>
+		<updated>2011-10-25T13:31:35Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11550#p11550</id>
+	</entry>
+</feed>

@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Problème de droits sur vue crée sur des tables distantes]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4374&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4374"/>
+	<updated>2017-09-10T14:56:18Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4374</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème de droits sur vue crée sur des tables distantes]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26029#p26029"/>
+		<content type="html"><![CDATA[<p>merci pour cette réponse.</p>]]></content>
+		<author>
+			<name><![CDATA[superette]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7528</uri>
+		</author>
+		<updated>2017-09-10T14:56:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26029#p26029</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème de droits sur vue crée sur des tables distantes]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26028#p26028"/>
+		<content type="html"><![CDATA[<p>Ça me paraît normal. Le code d&#039;une vue est exécutée avec les droits de l&#039;utilisateur qui a créé la vue, pas avec ceux de l&#039;utilisateur qui a utilisé la vue. Donc le mapping doit avoir lieu sur l&#039;utilisateur qui a créé la vue.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2017-09-10T14:02:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26028#p26028</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème de droits sur vue crée sur des tables distantes]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26021#p26021"/>
+		<content type="html"><![CDATA[<p>Pour reproduire le problème : </p><br /><div class="codebox"><pre class="vscroll"><code>postgres@bobbynette:~/workdir$ cat 5435_toto_personne.sql 
+
+DROP TABLE IF EXISTS personne;
+DROP DATABASE IF EXISTS toto;
+
+DROP ROLE IF EXISTS toto_ro;
+DROP ROLE IF EXISTS analysts;
+DROP ROLE IF EXISTS dba;
+
+DROP USER IF EXISTS tintin;
+DROP USER IF EXISTS capitainehaddock;
+DROP USER IF EXISTS milou;
+
+
+CREATE ROLE analysts;
+ALTER ROLE analysts WITH INHERIT;
+
+CREATE ROLE dba;
+ALTER ROLE dba WITH INHERIT;
+
+CREATE ROLE toto_ro;
+ALTER ROLE toto_ro WITH INHERIT;
+
+CREATE USER tintin;
+ALTER USER tintin WITH LOGIN INHERIT PASSWORD &#039;tintin&#039; ;
+ALTER GROUP analysts ADD USER tintin;
+
+CREATE USER capitainehaddock;
+ALTER USER capitainehaddock WITH LOGIN INHERIT PASSWORD &#039;capitainehaddock&#039;;
+ALTER GROUP dba ADD USER capitainehaddock;
+
+CREATE USER milou WITH LOGIN PASSWORD &#039;milou&#039; ;
+
+CREATE DATABASE toto;
+ALTER DATABASE toto OWNER TO dba;
+
+\c toto 
+
+CREATE TABLE personne (id_personne uuid, nom varchar, surnom varchar);
+ALTER TABLE personne OWNER TO dba;
+
+GRANT SELECT ON personne TO toto_ro;
+GRANT toto_ro TO analysts;</code></pre></div><div class="codebox"><pre class="vscroll"><code>postgres@bobbynette:~/workdir$ cat 5434_pouet_ticket.sql 
+
+DROP TABLE IF EXISTS ticket;	
+DROP DATABASE IF EXISTS pouet;
+
+DROP ROLE IF EXISTS pouet_ro;
+DROP ROLE IF EXISTS analysts;
+DROP ROLE IF EXISTS dba;
+
+DROP USER IF EXISTS tintin;
+DROP USER IF EXISTS capitainehaddock;
+DROP USER IF EXISTS milou;
+
+
+CREATE ROLE analysts;
+ALTER ROLE analysts WITH INHERIT;
+
+CREATE ROLE dba;
+ALTER ROLE dba WITH INHERIT;
+
+CREATE ROLE pouet_ro;
+ALTER ROLE pouet_ro WITH INHERIT;
+
+CREATE USER tintin;
+ALTER USER tintin WITH LOGIN INHERIT PASSWORD &#039;tintin&#039; ;
+
+ALTER GROUP analysts ADD USER tintin;
+
+CREATE USER capitainehaddock;
+ALTER USER capitainehaddock WITH LOGIN INHERIT PASSWORD &#039;capitainehaddock&#039;;
+ALTER GROUP dba ADD USER capitainehaddock;
+
+CREATE USER milou WITH LOGIN;
+
+CREATE DATABASE pouet;
+ALTER DATABASE pouet OWNER TO dba;
+
+\c pouet 
+
+CREATE TABLE ticket (id_ticket uuid, id_personne uuid, objet varchar);
+ALTER TABLE ticket OWNER TO dba;
+
+GRANT SELECT ON ticket TO pouet_ro;
+GRANT pouet_ro TO analysts;</code></pre></div><div class="codebox"><pre class="vscroll"><code>postgres@bobbynette:~/workdir$ cat 5432_query_fdw.sql 
+-- # ========== 9.6 query/ticket_personne 5432
+DROP FOREIGN TABLE IF EXISTS personne_site;
+DROP FOREIGN TABLE IF EXISTS ticket_site;
+
+DROP USER MAPPING IF EXISTS FOR tintin SERVER toto;
+DROP USER MAPPING IF EXISTS FOR tintin SERVER pouet;
+
+DROP USER MAPPING IF EXISTS FOR postgres SERVER toto;
+DROP USER MAPPING IF EXISTS FOR postgres SERVER pouet;
+
+DROP SERVER IF EXISTS pouet;
+DROP SERVER IF EXISTS toto;
+
+DROP DATABASE IF EXISTS query;
+
+DROP ROLE IF EXISTS query_ro;
+DROP ROLE IF EXISTS analysts;
+DROP ROLE IF EXISTS dba;
+
+DROP USER IF EXISTS tintin;
+DROP USER IF EXISTS capitainehaddock;
+DROP USER IF EXISTS milou;
+
+
+CREATE ROLE analysts;
+ALTER ROLE analysts WITH INHERIT;
+CREATE ROLE dba;
+ALTER ROLE dba WITH INHERIT;
+
+CREATE USER tintin;
+ALTER USER tintin WITH LOGIN INHERIT PASSWORD &#039;tintin&#039; ;
+ALTER GROUP analysts ADD USER tintin;
+
+CREATE USER capitainehaddock;
+ALTER USER capitainehaddock WITH LOGIN INHERIT PASSWORD &#039;capitainehaddock&#039;;
+ALTER GROUP dba ADD USER capitainehaddock;
+
+CREATE USER milou WITH LOGIN PASSWORD &#039;milou&#039; ;
+
+CREATE ROLE query_ro;
+ALTER ROLE query_ro WITH INHERIT;
+
+GRANT query_ro TO analysts;
+
+CREATE DATABASE query;
+ALTER DATABASE query OWNER TO dba;
+
+\c query
+
+-- # ====== FDW sur 9.6 query/ticket_personne 5432
+
+CREATE SERVER pouet
+        FOREIGN DATA WRAPPER postgres_fdw
+        OPTIONS (service &#039;pouet&#039;);
+
+CREATE FOREIGN TABLE ticket_site (id_ticket uuid, id_personne uuid, objet varchar)
+SERVER pouet OPTIONS (schema_name &#039;public&#039;, table_name &#039;ticket&#039;);
+
+GRANT SELECT ON ticket_site TO query_ro;
+
+CREATE SERVER toto
+        FOREIGN DATA WRAPPER postgres_fdw
+        OPTIONS (service &#039;toto&#039;);
+
+CREATE FOREIGN TABLE personne_site (id_personne uuid, nom varchar, surnom varchar)
+SERVER toto OPTIONS (schema_name &#039;public&#039;, table_name &#039;personne&#039;);
+
+GRANT SELECT ON personne_site TO query_ro;
+
+CREATE user MAPPING FOR tintin SERVER toto OPTIONS ( USER &#039;tintin&#039; , PASSWORD &#039;tintin&#039;);
+CREATE user MAPPING FOR tintin SERVER pouet OPTIONS ( USER &#039;tintin&#039; , PASSWORD &#039;tintin&#039;);
+
+GRANT SELECT ON personne_site to query_ro ;
+
+--query=# GRANT USAGE ON FOREIGN SERVER toto TO analysts ;
+CREATE VIEW sites AS
+SELECT pers.surnom as surnom, tic.id_ticket as ticket, tic.objet as objet
+FROM ticket_site tic
+JOIN personne_site pers ON pers.id_personne = tic.id_personne;
+
+GRANT SELECT ON sites to query_ro;
+
+ -- CREATE USER MAPPING FOR postgres SERVER pouet OPTIONS ( user &#039;postgres&#039;, password &#039;pgsql&#039;);
+-- CREATE USER MAPPING FOR postgres SERVER toto OPTIONS ( user &#039;postgres&#039;, password &#039;pgsql&#039;);
+
+
+\c query tintin	
+SELECT 1 from sites;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[superette]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7528</uri>
+		</author>
+		<updated>2017-09-09T11:36:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26021#p26021</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Problème de droits sur vue crée sur des tables distantes]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26020#p26020"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je crée une vue sur des tables distantes, mon utilisateur est habilité à lire les données des tables, mais n&#039;accède pas à la vue si le propriétaire de la vue (postgres) n&#039;a pas été mappé. Est ce normal ? </p><p>D&#039;avance, merci pour vos retours.</p>]]></content>
+		<author>
+			<name><![CDATA[superette]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7528</uri>
+		</author>
+		<updated>2017-09-09T11:27:29Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26020#p26020</id>
+	</entry>
+</feed>

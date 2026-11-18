@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / choix d'un fillfactor]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1442&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1442"/>
+	<updated>2011-06-06T19:42:42Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1442</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  choix d'un fillfactor]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9680#p9680"/>
+		<content type="html"><![CDATA[<p>oui, ça c&#039;est vrai, en général on a tendance à poser les questions dans la rubrique générale du forum</p>]]></content>
+		<author>
+			<name><![CDATA[bebert73]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1062</uri>
+		</author>
+		<updated>2011-06-06T19:42:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9680#p9680</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  choix d'un fillfactor]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9678#p9678"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>je me suis amusé à compter le nombre de message des 2 premières pages de la rubrique &quot;Général / Questions généralistes&quot; qui sont en fait des questions concernant purement le langage SQL...il y en a une dizaine</p></div></blockquote></div><p>Le problème est que ce forum ne serait pas utilisé, ou pas énormément. Beaucoup de questions ne sont pas posées dans les bons forums.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-06-06T18:37:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9678#p9678</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  choix d'un fillfactor]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9669#p9669"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>Marc Cousin a écrit&#160;:</cite><blockquote><div><p>Mais je doute fortement qu&#039;ils fonctionnent correctement avec PostgreSQL qui est très différent de ce point de vue.</p></div></blockquote></div><p>c&#039;est sur qu&#039;en lisant le document il faut prendre du recul et être conscient que ça s&#039;applique à une autre base</p><br /><br /><div class="quotebox"><cite>Marc Cousin a écrit&#160;:</cite><blockquote><div><p>J&#039;imagine mal quelqu&#039;un lisant ce thread dans 3 mois faire le tri entre ce qui s&#039;applique à PostgreSQL et ce qui s&#039;applique à SQL Server (les index cluster, les chaînage d&#039;enregistrements…).</p></div></blockquote></div><p>tout à fait d&#039;accord...d&#039;où l&#039;idée de mettre ça dans une rubrique à part, pour éviter que ça ne pollue le sujet courant</p><br /><br /><div class="quotebox"><cite>Marc Cousin a écrit&#160;:</cite><blockquote><div><p>Après, je ne sais pas si créer des nouvelles rubriques qui ne concernent pas vraiment PostgreSQL intéressera les admins du forum. En ce qui me concerne, ça ne m&#039;intéresse que modérément, étant donné qu&#039;il y a déjà plein de forums sur ce genre de sujets sur le net, mais mon avis est assez secondaire, je ne suis que contributeur.</p></div></blockquote></div><p>je me suis amusé à compter le nombre de message des 2 premières pages de la rubrique &quot;Général / Questions généralistes&quot; qui sont en fait des questions concernant purement le langage SQL...il y en a une dizaine</p><br /><br /><div class="quotebox"><cite>Marc Cousin a écrit&#160;:</cite><blockquote><div><p>Et on s&#039;est encore éloignés du sujet… <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p></div></blockquote></div><p>ça, ça ne fait pas de doute ! <img src="http://forums.postgresql.fr/img/smilies/wink.png" width="15" height="15" alt="wink" /></p>]]></content>
+		<author>
+			<name><![CDATA[bebert73]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1062</uri>
+		</author>
+		<updated>2011-06-06T08:50:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9669#p9669</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  choix d'un fillfactor]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9667#p9667"/>
+		<content type="html"><![CDATA[<p>HOT, c&#039;est pour &#039;Heap Only Tuples&#039;. L&#039;idée, c&#039;est de créer une nouvelle version d&#039;un enregistrement dans le même bloc que l&#039;enregistrement lui-même (s&#039;il y a la place bien sûr), et chaîner les deux enregistrements. Ça ne se déclenche que quand on ne modifie aucune colonne indexée: il faut que les index continuent à pointer vers le premier enregistrement pour que la liste chaînée reste valable. Ça a un très gros avantage: on n&#039;a pas de maintenance d&#039;index à faire pour cet update, on travaille dans le même bloc, et on peut nettoyer les listes chaînées HOT à chaque fois que le bloc est visité, sans attendre le VACUUM.</p><p>Pour ce qui est de la suggestion, tout à fait d&#039;accord sur le diagnostic. Sauf que le message de sqlpro est assez équivoque: les fill factors préconisés sont, je n&#039;en doute pas, des bonnes valeurs pour SQL Server. Mais je doute fortement qu&#039;ils fonctionnent correctement avec PostgreSQL qui est très différent de ce point de vue. Et rien ne dit clairement que les fillfactors préconisés proviennent de préconisations pour SQL Server, ce qui peut embrouiller les personnes lisant le thread. Voire les amener à copier/coller ce genre de préconisations sans prendre le recul nécessaire. J&#039;imagine mal quelqu&#039;un lisant ce thread dans 3 mois faire le tri entre ce qui s&#039;applique à PostgreSQL et ce qui s&#039;applique à SQL Server (les index cluster, les chaînage d&#039;enregistrements…).</p><p>Après, je ne sais pas si créer des nouvelles rubriques qui ne concernent pas vraiment PostgreSQL intéressera les admins du forum. En ce qui me concerne, ça ne m&#039;intéresse que modérément, étant donné qu&#039;il y a déjà plein de forums sur ce genre de sujets sur le net, mais mon avis est assez secondaire, je ne suis que contributeur. Et on s&#039;est encore éloignés du sujet… <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-06-06T08:26:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9667#p9667</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  choix d'un fillfactor]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9665#p9665"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>Marc Cousin a écrit&#160;:</cite><blockquote><div><p>antérieur à HOT</p></div></blockquote></div><p>c&#039;est quoi exactement HOT ?</p><br /><br /><div class="quotebox"><cite>Marc Cousin a écrit&#160;:</cite><blockquote><div><p>Et la question concernait PostgreSQL…</p></div></blockquote></div><p>petite suggestion du nouvel utilisateur de ce forum que je suis : on se retrouve très souvent dans le cas ou SQLPro fait référence à &quot;comment ça se passe dans MS SQL&quot; (et avec souvent en sous-entendu &quot;dans MS SQL ça marche mieux <img src="http://forums.postgresql.fr/img/smilies/wink.png" width="15" height="15" alt="wink" /> )...ce qui entraîne en retour des répliques &quot;c&#039;est pas le sujet&quot;, dans le meilleur des cas, et parfois même plus agressives.. </p><p>C&#039;est un forum postgreSQL, donc je suppose qu&#039;à priori on est tous des utilisateurs de PostgreSQL, et très souvent un post qui partait dans la bonne direction finit par dériver complètement dès lors qu&#039;un utilisateur d&#039;une autre base lance un message du genre &quot;mais dans la base X c&#039;est mieux&quot;</p><p>par contre les informations restent souvent quand même intéressantes (j&#039;ai par exemple commencé à lire le document pdf sur la maintenance des index, c&#039;est intéressant...ne serait-ce que pour prendre conscience qu&#039;un index doit être maintenu !)</p><p>pourquoi ne pas tout simplement ouvrir une rubrique &quot;Généralités sur les SGBD&quot; ? du coup, si quelqu&#039;un a rédigé un document ou connait un lien sur un document qu&#039;il considère avoir un rapport à une question posée, sans toutefois y répondre directement, il pourrait lancer une seconde discussion dans cette rubrique, pour ceux que ça intéresse</p><p>dans le même ordre d&#039;idées, je m&#039;apprête à poser une ou deux questions qui concernent le langage SQL, donc qui ne sont pas spécifiques à PostgreSQL... pourquoi ne pas ouvrir aussi une rubrique &quot;SQL&quot; pour ce genre de questions ? Ca éviterait de surcharger la rubrique &quot;Général (questions généralistes)&quot;</p>]]></content>
+		<author>
+			<name><![CDATA[bebert73]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1062</uri>
+		</author>
+		<updated>2011-06-06T08:09:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9665#p9665</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  choix d'un fillfactor]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9664#p9664"/>
+		<content type="html"><![CDATA[<p>Quelques notes importantes quand même:<br />- Il n&#039;y a pas d&#039;index «cluster» (aussi appelés IOT sous Oracle) sous postgresql, il n&#039;y a que des index «normaux» (en ce qui concerne les btree…)<br />- Il n&#039;y a pas de problématique de déplacement de ligne ou de fragmentation de ligne (je présume que c&#039;est identique au problème de chaînage sous Oracle) sous PostgreSQL, étant donnée la façon différente de faire les mises à jour. Ou on peut le voir autrement, en se disant que les lignes sont en permanence déplacées. Mais elles ne sont pas chaînées, sauf dans le même bloc, et de façon temporaire.<br />- Le post de Tom Lane au début est, je pense, antérieur à HOT, qui modifie pas mal l&#039;algorithme initial, et donc la pertinence d&#039;avoir des fillfactors vraiment très bas.</p><p>Bref, les problématiques ne sont pas strictement les mêmes entre SQL Server et PostgreSQL (encore heureux, sinon on se demanderait pourquoi on a tant de choix sur les SGBD et on s&#039;ennuierait…). Et la question concernait PostgreSQL…</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-06-06T07:17:21Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9664#p9664</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  choix d'un fillfactor]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9660#p9660"/>
+		<content type="html"><![CDATA[<p>ok merci, je vais lire ça à l&#039;occasion</p><p>je retiens de tout ça qu&#039;il vaut mieux laisser le fillfactor d&#039;un index à sa valeur par défaut tant qu&#039;on n&#039;a pas de problèmes de performances, vu que de toutes façon on peut l&#039;ajuster par la suite si le besoin s&#039;en fait sentir, en reconstruisant l&#039;index</p><p>à+</p>]]></content>
+		<author>
+			<name><![CDATA[bebert73]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1062</uri>
+		</author>
+		<updated>2011-06-05T18:36:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9660#p9660</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  choix d'un fillfactor]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9657#p9657"/>
+		<content type="html"><![CDATA[<p>Un bon FillFactor dépend de 3 choses :<br />1) du pourcentage de données mises à jour (INSERT/UPDATE/DELETE) par rapport au volume global avant reconstruction de l&#039;index<br />2) du volume des données<br />3) de la nature des données.</p><p>Par exemple au début de la vie de la base, les tables ont peu de données et le nombre de MAJ étant assez constant par unité de temps, la fragmentation va être importante, c&#039;est pourquoi un FILL FACTOR assez faible est intéressant.<br />Si l&#039;index est organisé en CLUSTER et que les données sont chrono ordonnées ce qui est le cas des auto incréments (SERIAL, SEQUENCE) ou de colonnes horodatées, alors la fragmentation sera très faible, voire voisine de zéro, sauf si certaines colonnes de la table sont en taille variables et que des UPDATE sur ces colonnes sont fréquents (déplacement de la ligne du fait de l&#039;augmentation de la taille des données stockées) ou bien en cas de suppression.</p><p>Autrement dit, il est difficile de dire quel est le FILL FACTOR optimum sans auditer la fragmentation.<br />Ce que je peut vous dire, c&#039;est qu&#039;en début de vie d&#039;une base un FF de 60 à 75 % avec défragmentation tous les jours peut être envisagé, sauf pour les CLUSTER. En fin de vie un FF de 80 à 95 % est souvent tout à fait approprié.</p><p>L&#039;augmentation du volume de l&#039;index n&#039;est pas très important pour les performances, car le but des index est plus d&#039;être lu en SEEK qu&#039;en SCAN ce qui minimise les entrées de page d&#039;index en mémoire de toute façons.</p><p>A noter, le split de pages évoqué par Marc Cousin n&#039;est pas le seul mécanisme qui fragmente naturellement l&#039;index. La suppression de ligne (DELETE) induit des slots fantômes et la mise à jour (UPDATE) est susceptible d&#039;engendrer le déplacement des lignes (donc un SPLIT + 1 SLOT fantôme).<br />Pour de plus amples explications sur les phénomènes de fragmentation des index, lisez l&#039;article que j&#039;ai écrit à ce sujet :<br /><a href="http://sqlpro.developpez.com/optimisation/MaintenanceIndex/MaintenanceIndexVLDB.pdf" rel="nofollow">http://sqlpro.developpez.com/optimisati … exVLDB.pdf</a> (en particulier chapitre 2)<br />Certes c&#039;est pour SQL Server, mais les structures d&#039;index et les algo étant similaires, les effets sont les mêmes sous PG.</p><br /><p>A +</p>]]></content>
+		<author>
+			<name><![CDATA[SQLpro]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1054</uri>
+		</author>
+		<updated>2011-06-05T17:39:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9657#p9657</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  choix d'un fillfactor]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9640#p9640"/>
+		<content type="html"><![CDATA[<p>ok merci, c&#039;est compris <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[bebert73]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1062</uri>
+		</author>
+		<updated>2011-06-04T08:38:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9640#p9640</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  choix d'un fillfactor]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9639#p9639"/>
+		<content type="html"><![CDATA[<p>Non, ce n&#039;est pas une bonne pratique systématiquement. Les valeurs par défaut (90 pour un index, 100 pour une table) sont les meilleurs la plupart du temps.</p><p>N&#039;optimisez que si vous avez un problème de performance. Là, à mon avis, c&#039;est trop tôt <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>Si dans quelques semaines à quelques mois, vous vous rendez compte que vous avez les problèmes que j&#039;ai évoqué plus haut, alors il sera temps de baisser le fillfactor et de reconstruire l&#039;index. Pour le moment, partez de l&#039;hypothèse que 90 c&#039;est très bien.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-06-04T08:04:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9639#p9639</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  choix d'un fillfactor]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9638#p9638"/>
+		<content type="html"><![CDATA[<p>donc si j&#039;ai bien compris, pour un index, diminuer le fillfactor n&#039;a pas d&#039;autres incidence négative que l&#039;augmentation de l&#039;espace disque (contrairement au fillfactor sur les tables, ou le fait d&#039;augmenter le nombre de pages entraîne une baisse de perf sur les lectures séquentielles) ? Exact ?</p><p>Dans ce cas, si on n&#039;a pas de problèmes d&#039;espace disque, peut-on considérer que c&#039;est une bonne pratique de baisser systématiquement le fillfactor des index à 50 par exemple ? (hormis bien sur pour les index sur les clés auto-incrémentées où ça n&#039;a aucun intérêt)</p><p>et en plus de ça lancer de temps en temps un script qui reconstruit les index</p>]]></content>
+		<author>
+			<name><![CDATA[bebert73]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1062</uri>
+		</author>
+		<updated>2011-06-04T08:02:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9638#p9638</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  choix d'un fillfactor]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9637#p9637"/>
+		<content type="html"><![CDATA[<p>Pour les index, c&#039;est un peu différent. Enfin la raison est un peu différente.</p><p>Les index, c&#039;est un B-Tree, un arbre balancé (enfin la plupart du temps, on ne va pas parler des gin, gist, hash).</p><p>Dans l&#039;implémentation PostgreSQL, on ne stocke des valeurs que dans les &#039;feuilles&#039; de l&#039;arbre. Quand une feuille est pleine, on doit la couper en deux. Pour cela, il faut créer une nouvelle feuille, la chaîner avec la précédente (il y a une liste chaînée bidirectionnelle entre les feuilles du btree), modifier les pointeurs (en rajouter un) du nœud pointant sur la feuille, voire couper aussi ce nœud, etc…</p><p>Les split de page sont problématiques principalement pour deux raisons: ils sont lents au moment de l&#039;insertion (beaucoup plus d&#039;entrées sorties, de verrouillage, etc…), et ils font que l&#039;index n&#039;est plus physiquement trié: la nouvelle page peut être un peu n&#039;importe où sur le disque. Son parcours complet devient donc plus lent. Pour un split ce n&#039;est pas bien grave, mais si c&#039;est des milliers, ça peut le devenir. On peut d&#039;ailleurs suivre tout ça avec le contrib pgstattuple.</p><p>Diminuer le FILLFACTOR (il est par défaut à 90), ça permet que l&#039;index garde plus longtemps sa structure physique séquentielle, et ça limite l&#039;occurrence des splits. Par contre, évidemment, on le paye en ayant un index beaucoup moins compact sur disque, donc un moins bon hit ratio, etc… Sachant qu&#039;en 9.0 on peut reconstruire n&#039;importe quel index sans verrouillage (CREATE INDEX CONCURRENTLY, puis suppression de l&#039;ancien index), sauf ceux qui sont liés à une définition de contrainte unique ou primary key, et que cette limitation a sauté en 9.1.</p><p>Évidemment, le split n&#039;arrive que pour des index où on insère &#039;au milieu de l&#039;index&#039;. Pour une clé technique auto-incrémentée, cela n&#039;arrive jamais (on insère toujours au même bord de l&#039;index), c&#039;est une des raisons pour lesquelles elles sont d&#039;ailleurs peu coûteuses comparativement aux autres index à l&#039;insertion.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-06-03T13:28:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9637#p9637</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  choix d'un fillfactor]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9636#p9636"/>
+		<content type="html"><![CDATA[<p>ok merci c&#039;est plus clair</p><p>Donc en résumé les points à retenir (vous me rectifiez si je me trompe) :</p><p>- pour une table sur laquelle on fait principalement des SELECT, des INSERT ainsi que des UPDATE sur des colonnes indexées : il faut laisser le FILLFACTOR par défaut (le baisser entraînera même une augmentation des lectures séquentielles)</p><p>- pour une table sur laquelle on fait des UPDATE de colonnes non indexées : on peut baisser le fillfactor, et il faut faire des tests pour déterminer le fillfactor optimal</p><br /><p>Par contre qu&#039;en est-il du fillfactor sur les index ? Si j&#039;applique le même raisonnement, j&#039;ai envie de dire que baisser le fillfactor n&#039;est intéressant que pour des index appliqués sur des colonnes fréquemment mises à jour. C&#039;est bien cela ?</p><br /><br /><p>Autrement dit, soit une table qu&#039;on met souvent à jour mais uniquement sur une colonne indexée :<br />- on laisse le fillfactor par défaut sur la table<br />- on baisse le fillfactor sur l&#039;index de la colonne fréquemment mise à jour</p><p>Exact ?</p>]]></content>
+		<author>
+			<name><![CDATA[bebert73]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1062</uri>
+		</author>
+		<updated>2011-06-03T13:17:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9636#p9636</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  choix d'un fillfactor]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9623#p9623"/>
+		<content type="html"><![CDATA[<p>Et le FILLFACTOR sera surtout intéressant à paramétrer sur une table qui recevra des mises à jour HOT. pour les autres, ça n&#039;a pas trop d&#039;intérêt. Et les mises à jour HOT, c&#039;est les mises à jour qui ne touchent pas aux colonnes indexées.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-06-03T07:42:33Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9623#p9623</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  choix d'un fillfactor]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9622#p9622"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Très concrètement, si vous créez une table, et que vous savez que cette table aura quelques centaines de milliers de lignes, et sera souvent mise à jour, que mettez-vous comme fillfactor sur la table ? Et si dans cette table vous mettez un index sur une colonne souvent mise à jour, que mettez vous comme fillfactor sur cet index ?</p></div></blockquote></div><p>Aucune idée. Il faut tester.</p><div class="quotebox"><blockquote><div><p>y-a-t-il un intérêt à baisser le fillfactor pour une table qui est peu mise à jour, mais avec beaucoup d&#039;INSERT (donc beaucoup d&#039;INSERT, peu de UPDATE)</p></div></blockquote></div><p>Aucun intérêt.</p><div class="quotebox"><blockquote><div><p>à part consommer de l&#039;espace disque supplémentaire, baisser le fillfactor présente-t-il d&#039;autres inconvénients ? (notamment sur une table sur laquelle il y a aussi beaucoup de SELECT, baisser le fillfactor ne ralentit-il pas les requêtes ? je sais pas, j&#039;imagine que si on dispatche les données sur un nombre plus importants de pages, ça signifie aussi qu&#039;il faut parcourir un nombre plus important de pages lors des requêtes, non ? je me trompe ?</p></div></blockquote></div><p>Non, c&#039;est bien ça. Petit FILLFACTOR veut dire grosse table, donc un shared_buffers plus important, un parcours séquentiel plus long, etc.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-06-03T06:57:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9622#p9622</id>
+	</entry>
+</feed>

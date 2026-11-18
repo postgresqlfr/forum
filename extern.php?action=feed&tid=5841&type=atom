@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / J'aimerais avoir un conseil pour mon code sql (posgresql) SVP !]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5841&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5841"/>
+	<updated>2020-10-29T00:26:48Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5841</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  J'aimerais avoir un conseil pour mon code sql (posgresql) SVP !]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31569#p31569"/>
+		<content type="html"><![CDATA[<p>oui j&#039;avais résolu mes erreurs sur les domaines, le code n&#039;était pas correct, mais merci quand même !</p>]]></content>
+		<author>
+			<name><![CDATA[Modaak]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9072</uri>
+		</author>
+		<updated>2020-10-29T00:26:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31569#p31569</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  J'aimerais avoir un conseil pour mon code sql (posgresql) SVP !]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31525#p31525"/>
+		<content type="html"><![CDATA[<p>Petits conseils : 1. Indiquer votre version de PostgreSQL (ça peut fonctionner sur une version mais pas sur une autre). 2. Indiquer les messages d&#039;erreur.</p><p>Bref, j&#039;ai essayé votre code sur une version 13. La création du premier domaine échoue avec l&#039;erreur :</p><div class="codebox"><pre><code>ERROR:  column &quot;d_type_production&quot; does not exist</code></pre></div><p>Il se trouve que ce nom est le nom du domaine. Donc je suppose que vous voulez tester la valeur de la colonne, et ce n&#039;est pas comme ça qu&#039;on fait. Donc on va lire la référence de la commande &quot;CREATE DOMAIN&quot; (https://docs.postgresql.fr/13/sql-createdomain.html ), on regarde les exemples, et on trouve comment faire <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2020-10-15T19:53:07Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31525#p31525</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[J'aimerais avoir un conseil pour mon code sql (posgresql) SVP !]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31523#p31523"/>
+		<content type="html"><![CDATA[<p>J&#039;aimerais avoir un conseil pour mon code sql (posgresql), je n&#039;arrive pas à exécuter la création de domaine et non plus de mes tables merci d&#039;avance pour toutes réponses ou conseils ! <img src="http://forums.postgresql.fr/img/smilies/wink.png" width="15" height="15" alt="wink" /></p><div class="codebox"><pre class="vscroll"><code>drop table if exists musiciens, labels, groupes, formations, membres, contrats, evenements cascade;
+set datestyle to &#039;european&#039;;
+
+drop domain if exists D_TYPE_PRODUCTION, D_INSTRUMENT cascade;
+
+create domain D_TYPE_PRODUCTION as varchar(20)
+	check(D_TYPE_PRODUCTION similar to &#039;(Me|Pu|Ro|Bl|Re|*)%&#039;
+		  and length(D_TYPE_PRODUCTION) &lt;= 6);
+
+create domain D_INSTRUMENT as varchar(20)
+	check(D_INSTRUMENT similar to &#039;(G|D|B|V|P|G-R|G-B|D-R|D-B|B-R|B-B|V-R|V-B|P-R|P-B|)%&#039;
+		  and length(D_INSTRUMENT) &lt;= 3);
+
+-- TABLE labels
+create table labels (
+	id_label serial	primary key,
+	nom char(50) not null,
+	type_production D_TYPE_PRODUCTION default &#039;NC&#039;
+);
+
+-- TABLE groupes
+create table groupes (
+	id_groupe serial primary key,
+	nom char(60) not null,
+	date_creation date not null,
+	date_fin date,
+	label integer references labels(id_label) on delete cascade on update cascade
+);
+
+-- TABLE musiciens
+create table musiciens ( 
+	id_musicien serial primary key,
+	prenom char(50) not null,
+	nom char(50) not null,
+	date_naissance date not null check(date_naissance &lt; date_deces),
+	date_deces date null,
+	instrument D_INSTRUMENT not null
+);
+
+alter table musiciens add check(age(date_deces, date_naissance) &gt;= interval &#039;16 years&#039;);
+
+-- TABLE formations
+create table formations (
+	id_formation serial primary key,
+	date_creation date not null check(date_creation &lt; date_fin),
+	date_fin date null,
+	groupe integer not null,
+	foreign key(groupe) references groupes(id_groupe)
+);
+
+-- TABLE membres
+create table membres (
+	musicien integer not null,
+	formation integer not null,
+	date_debut_participation date not null check(date_debut_participation &lt; date_fin_participation),
+	date_fin_participation date null,
+	primary key(musicien, formation),
+	foreign key(musicien) references musiciens(id_musicien),
+	foreign key(formation) references formations(id_formation)
+);
+
+-- TABLE contrats
+create table contrats (
+	id_contrat integer not null primary key,
+	date_contrat date not null
+);
+
+alter table contrats add column cachet integer not null default 1000;
+
+-- TABLE evenements
+create table evenements (
+	id_evenement integer not null primary key,
+	nom char(60) not null,
+	lieu char(60) not null,
+	nombre_spectateur integer null,
+	formation integer references formations(id_formation),
+	contrat integer references contrats(id_contrat)
+);</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[Modaak]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9072</uri>
+		</author>
+		<updated>2020-10-15T16:02:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31523#p31523</id>
+	</entry>
+</feed>

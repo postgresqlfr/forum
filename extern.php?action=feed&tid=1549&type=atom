@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Référence à une autre colonne dans une constraint de colonne]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1549&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1549"/>
+	<updated>2011-07-20T19:08:47Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1549</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Référence à une autre colonne dans une constraint de colonne]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10333#p10333"/>
+		<content type="html"><![CDATA[<p>Punaise, je ne connaissais pas ça. C&#039;est cool <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /> Merci Cédric.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-07-20T19:08:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10333#p10333</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Référence à une autre colonne dans une constraint de colonne]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10332#p10332"/>
+		<content type="html"><![CDATA[<p>YES!</p><div class="quotebox"><blockquote><div><p>CREATE TABLE tstchk (<br />a bool not null default true,<br />b text default null,<br />CHECK ((a IS FALSE AND b IS NOT NULL AND char_length(b)&gt;0 ) OR (a IS TRUE AND b IS NULL) )<br />)</p></div></blockquote></div><p>Je savais&#160; bien que ça devait être possible sans trigger, merci <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>Edit 20110721@0038:<br />J&#039;ai fini par retrouver mes notes.<br />On peut aussi avoir un CHECK dans la ligne qui vérifie les autres colonnes en utilisant:<br />..... CHECK(CASE blah THEN blahblah AND blahblahblah ..... END),</p>]]></content>
+		<author>
+			<name><![CDATA[Jiff]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=434</uri>
+		</author>
+		<updated>2011-07-20T18:37:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10332#p10332</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Référence à une autre colonne dans une constraint de colonne]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10331#p10331"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>gleu a écrit&#160;:</cite><blockquote><div><p>Une contrainte CHECK s&#039;applique à une colonne et une seule. Le seul moyen de parvenir à vos fins est d&#039;ajouter un trigger à la table. Le code du trigger sera responsable du respect de la contrainte.</p></div></blockquote></div><p>c&#039;est possible avec une contrainte sur la table:</p><p>CREATE TABLE tstchk (<br />a bool not null default true,<br />b text default null,<br />CHECK ((a is false and b is not null and char_length(b)&gt;0 ) or (a is true) )<br />)</p>]]></content>
+		<author>
+			<name><![CDATA[cedric]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=220</uri>
+		</author>
+		<updated>2011-07-20T17:17:06Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10331#p10331</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Référence à une autre colonne dans une constraint de colonne]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10330#p10330"/>
+		<content type="html"><![CDATA[<p>Une contrainte CHECK s&#039;applique à une colonne et une seule. Le seul moyen de parvenir à vos fins est d&#039;ajouter un trigger à la table. Le code du trigger sera responsable du respect de la contrainte.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-07-20T17:00:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10330#p10330</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Référence à une autre colonne dans une constraint de colonne]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10329#p10329"/>
+		<content type="html"><![CDATA[<p>Ha que coucou forumers,</p><p>Je bute sur un PB de CHECK qui doit dépendre d&#039;une autre colonne que celle à laquelle il est appliqué.<br />J&#039;ai tenté de le formaliser comme suit, mais y fait rien qu&#039;à m&#039;embêter:</p><div class="codebox"><pre><code>phpwiki=# CREATE TABLE tstchk(
+phpwiki(#     a   BOOLEAN     NOT NULL    DEFAULT TRUE,
+phpwiki(#     b   TEXT                    DEFAULT NULL    CHECK (IF (NOT a) THEN ((b IS NOT NULL) AND (char_length(b) &gt; 3) END IF))
+phpwiki(# );
+ERROR:  syntax error at or near &quot;THEN&quot;
+LINE 3: ...                DEFAULT NULL    CHECK (IF (NOT a) THEN ((b I...
+                                                             ^</code></pre></div><p>Est-ce qu&#039;une telle constraint est possible (et où pêche-t&#039;elle?) ou bien existe-t&#039;il un artifice permettant de contourner ce PB?</p><p>JY</p>]]></content>
+		<author>
+			<name><![CDATA[Jiff]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=434</uri>
+		</author>
+		<updated>2011-07-20T15:59:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10329#p10329</id>
+	</entry>
+</feed>

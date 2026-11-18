@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Exécution d'une transaction]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1559&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1559"/>
+	<updated>2011-08-04T17:23:26Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1559</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Exécution d'une transaction]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10512#p10512"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Au moment de la reprise du service, le SGBDR interdit l&#039;utilisation des bases de données tant qu&#039;il n&#039;a pas vérifié s&#039;il y avait des transactions en cours.<br />Si ce n&#039;est pas le cas il rend immédiatement la main et les utilisateurs peuvent travailler. La base est intègre.<br />S&#039;il y a des transactions non finalisées, elles vont être annulées par un ROLLBACK forcé, et tant que ces ROLLBACK ne sont pas finalisés, alors les utilisateurs ne peuvent pas travailler car la base n&#039;est pas intègre (certaines données sont incohérente). Une fois les ROLLBACK achevés, la basez devient de nouveau intègre et les utilisateurs peuvent désormais s&#039;en servir.</p></div></blockquote></div><p>Ceci n&#039;est pas vrai avec PostgreSQL. En cas de ROLLBACK, PostgreSQL a juste à indiquer l&#039;état de la transaction dans l&#039;un des fichiers du répertoire pg_clog. Au moment de la reprise du service, PostgreSQL ne fait que vérifier que le serveur s&#039;est proprement arrêté. Dans le cas contraire, il synchronise journaux de transactions et fichiers de données (autrement dit, il applique sur les fichiers de données les données des journaux de transactions qu&#039;il n&#039;a pas eu le temps de synchroniser avant le crash). Bref, rien à voir avec les ROLLBACK.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-08-04T17:23:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10512#p10512</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Exécution d'une transaction]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10464#p10464"/>
+		<content type="html"><![CDATA[<p>merci beaucoup pour ta réponse claire</p>]]></content>
+		<author>
+			<name><![CDATA[wazadex]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1327</uri>
+		</author>
+		<updated>2011-07-26T10:20:03Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10464#p10464</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Exécution d'une transaction]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10463#p10463"/>
+		<content type="html"><![CDATA[<p>Une transaction se termine toujours soit par un COMMIT soit par un ROLLBACK. Il n&#039;y a pas d&#039;intermédiaire. <br />Nous avons tous les deux raison en ce sens qu&#039;au moment de la coupure les transactions en cours sont dans un état &quot;pendant&quot;&#160; (de verbe pendre) c&#039;est à dire non finalisées (le SGBRD ne peut pas savoir à l&#039;avance quand aura lieu la coupure !!!! il n&#039;est pas voyant extra lucide...)<br />Au moment de la reprise du service, le SGBDR interdit l&#039;utilisation des bases de données tant qu&#039;il n&#039;a pas vérifié s&#039;il y avait des transactions en cours.<br />Si ce n&#039;est pas le cas il rend immédiatement la main et les utilisateurs peuvent travailler. La base est intègre.<br />S&#039;il y a des transactions non finalisées, elles vont être annulées par un ROLLBACK forcé, et tant que ces ROLLBACK ne sont pas finalisés, alors les utilisateurs ne peuvent pas travailler car la base n&#039;est pas intègre (certaines données sont incohérente). Une fois les ROLLBACK achevés, la basez devient de nouveau intègre et les utilisateurs peuvent désormais s&#039;en servir.<br />Le mécanisme qui permet ceci est le journal de transaction qui enregistre tous les changements d&#039;état de la base et les images avant et/ou après des données manipulées. Ceci permet donc de revenir à un état antérieur intègre de la base. Pour ce faire le journal de transaction enregistre les données dans le journal avec un marquage à base de LSN (Log Segment Number) et répercute ce LSN dans les fichiers de données afin de contrôler la cohérence. S&#039;il y a différence dans les LSN entre les données et le JT, alors on revient sur une version intègre antérieure en se calant sur un LSN &quot;stable&quot;... (j&#039;ai beaucoup simplifié...)<br />Ceci a été mis au point dans les années 70 par les travaux de Gray et Bernstein et l&#039;algorithme utilisé pour ce faire est basé sur ARIES dans la plupart des SGBDR (PG compris) avec quelques variantes spécifiques.</p><p>Pour en savoir plus : <br />Les transactions : <a href="http://sqlpro.developpez.com/cours/sqlaz/techniques/" rel="nofollow">http://sqlpro.developpez.com/cours/sqlaz/techniques/</a><br />ARIES : <a href="http://www.sai.msu.su/~megera/postgres/gist/papers/concurrency/p94-mohan.pdf" rel="nofollow">http://www.sai.msu.su/~megera/postgres/ … -mohan.pdf</a></p><p>A +</p>]]></content>
+		<author>
+			<name><![CDATA[SQLpro]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1054</uri>
+		</author>
+		<updated>2011-07-26T09:44:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10463#p10463</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Exécution d'une transaction]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10461#p10461"/>
+		<content type="html"><![CDATA[<p>Hello,</p><p>alors la je suis un peu perdu :</p><p>Gleu dit :&#160; A partir du moment où la connexion réseau est perdue entre un client et le serveur, la transaction en cours est automatiquement et immédiatement abandonnée.<br />et<br />SQLpro répond : En cas de coupure de courant, si une transaction est en cours, elle est annulée par un ROLLBACK qui s&#039;effectuera lorsque le serveur sera remis en marche (phase de RECOVERY)</p><p>c&#039;est a dire que quelque soit la coupure il y a toujours un ROLLBACK&#160; ou pas ?? Gleu ne précisant pas s&#039;il y a un ROLLBACK lors d&#039;une coupure réseau.</p><p>Merci</p>]]></content>
+		<author>
+			<name><![CDATA[wazadex]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1327</uri>
+		</author>
+		<updated>2011-07-26T07:17:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10461#p10461</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Exécution d'une transaction]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10460#p10460"/>
+		<content type="html"><![CDATA[<p>Il n&#039;y a pas de temps maximum (ni time out d&#039;aucune sorte) et la durée d&#039;une transaction peut être de plusieurs jours si nécessaire.<br />En cas de coupure de courant, si une transaction est en cours, elle est annulée par un ROLLBACK qui s&#039;effectuera lorsque le serveur sera remis en marche (phase de RECOVERY).<br />Toutes les autres transactions sont validées.</p><p>A +</p>]]></content>
+		<author>
+			<name><![CDATA[SQLpro]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1054</uri>
+		</author>
+		<updated>2011-07-26T06:58:35Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10460#p10460</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Exécution d'une transaction]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10459#p10459"/>
+		<content type="html"><![CDATA[<p>A première vu il n&#039;y aurait donc pas eu de coupure <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /> fausse alerte ^^</p>]]></content>
+		<author>
+			<name><![CDATA[wazadex]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1327</uri>
+		</author>
+		<updated>2011-07-25T15:12:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10459#p10459</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Exécution d'une transaction]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10458#p10458"/>
+		<content type="html"><![CDATA[<p>En fait c&#039;est juste une question de curiosité, car j’étais surpris que malgré la coupure, il n&#039;y ait eu d&#039;incidents sur mes tables postgres, et ne trouvant rien dans le fichier postgresql.conf je me demandais s&#039;il existait une tel valeur (sur le temps d’exécution maximum accordé a une transaction lors d&#039;une coupure) et ou la trouver/paramétrer.</p><p>Merci pour tes informations</p>]]></content>
+		<author>
+			<name><![CDATA[wazadex]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1327</uri>
+		</author>
+		<updated>2011-07-25T15:05:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10458#p10458</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Exécution d'une transaction]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10457#p10457"/>
+		<content type="html"><![CDATA[<p>Que font ces différents serveurs ? quel problème craignez-vous ? sans plus d&#039;infos, c&#039;est difficile de vous répondre.</p><p>Tout ce qu&#039;on peut vous dire, c&#039;est qu&#039;à partir du moment où la connexion réseau est perdue entre un client et le serveur, la transaction en cours est automatiquement et immédiatement abandonnée.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-07-25T14:59:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10457#p10457</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Exécution d'une transaction]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10456#p10456"/>
+		<content type="html"><![CDATA[<p>il n&#039;y a donc pas moyen de connaitre le temps maximum accordé à une transaction lors d&#039;une perte de connexion par exemple ?</p><p>Dans mon problème&#160; , c&#039;est qu&#039;il y a une coupure entre des serveurs, mais aucun incident sur leurs bases et donc je me demandais combien de temps peut durer une interruption de service sans avoir de problème derrière sur les bases.</p><p>Merci<br />Par contre je dois dire qu&#039;a Postgres je connais pas grand chose <img src="http://forums.postgresql.fr/img/smilies/hmm.png" width="15" height="15" alt="hmm" /></p>]]></content>
+		<author>
+			<name><![CDATA[wazadex]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1327</uri>
+		</author>
+		<updated>2011-07-25T14:51:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10456#p10456</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Exécution d'une transaction]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10455#p10455"/>
+		<content type="html"><![CDATA[<p>tout dépend du contenu de la transaction .... </p><p>un :<br />begin;<br />select 1;<br />commit;<br />en plus d&#039;etre inutile est tres rapide,<br />au contraire:<br />begin;<br />insert into foo select generate_series(1,10000000); <br />commit;</p><p>sera assez long... et en fonction des triggers et autres contraintes, cela impacte la durée.</p>]]></content>
+		<author>
+			<name><![CDATA[cedric]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=220</uri>
+		</author>
+		<updated>2011-07-25T14:47:33Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10455#p10455</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Exécution d'une transaction]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10454#p10454"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>suite à une coupure de connexion qui n&#039;a révélé aucune erreur au final, j&#039;aimerai connaitre quelle est le temps d&#039;exécution d&#039;une transaction.</p><p>Ou puis je trouver cette information ? </p><p>merci</p>]]></content>
+		<author>
+			<name><![CDATA[wazadex]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1327</uri>
+		</author>
+		<updated>2011-07-25T14:28:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10454#p10454</id>
+	</entry>
+</feed>

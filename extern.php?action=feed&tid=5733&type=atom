@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Fonction / déclencheur entre 2 tables]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5733&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5733"/>
+	<updated>2020-04-10T05:18:12Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5733</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Fonction / déclencheur entre 2 tables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31028#p31028"/>
+		<content type="html"><![CDATA[<p>Merci :-)</p>]]></content>
+		<author>
+			<name><![CDATA[HeadTrick24]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8848</uri>
+		</author>
+		<updated>2020-04-10T05:18:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31028#p31028</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Fonction / déclencheur entre 2 tables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31027#p31027"/>
+		<content type="html"><![CDATA[<p>L&#039;appel de la fonction &quot;nompm_func&quot; est déclenché sur un INSERT ou un UPDATE. Donc, la colonne &quot;nom_pm&quot; d&#039;une entité existante n&#039;est mise à jour que si vous modifiez sa géométrie (colonne &quot;geom&quot;)</p>]]></content>
+		<author>
+			<name><![CDATA[jmarsac]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7302</uri>
+		</author>
+		<updated>2020-04-09T21:19:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31027#p31027</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Fonction / déclencheur entre 2 tables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31026#p31026"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />effectivement c&#039;est bien public.adresse</p><p>Par contre les entités déjà existantes ne se mettent pas à jour.</p>]]></content>
+		<author>
+			<name><![CDATA[HeadTrick24]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8848</uri>
+		</author>
+		<updated>2020-04-09T20:43:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31026#p31026</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Fonction / déclencheur entre 2 tables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31025#p31025"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je ne comprends pas, votre trigger se déclenche lors d&#039;un INSERT/UPDATE de la table &quot;suivi_immeuble&quot; mentionnant la colonne &quot;pm&quot;...<br />D&#039;après votre explication ce serait plutôt</p><div class="codebox"><pre><code>CREATE TRIGGER nompm
+  BEFORE INSERT OR UPDATE OF geom
+  ON public.adresse
+  FOR EACH ROW
+  EXECUTE PROCEDURE public.nompm_func();</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[jmarsac]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7302</uri>
+		</author>
+		<updated>2020-04-09T06:58:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31025#p31025</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Fonction / déclencheur entre 2 tables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31024#p31024"/>
+		<content type="html"><![CDATA[<p>J&#039;ai trouvé mon bonheur en fouillant sur le net, mais mon champ se remplit quand je crée de nouvelles entités dans la table adresse. Celles déjà présentes ne se mettent pas à jour.<br />Voici mon code</p><br /><p>CREATE OR REPLACE FUNCTION public.nompm_func()<br />&#160; RETURNS trigger AS<br />$BODY$<br />BEGIN<br />&#160; &#160; select into NEW.nom_pm nom_pm from za_pm where st_within(NEW.geom, geom);<br />&#160; &#160; return NEW ;<br />END;<br />$BODY$<br />&#160; LANGUAGE plpgsql VOLATILE<br />&#160; COST 100;<br />ALTER FUNCTION public.nompm_func()<br />&#160; OWNER TO postgres;</p><br /><p>CREATE TRIGGER nompm<br />&#160; BEFORE INSERT OR UPDATE OF pm<br />&#160; ON public.suivi_immeuble<br />&#160; FOR EACH ROW<br />&#160; EXECUTE PROCEDURE public.nompm_func();</p>]]></content>
+		<author>
+			<name><![CDATA[HeadTrick24]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8848</uri>
+		</author>
+		<updated>2020-04-08T21:44:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31024#p31024</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Fonction / déclencheur entre 2 tables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31023#p31023"/>
+		<content type="html"><![CDATA[<p>Bonjour, étant novice dans les fonctions / déclencheurs, je sollicite vos compétences.<br />J&#039;ai des tables, &quot;za_pm&quot; qui est un polygone et &quot;adresse&quot; qui est un point.<br />Ces deux tables ont un champ &quot;nom_pm&quot;.<br />Les points de la table adresse se trouve géométriquement dans les polygones de la table za_pm.<br />Comment remplir automatiquement le champ &quot;nom_pm&quot; de la table adresse par le champ &quot;nom_pm&quot; de la table za_pm. <br />Merci :-)</p>]]></content>
+		<author>
+			<name><![CDATA[HeadTrick24]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8848</uri>
+		</author>
+		<updated>2020-04-08T19:39:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31023#p31023</id>
+	</entry>
+</feed>

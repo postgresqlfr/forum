@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Vue postgis avec srid=0 dans geometry_columns]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2991&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2991"/>
+	<updated>2014-02-08T19:12:00Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2991</id>
+	<entry>
+		<title type="html"><![CDATA[Vue postgis avec srid=0 dans geometry_columns]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19180#p19180"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />sous postgis 2, j&#039;ai créé une vue à partir d&#039;une table de raster importés dans ma base avec raster2pgsql.<br />Voici ma requête de création de la vue :<br />create or replace view v_emprise_raster as select rid , rast::geometry as geom, filename from raster_lot9;</p><p>J&#039;ai vérifié , les géométries sont bien de type polygon, et le srid est 2154 (En effet, la requête select st_asewkt(geom) from v_emprise_raster limit 10; me ramène bien des lignes du type : &quot;SRID=2154;POLYGON((786000 6515000,786500 6515000,786500 6514500,786000 6514500,786000 6515000))&quot;).</p><p>Par contre, dans geometry_columns, ma vue v_emprise_raster a un srid = 0 :<br />f_table_catalog &#160; &#160; f_table_schema &#160; &#160; f_table_name &#160; &#160; f_geometry_column &#160; &#160; coord_dimension &#160; &#160; srid &#160; &#160; type<br />demo_decoupe &#160; &#160; public &#160; &#160; v_emprise_raster &#160; &#160; geom &#160; &#160; 2 &#160; &#160; 0 &#160; &#160; GEOMETRY<br />1 rows with 7 columns retrieved.<br />select * from geometry_columns where srid&lt;=0;</p><p>Je n&#039;arrive pas à mettre à jour srid=2154 pour cette vue v_emprise_raster dans geometry_columns.<br />Pas moyen, ni avec select populate_geometry_columns(), ni select UpdateGeometrySRID(&#039;v_emprise_raster&#039;,&#039;geom&#039;,2154), ni UPDATE geometry_columns SET srid=2154 WHERE f_table_name=&#039;v_emprise_raster&#039;;</p><p>Je n&#039;ai pas ce problème avec une vue créée à partir d&#039;une table &quot;normale&quot;, c&#039;est à dire une table géométrique qui n&#039;est pas une table de raster.<br />C&#039;est marrant car QGIS affiche convenablement la visualisation la requête suivante :<br />select rid , rast::geometry as geom, filename from raster_lot9 limit 10;</p><br /><p>Y a-t-il une subtilité ?</p><p>Merci d&#039;avance. Cordialement, Alexis GAILLOT</p>]]></content>
+		<author>
+			<name><![CDATA[Alexis GAILLOT]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3126</uri>
+		</author>
+		<updated>2014-02-08T19:12:00Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19180#p19180</id>
+	</entry>
+</feed>

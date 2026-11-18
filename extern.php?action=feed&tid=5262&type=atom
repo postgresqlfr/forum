@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / [PG10] Requête préparée, INSERT nombre variable de ligne par tableau]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5262&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5262"/>
+	<updated>2019-03-15T06:30:58Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5262</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [PG10] Requête préparée, INSERT nombre variable de ligne par tableau]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29378#p29378"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><p>C&#039;est à ce moment que je réalise l&#039;immensité de l&#039;abime de ma méconnaissance de PostgreSQL <img src="http://forums.postgresql.fr/img/smilies/roll.png" width="15" height="15" alt="roll" /></p><br /><p>Merci beaucoup. Je prends 2 aspirines et j&#039;essaye de comprendre comme ça marche <img src="http://forums.postgresql.fr/img/smilies/big_smile.png" width="15" height="15" alt="big_smile" /><br />Pour l&#039;instant, j&#039;ai décomposé ma requête en 2 (de plus, cela me permet de récupérer l&#039;ID pour un autre traitement ...), mais pour ma culture, je regarderai quand même votre syntaxe.</p><p>Merci encore.</p>]]></content>
+		<author>
+			<name><![CDATA[ramirez22]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8315</uri>
+		</author>
+		<updated>2019-03-15T06:30:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29378#p29378</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [PG10] Requête préparée, INSERT nombre variable de ligne par tableau]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29355#p29355"/>
+		<content type="html"><![CDATA[<p>Il manque une clause INTO dans la première requête pour récupérer la valeur de retour, sinon effectivement votre requête renvoie une valeur que rien n&#039;intercepte.&#160; Vous pouvez faire les deux opérations en une seule requête, en reprenant votre exemple :</p><div class="codebox"><pre><code>WITH src(id_doc) AS (
+    INSERT INTO test_document (code,titre) VALUES (&#039;A&#039;, &#039;&#039;) RETURNING id_doc
+)
+INSERT INTO test_liaison (id_doc, id_type)
+    SELECT src.id_doc, arr.nb
+    FROM src
+    CROSS JOIN unnest(&#039;{2,9,5}&#039;::bigint[]) AS arr(nb);</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2019-03-10T16:57:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29355#p29355</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [PG10] Requête préparée, INSERT nombre variable de ligne par tableau]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29354#p29354"/>
+		<content type="html"><![CDATA[<p>Je ne suis pas sur que l&#039;on se comprenne bien <img src="http://forums.postgresql.fr/img/smilies/tongue.png" width="15" height="15" alt="tongue" /></p><br /><p>Aussi, histoire d&#039;être plus compréhensible (j&#039;avoue que parfois ...) un petit exemple ne sera pas de trop.<br />Je viens de faire une base de test avec 2 tables.</p><div class="codebox"><pre><code>CREATE TABLE public.test_document (
+    id_doc bigint NOT NULL DEFAULT nextval(&#039;test_id_doc_seq&#039;::regclass),
+    code text COLLATE pg_catalog.&quot;default&quot; NOT NULL,
+    titre text COLLATE pg_catalog.&quot;default&quot; NOT NULL,
+    CONSTRAINT &quot;Test_document_pkey&quot; PRIMARY KEY (id_doc))
+
+CREATE TABLE public.test_liaison(
+    id_doc bigint,
+    id_type bigint)</code></pre></div><p>Et je voudrais réaliser cette action :</p><div class="codebox"><pre><code>DO $$
+	DECLARE
+		tableau bigint[] := &#039;{2,9,5}&#039;;
+	BEGIN
+		INSERT INTO test_document (code,titre) VALUES (&#039;A&#039;, &#039;&#039;) RETURNING id_doc AS id_nouveau_doc;
+		FOR i IN 1..array_upper(tableau,1) LOOP
+			INSERT INTO test_liaison (id_doc, id_type) VALUES (id_nouveau_doc, tableau[i]);
+		END LOOP;
+	END;
+$$ LANGUAGE plpgsql;</code></pre></div><p>Mais cela ne fonctionne pas : </p><div class="codebox"><pre><code>ERROR:  ERREUR:  la requête n&#039;a pas de destination pour les données résultantes
+CONTEXT:  fonction PL/pgsql inline_code_block, ligne 5 à instruction SQL
+SQL state: 42601</code></pre></div><p>En gros, je voudrais que ce groupe de commande :<br />- crée un enregistrement sur la première table avec les valeurs passées &quot;VALUES (&#039;A&#039;, &#039;&#039;)&quot; que j&#039;adapterai depuis mon code appelant<br />- créé un nombre d&#039;enregistrement dans la deuxième table correspondant au nombre de valeurs dans la variable de type tableau &#039;tableau&#039; et comme valeurs, l&#039;ID créé précédemment et la valeur correspondante de la variable &#039;tableau&#039; (suis-je clair <img src="http://forums.postgresql.fr/img/smilies/hmm.png" width="15" height="15" alt="hmm" /> ?)</p><br /><p>J&#039;ai tenté d&#039;ajouter </p><div class="codebox"><pre><code>id_nouveau_doc bigint;</code></pre></div><p>dans les déclarations, mais aucun changement.</p><p>Si je supprime le RETURNING, plus d&#039;erreur (j&#039;aurais tendance à penser que c&#039;est normal puisque DO est censé renvoyer VOID), mais forcément, la table test_liaison n&#039;a pas la valeur d&#039;ID_doc souhaitée. Du coup, je ne vois pas comment faire.</p><br /><p>J&#039;avoue que cela ne vaut pas vraiment le coup de se creuser la tête pour si peu.<br />Je vais envoyer la première requête :</p><div class="codebox"><pre><code>INSERT INTO test_document (code,titre) VALUES (&#039;A&#039;, &#039;&#039;) RETURNING id_doc AS id_nouveau_doc;</code></pre></div><p>Puis récupérer dans mon code la valeur de l&#039;ID renvoyée et lancer cette fois-ci :</p><div class="codebox"><pre><code>DO $$
+	DECLARE
+		tableau bigint[] := &#039;{2,9,5}&#039;;
+	BEGIN
+		FOR i IN 1..array_upper(tableau,1) LOOP
+			INSERT INTO test_liaison (id_doc, id_type) VALUES (id_nouveau_doc, tableau[i]);
+		END LOOP;
+	END;
+$$ LANGUAGE plpgsql;</code></pre></div><p>Avec comme paramètres le tableau et l&#039;id_nouveau_doc.</p><p>Certes, cela fait 2 requêtes, mais cela ne va pas surcharger le réseau <img src="http://forums.postgresql.fr/img/smilies/big_smile.png" width="15" height="15" alt="big_smile" /></p><br /><p>C&#039;est juste que j&#039;aurais voulu savoir et comprendre. </p><br /><p>Merci en tout cas pour l&#039;intervention. Et si tu vois des &quot;solutions&quot; à ma problématique, je suis preneur à titre de curiosité malgré tout.</p><p>Cordialement,<br />Ramirez22</p>]]></content>
+		<author>
+			<name><![CDATA[ramirez22]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8315</uri>
+		</author>
+		<updated>2019-03-10T16:04:03Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29354#p29354</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [PG10] Requête préparée, INSERT nombre variable de ligne par tableau]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29353#p29353"/>
+		<content type="html"><![CDATA[<p>Il n&#039;y a pas besoin de boucle FOR, il faut utiliser plutôt unnest() pour générer une ligne par élément du tableau.<br />Concrètement, par rapport à la requête de départ, si $5 est de type bigint[] (donc un tableau), le second<br />INSERT devrait ressembler ça:</p><div class="codebox"><pre><code>INSERT INTO documents_types (id_document, id_type) 
+    SELECT nouveau_doc.id_document, liste.type_doc
+    FROM nouveau_doc CROSS JOIN unnest($5) AS liste(type_doc)</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2019-03-09T15:54:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29353#p29353</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [PG10] Requête préparée, INSERT nombre variable de ligne par tableau]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29352#p29352"/>
+		<content type="html"><![CDATA[<p>Je suis en train de me demander si je ne cherche pas la complexité là où il n&#039;y en a pas...</p><br /><p>En gros, j&#039;ai créé une table pour test avec 2 colonne bigint, puis j&#039;ai créé cette fonction:</p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION insertion(
+	idcol bigint,
+	tableau bigint[])
+    RETURNS void
+    LANGUAGE &#039;plpgsql&#039;
+    AS $$
+        BEGIN
+	FOR i IN 1..array_upper(tableau,1)
+	    LOOP
+		INSERT INTO test (colonne1, colonne2) VALUES (idcol, tableau[i]);
+	    END LOOP;
+        END;
+$$;</code></pre></div><p>Puis je l&#039;ai lancée </p><div class="codebox"><pre><code>SELECT insertion (1, &#039;{1,2,4,5}&#039;);</code></pre></div><p>Et j&#039;obtiens bien ma table</p><div class="codebox"><pre><code>colonne 1  |  colonne 2
+     1     |     1
+     1     |     2
+     1     |     4
+     1     |     5</code></pre></div><p>Mais je me demande quel est le gain réel et si ça vaut vraiment le coup de se creuser la tête pour adapter cette fonction à mon besoin ci-dessus.</p><br /><p>En gros, avec cette fonction, j&#039;envoie une fois pour toute les infos du document avec un array contenant les ID du type de documents, et la fonction créé autant de ligne dans la table documents_types que nécessaire.<br />Mais quel est réellement le gain par rapport à : créer mon document et récupérer son ID, puis envoyer autant de requête que nécessaire pour créer les lignes de la table documents_types ? La charge réseau ?</p><br /><p>De plus, l&#039;avantage des requêtes préparées, c&#039;est qu&#039;elles étaient supprimées à la fermeture de la session utilisateur. Ce qui n&#039;est pas le cas des fonctions...<br />Je ne sais pas si cela aura des conséquences à terme ...</p><br /><p>Merci de vos éclaircissements.</p>]]></content>
+		<author>
+			<name><![CDATA[ramirez22]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8315</uri>
+		</author>
+		<updated>2019-03-09T07:07:33Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29352#p29352</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [PG10] Requête préparée, INSERT nombre variable de ligne par tableau]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29338#p29338"/>
+		<content type="html"><![CDATA[<p>J&#039;ai déjà du mal à comprendre la première requête, alors difficile de conseiller la construction d&#039;une deuxième requête de même type <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>Ceci étant dit, je crois que j&#039;ai compris ce que vous vouliez faire mais il ne me semble pas que ce soit possible en SQL pur. C&#039;est certainement le cas où il vaut mieux passer par une procédure stockée.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2019-03-08T16:12:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29338#p29338</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[[PG10] Requête préparée, INSERT nombre variable de ligne par tableau]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29333#p29333"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><p>Malgré mon expérience grandissante dans la compréhension du SQL et de PostgreSQL (bon OK, j&#039;en rajoute un peu <img src="http://forums.postgresql.fr/img/smilies/hmm.png" width="15" height="15" alt="hmm" /> ), je n&#039;arrive pas à trouver un début de piste de réflexion.</p><br /><p>Je voudrais faire une requête préparée et lui passer quelques valeurs text et un tableau (array) de x bigint.<br />Ma fonction actuelle (sans le tableau) a cette tête :</p><div class="codebox"><pre><code>PREPARE ajout_nouveau_document_inconnu(text,text,text,text,bigint) AS 
+WITH nouveau_doc AS (
+    INSERT INTO documents (
+    code, 
+    titre, 
+    commentaires, 
+    creation_par,
+    date_creation) 
+    VALUES ($1, $2, $3, $4, CURRENT_DATE)
+    RETURNING id_document)
+INSERT INTO documents_types (id_document, id_type) 
+    SELECT nouveau_doc.id_document, $5 
+    FROM nouveau_doc 
+RETURNING id_document;</code></pre></div><p>La table documents_types est une table de liaison et il peut y avoir plusieurs types pour un document.<br />Or avec cette requête, je ne peut que saisir le premier type ($5).<br />Je suis ensuite obligé de faire un INSERT INTO documents_types pour chaque types et ça envoi un nombre conséquent de requêtes.</p><br /><p>J&#039;aurais voulu, à la place du dernier bigint de la fonction préparée, transmettre un tableau de bigint avec les ID de chaque types de doc, et que la fonction gère d&#039;elle-même les INSERT INTO en fonction:<br />- du id_document récupéré lors de la création du-dit document dans la table documents<br />- du ou des bigint contenu(s) dans le tableau transmis</p><br /><p>Mais perso, je sèche...</p><p>Un peu d&#039;aide serait la bienvenue (même si c&#039;est pour me dire &quot;pô possible !&quot;)</p><p>Merci à vous, bonne fin de journée</p>]]></content>
+		<author>
+			<name><![CDATA[ramirez22]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8315</uri>
+		</author>
+		<updated>2019-03-08T15:20:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29333#p29333</id>
+	</entry>
+</feed>

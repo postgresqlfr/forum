@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / pg_restore: erreur sur la modification du schéma]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=343&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=343"/>
+	<updated>2009-07-09T12:24:09Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=343</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pg_restore: erreur sur la modification du schéma]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1950#p1950"/>
+		<content type="html"><![CDATA[<p>Effectivement, c&#039;était simple mais je bloquais <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>Merci pour ta réponse. Merci en règle générale pour les posteurs réguliers ici qui répondent rapidement à toutes nos questions (même idiotes).</p>]]></content>
+		<author>
+			<name><![CDATA[Remigio]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=418</uri>
+		</author>
+		<updated>2009-07-09T12:24:09Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1950#p1950</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pg_restore: erreur sur la modification du schéma]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1949#p1949"/>
+		<content type="html"><![CDATA[<p>Autant pour moi, j&#039;ai lu un peu rapidement et ma réponse passait par la simplicité.</p><p>D&#039;après les messages d&#039;erreurs que vous avez, c&#039;est une erreur de propriété du schéma pour résoudre cela, vous pouvez essayer la commande suivante :</p><div class="codebox"><pre><code>ALTER SCHEMA [nom du schema] OWNER TO userB;</code></pre></div><p>Cela devrait résoudre votre problème puisqu&#039;ensuite le schéma appartiendra au userB et le supprimer ne posera plus de problème.</p><p>La base de destination à sans doute été crée avec le mauvais user; je suppose que le propriétaire de la base n&#039;est pas userB.</p>]]></content>
+		<author>
+			<name><![CDATA[Haseo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=414</uri>
+		</author>
+		<updated>2009-07-09T12:09:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1949#p1949</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pg_restore: erreur sur la modification du schéma]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1948#p1948"/>
+		<content type="html"><![CDATA[<p>Si je fait ces opérations avec le user postgres, les objets seront créés sous le nom de postgres non ? J&#039;aimerais bien que toute la base et ce qui la compose appartiennent au user que j&#039;ai associé à la base. En règle générale, je n&#039;utilise le user postgres que pour des opération d&#039;administration.</p>]]></content>
+		<author>
+			<name><![CDATA[Remigio]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=418</uri>
+		</author>
+		<updated>2009-07-09T09:51:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1948#p1948</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pg_restore: erreur sur la modification du schéma]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1947#p1947"/>
+		<content type="html"><![CDATA[<p>Question : Et pourquoi ne pas tout simplement utiliser l&#039;utilisateur posgres qui est quand même l&#039;utilisateur pour la maintenance ???</p><p>De plus, j&#039;aurais tendance à utiliser les options -d Mabase -U user dans le psql au lieu de le mettre dans l&#039;archive du restore.</p>]]></content>
+		<author>
+			<name><![CDATA[Haseo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=414</uri>
+		</author>
+		<updated>2009-07-09T09:44:52Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1947#p1947</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[pg_restore: erreur sur la modification du schéma]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1944#p1944"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous.</p><p>Voilà le souci:</p><p>Je dispose d&#039;une base A de prod et d&#039;une base B de recette.Chaque jour, je souhaite alimenter la base B de recette avec les données de la base A. Je souhaite tout charger: données et objets, et effacer l&#039;existant sur la base B.Chacune des deux bases est gérée par un user différent.</p><p>Pour cela, j&#039;exécute une pg_dump sur la base A en utilisant l&#039;option -O pour ne pas attribuer de droit aux objets dans les scripts:</p><div class="quotebox"><blockquote><div><p>pg_dump -f fichier.tar -F t -O -UuserA baseA</p></div></blockquote></div><p>et un pg_restore sur la base B avec l&#039;option -O pour ne pas réattribuer de droit, l&#039;option -c pour effacer l&#039;existant et recréer et l&#039;option -x pour empêcher la restauration des droits d&#039;accès.</p><br /><div class="quotebox"><blockquote><div><p>pg_restore -dbaseB -UuserB-O -c -x fichier.tar</p></div></blockquote></div><p>Mon souci, c&#039;est que la base a été créée avec postgres avec l&#039;option owner userB et le schéma public appartient à postgres. Et pg_restore essaye de supprimer le schéma, de le recréer et de le commenter mais userB n&#039;a apparemment pas les droits pour le faire.</p><div class="quotebox"><blockquote><div><p>pg_restore: [programme d&#039;archivage (db)] Erreur pendant le traitement de la TOC (« PROCESSING TOC ») :<br />pg_restore: [programme d&#039;archivage (db)] Erreur à partir de l&#039;entrée TOC 6 ; 2615 2200 SCHEMA public postgres<br />pg_restore: [programme d&#039;archivage (db)] could not execute query: <strong>ERREUR:&#160; doit être le propriétaire du schéma public</strong><br />&#160; &#160; Command was: <strong>DROP SCHEMA public</strong>;<br />pg_restore: [programme d&#039;archivage (db)] could not execute query: <strong>ERREUR:&#160; le schéma public existe déjà</strong><br />&#160; &#160; Command was: <strong>CREATE SCHEMA public</strong>;<br />pg_restore: [programme d&#039;archivage (db)] Erreur à partir de l&#039;entrée TOC 1975 ; 0 0 COMMENT SCHEMA public postgres<br />pg_restore: [programme d&#039;archivage (db)] could not execute query: <strong>ERREUR:&#160; doit étre le propriétaire du schéma public</strong><br />&#160; &#160; Command was: <strong>COMMENT ON SCHEMA public IS &#039;standard public schema&#039;</strong>;<br />ATTENTION : erreurs ignorées lors de la restauration : 3</p></div></blockquote></div><p>J&#039;ai bien fait un GRANT ALL ON SCHEMA PUBLIC TO userB, mais ça ne change rien.</p><p>Quelqu&#039;un aurait une idée pour résoudre ce problème ou le contourner (hormis les 3 erreurs, les données s&#039;importent très bien, tout fonctionne).</p><br /><p>Merci</p>]]></content>
+		<author>
+			<name><![CDATA[Remigio]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=418</uri>
+		</author>
+		<updated>2009-07-09T08:44:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1944#p1944</id>
+	</entry>
+</feed>

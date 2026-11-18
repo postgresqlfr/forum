@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Erreur de lecture sur certains fichiers sous /main/global/]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=7016&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=7016"/>
+	<updated>2024-12-06T09:58:56Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=7016</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Erreur de lecture sur certains fichiers sous /main/global/]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=35360#p35360"/>
+		<content type="html"><![CDATA[<p>C&#039;était bien la faute de l&#039;anticrasses, en le désactivant complètement, le bug disparait.<br />Nous sommes entre temps passés à un autre produit et celui-ci ne pose le problème.</p>]]></content>
+		<author>
+			<name><![CDATA[mgmpg]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=337</uri>
+		</author>
+		<updated>2024-12-06T09:58:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=35360#p35360</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Erreur de lecture sur certains fichiers sous /main/global/]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=35326#p35326"/>
+		<content type="html"><![CDATA[<p>Il faudrait voir ce que sort `journalctl` sur les périodes où les erreurs surviennent.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2024-11-02T12:36:00Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=35326#p35326</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Erreur de lecture sur certains fichiers sous /main/global/]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=35322#p35322"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Depuis quelques jours, j&#039;ai une erreur bizarre qui apparait parfois lorsque je supprime une base : un problème d&#039;accès à des fichiers sous /main/global/ !<br />Je suis en pg 16.4 (migration depuis la v15 le 10 août) et en Debian Bookworm (=v12.7) avec rien de particulier dans la conf...<br />La partition pour pg est en ext4 avec attributs &quot;rw,noatime&quot;.<br />Il y a une soixantaine de bases, les grosses font entre 20 et 70Go.</p><div class="codebox"><pre class="vscroll"><code>$ grep -h -C1 &#039;global/&#039; /var/log/postgresql/postgresql-16-main.log*
+(j&#039;ai masqué quelques infos persos avec des &quot;*&quot; ;-)
+
+2024-10-13 20:36:24 CEST [2401]: [1450-1] user=,db=,app=,client= LOG:  checkpoint complete: wrote 59 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.206 s, sync=0.001 s, total=0.212 s; sync files=15, longest=0.001 s, average=0.001 s; distance=531 kB, estimate=807 kB; lsn=11D/7F8A9318, redo lsn=11D/7F8A92E0
+2024-10-13 20:36:24 CEST [2410]: [1-1] user=,db=,app=,client= ERROR:  could not open file &quot;global/6100&quot;: Operation not permitted
+2024-10-13 20:36:25 CEST [2965643]: [1-1] user=[unknown],db=[unknown],app=[unknown],client=***.***.***.*** LOG:  connection received: host=***.***.***.*** port=46830
+2024-10-13 20:36:25 CEST [2965644]: [1-1] user=[unknown],db=[unknown],app=[unknown],client=***.***.***.*** LOG:  connection received: host=***.***.***.*** port=50224
+2024-10-13 20:36:25 CEST [2965640]: [3-1] user=********,db=postgres,app=dropdb,client=***.***.***.*** ERROR:  could not open file &quot;global/1213&quot;: Operation not permitted
+2024-10-13 20:36:25 CEST [2965640]: [4-1] user=********,db=postgres,app=dropdb,client=***.***.***.*** STATEMENT:  DROP DATABASE ********;
+2024-10-13 20:36:25 CEST [2965643]: [2-1] user=********,db=********,app=[unknown],client=***.***.***.*** FATAL:  could not open file &quot;global/pg_filenode.map&quot;: Operation not permitted
+2024-10-13 20:36:25 CEST [2965644]: [2-1] user=********,db=********,app=[unknown],client=***.***.***.*** FATAL:  could not open file &quot;global/pg_filenode.map&quot;: Operation not permitted
+2024-10-13 20:36:25 CEST [2965646]: [1-1] user=[unknown],db=[unknown],app=[unknown],client=***.***.***.*** LOG:  connection received: host=***.***.***.*** port=50228
+--
+2024-10-17 08:15:46 CEST [2401]: [3454-1] user=,db=,app=,client= LOG:  checkpoint complete: wrote 106 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.199 s, sync=0.001 s, total=0.202 s; sync files=61, longest=0.001 s, average=0.001 s; distance=586 kB, estimate=2373 kB; lsn=11E/417A77C8, redo lsn=11E/417A7790
+2024-10-17 08:15:47 CEST [3452150]: [3-1] user=********,db=template1,app=********,client=***.***.***.*** ERROR:  could not open file &quot;global/1213&quot;: Operation not permitted
+2024-10-17 08:15:47 CEST [3452150]: [4-1] user=********,db=template1,app=********,client=***.***.***.*** STATEMENT:  DROP DATABASE &quot;********&quot;
+--
+2024-10-17 10:06:02 CEST [2401]: [3500-1] user=,db=,app=,client= LOG:  checkpoint complete: wrote 48 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.201 s, sync=0.001 s, total=0.222 s; sync files=7, longest=0.001 s, average=0.001 s; distance=447 kB, estimate=998 kB; lsn=11E/42175090, redo lsn=11E/42175058
+2024-10-17 10:06:03 CEST [3506557]: [4-1] user=********,db=********,app=psql/********,client=[local] ERROR:  could not open file &quot;global/1213&quot;: Operation not permitted
+2024-10-17 10:06:03 CEST [3506557]: [5-1] user=********,db=********,app=psql/********,client=[local] STATEMENT:  drop DATABASE ******** ;
+--
+2024-10-17 12:33:34 CEST [2401]: [3562-1] user=,db=,app=,client= LOG:  checkpoint complete: wrote 91 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.199 s, sync=0.002 s, total=0.205 s; sync files=10, longest=0.001 s, average=0.001 s; distance=718 kB, estimate=495087 kB; lsn=11E/683C0698, redo lsn=11E/683C0660
+2024-10-17 12:33:34 CEST [3720580]: [3-1] user=********,db=postgres,app=dropdb,client=***.***.***.*** ERROR:  could not open file &quot;global/1213&quot;: Operation not permitted
+2024-10-17 12:33:34 CEST [3720580]: [4-1] user=********,db=postgres,app=dropdb,client=***.***.***.*** STATEMENT:  DROP DATABASE IF EXISTS ********;
+--
+2024-10-17 17:39:52 CEST [4036373]: [3-1] user=********,db=********,app=[unknown],client=***.***.***.*** LOG:  connection authorized: user=******** database=******** SSL enabled (protocol=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384, bits=256)
+2024-10-17 17:40:01 CEST [2408]: [1-1] user=,db=,app=,client= ERROR:  could not open file &quot;global/1262&quot;: Operation not permitted
+2024-10-17 17:40:02 CEST [4036438]: [1-1] user=[unknown],db=[unknown],app=[unknown],client=***.***.***.*** LOG:  connection received: host=***.***.***.*** port=33480
+
+2024-10-22 11:52:39 CEST [2401]: [6428-1] user=,db=,app=,client= LOG:  checkpoint complete: wrote 922 buffers (0.0%); 0 WAL file(s) added, 0 removed, 1 recycled; write=0.243 s, sync=0.002 s, total=0.255 s; sync files=141, longest=0.001 s, average=0.001 s; distance=5511 kB, estimate=13011 kB; lsn=11F/3303F148, redo lsn=11F/3303F110
+2024-10-22 11:52:41 CEST [3519566]: [3-1] user=********,db=postgres,app=dropdb,client=***.***.***.*** ERROR:  could not open file &quot;global/1213&quot;: Operation not permitted
+2024-10-22 11:52:41 CEST [3519566]: [4-1] user=********,db=postgres,app=dropdb,client=***.***.***.*** STATEMENT:  DROP DATABASE IF EXISTS ******** WITH (FORCE);
+--
+2024-10-22 16:18:06 CEST [2401]: [6536-1] user=,db=,app=,client= LOG:  checkpoint complete: wrote 110 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.211 s, sync=0.001 s, total=0.223 s; sync files=57, longest=0.001 s, average=0.001 s; distance=599 kB, estimate=10743 kB; lsn=11F/40C2D3B0, redo lsn=11F/40C2D378
+2024-10-22 16:18:07 CEST [3794417]: [3-1] user=********,db=postgres,app=dropdb,client=***.***.***.*** ERROR:  could not open file &quot;global/1213&quot;: Operation not permitted
+2024-10-22 16:18:07 CEST [3794417]: [4-1] user=********,db=postgres,app=dropdb,client=***.***.***.*** STATEMENT:  DROP DATABASE IF EXISTS ******** WITH (FORCE);
+--
+2024-10-24 17:52:43 CEST [2401]: [7728-1] user=,db=,app=,client= LOG:  checkpoint complete: wrote 18103 buffers (0.1%); 0 WAL file(s) added, 0 removed, 96 recycled; write=0.427 s, sync=0.002 s, total=2.421 s; sync files=123, longest=0.001 s, average=0.001 s; distance=1581877 kB, estimate=1581877 kB; lsn=120/8EE79928, redo lsn=120/8EE79150
+2024-10-24 17:52:45 CEST [3040312]: [4-1] user=********,db=postgres,app=dropdb,client=[local] ERROR:  could not open file &quot;global/1213&quot;: Operation not permitted
+2024-10-24 17:52:45 CEST [3040312]: [5-1] user=********,db=postgres,app=dropdb,client=[local] STATEMENT:  DROP DATABASE IF EXISTS ******** WITH (FORCE);
+--
+2024-10-24 20:48:24 CEST [3222882]: [4-1] user=,db=,app=,client= LOG:  checkpoint complete: wrote 186 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.208 s, sync=0.001 s, total=0.214 s; sync files=54, longest=0.001 s, average=0.001 s; distance=1153 kB, estimate=1153 kB; lsn=124/8576A3F8, redo lsn=124/8576A3C0
+2024-10-24 20:48:24 CEST [3229106]: [3-1] user=********,db=template1,app=********,client=***.***.***.*** ERROR:  could not open file &quot;global/1213&quot;: Operation not permitted
+2024-10-24 20:48:24 CEST [3229106]: [4-1] user=********,db=template1,app=********,client=***.***.***.*** STATEMENT:  DROP DATABASE &quot;********&quot;
+--
+2024-10-24 21:18:19 CEST [3222882]: [16-1] user=,db=,app=,client= LOG:  checkpoint complete: wrote 95 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.205 s, sync=0.001 s, total=0.212 s; sync files=49, longest=0.001 s, average=0.001 s; distance=646 kB, estimate=950 kB; lsn=124/859DEBD0, redo lsn=124/859DE190
+2024-10-24 21:18:19 CEST [3258409]: [3-1] user=********,db=template1,app=********,client=***.***.***.*** ERROR:  could not open file &quot;global/1213&quot;: Operation not permitted
+2024-10-24 21:18:19 CEST [3258409]: [4-1] user=********,db=template1,app=********,client=***.***.***.*** STATEMENT:  DROP DATABASE &quot;********&quot;
+--
+2024-10-25 10:10:27 CEST [4179788]: [1-1] user=[unknown],db=[unknown],app=[unknown],client=[local] LOG:  connection received: host=[local]
+2024-10-25 10:10:27 CEST [3222889]: [1-1] user=,db=,app=,client= ERROR:  could not open file &quot;global/6100&quot;: Operation not permitted
+2024-10-25 10:10:27 CEST [4179789]: [1-1] user=[unknown],db=[unknown],app=[unknown],client=***.***.***.*** LOG:  connection received: host=***.***.***.*** port=35002
+2024-10-25 10:10:27 CEST [4179790]: [1-1] user=[unknown],db=[unknown],app=[unknown],client=***.***.***.*** LOG:  connection received: host=***.***.***.*** port=56532
+2024-10-25 10:10:28 CEST [4099649]: [6-1] user=********,db=template1,app=psql/********,client=[local] ERROR:  could not open file &quot;global/1213&quot;: Operation not permitted
+2024-10-25 10:10:28 CEST [4099649]: [7-1] user=********,db=template1,app=psql/********,client=[local] STATEMENT:  drop database db_test_drop ;</code></pre></div><p>Les fichiers concernés sont global/1213, global/1262, global/6100 et global/pg_filenode.map<br />(surtout le 1213!)</p><p>Au niveau des droits c&#039;est ok:</p><div class="codebox"><pre><code>$ ls -l /var/lib/postgresql/16/main/global/{1213,1262,6100,pg_filenode}*
+
+-rw------- 1 postgres postgres  8192 24 oct.  22:02 /var/lib/postgresql/16/main/global/1213
+-rw------- 1 postgres postgres 24576 10 août  14:34 /var/lib/postgresql/16/main/global/1213_fsm
+-rw------- 1 postgres postgres  8192 24 oct.  21:57 /var/lib/postgresql/16/main/global/1213_vm
+-rw------- 1 postgres postgres 16384 25 oct.  10:11 /var/lib/postgresql/16/main/global/1262
+-rw------- 1 postgres postgres 24576 24 oct.  21:47 /var/lib/postgresql/16/main/global/1262_fsm
+-rw------- 1 postgres postgres  8192 24 oct.  21:52 /var/lib/postgresql/16/main/global/1262_vm
+-rw------- 1 postgres postgres     0 10 août  14:34 /var/lib/postgresql/16/main/global/6100
+-rw------- 1 postgres postgres   524 17 oct.  12:35 /var/lib/postgresql/16/main/global/pg_filenode.map</code></pre></div><p>En switchant sur le compte système &quot;postgres&quot;, je peux faire un &quot;cat&quot; de tous ces fichiers sans problème.</p><p>D&#039;après le dico, ce sont les tables système suivantes:</p><div class="codebox"><pre><code># select oid,relname from pg_catalog.pg_class where oid in (1213,1262,6100);
+ oid  |     relname
+------+-----------------
+ 1213 | pg_tablespace
+ 1262 | pg_database
+ 6100 | pg_subscription</code></pre></div><p>J&#039;ai essayé de créer puis supprimer un tablespace de test hier soir, histoire de voir si ça pourrait remettre des trucs d&#039;équerre, je n&#039;ai pas eu d&#039;erreur et les fichiers 1213* ont bien été modifiés (j&#039;y vois même encore le nom du tablespace supprimé)</p><p>Relancer postgres ne change rien non plus...</p><p>Je viens de réessayer ce matin (ce sont les lignes du log à 10h10):</p><div class="codebox"><pre><code>$ psql template1
+psql (16.4 (Debian 16.4-1.pgdg120+2))
+template1=# create database db_test_drop;
+CREATE DATABASE
+template1=# drop database db_test_drop ;
+ERROR:  could not open file &quot;global/1213&quot;: Operation not permitted
+template1=# drop database db_test_drop ;
+DROP DATABASE</code></pre></div><p>mais 2 minutes après ça passe :</p><div class="codebox"><pre><code>template1=# create database db_test_drop;
+CREATE DATABASE
+template1=# drop database db_test_drop ;
+DROP DATABASE</code></pre></div><p>Je n&#039;ai pas encore trouvé de fenêtre pour essayer un fsck sur la partoche mais je n&#039;y crois pas trop, ce serveur n&#039;a jamais été confronté à des arrêts brutaux susceptibles de générer une corruption de l&#039;ext4 et tout continue de fonctionner correctement.</p><p>Pour finir la description de l&#039;environnement, ce serveur Linux fait tourner un &quot;anti-crasses&quot; (cybereason), imposé depuis 2 ans par le service &quot;infrastucture réseau&quot; mais je ne vois rien dans ses logs qui laisserait penser qu&#039;il &quot;capture&quot; les i/o bas niveau et interfèrerait donc avec le process postgres...</p><p>Avez vous des idées pour avancer sur le diagnostic ?<br />Merci :-)</p>]]></content>
+		<author>
+			<name><![CDATA[mgmpg]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=337</uri>
+		</author>
+		<updated>2024-10-25T09:43:50Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=35322#p35322</id>
+	</entry>
+</feed>

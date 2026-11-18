@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Replication multi masters multi slaves ?]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1059&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1059"/>
+	<updated>2010-12-07T08:26:25Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1059</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Replication multi masters multi slaves ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6905#p6905"/>
+		<content type="html"><![CDATA[<p>Attention SC1 et SC2 sont des schémas et non des sets.<br />je fais une répli au niveau schéma et non au niveau database.</p>]]></content>
+		<author>
+			<name><![CDATA[kenrio]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=964</uri>
+		</author>
+		<updated>2010-12-07T08:26:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6905#p6905</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Replication multi masters multi slaves ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6901#p6901"/>
+		<content type="html"><![CDATA[<p>Je ne comprends peut-être pas encore. Si vous essayez de merger le set SC1 avec le set SC2, c&#039;est sûr que ça ne peut pas marcher.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-12-06T17:24:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6901#p6901</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Replication multi masters multi slaves ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6900#p6900"/>
+		<content type="html"><![CDATA[<p>bah en fait j&#039;ai réussi, il doit y avoir une coquille sur le script ctl pour faire ce que je veux faire.<br />c&#039;est le merge qui deconne a mon avis.</p><p>En fait voici ce que je viens de mettre en place.</p><p>SERVEUR A&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; SERVEUR B<br />DBTEST&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;DBTEST<br />SC1----------------------&gt;SC1<br />SC2&lt;----------------------SC2</p><p>où DBTEST est la base de donnée et SC1, SC2 sont 2 schémas distincts.</p>]]></content>
+		<author>
+			<name><![CDATA[kenrio]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=964</uri>
+		</author>
+		<updated>2010-12-06T15:17:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6900#p6900</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Replication multi masters multi slaves ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6897#p6897"/>
+		<content type="html"><![CDATA[<p>J&#039;avoue que je ne comprends pas bien ce que vous essayez de faire. Essayeriez-vous de mettre la même table dans deux set ? par exemple pour essayer de faire du maître/maître ? ce qui n&#039;est pas possible avec Slony. Une table ne peut faire partie que d&#039;un seul SET.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-12-06T13:30:55Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6897#p6897</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Replication multi masters multi slaves ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6890#p6890"/>
+		<content type="html"><![CDATA[<p>Bonjour, voici l&#039;erreur :</p><div class="quotebox"><blockquote><div><p>&lt;stdin&gt;:12: PGRES_FATAL_ERROR select &quot;_repl_centrale&quot;.setAddTable(99, 2, &#039;nationale.t10&#039;, &#039;t10_pkey&#039;, &#039;Table nationale.t10&#039;);&#160; - ERREUR:&#160; la valeur d&#039;une clé dupliquée rompt la contrainte unique « sl_table_tab_reloid_key »<br />DETAIL:&#160; La clé « (tab_reloid)=(28255) » existe déjà.<br />CONTEXT:&#160; instruction SQL « insert into &quot;_repl_centrale&quot;.sl_table<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; (tab_id, tab_reloid, tab_relname, tab_nspname,<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; tab_set, tab_idxname, tab_altered, tab_comment)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; values<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; (p_tab_id, v_tab_reloid, v_tab_relname, v_tab_nspname,<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; p_set_id, p_tab_idxname, false, p_tab_comment) »<br />PL/pgSQL function &quot;setaddtable_int&quot; line 103 at instruction SQL<br />instruction SQL « SELECT &quot;_repl_centrale&quot;.setAddTable_int(p_set_id, p_tab_id, p_fqname,<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; p_tab_idxname, p_tab_comment) »<br />PL/pgSQL function &quot;setaddtable&quot; line 37 at PERFORM<br />&lt;stdin&gt;:6: Set creation:<br />&lt;stdin&gt;:24: ko<br />Une erreur est survenue lors de l&#039;opération &quot;CREATE SET&quot;<br />Erreur Slonik.</p></div></blockquote></div><p>sachant que la clé 28255 n&#039;existe pas quand je fais un select sur cette table...<br />ça ressemble a un deny access <img src="http://forums.postgresql.fr/img/smilies/sad.png" width="15" height="15" alt="sad" /></p>]]></content>
+		<author>
+			<name><![CDATA[kenrio]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=964</uri>
+		</author>
+		<updated>2010-12-06T11:10:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6890#p6890</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Replication multi masters multi slaves ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6869#p6869"/>
+		<content type="html"><![CDATA[<p>Aucune idée. Le message d&#039;erreur pourrait aider.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-12-03T18:02:52Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6869#p6869</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Replication multi masters multi slaves ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6866#p6866"/>
+		<content type="html"><![CDATA[<p>rebonjour,</p><p>J&#039;ai réussi à faire de la répli inter schema dans les 2 sens dans une seule bd, mais bizarrement je n&#039;arrive pas à rajouter une table ensuite, l&#039;erreur me dit que je ne peux pas car je duplique une clef...<br />Donc le set 99 ne se fait pas donc merge pas..... :s c&#039;est parce que les table sont en lecture seule ?<br />Est ce que quelqu&#039;un à déjà eu ce problème ?</p>]]></content>
+		<author>
+			<name><![CDATA[kenrio]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=964</uri>
+		</author>
+		<updated>2010-12-03T16:28:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6866#p6866</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Replication multi masters multi slaves ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6812#p6812"/>
+		<content type="html"><![CDATA[<p>j&#039;ai trouvé ça doit etre du à mon installation, car j&#039;installe slony par yum sur chaque serveur, donc le slon est lancé par defaut.<br />Sinon j&#039;ai un soucis j&#039;ai beau changer le temps de synchro ds le fichier de conf de slony-ctl mais il ne le prend pas en compte....<br />y aurait un fichier a relancer ?</p>]]></content>
+		<author>
+			<name><![CDATA[kenrio]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=964</uri>
+		</author>
+		<updated>2010-11-26T10:29:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6812#p6812</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Replication multi masters multi slaves ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6808#p6808"/>
+		<content type="html"><![CDATA[<p>bah là j&#039;ai fais sur un de mes esclaves la repli d&#039; une base vers un master et juste avec les outils ctl et j&#039;ai rien eu a toucher au niveau des processus slon sur le master ( devenu esclave pour cette base )...<br />je vais voir ça de plus pret quand meme ^^</p>]]></content>
+		<author>
+			<name><![CDATA[kenrio]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=964</uri>
+		</author>
+		<updated>2010-11-25T16:31:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6808#p6808</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Replication multi masters multi slaves ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6806#p6806"/>
+		<content type="html"><![CDATA[<p>Les démons slon peuvent être lancés sur le maître et les esclaves ou alors sur un seul serveur. Ça n&#039;a pas d&#039;importance. De mon souvenir des scripts slony_ctl, il faut le lancer sur les deux.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-11-25T15:20:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6806#p6806</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Replication multi masters multi slaves ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6805#p6805"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>gleu a écrit&#160;:</cite><blockquote><div><p>slony_ctl ne change rien au travail du slon. Il les démarre et/ou arrête avec son script de démarrage mais cela s&#039;arrête là. Le gros avantage de slony_ctl est une plus grande facilité de gestion des noeuds.</p></div></blockquote></div><p>en gros le script qu&#039;on lançait sur le slave, celui là ( slon $CLUSTERNAME &quot;dbname=$SLAVEDBNAME user=$REPLICATIONUSER host=$SLAVEHOST&quot; ) c&#039;est désormais le master qui le lance a distance exact ?</p>]]></content>
+		<author>
+			<name><![CDATA[kenrio]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=964</uri>
+		</author>
+		<updated>2010-11-25T13:58:35Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6805#p6805</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Replication multi masters multi slaves ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6804#p6804"/>
+		<content type="html"><![CDATA[<p>slony_ctl ne change rien au travail du slon. Il les démarre et/ou arrête avec son script de démarrage mais cela s&#039;arrête là. Le gros avantage de slony_ctl est une plus grande facilité de gestion des noeuds.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-11-25T13:34:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6804#p6804</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Replication multi masters multi slaves ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6794#p6794"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>je reviens vers vous car j&#039;ai mis en place les scripts slony-ctl mais maintenant je comprend plus trop comment sont gérés les processus slon sur les machines slaves.<br />Car désormais si je fais une coupure réseau la machine slave ne rattrape plus son retard, sauf si je lance sur le master le script slony-ctl.sh avec restart.<br />ça m&#039;intrigue ^^</p><p>Bon en fait après coupure réseau il reprend bien c&#039;est quand je mets en pause mes vms...</p>]]></content>
+		<author>
+			<name><![CDATA[kenrio]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=964</uri>
+		</author>
+		<updated>2010-11-25T10:10:09Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6794#p6794</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Replication multi masters multi slaves ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6758#p6758"/>
+		<content type="html"><![CDATA[<p>Merci, en fait j&#039;ai pour l&#039;instant utilisé la doc de slony et l&#039;article de dalibo, en mélangeant le tout j&#039;arrive a tout faire.<br />Mais je vais voir avec ces outils si j&#039;arrive a rendre la gestion plus simple.</p><p>Le seul hic que j&#039;ai pour l&#039;instant c&#039;est des baisses de performance mais je pense que mes vms mettent mon portable à genoux ^^</p><p>Ensuite pour la visualisation j&#039;utilise pgadmin3 qui me permet d&#039; avoir une vue plus concrete. <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" />.</p>]]></content>
+		<author>
+			<name><![CDATA[kenrio]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=964</uri>
+		</author>
+		<updated>2010-11-23T12:48:31Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6758#p6758</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Replication multi masters multi slaves ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6748#p6748"/>
+		<content type="html"><![CDATA[<p>Bonjour, </p><p>Concernant Slony, vous pouvez utiliser des outils tiers d&#039;administration, comme slony-ctl (<a href="http://slony1-ctl.projects.postgresql.org/" rel="nofollow">http://slony1-ctl.projects.postgresql.org/</a>).</p>]]></content>
+		<author>
+			<name><![CDATA[SAS]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=23</uri>
+		</author>
+		<updated>2010-11-23T08:00:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6748#p6748</id>
+	</entry>
+</feed>

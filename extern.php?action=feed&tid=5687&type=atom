@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Erreur fonction PL/pgSQL avec with ... as]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5687&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5687"/>
+	<updated>2020-02-07T15:17:26Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5687</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Erreur fonction PL/pgSQL avec with ... as]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30644#p30644"/>
+		<content type="html"><![CDATA[<p>Super, j&#039;ai mieux compris le fonctionnement des CTE et je vais essayer comme ça. Merci beaucoup</p>]]></content>
+		<author>
+			<name><![CDATA[leapb]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8802</uri>
+		</author>
+		<updated>2020-02-07T15:17:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30644#p30644</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Erreur fonction PL/pgSQL avec with ... as]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30643#p30643"/>
+		<content type="html"><![CDATA[<p>Je ne suis pas certain de comprendre.&#160; Les CTE ne sont pas des tables temporaires, et n&#039;existent que durant l&#039;exécution de la requête.&#160; Vous pouvez toutefois utiliser chaque CTE plusieurs fois dans une même requête, y compris en écriture.&#160; J&#039;imagine que vous pouvez transformer vos requêtes en une seule, du style:</p><div class="codebox"><pre><code>WITH siret_rec AS (...),
+new_siret AS (SELECT ... FROM siret_rec JOIN ...),
+update_siret AS (INSERT INTO ... SELECT ... FROM new_siret)
+SELECT 1;</code></pre></div><br /><p>En faisant en sorte que chaque CTE renvoie les informations nécessaires.&#160; Si seules des opérations en écritures dans d&#039;autres CTE sont nécessaires, finissez par un simple &quot;SELECT 1&quot;, il y a en effet une garantie sur PostgreSQL que toutes les CTE en écritures seront exécutées même si elle ne sont pas référencées dans la requête.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2020-02-07T15:07:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30643#p30643</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Erreur fonction PL/pgSQL avec with ... as]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30642#p30642"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>rjuju a écrit&#160;:</cite><blockquote><div><p>Il manque donc la requête finale.&#160; Par exemple</p><div class="codebox"><pre><code>WITH s AS (SELECT...) SELECT * FROM s;</code></pre></div></div></blockquote></div><p>D&#039;accord merci. Donc si j&#039;ai bien compris, il n&#039;y a pas de façon de créer les tables que j&#039;ai voulu créer pour pouvoir les utiliser plus haut dans le code ? En tout cas pas de cette manière. Car je n&#039;ai pas besoin de faire une requête finale derrière, mon but était juste d&#039;alléger le code et de ne pas refaire cette table intermédiaire plusieurs fois. D&#039;où mon idée de la faire une seule fois, de lui donner un nom et de l&#039;appeler ensuite.</p>]]></content>
+		<author>
+			<name><![CDATA[leapb]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8802</uri>
+		</author>
+		<updated>2020-02-07T14:41:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30642#p30642</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Erreur fonction PL/pgSQL avec with ... as]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30641#p30641"/>
+		<content type="html"><![CDATA[<p>Comme également indiqué dans mon premier message, la requête est incomplète.&#160; Grosso modo vous avez écrit</p><div class="codebox"><pre><code>WITH s AS (SELECT ...);</code></pre></div><br /><p>Il manque donc la requête finale.&#160; Par exemple</p><div class="codebox"><pre><code>WITH s AS (SELECT...) SELECT * FROM s;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2020-02-07T14:35:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30641#p30641</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Erreur fonction PL/pgSQL avec with ... as]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30639#p30639"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>gleu a écrit&#160;:</cite><blockquote><div><p>Comme disait Julien dans son premier commentaire, il manque un point virgule à la fin de la dernière requête (&quot;group by i.id)&quot;).</p></div></blockquote></div><p>Merci. Je l&#039;ai rajouté mais j&#039;ai toujours une erreur : </p><div class="codebox"><pre><code> Error occurred during SQL query execution
+
+Motif:
+SQL Error [42601]: ERREUR: erreur de syntaxe à la fin de l&#039;entrée
+  Position : 4020</code></pre></div><p>Quand j&#039;enlève les tables CTE et que je les recréé à chaque fois que j&#039;en ai besoin ça fonctionne, mais je suis pas sûre que ce soit le plus efficace et lisible comme code...</p>]]></content>
+		<author>
+			<name><![CDATA[leapb]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8802</uri>
+		</author>
+		<updated>2020-02-07T13:51:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30639#p30639</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Erreur fonction PL/pgSQL avec with ... as]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30638#p30638"/>
+		<content type="html"><![CDATA[<p>Comme disait Julien dans son premier commentaire, il manque un point virgule à la fin de la dernière requête (&quot;group by i.id)&quot;).</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2020-02-07T13:48:39Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30638#p30638</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Erreur fonction PL/pgSQL avec with ... as]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30637#p30637"/>
+		<content type="html"><![CDATA[<p>Désolée, je pensais que ça suffisait comme infos. Les CTE sont utilisées plus haut. Voici le code complet :</p><div class="codebox"><pre class="vscroll"><code>-- creation d&#039;une fonction qui met à jour les données si elles sont valables et plus récentes
+drop function if exists public.maj_lea_agbio_op_identification(); 
+create function public.maj_lea_agbio_op_identification() 
+returns varchar as $maj_lea_agbio_op_identification$
+	begin  
+
+------------------- LISTE DES ACTIONS A REALISER	---------------
+-------------------------- UPDATE DU NOUVEAU SIRET SI IL EST DIFFERENT ET VALIDE ------------------
+		-- verifie s&#039;il y a un siret dans la table op_identification qui est different du siret valide le plus recent
+		if exists (select distinct siret_rec.id, siret_rec.siret, translate(siret_rec.siret,&#039;0123456789&#039;,&#039;@@@@@@@@@@&#039;)
+						from siret_rec 
+							left join lea_agbio_operateur_identification on siret_rec.id = lea_agbio_operateur_identification.id_operateur 
+																		and lea_agbio_operateur_identification.siret = siret_rec.siret 
+						where lea_agbio_operateur_identification.id_operateur is null)
+		
+		-- si oui, alors mise a jour
+			then update lea_agbio_operateur_identification 
+			 	set siret = j.siret  
+			 		from 
+			 			export_br_oper
+					 	left join (select distinct siret_rec.id, siret_rec.siret
+						from export_br_oper 
+							left join lea_agbio_operateur_identification on export_br_oper.id = lea_agbio_operateur_identification.id_operateur and lea_agbio_operateur_identification.siret = export_br_oper.siret 
+							left join siret_rec on export_br_oper.id = siret_rec.id
+						where translate(export_br_oper.siret,&#039;0123456789&#039;,&#039;@@@@@@@@@@&#039;)=&#039;@@@@@@@@@@@@@@&#039;
+							and export_br_oper.siret&lt;&gt;&#039;00000000000000&#039;
+							and lea_agbio_operateur_identification.id_operateur is null
+							and export_br_oper.id = siret_rec.id
+						 ) j on export_br_oper.id = j.id
+						where j.id = lea_agbio_operateur_identification.id_operateur ;
+		end if;
+	
+	---------------------- UPDATE DU NOUVEAU RS SI IL EST DIFFERENT ------------------
+		-- verifie s&#039;il y a un rs dans la table op_identification qui est different du rs valide le plus recent
+		if exists (select distinct rs_rec.id, rs_rec.rs
+						from rs_rec 
+							left join lea_agbio_operateur_identification on rs_rec.id = lea_agbio_operateur_identification.id_operateur 
+																		and lea_agbio_operateur_identification.rs = rs_rec.rs 
+						where lea_agbio_operateur_identification.id_operateur is null)
+		
+		-- si oui, alors mise a jour
+			then update lea_agbio_operateur_identification 
+			 	set rs = j.rs  
+			 		from 
+			 			export_br_oper
+					 	left join (select distinct rs_rec.id, rs_rec.rs
+						from export_br_oper 
+							left join lea_agbio_operateur_identification on export_br_oper.id = lea_agbio_operateur_identification.id_operateur and lea_agbio_operateur_identification.rs = export_br_oper.rs 
+							left join rs_rec on export_br_oper.id = rs_rec.id
+						where lea_agbio_operateur_identification.id_operateur is null
+							and export_br_oper.id = rs_rec.id
+						 ) j on export_br_oper.id = j.id
+						where j.id = lea_agbio_operateur_identification.id_operateur ;
+		end if;
+		return null;
+	
+------------ LISTE DES TABLES AVEC LES INFOS VALIDES ET PLUS RECENTES --------
+		-- enregistre dans une &quot;table&quot; provisoire le siret valide le plus récent
+		with siret_rec as(
+			select i.id, 
+				max(i.annee) as &quot;annee&quot;,
+				max(case
+						when i.row_no = 1 then i.siret
+					end) as &quot;siret&quot;
+			from (	select export_br_oper.id, export_br_oper.annee, export_br_oper.siret,
+						row_number() over (partition by id order by annee desc) as &quot;row_no&quot;
+					from export_br_oper
+					where translate(export_br_oper.siret,&#039;0123456789&#039;,&#039;@@@@@@@@@@&#039;)=&#039;@@@@@@@@@@@@@@&#039;
+						and export_br_oper.siret&lt;&gt;&#039;00000000000000&#039;) i
+			group by i.id),
+			
+		-- enregistre dans une &quot;table&quot; provisoire le rs valide le plus récent
+		rs_rec as(
+			select i.id, 
+				max(i.annee) as &quot;annee&quot;,
+				max(case
+						when i.row_no = 1 then i.rs
+					end) as &quot;rs&quot;
+			from (	select export_br_oper.id, export_br_oper.annee, export_br_oper.rs,
+						row_number() over (partition by id order by annee desc) as &quot;row_no&quot;
+					from export_br_oper
+					where rs is not null) i
+			group by i.id)
+			
+	end;
+$maj_lea_agbio_op_identification$ language plpgsql;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[leapb]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8802</uri>
+		</author>
+		<updated>2020-02-07T13:08:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30637#p30637</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Erreur fonction PL/pgSQL avec with ... as]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30635#p30635"/>
+		<content type="html"><![CDATA[<p>Sans le code complet de la fonction, difficile à dire.&#160; D&#039;après votre extrait, la dernière requête est invalide car il manque une requête après la définition des CTE ainsi qu&#039;un point virgule.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2020-02-07T12:22:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30635#p30635</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Erreur fonction PL/pgSQL avec with ... as]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30634#p30634"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;ai créé une fonction qui est comme ceci: </p><div class="codebox"><pre class="vscroll"><code>-- creation d&#039;une fonction qui met à jour les données si elles sont valables et plus récentes
+drop function if exists public.maj_lea_agbio_op_identification(); 
+create function public.maj_lea_agbio_op_identification() 
+returns varchar as $maj_lea_agbio_op_identification$
+	begin  
+
+------------------- LISTE DES ACTIONS A REALISER ---------------
+	--------------------------- UPDATE DU NOUVEAU SIRET SI IL EST DIFFERENT ET VALIDE ------------------
+		-- verifie s&#039;il y a un siret dans la table op_identification qui est different du siret valide le plus recent
+		if exists (select distinct ... from ... where ...) 	
+		-- si oui, alors mise a jour
+			then update lea_agbio_operateur_identification 
+			 	set siret = j.siret  
+			 		from ... where ... ;
+		end if;
+	
+	---------------------- UPDATE DU NOUVEAU RS SI IL EST DIFFERENT ------------------
+		-- verifie s&#039;il y a un rs dans la table op_identification qui est different du siret valide le plus recent
+		if exists (select distinct ... from ... where ...) 	
+		-- si oui, alors mise a jour
+			then update lea_agbio_operateur_identification 
+			 	set rs= j.rs
+			 		from ... where ... ;
+		end if;
+
+		return null;
+	
+------------ LISTE DES TABLES AVEC LES INFOS VALIDES ET PLUS RECENTES  --------
+		-- enregistre dans une &quot;table&quot; provisoire le siret valide le plus récent
+		with siret_rec as(select ... from ... group by ...),
+			
+		-- enregistre dans une &quot;table&quot; provisoire le rs valide le plus récent
+		rs_rec as(select ... from ... group by ...)
+			
+	end;
+$maj_lea_agbio_op_identification$ language plpgsql;</code></pre></div><p>J&#039;ai vu sur un forum qu&#039;il fallait écrire la partie with... as () après le &quot;return&quot;, ce qui m&#039;a permis de corriger des erreurs que j&#039;avais avant. Cependant j&#039;ai encore cette erreur que je n&#039;arrive pas à régler : </p><div class="codebox"><pre><code> Error occurred during SQL script execution
+
+Motif:
+SQL Error [42601]: ERREUR: erreur de syntaxe sur ou près de « end »
+  Position : 4061 </code></pre></div><p>Il s&#039;agit du dernier end, juste avant $maj_lea_agbio_op_identification$ language plpgsql;</p><br /><p>Je suis sur DBeaver.</p>]]></content>
+		<author>
+			<name><![CDATA[leapb]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8802</uri>
+		</author>
+		<updated>2020-02-07T12:11:35Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30634#p30634</id>
+	</entry>
+</feed>

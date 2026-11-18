@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Plans d'exécution différents sur même requête]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1027&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1027"/>
+	<updated>2010-10-15T08:55:40Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1027</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Plans d'exécution différents sur même requête]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6400#p6400"/>
+		<content type="html"><![CDATA[<p>Merci pour le commentaire, j&#039;avais effectivement changé random_page_cost à 2.0 et noté un gain d&#039;environ 20% sur l&#039;EXPLAIN.</p><p>Christophe</p>]]></content>
+		<author>
+			<name><![CDATA[cbernard]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=933</uri>
+		</author>
+		<updated>2010-10-15T08:55:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6400#p6400</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Plans d'exécution différents sur même requête]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6399#p6399"/>
+		<content type="html"><![CDATA[<p>Vous pouvez aussi jouer avec le paramètre random_page_cost (en l&#039;abaissant) pour favoriser l&#039;utilisation des index.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-10-15T08:34:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6399#p6399</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Plans d'exécution différents sur même requête]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6397#p6397"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Et merci pour les explications, notamment sur le &quot;sens&quot; de l&#039;index, je n&#039;avais pas saisi que l&#039;ordre avait un impact sur le plan d&#039;exécution.<br />Je vais donc recréer un nouvel index et par la même occasion reindexer pk_t_session car les disques sont rapides (SAS 15k)</p><p>Je referai une analyse par la suite.</p><p>Christophe</p>]]></content>
+		<author>
+			<name><![CDATA[cbernard]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=933</uri>
+		</author>
+		<updated>2010-10-15T07:41:03Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6397#p6397</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Plans d'exécution différents sur même requête]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6395#p6395"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>C&#039;est «normal». Il prend en compte le nombre d&#039;enregistrements ramenés par les différents éléments de la clause where, afin d&#039;essayer de déterminer le meilleur plan d&#039;exécution. Suivant les valeurs d&#039;id, il estime différemment le nombre d&#039;enregistrements ramenés par la requête, et choisit un plan différent.</p><p>Le vrai problème, c&#039;est que votre index n&#039;est pas &#039;dans le bon sens&#039; pour la requête: il devrait être sur (id, session_id), puisque vous demandez une valeur précise d&#039;id et une plage de valeurs pour session_id (c&#039;est du à la structure des index btree composés sur plusieurs colonnes).</p><p>Autre problème: je ne comprends pas pourquoi il faut 60 secondes à la base pour parcourir pk_t_session_sin. L&#039;index doit être très fragmenté, et devrait probablement être reconstruit (REINDEX). À moins que votre machine ne soit réellement très lente (disques durs lents), et que la première requête ait bénéficié du cache, et pas la seconde.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-10-15T05:49:03Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6395#p6395</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Plans d'exécution différents sur même requête]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6394#p6394"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je fais face à un problème très étrange.</p><p>En regardant le plan d&#039;exécution d&#039;une requête, celui-ci diffère selon les valeurs que je passe au WHERE.</p><p>La requête :<br />explain&#160; analyze <br />select <br />&#160; &#160; session_id<br />from<br />&#160; &#160; session<br />where<br />&#160; &#160; id = XXXX and<br />&#160; &#160; session_id between 300100000 and 303204368</p><p>Lorsqu&#039;id = 9214 :<br />QUERY PLAN<br />Index Scan using session_id_idx on session&#160; (cost=0.00..91050.10 rows=5848 width=4) (actual time=0.797..324.467 rows=207 loops=1)<br />&#160; Index Cond: ((session_id &gt;= 300100000) AND (session_id &lt;= 303204368) AND (id = 9214))<br />Total runtime: 324.532 ms</p><p>Lorsqu&#039;id = 8131 :<br />QUERY PLAN<br />Bitmap Heap Scan on session&#160; (cost=60380.26..62442.27 rows=517 width=4) (actual time=60816.526..60816.558 rows=4 loops=1)<br />&#160; Recheck Cond: ((id = 8131) AND (session_id &gt;= 300100000) AND (session_id &lt;= 303204368))<br />&#160; -&gt;&#160; BitmapAnd&#160; (cost=60380.26..60380.26 rows=517 width=0) (actual time=60816.392..60816.392 rows=0 loops=1)<br />&#160; &#160; &#160; &#160; -&gt;&#160; Bitmap Index Scan id_idx&#160; (cost=0.00..1015.53 rows=53243 width=0) (actual time=0.128..0.128 rows=325 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; Index Cond: (id = 8131)<br />&#160; &#160; &#160; &#160; -&gt;&#160; Bitmap Index Scan on pk_t_session_sin&#160; (cost=0.00..59364.22 rows=2829602 width=0) (actual time=60814.642..60814.642 rows=3103959 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; Index Cond: ((session_id &gt;= 300100000) AND (session_id &lt;= 303204368))<br />Total runtime: 60816.602 ms </p><p>Je précise qu&#039;il existe un indexe sur id et sur (session_id,id).</p><p>Je ne comprend donc pas pourquoi les plans d&#039;exécution sont différents.</p><p>Merci d&#039;avance pour vos réponses,<br />Christophe</p>]]></content>
+		<author>
+			<name><![CDATA[cbernard]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=933</uri>
+		</author>
+		<updated>2010-10-14T23:03:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6394#p6394</id>
+	</entry>
+</feed>

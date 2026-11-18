@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Concurrence multithread non explicable]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3083&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3083"/>
+	<updated>2014-04-10T08:19:57Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3083</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Concurrence multithread non explicable]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19604#p19604"/>
+		<content type="html"><![CDATA[<p>évidemment sans les logs postgresql difficile d&#039;avoir un avis.<br />Est ce que vous avez des messages du genre &quot;checkpoints are occurring too frequently&quot; dans les logs ?</p><p>Quel est le résultat de :<br />select name, setting from pg_settings where name like &#039;wal%&#039; or name like &#039;check%&#039;;</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2014-04-10T08:19:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19604#p19604</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Concurrence multithread non explicable]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19603#p19603"/>
+		<content type="html"><![CDATA[<p>Plutôt que les JT (journal de transactions ?) je soupçonnerai plutôt mvcc : puisque vous faite des requêtes unitaires en parallèle avec 12 threads, chaque requête acquière un lock exclusif. Du coup avec 12 threads c&#039;est l&#039;embouteillage, chacun attend la libération du lock pour pouvoir ouvrir sa transaction (attention c&#039;est un comportement tout à fait normal de mvcc, le problème vient de la manière dont vous voulez injecter vos données).<br />Pouvez vous programmer votre appli pour que chaque thread envoie un ensemble de requête plutôt qu&#039;une seule à la fois ?</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2014-04-10T08:02:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19603#p19603</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Concurrence multithread non explicable]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19601#p19601"/>
+		<content type="html"><![CDATA[<p>Il y a trop peu d&#039;informations pour donner quelques conseils que ce soit. Avoir déjà le postgresql.conf serait un plus. Avoir une idée de ce qu&#039;il se passe sur le serveur pendant l&#039;exécution des deux tests serait encore un plus (un rapport pgcluu pourrait aider).</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-04-09T20:24:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19601#p19601</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Concurrence multithread non explicable]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19600#p19600"/>
+		<content type="html"><![CDATA[<p>J&#039;ai transmis l&#039;idée au DBA.<br />Petite précision sur le test en question : les N threads sont vu par le SGBD comme autant de connexion, le SGBD ne me semble pas être dans un cas de parallélisation.<br />L&#039;applicatif et le SGBD sont sur des machines différentes.</p>]]></content>
+		<author>
+			<name><![CDATA[MichaelN]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3373</uri>
+		</author>
+		<updated>2014-04-09T13:31:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19600#p19600</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Concurrence multithread non explicable]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19596#p19596"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>MichaelN a écrit&#160;:</cite><blockquote><div><p>Bonjour,</p><p>Je réalise actuellement un POC sur les traitements de masse à l&#039;aide de Spring Batch et lors de la mise en place du multi-threading j&#039;ai remarquer un problème de performance.<br />Lors de mes test avec 12 threads mes perfs ne sont pas du tout à la hauteur, suites a plusieurs tests je me suis rendu compte que quelque soit le nombre de threads (de 2 à 16) mes perfs batch sont les même. J&#039;ai identifier que le problème provient de mon SGBD postgresql.</p><p>L&#039;insertion massive dans mon SGBD par plusieurs thread créer de la concurrence qui augmente très significativement les temps de chaque insert.<br />Je suis dans un contexte où je ne peux pas utiliser de mécanisme de masse de postgres (COPY) et je ne peux que faire des action unitaire (insert), élément par élément.</p><p>Je vous présente mon cas de test que j&#039;ai réalisé pour mettre en évidence mon problème :</p><p>Mon processus principal se charge de créer un nombre variable de threads, il se charge de répartir 1 million d&#039;insert parmis les threads et va attendre la fin de chaque thread.<br />Chaque thread fait le nombre d&#039;insert qu&#039;il à reçu du processus principal, chaque requête insert est la même pour simplifier le test.</p><p>Lest résultat de mes test :</p><p>Pour 2 threads, les 1 million d&#039;insert se font en 2 minutes<br />Pour 12 threads, les 1 million d&#039;insert se font en 1 minute</p><p>Or, l&#039;ensemble des inserts sont indépendant, mon test se place dans un cas des plus standard : 1 seule table, uniquement un insert, pas d&#039;index, pas de contrainte autre que la clé primaire.</p><p>Ma config est des plus puissante pour le SGBD : 6 CPU Intel(R) Xeon(R) CPU E5-2667 0 @ 2.90GHz , le reste étant du même niveau.</p><p>J&#039;ai exploré le problème dans tous les sens, j&#039;ai passé plusieurs jours avec mes DataBase Administrator pour essayer de trouver la cause de mon problème mais rien n&#039;y fait, c&#039;est pourquoi je me tourne vers vous.<br />Les cause classique ont pour la plupart était écarter par les DBA.</p><p>le problème est clair : Lors d&#039;un insert unitaire de masse multithreadé, il y a concurrence sans explication ...</p><p>Infos diverses :</p><p>Chaque thread se connecte une fois et effectue tous les inserts, aucun commit entre les insert.</p><p>SGBD en configuration standard, JBoss configuré pour pouvoir gérer les multiples connexion au SGBD.</p><p>La requête d&#039;insert est classique &quot;INSERT INTO declarant.entreprise ( dt_creation, dt_maj, version, cd_cat_juridique, cd_motif_siren_annule, cd_naf, dt_cessation_activ_economique, dt_cessation_juridique, dt_creation_entreprise, dt_derniere_maj_emetteur, nb_etablissements_actifs, raison_sociale, sigle, siren ) VALUES ( &#039;2014-04-07 15:54:04.451&#039;, &#039;2014-04-07 15:54:04.451&#039;, &#039;0&#039;, &#039;1000&#039;, NULL, &#039;1111Z&#039;, &#039;2009-06-01&#039;, NULL, &#039;1993-07-28&#039;, &#039;2010-09-02&#039;, &#039;0&#039;, &#039;RAISON SOCIALE&#039;, NULL, &#039;333222111&#039; );&quot;</p><p>Au niveau applicatif tout est bien gérer le problème ne peux pas provenir de cette partie.</p><p>Analyse pgBadger du test </p><p>Total duration&#160; &#160; Times executed&#160; &#160; Min duration&#160; &#160; Max duration&#160; &#160; Avg duration</p><p>Pour 12 Threads<br />51.333s&#160; &#160;&#160; &#160; &#160; &#160; &#160; &#160; 254,332&#160; &#160; &#160; &#160; &#160; &#160; &#160; 0.000s&#160; &#160;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;0.029s&#160; &#160;&#160; &#160; &#160; &#160; &#160; &#160; 0.000s</p><p>Pour 2 Threads<br />14.866s&#160; &#160;&#160; &#160; &#160; &#160; &#160; &#160; 254,332&#160; &#160; &#160; &#160; &#160; &#160; &#160; 0.000s&#160; &#160;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;0.011s&#160; &#160; &#160; &#160; &#160; &#160;0.000s</p><br /><p>Je suis de prêt ce post, si vous avez besoin de toute autre information je vous les donnerais.</p><p>J&#039;espère que quelqu&#039;un pourra m&#039;aider à trouver la raison ^^</p><p>D&#039;avance, merci !</p></div></blockquote></div><p>Le frein est très certainement le JT; En effet, l&#039;écriture dans le JT est un point de contention, car il n&#039;est pas possible de paralléliser les écritures dans le journal de PG...</p><p>A +</p>]]></content>
+		<author>
+			<name><![CDATA[SQLpro]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1054</uri>
+		</author>
+		<updated>2014-04-09T12:12:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19596#p19596</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Concurrence multithread non explicable]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19595#p19595"/>
+		<content type="html"><![CDATA[<p>Les logs pour chacun des run font 2Go vu qu&#039;on a activé le full trace du postgres pour pouvoir générer un pgBadger.<br />Sans le full trace, le log est &quot;normal&quot; d&#039;après mon DBA.</p>]]></content>
+		<author>
+			<name><![CDATA[MichaelN]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3373</uri>
+		</author>
+		<updated>2014-04-09T12:06:31Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19595#p19595</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Concurrence multithread non explicable]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19592#p19592"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Ce qui serait pas mal ce serait d&#039;avoir les logs postgresql pour le lancement en 2 puis en 12 threads.<br />vous pouvez nous donner ça ?</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2014-04-09T10:55:06Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19592#p19592</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Concurrence multithread non explicable]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19589#p19589"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je réalise actuellement un POC sur les traitements de masse à l&#039;aide de Spring Batch et lors de la mise en place du multi-threading j&#039;ai remarquer un problème de performance.<br />Lors de mes test avec 12 threads mes perfs ne sont pas du tout à la hauteur, suites a plusieurs tests je me suis rendu compte que quelque soit le nombre de threads (de 2 à 16) mes perfs batch sont les même. J&#039;ai identifier que le problème provient de mon SGBD postgresql.</p><p>L&#039;insertion massive dans mon SGBD par plusieurs thread créer de la concurrence qui augmente très significativement les temps de chaque insert.<br />Je suis dans un contexte où je ne peux pas utiliser de mécanisme de masse de postgres (COPY) et je ne peux que faire des action unitaire (insert), élément par élément.</p><p>Je vous présente mon cas de test que j&#039;ai réalisé pour mettre en évidence mon problème :</p><p>Mon processus principal se charge de créer un nombre variable de threads, il se charge de répartir 1 million d&#039;insert parmis les threads et va attendre la fin de chaque thread.<br />Chaque thread fait le nombre d&#039;insert qu&#039;il à reçu du processus principal, chaque requête insert est la même pour simplifier le test.</p><p>Lest résultat de mes test :</p><p>Pour 2 threads, les 1 million d&#039;insert se font en 2 minutes<br />Pour 12 threads, les 1 million d&#039;insert se font en 1 minute</p><p>Or, l&#039;ensemble des inserts sont indépendant, mon test se place dans un cas des plus standard : 1 seule table, uniquement un insert, pas d&#039;index, pas de contrainte autre que la clé primaire.</p><p>Ma config est des plus puissante pour le SGBD : 6 CPU Intel(R) Xeon(R) CPU E5-2667 0 @ 2.90GHz , le reste étant du même niveau.</p><p>J&#039;ai exploré le problème dans tous les sens, j&#039;ai passé plusieurs jours avec mes DataBase Administrator pour essayer de trouver la cause de mon problème mais rien n&#039;y fait, c&#039;est pourquoi je me tourne vers vous.<br />Les cause classique ont pour la plupart était écarter par les DBA.</p><p>le problème est clair : Lors d&#039;un insert unitaire de masse multithreadé, il y a concurrence sans explication ...</p><p>Infos diverses :</p><p>Chaque thread se connecte une fois et effectue tous les inserts, aucun commit entre les insert.</p><p>SGBD en configuration standard, JBoss configuré pour pouvoir gérer les multiples connexion au SGBD.</p><p>La requête d&#039;insert est classique &quot;INSERT INTO declarant.entreprise ( dt_creation, dt_maj, version, cd_cat_juridique, cd_motif_siren_annule, cd_naf, dt_cessation_activ_economique, dt_cessation_juridique, dt_creation_entreprise, dt_derniere_maj_emetteur, nb_etablissements_actifs, raison_sociale, sigle, siren ) VALUES ( &#039;2014-04-07 15:54:04.451&#039;, &#039;2014-04-07 15:54:04.451&#039;, &#039;0&#039;, &#039;1000&#039;, NULL, &#039;1111Z&#039;, &#039;2009-06-01&#039;, NULL, &#039;1993-07-28&#039;, &#039;2010-09-02&#039;, &#039;0&#039;, &#039;RAISON SOCIALE&#039;, NULL, &#039;333222111&#039; );&quot;</p><p>Au niveau applicatif tout est bien gérer le problème ne peux pas provenir de cette partie.</p><p>Analyse pgBadger du test </p><p>Total duration&#160; &#160; Times executed&#160; &#160; Min duration&#160; &#160; Max duration&#160; &#160; Avg duration</p><p>Pour 12 Threads<br />51.333s&#160; &#160;&#160; &#160; &#160; &#160; &#160; &#160; 254,332&#160; &#160; &#160; &#160; &#160; &#160; &#160; 0.000s&#160; &#160;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;0.029s&#160; &#160;&#160; &#160; &#160; &#160; &#160; &#160; 0.000s</p><p>Pour 2 Threads<br />14.866s&#160; &#160;&#160; &#160; &#160; &#160; &#160; &#160; 254,332&#160; &#160; &#160; &#160; &#160; &#160; &#160; 0.000s&#160; &#160;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;0.011s&#160; &#160; &#160; &#160; &#160; &#160;0.000s</p><br /><p>Je suis de prêt ce post, si vous avez besoin de toute autre information je vous les donnerais.</p><p>J&#039;espère que quelqu&#039;un pourra m&#039;aider à trouver la raison ^^</p><p>D&#039;avance, merci !</p>]]></content>
+		<author>
+			<name><![CDATA[MichaelN]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3373</uri>
+		</author>
+		<updated>2014-04-09T10:04:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19589#p19589</id>
+	</entry>
+</feed>

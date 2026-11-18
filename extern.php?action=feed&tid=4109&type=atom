@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / trigger before delete et foreign key constraint on delete cascade]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4109&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4109"/>
+	<updated>2017-02-08T10:07:03Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4109</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  trigger before delete et foreign key constraint on delete cascade]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24818#p24818"/>
+		<content type="html"><![CDATA[<p>j&#039;ai trouvé</p><p>when (pg_trigger_depth() &lt; 1)</p><p>merci</p><p>excusez-moi d&#039;avoir écrit si vite...</p><p>j&#039;ai un client un peu stressant ;-))</p>]]></content>
+		<author>
+			<name><![CDATA[Michel Depiesse]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5329</uri>
+		</author>
+		<updated>2017-02-08T10:07:03Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24818#p24818</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  trigger before delete et foreign key constraint on delete cascade]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24817#p24817"/>
+		<content type="html"><![CDATA[<p>oops : audit_id doit être bigserial</p><p>mais ça ne change rien au problème</p>]]></content>
+		<author>
+			<name><![CDATA[Michel Depiesse]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5329</uri>
+		</author>
+		<updated>2017-02-08T10:03:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24817#p24817</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[trigger before delete et foreign key constraint on delete cascade]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24816#p24816"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Quand je delete le pk de app_table, les records correspondants de app_table_ref sont délétés mais le trigger pre delete n&#039;est pas déclenché et il n&#039;y a donc pas de records écrits dans record_tracking.</p><p>Que faire ?</p><p>Merci pour votre attention</p><div class="codebox"><pre class="vscroll"><code>---------------------------------------------------------------------------------------------------------------------------------------------
+-- this script must be played on the tablet just after the database has been copied
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------------------------------------------------------------
+-- create db objects
+---------------------------------------------------------------------------------------------------------------------------------------------
+drop table if exists record_tracking;
+create table record_tracking (
+	 id_record_tracking	serial	
+	,table_name		text
+	,operation		text
+	,pk_value		bigint
+	,user_name		text
+	,insertion_date		timestamp 	default now()
+);
+
+drop sequence if exists record_tracking_seq;
+create sequence record_tracking_seq;
+
+drop table if exists app_table_ref;
+drop table if exists app_table;
+
+create table app_table (
+         pk     	integer         primary key
+        ,info   	varchar
+	,audit_id	bigint
+);
+
+create table app_table_ref (
+         pk     	integer         primary key
+        ,info   	varchar
+        ,fk     	integer         references app_table(pk)        on delete cascade
+	,audit_id	bigint
+);
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------
+-- generic function for all triggers
+---------------------------------------------------------------------------------------------------------------------------------------------
+create or replace function record_tracking() returns trigger as $$
+begin
+
+	if (TG_OP = &#039;INSERT&#039; or TG_OP = &#039;UPDATE&#039;) then
+		
+		insert into record_tracking
+			(table_name, operation, pk_value, user_name)
+		values 
+			(TG_TABLE_NAME, TG_OP, new.audit_id, current_user);
+
+		return new;
+
+	else
+		insert into record_tracking
+			(table_name, operation, pk_value, user_name)
+		values 
+			(TG_TABLE_NAME, TG_OP, old.audit_id, current_user);
+
+		return old;
+
+	end if;
+end; 
+$$ language &#039;plpgsql&#039;; 
+
+---------------------------------------------------------------------------------------------------------------------------------------------
+-- create triggers
+---------------------------------------------------------------------------------------------------------------------------------------------
+create or replace function create_audit_triggers() returns void as $$
+declare
+	r	record;
+	stmt	varchar;
+begin
+	for r in select table_name from information_schema.tables where table_name like &#039;app_table%&#039; loop
+
+		stmt :=    &#039;create trigger &#039; 
+			|| quote_ident(r.table_name || &#039;_audit_after_iu&#039;)
+			|| &#039; after insert or update on &#039; 
+			|| quote_ident(r.table_name)
+			|| &#039; for each row when (pg_trigger_depth() &lt; 1) execute procedure record_tracking();&#039;;
+
+		execute stmt;
+
+		stmt :=    &#039;create trigger &#039; 
+			|| quote_ident(r.table_name || &#039;_audit_before_d&#039;)
+			|| &#039; before delete on &#039; 
+			|| quote_ident(r.table_name)
+			|| &#039; for each row when (pg_trigger_depth() &lt; 1) execute procedure record_tracking();&#039;;
+
+		execute stmt;
+
+	end loop;
+end; 
+$$ language &#039;plpgsql&#039;; 
+
+select create_audit_triggers();
+
+insert into app_table values(23,&#039;record 23&#039;);
+insert into app_table values(56,&#039;record 56&#039;);
+insert into app_table values(71,&#039;record 71&#039;);
+insert into app_table values(82,&#039;record 82&#039;);
+insert into app_table values(85,&#039;record 85&#039;);
+insert into app_table values(91,&#039;record 91&#039;);
+insert into app_table values(94,&#039;record 94&#039;);
+insert into app_table values(97,&#039;record 97&#039;);
+insert into app_table values(99,&#039;record 99&#039;);
+update app_table set info = &#039;modified&#039; where pk = 23;
+update app_table set info = &#039;modified&#039; where pk = 56;
+update app_table set info = &#039;modified&#039; where pk = 97;
+delete from app_table where pk = 71;
+insert into app_table values(101,&#039;record 101&#039;);
+insert into app_table values(121,&#039;record 121&#039;);
+insert into app_table values(167,&#039;record 167&#039;);
+update app_table set info = &#039;modified&#039; where pk = 101;
+delete from app_table where pk = 121;
+
+insert into app_table_ref values(1, &#039;ref1&#039;, 23);
+insert into app_table_ref values(2, &#039;ref2&#039;, 23);
+insert into app_table_ref values(3, &#039;ref3&#039;, 82);
+
+delete from app_table where pk = 23;
+
+
+select * from app_table order by pk;
+select * from app_table_ref order by pk;
+select * from record_tracking;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[Michel Depiesse]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5329</uri>
+		</author>
+		<updated>2017-02-08T09:59:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24816#p24816</id>
+	</entry>
+</feed>

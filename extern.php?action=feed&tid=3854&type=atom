@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / [résolu] Fonction decode dans un trigger]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3854&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3854"/>
+	<updated>2016-08-01T13:39:24Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3854</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [résolu] Fonction decode dans un trigger]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23751#p23751"/>
+		<content type="html"><![CDATA[<p>Merci pour ces précisions.</p><p>J&#039;ai choisi d&#039;appliquer le paramètre sur la base car comme je n&#039;ai pas la maîtrise complète de l&#039;ensemble des triggers je me dis que ça me permet d&#039;approcher le plus possible le fonctionnement d&#039;une version 8.2.<br />En toute logique, ce ne devrait pas affecter les performances des autres bases hébergées par le même moteur.</p>]]></content>
+		<author>
+			<name><![CDATA[Tetra]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=6429</uri>
+		</author>
+		<updated>2016-08-01T13:39:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23751#p23751</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [résolu] Fonction decode dans un trigger]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23572#p23572"/>
+		<content type="html"><![CDATA[<p>OK. Vous auriez pu le forcer juste au niveau de la fonction trigger, au besoin (il suffit de le mettre dans sa déclaration)… bytea_output à hex est plus performant dans beaucoup de cas... c&#039;est dommage de le forcer globalement si vous n&#039;en avez pas besoin</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2016-06-17T19:03:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23572#p23572</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [résolu] Fonction decode dans un trigger]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23571#p23571"/>
+		<content type="html"><![CDATA[<p>Merci Marc, vous aviez vu juste, c&#039;est bien un problème de bytea_output.</p><p>En fait, je tente de faire fonctionner une appli conçue pour une version 8.2 sur une 9.4, cf. <a href="http://forums.postgresql.fr/viewtopic.php?id=3828" rel="nofollow">mon précédent post</a>.<br />Or, le paramètre bytea_ouput est d&#039;après ce que j&#039;ai lu apparu en 9.<br />J&#039;ai fixé le paramètre au niveau de la base (ALTER DATABASE mabase SET bytea_output=&#039;escape&#039;) et ainsi ça fonctionne.</p><p>Merci</p>]]></content>
+		<author>
+			<name><![CDATA[Tetra]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=6429</uri>
+		</author>
+		<updated>2016-06-17T18:51:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23571#p23571</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [résolu] Fonction decode dans un trigger]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23561#p23561"/>
+		<content type="html"><![CDATA[<p>La table «log» est déclarée comment&#160; (le type du champ log) ?</p><p>Et surtout, est-ce que vous pourriez voir ce que vaut bytea_output dans les deux cas (dans pgadmin et dans le driver odbc): exécutez show bytea_output, et affichez le résultat...</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2016-06-16T06:47:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23561#p23561</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[[résolu] Fonction decode dans un trigger]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23560#p23560"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;utilise une appli qui s&#039;appuie sur une BDD dont une fonction trigger fait appel à la fonction decode.<br />Suivant la source de déclenchement du trigger, la fonction me retourne un résultat sous une forme différente sans que je sache expliquer pourquoi.</p><p>Pour mettre cela en évidence, j&#039;ai modifié la fonction pour ajouter une ligne dans un table de log...le trigger ressemble à çà :</p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION update_utilisateur()
+  RETURNS trigger AS
+$BODY$declare
+  (...)
+  tempvar varchar(50);
+BEGIN
+  (...)
+  select decode(&#039;Ym9uam91cg==&#039;,&#039;base64&#039;) INTO tempvar;
+  insert into log (log) values (tempvar);
+  (...)
+END;$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;</code></pre></div><p>Lorsque je modifie un utilisateur via l&#039;application (connectée en ODBC), je vois dans le log PostgreSQL la requête suivante :</p><div class="codebox"><pre><code>UPDATE utilisateur SET nom_utilisateur = &#039;depuisapp&#039; WHERE nom_utilisateur IS NULL AND id_utilisateur = 18 AND pwd IS NULL</code></pre></div><p>Je joue ensuite via pgAdmin la requête suivante :</p><div class="codebox"><pre><code>UPDATE ctx_02.utilisateur SET nom_utilisateur = &#039;depuispgadmin&#039; WHERE nom_utilisateur = &#039;depuisapp&#039;</code></pre></div><p>Suite à çà, le requête select * from log me retourne<br />1 - &quot;\x626f6e6a6f7572&quot;<br />2 - &quot;bonjour&quot;</p><p>Je suppose qu&#039;en 1 ça correspond à &quot;bonjour&quot; en hexa mais qu&#039;est ce qui peut expliquer cette différence ?<br />Idéalement, je voudrais toujours avoir le résultat tel que 2.</p><p>Merci,</p>]]></content>
+		<author>
+			<name><![CDATA[Tetra]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=6429</uri>
+		</author>
+		<updated>2016-06-15T20:23:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23560#p23560</id>
+	</entry>
+</feed>

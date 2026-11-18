@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / [Résolu] migration Oracle Erreur d'extraction "Erreur de segmentation"]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4520&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4520"/>
+	<updated>2018-02-05T10:17:57Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4520</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] migration Oracle Erreur d'extraction "Erreur de segmentation"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26775#p26775"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je reviens donner un complément d&#039;information <img src="http://forums.postgresql.fr/img/smilies/wink.png" width="15" height="15" alt="wink" /></p><br /><p>J&#039;avais ouvert un ticket chez l&#039;éditeur et il m&#039;a répondu en fait que le problème était dû à la colonne de type LONG RAW, type de données obsolète remplacé par un type BLOB désormais ds Oracle.<br />Il est indiqué dans la documentation Ora2pg qu&#039;il faut coté Oracle créer une table temporaire avec la colonne BLOB à la place de LONG RAW, y copier les données puis l&#039;exclure lors du transfert. </p><br /><p> Exporting LONG RAW<br />&#160; &#160; If you still have columns defined as LONG RAW, Ora2Pg will not be able<br />&#160; &#160; to export these kind of data. The OCI library fail to export them and<br />&#160; &#160; always return the same first record. To be able to export the data you<br />&#160; &#160; need to transform the field as BLOB by creating a temporary table before<br />&#160; &#160; migrating data. For example, the Oracle table:</p><p>&#160; &#160; &#160; &#160; &#160; &#160; SQL&gt; DESC TEST_LONGRAW<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160;Name&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;NULL ?&#160; &#160;Type<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160;-------------------- -------- ----------------------------<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160;ID&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; NUMBER<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160;C1&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; LONG RAW</p><p>&#160; &#160; need to be &quot;translated&quot; into a table using BLOB as follow:</p><p>&#160; &#160; &#160; &#160; &#160; &#160; CREATE TABLE test_blob (id NUMBER, c1 BLOB);</p><p>&#160; &#160; And then copy the data with the following INSERT query:</p><p>&#160; &#160; &#160; &#160; &#160; &#160; INSERT INTO test_blob SELECT id, to_lob(c1) FROM test_longraw;</p><p>&#160; &#160; Then you just have to exclude the original table from the export (see<br />&#160; &#160; EXCLUDE directive) and to renamed the new temporary table on the fly<br />&#160; &#160; using the REPLACE_TABLES configuration directive.</p><br /><p>Néanmoins je ne comprends pas pourquoi en modifiant le paramètre cela fonctionne... <img src="http://forums.postgresql.fr/img/smilies/neutral.png" width="15" height="15" alt="neutral" /></p><br /><p>Bonne semaine !</p>]]></content>
+		<author>
+			<name><![CDATA[ml]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7815</uri>
+		</author>
+		<updated>2018-02-05T10:17:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26775#p26775</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] migration Oracle Erreur d'extraction "Erreur de segmentation"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26751#p26751"/>
+		<content type="html"><![CDATA[<p>Excellente nouvelle.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2018-01-29T17:09:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26751#p26751</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] migration Oracle Erreur d'extraction "Erreur de segmentation"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26750#p26750"/>
+		<content type="html"><![CDATA[<p>Bonsoir,</p><br /><p>Il semble (il faut que je vérifie l&#039;intégrité des données) que j&#039;ai résolu mon problème !</p><br /><p>En désactivant le paramètre NO_LOB_LOCATOR&#160; </p><br /><p># Disable this if you don&#039;t want to load full content of BLOB and CLOB and use<br /># LOB locators instead. This is usefull to not having to set LONGREADLEN. Note<br /># that this will not improve speed of BLOB export as most of the time is always<br /># consumed by the bytea escaping and in this case export is done line by line<br /># and not by chunk of DATA_LIMIT rows. For more information on how it works, see<br /># <a href="http://search.cpan.org/~pythian/DBD-Oracle-1.74/lib/DBD/Oracle.pm#Data_Interface_for_LOB_Locators" rel="nofollow">http://search.cpan.org/~pythian/DBD-Ora … B_Locators</a><br /># Default is enabled, it will not use LOB locators for backward compatibility.<br />NO_LOB_LOCATOR&#160; 0</p><br /><p>C&#039;est en parcourant les tickets, où l&#039;un d&#039;entre eux indiquait un problème de CLOB, me suis dit que cela pouvait s&#039;apparenter au mien </p><br /><p>Je vais vérifier les données mais en tous cas la migration : extraction+intégration se sont très bien passées ! <img src="http://forums.postgresql.fr/img/smilies/big_smile.png" width="15" height="15" alt="big_smile" /></p><br /><p>Bonne soirée !</p>]]></content>
+		<author>
+			<name><![CDATA[ml]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7815</uri>
+		</author>
+		<updated>2018-01-29T16:50:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26750#p26750</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] migration Oracle Erreur d'extraction "Erreur de segmentation"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26745#p26745"/>
+		<content type="html"><![CDATA[<p>Bonjour, </p><br /><p>C&#039;est entendu. Merci pour votre aide à tous les deux <img src="http://forums.postgresql.fr/img/smilies/big_smile.png" width="15" height="15" alt="big_smile" /> <br />Je mettrais à jour cette discussion lorsque j&#039;aurais eu un retour.</p><br /><p>Bonne journée ! <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[ml]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7815</uri>
+		</author>
+		<updated>2018-01-29T09:32:00Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26745#p26745</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] migration Oracle Erreur d'extraction "Erreur de segmentation"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26742#p26742"/>
+		<content type="html"><![CDATA[<p>Il n&#039;y a pas moyen d&#039;attacher un fichier dans le forum. Vu les problèmes rencontrés, le mieux est certainement de contacter l&#039;auteur directement.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2018-01-29T08:24:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26742#p26742</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] migration Oracle Erreur d'extraction "Erreur de segmentation"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26722#p26722"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>ml a écrit&#160;:</cite><blockquote><div><div class="quotebox"><cite>ruizsebastien a écrit&#160;:</cite><blockquote><div><p>bonjour,</p><p>Avez-vous essayé de faire les insert à la main avec psql ?<br />(les insert tel que générés par ora2pg)</p></div></blockquote></div><p>Bonjour </p><br /><p>Non car pour le moment j&#039;essaie d&#039;extraire les données...</p></div></blockquote></div><p>Ce que je veux dire c&#039;est de laisser ora2pg générer le fichier sql d&#039;extraction et seulement ensuite d&#039;exécuter le fichier avec psql.<br />A la place de l&#039;exécuter avec ora2pg.</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2018-01-26T16:48:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26722#p26722</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] migration Oracle Erreur d'extraction "Erreur de segmentation"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26721#p26721"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>ml a écrit&#160;:</cite><blockquote><div><p>J&#039;ai lancé l&#039;extraction en mode DEBUG que j&#039;ai redirigé vers une log et j&#039;ai une ligne qui me semble pas normal </p><br /><p>Warning duplicate table OLE, maybe a SYNONYM ? Skipped.</p></div></blockquote></div><br /><p>Je viens de lancer une extraction FULL afin de comparer et voir en détail ce qu&#039;il se passe et ce msg est présent pour toutes les tables.. fausse alerte.. <img src="http://forums.postgresql.fr/img/smilies/neutral.png" width="15" height="15" alt="neutral" /></p>]]></content>
+		<author>
+			<name><![CDATA[ml]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7815</uri>
+		</author>
+		<updated>2018-01-26T14:58:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26721#p26721</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] migration Oracle Erreur d'extraction "Erreur de segmentation"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26720#p26720"/>
+		<content type="html"><![CDATA[<p>J&#039;ai lancé l&#039;extraction en mode DEBUG que j&#039;ai redirigé vers une log et j&#039;ai une ligne qui me semble pas normal </p><br /><p>Warning duplicate table OLE, maybe a SYNONYM ? Skipped.</p><br /><p>Et puis à la fin la log se coupe subitement :</p><p>[52] Scanning CPI...<br />[53] Scanning CPP...<br />[54] Scanni</p><p>Et à l&#039;écran j&#039;ai l&#039;erreur de segmentation.</p><br /><p>La log est très longue plus de 2000 lignes : est il possible d&#039;attacher un fichier au msg dans le forum ? Je n&#039;ai pas trouvé comment faire</p>]]></content>
+		<author>
+			<name><![CDATA[ml]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7815</uri>
+		</author>
+		<updated>2018-01-26T14:02:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26720#p26720</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] migration Oracle Erreur d'extraction "Erreur de segmentation"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26719#p26719"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>ruizsebastien a écrit&#160;:</cite><blockquote><div><p>bonjour,</p><p>Avez-vous essayé de faire les insert à la main avec psql ?<br />(les insert tel que générés par ora2pg)</p></div></blockquote></div><p>Bonjour </p><br /><p>Non car pour le moment j&#039;essaie d&#039;extraire les données...</p>]]></content>
+		<author>
+			<name><![CDATA[ml]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7815</uri>
+		</author>
+		<updated>2018-01-26T13:26:29Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26719#p26719</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] migration Oracle Erreur d'extraction "Erreur de segmentation"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26718#p26718"/>
+		<content type="html"><![CDATA[<p>bonjour,</p><p>Avez-vous essayé de faire les insert à la main avec psql ?<br />(les insert tel que générés par ora2pg)</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2018-01-26T10:47:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26718#p26718</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] migration Oracle Erreur d'extraction "Erreur de segmentation"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26717#p26717"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>gleu a écrit&#160;:</cite><blockquote><div><p>Par dichotomie. Exporter la moitié de la table. Si jamais il n&#039;y a pas d&#039;erreur, faites l&#039;autre moitié de table. Quand vous trouvez une erreur, diviser le restant en deux, etc. Pas facile, pas amusant, mais pas d&#039;autres moyens.</p></div></blockquote></div><p>J&#039;ai l&#039;erreur de segmentation à partir de la 4ème ligne mais je ne vois rien de différents avec les autres lignes </p><br /><p>Ci-après la structure de la table :</p><br /><p>&#160; CREATE TABLE &quot;APW&quot;.&quot;OLE&quot; <br />&#160; &#160;(&#160; &#160; &quot;REFESOC&quot; VARCHAR2(3 BYTE) NOT NULL ENABLE, <br />&#160; &#160; &quot;RFENTLOS15&quot; VARCHAR2(2 BYTE) NOT NULL ENABLE, <br />&#160; &#160; &quot;RFREFE1OLE&quot; VARCHAR2(20 BYTE) NOT NULL ENABLE, <br />&#160; &#160; &quot;RFREFE2OLE&quot; VARCHAR2(20 BYTE) NOT NULL ENABLE, <br />&#160; &#160; &quot;RFREFE3OLE&quot; VARCHAR2(20 BYTE) NOT NULL ENABLE, <br />&#160; &#160; &quot;RFREFE4OLE&quot; VARCHAR2(20 BYTE) NOT NULL ENABLE, <br />&#160; &#160; &quot;RFREFE5OLE&quot; VARCHAR2(20 BYTE) NOT NULL ENABLE, <br />&#160; &#160; &quot;LVLIENOLE&quot; LONG RAW, <br />&#160; &#160; &quot;FGTAOLEOLE&quot; NUMBER(1,0), <br />&#160; &#160; &quot;LVNOTEOLE&quot; VARCHAR2(2000 BYTE), <br />&#160; &#160; &quot;ROWGSA&quot; VARCHAR2(25 BYTE), <br />&#160; &#160; &quot;LIENHYPERT&quot; VARCHAR2(2048 BYTE), <br />&#160; &#160;&#160; CONSTRAINT &quot;OLE_PK&quot; PRIMARY KEY (&quot;REFESOC&quot;, &quot;RFENTLOS15&quot;, &quot;RFREFE1OLE&quot;, &quot;RFREFE2OLE&quot;, &quot;RFREFE3OLE&quot;, &quot;RFREFE4OLE&quot;, &quot;RFREFE5OLE&quot;)<br />&#160; USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS <br />&#160; STORAGE(INITIAL 589824 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645<br />&#160; PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1 BUFFER_POOL DEFAULT)<br />&#160; TABLESPACE &quot;TSAPW&quot;&#160; ENABLE, <br />&#160; &#160;&#160; CONSTRAINT &quot;OLE_SOC_FK01&quot; FOREIGN KEY (&quot;REFESOC&quot;)<br />&#160; &#160;&#160; &#160;REFERENCES &quot;APW&quot;.&quot;SOC&quot; (&quot;REFESOC&quot;) ON DELETE CASCADE ENABLE<br />&#160; &#160;) PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 NOCOMPRESS LOGGING<br />&#160; STORAGE(INITIAL 5242880 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645<br />&#160; PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1 BUFFER_POOL DEFAULT)<br />&#160; TABLESPACE &quot;TSAPW&quot; ;</p><br /><p>&#160; CREATE OR REPLACE TRIGGER &quot;APW&quot;.&quot;ROWID_OLE&quot; before update or insert on OLE for each row<br />declare<br />&#160; &#160; strRowid VARCHAR2(18);<br />&#160; &#160; nCount NUMBER(6);<br />begin</p><p>&#160; &#160; SELECT ROWIDTOCHAR(:new.rowid) INTO strRowid FROM dual;<br />&#160; &#160; nCount := TO_NUMBER( NVL ( SUBSTR( :old.rowgsa, 20, 6 ), &#039;0&#039; ) );<br />&#160; &#160; IF nCount = 999999 THEN<br />&#160; &#160; &#160; &#160; nCount := 0;<br />&#160; &#160; END IF;<br />&#160; &#160; nCount := nCount + 1;<br />&#160; &#160; :new.rowgsa := strRowid || &#039;-&#039; || SUBSTR(TO_CHAR( nCount, &#039;099999&#039; ), 2, 6 );</p><p>end;<br />/<br />ALTER TRIGGER &quot;APW&quot;.&quot;ROWID_OLE&quot; ENABLE;</p><br /><br /><br /><p>et les 4 premières lignes dont la dernière qui plante :</p><br /><p>Insert into OLE (REFESOC,RFENTLOS15,RFREFE1OLE,RFREFE2OLE,RFREFE3OLE,RFREFE4OLE,RFREFE5OLE,LVLIENOLE,FGTAOLEOLE,LVNOTEOLE,ROWGSA,LIENHYPERT) values (&#039;250&#039;,&#039;2&#039;,&#039;990000000110&#039;,&#039;*&#039;,&#039;*&#039;,&#039;*&#039;,&#039;*&#039;,null,&#039;0&#039;,null,&#039;00000000.0000.0000-000001&#039;,null);</p><br /><p>Insert into OLE (REFESOC,RFENTLOS15,RFREFE1OLE,RFREFE2OLE,RFREFE3OLE,RFREFE4OLE,RFREFE5OLE,LVLIENOLE,FGTAOLEOLE,LVNOTEOLE,ROWGSA,LIENHYPERT) values (&#039;520&#039;,&#039;2&#039;,&#039;450&#039;,&#039;*&#039;,&#039;*&#039;,&#039;*&#039;,&#039;*&#039;,null,&#039;0&#039;,&#039;2000/39<br />&#039;,&#039;00000000.0000.0000-000001&#039;,null);</p><br /><p>Insert into OLE (REFESOC,RFENTLOS15,RFREFE1OLE,RFREFE2OLE,RFREFE3OLE,RFREFE4OLE,RFREFE5OLE,LVLIENOLE,FGTAOLEOLE,LVNOTEOLE,ROWGSA,LIENHYPERT) values (&#039;520&#039;,&#039;2&#039;,&#039;200000000001&#039;,&#039;*&#039;,&#039;*&#039;,&#039;*&#039;,&#039;*&#039;,null,&#039;0&#039;,&#039;GBXGNBXNGN&#039;,&#039;00000000.0000.0000-000001&#039;,null);</p><br /><p>La dernière est celle qui fait planter l&#039;extraction par une erreur de segmentation : <br />Insert into OLE (REFESOC,RFENTLOS15,RFREFE1OLE,RFREFE2OLE,RFREFE3OLE,RFREFE4OLE,RFREFE5OLE,LVLIENOLE,FGTAOLEOLE,LVNOTEOLE,ROWGSA,LIENHYPERT) values (&#039;520&#039;,&#039;2&#039;,&#039;200000000002&#039;,&#039;*&#039;,&#039;*&#039;,&#039;*&#039;,&#039;*&#039;,null,&#039;0&#039;,null,&#039;00000000.0000.0000-000001&#039;,null);</p>]]></content>
+		<author>
+			<name><![CDATA[ml]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7815</uri>
+		</author>
+		<updated>2018-01-26T10:39:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26717#p26717</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] migration Oracle Erreur d'extraction "Erreur de segmentation"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26716#p26716"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>gleu a écrit&#160;:</cite><blockquote><div><p>Par dichotomie. Exporter la moitié de la table. Si jamais il n&#039;y a pas d&#039;erreur, faites l&#039;autre moitié de table. Quand vous trouvez une erreur, diviser le restant en deux, etc. Pas facile, pas amusant, mais pas d&#039;autres moyens.</p></div></blockquote></div><p>En effet pas amusant <img src="http://forums.postgresql.fr/img/smilies/hmm.png" width="15" height="15" alt="hmm" /> je vais tenter le coup ! Merci <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[ml]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7815</uri>
+		</author>
+		<updated>2018-01-26T08:45:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26716#p26716</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] migration Oracle Erreur d'extraction "Erreur de segmentation"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26715#p26715"/>
+		<content type="html"><![CDATA[<p>Par dichotomie. Exporter la moitié de la table. Si jamais il n&#039;y a pas d&#039;erreur, faites l&#039;autre moitié de table. Quand vous trouvez une erreur, diviser le restant en deux, etc. Pas facile, pas amusant, mais pas d&#039;autres moyens.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2018-01-26T07:19:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26715#p26715</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] migration Oracle Erreur d'extraction "Erreur de segmentation"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26713#p26713"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>gleu a écrit&#160;:</cite><blockquote><div><p>Difficile à savoir sans pouvoir faire des tests. Personnellement, j&#039;essaierais de savoir de quelle ligne vient le problème.</p></div></blockquote></div><p>Merci pour votre retour, mais comment puis-je identifier la ligne problématique ? Cette table ne possède que 38 lignes en plus..</p><br /><p>Je suis en train de voir pr le stacktrace que je ne connais pas ..</p>]]></content>
+		<author>
+			<name><![CDATA[ml]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7815</uri>
+		</author>
+		<updated>2018-01-25T10:44:07Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26713#p26713</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] migration Oracle Erreur d'extraction "Erreur de segmentation"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26712#p26712"/>
+		<content type="html"><![CDATA[<p>Difficile à savoir sans pouvoir faire des tests. Personnellement, j&#039;essaierais de savoir de quelle ligne vient le problème.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2018-01-25T10:32:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26712#p26712</id>
+	</entry>
+</feed>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Fonction avec comportement spécial]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=435&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=435"/>
+	<updated>2009-10-16T06:53:47Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=435</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Fonction avec comportement spécial]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2572#p2572"/>
+		<content type="html"><![CDATA[<p>Bonjour<br />Aprés une toute petite modif, votre version fonctionne en exécution ( ce qui est mieux que ma version) et là ou c&#039;est bizard en mode debug (pas à pas) elle ne fonctionne pas (EMS doit avoir un probléme)... <br />Mais bon je clotûre la discution car elle fonctionne dans l&#039;executable<br />Merci encore...</p>]]></content>
+		<author>
+			<name><![CDATA[philippe.pasquali]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=16</uri>
+		</author>
+		<updated>2009-10-16T06:53:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2572#p2572</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Fonction avec comportement spécial]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2551#p2551"/>
+		<content type="html"><![CDATA[<p>Je ne comprends pas bien le rôle du curseur...</p><p>Si j&#039;ai compris ce que vous cherchez à faire, il doit suffire de faire (j&#039;ai pas testé) :</p><p>INSERT INTO interim_feuille(nom_societe, numero_semaine, nom_interimaire, prenom_interimaire, status_mission,<br />nom_atelier, jour_arrivee, code_prestataire, annee)<br />SELECT x.nom_societe, semaine_out, x.nom_interimaire, x.prenom_interimaire, x.status_mission,<br />x.nom_atelier, x.jour_arrivee, x.code_prestataire, annee_out<br />FROM interim_feuille AS X<br /> WHERE annee = annee_in<br />AND numero_semaine = semaine_in<br />AND status_mission = &#039;MC&#039;<br />AND NOT EXISTS (SELECT 1 FROM&#160; interim_feuille AS y WHERE y.annee = annee_out AND numero_semaine=semaine_out <br />AND x.nom_societe= y.nom_societe<br />AND x.nom_interimaire= y.nom_interimaire<br />AND x.status_mission= y.status_mission<br />AND x.nom_atelier=&#160; y.nom_atelier );</p><p>Bon, j&#039;ai pas testé, mais vous voyez l&#039;idée ?</p>]]></content>
+		<author>
+			<name><![CDATA[herve.lefebvre]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=506</uri>
+		</author>
+		<updated>2009-10-15T08:23:35Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2551#p2551</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Fonction avec comportement spécial]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2548#p2548"/>
+		<content type="html"><![CDATA[<p>La seule possibilité que je vois pour l&#039;instant est que nom_societe, xnom_societe, nom_interimaire, xnom_interimaire, prenom_interimaire ou xprenom_interimaire est NULL.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2009-10-15T07:55:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2548#p2548</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Fonction avec comportement spécial]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2546#p2546"/>
+		<content type="html"><![CDATA[<p>Bonjour<br />Débutant en pl/sql j&#039;ai ce petit probleme de fonction à vous soumettre:<br />Une table contient des lignes dont je veux en recopier certaines en modifiant deux colonnes <br />Le but est de dupliquer si il n&#039;existent pas les enregistrement de (semaine=42et année=2009) en changeant l&#039;année 2009 en 2010 et la semaine 42 en 43</p><p>Ainsi si j&#039;ai :<br />2009 42 toto<br />2008 41 titi</p><p>j&#039;aurais aprés l&#039;execution de select copy_semaine(2009, 42, 2010, 43) :<br />2009 42 toto<br />2008 41 titi<br />2010 43 toto</p><p>Le truc c&#039;est que si je lance l&#039;execution de la fonction 2 fois elle ne doit pas me créer de doublon, hors :<br />- En mode &quot;pas à pas&quot; : pas de doublon ==&gt; ok<br />- En mode &quot;normal&quot;&#160; &#160; &#160;: j&#039;ai toutes mes lignes en double ==&gt; ko</p><br /><p>/* CODE DE LA FONCTION */</p><p>CREATE OR REPLACE FUNCTION &quot;public&quot;.&quot;copy_semaine&quot; (annee1 integer, semaine1 integer, annee2 integer, semaine2 integer) RETURNS boolean AS<br />$body$<br />DECLARE<br />annee_in alias for $1;<br />semaine_in alias for $2;<br />annee_out alias for $3;<br />semaine_out alias for $4;<br />--<br />xnom_societe text;<br />xnom_interimaire text;<br />xprenom_interimaire text;<br />xstatus_mission text;<br />xnom_atelier text;<br />xjour_arrivee text;<br />xcode_prestataire text;<br />nbrec integer;</p><p>--<br />cOrigine CURSOR (cAnnee integer, cSemaine integer) IS <br />SELECT nom_societe, nom_interimaire, prenom_interimaire, <br />status_mission, nom_atelier, jour_arrivee, code_prestataire <br />FROM interim_feuille<br />WHERE annee = cAnnee<br />AND numero_semaine = cSemaine<br />AND status_mission = &#039;MC&#039;; </p><p>BEGIN<br />OPEN cOrigine(annee_in, semaine_in); <br />FETCH cOrigine INTO xnom_societe, xnom_interimaire, xprenom_interimaire, xstatus_mission, xnom_atelier, xjour_arrivee, xcode_prestataire;</p><p>WHILE FOUND LOOP </p><p>select into nbrec count(*) from interim_feuille<br />where nom_societe = xnom_societe<br />and nom_interimaire = xnom_interimaire<br />and prenom_interimaire = xprenom_interimaire<br />and annee = annee_out<br />and numero_semaine = semaine_out;</p><p>if nbrec = 0 then</p><p>insert into interim_feuille<br />(nom_societe, numero_semaine, nom_interimaire, prenom_interimaire, status_mission,<br />nom_atelier, jour_arrivee, code_prestataire, annee)<br />values<br />(xnom_societe, semaine_out, xnom_interimaire, xprenom_interimaire, xstatus_mission, <br />xnom_atelier, xjour_arrivee, xcode_prestataire, annee_out);</p><p>end if;</p><p>FETCH cOrigine INTO xnom_societe, xnom_interimaire, xprenom_interimaire, xstatus_mission, xnom_atelier, xjour_arrivee, xcode_prestataire;</p><p>END LOOP;</p><p>RETURN true;</p><p>END;<br />$body$<br />LANGUAGE &#039;plpgsql&#039; VOLATILE CALLED ON NULL INPUT SECURITY INVOKER </p><p>Merci de votre aide...</p>]]></content>
+		<author>
+			<name><![CDATA[philippe.pasquali]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=16</uri>
+		</author>
+		<updated>2009-10-15T07:21:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2546#p2546</id>
+	</entry>
+</feed>

@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Script sauvegarde pg_basebackup]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=6307&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=6307"/>
+	<updated>2022-07-13T07:13:28Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=6307</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Script sauvegarde pg_basebackup]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33597#p33597"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous,</p><p>Après quelques jours en mettant le paramètre archive_timeout à 0. Le problème des fichiers WAL est résolu.</p><p>En regardant avec : </p><div class="codebox"><pre><code>SHOW archive_timeout;</code></pre></div><p> la valeur est bien à 0.</p><p>Le fichier est rempli comme il se doit.</p><p>Merci à vous, pour tous les renseignements apportés </p><p>Cordialement,</p><p>Benjamin</p>]]></content>
+		<author>
+			<name><![CDATA[Funky]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9995</uri>
+		</author>
+		<updated>2022-07-13T07:13:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33597#p33597</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Script sauvegarde pg_basebackup]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33594#p33594"/>
+		<content type="html"><![CDATA[<p>Quand un paramètre est commenté, cela ne veut pas dire qu&#039;il n&#039;a pas de valeur. Le mieux pour connaître la valeur actuelle d&#039;un paramètre est de se connecter à PostgreSQL et d&#039;exécuter :</p><div class="codebox"><pre><code>SHOW paramètre;</code></pre></div><p>Donc dans votre cas :</p><div class="codebox"><pre><code>SHOW archive_timeout;</code></pre></div><p>Là, votre archive contient quatre enregistrements pour un total de 239 octets. Donc, dans les faits, elle est vide. Il serait bon de vérifier la vraie valeur de archive_timeout. Cela pourrait aussi venir d&#039;une utilisation trop fréquente de la fonction pg_switch_wal().</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2022-07-10T06:52:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33594#p33594</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Script sauvegarde pg_basebackup]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33592#p33592"/>
+		<content type="html"><![CDATA[<p>Actuellement checkpoint_timeout est commenté dans le fichier postgresql.conf</p><p>Pour pg_waldump avec l&#039;option --stat voici le retour</p><div class="codebox"><pre><code>Type                                           N      (%)          Record size      (%)             FPI size      (%)        Combined size      (%)
+----                                           -      ---          -----------      ---             --------      ---        -------------      ---
+XLOG                                           2 ( 50,00)                  138 ( 57,98)                    0 (  0,00)                  138 ( 57,98)
+Transaction                                    0 (  0,00)                    0 (  0,00)                    0 (  0,00)                    0 (  0,00)
+Storage                                        0 (  0,00)                    0 (  0,00)                    0 (  0,00)                    0 (  0,00)
+CLOG                                           0 (  0,00)                    0 (  0,00)                    0 (  0,00)                    0 (  0,00)
+Database                                       0 (  0,00)                    0 (  0,00)                    0 (  0,00)                    0 (  0,00)
+Tablespace                                     0 (  0,00)                    0 (  0,00)                    0 (  0,00)                    0 (  0,00)
+MultiXact                                      0 (  0,00)                    0 (  0,00)                    0 (  0,00)                    0 (  0,00)
+RelMap                                         0 (  0,00)                    0 (  0,00)                    0 (  0,00)                    0 (  0,00)
+Standby                                        2 ( 50,00)                  100 ( 42,02)                    0 (  0,00)                  100 ( 42,02)
+Heap2                                          0 (  0,00)                    0 (  0,00)                    0 (  0,00)                    0 (  0,00)
+Heap                                           0 (  0,00)                    0 (  0,00)                    0 (  0,00)                    0 (  0,00)
+Btree                                          0 (  0,00)                    0 (  0,00)                    0 (  0,00)                    0 (  0,00)
+Hash                                           0 (  0,00)                    0 (  0,00)                    0 (  0,00)                    0 (  0,00)
+Gin                                            0 (  0,00)                    0 (  0,00)                    0 (  0,00)                    0 (  0,00)
+Gist                                           0 (  0,00)                    0 (  0,00)                    0 (  0,00)                    0 (  0,00)
+Sequence                                       0 (  0,00)                    0 (  0,00)                    0 (  0,00)                    0 (  0,00)
+SPGist                                         0 (  0,00)                    0 (  0,00)                    0 (  0,00)                    0 (  0,00)
+BRIN                                           0 (  0,00)                    0 (  0,00)                    0 (  0,00)                    0 (  0,00)
+CommitTs                                       0 (  0,00)                    0 (  0,00)                    0 (  0,00)                    0 (  0,00)
+ReplicationOrigin                              0 (  0,00)                    0 (  0,00)                    0 (  0,00)                    0 (  0,00)
+Generic                                        0 (  0,00)                    0 (  0,00)                    0 (  0,00)                    0 (  0,00)
+LogicalMessage                                 0 (  0,00)                    0 (  0,00)                    0 (  0,00)                    0 (  0,00)
+                                        --------                      --------                      --------                      --------
+Total                                          4                           238 [100,00%]                   0 [0,00%]                   238 [100%]</code></pre></div><p>Concernant les données NUL je les voyait en ouvrant avec un éditeur, mais je pense que mon problème réel vient du archive_timeout, où toutes les minutes un fichier est créé. <br />Celui-ci contient beaucoup moins de données par rapport au tout premier WAL</p><p>Donc effectivement, je pense que vous avez raison ces données sont loin d&#039;être inutiles</p><p>Je vais regarder avec vos recommandations</p><p>EDIT :</p><p>Pour mon problème de fichier WAL est-ce judicieux de laisser archive_timeout commenté et garder les valeurs actuelles max_wal_size = 1GB et min_wal_size = 80MB, dès que le fichier WAL sera à 1Go un nouveau sera créé et également bien rempli ?</p>]]></content>
+		<author>
+			<name><![CDATA[Funky]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9995</uri>
+		</author>
+		<updated>2022-07-08T08:37:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33592#p33592</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Script sauvegarde pg_basebackup]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33591#p33591"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Quand vous parlez de checkpoint vous faites référence à archive_timeout?</p></div></blockquote></div><p>Non, je faisais référence à checkpoint_timeout et/ou max_wal_size, cf <a href="https://www.postgresql.org/docs/current/wal-configuration.html" rel="nofollow">https://www.postgresql.org/docs/current … ation.html</a>.</p><br /><br /><p>Concernant votre paramétrage d&#039;archive_timeout, il est censé correspondre à votre besoin en terme de RPO / RTO.&#160; Vous pouvez consulter la documentation pour voir comment le paramétrer, et/ou voir si potentiellement utiliser pg_receivewal et/ou des slots de réplication seraient mieux adapté.</p><br /><p>Pour pg_waldump, il faudrait utiliser l&#039;option --stat.&#160; Mais je ne comprends toujours pas ce que vous entendez par &quot;contient beaucoup de données NUL&quot;, ni en quoi vous en déduisez que ces données sont inutiles.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2022-07-08T07:33:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33591#p33591</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Script sauvegarde pg_basebackup]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33590#p33590"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />Quand vous parlez de checkpoint vous faites référence à archive_timeout? Si oui, actuellement la valeur est sur 60 c&#039;est peut être trop court</p><p>Voici ce que j&#039;ai avec la commande pg_waldump :</p><div class="codebox"><pre><code>/usr/lib/postgresql/13/bin/pg_waldump 00000001000000000000001C
+rmgr: Standby     len (rec/tot):     50/    50, tx:          0, lsn: 0/1C000028, prev 0/1B000100, desc: RUNNING_XACTS nextXid 703 latestCompletedXid 702 oldestRunningXid 703
+rmgr: Standby     len (rec/tot):     50/    50, tx:          0, lsn: 0/1C000060, prev 0/1C000028, desc: RUNNING_XACTS nextXid 703 latestCompletedXid 702 oldestRunningXid 703
+rmgr: XLOG        len (rec/tot):    114/   114, tx:          0, lsn: 0/1C000098, prev 0/1C000060, desc: CHECKPOINT_ONLINE redo 0/1C000060; tli 1; prev tli 1; fpw true; xid 0:703; oid 16434; multi 1; offset 0; oldest xid 478 in DB 1; oldest multi 1 in DB 1; oldest/newest commit timestamp xid: 0/0; oldest running xid 703; online
+rmgr: XLOG        len (rec/tot):     24/    24, tx:          0, lsn: 0/1C000110, prev 0/1C000098, desc: SWITCH</code></pre></div><p>Mais je ne comprend pas du tout les données</p>]]></content>
+		<author>
+			<name><![CDATA[Funky]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9995</uri>
+		</author>
+		<updated>2022-07-08T07:17:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33590#p33590</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Script sauvegarde pg_basebackup]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33589#p33589"/>
+		<content type="html"><![CDATA[<p>Vous voulez dire les fichiers dans le répertoire pg_wal / pg_xlog?&#160; Ce sont des fichiers binaires, le seul levier est le paramètre wal_level, et concrètement il y a peu d&#039;intérêt à avoir un niveau &quot;minimal&quot;.&#160; Notamment, vous ne pourrez pas faire de sauvegardes type pg_basebackup.</p><p>Peut être que vous avez des checkpoints un peu trop fréquents, ce qui augmente le nombre de full page writes?&#160; Vous pouvez utiliser pg_waldump / pg_xlogdump pour avoir quelques chiffres, ou pg_stat_statements si vous êtes en version 13 ou supérieure.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2022-07-06T15:16:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33589#p33589</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Script sauvegarde pg_basebackup]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33588#p33588"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>dverite a écrit&#160;:</cite><blockquote><div><p>Dans le 3eme champ de .pgpass, il faut mettre <strong>replication</strong> au lieu d&#039;un nom de base de données.</p><p>Si ça échoue toujours après ça, consulter le fichier de log du serveur pour avoir des détails sur l&#039;erreur.</p></div></blockquote></div><p>Merci dverite. Le problème venait bien de la. Ça fonctionne nickel.</p><p>J&#039;en profite pour poser une autre question sans devoir refaire un sujet. <br />Concernant les WAL à t&#039;il un paramètre à mettre pour enregistrer que ce qui est utile ? Car en l&#039;ouvrant on s’aperçoit qu&#039;il y a énormément de donnée NUL</p>]]></content>
+		<author>
+			<name><![CDATA[Funky]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9995</uri>
+		</author>
+		<updated>2022-07-06T12:47:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33588#p33588</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Script sauvegarde pg_basebackup]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33587#p33587"/>
+		<content type="html"><![CDATA[<p>Dans le 3eme champ de .pgpass, il faut mettre <strong>replication</strong> au lieu d&#039;un nom de base de données.</p><p>Si ça échoue toujours après ça, consulter le fichier de log du serveur pour avoir des détails sur l&#039;erreur.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2022-07-06T12:12:31Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33587#p33587</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Script sauvegarde pg_basebackup]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33586#p33586"/>
+		<content type="html"><![CDATA[<p>S&#039;agit-t-il du cron pour l&#039;utilisateur postgres, et êtes-vous sûr que les variables d&#039;envrionnement sont positionnées avec votre implémentation de cron?</p><p>Peut-être qu&#039;une version comme cela marcherait :</p><div class="codebox"><pre><code>PGPASSFILE=/var/lib/postgresql/.pgpass pg_basebackup -h localhost -p 5432 -U postgres -D /home/svg</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2022-07-06T10:07:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33586#p33586</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Script sauvegarde pg_basebackup]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33585#p33585"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous,</p><p>Je souhaite mettre en place un script de sauvegarde avec pg_basebackup en cron.</p><p>Ma configuration de la sauvegarde est en réplication. Les fichiers WAL sont enregistrés sur la même machine de ma bdd mais sauvegardé grâce à Rclone sur une autre serveur tous les jours en cron.</p><p>Au préalable j&#039;ai déjà fait une sauvegarde complète de la base, sauf que je souhaite sauvegarder tous les mois la base complète automatiquement.</p><p>J&#039;ai crée le fichier .pgpass.</p><div class="codebox"><pre><code>localhost:5432:maBDD:postgres:monMotDePasse</code></pre></div><p>qui se trouve dans /var/lib/postgresql avec les droits 600 et user et groupe = postgres</p><p>Le problème étant lors de l’exécution du script celui-ci me demande toujours le mot de passe.</p><p>Voici ma commande que je lance:</p><div class="codebox"><pre><code>pg_basebackup -h localhost -p 5432 -U postgres -D /home/svg</code></pre></div><p>Savez-vous où est le problème ?</p><p>Faut il utiliser pg_basebackup ou un autre moyen pour une sauvegarde en cron ?</p><p>Cordialement.</p>]]></content>
+		<author>
+			<name><![CDATA[Funky]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9995</uri>
+		</author>
+		<updated>2022-07-06T09:26:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33585#p33585</id>
+	</entry>
+</feed>

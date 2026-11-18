@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / réplication logique ne démarre pas]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=7131&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=7131"/>
+	<updated>2025-11-24T17:39:12Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=7131</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  réplication logique ne démarre pas]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=35499#p35499"/>
+		<content type="html"><![CDATA[<p>je cloture mon message . En fait il y avait un permissoin denied au debut du COPY des tables . je suppose que dans ce cas le slot temporaire de synchro reste vivant et attend la correction et que le process de replication passe aà la table suivante en créant un nouveau slot ...&#160; J&#039;ai mis le bon user à qui appartient les tabes sur le cible&#160; et çà focntionne</p>]]></content>
+		<author>
+			<name><![CDATA[debellabre]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7964</uri>
+		</author>
+		<updated>2025-11-24T17:39:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=35499#p35499</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[réplication logique ne démarre pas]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=35498#p35498"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />J&#039;ai une réplication logique entre une base postgresql en version 11.22 sur os ubuntu 22.04 LTS&#160; et une base abonnée&#160; en pg17.7 sur Goggle Cloud Platform . J&#039;ai 333 tables à répliquer mais aucune ne se réplique car&#160; le max_replication_slot qui est sétté&#160; à 10 sur le publieur n&#039;est pas assez haut . le max_sync_workers_per_subscription sur l&#039;abonné est pourtant à 2 (Sur GCP on ne peut pas baisser à moins de 2) . <br />Voici l&#039;état des slots de replication sur le publieur<br />[local]:6095 postgres@scapnor=# select slot_name,active FROM pg_replication_slots;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; slot_name&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;| active<br />------------------------------------------+--------<br /> repmgr_slot_2&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; | t<br /> rebuild_infoprod_scapnor_20250602_1117&#160; &#160;| t<br /> gcp_scapnorbi&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; | t<br /> pg_161210_sync_17519_7571794086042918928 | f<br /> pg_161210_sync_17525_7571794086042918928 | f<br /> pg_161210_sync_17568_7571794086042918928 | f<br /> pg_161210_sync_17580_7571794086042918928 | f<br /> pg_161210_sync_17586_7571794086042918928 | f<br /> pg_161210_sync_17639_7571794086042918928 | f<br /> pg_161210_sync_17645_7571794086042918928 | f<br />(10 lignes)</p><br /><p>il y a 3&#160; slots qui sont actifs (standby + un infocentre + la souscription vers GCP initiale)&#160; &#160;+ 7 slots de synchro inactifs&#160; </p><p>Voici la commande de creation de souscription<br /> CREATE SUBSCRIPTION gcp_scapnorbi&#160; CONNECTION &#039;host=10.72.0.115 port=60000&#160; user=datastream&#160; password=********* dbname=scapnor&#039; publication scapnor_gcp_bigquery;</p><p> <br />Quand je regarde les logs GCP la souscription essaye de lancer 329 tables différentes (started ) sur les 333 comme si le paramètre max_sync_workers_per_subscription&#160; n&#039;etait pas pris en compte alors qu&#039;il est à 2 sur GCP&#160; . Aucun statut &#039;finished&#039; dans les logs GCP, aucune table n&#039;est répliquée et le process de réplication tourne à l&#039;infini avec ces messages started depuis l&#039;abonné et le message &#039;increase max_replication_slot&#039; depusi le publieur . Si je detruit les slots inactif il en regénère d&#039;autres dans la foulée qui sont inactifs.</p><p>Sur l&#039;abonné.<br />scapnorbi=&gt; show max_sync_workers_per_subscription ;<br /> max_sync_workers_per_subscription <br />-----------------------------------<br /> 2<br />(1 row)</p><p>Si je change de publieur avec la même version pg je n&#039;ai pas ce problème . </p><p>A part agrandir le max_replication slots (et de combien ?) que puis-je faire pour que la réplication démarre ? <br />merci</p>]]></content>
+		<author>
+			<name><![CDATA[debellabre]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7964</uri>
+		</author>
+		<updated>2025-11-24T15:11:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=35498#p35498</id>
+	</entry>
+</feed>

@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / [Résolu] Postgres ne démarre plus sur passage de Debian 11 à Debian 12]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=6699&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=6699"/>
+	<updated>2023-11-26T20:53:45Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=6699</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] Postgres ne démarre plus sur passage de Debian 11 à Debian 12]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34699#p34699"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>dverite a écrit&#160;:</cite><blockquote><div><p>Concernant l&#039;ancien postgresql 13, tout a l&#039;air OK: le package et l&#039;unité systemd sont désinstallés.<br />Donc ça pose la question de savoir pourquoi ce message cité en #5 apparait</p><div class="codebox"><pre><code>11:52 Assertion failed for postgresql@13-main.service - PostgreSQL Cluster 13-main.
+11:52 postgresql@13-main.service: Starting requested but asserts failed.</code></pre></div><p>&quot;Starting requested&quot; mais par quoi? Il doit rester une dépendance sur ce service quelque part.</p><br /><p>Concernant les droits du user perso, le schéma en question est peut-être &quot;public&quot;, et il se trouve que les permissions données à public ont été restreintes dans Postgres 15. Il faut maintenant donner les permissions explicitement aux utilisateurs en-dehors du possesseur de la BDD. En théorie lors d&#039;un upgrade ce problème n&#039;apparait pas car &quot;public&quot; est censé être migré avec ses permissions d&#039;avant.</p></div></blockquote></div><br /><p>Je ne vois vraiment pas comment trouver la dépendance qu&#039;il peut rester quelque part. </p><p>Pour le problème de droit je ne sais pas non plus quoi te répondre.</p><p>Merci en tout cas pour l&#039;aide <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[GrosJambon33000]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9826</uri>
+		</author>
+		<updated>2023-11-26T20:53:45Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34699#p34699</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] Postgres ne démarre plus sur passage de Debian 11 à Debian 12]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34697#p34697"/>
+		<content type="html"><![CDATA[<p>Concernant l&#039;ancien postgresql 13, tout a l&#039;air OK: le package et l&#039;unité systemd sont désinstallés.<br />Donc ça pose la question de savoir pourquoi ce message cité en #5 apparait</p><div class="codebox"><pre><code>11:52 Assertion failed for postgresql@13-main.service - PostgreSQL Cluster 13-main.
+11:52 postgresql@13-main.service: Starting requested but asserts failed.</code></pre></div><p>&quot;Starting requested&quot; mais par quoi? Il doit rester une dépendance sur ce service quelque part.</p><br /><p>Concernant les droits du user perso, le schéma en question est peut-être &quot;public&quot;, et il se trouve que les permissions données à public ont été restreintes dans Postgres 15. Il faut maintenant donner les permissions explicitement aux utilisateurs en-dehors du possesseur de la BDD. En théorie lors d&#039;un upgrade ce problème n&#039;apparait pas car &quot;public&quot; est censé être migré avec ses permissions d&#039;avant.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2023-11-24T18:19:31Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34697#p34697</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] Postgres ne démarre plus sur passage de Debian 11 à Debian 12]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34695#p34695"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>dverite a écrit&#160;:</cite><blockquote><div><div class="quotebox"><blockquote><div><p>Et comment faire pour virer ce service qui traine concernant la version 13 ?</p></div></blockquote></div><p>Il serait intéressant de voir ce que sortent ces commandes:</p><div class="codebox"><pre><code>dpkg --get-selections &#039;postgres*&#039;
+systemctl list-units &#039;postgres*&#039;</code></pre></div></div></blockquote></div><br /><p>voila le retour de cette commande </p><div class="codebox"><pre><code>postgresql					install
+postgresql-13					deinstall
+postgresql-15					install
+postgresql-client-15				install
+postgresql-client-common			install
+postgresql-common				install
+postgresql-contrib				install
+  UNIT                       LOAD   ACTIVE SUB     DESCRIPTION               
+  postgresql.service         loaded active exited  PostgreSQL RDBMS
+  postgresql@15-main.service loaded active running PostgreSQL Cluster 15-main
+
+LOAD   = Reflects whether the unit definition was properly loaded.
+ACTIVE = The high-level unit activation state, i.e. generalization of SUB.
+SUB    = The low-level unit activation state, values depend on unit type.
+2 loaded units listed. Pass --all to see loaded but inactive units, too.
+To show all installed unit files use &#039;systemctl list-unit-files&#039;.</code></pre></div><p>en fait j&#039;ai l&#039;impression que mon soucis n&#039;est pas tant résolu que ça parce que pour faire simple, j&#039;ai une instance Nextcloud sur mon serveur également. J&#039;avais mis en place une connexion avec dbeaver pour pouvoir requêter dans la bdd de mon instance, j&#039;utilisais mon user perso pour requêter et non le user dedié a nextcloud, et depuis l&#039;upgrade vers debian 12 mon user perso n&#039;a plus le droit de rien faire sur le schema qui contient les données de mon instance nextcloud.</p>]]></content>
+		<author>
+			<name><![CDATA[GrosJambon33000]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9826</uri>
+		</author>
+		<updated>2023-11-24T16:22:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34695#p34695</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] Postgres ne démarre plus sur passage de Debian 11 à Debian 12]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34693#p34693"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Et comment faire pour virer ce service qui traine concernant la version 13 ?</p></div></blockquote></div><p>Il serait intéressant de voir ce que sortent ces commandes:</p><div class="codebox"><pre><code>dpkg --get-selections &#039;postgres*&#039;
+systemctl list-units &#039;postgres*&#039;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2023-11-24T13:21:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34693#p34693</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] Postgres ne démarre plus sur passage de Debian 11 à Debian 12]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34689#p34689"/>
+		<content type="html"><![CDATA[<p>Bon le service à fini par démarrer. Merci encore pour l&#039;aide <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[GrosJambon33000]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9826</uri>
+		</author>
+		<updated>2023-11-23T23:13:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34689#p34689</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] Postgres ne démarre plus sur passage de Debian 11 à Debian 12]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34687#p34687"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>dverite a écrit&#160;:</cite><blockquote><div><p>Le fichier /var/lib/postgresql/15/main/postmaster.pid a un contenu du style:</p><div class="codebox"><pre><code>1206
+/var/lib/postgresql/15/main
+1700725615
+5432
+/var/run/postgresql
+localhost
+ 11796503         0
+ready   </code></pre></div><p>où le nombre de la 1ere ligne est le numéro de processus PID que postmaster avait la dernière fois qu&#039;il a tourné.<br />En cas d&#039;arrêt normal ce fichier est effacé, en cas de reboot il ne peut pas l&#039;être.</p><br /><p>Dans votre cas, ce numéro de processus doit être maintenant constamment utilisé par un autre processus, sinon postgres effacerait le fichier et démarrerait quand même. C&#039;est pourquoi il faut l&#039;effacer à la main.</p></div></blockquote></div><p>Merci a tous de vos réponses.</p><p>Donc si je comprends bien j&#039;ai juste a supprimer le fichier /var/lib/postgresql/15/main/postmaster.pid puis tenter de redémarrer le service qui concerne la version 15 de postgres ?</p><p>Et comment faire pour virer ce service qui traine concernant la version 13 ?</p><p>Merci encore pour l&#039;aide <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[GrosJambon33000]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9826</uri>
+		</author>
+		<updated>2023-11-23T10:21:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34687#p34687</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] Postgres ne démarre plus sur passage de Debian 11 à Debian 12]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34686#p34686"/>
+		<content type="html"><![CDATA[<p>Le fichier /var/lib/postgresql/15/main/postmaster.pid a un contenu du style:</p><div class="codebox"><pre><code>1206
+/var/lib/postgresql/15/main
+1700725615
+5432
+/var/run/postgresql
+localhost
+ 11796503         0
+ready   </code></pre></div><p>où le nombre de la 1ere ligne est le numéro de processus PID que postmaster avait la dernière fois qu&#039;il a tourné.<br />En cas d&#039;arrêt normal ce fichier est effacé, en cas de reboot il ne peut pas l&#039;être.</p><br /><p>Dans votre cas, ce numéro de processus doit être maintenant constamment utilisé par un autre processus, sinon postgres effacerait le fichier et démarrerait quand même. C&#039;est pourquoi il faut l&#039;effacer à la main.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2023-11-23T07:57:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34686#p34686</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] Postgres ne démarre plus sur passage de Debian 11 à Debian 12]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34685#p34685"/>
+		<content type="html"><![CDATA[<p>Si le service n&#039;est vraiment pas démarré (il est important de vraiment s&#039;en assurer), supprimer les fichiers postmaster.* pourrait résoudre le problème.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2023-11-23T06:05:31Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34685#p34685</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] Postgres ne démarre plus sur passage de Debian 11 à Debian 12]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34683#p34683"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>dverite a écrit&#160;:</cite><blockquote><div><p>Vous pouvez provisoirement zapper les couches systemd et pg_ctlcluster en lançant à la main avec cette commande en qu&#039;utilisateur postgres:</p><div class="codebox"><pre><code>/usr/lib/postgresql/15/bin/pg_ctl \
+  -D /var/lib/postgresql/15/main \
+  -o &quot;-c config_file=/etc/postgresql/15/main/postgresql.conf&quot; \
+ start</code></pre></div><p>Le but n&#039;étant pas tant de démarrer que d&#039;avoir des erreurs à l&#039;affichage, si ni /var/log/postgresql/postgresql-15-main.log ni&#160; journalctl -u postgresql@15-main.service ne donnent pas d&#039;indication.</p></div></blockquote></div><p>Merci cela commence à être plus bavard côté postgresql :</p><div class="codebox"><pre><code> 
+pg_ctl : un autre serveur semble en cours d&#039;exécution ; le démarrage du serveur
+va toutefois être tenté
+en attente du démarrage du serveur....2023-11-22 23:24:28.670 CET [6532] FATAL:  le fichier verrou « postmaster.pid » existe déjà
+2023-11-22 23:24:28.670 CET [6532] ASTUCE :  Un autre postmaster (de PID 1097) est-il déjà lancé avec comme répertoire de
+	données « /var/lib/postgresql/15/main » ?
+ attente arrêtée
+pg_ctl : n&#039;a pas pu démarrer le serveur
+Examinez le journal applicatif.</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[GrosJambon33000]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9826</uri>
+		</author>
+		<updated>2023-11-22T22:26:45Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34683#p34683</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] Postgres ne démarre plus sur passage de Debian 11 à Debian 12]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34681#p34681"/>
+		<content type="html"><![CDATA[<p>Vous pouvez provisoirement zapper les couches systemd et pg_ctlcluster en lançant à la main avec cette commande en qu&#039;utilisateur postgres:</p><div class="codebox"><pre><code>/usr/lib/postgresql/15/bin/pg_ctl \
+  -D /var/lib/postgresql/15/main \
+  -o &quot;-c config_file=/etc/postgresql/15/main/postgresql.conf&quot; \
+ start</code></pre></div><p>Le but n&#039;étant pas tant de démarrer que d&#039;avoir des erreurs à l&#039;affichage, si ni /var/log/postgresql/postgresql-15-main.log ni&#160; journalctl -u postgresql@15-main.service ne donnent pas d&#039;indication.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2023-11-22T14:41:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34681#p34681</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] Postgres ne démarre plus sur passage de Debian 11 à Debian 12]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34680#p34680"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Le fichier contient la valeur 15 seulement.</p><p>Et dans /var/lib/postgresql j&#039;ai seulement le dossier nommé 15.</p></div></blockquote></div><br /><p>C&#039;est donc effectivement les données d&#039;une instance en version 15.&#160; Si vous utilisiez postgres 13 auparavant, je ne sais pas ce qu&#039;il s&#039;est passé mais vos données ne sont plus là.&#160; Ou peut être avez-vous effectué un pg_upgrade (ou pg_upgradecluster, il me semble que le packaging debian fournit un wrapper pour cela)?</p><br /><div class="quotebox"><blockquote><div><p>La plupart des noms des paquets ne terminent ni avec debXXX ni avec pgdgXXX.<br />Par contre certains finissent par debXXX et aucun ne finit par pgdgXXX.</p></div></blockquote></div><br /><p>Ok, donc vous avez les paquets debian.</p><br /><br /><p>Pour en revenir à votre problème original, je ne vois pas trop comment aider sans avoir plus de logs.&#160; Peut-être pouvez vous essayer de démarrer postgres avec pg_ctlcluster, ou directement avec pg_ctl et obtenir les logs manquants?&#160; Vous pouvez sinon vérifier la configuration de postgres pour vous asurer que les logs vont bien dans le répertoire en question et que les droits sur ce répertoire sont ok, ou la documentation des paquets debian pour savoir où se trouvent les logs qui surviennent dans ce genre de situation.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2023-11-22T13:35:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34680#p34680</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] Postgres ne démarre plus sur passage de Debian 11 à Debian 12]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34679#p34679"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>rjuju a écrit&#160;:</cite><blockquote><div><div class="quotebox"><blockquote><div><p>pg13</p></div></blockquote></div><p>Si vous utilisiez pg13 avant la mise à jour de Debian et que pg_lsclusters indique maintenant une unique instance avec pg15, vous avez à priori un gros problème.</p><p>Juste au cas où, que contient le fichier /var/lib/postgresql/15/main/PG_VERSION ?&#160; Avez-vous d&#039;autres répertoires dans le répertoire&#160; /var/lib/postgresql/ ?</p></div></blockquote></div><p>Le fichier contient la valeur 15 seulement.</p><p>Et dans /var/lib/postgresql j&#039;ai seulement le dossier nommé 15.</p><br /><div class="quotebox"><cite>rjuju a écrit&#160;:</cite><blockquote><div><div class="quotebox"><blockquote><div><p>Bonne question... ça fait longtemps que je l&#039;ai installé, me souviens plus trop. y&#039;a un moyen de le savoir ?</p></div></blockquote></div><p>Vous pouvez faire un &quot;apt list | grep postgres&quot;.&#160; Si les noms des paquets finissent avec &quot;...+debXXX&quot; ils proviennent du repo de debian, sinon ils devraient finir avec &quot;+pgdgXXX&quot; pour le repo du pgdg.</p></div></blockquote></div><p>La plupart des noms des paquets ne terminent ni avec debXXX ni avec pgdgXXX.<br />Par contre certains finissent par debXXX et aucun ne finit par pgdgXXX.</p>]]></content>
+		<author>
+			<name><![CDATA[GrosJambon33000]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9826</uri>
+		</author>
+		<updated>2023-11-22T09:11:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34679#p34679</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] Postgres ne démarre plus sur passage de Debian 11 à Debian 12]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34678#p34678"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>pg13</p></div></blockquote></div><p>Si vous utilisiez pg13 avant la mise à jour de Debian et que pg_lsclusters indique maintenant une unique instance avec pg15, vous avez à priori un gros problème.</p><p>Juste au cas où, que contient le fichier /var/lib/postgresql/15/main/PG_VERSION ?&#160; Avez-vous d&#039;autres répertoires dans le répertoire&#160; /var/lib/postgresql/ ?</p><br /><div class="quotebox"><blockquote><div><p>Bonne question... ça fait longtemps que je l&#039;ai installé, me souviens plus trop. y&#039;a un moyen de le savoir ?</p></div></blockquote></div><p>Vous pouvez faire un &quot;apt list | grep postgres&quot;.&#160; Si les noms des paquets finissent avec &quot;...+debXXX&quot; ils proviennent du repo de debian, sinon ils devraient finir avec &quot;+pgdgXXX&quot; pour le repo du pgdg.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2023-11-22T08:17:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34678#p34678</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] Postgres ne démarre plus sur passage de Debian 11 à Debian 12]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34677#p34677"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>rjuju a écrit&#160;:</cite><blockquote><div><p>Que vous dit pg_lsclusters?</p></div></blockquote></div><p>Voila le retour de cette commande :</p><div class="codebox"><pre><code>Ver Cluster Port Status Owner    Data directory              Log file
+15  main    5432 down   postgres /var/lib/postgresql/15/main /var/log/postgresql/postgresql-15-main.log</code></pre></div><div class="quotebox"><cite>rjuju a écrit&#160;:</cite><blockquote><div><p> Utilisiez vous pg15 ou pg13 avant la mise à jour de debian?</p></div></blockquote></div><p>pg13</p><br /><div class="quotebox"><cite>rjuju a écrit&#160;:</cite><blockquote><div><p>De pus, utilisez vous les paquets de debian ou du pgdg?</p></div></blockquote></div><p>Bonne question... ça fait longtemps que je l&#039;ai installé, me souviens plus trop. y&#039;a un moyen de le savoir ?</p>]]></content>
+		<author>
+			<name><![CDATA[GrosJambon33000]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9826</uri>
+		</author>
+		<updated>2023-11-21T14:55:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34677#p34677</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] Postgres ne démarre plus sur passage de Debian 11 à Debian 12]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34676#p34676"/>
+		<content type="html"><![CDATA[<p>Que vous dit pg_lsclusters?&#160; Utilisiez vous pg15 ou pg13 avant la mise à jour de debian?&#160; De pus, utilisez vous les paquets de debian ou du pgdg?</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2023-11-21T14:43:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34676#p34676</id>
+	</entry>
+</feed>

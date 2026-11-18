@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Caractères accentués dans psql]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2210&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2210"/>
+	<updated>2012-08-23T09:25:09Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2210</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Caractères accentués dans psql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14903#p14903"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>LD_PRELOAD=lib/libreadline.so.5 psql<br />ERROR: ld.so: object &#039;lib/libreadline.so.5&#039; from LD_PRELOAD cannot be preloaded: ignored.</p></div></blockquote></div><p>C&#039;est parce qu&#039;il mangue le / initial au début de /lib...</p><p>Mais de toute façon, pour le LD_PRELOAD, avec la version 129 de postgresql-common, en principe ça le fait déjà automatiquement.<br />Il faut simplement que le package libreadline5 soit installé. C&#039;est apparemment la solution la moins inélégante trouvée en attendant que libedit soit assez évolué pour bien gérer les accents.</p><br /><p>Par ailleurs les locales installées comprennent à la fois de l&#039;ISO-LATIN et de l&#039;UTF8 en plus de la locale C qui ne gère pas les accents, ce qui est courant pour un système français mais ça oblige à bien vérifier que le terminal est configuré dans la même locale que psql (faire locale tout seul sans -a pour vérifier la locale courante sous le shell, puis show client_encoding sous psql pour voir si c&#039;est compatible).</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2012-08-23T09:25:09Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14903#p14903</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Caractères accentués dans psql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14902#p14902"/>
+		<content type="html"><![CDATA[<p>C&#039;est bien l&#039;article que j&#039;avais lu.<br />Voici les résultats des commandes : </p><div class="codebox"><pre><code>locale -a
+
+C
+C.UTF-8
+en_US.utf8
+fr_FR
+fr_FR@euro
+fr_FR.iso88591
+fr_FR.iso885915@euro
+fr_FR.utf8
+fr_FR.utf8@euro
+POSIX</code></pre></div><div class="codebox"><pre><code>LD_PRELOAD=lib/libreadline.so.5 psql
+ERROR: ld.so: object &#039;lib/libreadline.so.5&#039; from LD_PRELOAD cannot be preloaded: ignored.</code></pre></div><div class="codebox"><pre><code>pkg -l postgresql-common
+Souhait=inconnU/Installé/suppRimé/Purgé/H=à garder
+| État=Non/Installé/fichier-Config/dépaqUeté/échec-conFig/H=semi-installé/W=attend-traitement-déclenchements
+|/ Err?=(aucune)/besoin Réinstallation (État,Err: majuscule=mauvais)
+||/ Nom                                                Version                                            Description
++++-==================================================-==================================================-====================================================================================================================
+ii  postgresql-common                                  129                                                PostgreSQL database-cluster manager</code></pre></div><p>Après ça , j&#039;ai installé le paquet libreadline-dev et cherché la librairie.<br />Ca marche en faisant : LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libreadline.so psql<br />J&#039;ai fait un alias &quot;psqlx=LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libreadline.so psql&quot;</p><p>Sur le fond du problème, pg doit continuer à utiliser libedit pour une histoire de licence, si j&#039;ai bien compris le rapport de bug ?<br />Pas de solution plus élégante en vue ?</p>]]></content>
+		<author>
+			<name><![CDATA[MitsuTomoe]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1680</uri>
+		</author>
+		<updated>2012-08-22T22:10:52Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14902#p14902</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Caractères accentués dans psql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14884#p14884"/>
+		<content type="html"><![CDATA[<p>La première chose est de vérifier que la locale utilisée dans le terminal est bien compatible avec des accents.<br />Voir le résultat sous shell avant de lancer psql de la commande: </p><div class="codebox"><pre><code>locale -a</code></pre></div><p>Mais il se peut aussi que l&#039;impossibilité de saisir des accents vienne de ce problème:<br /><a href="http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=608442" rel="nofollow">http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=608442</a></p><p>Ubuntu utilise les mêmes packages que Debian pour PostgreSQL et subit généralement les mêmes bugs.</p><p>En appelant psql comme ça:</p><div class="codebox"><pre><code>LD_PRELOAD=lib/libreadline.so.5 psql [options]</code></pre></div><p>ça doit contourner le problème. Mais en principe c&#039;est déjà fait automatiquement si le package postgresql-common a une version supérieure à 114 (EDIT: et que libreadline est installé)</p><p>Pour vérifier, voir le résultat de: </p><div class="codebox"><pre><code>dpkg -l postgresql-common</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2012-08-21T21:50:00Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14884#p14884</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Caractères accentués dans psql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14883#p14883"/>
+		<content type="html"><![CDATA[<p>Exactement . select &#039;é&#039; ne marche pas, ou update xxx set xx=&#039;é&#039;. Dans un fichier sql, pas de souci.<br />J&#039;avais lu un article là-dessus, mais je n&#039;arrive plus à le retrouver.</p>]]></content>
+		<author>
+			<name><![CDATA[MitsuTomoe]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1680</uri>
+		</author>
+		<updated>2012-08-21T19:28:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14883#p14883</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Caractères accentués dans psql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14881#p14881"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>qu&#039;entendez-vous par impossibilité de saisir des caractères accentués ? faire select &#039;é&#039; ne fonctionne pas ou sagit-il d&#039;autre chose ?</p><p>Votre locale est-elle la même que celle de votre base de donnée ? Je n&#039;ai jamais eu ce problème personnellement.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2012-08-21T17:20:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14881#p14881</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Caractères accentués dans psql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14879#p14879"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />je viens d&#039;installer pg 9.1.5 et j&#039;espérais que l&#039;impossibilité de saisir des caractères accentués dans psql (sous ubuntu 12.04) aurait disparu. Hélas, il n&#039;en est rien.<br />Ce n&#039;est pas très grave (l&#039;affichage est bon et je peux saisir autrement) mais un peu ennuyeux.<br />Savez-vous si ce sera corrigé en 9.2 ? Il me semble avoir lu un article disant que ce n&#039;était pas vraiment pg , mais une bibliothèque utilisée <br />pour pouvoir rappeler les dernières commandes (readline ? readlinen ?) .<br />Quelqu&#039;un aurait-il des lumières sur cette question ?</p><p>Merci</p>]]></content>
+		<author>
+			<name><![CDATA[MitsuTomoe]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1680</uri>
+		</author>
+		<updated>2012-08-21T15:22:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14879#p14879</id>
+	</entry>
+</feed>

@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / VACUUM ne démarre pas]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=917&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=917"/>
+	<updated>2010-07-22T09:51:22Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=917</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  VACUUM ne démarre pas]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5710#p5710"/>
+		<content type="html"><![CDATA[<p>Poun 5000 enregistrements, 3071 pages, c&#039;est effectivement énorme.</p><p>Mais sans façon de le reproduire, je ne vois pas comment aider. J&#039;ai bien sûr testé sur une 8.3, le problème ne se manifeste pas. Et si il se produisait dans les cas courants, vous vous doutez bien que c&#039;est une question qui reviendrait constamment.</p><p>Je crois qu&#039;il faut vraiment trouver une façon de le reproduire.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-07-22T09:51:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5710#p5710</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  VACUUM ne démarre pas]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5709#p5709"/>
+		<content type="html"><![CDATA[<p>OK, c&#039;est donc le VACUUM qui modifie des choses dans la table</p>]]></content>
+		<author>
+			<name><![CDATA[slash]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=224</uri>
+		</author>
+		<updated>2010-07-22T09:08:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5709#p5709</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  VACUUM ne démarre pas]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5708#p5708"/>
+		<content type="html"><![CDATA[<p>rowexclusive est un verrou de type table.</p><p><a href="http://docs.postgresqlfr.org/8.4/explicit-locking.html#locking-tables" rel="nofollow">http://docs.postgresqlfr.org/8.4/explic … ing-tables</a></p><p>Elle indique simplement qu&#039;une transaction modifie des données dans la table. C&#039;est pour éviter par exemple qu&#039;une indexation sur la table puisse se faire en même temps.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-07-22T09:07:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5708#p5708</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  VACUUM ne démarre pas]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5706#p5706"/>
+		<content type="html"><![CDATA[<p>Marc, je n&#039;avais pas pensé à faire un VACUUM verbose. Je viens de le faire, et je me demande si ces informations ne sont pas utiles :<br />CPU 0.00s/0.00u sec elapsed 0.00 sec.INFO:&#160; vacuuming &quot;public.CTX_HISTORY&quot;<br />INFO:&#160; index &quot;CTX_HISTORY_pkey&quot; now contains 4982 row versions in 3071 pages<br />DETAIL:&#160; 0 index row versions were removed.<br />3054 index pages have been deleted, 3054 are currently reusable.<br />CPU 0.02s/0.02u sec elapsed 65.57 sec.INFO:&#160; &quot;CTX_HISTORY&quot;: found 0 removable, 4982 nonremovable row versions in 26 pages<br />DETAIL:&#160; 0 dead row versions cannot be removed yet.<br />There were 0 unused item pointers.<br />1 pages contain useful free space.<br />0 pages are entirely empty.</p><p>Ca fait beaucoup de pages non?</p>]]></content>
+		<author>
+			<name><![CDATA[slash]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=224</uri>
+		</author>
+		<updated>2010-07-22T09:05:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5706#p5706</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  VACUUM ne démarre pas]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5704#p5704"/>
+		<content type="html"><![CDATA[<p>Je n&#039;ai pas essayé de reproduire sur une base vierge... Par contre j&#039;ai déjà restauré la base plusieurs fois et le problème est toujours là.<br />Je fais un simple VACUUM ANALYSE, (de toute manière même un VACUUM tout court pose problème), et je ne comprends pas pourquoi je me retrouve avec un RowExclusiveLock dans la vue pg_locks...</p><p>Je tiens aussi a préciser que le RowExclusiveLock n&#039;est pas forcément toujours sur la même relation. Tout à l&#039;heure c&#039;était sur CTX_DICT_pkey je crois, maintenant c&#039;est sur CTX_HISTORY_pkey...</p>]]></content>
+		<author>
+			<name><![CDATA[slash]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=224</uri>
+		</author>
+		<updated>2010-07-22T08:45:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5704#p5704</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  VACUUM ne démarre pas]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5703#p5703"/>
+		<content type="html"><![CDATA[<p>Ça n&#039;a donc vraiment pas de sens. Vous avez un moyen pour le reproduire, à partir d&#039;une base vierge ?</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-07-22T08:33:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5703#p5703</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  VACUUM ne démarre pas]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5702#p5702"/>
+		<content type="html"><![CDATA[<p>8.3</p>]]></content>
+		<author>
+			<name><![CDATA[slash]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=224</uri>
+		</author>
+		<updated>2010-07-22T08:07:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5702#p5702</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  VACUUM ne démarre pas]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5701#p5701"/>
+		<content type="html"><![CDATA[<p>Je me rends compte que je n&#039;ai pas posé la question : quelle version de PG ?</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-07-22T08:07:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5701#p5701</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  VACUUM ne démarre pas]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5700#p5700"/>
+		<content type="html"><![CDATA[<p>Pour mon diagnostique :<br />1) Sur une session, la #1, je démarre une transaction, suivi d&#039;un appel à ma procédure stockée (qui produit la jointure).<br />2) Sur une autre session, la #2, je lance un VACUUM. Rien ne se passe, la commande est en cours d&#039;exécution. Je peux la laisser des heures, rien ne changera.<br />3) Je fais &quot;END;&quot; sur la session #1.<br />4) Le VACUUM s&#039;achève tout de suite sur la session #2.</p><p>Pour les valeurs que vous me demandez, ce sont celles par défaut :<br />#vacuum_cost_delay = 0&#160; &#160; &#160; &#160; &#160; &#160; # 0-1000 milliseconds<br />#vacuum_cost_page_hit = 1&#160; &#160; &#160; &#160; # 0-10000 credits<br />#vacuum_cost_page_miss = 10&#160; &#160; &#160; &#160; # 0-10000 credits<br />#vacuum_cost_page_dirty = 20&#160; &#160; &#160; &#160; # 0-10000 credits<br />#vacuum_cost_limit = 200&#160; &#160; &#160; &#160; # 1-10000 credits</p>]]></content>
+		<author>
+			<name><![CDATA[slash]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=224</uri>
+		</author>
+		<updated>2010-07-22T07:29:33Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5700#p5700</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  VACUUM ne démarre pas]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5699#p5699"/>
+		<content type="html"><![CDATA[<p>Si vous n&#039;avez aucun verrou avec granted à false, aucune session n&#039;est bloquée. Le vacuum n&#039;a donc aucune raison d&#039;être bloqué.</p><p>Comment diagnostiquez vous qu&#039;il bloque ? Êtes vous sûr que c&#039;est un blocage, pas un simple ralentissement ? Qu&#039;avez vous positionné comme valeurs pour vacuum_cost_limit et vacuum_cost_delay ? (et les 3 autres, si vous les avez modifiées)</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-07-22T07:22:55Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5699#p5699</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  VACUUM ne démarre pas]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5698#p5698"/>
+		<content type="html"><![CDATA[<p>Il n&#039;y a rien en granted à false.<br />Par contre je pense que ceci peu vous intéresser : Une fois le vacuum lancé et bloqué, je fais un select pg_locks joint avec pg_class et un RowExclusiveLock apparait :</p><p>----;------;---------;---------<br />pid;mode;granted;relname<br />----;------;---------;---------<br />1272;&quot;RowExclusiveLock&quot;;t;&quot;CTX_DICT_pkey&quot;<br />1272;&quot;ShareUpdateExclusiveLock&quot;;t;&quot;CTX_DICT&quot;</p><p>le pid 1272 correspond à la session qui appelle le VACUUM.<br />En tout cas merci pour votre aide</p>]]></content>
+		<author>
+			<name><![CDATA[slash]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=224</uri>
+		</author>
+		<updated>2010-07-22T07:14:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5698#p5698</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  VACUUM ne démarre pas]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5697#p5697"/>
+		<content type="html"><![CDATA[<p>Laissez tomber la piste des nombres d&#039;enregistrement pour le moment. Dans pg_locks, ce qui m&#039;intéresse c&#039;est :</p><p>Recherchez les verrous en granted à false. Recherchez ensuite les autres verrous s&#039;appliquant au même objet. Copiez le tout ici (le verrou en attente, et les verrous le bloquant)</p><p>Vous aurez des pids dans la table de verrous, ce qui vous permettra aussi de savoir à quelle session chaque verrou correspond.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-07-22T07:01:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5697#p5697</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  VACUUM ne démarre pas]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5696#p5696"/>
+		<content type="html"><![CDATA[<p>En fait j&#039;ai regardé avec pg_locks et je n&#039;ai rien trouvé d&#039;aberrant.<br />Les relations utilisées pour la transaction #2 (celle qui pose problème), ressemblent aux relations utilisées pour la transaction #1 (celle qui ne pose pas problème), mais avec des noms de table différents, ce qui est normal. Il n&#039;y a aucun verrouillage exclusif (à part des locktype virtualxid qui posent un ExclusiveLock, mais je suppose que c&#039;est dû à la vue pg_locks ?).</p><p>J&#039;ai remarqué autre chose d&#039;intéressant :</p><p>Concernant la transaction qui pose problème, si la table utilisée ne contient que peu d&#039;enregistrements, je n&#039;ai pas de problèmes pour le VACUUM. Dès qu&#039;un certain nombre d&#039;enregistrement est atteint (a peu pres 500, voire moins), le VACUUM bloque.</p>]]></content>
+		<author>
+			<name><![CDATA[slash]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=224</uri>
+		</author>
+		<updated>2010-07-22T06:52:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5696#p5696</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  VACUUM ne démarre pas]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5694#p5694"/>
+		<content type="html"><![CDATA[<p>Une jointure ne doit pas gêner vacuum. Sauf si c&#039;est un vacuum full.</p><p>Ou à moins que votre transaction ne fasse autre chose posant un verrou sur un objet à déterminer.</p><p>Si vous voulez avancer davantage, il faudra inspecter pg_locks lorsque le problème se produit, afin de déterminer qui bloque qui pour quoi.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-07-21T17:08:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5694#p5694</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[VACUUM ne démarre pas]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5693#p5693"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je rencontre actuellement un petit souci et j&#039;aimerai vous en faire part :</p><p>J&#039;effectue une requête de jointure à l&#039;intérieur d&#039;une transaction qui n&#039;est pas terminée (pas de END;). Jusque là pas de souci.<br />Ensuite, sur une autre connexion, je viens faire un VACUUM. Et la je constate que le VACUUM ne se termine pas (il attend apparemment).<br />Lorsque je cloture la transaction sur l&#039;autre connexion, le VACUUM s&#039;achève bien.</p><p>Mon problème c&#039;est que j&#039;ai deux requêtes de jointure, sur 2 connexions différentes, et qui ne sont jamais terminées, sauf si j&#039;en démarre une nouvelle.<br />La première requête ne pose aucun problème vis à vis du VACUUM, tandis que la deuxième bloque le VACUUM. Sauriez vous pourquoi?</p><p>Si vous avez une idée de où cela pourrait il venir, j&#039;en serai fort intéressé!</p><p>Merci d&#039;avance!</p>]]></content>
+		<author>
+			<name><![CDATA[slash]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=224</uri>
+		</author>
+		<updated>2010-07-21T16:58:50Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5693#p5693</id>
+	</entry>
+</feed>

@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Optimisation table: double ou numeric]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1360&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1360"/>
+	<updated>2011-05-09T11:52:06Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1360</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Optimisation table: double ou numeric]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9262#p9262"/>
+		<content type="html"><![CDATA[<p>marc=# CREATE TABLE test (a float(6));<br />CREATE TABLE<br />marc=# CREATE TABLE test2 (a float(40));<br />CREATE TABLE<br />marc=# \d test<br />&#160; &#160; Table &quot;public.test&quot;<br /> Column | Type | Modifiers <br />--------+------+-----------<br /> a&#160; &#160; &#160; | real | </p><p>marc=# \d test2<br />&#160; &#160; &#160; &#160; &#160;Table &quot;public.test2&quot;<br /> Column |&#160; &#160; &#160; &#160;Type&#160; &#160; &#160; &#160;| Modifiers <br />--------+------------------+-----------<br /> a&#160; &#160; &#160; | double precision | </p><p>Ils sont donc convertis en real et double…</p><p>Attention, la précision est en bit de la mantisse, pas en nombre décimaux.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-05-09T11:52:06Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9262#p9262</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Optimisation table: double ou numeric]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9259#p9259"/>
+		<content type="html"><![CDATA[<p>ok,</p><p>Encore une petite question concernant la définition d&#039;un type numérique.</p><p>La définition d&#039;une colonne au format float(p) est-elle juste une implémentation destinée a la conformité au langage SQL ou la précision p est-elle réellement appliquée,<br />car il me semble avoir lu dans la doc que float(p) pour p [1-24] est transformé en real.<br />Donc écrire float(9) reviendrait au même que d&#039;écrire float(6) transformé en real ayant une précision de 6. </p><p>Est-ce exact ?</p><p>Merci à tous</p>]]></content>
+		<author>
+			<name><![CDATA[GloReX]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1051</uri>
+		</author>
+		<updated>2011-05-09T09:58:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9259#p9259</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Optimisation table: double ou numeric]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8985#p8985"/>
+		<content type="html"><![CDATA[<p>GloReX et Marc parlaient du type real, pas du type numeric.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-04-20T15:03:00Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8985#p8985</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Optimisation table: double ou numeric]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8984#p8984"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>Marc Cousin a écrit&#160;:</cite><blockquote><div><p>Dans la table ? Non.</p></div></blockquote></div><p>Bien sur que si... Cela fait partie de la norme SQL que PG respecte assez bien !!!</p><p>Démo :</p><div class="codebox"><pre><code>CREATE TABLE TRE (C1 NUMERIC(16,2));
+
+INSERT INTO TRE VALUES (1), (1.23), (1234567.89), (1.23456789);
+
+SELECT * FROM TRE;</code></pre></div><p>Et la réponse :</p><p>1.00<br />1.23<br />1234567.89<br />1.23</p><p>A +</p>]]></content>
+		<author>
+			<name><![CDATA[SQLpro]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1054</uri>
+		</author>
+		<updated>2011-04-20T14:02:45Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8984#p8984</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Optimisation table: double ou numeric]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8982#p8982"/>
+		<content type="html"><![CDATA[<p>Dans la table ? Non.</p><p>À l&#039;affichage, bien sûr, il suffit d&#039;utiliser les fonctions d&#039;arrondi : <a href="http://docs.postgresql.fr/9.0/functions-math.html" rel="nofollow">http://docs.postgresql.fr/9.0/functions-math.html</a></p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-04-20T13:08:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8982#p8982</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Optimisation table: double ou numeric]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8981#p8981"/>
+		<content type="html"><![CDATA[<p>Du coup je vais me retrouver avec des valeurs ressemblant a 145,12499999999. Est-il donc possible de &quot;limiter&quot; la précision ?</p>]]></content>
+		<author>
+			<name><![CDATA[GloReX]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1051</uri>
+		</author>
+		<updated>2011-04-20T13:05:07Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8981#p8981</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Optimisation table: double ou numeric]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8980#p8980"/>
+		<content type="html"><![CDATA[<p>Ça aurait pas été une très grosse connerie. C&#039;est plus simple de passer de numeric à real quand on s&#039;est trompé que dans l&#039;autre sens: on ne perd pas de données avec numeric.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-04-20T12:46:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8980#p8980</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Optimisation table: double ou numeric]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8979#p8979"/>
+		<content type="html"><![CDATA[<p>Et bien merci, j&#039;allais faire une connerie...</p>]]></content>
+		<author>
+			<name><![CDATA[GloReX]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1051</uri>
+		</author>
+		<updated>2011-04-20T12:45:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8979#p8979</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Optimisation table: double ou numeric]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8977#p8977"/>
+		<content type="html"><![CDATA[<p>Oui. Le double utilise les opérations du processeur (via la librairie C). Alors que numeric, afin d&#039;être exact, doit effectuer bien plus d&#039;opérations.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-04-20T12:17:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8977#p8977</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Optimisation table: double ou numeric]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8976#p8976"/>
+		<content type="html"><![CDATA[<p>Les calculs ne doivent pas être exact. <br />En terme de performance, si j&#039;ai bien compris votre réponse, le double est préférable.</p>]]></content>
+		<author>
+			<name><![CDATA[GloReX]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1051</uri>
+		</author>
+		<updated>2011-04-20T12:09:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8976#p8976</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Optimisation table: double ou numeric]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8974#p8974"/>
+		<content type="html"><![CDATA[<p>La réponse est la même: ça dépend de si vous avez besoin de calculs exacts, ou si les erreurs d&#039;arrondi sont acceptables. Pour du financier par exemple, il est hors de question d&#039;utiliser les types real et double.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-04-20T11:49:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8974#p8974</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Optimisation table: double ou numeric]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8973#p8973"/>
+		<content type="html"><![CDATA[<p>Il y a plusieurs choses:<br />- Affichage des données sous forme de graphique<br />- Affichage des données sous forme de tableau Excel<br />- Petit calcul de type addition, moyenne...<br />- Statistique basique</p><p>Le valeur numérique des capteurs ne sont pas très grande mais il y en a beaucoup. Dans la majeur partie des cas, elles comportent une partie entière de 5 entiers et 3 décimale.</p>]]></content>
+		<author>
+			<name><![CDATA[GloReX]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1051</uri>
+		</author>
+		<updated>2011-04-20T11:47:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8973#p8973</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Optimisation table: double ou numeric]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8966#p8966"/>
+		<content type="html"><![CDATA[<p>Ça dépend de ce que vous voulez en faire.</p><p>Double est le plus souvent plus compact, et plus rapide pour les calculs.</p><p>Mais numeric permet de faire des calculs exacts, ce que ne permet pas real (erreurs d&#039;arrondis, c&#039;est une notation mantisse + exposant).</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-04-20T11:22:09Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8966#p8966</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Optimisation table: double ou numeric]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8965#p8965"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;ai deux tables contenant des valeurs numérique et des dates. Ces tables on une croissance importante (plusieurs dizaine de millier de tuples par jour sur 29 colonnes). <br />Je souhaiterai avoir votre avis sur les types à utiliser pour stocker ces valeurs, dois-je plutôt utiliser le type double ou numeric(x,y), afin d&#039;optimiser la table en terme de taille et de performance.</p><p>Merci</p>]]></content>
+		<author>
+			<name><![CDATA[GloReX]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1051</uri>
+		</author>
+		<updated>2011-04-20T10:21:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8965#p8965</id>
+	</entry>
+</feed>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / ts_headline et les accents]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2501&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2501"/>
+	<updated>2013-02-05T18:20:41Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2501</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ts_headline et les accents]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16502#p16502"/>
+		<content type="html"><![CDATA[<p>Finalement j&#039;ai trouvé (je n&#039;avais pas le cerveau trop réveillé...), c&#039;est à cause de la configuration par défaut de PostgreSQL. Voici la solutions pour ceux qui en aurait besoin.</p><p>Il fallait juste que j&#039;indique le dictionnaire pour forcer la reconnaissance, donc:</p><div class="codebox"><pre><code>SELECT ts_headline(replace_htmlentitycode_with_accent(a.strTitleFr), q) AS strTitleFr
+FROM FROM to_tsquery(&#039;pg_catalog.french&#039;, $1) AS q
+article AS a 
+...</code></pre></div><p>devient</p><div class="codebox"><pre><code>SELECT ts_headline(&#039;pg_catalog.french&#039;, replace_htmlentitycode_with_accent(a.strTitleFr), q) AS strTitleFr
+FROM FROM to_tsquery(&#039;pg_catalog.french&#039;, $1) AS q
+article AS a 
+...</code></pre></div><p>Merci!</p>]]></content>
+		<author>
+			<name><![CDATA[Ahaus]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2116</uri>
+		</author>
+		<updated>2013-02-05T18:20:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16502#p16502</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[ts_headline et les accents]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16501#p16501"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;ai actuellement un problème avec la fonction ts_headline. J&#039;essai de mettre en évidence des mots avec catactères accentués, mais sans succès. </p><p>Initialement, dans mon champ texte, j&#039;ai bien entendu du texte, mais également des caractères encodés en html (&amp;eacute; &amp;agrave; etc). Lorsque je veux faire une comparaison, cette dernière ne fonctionne pas. </p><p>La base de données est encodé en UTF8.</p><p>Exemple: <br />Prenons pour acquis que mon mot passé en paramètre est: méthode (avec l&#039;accent)<br />Le mot dans le titre français contient m&amp;eacute;thode</p><p>Voici le code</p><div class="codebox"><pre><code>SELECT ts_headline(replace_htmlentitycode_with_accent(a.strTitleFr), q) AS strTitleFr
+FROM FROM to_tsquery(&#039;pg_catalog.french&#039;, $1) AS q
+article AS a 
+...</code></pre></div><p>La fonction replace_htmlentitycode_with_accent(text) ne fait que des replaces des codes par leurs équivalents accentués (je ne peux pas installer de modules additionnels, notre environnement est très controlé et faire une demande prendrait trop de temps... donc j&#039;ai fait ma propre fonction)</p><p>J&#039;ai testé ceci: </p><div class="codebox"><pre><code>SELECT replace_htmlentitycode_with_accent(&#039;m&amp;eacute;thode&#039;)</code></pre></div><p>et j&#039;obtiens : méthode</p><p>Ensuite</p><div class="codebox"><pre><code>SELECT to_tsquery(&#039;pg_catalog.french&#039;, replace_htmlentitycode_with_accent(&#039;m&amp;eacute;thode&#039;))</code></pre></div><p>et j&#039;obtiens : &#039;méthod&#039; de type tsquery ce qui est le bon lexème.</p><p>Alors pour moi, méthode = méthode et avec la fonction to_tsquery, la fonction ts_headline devrait trouver la concordance. </p><p>Cependant, la fonction ts_headline ne le voit pas sous cet angle et ne me surligne pas les mots accentués. Les autres sont correctement reconnus.</p><p>Je me pose donc quelques questions:</p><p>Est-ce que c&#039;est un problème d&#039;encodage, le é dans les deux cas n&#039;est pas encodé de la même façon, c&#039;est donc différent pour ts_headline ?<br />Est-ce que ma méthode replace_htmlentitycode_with_accent pourrait retourner le bon encodage le cas echéant ?<br />Est-ce que l&#039;exécution de la requête est fait dans un tout autre ordre rendant la conversion après l&#039;exécution de la requête ?</p><p>Merci de votre aide!</p>]]></content>
+		<author>
+			<name><![CDATA[Ahaus]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2116</uri>
+		</author>
+		<updated>2013-02-05T16:41:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16501#p16501</id>
+	</entry>
+</feed>

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Contraintes SQL sur attribut et traitement des erreurs en PHP]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2154&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2154"/>
+	<updated>2012-07-11T11:09:52Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2154</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Contraintes SQL sur attribut et traitement des erreurs en PHP]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14552#p14552"/>
+		<content type="html"><![CDATA[<p>Encore une fois, il faut bien faire la distinction entre l&#039;application et la base de données. La base de données contient certaines contraintes qui empêchent n&#039;importe quelle application de mettre n&#039;importe quoi dans la base. L&#039;application doit faire de même si elle souhaite contenter son utilisateur au niveau de son interaction. Donc, oui, vous devez aussi mettre des gardes-fous sur l&#039;application, mais non, ce n&#039;est pas inutile de les mettre aussi dans la base.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-07-11T11:09:52Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14552#p14552</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Contraintes SQL sur attribut et traitement des erreurs en PHP]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14548#p14548"/>
+		<content type="html"><![CDATA[<p>Merci à gleu et rjuju pour vos&#160; réponses .</p><p>J&#039;y vois plus clair. <br />Postgres me dit simplement que je suis en erreur, via le code d&#039;erreur je trouve le type d&#039;erreur derrière lequel j&#039;ai plusieurs erreurs possibles du même type. A moi de les tester.</p><p>Cependant :<br />Il me semble que si j&#039;ai 2 erreurs&#160; de 2 types, le sgbd m&#039;informe seulement de la première erreur (gleu:&quot;La première. Chercher toutes les erreurs serait une perte en performance.&quot; ). Donc, je cherche uniquement l&#039;erreur ou les erreurs de type1, j&#039;affiche en (php/javascript) un message à l&#039;utilisateur, je ré-affiche le formulaire de saisie, l&#039;utilisateur corrige l&#039;erreur ou les erreurs de type1, poste le formulaire, le sgbd détecte l&#039;erreur de type2 et je recommence comme ci-dessus. Si j&#039;ai des erreurs sur un gros formulaire de 6 types et que l&#039;utilisateur itéré 6 fois sur la correction du formulaire, il va pas être content !</p><p>Il me semble donc préférable de tester systématiquement TOUTES les erreurs avant le &quot;pg_query($query)&quot; et même avant le postage du formulaire et donc&#160; sans alerte du sgbd via les contraintes et proposer à l&#039;itilisateur la correction en 1 seule passe de&#160; toutes les erreurs.<br />Si j&#039;ai bien compris&#160; l&#039;alerte du sgbd m&#039;est que moyennement utile (à moins qu&#039;il y ai mieux à faire)...</p><p>Peut on mieux faire ?</p>]]></content>
+		<author>
+			<name><![CDATA[Marco]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1831</uri>
+		</author>
+		<updated>2012-07-11T09:32:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14548#p14548</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Contraintes SQL sur attribut et traitement des erreurs en PHP]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14546#p14546"/>
+		<content type="html"><![CDATA[<p>Rien n&#039;empêche qu&#039;une partie de votre application soit mal codé (un bug tout bêtement), et qui ajoute des données qui n&#039;ont pas de sens.</p><p>En ce qui concerne l&#039;ajout d&#039;un trigger, c&#039;est certainement le meilleur moyen de perdre en performance.</p><p>Et pour répondre aux questions :</p><div class="quotebox"><blockquote><div><p>Comment récupérer le nom (ou les noms) de la contrainte qui plante.</p></div></blockquote></div><p>Pas sûr que vous puissiez, pas sûr que ça a un intérêt non plus. L&#039;important est de connaître le type de l&#039;erreur et d&#039;y répondre. Comment se fait-il d&#039;ailleurs que l&#039;application permette la saisie d&#039;une information qui n&#039;a pas de sens ?</p><div class="quotebox"><blockquote><div><p>Est ce que seulement la première contrainte qui est en erreur est détectée ou toutes ?</p></div></blockquote></div><p>La première. Chercher toutes les erreurs serait une perte en performance.</p><div class="quotebox"><blockquote><div><p>Comment depuis Postgres afficher un message sur mon écran</p></div></blockquote></div><p>PostgreSQL n&#039;a pas à afficher quoi que ce soit. C&#039;est un moteur de bases de données. C&#039;est à votre application de gérer l&#039;affichage suivant la réussite ou l&#039;échec des opérations.</p><div class="quotebox"><blockquote><div><p>j&#039;ai bien trouvé dans des CREATE FUNCTION la commande : RAISE EXCEPTION $$ texte&#160; % texte $$OLD.champ ;</p></div></blockquote></div><p>RAISE n&#039;a pas pour but d&#039;afficher une erreur sur l&#039;application mais d&#039;enregistrer un message dans les traces de PostgreSQL. RAISE EXCEPTION va en plus annuler la procédure en erreur.</p><div class="quotebox"><blockquote><div><p>Comment depuis mon fichier ajoutersql2.ph dans lequel je fais mon INSERT qui plante (ou pose problème si je capte le problème avant le plantage) revenir à mon fichier ajouterform.ph pour reproposer le formumaire.</p></div></blockquote></div><p>Aucune idée, c&#039;est plutôt pour un forum PHP, cette question <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><div class="quotebox"><blockquote><div><p>Faire la vérification en PHP/Javascript AVANT l&#039;INSERT, je sais faire mais je perds totalement l’intérêt du CONSTRAINT SQL du CREATE centralisé dans la BD.</p></div></blockquote></div><p>Comme expliqué dans ma précédente réponse, non, vous ne le perdez pas. Elle empêche toute saisie de mauvaise information dans la base, quelque soit le moyen employé. À votre application de réagir convenablement aux erreurs. À votre application aussi d&#039;éviter la saisie de données qui n&#039;ont aucun sens. Par exemple, dans le cas proposé, si l&#039;utilisateur saisit 3, la fonction d&#039;enregistrement peut empêcher l&#039;INSERT s&#039;il sait que 3 est une valeur qui n&#039;a pas de sens. L&#039;intelligence ne doit pas être que dans la base de données, mais aussi dans l&#039;application.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-07-10T07:33:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14546#p14546</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Contraintes SQL sur attribut et traitement des erreurs en PHP]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14545#p14545"/>
+		<content type="html"><![CDATA[<p>Le message est un warning pour vous informer de l&#039;erreur, il n&#039;arrête pas le traitement. Le script est arrêté par le die().<br />Si vous ne voulez pas afficher le warning, vous pouvez mettre un @ devant votre pg_query(), ou configurer votre php pour qu&#039;il n&#039;affiche pas la sortie des warnings.</p><p>Vous devez par contre faire un traitement du genre :</p><div class="codebox"><pre><code>$res = pg_query($query);
+if ($res) {
+//le traitement est ok on continue
+}
+else{
+// gestion de l&#039;erreur
+}</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2012-07-10T07:24:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14545#p14545</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Contraintes SQL sur attribut et traitement des erreurs en PHP]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14544#p14544"/>
+		<content type="html"><![CDATA[<p>Merci de vos réponses mais je cherche toujours la solution.</p><p>Réponse à rjuju :<br /> -&gt;&#160; &quot;die() est justement là pour quitter le script en affichant un message&quot; <br />oui mais mon programme est planté avec le message :<br />&#160; &#039;Warning: pg_query() [function.pg-query]: Query failed: ERREUR: la nouvelle ligne viole la contrainte de&#160; &#160;vérification «c1» de la relation «produit2» in C:\Docum....&#160; &#160;ajoutersql2.php on line 16&#160; : pg_query($query)or die( &quot;erreur requete&quot; );<br />erreur requete&#039;<br />Cela ne me convient pas.</p><p>&#160; -&gt;&#160; &quot;Vous devriez plutôt faire une transaction si besoin, tester le retour de pg_query et rendre la main en gérant les erreurs possibles&quot;<br />J&#039;avais pensé plutôt à un Trigger sur Ajout et sur Modification mais comment récupérer le code de l&#039;erreur (j&#039;ai trouvé) mais le lieu de l&#039;erreur car j&#039;ai bien sur plusieurs contraintes sur la table, elles sont nommées (ici &#039;c1&#039; dans l&#039;exemple donné). <br />Comment récupérer le nom (ou les noms) de la contrainte qui plante . Est ce que seulement la première contrainte qui est en erreur est détectée ou toutes ?<br />Comment depuis Postgres afficher un message sur mon écran, j&#039;ai bien trouvé dans des CREATE FUNCTION la commande : RAISE EXCEPTION $$ texte&#160; % texte $$OLD.champ ; <br />Comment depuis mon fichier ajoutersql2.ph dans lequel je fais mon INSERT qui plante (ou pose problème si je capte le problème avant le plantage) revenir à mon fichier ajouterform.ph pour reproposer le formumaire.</p><p>Faire la vérification en PHP/Javascript AVANT l&#039;INSERT, je sais faire mais je perds totalement l’intérêt du CONSTRAINT SQL du CREATE centralisé dans la BD.</p><br /><p>Réponse à gleu :<br />&#160; -&gt; &quot;pour éviter que n&#039;importe qui connecté à la base ne puisse pas y placer des données qui n&#039;ont aucun sens&quot;<br />D&#039;accord mais ma table Produit n&#039;est accessible que par mon application PHP et c&#039;est donc là (et uniquement là) que je veux éviter d&#039;y placer des données qui n&#039;ont aucun sens.</p>]]></content>
+		<author>
+			<name><![CDATA[Marco]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1831</uri>
+		</author>
+		<updated>2012-07-10T06:43:02Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14544#p14544</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Contraintes SQL sur attribut et traitement des erreurs en PHP]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14543#p14543"/>
+		<content type="html"><![CDATA[<p>Pour répondre à l&#039;intérêt d&#039;ajouter les contraintes en base, il est double :</p><p>1. pour éviter que n&#039;importe qui connecté à la base ne puisse pas y placer des données qui n&#039;ont aucun sens (dans votre cas, un pd_prix&lt;=3)<br />2. pour donner des informations au planificateur qui lui permet de mieux optimiser les requêtes.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-07-09T21:55:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14543#p14543</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Contraintes SQL sur attribut et traitement des erreurs en PHP]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14542#p14542"/>
+		<content type="html"><![CDATA[<p>Bonjour, l&#039;instruction die() est justement là pour quitter le script en affichant un message. Vous devriez plutôt faire une transaction si besoin, tester le retour de pg_query et rendre la main en gérant les erreurs possibles.</p><br /><p>Vous pouvez le faire en javascript, mais cela exigera de gérer vos définitions de contraintes à la fois dans postgres et dans javascript, ou de faire des requêtes pour interroger le catalogue pour essayer de retrouver dynamiquement les contraintes associées aux champs.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2012-07-09T19:06:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14542#p14542</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Contraintes SQL sur attribut et traitement des erreurs en PHP]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14541#p14541"/>
+		<content type="html"><![CDATA[<p>salut a tous,<br />Sur une table, je définis en SQL une contrainte genre : CONSTRAINT c1 CHECK(pd_prix &gt;3)</p><p>Dans mon application PHP, si je saisis un prix de 1, lors de l&#039;exécution du code php :<br />&#160; &#160;$query= &quot;INSERT INTO produit( pdt_designation, pdt_prix, pdt_categorie,pdt_datecrea)<br />&#160; VALUES ( &#039;$_POST[fdesignation]&#039;,$_POST[fprix],&#039;$_POST[fcategorie]&#039;,&#039;$datecre&#039;)&quot;;&#160; &#160; <br />&#160; pg_query($query)or die( &quot;erreur requete&quot; );</p><p> l&#039;erreur est détectée (très bien) :<br />Warning: pg_query() [function.pg-query]: Query failed: ERREUR: la nouvelle ligne viole la contrainte de vérification «c1» de la relation «produit2» in C:\Docum....&#160; &#160;ajoutersql2.php on line 16&#160; : pg_query($query)or die( &quot;erreur requete&quot; );<br />erreur requete</p><p>L&#039;erreur est détectée mais PLANTE le programme. Il faut donc détecter l&#039;erreur avant l&#039;exécution de la rqt par pg_query($query), est ce possible ? Et comment l&#039;indiquer proprement à l&#039;utilisateur, reprendre la main et revenir à la saisie ?<br />Je ne vois pas de meilleure solution (et c&#039;est là que je fais appel à vous) que de faire la verif en JavaScript dans le formulaire HTML de saisie.</p><p>Si la meilleure solution est Javascript alors quand est il utile de gérer les contraintes en SQL !</p><p>Merci pour vos commentaires.</p>]]></content>
+		<author>
+			<name><![CDATA[Marco]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1831</uri>
+		</author>
+		<updated>2012-07-09T16:14:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14541#p14541</id>
+	</entry>
+</feed>

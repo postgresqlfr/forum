@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / PL/SQL function et performance]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5556&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5556"/>
+	<updated>2019-07-10T21:23:12Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5556</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  PL/SQL function et performance]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29977#p29977"/>
+		<content type="html"><![CDATA[<p>Docker n&#039;est à ma connaissance pas spécialement réputé pour ses performances non plus.</p><br /><p>Je parlais plutôt d&#039;architecture purement côté postgres (modèle bien pensé, formes normales, contraintes, index etc), et côté applicatif (requêtes bien écrites, éviter l&#039;utilisation d&#039;ORM, privilégier des requêtes ensemblistes à du traitement procédural...), que le code soit dans un client ou dans une procédure stockée, même si effectivement la configuration matérielle et logicielle du serveur est très importante.</p><br /><p>J&#039;imagine que vous avez implémenté avec des procédures stockées plpgsql une API, il devrait donc être relativement simple de simuler une montée en charge et voir comment cela se passe ?&#160; Si vous n&#039;avez pas d&#039;outil pour cela, il devrait être assez simple de faire un prototype rapide en utilisant pgbench (<a href="https://www.postgresql.org/docs/current/pgbench.html" rel="nofollow">https://www.postgresql.org/docs/current/pgbench.html</a>) vu que votre api est disponible en SQL.</p><br /><p>Pour répondre à votre question, c&#039;est vraiment au cas par cas.&#160; Il faut également prendre en compte qu&#039;il est bien plus facile de déployer au besoin des dizaines d&#039;applicatif stateless si le code est relativement gourmand alors que votre serveur de base de données nécessitera bien plus d&#039;efforts.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2019-07-10T21:23:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29977#p29977</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  PL/SQL function et performance]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29976#p29976"/>
+		<content type="html"><![CDATA[<p>Merci pour ton retour julien,</p><p>As tu des conseils pour le choix d&#039;architecture?<br />Pour l&#039;instant, j&#039;utilise docker, mais tu parles surement de hardware?</p><p>Globalement les performances sont assez bonne pour l&#039;instant, ma peur vient plutôt pour la suite, lors d&#039;une croissance rapide,<br />Est ce qu&#039;il n&#039;y a pas de risque de fil d&#039;attente? </p><p>Merci pour la découverte de plv8 ! je ne connaissais pas.</p><br /><p>Ma question pour être un peu plus direct : vaut mieux mettre le code dans la base de donnée, où le laisser en dehors, donc NodeJS? </p><p>En tout cas, la réponse me rassure, car je trouve que on développe rapidement avec psql car on est en contact avec la donnée</p>]]></content>
+		<author>
+			<name><![CDATA[vosterma]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8697</uri>
+		</author>
+		<updated>2019-07-10T21:13:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29976#p29976</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  PL/SQL function et performance]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29975#p29975"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><p>Il n&#039;y a bien évidemment pas de réponse magique, mais de mon expérience il est tout à fait possible d&#039;avoir de très bonnes performances avec postgres pour peu que vous fassiez les bons choix d&#039;architecture.</p><br /><p>Concernant le ppgsql, cela existe et cela remplit son rôle, mais son rôle est plutôt d&#039;avoir un langage simple à apprendre et présentant beaucoup de ressemblance avec certains autres langages, plutôt que d&#039;être axé sur les performances.&#160; Les plus gros problèmes de performances viennent généralement des parties &quot;impératives&quot; et évaluations des expressions.&#160; Si c&#039;est un gros besoin pour vous, vous pourriez faire des tests de performance comparatifs avec d&#039;autres langages, notamment plv8 qui pourrait se révéler plus rapide en plus d&#039;être un langage que vous devriez déjà matriser.</p><br /><p>Cela dit, il est tout à faot possible qu&#039;une bonne configuration, mise en place d&#039;un pooler applicatif, modèle de données adapté et touts les autres bonnes pratiques suffisent à rendre l&#039;utilisation de plpgsql tout à fait acceptable pour vos besoins.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2019-07-10T20:45:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29975#p29975</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[PL/SQL function et performance]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29974#p29974"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous!</p><p>Je me pose des questions sur la scalabilité de Postgresql, est ce que c&#039;est facile?</p><p>Avec mon équipe, nous créons une app, et pour le backend, nous avons choisi nodejs + postgresql.</p><p>Ce qui a de particulier je pense par rapport à ce qui se fait en général, c&#039;est que nous avons fait le choix d&#039;utiliser des procédures plsql pour la plus grosse partie de notre application.</p><p>On utilise postgresql + posgis pour le traitement géographique.</p><p>Globalement, pour chaque call qui arrive sur notre API, nous avons une fonction d&#039;entrée associée dans la base de données.</p><p>L&#039;idée était d&#039;éviter d&#039;avoir plein de micro-requette et des aller-retours entre nodejs et postgresql, ce que je trouvais pas très pratique.</p><br /><p>Mais d&#039;un point de vue performance, je n&#039;ai aucune idée si c&#039;est une bonne stratégie ? </p><p>Si les fonctions stockées existent, c&#039;est quelles doivent bien remplir leurs roles! <br />Nous avons environ 60 tables, et 500 fonctions stockées.</p><p>Je recherche votre avis, et votre expérience.</p><br /><p>Merci d&#039;avance!</p>]]></content>
+		<author>
+			<name><![CDATA[vosterma]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8697</uri>
+		</author>
+		<updated>2019-07-10T20:28:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29974#p29974</id>
+	</entry>
+</feed>

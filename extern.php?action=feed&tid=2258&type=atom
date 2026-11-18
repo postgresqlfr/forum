@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Nuages de Tags]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2258&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2258"/>
+	<updated>2012-09-20T20:30:42Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2258</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Nuages de Tags]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15186#p15186"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Sauf peut-être si je joue sur la configuration de l&#039;indexation et que je n&#039;affecte aucun dictionnaire/thésaurus dans le cadre de la &quot;lexemisation&quot; des termes ?</p></div></blockquote></div><p>Vous devez avoir au moins un dictionnaire.</p><div class="quotebox"><blockquote><div><p>Y a t-il possibilité de configurer les dictionnaires/thesaurus, ou plus généralement indiquer à Postgresql de ne pas réduire les termes à leur racine, pour un champs ts_vector ?</p></div></blockquote></div><p>Il est surtout possible d&#039;ajouter des dictionnaires. Il doit être possible de créer un dictionnaire qui prend le mot comme il est et le rend comme il est.</p><div class="quotebox"><blockquote><div><p>Le lexeme produit par Postgresql dans ce cas là sera &quot;inform&quot; ?</p></div></blockquote></div><p>Il semblerait que oui :</p><div class="codebox"><pre><code>postgres=# select texte, to_tsvector(texte) from (values (&#039;informer&#039;), (&#039;information&#039;), (&#039;informais&#039;), (&#039;informe&#039;)) as tmp(texte);
+    texte    | to_tsvector 
+-------------+-------------
+ informer    | &#039;inform&#039;:1
+ information | &#039;inform&#039;:1
+ informais   | &#039;inform&#039;:1
+ informe     | &#039;inform&#039;:1
+(4 rows)</code></pre></div><div class="quotebox"><blockquote><div><p>Et ensuite dans le cadre d&#039;un nuage de tags, quel serait le mot à faire apparaitre (du point de vue utilisateur) : informer ?</p></div></blockquote></div><p>J&#039;ai bien peur que tout le monde ait son avis là-dessus. Pour certains, ce sera informer, pour d&#039;autres informations, etc.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-09-20T20:30:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15186#p15186</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Nuages de Tags]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15158#p15158"/>
+		<content type="html"><![CDATA[<p>Pour bien saisir la problématique, si j&#039;ai les termes : &quot;informer&quot;, &quot;information&quot;, &quot;informais&quot;, &quot;informe&quot;.</p><p>Le lexeme produit par Postgresql dans ce cas là sera &quot;inform&quot; ?</p><p>Et ensuite dans le cadre d&#039;un nuage de tags, quel serait le mot à faire apparaitre (du point de vue utilisateur) : informer ?</p><p>Et dans cette perspective, il faudrait donc associer un lexeme au mot générique représentatif de ce lexeme, un chef de file en quelque sorte.</p>]]></content>
+		<author>
+			<name><![CDATA[shamsoudin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1944</uri>
+		</author>
+		<updated>2012-09-18T07:08:54Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15158#p15158</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Nuages de Tags]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15157#p15157"/>
+		<content type="html"><![CDATA[<p>Salut et merci pour votre réponse,</p><p>Sauf peut-être si je joue sur la configuration de l&#039;indexation et que je n&#039;affecte aucun dictionnaire/thésaurus dans le cadre de la &quot;lexemisation&quot; des termes ?<br />Et je pourrais avoir finalement 1 champs TS_VECTOR qui fonctionne normalement (avec la &quot;lexemisation&quot; sur la base de dictionnaires/thesaurus) pour ma recherche plein texte, et donc avec des racines de mots. Et un autre champs TS_VECTOR qui lui ne réduit pas les mots à une racine car je n&#039;aurais configuré aucun dictionnaire/thesaurus.<br />Du coup dans ma table j&#039;aurais 2 champs de type TS_VECTOR : un pour ma recherche plein texte et un autre en vue de mon nuage de tags.</p><p>Et pour lequel j&#039;utiliserais la fonction ts_stat() sur ce dernier champs.<br />Fonction que je viens de découvrir et qui me donne exactement ce que je souhaite (la fréquence des termes en tout, et dans combien de document il apparait)</p><p>Ca le ferait ?</p><p>Y a t-il possibilité de configurer les dictionnaires/thesaurus, ou plus généralement indiquer à Postgresql de ne pas réduire les termes à leur racine, pour un champs ts_vector ?</p>]]></content>
+		<author>
+			<name><![CDATA[shamsoudin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1944</uri>
+		</author>
+		<updated>2012-09-18T06:51:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15157#p15157</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Nuages de Tags]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15150#p15150"/>
+		<content type="html"><![CDATA[<p>Un lexème n&#039;est pas un mot complet, mais une racine du mots. Je ne pense pas que vous puissiez faire ce que vous voulez avec FTS.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-09-17T13:13:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15150#p15150</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Nuages de Tags]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15140#p15140"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous,</p><p>Voilà je réalise en ce moment un petit cms et je voudrais également générer un nuages de tags sur la base du contenu des articles saisies.</p><p>Je travaille avec Postgresql.<br />J&#039;ai pensé faire la chose avec Lucene en indexant le contenu de ma table article, et ensuite en récupérant la liste des tokens les plus fréquents (poids).</p><p>Mais ayant parcouru un peu la doc de Postgresql sur la recherche plein texte (FTS), je me dis qu&#039;il est peut être possible de gérer entièrement avec Postgresql sans avoir de conséquences sur la performance.</p><p>Je me demande donc quelle est la bonne démarche à suivre pour gérer cela vec Postgresql de A à Z.<br />Si j&#039;indexe le contenu de mon champs &quot;article&quot; (qui contient le corps de l&#039;article) dans un nouveau champs de type ts_vector, j&#039;obtiens les lexemes associés à mon article, et seulement à un article.</p><p>Mais ensuite, que dois je faire pour produire ma liste de token/lexeme global sur tous mes articles, avec les poids (ou fréquences) associés ?</p><p>Dois je avoir recours à une autre table ? Puis entièrement me reposer sur mon champs de type&#160; ts_vector dont je parle ci-dessus et qui &quot;lexemise&quot; le corps de mon article ?</p><p>N&#039;y a t&#039;il pas une fonction ou un mécanisme postgresql qui me permet d&#039;avoir ma liste global de lexemes (à l&#039;image de Lucene qui dispose d&#039;une méthode pour avoir la liste global des tokens de l&#039;index) ? </p><p>Et si oui, pensez vous que cela ait un coût sur les performances ?<br />Je me disais que si une méthode ou requête existait, il vaudrait peut être mieux produire un fichier xml des lexemes (par une espèce de batch par exemple, toutes les nuits) plutôt que de faire à chaque fois une requête sql à chaque chargement de page (sachant que le nuages de tag serait affiché éventuellement sur chaque page web du site) ?</p><p>Par avance, merci pour votre aide</p>]]></content>
+		<author>
+			<name><![CDATA[shamsoudin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1944</uri>
+		</author>
+		<updated>2012-09-16T22:58:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15140#p15140</id>
+	</entry>
+</feed>

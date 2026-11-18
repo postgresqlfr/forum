@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Enregistrement aléatoire avec pg_query]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1391&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1391"/>
+	<updated>2011-05-04T19:56:58Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1391</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Enregistrement aléatoire avec pg_query]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9233#p9233"/>
+		<content type="html"><![CDATA[<p>Aucune idée. En tout cas, pg_exec est dépréciée, c&#039;est pg_query qu&#039;il faut utiliser (je viens de me rendre compte de ça en regardant le code). Pour le reste, c&#039;est plus une question PHP et HTML qu&#039;une question Postgres. À moins qu&#039;il y ait un développeur PHP dans les parages, vous obtiendrez certainement une meilleure réponse sur un forum PHP.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-05-04T19:56:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9233#p9233</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Enregistrement aléatoire avec pg_query]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9232#p9232"/>
+		<content type="html"><![CDATA[<p>precision,<br />j&#039;ai modifié l&#039;ordre des déroulantes dans le code</p><p>mode de paiment dabord<br />puis conditions ensuite<br />histoire de voir si une variable de la premiere déroulante ne venait pas troubler<br />l&#039;exécution de la 2eme partie.</p><p>rien n&#039;y fait le bug persiste</p>]]></content>
+		<author>
+			<name><![CDATA[unisol]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=540</uri>
+		</author>
+		<updated>2011-05-04T19:45:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9232#p9232</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Enregistrement aléatoire avec pg_query]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9231#p9231"/>
+		<content type="html"><![CDATA[<p>donc je m&#039;explique,</p><p>seule la 2 eme déroulante pose probleme<br />si on clic dessus, elle se déroule et affiche !<br />&lt;une ligne vide&gt;<br />&lt;Carte bancaire&gt;<br />&lt;Virement bancaire&gt;<br />etc.</p><p>si on selectionne une ligne autre que Carte bancaire<br />l&#039;enregistrement est réalisé dans postgres puis affiché à l&#039;ecran<br />si carte bancaire est selectionné, l&#039;enregistrement est réalisé dans postgres<br />(j&#039;ai vérifié, dans pgadmin) MAIS à l&#039;ecran, <br />le couple HTML PHP ne me l&#039;affiche pas<br />ce qui est curieux c&#039;est que la déroulante du haut marche nickel.</p>]]></content>
+		<author>
+			<name><![CDATA[unisol]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=540</uri>
+		</author>
+		<updated>2011-05-04T19:39:55Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9231#p9231</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Enregistrement aléatoire avec pg_query]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9230#p9230"/>
+		<content type="html"><![CDATA[<p>oui bien sur.<br />&#160; &#160; //delais_reglement<br />&#160; &#160; $requete = &quot;select conditions FROM delais_reglement where nrosociete = $_SESSION[NroSociete]&quot;;<br />&#160; &#160; $result_cond =&#160; pg_exec( $cnx, $requete);<br />&#160; &#160; $numrows_cond = pg_numrows($result_cond);<br />&#160; &#160; //mode_paiement<br />&#160; &#160; $requete = &quot;select mode_paiement FROM modes_paiement where nrosociete = $_SESSION[NroSociete]&quot;;<br />&#160; &#160; $result_paiement =&#160; pg_exec( $cnx, $requete);<br />&#160; &#160; $numrows_paiement = pg_numrows($result_paiement);</p><p>&#160; &#160; &#160; &#160; &#160; &#160; &lt;label&gt;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &lt;select name=&quot;conditions&quot; size=&quot;1&quot; id=&quot;conditions&quot;&gt;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;&lt;?php<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;echo &quot;&lt;option &gt;&lt;/option&gt;&quot;;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; for($ri = 0; $ri &lt; $numrows_cond; $ri++)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; {<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; $row = pg_fetch_array($result_cond, $ri);<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; if ($row[&#039;conditions&#039;]==$_POST[&#039;conditions&#039;])<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; {echo &quot;&lt;option selected&gt;&quot;.$_POST[&#039;conditions&#039;].&quot;&lt;/option&gt;&quot;;}<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; else<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; {echo &quot;&lt;option &gt;&quot;.$row[&#039;conditions&#039;].&quot;&lt;/option&gt;&quot;;}<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; }<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; ?&gt;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &lt;/select&gt;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &lt;/label&gt;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &lt;/td&gt;<br />&#160; &#160; &#160; &#160; &#160; &#160; &lt;/tr&gt;<br />&#160; &#160; &#160; &#160; &#160; &#160; &lt;tr&gt;<br />// 2eme partie<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &lt;td height=&quot;24&quot; class=&quot;style12&quot;&gt;Mode paiement&lt;/td&gt;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &lt;td &gt;&lt;label&gt;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &lt;select name=&quot;mode_paiement&quot; size=&quot;1&quot; id=&quot;mode_paiement&quot;&gt;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &lt;?php<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; echo &quot;&lt;option &gt;&lt;/option&gt;&quot;;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; for($ri = 0; $ri &lt; $numrows_paiement; $ri++)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; {<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; $rowp = pg_fetch_array($result_paiement, $ri);<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; if ($rowp[&#039;mode_paiement&#039;]==$_POST[&#039;mode_paiement&#039;])<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; {echo &quot;&lt;option selected&gt;&quot;.$rowp[&#039;mode_paiement&#039;].&quot;&lt;/option&gt;&quot;;}<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; else<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; {echo &quot;&lt;option &gt;&quot;.$rowp[&#039;mode_paiement&#039;].&quot;&lt;/option&gt;&quot;;}<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; }<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; ?&gt;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &lt;/select&gt;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &lt;/label&gt;</p>]]></content>
+		<author>
+			<name><![CDATA[unisol]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=540</uri>
+		</author>
+		<updated>2011-05-04T19:31:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9230#p9230</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Enregistrement aléatoire avec pg_query]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9228#p9228"/>
+		<content type="html"><![CDATA[<p>Désolé, je ne comprends pas la question. À mon avis il manque quelque chose. Il n&#039;est pas censé y avoir des requêtes, quelque part ?</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-05-04T19:10:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9228#p9228</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Enregistrement aléatoire avec pg_query]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9225#p9225"/>
+		<content type="html"><![CDATA[<p>oups! confusion de fenetre, je suis sur le bon forum.</p><p>voici le probleme, dans la 2eme partie, si je selectionne le 1ere item (Carte bancaire)<br />ce dernier n&#039;apparait pas lors de l&#039;affichage,<br />à partir du 2eme item (Virement) pas de probleme<br />pourquoi ?<br />voici la table lue:<br />---------------------------------<br />&#039;vide&#039;<br />--------------<br />Carte bancaire<br />--------------<br />Virement<br />--------------<br />Chèque<br />--------------</p><p>&#160; &#160; &#160; &#160; &#160; &#160; &#160; &lt;label&gt;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &lt;select name=&quot;conditions&quot; size=&quot;1&quot; id=&quot;conditions&quot;&gt;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;&lt;?php<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;&#160; echo &quot;&lt;option &gt;&lt;/option&gt;&quot;;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; for($ri = 0; $ri &lt; $numrows_cond; $ri++)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; {<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; $row = pg_fetch_array($result_cond, $ri);<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; if ($row[&#039;conditions&#039;]==$_POST[&#039;conditions&#039;])<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; {echo &quot;&lt;option selected&gt;&quot;.$_POST[&#039;conditions&#039;].&quot;&lt;/option&gt;&quot;;}<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; else<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; {echo &quot;&lt;option &gt;&quot;.$row[&#039;conditions&#039;].&quot;&lt;/option&gt;&quot;;}<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; }<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; ?&gt; <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &lt;/select&gt;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &lt;/label&gt;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &lt;/td&gt;<br />&#160; &#160; &#160; &#160; &#160; &#160; &lt;/tr&gt;<br />&#160; &#160; &#160; &#160; &#160; &#160; &lt;tr&gt;<br />// 2eme partie<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &lt;td height=&quot;24&quot; class=&quot;style12&quot;&gt;Mode paiement&lt;/td&gt;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &lt;td &gt;&lt;label&gt;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &lt;select name=&quot;mode_paiement&quot; size=&quot;1&quot; id=&quot;mode_paiement&quot;&gt;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &lt;?php<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;&#160; &#160;echo &quot;&lt;option &gt;&lt;/option&gt;&quot;;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;&#160; &#160;for($ri = 0; $ri &lt; $numrows_paiement; $ri++)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;&#160; &#160;{<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;&#160; &#160;$rowp = pg_fetch_array($result_paiement, $ri);<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;&#160; &#160;if ($rowp[&#039;mode_paiement&#039;]==$_POST[&#039;mode_paiement&#039;])<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;&#160; &#160;&#160; &#160; {echo &quot;&lt;option selected&gt;&quot;.$rowp[&#039;mode_paiement&#039;].&quot;&lt;/option&gt;&quot;;}<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;&#160; &#160;else<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;&#160; &#160;&#160; &#160; {echo &quot;&lt;option &gt;&quot;.$rowp[&#039;mode_paiement&#039;].&quot;&lt;/option&gt;&quot;;}<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;&#160; &#160;}<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; ?&gt; <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &lt;/select&gt;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &lt;/label&gt;</p>]]></content>
+		<author>
+			<name><![CDATA[unisol]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=540</uri>
+		</author>
+		<updated>2011-05-04T18:22:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9225#p9225</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Enregistrement aléatoire avec pg_query]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9224#p9224"/>
+		<content type="html"><![CDATA[<p>je pense localiser l&#039;erreur, mais je pense qu&#039;honnetement cela est plus<br />du PHP que du postgresql pur. </p><p>par conséquent, je clos le sujet ici en vous remerciant.</p>]]></content>
+		<author>
+			<name><![CDATA[unisol]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=540</uri>
+		</author>
+		<updated>2011-05-04T17:48:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9224#p9224</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Enregistrement aléatoire avec pg_query]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9222#p9222"/>
+		<content type="html"><![CDATA[<p>Un &#039;enregistrement qui ne se fait pas&#039;, ça n&#039;est pas possible. Par contre, une erreur non interceptée, c&#039;est possible. Ou un update qui essaye de modifier un enregistrement, alors que la clause WHERE est fausse, aussi. Je vous conseille, pour commencer:<br />- D&#039;afficher pg_last_error dans votre message d&#039;erreur<br />- De trouver le nombre d&#039;enregistrements affectés par l&#039;ordre SQL. Aucune idée de comment on fait ça en PHP, mais ça doit être faisable. Ça l&#039;est dans la majeure partie des autres langages.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-05-04T17:21:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9222#p9222</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Enregistrement aléatoire avec pg_query]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9221#p9221"/>
+		<content type="html"><![CDATA[<p>il n&#039;y a pas d&#039;erreur, juste un enregistrement qui ne se fait pas<br />ou parfois si ....???</p>]]></content>
+		<author>
+			<name><![CDATA[unisol]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=540</uri>
+		</author>
+		<updated>2011-05-04T16:21:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9221#p9221</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Enregistrement aléatoire avec pg_query]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9220#p9220"/>
+		<content type="html"><![CDATA[<p>Sans code retour, moi non plus…</p><p>Il faudrait récupérer le message d&#039;erreur, pas juste que $result est faux, sans quoi cela va être impossible à diagnostiquer.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-05-04T16:04:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9220#p9220</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Enregistrement aléatoire avec pg_query]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9219#p9219"/>
+		<content type="html"><![CDATA[<p>votre remarque sur l&#039;injection est judicieuse. <br />pour le controle de la validation <br />j&#039;ai ajouté :</p><p>if (!$result){echo &quot;&lt;script&gt;alert(\&quot;Une erreur est apparue.\&quot;)&lt;/script&gt;&quot;; }</p><p>mais cela va controler si la requete a échoué.</p><p>je n&#039;arrive pas à m&#039;expliquer que des MEMES données la réussite de requete<br />est aléatoire.</p>]]></content>
+		<author>
+			<name><![CDATA[unisol]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=540</uri>
+		</author>
+		<updated>2011-05-04T15:54:55Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9219#p9219</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Enregistrement aléatoire avec pg_query]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9217#p9217"/>
+		<content type="html"><![CDATA[<p>Vous ne validez absolument rien de ce qui est dans le POST. C&#039;est vraisemblablement le problème: il suffit qu&#039;il y ait n&#039;importe quoi de faux dedans et l&#039;ordre SQL va échouer.</p><p>&#160; &#160; &#160; &#160; $requete = &quot;update entete_document set nos_refs = &#039;$_POST[nos_refs]&#039;, vos_refs = &#039;$_POST[vos_refs]&#039;, mode_paiement = &#039;$_POST[mode_paiement]&#039;, conditions = &#039;$_POST[conditions]&#039; where numero_document = $_GET[numero_document]&#160; and nrosociete = $_SESSION[NroSociete] &quot;;<br />&#160; &#160; &#160; &#160; $result =&#160; pg_query( $cnx, $requete);</p><p>- Est-ce que vous vérifiez $result quelque part ?<br />- Utiliser les $_POST et les $_GET de cette façon est très dangereux: ces champs sont fournis par le navigateur de l&#039;utilisateur, qui peut y mettre ce qu&#039;il veut. Par exemple, il peut y mettre : &lt;&#039;; SELECT * FROM coordonnees_bancaires;&gt; (injection SQL).</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-05-04T14:15:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9217#p9217</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Enregistrement aléatoire avec pg_query]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9214#p9214"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>dans le code ci dessous, j&#039;ai des ecritures aléatoires dans la base de données.<br />à savoir que parfois les valeurs sont inscrites et d&#039;autre fois, rien ne se passe.<br />ce la concerne la section </p><p>/// ENREGISTRER NOS REFS VOS REFS MODE DE PAIEMENT CONDITIONS ///</p><br /><p>les autres sections se comportent normalement.<br />quand faut il fermer les connexions ?<br />merci pour votre aide</p><p>//debut du code</p><p>////////////////////////////////////// VALIDER LE DOCUMENT /////////////////////<br />&#160; &#160; <br />&#160; &#160; $_SESSION[&#039;numero_document&#039;] = $_GET[&#039;numero_document&#039;];<br />&#160; &#160; if (isset($_POST[&#039;valider&#039;]))&#160; &#160; <br />&#160; &#160; {<br />&#160; &#160; &#160; &#160; $requete = &quot;update entete_document set valide = true&#160; where numero_document = $_SESSION[numero_document] and nrosociete = $_SESSION[NroSociete] &quot;;<br />&#160; &#160; &#160; &#160; $result =&#160; pg_query( $cnx, $requete);<br />&#160; &#160; }<br />///////////////////////////////////////VALIDER BLOC NOTE ////////////////////////////<br />&#160; &#160; if (isset($_POST[&#039;bpsave_blocnote&#039;]))&#160; &#160; <br />&#160; &#160; {<br />&#160; &#160; &#160; &#160; $requete = &quot;update entete_document set blocnote = &#039;$_POST[textblocnote]&#039; where numero_document = $_SESSION[numero_document]&#160; and nrosociete = $_SESSION[NroSociete] &quot;;<br />&#160; &#160; &#160; &#160; $result =&#160; pg_query( $cnx, $requete);<br />&#160; &#160; &#160; &#160; <br />&#160; &#160; }<br />///////////////////////////////////////MISE A JOUR QUANTITE ////////////////////////////<br />&#160; &#160; if (isset($_POST[&#039;maj_article&#039;]))&#160; &#160; <br />&#160; &#160; {<br />&#160; &#160; &#160; &#160; if (!$_POST[&#039;remise&#039;]){$remise=0;}else{$remise=$_POST[&#039;remise&#039;];}<br />&#160; &#160; &#160; &#160; $requete = &quot;update appel set quantite = $_POST[quantite], puht = $_POST[puht], remise = $remise&#160; where id_doc = $_POST[iddoc]&quot;;<br />&#160; &#160; &#160; &#160; $result =&#160; pg_query( $cnx, $requete);<br />&#160; &#160; }<br />/////////////////////////////////////// ENREGISTRER NOS REFS VOS REFS MODE DE PAIEMENT CONDITIONS ///////////////<br />&#160; &#160; if (isset($_POST[&#039;bpenregistrer&#039;]))&#160; &#160; <br />&#160; &#160; {<br />&#160; &#160; &#160; &#160; $requete = &quot;update entete_document set nos_refs = &#039;$_POST[nos_refs]&#039;, vos_refs = &#039;$_POST[vos_refs]&#039;, mode_paiement = &#039;$_POST[mode_paiement]&#039;, conditions = &#039;$_POST[conditions]&#039; where numero_document = $_GET[numero_document]&#160; and nrosociete = $_SESSION[NroSociete] &quot;;<br />&#160; &#160; &#160; &#160; $result =&#160; pg_query( $cnx, $requete);<br />&#160; &#160; &#160; &#160; <br />&#160; &#160; }<br />//////////////////////////////////////////// CLOTURE SIGNATURE CLIENT ////////////////////////////<br />&#160; &#160; if (isset($_POST[&#039;output&#039;]) and $_POST[&#039;heure_fin_intervention&#039;]==&#039;&#039;)<br />&#160; &#160; {<br />&#160; &#160; &#160; &#160; ///////// CREATION IMAGE SIGNATURE<br />&#160; &#160; &#160; &#160; $json = $_POST[&#039;output&#039;];<br />&#160; &#160; &#160; &#160; require_once &#039;signature-pad/signature-to-image.php&#039;;<br />&#160; &#160; &#160; &#160; $img = sigJsonToImage($json);<br />&#160; &#160; &#160; &#160; imagepng($img, &#039;signature-pad/&#039;.$_SESSION[&#039;numero_affaire&#039;].&#039;_&#039;.$_SESSION[&#039;NroSociete&#039;].&#039;.png&#039;);<br />&#160; &#160; &#160; &#160; imagedestroy($img);<br />&#160; &#160; &#160; &#160; //////// HEURE FIN<br />&#160; &#160; &#160; &#160; $requete = &quot;update entete_document set heure_fin_intervention = localtime where numero_document = $_GET[numero_document]&#160; and nrosociete = $_SESSION[NroSociete] &quot;;<br />&#160; &#160; &#160; &#160; $result =&#160; pg_query( $cnx, $requete);<br />&#160; &#160; &#160; &#160; //$_POST[&#039;heure_fin_intervention&#039;]= date(&#039;d/m/Y H:m&#039;);<br />&#160; &#160; &#160; &#160; //////// ENVOI MAIL AU RESPONSABLE////////////////////////<br />&#160; &#160; &#160; &#160; //recup de l&#039;adresse mail du responsable<br />&#160; &#160; &#160; &#160; //envoi de l&#039;email<br />&#160; &#160; &#160; &#160; $mailheaders .= &quot;From: Unigest Web Gestion &lt;$email&gt;\r\n&quot;;<br />&#160; &#160;&#160; &#160; &#160; &#160; $mailheaders .= &quot;Content-type: text/html; charset=utf-8\r\n&quot;;<br />&#160; &#160; &#160; &#160;&#160; &#160; $mailheaders .= &quot;Clôture chantier\n\n&quot;;<br />&#160; &#160;&#160; &#160; <br />&#160; &#160; &#160; &#160; $sujet=&quot;Clôture chantier client : &quot;.$_SESSION[&#039;client&#039;]; // sujet<br />&#160; &#160; &#160; &#160; $message=&quot;Le chantier numéro &quot;.$_GET[&#039;numero_document&#039;].&quot; du client &quot;.$_SESSION[&#039;client&#039;].&quot; a été clôturé a : &quot;.date(&#039;d/m/Y H:m&#039;) ; // message<br />&#160; &#160; &#160; &#160; //pg_close($cnx);<br />&#160; &#160; &#160; &#160; mail($emails, $sujet, $message, $mailheaders);<br />&#160; &#160; &#160; &#160; //<br />&#160; &#160; &#160; &#160; $tab=1;<br />&#160; &#160; }<br />///////////////////////////////////////// HEURE DEBUT ///////////////////////////////<br />&#160; &#160; if (isset($_POST[&#039;bpheuredebut&#039;]))<br />&#160; &#160; &#160; &#160; {<br />&#160; &#160; &#160; &#160; &#160; &#160; $requete = &quot;update entete_document set heure_debut_intervention = &#039;$_POST[heure_debut]&#039; where numero_document = $_SESSION[numero_document] and nrosociete = $_SESSION[NroSociete] &quot;;<br />&#160; &#160; &#160; &#160; &#160; &#160; $result =&#160; pg_query( $cnx, $requete);<br />&#160; &#160; &#160; &#160; &#160; &#160; pg_close($cnx);<br />&#160; &#160; &#160; &#160; &#160; &#160; echo &quot;&lt;script&gt;alert(\&quot;Enregistrement réalisé avec succès.\&quot;)&lt;/script&gt;&quot;.$_SESSION[&#039;numero_document&#039;].$_POST[&#039;heure_debut&#039;]; <br />&#160; &#160; &#160; &#160; &#160; &#160; $tab=1;<br />&#160; &#160; &#160; &#160; }<br />&#160; &#160; <br />&#160; &#160; &#160; &#160; <br />/////////////////////////////////////////////////////////////////<br />//&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; LES REQUETES <br />///<br />&#160; &#160; include (&quot;requete_document.php&quot;);<br />//////////////////////////////////////////// CROQUIS ////////////////////////////<br />&#160; &#160; if (isset($_POST[&#039;output_croquis&#039;]))<br />&#160; &#160; {<br />&#160; &#160; &#160; &#160; ///////// CREATION IMAGE SIGNATURE<br />&#160; &#160; &#160; &#160; $json = $_POST[&#039;output_croquis&#039;];<br />&#160; &#160; &#160; &#160; require_once &#039;signature-pad/signature-to-image.php&#039;;<br />&#160; &#160; &#160; &#160; $img = sigJsonToImage($json);<br />&#160; &#160; &#160; &#160; imagepng($img, &#039;signature-pad/&#039;.$_POST[&#039;numero_affaire&#039;].&#039;.png&#039;);<br />&#160; &#160; &#160; &#160; imagedestroy($img);<br />&#160; &#160; }</p><p>&#160; &#160; //acomptes<br />&#160; &#160; $requete = &quot;select sum(mtttc) from acomptes where numero_affaire = $_POST[numero_affaire] and nrosociete = $_SESSION[NroSociete]&quot;;<br />&#160; &#160; $result =&#160; pg_exec( $cnx, $requete);<br />&#160; &#160; $acompte = pg_result($result, 0);<br />&#160; &#160; //montant_heure_intervention<br />&#160; &#160; $requete = &quot;select sum(extract(epoch from nombre) * taux_horaire)/3600 from intervention where numero_affaire = $_POST[numero_affaire] and nrosociete = $_SESSION[NroSociete]&quot;;<br />&#160; &#160; $result =&#160; pg_exec( $cnx, $requete);<br />&#160; &#160; $montant_heure_intervention = pg_result($result, 0);<br />&#160; &#160; <br />&#160; &#160; //somme H.T.<br />&#160; &#160; $requete = &quot;select sum(nombre) from intervention where numero_affaire = $_POST[numero_affaire] and nrosociete = $_SESSION[NroSociete]&quot;;<br />&#160; &#160; $result =&#160; pg_exec( $cnx, $requete);<br />&#160; &#160; $somme_heure_intervention = pg_result($result, 0);<br />&#160; &#160; //delais_reglement<br />&#160; &#160; $requete = &quot;select conditions FROM delais_reglement where nrosociete = $_SESSION[NroSociete]&quot;;<br />&#160; &#160; $result_cond =&#160; pg_exec( $cnx, $requete);<br />&#160; &#160; $numrows_cond = pg_numrows($result_cond);<br />&#160; &#160; //mode_paiement<br />&#160; &#160; $requete = &quot;select conditions FROM mode_paiement where nrosociete = $_SESSION[NroSociete]&quot;;<br />&#160; &#160; $result_paiement =&#160; pg_exec( $cnx, $requete);<br />&#160; &#160; $numrows_paiement = pg_numrows($result_paiement);<br />&#160; &#160; // TVA<br />&#160; &#160; $requete = &quot;select tva FROM taux_tva where nrosociete = $_SESSION[NroSociete]&quot;;<br />&#160; &#160; $result_tva =&#160; pg_exec( $cnx, $requete);<br />&#160; &#160; $numrows_tva = pg_numrows($result_tva);<br />&#160; &#160; //<br />&#160; &#160; <br />&#160; &#160; //echo &quot;hf :&quot;.$_POST[&#039;heure_fin_intervention&#039;]; <br />&#160; &#160; </p><p>?&gt;</p><br /><p>/// extrait de l&#039;include requete_document.php</p><p>&lt;?php</p><p>include (&quot;connexion/connexionpg.php&quot;);<br />&#160; &#160; &#160; &#160; $requete = &quot;select numero_document, txtdate, nos_refs, vos_refs, montant_total_tva, acompte, remise, signature, heure_debut_intervention, heure_fin_intervention, client, adresse1, adresse2, codepostal, ville, telephone, numero_affaire, blocnote, entete_document.conditions, entete_document.mode_paiement from entete_document inner join fichier_clients on entete_document.numero_client = fichier_clients.numero_client where numero_document = &#039;$_GET[numero_document]&#039; and entete_document.nrosociete = $_SESSION[NroSociete]&quot;;<br />&#160; &#160; $result =&#160; pg_exec( $cnx, $requete);<br />&#160; &#160; $_POST[&#039;numero_document&#039;]= pg_result($result, &quot;numero_document&quot;);<br />&#160; &#160; $_POST[&#039;txtdate&#039;]= pg_result($result, &quot;txtdate&quot;);<br />&#160; &#160; $_POST[&#039;nos_refs&#039;]= pg_result($result, &quot;nos_refs&quot;);<br />&#160; &#160; $_POST[&#039;vos_refs&#039;]= pg_result($result, &quot;vos_refs&quot;);<br />&#160; &#160; $_POST[&#039;montant_total_tva&#039;] = pg_result($result, &quot;montant_total_tva&quot;);<br />...</p>]]></content>
+		<author>
+			<name><![CDATA[unisol]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=540</uri>
+		</author>
+		<updated>2011-05-04T13:10:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9214#p9214</id>
+	</entry>
+</feed>

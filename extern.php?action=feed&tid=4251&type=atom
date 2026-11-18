@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Passage de parmètre .bat -> .sql]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4251&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4251"/>
+	<updated>2017-05-24T15:26:37Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4251</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Passage de parmètre .bat -> .sql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25536#p25536"/>
+		<content type="html"><![CDATA[<p>Lorsque vous rentrez les valeurs de vos paramètres, il faut saisir les guillemets simples pour les chaines de caractères (ou les mettre dans le fichier.bat) :<br />.bat</p><div class="codebox"><pre><code>set /P val1=Nom ?
+set /P val2=Age ?
+psql --set param1=%val1%  --set param2=%val2% -f c:/temp/toto.sql</code></pre></div><p>qui donne :</p><div class="codebox"><pre><code>Nom ?&#039;titi&#039;
+Age ?25
+psql --set param1=%val1%  --set param2=%val2% -f c:/temp/toto.sql
+ ?column? | ?column?
+----------+----------
+ titi     |       25
+(1 ligne)</code></pre></div><p>ou </p><div class="codebox"><pre><code>set /P val1=Nom ?
+set /P val2=Age ?
+psql --set param1=&#039;%val1%&#039;  --set param2=%val2% -f c:/temp/toto.sql</code></pre></div><p>qui donne</p><div class="codebox"><pre><code>Nom ?titi
+Age ?25
+psql --set param1=&#039;%val1%&#039;  --set param2=%val2% -f c:/temp/toto.sql
+ ?column? | ?column?
+----------+----------
+ titi     |       25
+(1 ligne)</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[jmarsac]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7302</uri>
+		</author>
+		<updated>2017-05-24T15:26:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25536#p25536</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Passage de parmètre .bat -> .sql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25533#p25533"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>L&#039;équivalent Windows de l&#039;exemple de Julien est (à titi près) si toto.sql est dans c:\temp et si le chemin de psql.exe est dans la variable PATH</p><div class="codebox"><pre><code>set val1=&#039;titi&#039;
+set val2=42
+psql --set param1=%val1%  --set param2=%val2% -f c:/temp/toto.sql
+ ?column? | ?column?
+----------+----------
+ titi     |       42
+(1 ligne)</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[jmarsac]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7302</uri>
+		</author>
+		<updated>2017-05-24T13:30:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25533#p25533</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Passage de parmètre .bat -> .sql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25532#p25532"/>
+		<content type="html"><![CDATA[<p>Il n&#039;y a pas de sectoin &quot;Batch Windows&quot;.&#160; La section la plus appropriée pour ce sujet serait &quot;psql&quot;.&#160; Mais à ma connaissance il y a assez peu de personnes utilisant windows qui apportent des réponses ici.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2017-05-24T12:59:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25532#p25532</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Passage de parmètre .bat -> .sql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25531#p25531"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><p>J&#039;aimerais savoir où se trouve la rubrique Batch Windows sur le forum, je ne la trouve pas.</p><br /><p>Cordialement<br />BM</p>]]></content>
+		<author>
+			<name><![CDATA[BM]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7540</uri>
+		</author>
+		<updated>2017-05-24T12:15:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25531#p25531</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Passage de parmètre .bat -> .sql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25520#p25520"/>
+		<content type="html"><![CDATA[<p>Voilà en référence un exemple d&#039;utilisation sous linux.&#160; N&#039;ayant pas de windows, je n&#039;ai aucune idée des adpatations que vous devez faire :</p><div class="codebox"><pre><code>$ cat /tmp/toto.sql
+select :param1, :param2 ;
+$ export val1=&quot;&#039;val1&#039;&quot;
+$ export val2=42
+$ psql --set param1=$val1 --set param2=$val2 -f /tmp/toto.sql
+ ?column? | ?column? 
+----------+----------
+ val1     |       42
+(1 row)</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2017-05-22T13:59:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25520#p25520</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Passage de parmètre .bat -> .sql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25519#p25519"/>
+		<content type="html"><![CDATA[<p>Je m&#039;excuse, mais comprenez bien que j&#039;essaie de comprendre en parallèle.</p><br /><p>Tout d&#039;abord, j&#039;ai testé de la façon suivante :</p><br /><p>@D:\pfi\postgresql\bin\psql.exe --set param1=&#039;CDU&#039; --set param2=&#039;C19365DA01&#039; --set param3=&#039;text/html&#039; -U databaseuser -d FreqNum -f &quot;%USERPROFILE%\AppData\Local\Temp\Script_export_demodB.sql&quot;</p><br /><p>ERREUR :<br />Do you want to start the export files ? Are you sure ? [Y/n]<br />Saisissez l&#039;affaire : CDU<br />Saisissez le partnumber : C19365DA01<br />Saisissez le type : text/html<br />psql : attention : option supplémentaire &quot;&#039;CDU&#039;= &quot; ignorée<br />psql : attention : option supplémentaire &quot;--set= &quot; ignorée<br />psql : attention : option supplémentaire &quot;param2= &quot; ignorée<br />psql : attention : option supplémentaire &quot;&#039;C19365DA01&#039; &quot; ignorée<br />psql : attention : option supplémentaire &quot;--set &quot; ignorée<br />psql : attention : option supplémentaire &quot;param3= &quot; ignorée<br />psql : attention : option supplémentaire &quot;&#039;text/html= &quot; ignorée<br />psql : attention : option supplémentaire &quot;-f &quot; ignorée<br />psql : attention : option supplémentaire &quot;databaseuser &quot; ignorée<br />psql : attention : option supplémentaire &quot;-d &quot; ignorée<br />psql : attention : option supplémentaire &quot;FreqNum &quot; ignorée<br />psql : attention : option supplémentaire &quot;param2= &quot; ignorée<br />psql : attention : option supplémentaire &quot;D:\Users\T0147777\AppData\Local\Temp\Script_export_demodB.sql&quot; ignorée<br />Mot de passe pour le databaseuser : **********<br />psql (9.3.5)<br />Attention : l&#039;encodage console (850) diffère de l&#039;encodage Windows (1252).<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Les caractères 8 bits peuvent ne pas fonctionner correctement.<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Voir la section &quot;Notes aux utilisateurs de windows&quot; de la page <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; de référence de psql pour les détails.<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; </p><p>Et dans l&#039;autre cas :</p><br /><p>@D:\pfi\postgresql\bin\psql.exe --set param1=%a% --set param2=%b% --set param3=%c% -U databaseuser -d FreqNum -f &quot;%USERPROFILE%\AppData\Local\Temp\Script_export_demodB.sql&quot;</p><br /><p>ERREUR :<br />Do you want to start the export files ? Are you sure ? [Y/n]<br />Saisissez l&#039;affaire : CDU<br />Saisissez le partnumber : C19365DA01<br />Saisissez le type : text/html<br />Mot de passe pour l&#039;utilisateur databaseuser : ********<br />Use &quot;CREATE EXTENSION Script_export_demodB&quot; to load this file.<br />DROP FUNCTION<br />CREATE FUNCTION<br />psql: D:\Users\T0147777\AppData\Local\Temp\Script_export_demodB.sql:150: ERREUR: erreur de syntaxe sur ou près de &quot; , &quot;<br />LIGNE 1 : SELECT test_final (, , );</p><br /><p>Appuyez sur une touchez pour continuer...</p><br /><p>Cela veut-il dire qu&#039;il ne fait pas la liaison entre les capture de a, b et c précédent, j&#039;ai essayer avec des &quot;set /P %a% = Saisissez l&#039;affaire : &quot; et j&#039;ai le même le résultat.</p><p>Cordialement<br />BM</p>]]></content>
+		<author>
+			<name><![CDATA[BM]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7540</uri>
+		</author>
+		<updated>2017-05-22T13:04:03Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25519#p25519</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Passage de parmètre .bat -> .sql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25516#p25516"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>BM a écrit&#160;:</cite><blockquote><div><p>[...]<br />psql --set param1=%a% --set param2=%b% --set param3=%c% -f &quot;%USERPROFILE%\AppData\Local\Temp\Script_export_demodB.sql&quot;<br />@D:\pfi\postgresql\bin\psql.exe -U databaseuser -d FreqNum -f &quot;%USERPROFILE%\AppData\Local\Temp\Script_export_demodB.sql&quot;</p></div></blockquote></div><p>Je voulais dire d&#039;ajouter les options &quot;--set nom_param=valeur&quot; à votre commande psql actuelle, pas d&#039;ajouter un nouvel appel.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2017-05-22T11:18:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25516#p25516</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Passage de parmètre .bat -> .sql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25515#p25515"/>
+		<content type="html"><![CDATA[<p>Pour la proposition suivante :</p><br /><p>Script_export_demodB.bat</p><p>@echo off<br />:choice<br />set /P choix=Do you want to start the export files ? Are you sure ? [Y/n]<br />if /I &quot;%choix%&quot; EQU &quot;Y&quot; goto :export<br />goto :end</p><p>:export<br />set /P a = Saisissez l&#039;affaire&#160; &lt;!-- paramètre1--&gt;<br />set /P b = Saisissez le partnumber&#160; &lt;!-- paramètre2--&gt;<br />set /P c = Saisissez le type&#160; &lt;!-- paramètre3--&gt;<br />psql --set param1=%a% --set param2=%b% --set param3=%c% -f &quot;%USERPROFILE%\AppData\Local\Temp\Script_export_demodB.sql&quot;<br />@D:\pfi\postgresql\bin\psql.exe -U databaseuser -d FreqNum -f &quot;%USERPROFILE%\AppData\Local\Temp\Script_export_demodB.sql&quot;</p><p>:end</p><p>pause<br />exit</p><br /><p>J&#039;ai l&#039;erreur suivante dans la console du .bat</p><br /><p>Do you want to start the export files ? Are you sure ? [Y/n]<br />Saisissez l&#039;affaire : CDU<br />Saisissez le partnumber : C19365DA01<br />Saisissez le type : text/html<br />&#039;psql&#039; n&#039;est pas reconnu en tant que commande interne ou externe, un programme exécutable ou un fichier de commandes.<br />Appuyez sur une touchez pour continuer...</p><br /><p>Est ce bien dans le .bat que je dois rentrer cette commande ?</p><p>Cordialement<br />BM</p>]]></content>
+		<author>
+			<name><![CDATA[BM]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7540</uri>
+		</author>
+		<updated>2017-05-22T11:05:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25515#p25515</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Passage de parmètre .bat -> .sql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25512#p25512"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>rjuju a écrit&#160;:</cite><blockquote><div><p>Vous devriez vous en sortir en utilisant une commande du style</p><div class="codebox"><pre><code>psql --set nom_variable1=valeur1 --set nom_variable2=valeur ... -f fichier.sql </code></pre></div><p>et en utilisant ensuite « :nom_variable » à la place de votre valeur en dur.</p></div></blockquote></div><p>Beaucoup plus simple !</p>]]></content>
+		<author>
+			<name><![CDATA[jmarsac]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7302</uri>
+		</author>
+		<updated>2017-05-22T09:50:45Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25512#p25512</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Passage de parmètre .bat -> .sql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25511#p25511"/>
+		<content type="html"><![CDATA[<p>Vous devriez vous en sortir en utilisant une commande du style</p><div class="codebox"><pre><code>psql --set nom_variable1=valeur1 --set nom_variable2=valeur ... -f fichier.sql </code></pre></div><p>et en utilisant ensuite « :nom_variable » à la place de votre valeur en dur.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2017-05-22T09:15:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25511#p25511</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Passage de parmètre .bat -> .sql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25510#p25510"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />Clairement ce n&#039;est pas un problème PL/pgSQL mais plutôt &quot;batch Windows&quot;.<br />Vous devriez arriver à vos fins en utilisant &quot;sed&quot; (voir <a href="http://unxutils.sourceforge.net/" rel="nofollow">http://unxutils.sourceforge.net/</a> ou <a href="http://gnuwin32.sourceforge.net/)" rel="nofollow">http://gnuwin32.sourceforge.net/)</a> en insérant la commande sed adéquate avant l&#039;exécution de psql</p>]]></content>
+		<author>
+			<name><![CDATA[jmarsac]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7302</uri>
+		</author>
+		<updated>2017-05-22T09:00:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25510#p25510</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Passage de parmètre .bat -> .sql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25509#p25509"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je m&#039;excuse par avance, mais je ne sais pas si cette discussion rentre bien dans la bonne section du forum.<br />Je suis débutant en batch et je me heurte à un soucie. Je souhaite que l&#039;utilisateur de mon .bat rentre des paramètres via son clavier qui seront utilisé en entrée de ma fonction dans le .sql. Je vous mets les parties importantes :</p><p>Script_export_demodB.bat</p><br /><p>@echo off<br />:choice<br />set /P choix=Do you want to start the export files ? Are you sure ? [Y/n] <br />if /I &quot;%choix%&quot; EQU &quot;Y&quot; goto :export<br />goto :end</p><br /><p>:export<br />set /P a = Saisissez l&#039;affaire&#160; &lt;!-- paramètre1--&gt;<br />set /P b = Saisissez le partnumber&#160; &lt;!-- paramètre2--&gt;<br />set /P c = Saisissez le type&#160; &lt;!-- paramètre3--&gt;<br />@D:\pfi\postgresql\bin\psql.exe -U databaseuser -d FreqNum -f &quot;%USERPROFILE%\AppData\Local\Temp\Script_export_demodB.sql&quot;</p><br /><p>:end</p><br /><p>pause<br />exit</p><br /><p>Script_export_demodB.sql</p><br /><p>CREATE OR REPLACE FUNCTION test_final (choix_affaire character varyung, choix_partnumber character varying, choix_type character varying) RETURNS varchar&#160; AS $BODY$</p><br /><p>...</p><br /><p>LANGUAGE plpgsql VOLATILE<br />COST 100;</p><p>SELECT test_final (&#039;CDU&#039;, &#039;C1935DA01&#039;, &#039;text/html&#039;);</p><br /><p>Je souhaite remplacer &#039;CDU&#039;, &#039;C1935DA01&#039;, &#039;text/html&#039; par les trois paramètres du .bat (a, b et c).</p><br /><p>Serait-il possible de m&#039;aider?</p><br /><p>Merci d&#039;avance<br />Cordialement<br />BM</p>]]></content>
+		<author>
+			<name><![CDATA[BM]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7540</uri>
+		</author>
+		<updated>2017-05-22T08:26:31Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25509#p25509</id>
+	</entry>
+</feed>

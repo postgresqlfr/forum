@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / comptage de valeurs consécutives]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2365&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2365"/>
+	<updated>2012-11-13T08:56:11Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2365</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  comptage de valeurs consécutives]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15742#p15742"/>
+		<content type="html"><![CDATA[<p>Rjuju merci.</p><p>Cette requête fonctionne avec mes données et je me retrouve bien avec ce que je cherchait. je crois même avoir compris son fonctionnement!<br />un grand merci à tous!</p>]]></content>
+		<author>
+			<name><![CDATA[ziranoa]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2004</uri>
+		</author>
+		<updated>2012-11-13T08:56:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15742#p15742</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  comptage de valeurs consécutives]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15739#p15739"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>je n&#039;ai pas trouvé de solution simple, voilà une requête qui a l&#039;air de marcher, si quelqu&#039;un a une requête plus simple</p><div class="codebox"><pre><code>WITH RECURSIVE tree(nb,laref,ladate,debit,split)  as (
+	SELECT 1 as nb,ladate,* FROM (SELECT *,CASE WHEN (ladate-lag(ladate) OVER (ORDER BY ladate)) = 1 THEN 0 ELSE 1 END AS split FROM comptage WHERE debit &lt; 4.0)sql where split = 1
+	UNION
+	SELECT tree.nb+1,tree.laref,sql.ladate,tree.debit,tree.split
+		FROM tree
+		JOIN (SELECT * FROM (SELECT *,CASE WHEN (ladate-lag(ladate) OVER (ORDER BY ladate)) = 1 THEN 0 ELSE 1 END AS split FROM comptage WHERE debit &lt; 4.0)t WHERE split = 0) sql
+			ON sql.ladate-tree.ladate=1
+			AND sql.split = 0
+)
+
+SELECT laref,max(nb)
+FROM tree
+GROUP BY laref
+ORDER BY laref</code></pre></div><p>pour info voilà la table :</p><div class="codebox"><pre><code>CREATE TABLE comptage
+(
+  ladate date,
+  debit double precision
+)</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2012-11-12T21:55:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15739#p15739</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  comptage de valeurs consécutives]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15737#p15737"/>
+		<content type="html"><![CDATA[<p>Je pense que je passerais par les fonctions de fenêtrage et notamment les fonctions lag ou lead pour comparer les lignes entre elles</p><br /><p>pour la syntaxe exacte, regardez la doc, car comme ça j&#039;aurais du mal à vous donner un code correct!</p><p><a href="http://docs.postgresqlfr.org/9.1/functions-window.html" rel="nofollow">http://docs.postgresqlfr.org/9.1/functions-window.html</a></p>]]></content>
+		<author>
+			<name><![CDATA[damalaan]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1000</uri>
+		</author>
+		<updated>2012-11-12T19:44:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15737#p15737</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  comptage de valeurs consécutives]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15735#p15735"/>
+		<content type="html"><![CDATA[<p>merci pour ce code David, cela me donne une piste.<br /> Le problème c&#039;est que les débits ne sont jamais égaux du jour au lendemain, même si je les arrondis... je pense que je dois mettre en place un système de compteur... je vais continuer à chercher</p>]]></content>
+		<author>
+			<name><![CDATA[ziranoa]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2004</uri>
+		</author>
+		<updated>2012-11-12T11:01:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15735#p15735</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  comptage de valeurs consécutives]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15732#p15732"/>
+		<content type="html"><![CDATA[<p>Voila un bon exercice pour se débloquer le cerveau en ce début de semaine !<br />Une première idée....<br />Cdlt</p><br /><p>select * from debit;<br />&#160; &#160; &#160; &#160; date&#160; &#160; &#160; &#160; &#160;| debit<br />---------------------+-------<br /> 2012-01-01 00:00:00 |&#160; &#160;1.2<br /> 2012-01-02 00:00:00 |&#160; &#160;8.4<br /> 2012-01-03 00:00:00 |&#160; &#160;8.2<br /> 2012-01-04 00:00:00 |&#160; &#160;1.0<br /> 2012-01-05 00:00:00 |&#160; &#160;1.0<br /> 2012-01-06 00:00:00 |&#160; &#160;1.0<br /> 2012-01-07 00:00:00 |&#160; &#160;1.0<br /> 2012-01-08 00:00:00 |&#160; &#160;1.4<br /> 2012-01-09 00:00:00 |&#160; 51.4<br /> 2012-01-10 00:00:00 |&#160; &#160;0.4<br /> 2012-01-11 00:00:00 |&#160; &#160;0.4<br /> 2012-01-12 00:00:00 |&#160; &#160;0.4<br /> 2012-01-13 00:00:00 |&#160; &#160;0.0<br /> 2012-01-14 00:00:00 |&#160; &#160;0.0<br />(14 lignes)</p><br /><p>select min(D1) date_debut, debit, count(*)+1 from<br />(select d1.date D1, d2.date D2, d1.debit Debit&#160; from debit d1, debit d2<br />where d2.date = d1.date + interval &#039;1 day&#039; ::interval and d1.debit=d2.debit and d1.debit &gt;= 0) R1<br />group by debit;<br />&#160; &#160; &#160; &#160; &#160;date_debut| debit | ?column?<br />---------------------+-------+----------<br /> 2012-01-13 00:00:00 |&#160; &#160;0.0 |&#160; &#160; &#160; &#160; 2<br /> 2012-01-10 00:00:00 |&#160; &#160;0.4 |&#160; &#160; &#160; &#160; 3<br /> 2012-01-04 00:00:00 |&#160; &#160;1.0 |&#160; &#160; &#160; &#160; 4</p>]]></content>
+		<author>
+			<name><![CDATA[David]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=626</uri>
+		</author>
+		<updated>2012-11-12T07:59:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15732#p15732</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[comptage de valeurs consécutives]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15726#p15726"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />Je débute... et utilise postgresql pour gérer des chroniques de débits. mon problème:</p><p>Je veux calculer un nombre de jours consécutifs sur une série de débits, par rapport à une valeur seuil</p><p>ex.<br />- trouver le nombre de jour consécutifs où le débit est inférieur à 4<br />- table entrée:<br />date&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; débit<br />....<br />01/06/2011&#160; &#160; &#160; &#160; 5.2<br />02/06/2011&#160; &#160; &#160; &#160; 6.0<br />03/06/2011&#160; &#160; &#160; &#160; 2.3<br />04/06/2001&#160; &#160; &#160; &#160; 2.1<br />05/06/2011&#160; &#160; &#160; &#160; 2.0<br />06/06/2011&#160; &#160; &#160; &#160; 5.1<br />07/06/2011&#160; &#160; &#160; &#160; 3.2<br />08/06/2011&#160; &#160; &#160; &#160; 2.9<br />09/06/2011&#160; &#160; &#160; &#160; 4.5<br />10/06/2011&#160; &#160; &#160; &#160; 4.1<br />...<br />- retour cherché:<br />date debut&#160; &#160; &#160; &#160; nbre_jrs<br />03/06/2011&#160; &#160; &#160; &#160; &#160; &#160; 3<br />07/06/2011&#160; &#160; &#160; &#160; &#160; &#160; 2</p><p>(pour info la chronique inclue ts les jours entre 01/01/1969 à 31/12/2011).</p><p>voilà, si vous avez une idée et du temps....&#160; merci d&#039;avance</p>]]></content>
+		<author>
+			<name><![CDATA[ziranoa]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2004</uri>
+		</author>
+		<updated>2012-11-09T10:30:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15726#p15726</id>
+	</entry>
+</feed>

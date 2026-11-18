@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Le paramètre synchronous_standby_names surcharge synchronous_commit?]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3386&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3386"/>
+	<updated>2014-12-04T10:03:11Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3386</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Le paramètre synchronous_standby_names surcharge synchronous_commit?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21063#p21063"/>
+		<content type="html"><![CDATA[<p>Merci, ça confirme mon intuition. </p><p>Je poste le lien pour d&#039;autres lecteurs vers la section de la doc qui détaille le comportement de postgres quand il y a plusieurs esclaves synchrones (ou potentiel synchrone) dans synchronous_standby_names : </p><div class="quotebox"><blockquote><div><p>Specifies a comma-separated list of standby names that can support synchronous replication, as described in Section 25.2.7. At any one time there will be at most one active synchronous standby; transactions waiting for commit will be allowed to proceed after this standby server confirms receipt of their data. The synchronous standby will be the first standby named in this list that is both currently connected and streaming data in real-time (as shown by a state of streaming in the pg_stat_replication view). Other standby servers appearing later in this list represent potential synchronous standbys. If the current synchronous standby disconnects for whatever reason, it will be replaced immediately with the next-highest-priority standby. Specifying more than one standby name can allow very high availability.</p></div></blockquote></div><p><a href="http://www.postgresql.org/docs/9.3/static/runtime-config-replication.html#RUNTIME-CONFIG-REPLICATION-MASTER" rel="nofollow">http://www.postgresql.org/docs/9.3/stat … ION-MASTER</a></p>]]></content>
+		<author>
+			<name><![CDATA[anayrat]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=4160</uri>
+		</author>
+		<updated>2014-12-04T10:03:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21063#p21063</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Le paramètre synchronous_standby_names surcharge synchronous_commit?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21057#p21057"/>
+		<content type="html"><![CDATA[<p>Un esclave est soit synchrone (ou potentiel synchrone) soit asynchrone. Dans le cas en question, il fait partie de la liste dans synchronous_standby_names. Il ne peut donc basculer que de sync à potential et vice-versa, mais pas à async. Et ça, quelque soit la valeur du synchronous_commit.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-12-04T07:53:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21057#p21057</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Le paramètre synchronous_standby_names surcharge synchronous_commit?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21054#p21054"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;effectue quelques tests sur un postgres 9.3. J&#039;ai une config assez simple, un maitre et un esclave avec une streaming replication.<br />J&#039;ai constaté que du moment où j&#039;avais un esclave dans la ligne synchronous_standby_names le serveur était synchrone avec cet esclave même si je place le synchronous_commit à local ou remote_write. </p><p>En revanche, si je commente la ligne synchronous_standby_names le maitre devient asynchrone avec l&#039;esclave que ce soit en &quot;local&quot; ou &quot;remote_write&quot;. En regardant la doc le async est normal en remote_write sans &quot;synchronous_standby_names&quot; en revanche je ne comprends pas pourquoi il est n&#039;est pas async quand je spécifie local et l&#039;esclave dans &quot;synchronous_standby_names&quot; ?</p><div class="quotebox"><blockquote><div><p>Specifies whether transaction commit will wait for WAL records to be written to disk before the command returns a &quot;success&quot; indication to the client. Valid values are on, remote_write, local, and off. The default, and safe, setting is on. When off, there can be a delay between when success is reported to the client and when the transaction is really guaranteed to be safe against a server crash. (The maximum delay is three times wal_writer_delay.) Unlike fsync, setting this parameter to off does not create any risk of database inconsistency: an operating system or database crash might result in some recent allegedly-committed transactions being lost, but the database state will be just the same as if those transactions had been aborted cleanly. So, turning synchronous_commit off can be a useful alternative when performance is more important than exact certainty about the durability of a transaction. For more discussion see Section 29.3.</p><br /><p> If synchronous_standby_names is set, this parameter also controls whether or not transaction commits will wait for the transaction&#039;s WAL records to be replicated to the standby server. When set to on, commits will wait until a reply from the current synchronous standby indicates it has received the commit record of the transaction and flushed it to disk. This ensures the transaction will not be lost unless both primary and standby suffer corruption of their database storage. When set to remote_write, commits will wait until a reply from the current synchronous standby indicates it has received the commit record of the transaction and written it out to the standby&#039;s operating system, but the data has not necessarily reached stable storage on the standby. This setting is sufficient to ensure data preservation even if the standby instance of PostgreSQL were to crash, but not if the standby suffers an operating-system-level crash.</p><br /><p>When synchronous replication is in use, it will normally be sensible either to wait for both local flush to disk and replication of WAL records, or to allow the transaction to commit asynchronously. However, the setting local is available for transactions that wish to wait for local flush to disk, but not synchronous replication. If synchronous_standby_names is not set, the settings on, remote_write and local all provide the same synchronization level: transaction commits only wait for local flush to disk.</p><br /><p> This parameter can be changed at any time; the behavior for any one transaction is determined by the setting in effect when it commits. It is therefore possible, and useful, to have some transactions commit synchronously and others asynchronously. For example, to make a single multistatement transaction commit asynchronously when the default is the opposite, issue SET LOCAL synchronous_commit TO OFF within the transaction.</p></div></blockquote></div><p><a href="http://www.postgresql.org/docs/9.3/static/runtime-config-wal.html#GUC-SYNCHRONOUS-COMMIT" rel="nofollow">http://www.postgresql.org/docs/9.3/stat … OUS-COMMIT</a></p><p>J&#039;imagine que c&#039;est un comportement normal mais je trouve que ce n&#039;est pas explicité dans la documentation? Any idea? Merci</p>]]></content>
+		<author>
+			<name><![CDATA[anayrat]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=4160</uri>
+		</author>
+		<updated>2014-12-03T22:03:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21054#p21054</id>
+	</entry>
+</feed>

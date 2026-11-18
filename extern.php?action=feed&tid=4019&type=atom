@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Vacuum de la base = Vaccum de toutes les tables ?]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4019&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4019"/>
+	<updated>2016-12-21T10:27:41Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4019</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Vacuum de la base = Vaccum de toutes les tables ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24433#p24433"/>
+		<content type="html"><![CDATA[<p>Je réalise les opérations de VACUUM à un moment où il y a pas de sollicitations sur le serveur.</p>]]></content>
+		<author>
+			<name><![CDATA[Shaar]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=6902</uri>
+		</author>
+		<updated>2016-12-21T10:27:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24433#p24433</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Vacuum de la base = Vaccum de toutes les tables ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24432#p24432"/>
+		<content type="html"><![CDATA[<p>Des transactions qui durent très logntemps...</p><p>BEGIN;<br />plein de requêtes sur très longtemps<br />COMMIT;</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2016-12-21T10:25:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24432#p24432</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Vacuum de la base = Vaccum de toutes les tables ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24431#p24431"/>
+		<content type="html"><![CDATA[<p>On réalise d&#039;ors et déjà des VACUUM standards chaque jour sur les tables les plus sollicités.</p><p>Néanmoins, comme dit au début, certaines ont une très grande volatilité.</p><div class="quotebox"><blockquote><div><p>cause de transactions très longues.</p></div></blockquote></div><p>Qu&#039;entendez vous par transactions très longues ?</p>]]></content>
+		<author>
+			<name><![CDATA[Shaar]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=6902</uri>
+		</author>
+		<updated>2016-12-21T09:48:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24431#p24431</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Vacuum de la base = Vaccum de toutes les tables ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24430#p24430"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>On arrive à saturer l&#039;espace mémoire des disques.</p></div></blockquote></div><p>Dans ce cas, vous n&#039;exécutez pas suffisamment de VACUUM standard sur vos tables. L&#039;autovacuum n&#039;est certainement pas suffisamment agressif. Ça peut aussi être dû au fait que le VACUUM ne peut pas faire correctement son travail à cause de transactions très longues.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2016-12-21T09:41:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24430#p24430</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Vacuum de la base = Vaccum de toutes les tables ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24429#p24429"/>
+		<content type="html"><![CDATA[<p>Merci pour les réponses.</p><p>Pour vous, il n&#039;est pas nécessaire de réaliser un VACUUM full sur la base mais cela suffit sur les tables ?</p><p>Je vais regarder les paramétrages de l&#039;autovacuum. </p><div class="quotebox"><blockquote><div><div class="quotebox"><blockquote><div><p>Lorsqu&#039;on ne réalise pas de VACUUM full pendant plus de 3 semaines, nos bases saturent.</p></div></blockquote></div><p>Qu&#039;entendez-vous par saturer ?</p></div></blockquote></div><p>On arrive à saturer l&#039;espace mémoire des disques.</p>]]></content>
+		<author>
+			<name><![CDATA[Shaar]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=6902</uri>
+		</author>
+		<updated>2016-12-21T09:02:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24429#p24429</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Vacuum de la base = Vaccum de toutes les tables ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24427#p24427"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><p>Un VACUUM FULL est généralement nécessaire quand la configuration de l&#039;autovacuum n&#039;a pas été correctement effectuée, ou que des VACUUM ne sont pas effectués au bon moment (batch de nuit par exemple).&#160; Concrètement, plutôt que faire un VACUUM FULL, il est plus intéressant de traiter l&#039;origine du problème.&#160; La marche à suivre est grosso modo :</p><p>- trouver la liste des tables se fragmentant vite<br />- trouver la raison de cette fragmentation<br />- adapter la configuration de l&#039;autovacuum en conséquence, ou déclencher des VACUUM manuels durant des traitements problématiques</p><br /><p>Et par configuration de l&#039;autovacuum, j&#039;entends adapter autovacuum_vacuum_scale_factor pour les tables problématiques et/ou augmenter le nombre de worker et/ou augmenter l&#039;agressivité de l&#039;autovacuum.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2016-12-21T08:43:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24427#p24427</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Vacuum de la base = Vaccum de toutes les tables ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24423#p24423"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Dans quel cas l&#039;utilisation d&#039;un VACUUM full est pertinent ?</p></div></blockquote></div><p>C&#039;est pertinent si on a vidé les trois quart ou les 4/5è de la table. C&#039;est pertinent si on a une inutilisation prolongée de la base (par exemple pour la mise en place d&#039;une nouvelle version applicative). Et c&#039;est à peu près tout.</p><div class="quotebox"><blockquote><div><p>Lorsqu&#039;on ne réalise pas de VACUUM full pendant plus de 3 semaines, nos bases saturent.</p></div></blockquote></div><p>Qu&#039;entendez-vous par saturer ?</p><div class="quotebox"><blockquote><div><p>Néanmoins, est il possible de réaliser un VACUUM full uniquement sur les tables les plus sollicités ?</p></div></blockquote></div><p>Oui. VACUUM FULL table_a_traiter;</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2016-12-21T08:40:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24423#p24423</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Vacuum de la base = Vaccum de toutes les tables ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24421#p24421"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je me permets de relancer mon sujet.</p><p>Dans quel cas l&#039;utilisation d&#039;un VACUUM full est pertinent ? <br />Lorsqu&#039;on ne réalise pas de VACUUM full pendant plus de 3 semaines, nos bases saturent. Ainsi, je pense que cette opération se justifie afin de libérer de l&#039;espace mémoire. Néanmoins, est il possible de réaliser un VACUUM full uniquement sur les tables les plus sollicités ? En effet, en cas de fusion de nos bases, le temps de réalisation d&#039;un VACUUM deviendra sans doute particulièrement trop long.</p><p>Merci de votre aide</p>]]></content>
+		<author>
+			<name><![CDATA[Shaar]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=6902</uri>
+		</author>
+		<updated>2016-12-21T08:14:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24421#p24421</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Vacuum de la base = Vaccum de toutes les tables ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24374#p24374"/>
+		<content type="html"><![CDATA[<p>Nous avons choisi de réaliser des VACUUM full sur la base complète après de nombreuses saturations de notre serveur.</p><p>En effet, la taille de plusieurs de nos tables présentent une important volatilité (facteur x10). Ces tables comportant plusieurs centaines de millions d&#039;entrées, nous avons préférés réalisé des VACUUM full plutot que des VACUUM simple.</p>]]></content>
+		<author>
+			<name><![CDATA[Shaar]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=6902</uri>
+		</author>
+		<updated>2016-12-08T09:29:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24374#p24374</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Vacuum de la base = Vaccum de toutes les tables ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24373#p24373"/>
+		<content type="html"><![CDATA[<p>Non, ce n&#039;est pas la même chose. Dans le cas d&#039;un VACUUM FULL d&#039;une base, les tables systèmes sont aussi traitées.</p><p>Mais bon, la vraie question est : pourquoi faire un VACUUM FULL périodiquement ? c&#039;est généralement déconseillée. Un VACUUM simple, oui. Un FULL, non. Un FULL n&#039;est intéressant que dans des cas très particuliers.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2016-12-08T09:24:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24373#p24373</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Vacuum de la base = Vaccum de toutes les tables ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24372#p24372"/>
+		<content type="html"><![CDATA[<p>Bonjour</p><p>Je dispose actuellement de 9 bases de données que je souhaiterais fusionner par série de 3. Or cela signifie que je vais passer de 60 tables à environ une centaine avec une augmentation particulièrement conséquente de la taille de ma base complète (100Go à + de 200Go)</p><p>Nous réalisons actuellement des VACUUM full hebdomadaire sur chacune des bases + un vacuum full journalier sur les tables les plus sollicitées.</p><p>Si nous procédons à cette fusion de nos bases, je crains que l&#039;opération de VACUUM full sur une base deviennent quasiment irréalisable dans un délai acceptable. Ainsi, je voudrais savoir si l&#039;opération de VACUUM full réalisée sur chacune de mes tables équivaut à réaliser un vacuum full sur l&#039;ensemble de ma base.</p><p>Merci !</p>]]></content>
+		<author>
+			<name><![CDATA[Shaar]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=6902</uri>
+		</author>
+		<updated>2016-12-08T08:56:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24372#p24372</id>
+	</entry>
+</feed>

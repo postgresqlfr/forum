@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Créer un retard dans la réplication]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2964&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2964"/>
+	<updated>2014-01-28T11:29:41Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2964</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Créer un retard dans la réplication]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19043#p19043"/>
+		<content type="html"><![CDATA[<p>Si vous abandonnez le Streaming Replication pour le Log Shipping, autant utiliser pg_standby. Ça vous évitera ce type de message d&#039;erreur.</p><p>En ce qui concerne le décalage, ce sera difficile à faire. Peut-être qu&#039;en indiquant un délai de 5h à pg_standby, vous parviendrez à ça...</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-01-28T11:29:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19043#p19043</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Créer un retard dans la réplication]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19042#p19042"/>
+		<content type="html"><![CDATA[<p>Merci Julien; Effectivement, pour enlever la STREAMING REPLICATION;<br />- Je commente primary_conninfo<br />- Je renseigne restore_command<br />restore_commande = &#039;scp -pr @mon_serveur:/mon_repo_archive/%f %p&#039;</p><p>La réplication fonctionne bien. Mais j&#039;ai des messages dans le log qui reviennent toutes les 5 secondes;<br />-----------------------------------------------------------------------------------<br />scp: /mon_repo_archive/mon_fichier_wal: No such file or directory<br />-----------------------------------------------------------------------------------<br />(mon_fichier_wal évolue)</p><p>D&#039;autre part, je suis toujours à la recherche de la syntaxe idéale pour créer le décalage (5h).<br />Je tourne autour de rsync, find... que j&#039;ai du mal à utiliser pour un serveur distant (@mon_serveur).</p>]]></content>
+		<author>
+			<name><![CDATA[Lurgo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2767</uri>
+		</author>
+		<updated>2014-01-28T10:56:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19042#p19042</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Créer un retard dans la réplication]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19030#p19030"/>
+		<content type="html"><![CDATA[<p>Vous confondez hot standby (esclave accessible en lecture seule) et streaming replication (réplication en flux en connexion directe sur le serveur).</p><p>Désactiver la streaming réplication implique uniquement d&#039;enlever la ligne &quot;primary_conninfo&quot; du recovery.conf, il faut donc conserver les paramètres wal_level et le hot_standby du postgresql.conf.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2014-01-27T17:17:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19030#p19030</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Créer un retard dans la réplication]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19028#p19028"/>
+		<content type="html"><![CDATA[<p>Si je désactive la Streaming Replication; je n&#039;aurais pas ma Standby en lecture; donc aucun intérêt pour moi d&#039;avoir un décalage dans le temps.<br />(Le but est de repêcher des données supprimées par erreur qq heures avant)</p><p>---------------------------------------------------------------------------------------------------------------------<br />Passer de la Streaming Replication au mode Archive revient à modifier les paramètres suivant;<br />. Du fichier postgres.conf;<br /> wal_level = hot_standby =&gt; archive<br /> hot_standby = on =&gt; off<br />. Du fichier recovery.conf;<br /> restore_commande = &#039;cp -pr /mon_repo_archive/%f %p&#039;<br /> =&gt;<br /> restore_commande = &#039;rsync -avrc -e -i `find /mon_repo_archive/%f -type f -ctime -5` %p&#039;<br /> --&gt; J&#039;ai une FATAL erreur au lancement <img src="http://forums.postgresql.fr/img/smilies/sad.png" width="15" height="15" alt="sad" /><br />---------------------------------------------------------------------------------------------------------------------</p><p>Existe-t-il une solution aujourd&#039;hui? <br />Ou devrais-je attendre la version 9.4?</p><p>Merci pour vos recherches <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[Lurgo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2767</uri>
+		</author>
+		<updated>2014-01-27T16:46:35Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19028#p19028</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Créer un retard dans la réplication]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19017#p19017"/>
+		<content type="html"><![CDATA[<p>ou attendre la 9.4 <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /> : <a href="http://michael.otacoo.com/postgresql-2/postgres-9-4-feature-highlight-delayed-standbys/" rel="nofollow">http://michael.otacoo.com/postgresql-2/ … -standbys/</a></p>]]></content>
+		<author>
+			<name><![CDATA[arthurr]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=62</uri>
+		</author>
+		<updated>2014-01-27T08:34:03Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19017#p19017</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Créer un retard dans la réplication]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19014#p19014"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>le but de la streaming replication est justement d&#039;avoir le moins de retard possible.</p><p>Si vous voulez mettre en place un lag, il vous faudra modifier votre restore_command en y incluant un délai, par exemple avec un find -mtime -5, et désactiver la streaming replication.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2014-01-24T15:55:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19014#p19014</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Créer un retard dans la réplication]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19013#p19013"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je voudrais faire comme sur oracle avec le paramètre delay de log_archive_dest.<br />C&#039;est à dire créer un décalage volontaire sur le standby.<br />Par exemple configurer le standby pour qu&#039;il rejoue l&#039;archive 5 heures après l&#039;avoir reçu.<br />Précisions; Je suis en Streaming Replication, sous Redhat.<br />... et ça marche bien <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[Lurgo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2767</uri>
+		</author>
+		<updated>2014-01-24T14:47:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19013#p19013</id>
+	</entry>
+</feed>

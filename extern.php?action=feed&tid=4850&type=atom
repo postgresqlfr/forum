@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / syntaxe trigger pour remplir une clé secondaire]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4850&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4850"/>
+	<updated>2018-07-31T08:32:36Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4850</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  syntaxe trigger pour remplir une clé secondaire]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28103#p28103"/>
+		<content type="html"><![CDATA[<p>Je viens de résoudre mon soucis en écrivant mon trigger comme ceci dans la partie UPDATE ET DELETE: </p><br /><br /><p>&#160; &#160;</p><div class="codebox"><pre><code> ELSIF (TG_OP = &#039;UPDATE&#039;) THEN
+           
+       	UPDATE TableA SET (geom, num_A) 
+  
+                 = (NEW.geom, NEW.num_A) 
+        WHERE TableA.id_A = NEW.id_A ;
+        
+
+	UPDATE TableB SET (num_B) 
+  
+                 = (NEW.num_B)
+        WHERE TableB.A_id = NEW.id_A ;
+
+	
+        RETURN NEW;
+    
+     ELSIF (TG_OP = &#039;DELETE&#039;) THEN
+        DELETE FROM TableA WHERE TableA.id_A = OLD.id_A;
+	DELETE FROM TableB WHERE TableB.A_id = OLD.id_A;
+	
+   	RETURN NULL;
+	
+ END IF;
+END;
+$BODY$</code></pre></div><p>Merci à tous pour votre aide</p>]]></content>
+		<author>
+			<name><![CDATA[M-Pauline]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8202</uri>
+		</author>
+		<updated>2018-07-31T08:32:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28103#p28103</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  syntaxe trigger pour remplir une clé secondaire]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28102#p28102"/>
+		<content type="html"><![CDATA[<p>Bonjour gleu,</p><p>&quot; Vous devez donc indiquer que id_A vient de la table TableA dans la première requête et TableB dans la deuxième.&quot;</p><p>C&#039;est bien ce que j&#039;essaye de faire, mais je n&#039;y arrive pas. </p><br /><p>Cette partie est censée dire que &quot; id_A vient de la table TableA&quot;</p><p><strong>UPDATE TableA</strong> SET (geom, num_A) <br />&#160; <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;= (NEW.geom, NEW.num_A)<br />&#160; &#160; &#160; &#160;<strong> WHERE id_A </strong>= NEW.id_A;</p><br /><br /><p>Et celle-ci que &quot; id_A vient de la table TableB&quot; car A_id est ma clé secondaire qui est égale au id_A de la TableA.</p><p><strong>UPDATE TableB</strong> SET (num_B) <br />&#160; <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;= (NEW.num_B)<br />&#160; &#160; &#160; &#160;<strong> WHERE A_id </strong>= NEW.id_A;</p><p>&#160; &#160;&#160; &#160; &#160; &#160; &#160;RETURN NEW;</p><p>Même chose dans le DELETE...</p>]]></content>
+		<author>
+			<name><![CDATA[M-Pauline]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8202</uri>
+		</author>
+		<updated>2018-07-31T07:14:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28102#p28102</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  syntaxe trigger pour remplir une clé secondaire]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28098#p28098"/>
+		<content type="html"><![CDATA[<p>L&#039;erreur est assez claire : &quot;ERROR:&#160; column reference &quot;id_A&quot; is ambiguous&quot;. Vous devez donc indiquer que id_A vient de la table TableA dans la première requête et TableB dans la deuxième.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2018-07-27T16:03:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28098#p28098</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  syntaxe trigger pour remplir une clé secondaire]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28097#p28097"/>
+		<content type="html"><![CDATA[<p>Je suis toujours en galère pour faire fonctionner mon Trigger pour qu&#039;il puisse permettre la Modification et la Suppression.<br />Actuellement seul l&#039;Insertion fonctionne correctement....</p><div class="codebox"><pre class="vscroll"><code>CREATE OR REPLACE FUNCTION MonTrigger()
+  RETURNS trigger AS
+$BODY$
+DECLARE id_A BIGINT;
+BEGIN
+    IF (TG_OP = &#039;INSERT&#039;) THEN SELECT nextval(&#039;seq_A&#039;) INTO NEW.id_A;
+		
+        INSERT INTO TableA (id_A, geom, num_A) 
+               VALUES (NEW.id_A, NEW.geom, NEW.num_A);
+      
+
+	INSERT INTO TableB (A_id, num_B) 
+               VALUES (NEW.id_A, NEW.num_B);
+        RETURN NEW;
+        
+    ELSIF (TG_OP = &#039;UPDATE&#039;) THEN
+           
+       	UPDATE TableA SET (geom, num_A) 
+  
+                 = (NEW.geom, NEW.num_A)
+        WHERE id_A = NEW.id_A;
+
+	UPDATE TableB SET (num_B) 
+  
+                 = (NEW.num_B)
+        WHERE A_id = NEW.id_A;
+
+	        RETURN NEW;
+    
+     ELSIF (TG_OP = &#039;DELETE&#039;) THEN
+        DELETE FROM TableA WHERE id_A = OLD.id_A;
+	DELETE FROM TableB WHERE A_id = OLD.id_A;
+	
+   	RETURN NULL;
+	
+ END IF;
+END;
+$BODY$</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[M-Pauline]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8202</uri>
+		</author>
+		<updated>2018-07-27T14:18:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28097#p28097</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  syntaxe trigger pour remplir une clé secondaire]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28096#p28096"/>
+		<content type="html"><![CDATA[<p>Tout fonctionne correctement pour l&#039;INSERTION de nouveaux enregistrements, par contre je ne peux pas modifier, je me retrouve avec ce message d&#039;erreur : </p><br /><p>Impossible de valider les changements pour la couche MaVue</p><div class="codebox"><pre><code>Erreurs : ERREUR : 1 modification de valeur d&#039;attribut n&#039;a pas été effectué.
+  
+Erreur du fournisseur de données :
+      Erreur PostGIS lors de la modification d&#039;attribut : ERROR:  column reference &quot;id_A&quot; is ambiguous
+    LINE 4:         WHERE id_A = NEW.id_A
+                          ^
+    DETAIL:  It could refer to either a PL/pgSQL variable or a table column.
+    QUERY:  UPDATE TableA SET (geom, num_A) 
+      
+                     = (NEW.geom, NEW.num_A)
+            WHERE id_A = NEW.id_A
+    CONTEXT:  PL/pgSQL function MonTrigger() line 20 at SQL statement</code></pre></div><br /><p>J&#039;ai rajouté dans mes 2 Tables les contraintes suivantes : </p><div class="codebox"><pre><code>CREATE TABLE TableA
+(
+  id_A integer NOT NULL DEFAULT nextval(&#039;seq_A&#039;::regclass),
+  geom geometry(Point,2154),
+  num_A character varying(10),
+  CONSTRAINT pk_id_A_tot PRIMARY KEY (id_A),
+  CONSTRAINT enforce_geotype_geom CHECK (st_geometrytype(geom) = &#039;ST_Point&#039;::text OR geom IS NULL),
+  CONSTRAINT enforce_srid_geom CHECK (st_srid(geom) = 2154)
+)
+WITH (
+  OIDS=TRUE
+);
+ALTER TABLE TableA
+  OWNER TO sig;
+GRANT ALL ON TABLE TableA TO sig;</code></pre></div><div class="codebox"><pre><code>CREATE TABLE TableB
+(
+  id_B integer NOT NULL DEFAULT nextval(&#039;seq_B&#039;::regclass),
+  num_B character varying(4),
+  A_id integer,
+  CONSTRAINT pk_id_B PRIMARY KEY (id_B),
+  CONSTRAINT fk_B FOREIGN KEY (A_id)
+      REFERENCES TableA (id_A) MATCH SIMPLE
+      ON UPDATE CASCADE ON DELETE CASCADE
+)
+WITH (
+  OIDS=TRUE
+);
+ALTER TABLE TableB
+  OWNER TO sig;
+GRANT ALL ON TABLE TableB TO sig;
+;</code></pre></div><p>Mais je ne peux tjs pas valider une modifications sur une enregistrements</p>]]></content>
+		<author>
+			<name><![CDATA[M-Pauline]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8202</uri>
+		</author>
+		<updated>2018-07-27T12:04:50Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28096#p28096</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  syntaxe trigger pour remplir une clé secondaire]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28095#p28095"/>
+		<content type="html"><![CDATA[<p>Merci de ton aide jmarsac,</p><p>je viens de faire les modifications et tout fonctionne parfaitement comme cela, tout se remplit correctement dans les 2 tables !!!</p><p>Encore merci</p>]]></content>
+		<author>
+			<name><![CDATA[M-Pauline]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8202</uri>
+		</author>
+		<updated>2018-07-27T11:47:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28095#p28095</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  syntaxe trigger pour remplir une clé secondaire]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28094#p28094"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Lors d&#039;une insertion NEW.id_A est nul.</p><p>Il faut remplacer </p><div class="codebox"><pre><code>    IF (TG_OP = &#039;INSERT&#039;) THEN SELECT nextval(&#039;seq_id_A&#039;) INTO id_A;
+       
+        INSERT INTO TableA (id_A, num_A)
+               VALUES (DEFAULT, NEW.num_A);</code></pre></div><p>par</p><div class="codebox"><pre><code>    IF (TG_OP = &#039;INSERT&#039;) THEN SELECT nextval(&#039;seq_id_A&#039;) INTO NEW.id_A;
+       
+        INSERT INTO TableA (id_A, num_A)
+               VALUES (NEW.id_A, NEW.num_A);</code></pre></div><p>sinon NEW.id_A reste nul et l&#039;utilisation de DEFAULT génère une nouvelle valeur de la séquence qui est utilisée dans tableA</p><br /><p><strong>mais la valeur saisie sera ignorée si vous indiquez la valeur de &quot;id_A&quot; dans la requête INSERT (ce qui ne devrait jamais être le cas puisque vous utilisez une séquence)</strong></p><p>j&#039;utiliserais plutôt deux triggers distincts :</p><p>-le premier déclenché par les modifications sur la vue qui met à jour tableA<br />- le second déclenché par les modifications sur tableA qui met à jour tableB</p>]]></content>
+		<author>
+			<name><![CDATA[jmarsac]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7302</uri>
+		</author>
+		<updated>2018-07-27T11:01:54Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28094#p28094</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[syntaxe trigger pour remplir une clé secondaire]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28093#p28093"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><p>je n&#039;arrive pas à écrire correctement un trigger afin de permettre la saisi automatique d&#039;un champ (clé secondaire) dans une table : </p><br /><p>Je dispose de 2 tables : <br /><strong> TABLEA</strong><br />id_A (clé primaire)<br />num_A</p><br /><p><strong>TABLEB</strong><br />id_B<br />num_B<br />A_id (clé secondaire reliée à id_A de la TABLEA)</p><br /><p>J&#039;ai fais une Vue me permettant de récupérer les champs des 2 tables et qui fais appel à un Trigger : </p><br /><div class="codebox"><pre><code>CREATE OR REPLACE VIEW MaVue AS 
+ SELECT row_number() OVER () AS id_unique,
+   TableA.id_A,
+   TableA.num_A,
+   TableB.num_B
+
+   FROM TableA
+   LEFT JOIN TableB ON TableA.id_A = TableB.A_id;
+
+ALTER TABLE TableA
+  OWNER TO sig;
+
+CREATE TRIGGER MonTrigger
+  INSTEAD OF INSERT OR UPDATE OR DELETE
+  ON MaVue
+  FOR EACH ROW
+  EXECUTE PROCEDURE MonTrigger();</code></pre></div><br /><p>Et voici mon Trigger : </p><br /><div class="codebox"><pre class="vscroll"><code>CREATE OR REPLACE FUNCTION MonTrigger()
+  RETURNS trigger AS
+$BODY$
+DECLARE id_A BIGINT;
+BEGIN
+    IF (TG_OP = &#039;INSERT&#039;) THEN SELECT nextval(&#039;seq_id_A&#039;) INTO id_A;
+		
+        INSERT INTO TableA (id_A, num_A) 
+               VALUES (DEFAULT, NEW.num_A);
+      
+
+	INSERT INTO TableB (A_id, num_B) 
+               VALUES (NEW.id_A, NEW.num_B);
+     
+        RETURN NEW;
+        
+    ELSIF (TG_OP = &#039;UPDATE&#039;) THEN
+           
+       	UPDATE TableA SET (num_A) 
+  
+                 = (NEW.num_A)
+        WHERE id_A = NEW.id_A;
+
+	UPDATE TableB SET (num_B) 
+  
+                 = (NEW.num_B)
+        WHERE id_A = NEW.id_A;
+
+	RETURN NEW;
+    
+     ELSIF (TG_OP = &#039;DELETE&#039;) THEN
+        DELETE FROM TableA WHERE id_A = OLD.id_A;
+	DELETE FROM TableB WHERE A_id = OLD.id_A;
+	
+   	RETURN NULL;
+END IF;</code></pre></div><br /><p>Avec ceci quand j&#039;ajoute un nouvel enregistrement par ma vue, tous mes champs de la TableA se remplissent et seulement les champs id_B et num_B de ma tableB, pas le champ A_id (clé secondaire) de la tableB...</p><br /><p>Quelqu&#039;un pour m&#039;aider?</p>]]></content>
+		<author>
+			<name><![CDATA[M-Pauline]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8202</uri>
+		</author>
+		<updated>2018-07-27T09:48:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28093#p28093</id>
+	</entry>
+</feed>

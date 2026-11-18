@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Utilisation /tmp sur une VM Linux à l'export d'un dump au format TAR]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=6859&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=6859"/>
+	<updated>2024-04-02T19:59:26Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=6859</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Utilisation /tmp sur une VM Linux à l'export d'un dump au format TAR]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=35010#p35010"/>
+		<content type="html"><![CDATA[<p>Je ne crois pas que YON utilise /tmp pour son export. pg_dump le fait tout seul lors de l&#039;utilisation du format tar. Les explications de Tom Lane sur ce comportement :</p><div class="quotebox"><blockquote><div><p>Tar format is sufficiently weird that we have to dump data into a temp<br />file and then append it to the archive after we know its exact size.<br />This means double copying of data, as well as problems if your temp<br />directory is in an undersized filesystem.&#160; On the whole, custom format<br />is a lot better bet from a performance standpoint --- so we only<br />recommend tar format if you have a clear need to be able to disassemble<br />the archive with non-Postgres tools.</p></div></blockquote></div><p>Quant à la corriger ce comportement, testez avec la variable d&#039;environnementTMPDIR mais toujours d&#039;après Tom Lane :</p><div class="quotebox"><blockquote><div><p>The temp files are created with the standard library function tmpfile().<br />If you think that&#039;s behaving improperly, take it up with your OS vendor.<br />I suspect they&#039;ll tell you it would be a security risk for that function<br />to respond to environment variables.</p></div></blockquote></div><p>Bref, le mieux est certainement d&#039;oublier le format tar et de passer par le format custom (ou directory).</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2024-04-02T19:59:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=35010#p35010</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Utilisation /tmp sur une VM Linux à l'export d'un dump au format TAR]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34992#p34992"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>cela n&#039;a rien à voir avec le user postgres.<br />/tmp n&#039;est pas vraiment un bon endroit pour faire un export de données.<br />Donc soit vous agrandissez /tmp suffisamment pour pouvoir accueillir le dump<br />soit vous générez le dump dans un autre file system (dans lequel postgres a le droit d&#039;écrire)</p><p>Mais de toute façon évitez d&#039;utiliser /tmp</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2024-03-20T11:14:31Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34992#p34992</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Utilisation /tmp sur une VM Linux à l'export d'un dump au format TAR]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34991#p34991"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous,</p><p>Lors de l&#039;export d&#039;un dump au format TAR, le répertoire /tmp sature.<br />Pourquoi et comment l&#039;empêcher ?</p><p>Est ce que l&#039;utilisateur postgres est mal définie ?</p><p>D&#039;avance merci</p>]]></content>
+		<author>
+			<name><![CDATA[YON]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=12196</uri>
+		</author>
+		<updated>2024-03-19T15:17:45Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34991#p34991</id>
+	</entry>
+</feed>

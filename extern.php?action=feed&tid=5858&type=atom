@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Utilisation de PostgreSQL en mode NOsql]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5858&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5858"/>
+	<updated>2020-11-23T12:40:01Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5858</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Utilisation de PostgreSQL en mode NOsql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31658#p31658"/>
+		<content type="html"><![CDATA[<p>Merci de ce retour.</p><p>Oui en effet l&#039;objet est sur plusieurs niveaux et est amené à être modifié.<br />Là je suis en train de faire un test ou mon objet serait :</p><div class="codebox"><pre><code>{
+    &quot;uuid&quot;: uuid,
+    &quot;date_create&quot;: timestamp with time zone,
+    &quot;date_start&quot;: timestamp with time zone,
+    &quot;date_end&quot;: timestamp with time zone,
+    &quot;statut&quot;: character varying,
+    &quot;version&quot;: character varying,
+    &quot;description&quot;: character varying,
+    &quot;ref_externe&quot;: character varying,
+    &quot;key_duck&quot;: character varying,
+    &quot;type_data&quot;: jsonb{},
+    &quot;type_object&quot;: jsonb{},
+    &quot;timeline&quot;: jsonb{},
+    &quot;document&quot;: jsonb{},
+    &quot;sub_object&quot;: jsonb[]
+}</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[Geo-x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1346</uri>
+		</author>
+		<updated>2020-11-23T12:40:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31658#p31658</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Utilisation de PostgreSQL en mode NOsql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31657#p31657"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Pour les json, en revanche, de ce que je comprends en utilisant des champs de type jsonb, l&#039;indexation est automatique, cela rentre dans le champ de ce que vous précisez ? ( à savoir une modification de structure fou tout en l&#039;air)</p></div></blockquote></div><p>Il ne fait aucun doute qu&#039;entre json et jsonb dans le cas de cette question, il faut utiliser jsonb.<br />L&#039;avantage de jsonb par rapport à json est qu&#039;il est stocké pré-analysé, pré-découpé.</p><p>Mais l&#039;indexation au sens où on l&#039;entend en BDD (CREATE INDEX) n&#039;est pas automatique avec jsonb.</p><p>Par exemple s&#039;il y a une clef &quot;nom&quot; au premier niveau et que la recherche est WHERE champ_json-&gt;&gt;&#039;nom&#039; = &#039;toto&#039;<br />Postgres va tester chaque ligne de la table en parcours séquentiel, que le type soit json ou jsonb.</p><p>C&#039;est seulement s&#039;il y a un index explicitement créé sur champ_json-&gt;&gt;&#039;nom que la recherche va être vraiment accélérée.</p><br /><p>Le souci dans cette question est que le niveau d&#039;imbrication de la structure semble illimité. S&#039;il fallait indexer des champs quelle soit leur profondeur dans la structure, je ne vois pas trop comment c&#039;est possible.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2020-11-23T12:23:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31657#p31657</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Utilisation de PostgreSQL en mode NOsql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31656#p31656"/>
+		<content type="html"><![CDATA[<p>Bonjour Guillaume et merci de votre réponse.</p><p>Dans ce cas, il vaut mieux privilégier le format jsonb c&#039;est ce qu&#039;il me semblait :-)</p><p>Dans l&#039;exemple explicité dans l&#039;introduction du sujet, on peut remarquer des sous-sous-sous-sous-sous niveaux. En terme d&#039;architecture, sur la documentation officielle, je ne vois pas spécialement d&#039;optimisation requises. Ceci veut donc dire que je peux intégrer mes sous-niveaux directement dans un champ dès le niveau 2 ?&#160; Même si c&#039;est un ARRAY ?</p>]]></content>
+		<author>
+			<name><![CDATA[Geo-x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1346</uri>
+		</author>
+		<updated>2020-11-23T08:04:31Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31656#p31656</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Utilisation de PostgreSQL en mode NOsql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31655#p31655"/>
+		<content type="html"><![CDATA[<p>Un index sur une colonne jsonb permettra un grand nombre de recherches efficaces, alors qu&#039;un index sur une colonne json entière sera beaucoup moins efficace (car ce sera en fait l&#039;équivalent d&#039;un index sur un champ texte). Pour être plus efficace sur une colonne de type json, il faudra plutôt indexer une clé du champ json.</p><p>Une modification de structure ne changera rien à un index sur une colonne jsonb vu que cet index découpe chacune des paires clé/valeur de la colonne jsonb. Une modification de structure sur un champ json peut être problématique pour un index json si on n&#039;accède plus de la même façon à la clé recherchée.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2020-11-23T07:53:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31655#p31655</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Utilisation de PostgreSQL en mode NOsql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31643#p31643"/>
+		<content type="html"><![CDATA[<p>Bonsoir dverite.</p><p>Merci de cette traduction :-) En effet ça me parait pertinent.</p><p>Pour les json, en revanche, de ce que je comprends en utilisant des champs de type jsonb, l&#039;indexation est automatique, cela rentre dans le champ de ce que vous précisez ? ( à savoir une modification de structure fou tout en l&#039;air)</p><p>Merci</p>]]></content>
+		<author>
+			<name><![CDATA[Geo-x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1346</uri>
+		</author>
+		<updated>2020-11-22T20:10:06Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31643#p31643</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Utilisation de PostgreSQL en mode NOsql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31634#p31634"/>
+		<content type="html"><![CDATA[<p>Pour moi ce bout de doc a pour objet d&#039;alerter sur 2 choses:</p><br /><p>1) lorsqu&#039;on écrit des requêtes qui exploitent des informations du json, on décrit forcément plus ou moins où trouver ces informations dans le json via les noms des clefs, les profondeurs de hiérarchie, et si on s&#039;attend à trouver des tableaux ou des scalaires ou des objets et à quel niveau.<br />Et si on change notablement la structure json, ces requêtes ne fonctionnent plus, il faut les modifier.<br />Autrement dit, l&#039;avantage de &quot;flexibilité&quot; du json doit être relativisé.</p><br /><p>2) lors d&#039;une modification d&#039;un document JSON en base, la totalité du document est réécrite, quelque soit la taille de la modification. La seule manière de modifier un document est de soumettre la nouvelle version en intégralité.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2020-11-19T13:21:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31634#p31634</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Utilisation de PostgreSQL en mode NOsql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31633#p31633"/>
+		<content type="html"><![CDATA[<p>Bonjour @ tous.</p><p>Visiblement peu de gens utilisent Postgres comme une base NOsql (｡◕‿◕｡) </p><p>Juste pour avancer sur ce sujet, j&#039;ai continué de lire la documentation et je suis tombé sur ce chapitre qui m&#039;est apparu intéressant :</p><div class="codebox"><pre><code>8.14.2. Concevoir des documents JSON efficacement
+Représenter des données en JSON peut être considérablement plus flexible que le modèle de données relationnel traditionnel, qui est contraignant dans des environnements où les exigences sont souples. Il est tout à fait possible que ces deux approches puissent coexister, et qu&#039;elles soient complémentaires au sein de la même application. Toutefois, même pour les applications où on désire le maximum de flexibilité, il est toujours recommandé que les documents JSON aient une structure quelque peu fixée. La structure est typiquement non vérifiée (bien que vérifier des règles métier de manière déclarative soit possible), mais le fait d&#039;avoir une structure prévisible rend plus facile l&#039;écriture de requêtes qui résument utilement un ensemble de « documents » (datums) dans une table.
+
+Les données JSON sont sujettes aux mêmes considérations de contrôle de concurrence que pour n&#039;importe quel autre type de données quand elles sont stockées en table. Même si stocker de gros documents est prévisible, il faut garder à l&#039;esprit que chaque mise à jour acquiert un verrou de niveau ligne sur toute la ligne. Il faut envisager de limiter les documents JSON à une taille gérable pour réduire les contentions sur verrou lors des transactions en mise à jour. Idéalement, les documents JSON devraient chacun représenter une donnée atomique, que les règles métiers imposent de ne pas pouvoir subdiviser en données plus petites qui pourraient être modifiées séparément.</code></pre></div><p>Le problème, c&#039;est que je ne suis pas certain de comprendre, concrètement, à quoi cela peut ressembler au final (surtout le terme de donnée atomique ఠ_ఠ&#160; )</p><p>Une idée ?</p><p>Merci de votre aide.</p><p><strong>Geo-x</strong></p>]]></content>
+		<author>
+			<name><![CDATA[Geo-x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1346</uri>
+		</author>
+		<updated>2020-11-19T11:46:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31633#p31633</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Utilisation de PostgreSQL en mode NOsql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31625#p31625"/>
+		<content type="html"><![CDATA[<p>Bonjour @ tous.</p><p>J&#039;aurais aimé quelques conseils concernant les bases NOsql je m&#039;explique.</p><p>Je cherche une technologie de base NOsql un peu &quot;hybride&quot; qui me donne les avantages d&#039;une base NOsql (lecture/écriture de masse efficace, enregistrement d&#039;objets simplifiés (array,json...)) et une partie des BDD relationnelles (facilitation de requêtage entre autre), et c&#039;est tout naturellement que j&#039;ai pensé à Postgres.</p><p>Voici le genre d&#039;objet que j&#039;ai aujourd&#039;hui dans ma BDD NOsql &quot;classique&quot; :</p><div class="codebox"><pre class="vscroll"><code>{
+    &quot;uuid&quot;,
+    &quot;date_create&quot;,
+    &quot;date_start&quot;,
+    &quot;date_end&quot;,
+    &quot;statut&quot;,
+    &quot;version&quot;,
+    &quot;description&quot;,
+    &quot;ref_externe&quot;,
+    &quot;key_duck&quot;,
+    &quot;type_data&quot;: {
+        &quot;uuid&quot;,
+        &quot;code&quot;,
+        &quot;description&quot;
+    },
+    &quot;type_object&quot;: {
+        &quot;uuid&quot;,
+        &quot;code&quot;,
+        &quot;description&quot;
+    },
+    &quot;timeline&quot;: {
+        &quot;day&quot;,
+        &quot;month&quot;,
+        &quot;year&quot;
+    },
+    &quot;document&quot;: {
+        &quot;description&quot;,
+        &quot;url&quot;
+    },
+    &quot;sub_object&quot;: [{
+            &quot;uuid&quot;,
+            &quot;number&quot;,
+			&quot;type_datas&quot;: {
+				&quot;uuid&quot;,
+				&quot;code&quot;,
+				&quot;description&quot;
+			},
+			&quot;type_objects&quot;: {
+				&quot;uuid&quot;,
+				&quot;code&quot;,
+				&quot;description&quot;
+			},
+            &quot;number_sub&quot;,
+            &quot;description&quot;,
+            &quot;sub_sub_object_array&quot;: [{
+                    &quot;sub_sub_sub_object1_array&quot;: [{
+                            &quot;uuid&quot;,
+                            &quot;code&quot;,
+                            &quot;description&quot;
+                        },
+                        ...
+                    ],
+                    &quot;sub_sub_sub_object2_array&quot;: [{
+                            &quot;code&quot;,
+                            &quot;description&quot;,
+                            &quot;my_json&quot;: {
+                                &quot;uuid&quot;,
+                                &quot;code&quot;
+                            }
+                        },
+                        ...
+                    ],
+                },
+                ...
+            ],
+            &quot;sub_sub_object_json1&quot;: {
+                &quot;uuid&quot;,
+                &quot;code&quot;,
+                &quot;libelle&quot;,
+                &quot;segment_tva&quot;
+            },
+            &quot;sub_sub_object_json2&quot;: {
+                &quot;uuid&quot;,
+                &quot;code&quot;,
+                &quot;description&quot;,
+                &quot;sub_sub_sub_object_json&quot;: {
+                    &quot;sub_sub_sub_sub_object_json&quot;: {
+                        &quot;uuid&quot;,
+                        &quot;code&quot;,
+                        &quot;description&quot;
+                    },
+                    &quot;sub_sub_sub_sub_object_array&quot;: [{
+                            &quot;code&quot;,
+                            &quot;number&quot;
+                        },
+                        ...
+                    ],
+                },
+            }
+        },
+        ...
+    ]
+}</code></pre></div><p>Sur ce type d&#039;objet, j&#039;ai besoin de pouvoir faire des recherches sur des objets imbriqués et donc d&#039;avoir des indexations efficaces.</p><p>J&#039;ai donc deux questions (pour commencer) :</p><p>1/ ce format là d&#039;enregistrement est-il adapté à une base de données comme Postgres en mode NOsql ? (en gros à partir de sub_object on met l&#039;objet dans une colonne jsonb)<br />2/ Vaut-il mieux privilégier des objets très imbriqués comme cela ou bien vaut-il mieux créer autant de tables qu&#039;il y a de sous-objets ?</p><p>Merci de vos retours (et même s&#039;il s&#039;agit de retours d&#039;expériences hors des deux questions, je suis évidemment preneur)</p><p><strong>Geo-x</strong></p>]]></content>
+		<author>
+			<name><![CDATA[Geo-x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1346</uri>
+		</author>
+		<updated>2020-11-17T19:59:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31625#p31625</id>
+	</entry>
+</feed>

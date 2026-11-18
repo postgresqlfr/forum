@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Dupliquer les valeurs d'une ligne vers les autres]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2116&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2116"/>
+	<updated>2012-06-21T13:03:50Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2116</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Dupliquer les valeurs d'une ligne vers les autres]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14315#p14315"/>
+		<content type="html"><![CDATA[<p>C&#039;est dommage que vous n&#039;ayez pas dit ce que vous vouliez exactement.<br />Il est possible qu&#039;il y ait eu une solution simple en SQL.<br />Par exemple si vous vouliez faire une copie de chaque ligne vers la &quot;précédente&quot; dans l&#039;ordre des clés, ça se fait également.</p>]]></content>
+		<author>
+			<name><![CDATA[flo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=216</uri>
+		</author>
+		<updated>2012-06-21T13:03:50Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14315#p14315</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Dupliquer les valeurs d'une ligne vers les autres]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14313#p14313"/>
+		<content type="html"><![CDATA[<p>Trouvé! Bon, c&#039;était tiré par les cheveux... J&#039;ai fait un script de barbarre en bash et ça a marché du tonerre!</p><p>Merci quand même <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[TimmyP]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1797</uri>
+		</author>
+		<updated>2012-06-21T12:14:29Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14313#p14313</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Dupliquer les valeurs d'une ligne vers les autres]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14283#p14283"/>
+		<content type="html"><![CDATA[<p>Si vous voulez juste copier les colonnes valeur1, valeur2, ... valeur9 pour la valeur de clé 3 vers la ligne de valeur de clé2, une solution pourrait être de ce style :</p><p>update testtable <br />set (val1, val2)&#160; = (t2.val1, t2.val2) <br />&#160; &#160; &#160;from testtable t2 <br />&#160; &#160; where t2.cle = 3 and testtable.cle = 2</p>]]></content>
+		<author>
+			<name><![CDATA[flo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=216</uri>
+		</author>
+		<updated>2012-06-20T11:26:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14283#p14283</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Dupliquer les valeurs d'une ligne vers les autres]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14278#p14278"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous!</p><p>J&#039;ai un petit... En fait gros problème!</p><p>J&#039;ai une table contenant un grand nombre de données et j&#039;aimerai copier - admettons - la ligne n°3 vers les lignes 1 &amp; 2...</p><p>Prenons par exemple une table Test contenant les lignes suivantes:</p><p>&#160; &#160;------------------------------------------------------------------------------------------------------------------<br />&#160; |&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Table Test&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;|<br />&#160; &#160;------------------------------------------------------------------------------------------------------------------<br />&#160; |&#160; clé | valeur 1 | valeur 2 | valeur 3 | valeur 4 | valeur 5 | valeur 6 | valeur 7 | valeur 8 | valeur 9 |<br />&#160; &#160;------------------------------------------------------------------------------------------------------------------<br />&#160; |&#160; &#160;1&#160; &#160;|&#160; &#160; &#160; &#160;1&#160; &#160; &#160;|&#160; &#160; &#160; 1&#160; &#160; &#160; |&#160; &#160; &#160;1&#160; &#160; &#160; &#160;|&#160; &#160; &#160; 1&#160; &#160; &#160; |&#160; &#160; &#160; 1&#160; &#160; &#160; |&#160; &#160; &#160; 1&#160; &#160; &#160; |&#160; &#160; &#160; &#160;1&#160; &#160; &#160;|&#160; &#160; &#160; &#160;1&#160; &#160; &#160;|&#160; &#160; &#160; 1&#160; &#160; &#160;|<br />&#160; &#160;------------------------------------------------------------------------------------------------------------------<br />&#160; |&#160; &#160;2&#160; &#160;|&#160; &#160; &#160; &#160;2&#160; &#160; &#160;|&#160; &#160; &#160; 2&#160; &#160; &#160; |&#160; &#160; &#160;2&#160; &#160; &#160; &#160;|&#160; &#160; &#160; 2&#160; &#160; &#160; |&#160; &#160; &#160; 2&#160; &#160; &#160; |&#160; &#160; &#160; 2&#160; &#160; &#160; |&#160; &#160; &#160; &#160;2&#160; &#160; &#160;|&#160; &#160; &#160; &#160;2&#160; &#160; &#160;|&#160; &#160; &#160; 2&#160; &#160; &#160;|<br />&#160; &#160;------------------------------------------------------------------------------------------------------------------<br />&#160; |&#160; &#160;3&#160; &#160;|&#160; &#160; &#160; &#160;3&#160; &#160; &#160;|&#160; &#160; &#160; 3&#160; &#160; &#160; |&#160; &#160; &#160;3&#160; &#160; &#160; &#160;|&#160; &#160; &#160; 3&#160; &#160; &#160; |&#160; &#160; &#160; 3&#160; &#160; &#160; |&#160; &#160; &#160; 3&#160; &#160; &#160; |&#160; &#160; &#160; &#160;3&#160; &#160; &#160;|&#160; &#160; &#160; &#160;3&#160; &#160; &#160;|&#160; &#160; &#160; 3&#160; &#160; &#160;|<br />&#160; &#160;------------------------------------------------------------------------------------------------------------------</p><p>Est-ce-que quelqu&#039;un a déjà été confronté à ce cas de figure, et si oui, pourrais-je avoir une indication?<br />Merci d&#039;avance à vous!</p><p>Cordialement,<br />TimmyP.</p>]]></content>
+		<author>
+			<name><![CDATA[TimmyP]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1797</uri>
+		</author>
+		<updated>2012-06-20T08:05:06Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14278#p14278</id>
+	</entry>
+</feed>

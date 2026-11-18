@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Connexion via .pgpass]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=6194&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=6194"/>
+	<updated>2022-01-18T10:46:23Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=6194</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Connexion via .pgpass]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33127#p33127"/>
+		<content type="html"><![CDATA[<p>&gt; Que je comprenne bien, le fait d&#039;indiquer le hostname lui fait changer son systeme d&#039;authentification...?</p><p>Tout à fait possible. Cela dépend de la configuration du fichier pg_hba.conf.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2022-01-18T10:46:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33127#p33127</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Connexion via .pgpass]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33126#p33126"/>
+		<content type="html"><![CDATA[<p>Il est aussi possible que le mot de passe soit hashé en md5 alors que le serveur requiert scram-sha-256 via pg_hba.conf.<br />Il me semble que c&#039;est le message d&#039;erreur générique de mot de passe incorrect qui sort dans ce cas-là.</p><br /><p>Pour faire la transition md5 -&gt; scram-sha-256, il faut vérifier que password_encryption est bien à &quot;scram-sha-256&quot; et regénérer le mot de passe avec la commande \password de psql, pour chaque compte ayant un &quot;vieux&quot; mot de passe.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2022-01-18T09:31:33Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33126#p33126</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Connexion via .pgpass]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33125#p33125"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Merci Rjuju, c&#039;était bien le PGPASSWORD qui prenait le dessus sur le fichier .pgpass!!!<br />Un grand merci pour cette information.<br />Que je comprenne bien, le fait d&#039;indiquer le hostname lui fait changer son systeme d&#039;authentification...?</p><br /><p>Mathieu</p>]]></content>
+		<author>
+			<name><![CDATA[scubamat]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9957</uri>
+		</author>
+		<updated>2022-01-18T08:49:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33125#p33125</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Connexion via .pgpass]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33124#p33124"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><div class="quotebox"><blockquote><div><p>password authentication failed for user &quot;repmgr&quot;</p></div></blockquote></div><br /><p>À priori votre fichier .pgpass (ou peut être la variable $PGPASSWORD) a été utilisé, mais contient un mot de passe incorrect.&#160; J&#039;imagine que sans le hostname une autre méthode d&#039;authentication est utilisée (probablement peer), qui ne nécessite pas forcément de mot de passe.&#160; Ou alors il s&#039;agit d&#039;un autre serveur pour lequel le mot de passe est correct.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2022-01-18T05:44:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33124#p33124</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Connexion via .pgpass]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33123#p33123"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je rencontre actuellement des problèmes de connexion pour mon user repmgr<br />Il se trouve que la commande suivante fonctionne</p><div class="quotebox"><blockquote><div><p>psql -d repmgr -U repmgr -p 5657</p></div></blockquote></div><p>mais ne fonctionne pas en lui indiquant le hostname</p><div class="quotebox"><blockquote><div><p>psql -d repmgr -U repmgr -p 5657 -h slesbddrecha1<br />psql: error: connection to server at &quot;slesbddrecha1&quot; (10.14.10.227), port 5657 failed: FATAL:&#160; password authentication failed for user &quot;repmgr&quot;</p></div></blockquote></div><p>Contenu du fichier .pgpass</p><div class="quotebox"><blockquote><div><p>slesbddrecha1:5657:repmgr:repmgr:password</p></div></blockquote></div><p>J&#039;ai absolument besoin de mentionner le nom de serveur afin de pouvoir mettre en place la replication</p><div class="quotebox"><blockquote><div><p>conninfo=&#039;host=slesbddrecha1 user=repmgr dbname=repmgr connect_timeout=2 port=5657&#039;</p></div></blockquote></div><p>Une idée du pourquoi de ce comportement et un moyen de le resoudre svp?</p><p>Mathieu</p>]]></content>
+		<author>
+			<name><![CDATA[scubamat]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9957</uri>
+		</author>
+		<updated>2022-01-17T16:58:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33123#p33123</id>
+	</entry>
+</feed>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / [SQL] Manipulation des tables systèmes]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=199&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=199"/>
+	<updated>2009-03-14T20:57:31Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=199</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [SQL] Manipulation des tables systèmes]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=914#p914"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>table des index</p></div></blockquote></div><div class="codebox"><pre><code>SELECT * FROM pg_indexes;</code></pre></div><p>ou</p><div class="codebox"><pre><code>SELECT * FROM pg_class WHERE relkind=&#039;i&#039;;</code></pre></div><div class="quotebox"><blockquote><div><p>table des vue</p></div></blockquote></div><div class="codebox"><pre><code>SELECT * FROM pg_views;</code></pre></div><p>ou</p><div class="codebox"><pre><code>SELECT * FROM pg_class WHERE relkind=&#039;v&#039;;</code></pre></div><div class="quotebox"><blockquote><div><p>informations sur les utilisateurs</p></div></blockquote></div><p>Généralement, le plus simple pour trouver ses informations est d&#039;utiliser psql avec le mode -E et les méta commandes. Le mode -E permet de connaître les requêtes exécutées réellement par psql suite à la saisie d&#039;une métacommande comme \du (pour la liste des utilisateurs). Par exemple :</p><div class="codebox"><pre><code>guillaume@laptop$ psql -E pagila
+psql (8.4devel)
+Type &quot;help&quot; for help.
+
+pagila=# \du
+******** REQUÊTE *********
+SELECT r.rolname, r.rolsuper, r.rolinherit,
+  r.rolcreaterole, r.rolcreatedb, r.rolcanlogin,
+  r.rolconnlimit,
+  ARRAY(SELECT b.rolname
+        FROM pg_catalog.pg_auth_members m
+        JOIN pg_catalog.pg_roles b ON (m.roleid = b.oid)
+        WHERE m.member = r.oid) as memberof
+FROM pg_catalog.pg_roles r
+ORDER BY 1;
+**************************
+
+              Liste des rôles
+ Nom du rôle |    Attributes    | Membre de
+-------------+------------------+-----------
+ guillaume   | Superutilisateur | {}
+             : Créer un rôle
+             : Créer une base
+ postgres    | Superutilisateur | {}
+             : Créer un rôle
+             : Créer une base</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2009-03-14T20:57:31Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=914#p914</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[[SQL] Manipulation des tables systèmes]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=912#p912"/>
+		<content type="html"><![CDATA[<p>Bonsoir,</p><p>Après des recherches en vain, je reste toujours bloquée sur trois points principaux :<br />- table des index : je ne trouve pas la table qui contient les index, effectivement, je souhaite les lister.<br />- table des vues : même problème que précédemment, les vues ne sont pas stockés dans la &quot;table des tables&quot;.<br />- informations sur les utilisateurs : les droits qu&#039;ils possèdent, ce qu&#039;ils ont créés ( triggers, index, séquences, ect ...)</p><p>Je souhaite accéder à toutes ces informations par le biais de requête SQL, j&#039;ai déjà épluché forums, tutoriaux et contenus des différentes tables system mais je n&#039;ai trouvé nulle part.</p><p>Merci par avance pour votre aide,</p><p>NZs</p>]]></content>
+		<author>
+			<name><![CDATA[nzs]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=286</uri>
+		</author>
+		<updated>2009-03-14T18:03:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=912#p912</id>
+	</entry>
+</feed>

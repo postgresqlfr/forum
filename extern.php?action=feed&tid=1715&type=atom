@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / BLocage Postgres 8.4.4]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1715&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1715"/>
+	<updated>2011-10-28T14:18:45Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1715</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  BLocage Postgres 8.4.4]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11600#p11600"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Après analyse (nagios) , il apparait que l&#039;un des serveurs (machine virtuelle) qui héberge une de mes BDs&#160; est tombé, ce qui a du causer le&#160; pb lors du 2PC de de cette transaction qui impacte 4 BD postgres.&#160; Sur l&#039;autre cluster postgres sur un autre serveur qui héberge&#160; les 3 autres Bds&#160; RAS .</p><p>merci pour vos réponses.</p>]]></content>
+		<author>
+			<name><![CDATA[F.Chanson]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=409</uri>
+		</author>
+		<updated>2011-10-28T14:18:45Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11600#p11600</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  BLocage Postgres 8.4.4]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11599#p11599"/>
+		<content type="html"><![CDATA[<p>De toute façon <a href="http://blog.developpez.com/sqlpro/p10387/langage-sql-norme/le-mythe-du-commit-a-deux-phases/" rel="nofollow">et comme je l&#039;ai indiqué dans cet article</a>, le commit à deux phases ou Two Phase Comit (2PC) ne garantit pas l&#039;acidité des transactions, contrairement à ce que je voit trop souvent écrit, y compris dans certains manuel de PG comme : <a href="http://wiki.postgresql.org/images/8/86/PGDay2009-FR-Replication.pdf" rel="nofollow">http://wiki.postgresql.org/images/8/86/ … cation.pdf</a> page 12...</p><p>A +</p>]]></content>
+		<author>
+			<name><![CDATA[SQLpro]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1054</uri>
+		</author>
+		<updated>2011-10-28T13:23:09Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11599#p11599</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  BLocage Postgres 8.4.4]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11592#p11592"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>F.Chanson a écrit&#160;:</cite><blockquote><div><p>Bonjour, le Pb a été fixe </p><p>la table pg_stat_activity lors du drop constraint precise que la transaction est en waiting = true</p><p>Après investigation , la table était locké par une transaction qui avait échoué lors d&#039;un two-phase commit</p></div></blockquote></div><p>Je vous conseille très fortement de contrôler le 2PC: cela impacte les taches de maintenance et peut introduire beaucoup (trop) d&#039;espace mort dans vos tables et index.</p>]]></content>
+		<author>
+			<name><![CDATA[cedric]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=220</uri>
+		</author>
+		<updated>2011-10-27T14:58:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11592#p11592</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  BLocage Postgres 8.4.4]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11587#p11587"/>
+		<content type="html"><![CDATA[<p>Bonjour, le Pb a été fixe </p><p>la table pg_stat_activity lors du drop constraint precise que la transaction est en waiting = true</p><p>Après investigation , la table était locké par une transaction qui avait échoué lors d&#039;un two-phase commit </p><p>Correction apportée =&gt; faire un rollback&#160; manuel des transactions qui ont échouées.</p><p>&gt; psql -p nnnnn -h xxxxxx-U dbadmin postgres <br />psql (8.4.1, server 8.4.4)<br /> postgres=#&#160; SELECT database, gid FROM pg_prepared_xacts;<br />&#160; &#160; database&#160; &#160; |&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;gid&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; </p><p>----------------+------------------------------------------------------------------------------------------</p><p>db1&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;| 131075_MS0tN2RlZmY1YzU6Y2NhMDo0Y2QwMWZmNToxZjA2_LTdkZWZmNWM1OmNjYTA6NGNkMDFmZjU6MWYwZQ==</p><p>db1=# \connect&#160; db1&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;;<br />db1=# ROLLBACK PREPARED&#160; &#039;131075_MS0tN2RlZmY1YzU6Y2NhMDo0Y2QwMWZmNToxZjA2_LTdkZWZmNWM1OmNjYTA6NGNkMDFmZjU6MWYwZQ==&#039;;</p>]]></content>
+		<author>
+			<name><![CDATA[F.Chanson]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=409</uri>
+		</author>
+		<updated>2011-10-27T08:30:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11587#p11587</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  BLocage Postgres 8.4.4]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11566#p11566"/>
+		<content type="html"><![CDATA[<p>Bonjour.<br />Que donne la vue pg_stat_activity lors du drop constraint ? La requête est-elle bloquée ? (waiting = true)</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2011-10-26T13:10:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11566#p11566</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[BLocage Postgres 8.4.4]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11565#p11565"/>
+		<content type="html"><![CDATA[<p>Bonjour,&#160; </p><p>Postgres 8.4.4 se bloque sous psql et sous pgadmin lors de l’exécution de la&#160; commande&#160; suivante &quot;alter table xxxxxxxxxxx&#160; drop constraint FKE4E5D3E69E8C4A99 ;&quot;<br />La contrainte existe , un index existe sur la&#160; contrainte et&#160; la table fait 200.000 enregistrements<br />Aucune info dans les Logs<br />La base est en&#160; &quot;archive_mode à true &quot;<br />Cette commande est OK sur notre bd de développement&#160; </p><p>voici la séquence passée <br />1) Arrêt postgres<br />2) Démarrage postgres<br />3) passage sous psql<br />4) alter table xxxxxxxxxxx&#160; drop constraint FKE4E5D3E69E8C4A99 ;<br />Blocage postgres qui ne rend pas la main ..... <br />5) ctrl-c&#160; provoque l&#039;abandon de commande et j&#039;ai de nouveau la main sous psql</p><br /><p>faut-il détruire l&#039;index avant de détruire&#160; la&#160; contrainte ? ou ajouter&#160; &quot;l&#039;option CASCADE ?</p><p>merci d&#039;avance</p>]]></content>
+		<author>
+			<name><![CDATA[F.Chanson]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=409</uri>
+		</author>
+		<updated>2011-10-26T13:02:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11565#p11565</id>
+	</entry>
+</feed>

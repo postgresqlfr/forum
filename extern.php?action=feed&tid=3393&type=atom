@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Utilisation crosstab ou autre solution ?]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3393&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3393"/>
+	<updated>2015-06-12T07:21:12Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3393</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Utilisation crosstab ou autre solution ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22048#p22048"/>
+		<content type="html"><![CDATA[<p>Déplacez le &#039;COUNT(*)&#039; comme ci-dessous: </p><div class="codebox"><pre><code>SELECT * FROM crosstab (
+&#039;SELECT service,EXTRACT(YEAR FROM date)AS annee  ,COUNT(*) nb FROM device GROUP BY service,EXTRACT(YEAR FROM date) ORDER BY service,EXTRACT(YEAR FROM date)&#039; ,
+&#039;SELECT DISTINCT EXTRACT(YEAR FROM date) AS annee FROM device&#039;)
+as (service varchar, &quot;2011&quot; numeric, &quot;2012&quot; numeric, &quot;2013&quot; numeric, &quot;2014&quot; numeric)</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[guil31]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=4951</uri>
+		</author>
+		<updated>2015-06-12T07:21:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22048#p22048</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Utilisation crosstab ou autre solution ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21131#p21131"/>
+		<content type="html"><![CDATA[<p>Bonjour @ tous.</p><p>Je galère un peu à utiliser la fonction crosstab (que je n&#039;arrive pas vraiment à utiliser) sans vraiment savoir s&#039;il s&#039;agit de la solution idéale, je m&#039;explique :</p><p>J&#039;ai une table qui contient les champs suivants :</p><div class="codebox"><pre><code>Col1           Col2
+Service1      2014-02-10
+Service1      2014-02-10
+Service1      2013-02-10
+Service2      2011-02-10
+Service3      2012-02-10
+Service3      2013-02-10</code></pre></div><p>Ce que j&#039;aimerais obtenir c&#039;est :</p><div class="codebox"><pre><code>Col1          2011    2012    2013    2014
+Service1      0       0       1       2
+Service2      1       0       0       0
+Service3      0       1       1       0</code></pre></div><p>Pour obtenir ce résultat j&#039;ai tenté un crosstab dont j&#039;ai visiblement du mal à comprendre le comportement en faisant :</p><div class="codebox"><pre><code>SELECT * FROM crosstab (
+&#039;SELECT service,COUNT(*) nb,EXTRACT(YEAR FROM date)AS annee FROM device GROUP BY service,EXTRACT(YEAR FROM date) ORDER BY service,EXTRACT(YEAR FROM date)&#039; ,
+&#039;SELECT DISTINCT EXTRACT(YEAR FROM date) AS annee FROM device&#039;)
+as (service varchar,&quot;2010&quot; numeric, &quot;2011&quot; numeric, &quot;2012&quot; numeric, &quot;2013&quot; numeric, &quot;2014&quot; numeric)</code></pre></div><p>Et le résultat de cette requête me donne :</p><div class="codebox"><pre><code>Col1            2011  2012  2013  2014
+Service1
+Service2 
+Service3</code></pre></div><p>Merci de votre aide.</p><p>Geo-x</p>]]></content>
+		<author>
+			<name><![CDATA[Geo-x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1346</uri>
+		</author>
+		<updated>2014-12-09T09:07:35Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21131#p21131</id>
+	</entry>
+</feed>

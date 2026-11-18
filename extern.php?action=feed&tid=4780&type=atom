@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Syntaxe/sous-requête WHERE dans un CROSSTAB]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4780&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4780"/>
+	<updated>2018-06-07T18:02:55Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4780</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Syntaxe/sous-requête WHERE dans un CROSSTAB]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27758#p27758"/>
+		<content type="html"><![CDATA[<p>Je viens de découvrir l&#039;utilisation des CTE (Common Table Expression) avec WITH (l&#039;équivalent de votre syntaxe pour les requêtes imbriquées) qui rendent la construction de requêtes beaucoup plus aisées. Je vais persévérer encore un peu dans le postgreSQL...</p><p><a href="https://www.postgresql.org/docs/9.1/static/queries-with.html" rel="nofollow">https://www.postgresql.org/docs/9.1/sta … -with.html</a><br /><a href="http://www.portailsig.org/content/postgresql-focus-sur-les-requetes-sql-recursives" rel="nofollow">http://www.portailsig.org/content/postg … recursives</a> <br /><a href="http://www.craigkerstiens.com/2013/11/18/best-postgres-feature-youre-not-using/" rel="nofollow">http://www.craigkerstiens.com/2013/11/1 … not-using/</a></p>]]></content>
+		<author>
+			<name><![CDATA[robinson]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8040</uri>
+		</author>
+		<updated>2018-06-07T18:02:55Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27758#p27758</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Syntaxe/sous-requête WHERE dans un CROSSTAB]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27757#p27757"/>
+		<content type="html"><![CDATA[<p>Effectivement j&#039;avais repéré des syntaxes comme celle que vous proposez sur des forums pour passer outre les limites des fonctions AGGREGATE, mais ça ne permet par de l&#039;insérer dans un SELECT comme :<br />SELECT AVG(SUM(ST_AREA(geom)) FROM ...<br />Ce qui est limitant lorsque l&#039;on veut opérer des transformations de données sur des données déjà sélectionnées avec une procédure &quot;complexe&quot; (comme un CROSSTAB par exemple). Globalement je trouve que postgreSQL n&#039;est pas pratique pour &quot;produire de la donnée&quot;, c-a-d produire de nouvelles tables à partir de données transformées provenant d&#039;autres tables. J&#039;ai le sentiment que le SQL (et probablement le système relationnel) est plus conçu pour afficher et concaténer des données que pour les transformer, d’où l&#039;approche atypique de Sotos dans sa procédure... Ou alors c&#039;est que je ne suis pas suffisamment bon en SQL!</p>]]></content>
+		<author>
+			<name><![CDATA[robinson]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8040</uri>
+		</author>
+		<updated>2018-06-07T14:53:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27757#p27757</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Syntaxe/sous-requête WHERE dans un CROSSTAB]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27753#p27753"/>
+		<content type="html"><![CDATA[<p>Merci pour le retour positif sur les pivots dynamiques!</p><p>Sur ce problème</p><div class="quotebox"><blockquote><div><p>comme AVG(SUM(ST_AREA()) -&gt; aggregate function calls cannot be nested</p></div></blockquote></div><p>typiquement il faut imbriquer les calculs en sous-requête, du style:</p><div class="codebox"><pre><code> SELECT avg(s.v) FROM (select sum(valeur) AS v FROM table GROUP BY qqch) AS s;</code></pre></div><p>Les requêtes les plus complexes peuvent avoir beaucoup de niveaux d&#039;imbrication, et mentalement on conçoit ces niveaux d&#039;imbrication séparément pour arriver à comprendre ou produire ces requêtes.</p><br /><p>Pour la question sur choisir Rstat ou des solutions équivalentes ou SQL, personnellement n&#039;y connaissant rien en statistiques, je ne me rends pas vraiment compte de ce qu&#039;on fait avec et si c&#039;est mieux ou non. </p><p>En regardant la procédure de Sotos sur&#160; <a href="https://forums.postgresql.fr/viewtopic.php?id=4478" rel="nofollow">https://forums.postgresql.fr/viewtopic.php?id=4478</a> ce qui me paraît notable c&#039;est que pour son traitement toutes les colonnes numériques d&#039;une table se valent. C&#039;est-à-dire que sa procédure va calculer un paquet de statistiques sur les colonnes sans s&#039;occuper de savoir si c&#039;est un nombre de personnes, une durée en secondes, une taille, une surface... Cette manière d&#039;aborder les données est plutôt étrange du point de vue du mode de pensée relationnel, dans lequel chaque colonne a un sens individuellement, et donc l&#039;idée de considérer les colonnes de manière générique sort du cadre naturel.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2018-06-07T12:15:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27753#p27753</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Syntaxe/sous-requête WHERE dans un CROSSTAB]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27749#p27749"/>
+		<content type="html"><![CDATA[<p>@ dverite : Par curiosité, je suis allé voir sur votre blog, et votre dernier post traite exactement de ce dont je veux parler! Merci beaucoup pour cette documentation sur les pivots dynamiques, c&#039;est bien mieux que CROSSTAB!</p>]]></content>
+		<author>
+			<name><![CDATA[robinson]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8040</uri>
+		</author>
+		<updated>2018-06-06T20:27:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27749#p27749</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Syntaxe/sous-requête WHERE dans un CROSSTAB]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27748#p27748"/>
+		<content type="html"><![CDATA[<p>Ah... Je n&#039;avais pas bien compris la différence entre les deux versions de CROSSTAB. Effectivement j&#039;ai des valeurs NULL, ce qui explique le message d&#039;erreur. Merci beaucoup pour vos explications! Je veillerai par ailleurs à bien définir le type de mes colonnes, c&#039;est plus sûr. </p><br /><p>Par ailleurs, j&#039;ai une question plus globale :<br />j&#039;ai l&#039;impression que postgresql ne semble pas fait pour traiter les données d&#039;une base, mais plus pour l&#039;organiser et les afficher suivant des critères. <br />En effet, il n&#039;est pas possible de réaliser des chaînes de traitements statistiques complexes (comme AVG(SUM(ST_AREA()) -&gt; aggregate function calls cannot be nested) et la constitution de tableaux croisés dynamiques (fonction CROSSTAB) nécessite d&#039;expliciter les types des colonnes de sortie (donc pas pratique si la table d&#039;entrée est amenée à s&#039;incrémenter).</p><br /><p>Globalement, à l&#039;inverse de Sotos sur ce sujet (<a href="https://forums.postgresql.fr/viewtopic.php?id=4478" rel="nofollow">https://forums.postgresql.fr/viewtopic.php?id=4478</a>) dans son avant dernier post, je me demande si il est pertinent d&#039;utiliser postgreSQL pour réaliser des opérations de traitements statistiques sur des tables plutôt que d&#039;utiliser une autre solution comme Rstat liée à une base postgreSQL (surtout pour un novice comme moi qui suis incapable d&#039;écrire une procédure telle que celle de Sotos)?</p>]]></content>
+		<author>
+			<name><![CDATA[robinson]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8040</uri>
+		</author>
+		<updated>2018-06-06T19:57:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27748#p27748</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Syntaxe/sous-requête WHERE dans un CROSSTAB]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27747#p27747"/>
+		<content type="html"><![CDATA[<p>Pour les espaces, ce n&#039;est pas le problème: d&#039;ailleurs maintenant que vous avez une version qui marche, vous pouvez remettre les espaces, vous devriez observer que ça ne change rien. En tout cas pour les espaces qui servent juste à aérer le code biensûr, pas ceux qui ont une valeur sémantique.</p><br /><p>Pour la question de doubler les guillemets simples ou apostrophes, comme c&#039;est pénible on peut&#160; utiliser à la place&#160; la syntaxe dite &quot;guillemet dollar&quot; comme expliqué dans la doc ici: <a href="https://docs.postgresql.fr/10/sql-syntax.html" rel="nofollow">https://docs.postgresql.fr/10/sql-syntax.html</a><br />Cette syntaxe est très souvent utilisée pour encadrer blocs de code dans les CREATE FUNCTION, mais elle peut être utilisée pour toute chaîne de caractères.</p><br /><p>Pour l&#039;utilité de la deuxième requête c&#039;est plus compliqué. L&#039;algo utilisé par la fonction crosstab(text), c.a.d la fonction&#160; qui prend une seule requête en paramètre, n&#039;est pas le même que celui de la fonction qui prend deux requêtes: crosstab(text, text) En particulier, la première version est incapable de produire des &quot;cases vides&quot; dans le résultat s&#039;il se trouve que certains couples (nomzone,annee) sont absents. Dans ce cas la grille de résultats a des valeurs décalées et apparait fausse.</p><p>Ne pas oublier ces 2 remarques importantes de la doc de crosstab(text):<br />1. &quot;Les noms des colonnes en sortie n&#039;ont pas d&#039;importance en soi&quot;<br />2. &quot;Notez que crosstab ne fait pas attention à la deuxième colonne du résultat de la requête&quot;</p><p>En général on déconseille d&#039;utiliser la 1ere version crosstab(text), trop dangereuse quand on n&#039;est pas bien familier avec son fonctionnement.</p><br /><p>Indépendamment de ça l&#039;erreur &quot;return and sql tuple descriptions are incompatible&quot; paraît logique puisque SUM(ST_AREA(geom) doit être de type float (je pense?) alors que les colonnes 2006, 2007 etc.. sont déclarées &quot;varchar&quot;.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2018-06-06T16:38:03Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27747#p27747</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Syntaxe/sous-requête WHERE dans un CROSSTAB]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27746#p27746"/>
+		<content type="html"><![CDATA[<p>Problème résolu!<br />Il fallait tout simplement supprimer les espaces (ce qui est bizarre car dans les requêtes sans CROSSTAB fonctionnent avec les espaces) comme suit (et aussi pour précision, parce que j&#039;avais pas compris au début, il faut bien doubler les guillemets simple et non pas mettre des doubles guillemets) :</p><br /><p>SELECT * FROM CROSSTAB(<br />&#039;SELECT nomzone, annee, SUM(ST_AREA(geom) FROM parcellaire_total_test WHERE type=&#039;&#039;abattis frais&#039;&#039; GROUP BY nomzone, annee ORDER BY 1,2&#039;,<br />&#039;SELECT annee FROM parcellaire_total_test WHERE type=&#039;&#039;abattis frais&#039;&#039; GROUP BY annee ORDER BY annee&#039;<br />)<br />AS ct(&quot;nomzone&quot; varchar, &quot;2006&quot; varchar, &quot;2007&quot; varchar, &quot;2008&quot; varchar, &quot;2009&quot; varchar, &quot;2010&quot; varchar, &quot;2011&quot; varchar, &quot;2012&quot; varchar, &quot;2013&quot; varchar, &quot;2014&quot; varchar, &quot;2015&quot; varchar, &quot;2016&quot; varchar)</p><br /><p>Par contre je ne comprends toujours pas l&#039;utilité de &quot;doubler la requête&quot; par :</p><br /><p>&#039;SELECT annee FROM parcellaire_total_test WHERE type=&#039;&#039;abattis frais&#039;&#039; GROUP BY annee ORDER BY annee&#039;</p><br /><p>Si je l&#039;enlève, j&#039;obtiens une erreur de type :</p><br /><p>ERROR:&#160; return and sql tuple descriptions are incompatible<br />SQL state: 42601</p><br /><p>Mais je ne vois pas à quoi cela correspond.</p>]]></content>
+		<author>
+			<name><![CDATA[robinson]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8040</uri>
+		</author>
+		<updated>2018-06-06T13:45:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27746#p27746</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Syntaxe/sous-requête WHERE dans un CROSSTAB]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27745#p27745"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Désolé si mon post n&#039;était pas complet. Le message d&#039;erreur renvoie une erreur de syntaxe :<br />ERROR:&#160; syntax error at or near &quot;abattis&quot;<br />LINE 2: ...A(geom) FROM parcellaire_total_test WHERE type = &#039;abattis fr...<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; ^<br />SQL state: 42601<br />Character: 109</p><p>J&#039;avais déjà testé les doubles guillemets, qui renvoient l&#039;erreur suivante (mais j&#039;utilise la clause WHERE dans un SELECT avec des simples guillemets, donc j&#039;imagine que ça doit être la même chose ici).</p><p>ERROR:&#160; column &quot;abattis frais&quot; does not exist<br />LINE 1: ...CT annee FROM parcellaire_total_test WHERE type = &quot;abattis f...<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;^<br />QUERY:&#160; SELECT annee FROM parcellaire_total_test WHERE type = &quot;abattis frais&quot; GROUP BY annee ORDER BY annee<br />SQL state: 42703</p>]]></content>
+		<author>
+			<name><![CDATA[robinson]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8040</uri>
+		</author>
+		<updated>2018-06-06T11:56:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27745#p27745</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Syntaxe/sous-requête WHERE dans un CROSSTAB]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27742#p27742"/>
+		<content type="html"><![CDATA[<p>Merci de toujours indiquer le message d&#039;erreur quand une requête ne fonctionne pas ou d&#039;indiquer qu&#039;il n&#039;y a pas de message d&#039;erreur. En l&#039;occurence, si j&#039;essaie de jouer aux devinettes, je dirais que vous avez oublié de doubler les guillemets dans les deux clauses WHERE.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2018-06-06T06:11:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27742#p27742</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Syntaxe/sous-requête WHERE dans un CROSSTAB]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27741#p27741"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je fais appel une nouvelle fois à vos lumières pour résoudre le problème suivant.<br />J&#039;ai écrit ce code pour réaliser un CROSSTAB sur une table décrivant des polygones portant les informations (nomzone, annee, geom, type), afin de réaliser des calculs de surface de polygones en fonction des annees et des zones.</p><p>SELECT * FROM CROSSTAB(<br />&#039;SELECT nomzone, annee, SUM(ST_AREA(geom) FROM parcellaire_total_test GROUP BY nomzone, annee ORDER BY 1,2&#039;, <br />&#039;SELECT annee FROM parcellaire_total_test WHERE type = &#039;abattis frais&#039; GROUP BY annee ORDER BY annee&#039;<br />)<br />AS ct(&quot;nomzone&quot; varchar, &quot;2006&quot; varchar, &quot;2007&quot; varchar, &quot;2008&quot; varchar, &quot;2009&quot; varchar, &quot;2010&quot; varchar, &quot;2011&quot; varchar, &quot;2012&quot; varchar, &quot;2013&quot; varchar, &quot;2014&quot; varchar, &quot;2015&quot; varchar, &quot;2016&quot; varchar)</p><p>Ce code est fonctionnel (à priori, je n&#039;ai pas vérifié la cohérence des données).<br />Néanmoins, je souhaite rajouter une clause WHERE afin de séléctionner les données de sortie en fonction du type. J&#039;ai donc écrit :</p><p>SELECT * FROM CROSSTAB(<br />&#039;SELECT nomzone, annee, SUM(ST_AREA(geom) FROM parcellaire_total_test WHERE type = &#039;abattis frais&#039;&#039; GROUP BY nomzone, annee ORDER BY 1,2&#039;, <br />&#039;SELECT annee FROM parcellaire_total_test WHERE type = &#039;abattis frais&#039; GROUP BY annee ORDER BY annee&#039;<br />)<br />AS ct(&quot;nomzone&quot; varchar, &quot;2006&quot; varchar, &quot;2007&quot; varchar, &quot;2008&quot; varchar, &quot;2009&quot; varchar, &quot;2010&quot; varchar, &quot;2011&quot; varchar, &quot;2012&quot; varchar, &quot;2013&quot; varchar, &quot;2014&quot; varchar, &quot;2015&quot; varchar, &quot;2016&quot; varchar)</p><p>Mais après plusieurs essais de placement de la clause WHERE, aucune disposition ne marche. L&#039;utilisation de WHERE est-elle possible? Y a t&#039;il une autre fonction afin d&#039;arriver à mon résultat? Et dernière questions pouvez vous m&#039;expliquer la fonction du deuxième &#039;SELECT&#039;? Je n&#039;ai pas bien compris pourquoi elle était nécessaire (j&#039;ai bêtement recopié des scripts sur des forums).</p><p>Merci d&#039;avance!</p>]]></content>
+		<author>
+			<name><![CDATA[robinson]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8040</uri>
+		</author>
+		<updated>2018-06-05T21:30:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27741#p27741</id>
+	</entry>
+</feed>

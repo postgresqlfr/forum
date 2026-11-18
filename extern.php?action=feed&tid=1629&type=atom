@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Substituer un "vacuum full" par un truncate?]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1629&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1629"/>
+	<updated>2011-09-10T00:02:44Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1629</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Substituer un "vacuum full" par un truncate?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10880#p10880"/>
+		<content type="html"><![CDATA[<p>Sauf en 9.0 <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-09-10T00:02:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10880#p10880</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Substituer un "vacuum full" par un truncate?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10879#p10879"/>
+		<content type="html"><![CDATA[<p>Et sans compter qu&#039;un VACUUM FULL pourri les index <img src="http://forums.postgresql.fr/img/smilies/wink.png" width="15" height="15" alt="wink" /></p>]]></content>
+		<author>
+			<name><![CDATA[frost242]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=24</uri>
+		</author>
+		<updated>2011-09-09T21:07:06Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10879#p10879</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Substituer un "vacuum full" par un truncate?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10875#p10875"/>
+		<content type="html"><![CDATA[<p>Le VACUUM FULL va bloquer la table en cours de traitement. Cela étant dit, il est préférable de faire des VACUUM. Le gros du travail est d&#039;avoir suffisamment de VACUUM pour ne pas avoir besoin de VACUUM FULL tout en n&#039;en faisant pas trop pour ne pas surcharger le serveur.</p><p>L&#039;expérience montre qu&#039;il est souvent difficile de trouver le bon moment pour faire un VACUUM FULL. Et que ce moment peut changer. Il est déjà arrivé à un client que le VACUUM FULL se fasse bien une année durant et qu&#039;un jour le VACUUM FULL était toujours actif le matin à cause d&#039;une activité importante la veille. Résultat des courses : tout le monde bloqué le matin.</p><p>Bref tout ça pour dire : faites le maximum pour éviter d&#039;utiliser VACUUM FULL.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-09-09T14:55:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10875#p10875</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Substituer un "vacuum full" par un truncate?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10873#p10873"/>
+		<content type="html"><![CDATA[<p>1 - parce que le vacuum full est me semble-t-il plus efficace pour gagner de la place<br />2 - faire un vacuum full bloque de toute façon la base ;<br />3 - si je la mets en maintenance la nuit, j&#039;éviterai que des utilisateurs n&#039;y accèdent à ce moment-là (enfin c&#039;est pas garanti de toute façon surtout s&#039;ils ont des scripts qui tournent)</p>]]></content>
+		<author>
+			<name><![CDATA[yoyostras]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1149</uri>
+		</author>
+		<updated>2011-09-09T14:20:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10873#p10873</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Substituer un "vacuum full" par un truncate?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10872#p10872"/>
+		<content type="html"><![CDATA[<p>Pourquoi faire un vacuum full au lieu d&#039;un vacuum ?</p><p>Sinon, déjà, pour faire un truncate de la table puis un réimport des données, il faut qu&#039;aucun utilisateur n&#039;utilise la table à ce moment-là...</p>]]></content>
+		<author>
+			<name><![CDATA[flo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=216</uri>
+		</author>
+		<updated>2011-09-09T14:13:52Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10872#p10872</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Substituer un "vacuum full" par un truncate?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10871#p10871"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>étant donné que le temps mis pour lancer la commande &quot;vacuum full&quot; est prohibitif sur des tables volumineuses, je me posais une question :<br />au lieu de faire un vacuum full, est-ce équivalent de faire un pg_dump des données de la table, puis un truncate de la table en question, puis un pg_restore de la même table depuis le fichier créé?</p><p>Puisque la table est vide, je suppose que les index sont recréés en faisant le pg_restore?</p><p>Merci pour vos avis</p>]]></content>
+		<author>
+			<name><![CDATA[yoyostras]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1149</uri>
+		</author>
+		<updated>2011-09-09T13:41:31Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10871#p10871</id>
+	</entry>
+</feed>

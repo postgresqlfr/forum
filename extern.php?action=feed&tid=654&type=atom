@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Execution d'une requete lente seulement à la première exécution]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=654&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=654"/>
+	<updated>2010-03-03T12:45:29Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=654</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Execution d'une requete lente seulement à la première exécution]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4078#p4078"/>
+		<content type="html"><![CDATA[<p>Bonjour je vous remercie pour votre aide mais les différentes solutions n&#039;ont rien donné par contre en divisant la table_primaire en plusieurs tables nous obtenons des satisfaisaites, nous allons nous orienter vers cette solution.</p><p>Merci encore</p>]]></content>
+		<author>
+			<name><![CDATA[Mekhanik]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=667</uri>
+		</author>
+		<updated>2010-03-03T12:45:29Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4078#p4078</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Execution d'une requete lente seulement à la première exécution]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4064#p4064"/>
+		<content type="html"><![CDATA[<p>Il vous manque param_1 (je présume qu&#039;en vrai il s&#039;appelle stack) dans votre index composé pour que la réponse puisse être performante. Je pense que cette solution va marcher vu le plan.</p><p>Il vous faut un index composé sur param_1, param_2, param_3, param_4, pararm_5, time_idx, start_time desc<br />Si l&#039;index est dédié à cette requête, et que vous le reconstruisez tout les jours, essayez de classer les 6 premiers paramètres du plus discriminant au moins discriminant, cela diminuera le nombre de pages d&#039;index à aller chercher.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-03-02T14:43:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4064#p4064</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Execution d'une requete lente seulement à la première exécution]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4063#p4063"/>
+		<content type="html"><![CDATA[<p>Voici les résultats du test proposé :</p><p>explain analyze <br />select date_trunc( &#039;second&#039;, TIMESTAMP WITH TIME ZONE&#160; &#039;epoch&#039; + tmp.start_time/1000 * interval &#039;1 second&#039;) as &quot;Day&quot;,<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; to_char(TIMESTAMP WITH TIME ZONE &#039;epoch&#039; + (tmp.stop_time/1000) * interval &#039;1 second&#039;, &#039;HH24:MI:SS&#039;) as &quot;-&gt;&quot;,<br />tmp.* FROM<br />((SELECT <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; a.param_4_integer,<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; a.param5_integer,<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; COALESCE(a.champs3_char,&#039;&#039;) ,<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; a.champs_6_bigint,<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; a.champs_7_bigint,<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; a.champs_8_bigint,<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; a.champs_9_bigint,<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; a.champs_10_bigint as proc_id<br />&#160; &#160; from<br />&#160; &#160; &#160; &#160; table_primaire as a <br />&#160; &#160; WHERE<br />&#160; &#160; &#160; &#160; &#160; &#160; a.time_idx= 1267225200<br />&#160; &#160; &#160; &#160; &#160; &#160; AND a.param_2_integer = 329728<br />&#160; &#160; &#160; &#160; &#160; &#160; AND a.param_3_integer = 255&#160; <br />&#160; &#160; &#160; &#160; &#160; &#160; AND a.param_4_integer = 3<br />&#160; &#160; &#160; &#160; &#160; &#160; AND a.param_5_integer = 371 <br />&#160; &#160; &#160; &#160; &#160; &#160; AND a.param_1_integer&#160; = 12<br />&#160; &#160; order by start_time desc<br />&#160; &#160; limit 50)<br />UNION ALL<br />(SELECT <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; a.param_4_integer,<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; a.param5_integer,<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; COALESCE(a.champs3_char,&#039;&#039;) , <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; a.champs_6_bigint,<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; a.champs_7_bigint,<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; a.champs_8_bigint,<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; a.champs_9_bigint,<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; a.champs_10_bigint as proc_id<br />&#160; &#160; from<br />&#160; &#160; &#160; &#160; table_primaire as a <br />&#160; &#160; WHERE<br />&#160; &#160; &#160; &#160; &#160; &#160; a.time_idx= 1267225200<br />&#160; &#160; &#160; &#160; &#160; &#160; AND a.param_2_integer = 329728<br />&#160; &#160; &#160; &#160; &#160; &#160; AND a.param_3_integer = 255&#160; <br />&#160; &#160; &#160; &#160; &#160; &#160; AND a.param_4_integer = 3<br />&#160; &#160; &#160; &#160; &#160; &#160; AND a.param_5_integer = 371 <br />&#160; &#160; &#160; &#160; &#160; &#160; AND a.param_1_integer&#160; = 13<br />&#160; &#160; order by start_time desc<br />&#160; &#160; limit 50)) AS tmp order by start_time desc limit 50;</p><p>&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;QUERY PLAN<br />------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ Limit&#160; (cost=656.87..656.90 rows=10 width=88) (actual time=54675.783..54675.783 rows=0 loops=1)<br />&#160; &#160;-&gt;&#160; Sort&#160; (cost=656.87..656.90 rows=10 width=88) (actual time=54675.781..54675.781 rows=0 loops=1)<br />&#160; &#160; &#160; &#160; &#160;Sort Key: &quot;*SELECT* 1&quot;.start_time<br />&#160; &#160; &#160; &#160; &#160;Sort Method:&#160; quicksort&#160; Memory: 17kB<br />&#160; &#160; &#160; &#160; &#160;-&gt;&#160; Result&#160; (cost=0.00..656.71 rows=10 width=88) (actual time=54675.770..54675.770 rows=0 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Append&#160; (cost=0.00..656.46 rows=10 width=88) (actual time=54675.768..54675.768 rows=0 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Subquery Scan &quot;*SELECT* 1&quot;&#160; (cost=0.00..328.27 rows=9 width=88) (actual time=54661.435..54661.435 rows=0 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Limit&#160; (cost=0.00..328.18 rows=9 width=57) (actual time=54661.433..54661.433 rows=0 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Index Scan using table_primaire__start_time_desc__index on table_primaire a&#160; (cost=0.00..328.18 rows=9 width=57) (actual time=54661.430..54661)&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Index Cond: ((time_idx = 1267225200) AND (param_2_integer = 329728) AND (param_3_integer = 255) AND (param_4_integer = 3) AND (param_5_integer = 371))<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Filter: (stack = 12)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Subquery Scan &quot;*SELECT* 2&quot;&#160; (cost=0.00..328.19 rows=1 width=88) (actual time=14.329..14.329 rows=0 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Limit&#160; (cost=0.00..328.18 rows=1 width=57) (actual time=14.327..14.327 rows=0 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Index Scan using table_primaire__start_time_desc__index on table_primaire a&#160; (cost=0.00..328.18 rows=1 width=57) (actual time=14.324..14.324 r)&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Index Cond: ((time_idx = 1267225200) AND (type = param_2_integer) AND (subtype = param_3_integer) AND (param_4_integer = 3) AND (param_5_integer = 371))<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Filter: (stack = 13)<br /> Total runtime: 54675.899 ms<br />(17 rows)</p><p>Time: 54790.519 ms</p>]]></content>
+		<author>
+			<name><![CDATA[Mekhanik]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=667</uri>
+		</author>
+		<updated>2010-03-02T14:16:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4063#p4063</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Execution d'une requete lente seulement à la première exécution]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4062#p4062"/>
+		<content type="html"><![CDATA[<p>Ok, donc l&#039;augmentation de la RAM ne résoudra pas le problème je pense. Ou du moins ne le résoudra pas très longtemps.</p><p>Par contre, je vous demaindais la requête réécrite comme je vous l&#039;avais proposée (juste une des sous-requêtes suffira, avec une seule valeur de param_1), ainsi que le plan qu&#039;elle génère et la déclaration d&#039;index que vous avez faite.</p><p>Afin de savoir si la sous requête utilise ou non l&#039;index, et peut donc aller chercher directement les 50 enregistrements qiu vous intéressent.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-03-02T13:18:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4062#p4062</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Execution d'une requete lente seulement à la première exécution]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4061#p4061"/>
+		<content type="html"><![CDATA[<p>Tout est plus au début du post,<br />j&#039;ai juste anonymisée les champs mais la requête est exactement celle que j&#039;ai tenté.</p><p>La table_primaire grossis de 1 Millions de lignes environs toutes les nuits et ne bougent plus après, les index sont détruits avant insertion et recréés après, un analyze est ensuite lancé<br />La table_secondaire ne change jamais</p>]]></content>
+		<author>
+			<name><![CDATA[Mekhanik]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=667</uri>
+		</author>
+		<updated>2010-03-02T13:01:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4061#p4061</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Execution d'une requete lente seulement à la première exécution]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4059#p4059"/>
+		<content type="html"><![CDATA[<p>Est-ce qu&#039;il y aurait moyen d&#039;avoir la requête exacte que vous avez tentée, ainsi que le plan et la définition de l&#039;index créés ? Par ce que l&#039;augmentation de la RAM résoudra probablement le problème, mais seulement tant que le volume de données ne croit pas.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-03-02T12:48:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4059#p4059</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Execution d'une requete lente seulement à la première exécution]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4058#p4058"/>
+		<content type="html"><![CDATA[<p>Je viens de remarquer que mon effective_cache_size est configuré à 128 MB.<br />Puis-je l&#039;augmenter vu ma config ?<br />Qu&#039;apporte ce paramètre ?</p><p>Merci pour toutes vos réponses en tout cas.</p>]]></content>
+		<author>
+			<name><![CDATA[Mekhanik]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=667</uri>
+		</author>
+		<updated>2010-03-02T11:54:00Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4058#p4058</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Execution d'une requete lente seulement à la première exécution]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4057#p4057"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Pensez - vous que l&#039;utilisation d&#039;une vue donnant une table réduite pourrait améliorer les performances ?</p></div></blockquote></div><p>Non, pas de vue matérialisée avec PostgreSQL. Enfin, pas en natif.</p><div class="quotebox"><blockquote><div><p>Ou carrément la création d&#039;une sous-table ?</p></div></blockquote></div><p>Possible.</p><div class="quotebox"><blockquote><div><p>Nous allons bientot passer en 8Giga de ram et peut-être plus est-ce un moyen de gagner en performance dans ce cas ci ?</p></div></blockquote></div><p>Oui, à coup (pratiquement) sûr. Il faudra certainement modifier la conf de PostgreSQL, notamment shared_buffers et effective_cache_size.<br />Où est-ce que le nombre de ligne + la requete ne donneront rien de mieux niveau perf ?</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-03-02T11:11:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4057#p4057</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Execution d'une requete lente seulement à la première exécution]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4054#p4054"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />j&#039;ai fait le test mais cela ne donne qu&#039;une légère amélioration.<br />Le problème c&#039;est la mise en cache de l&#039;information je pense :<br />à la première exécution c&#039;est très long<br />à la deuxième aucun soucis<br />si je relance une autre requete c&#039;est très long<br />si je reviens sur la première c&#039;est très long<br />....</p><p>Pensez - vous que l&#039;utilisation d&#039;une vue donnant une table réduite pourrait améliorer les performances ?<br />Ou carrément la création d&#039;une sous-table ?</p><p>Je n&#039;ai pas d&#039;autre piste pour l&#039;instant.<br />Nous allons bientot passer en 8Giga de ram et peut-être plus est-ce un moyen de gagner en performance dans ce cas ci ?<br />Où est-ce que le nombre de ligne + la requete ne donneront rien de mieux niveau perf ?</p>]]></content>
+		<author>
+			<name><![CDATA[Mekhanik]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=667</uri>
+		</author>
+		<updated>2010-03-02T10:38:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4054#p4054</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Execution d'une requete lente seulement à la première exécution]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4049#p4049"/>
+		<content type="html"><![CDATA[<p>Ok, alors j&#039;enclenche le mode tordu <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>Un point que je relève au passage : à quoi sert la jointure sur c, je ne la vois nulle part dans le select (mais il est tôt <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /> )</p><p>Le problème de la requête, c&#039;est qu&#039;elle demande 50 enregistrements, mais a plusieurs critères sur param_1, et donc ne peut pas utiliser un parcours d&#039;index pour trouver les 50 plus récents correspondant au critère demandé. L&#039;autre problème, mais on ne pourra rien y faire, c&#039;est qu&#039;il estime à 223 le nombre d&#039;enregistrements rapportés par le parcours d&#039;index, au lieu de 15000. Donc que les critères sont davantage liés entre eux qu&#039;il ne le pense (corrélation entre les colonnes, on n&#039;a pas de stats là dessus).</p><p>Pour bien faire, la requête, si on avait un index sur (time_idx, param_1_integer, param_2_integer, param_3_integer, param_4_integer, param_5_integer, start_time_bigint DESC) devrait pouvoir répondre quasi instantanément si on lui demandait son résultat pour un seul param_1.</p><p>Commencez par vérifier ce point (créez un index composé comme indiqué, puis lancez la requête avec un seul param_1).</p><p>Si c&#039;est bien le cas, vous pouvez contourner le problème en écrivant :</p><p>SELECT date_trunc( &#039;second&#039;, TIMESTAMP WITH TIME ZONE&#160; &#039;epoch&#039; + start_time_bigint/1000 * interval &#039;1 second&#039;) as &quot;Day&quot;,<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; to_char(TIMESTAMP WITH TIME ZONE &#039;epoch&#039; + (a.stop_time_bigint/1000) * interval &#039;1 second&#039;, &#039;HH24:MI:SS&#039;) as &quot;-&gt;&quot;, <br />&#160; &#160; &#160; &#160; &#160; &#160; tmp.* FROM<br />(select&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;a.param_4_integer,<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; a.param5_integer,<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; COALESCE(a.champs3_char,&#039;&#039;) , <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; champs_4_char,<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; a.champs_6_bigint,<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; a.champs_7_bigint,<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; a.champs_8_bigint,<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; a.champs_9_bigint,<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; a.champs_10_bigint as proc_id<br />&#160; &#160; from<br />&#160; &#160; &#160; &#160; table_primaire as a <br /> WHERE<br />&#160; &#160; &#160; &#160; &#160; &#160; a.time_idx_bigint= 1266879600<br />&#160; &#160; &#160; &#160; &#160; &#160; AND a.param_2_integer = 329728<br />&#160; &#160; &#160; &#160; &#160; &#160; AND a.param_3_integer = 255&#160; <br />&#160; &#160; &#160; &#160; &#160; &#160; AND a.param_4_integer = 3<br />&#160; &#160; &#160; &#160; &#160; &#160; AND a.param_5_integer = 371 <br />&#160; &#160; &#160; &#160; &#160; &#160; AND a.param_1_integer&#160; = 12<br />&#160; &#160; order by start_time_bigint desc<br />LIMIT 50)<br />UNION ALL<br />(<br />(select&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;a.param_4_integer,<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; a.param5_integer,<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; COALESCE(a.champs3_char,&#039;&#039;) , <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; champs_4_char,<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; a.champs_6_bigint,<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; a.champs_7_bigint,<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; a.champs_8_bigint,<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; a.champs_9_bigint,<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; a.champs_10_bigint as proc_id<br />&#160; &#160; from<br />&#160; &#160; &#160; &#160; table_primaire as a <br /> WHERE<br />&#160; &#160; &#160; &#160; &#160; &#160; a.time_idx_bigint= 1266879600<br />&#160; &#160; &#160; &#160; &#160; &#160; AND a.param_2_integer = 329728<br />&#160; &#160; &#160; &#160; &#160; &#160; AND a.param_3_integer = 255&#160; <br />&#160; &#160; &#160; &#160; &#160; &#160; AND a.param_4_integer = 3<br />&#160; &#160; &#160; &#160; &#160; &#160; AND a.param_5_integer = 371 <br />&#160; &#160; &#160; &#160; &#160; &#160; AND a.param_1_integer&#160; = 13<br />&#160; &#160; order by start_time_bigint desc<br />LIMIT 50)<br />UNION ALL<br />…<br />LIMIT 50) AS tmp<br />LEFT JOIN table_secondaire&#160; as c on ( tmp.end_code_integer = c.end_code_integer ) <br /> order by start_time_bigint desc<br />&#160; &#160; limit 50;</p><p>(j&#039;ai probablement fait une erreur de syntaxe, n&#039;ayant pas pu la tester)</p><p>Si ça marche et passe par l&#039;index, vous n&#039;aurez que 450 enregistrements à aller chercher, au lieu de 15000.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-03-02T06:35:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4049#p4049</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Execution d'une requete lente seulement à la première exécution]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4048#p4048"/>
+		<content type="html"><![CDATA[<p>En dehors d&#039;un ajout de mémoire ou d&#039;un changement de schéma, je ne vois pas trop ce qu&#039;on peut faire.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-03-01T22:05:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4048#p4048</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Execution d'une requete lente seulement à la première exécution]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4046#p4046"/>
+		<content type="html"><![CDATA[<p>Du coup j&#039;ai créé un index pour chacune des colonnes, voici le résultat :<br />Mais du coup, je me dis que la construction d&#039;index n&#039;est peut-être pas optimum.</p><p>Dans ce cas chaque index fait quasiment 2 giga.</p><p> Limit&#160; (cost=277098.81..277098.93 rows=50 width=89) (actual time=215412.684..215412.807 rows=50 loops=1)<br />&#160; &#160;-&gt;&#160; Sort&#160; (cost=277098.81..277099.36 rows=223 width=89) (actual time=215412.681..215412.728 rows=50 loops=1)<br />&#160; &#160; &#160; &#160; &#160;Sort Key: a.start_time<br />&#160; &#160; &#160; &#160; &#160;Sort Method:&#160; top-N heapsort&#160; Memory: 23kB<br />&#160; &#160; &#160; &#160; &#160;-&gt;&#160; Hash Left Join&#160; (cost=183558.79..277091.40 rows=223 width=89) (actual time=203689.855..215370.352 rows=14794 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Hash Cond: (a.end_code = c.end_code)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Bitmap Heap Scan on table_primaire a&#160; (cost=183546.31..277070.28 rows=223 width=61) (actual time=203652.352..215159.757 rows=14794 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Recheck Cond: ((param_5_integer = 371) AND (param_2_integer = 329728))<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Filter: ((time_idx = 1267225200) AND (param_3_integer = 255) AND (param_4_integer = 3) AND (stack = ANY (&#039;{12,13,19,1,2,21,22,32,31}&#039;::integer[])))<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; BitmapAnd&#160; (cost=183546.31..183546.31 rows=25360 width=0) (actual time=120291.092..120291.092 rows=0 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Bitmap Index Scan on table_primaire__param_5_integer__index&#160; (cost=0.00..4059.09 rows=248713 width=0) (actual time=81.654..81.654 rows=263916 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Index Cond: (param_5_integer = 371)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Bitmap Index Scan on d_cms_activity__param_2_integer__index&#160; (cost=0.00..179486.86 rows=11026282 width=0) (actual time=120071.308..120071.308 rows=11102682 loo)&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Index Cond: (param_2_integer = 329728)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Hash&#160; (cost=7.77..7.77 rows=377 width=36) (actual time=16.658..16.658 rows=377 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Seq Scan on table_secondaire c&#160; (cost=0.00..7.77 rows=377 width=36) (actual time=8.223..16.259 rows=377 loops=1)<br /> Total runtime: 215422.419 ms</p>]]></content>
+		<author>
+			<name><![CDATA[Mekhanik]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=667</uri>
+		</author>
+		<updated>2010-03-01T17:51:06Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4046#p4046</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Execution d'une requete lente seulement à la première exécution]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4045#p4045"/>
+		<content type="html"><![CDATA[<p>je n&#039;avais pas vu, param_1 ne fait pas partie de l&#039;index.<br />&quot;table_primaire__start_time_desc__index&quot; btree (time_idx, param_2_integer, param_3_integer, param_4_integer, param_5_integer, start_time_bigint DESC)</p><p>Mais de toutes façons, je ne pense pas qu&#039;il puisse faire un range scan sur le start_time si on a plusieurs valeurs différentes pour param_1, donc ça ne résoudra pas le problème, qui est qu&#039;on récupère physiquement 15 000 enregistrements alors qu&#039;on en veut 50.</p><p>J&#039;aurais bien une solution pour cette requête, mais elle est un peu tirée par les cheveux, pas forcément simple de mise en oeuvre, et pas forcément applicable au reste de votre application, donc je ne vous la proposerai que quand vous aurez essayé ce que propose gleu.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-03-01T17:39:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4045#p4045</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Execution d'une requete lente seulement à la première exécution]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4043#p4043"/>
+		<content type="html"><![CDATA[<p>Limit&#160; (cost=328.74..328.86 rows=50 width=89) (actual time=66242.212..66242.324 rows=50 loops=1)<br />&#160; &#160;-&gt;&#160; Sort&#160; (cost=328.74..328.90 rows=66 width=89) (actual time=66242.209..66242.248 rows=50 loops=1)<br />&#160; &#160; &#160; &#160; &#160;Sort Key: a.start_time<br />&#160; &#160; &#160; &#160; &#160;Sort Method:&#160; top-N heapsort&#160; Memory: 23kB<br />&#160; &#160; &#160; &#160; &#160;-&gt;&#160; Hash Left Join&#160; (cost=12.48..326.74 rows=66 width=89) (actual time=90.535..66191.382 rows=14794 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Hash Cond: (a.end_code = c.end_code)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Index Scan using table_primaire__start_time_desc__index on table_primaire a&#160; (cost=0.00..311.70 rows=66 width=61) (actual time=74.016..65965.591 rows=14794 loop)&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Index Cond: ((time_idx = 1267225200) AND (param_2_integer = 329728) AND (param_3_integer = 255) AND (param_4_integer = 3) AND (param_5_integer = 371))<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Filter: (a.param_1_integer = ANY (&#039;{12,13,19,1,2,21,22,32,31}&#039;::integer[]))<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Hash&#160; (cost=7.77..7.77 rows=377 width=36) (actual time=16.473..16.473 rows=377 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Seq Scan on table_secondaire c&#160; (cost=0.00..7.77 rows=377 width=36) (actual time=7.120..16.068 rows=377 loops=1)<br /> Total runtime: 66242.448 ms</p><p>Voilà le résultat avec les valeur de l&#039;ensemble</p>]]></content>
+		<author>
+			<name><![CDATA[Mekhanik]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=667</uri>
+		</author>
+		<updated>2010-03-01T16:56:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4043#p4043</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Execution d'une requete lente seulement à la première exécution]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4040#p4040"/>
+		<content type="html"><![CDATA[<p>Autre hypothèse : à mon avis le IN (SELECT temp_param FROM params.table_txt WHERE mode= &#039;value&#039; )&#160; gêne la bonne exécution de la requête. Pouvez vous déjà la tester en remplaçant le IN par la liste des valeurs qu&#039;il génère ?</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-03-01T15:39:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4040#p4040</id>
+	</entry>
+</feed>

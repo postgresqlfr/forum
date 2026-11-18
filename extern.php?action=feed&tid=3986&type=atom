@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Problème d'utilisation du pg_restore]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3986&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3986"/>
+	<updated>2016-10-28T10:09:33Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3986</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème d'utilisation du pg_restore]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24214#p24214"/>
+		<content type="html"><![CDATA[<p>Merci pour l&#039;information Julien (concernant la dépréciation de la version 9.1).</p><p>Concernant mon problème vous m&#039;avez parlé, dans votre avant-dernier post du fichier &quot;pgpass&quot;.<br />Je suis donc allé voir de ce côté-là et en lisant la documentation j&#039;ai compris qu&#039;il fallait que j&#039;indique, suite à la table destination les options -h -p -U.<br />A partir de là, j&#039;ai utilisé le code proposé dans votre dernier post et cela fonctionne à merveille !</p><p>Un grand merci pour votre aide.</p><p>Geo-x</p>]]></content>
+		<author>
+			<name><![CDATA[Geo-x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1346</uri>
+		</author>
+		<updated>2016-10-28T10:09:33Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24214#p24214</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème d'utilisation du pg_restore]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24211#p24211"/>
+		<content type="html"><![CDATA[<p>L&#039;option a été ajoutée en 9.4.&#160; Au sujet de votre version, vous avez quand même 14 versions mineures de retard, soit un peu plus de 3 ans de retard sur les failles de sécurité et les bugs. De plus la version 9.1 sera obsolète d&#039;ici cet après midi.</p><br /><p>Concernant votre problème, vous souhaitez restaurer la sauvegarde d&#039;une base, disons production, dans une autre base, disons test, et que si la base test n&#039;existe pas créer cette base ?</p><p>Je ne pense pas qu&#039;il soit possible de le faire en une seule étape, je vous conseillerai plutôt:</p><div class="codebox"><pre><code>psql -AXtc &quot;DROP DATABASE IF EXISTS nouveau_nom&quot;
+psql -AXtc &quot;CREATE DATABASE nouveau_nom&quot;
+pg_restore -d nouveau_nom D:\mybackup.backup</code></pre></div><p>(et bien entendu de vérifier le code retour de chaque commande avant de passer à la suite)</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2016-10-27T13:28:52Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24211#p24211</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème d'utilisation du pg_restore]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24210#p24210"/>
+		<content type="html"><![CDATA[<p>Encore et toujours là Julien et une nouvelle fois merci de votre aide.</p><p>&quot;bdd_provisoire&quot; correpond au nom que je souhaite donner à la nouvelle BDD, j&#039;aurais aussi pu mettre &quot;choux-fleurs&quot;.</p><p>Si cette BDD existe déjà alors la remplacer. J&#039;ai déjà testé avec &quot;--if-exists&quot; mais j&#039;ai en retour le message : </p><div class="codebox"><pre><code>illegal option --if-exists</code></pre></div><p> (Je suis en version 9.1.9 de Postgres).</p><p>Alors j&#039;ai utilisé -w dans l&#039;objectif justement qu&#039;il ne me demande pas de mot de passe étant donné que je lance cette commande en &quot;Off&quot; ou invisible pour l&#039;utilisateur, il ne me faut donc pas de message de ce genre.</p><p>Je vais tester en ajoutant/enlevant les options&#160; &quot;-h et/ou -p et/ou -U&quot; voir ce que ça peut donner...</p>]]></content>
+		<author>
+			<name><![CDATA[Geo-x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1346</uri>
+		</author>
+		<updated>2016-10-27T12:45:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24210#p24210</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème d'utilisation du pg_restore]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24209#p24209"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>À quoi correspod bdd_provisoire exactement ? si pas &quot;remplacer&quot; vous voulez supprimer la base et en recréer une nouvelle cette commande devrait marcher :</p><div class="codebox"><pre><code>pg_restore -C -c --if-exists -d base_existante D:\mybackup.backup</code></pre></div><br /><p>Vous avez utilisé -w qui demande explicitement à ne pas demander de mot de passe, quitte à sortir en erreur. Je suppose que votre environnement fait qu&#039;en omettant le -h et/ou -p et/ou -U, une autre méthode d&#039;authentification est choisie, qui elle demande un mot de passe (ou votre fichier pgpass ne contient pas la bonne entrée si ces options ne sont pas présentes).</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2016-10-27T12:38:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24209#p24209</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Problème d'utilisation du pg_restore]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24207#p24207"/>
+		<content type="html"><![CDATA[<p>Bonjour @ tous.</p><p>Ok, le sujet fait légèrement doublon avec mon dernier post mais promis, le contenu est différent, je m&#039;explique.</p><p>Je tente de mettre en place une restauration de backup dans ma base de données.</p><p>Je souhaiterais que cette restauration, crée la BDD si elle n&#039;existe pas ou la remplace si elle existe.</p><p>Alors j&#039;ai testé mais en vain, j&#039;ai testé ça :</p><div class="codebox"><pre><code>pg_restore -h localhost -p 5432 -U postgres -C -d bdd_provisoire D:\mybackup.backup</code></pre></div><p>Mais là j&#039;ai &quot;bdd_provisoire does not exist&quot;</p><div class="codebox"><pre><code>pg_restore -C -d bdd_provisoire -w D:\mybackup.backup</code></pre></div><p>Mais là j&#039;ai &quot;fe_sendauth: no password supplied&quot;</p><p>Auriez-vous une idée sur la façon de procéder ?</p><p>Par avance merci.</p><p>Geo-x</p>]]></content>
+		<author>
+			<name><![CDATA[Geo-x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1346</uri>
+		</author>
+		<updated>2016-10-27T12:09:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24207#p24207</id>
+	</entry>
+</feed>

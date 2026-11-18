@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Monitorer perf : explain ?]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1102&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1102"/>
+	<updated>2010-12-17T13:38:48Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1102</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Monitorer perf : explain ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7012#p7012"/>
+		<content type="html"><![CDATA[<p>Ce n&#039;est pas documenté à ma connaissance.</p><p>Les valeurs entre crochets sont les valeurs cumulées depuis le début de la session. Contrairement aux valeurs pas entre crochets, qui ne concernent que l&#039;ordre précédent.</p><p>Ensuite une ligne 0.000028 elapsed 0.000000 user 0.000000 system sec<br />Signifie 28µs de temps total d&#039;exécution de la requête, pour 0 de temps d&#039;exécution &#039;user&#039; et 0 de temps d&#039;exécution &#039;sys&#039;. sys, c&#039;est la quantité de processeur consommé pendant les appels systèmes. user, c&#039;est le reste.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-12-17T13:38:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7012#p7012</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Monitorer perf : explain ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7011#p7011"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>Gil34 a écrit&#160;:</cite><blockquote><div><p>j&#039;avais déjà mis le log_min_duration-statement qui donne pas mal de renseignement sur le temps de réponse.</p><br /><p>A quoi correspond : 0.276957 user 0.210967 sys total&#160; &#160; &#160;c&#039;est du temps cpu consommé par l&#039;user et le temps cpu consommé par le systàme/&#160; </p><p>et comment interpreter la ligne : #011!#0110.000028 elapsed 0.000000 user 0.000000 system sec</p><p>Merci de votre aide<br />A+<br />Gilbert</p></div></blockquote></div><p>Je suppose que user et system font référence aux modes d&#039;exécution :<br /><a href="http://stackoverflow.com/questions/556405/what-do-real-user-and-sys-mean-in-the-output-of-time1" rel="nofollow">http://stackoverflow.com/questions/5564 … t-of-time1</a><br />(Que quelqu&#039;un m&#039;arrête si je dis des âneries!)<br />Je suppose donc que <br />0.000028 elapsed 0.000000 user 0.000000 system sec<br />c&#039;est 0.000028 en temps passé, mais 0 en temps CPU pour le processus en mode utilisateur, et 0 dans le noyau.</p><p>Je ne sais par contre pas à quoi correspond la ligne entourée par des crochets. Avez-vous cherché dans la documentation de PostgreSQL??</p>]]></content>
+		<author>
+			<name><![CDATA[flo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=216</uri>
+		</author>
+		<updated>2010-12-17T13:11:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7011#p7011</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Monitorer perf : explain ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7010#p7010"/>
+		<content type="html"><![CDATA[<p>j&#039;avais déjà mis le log_min_duration-statement qui donne pas mal de renseignement sur le temps de réponse.</p><p>Ensuite j&#039;ai mis (sur un environnement de test) log_statement_stats = on&#160; <br />et j&#039;obtiens des renseignements que j&#039;ai du mal à interpreter, par exemple :</p><p>ec 16 23:08:59 v222ent-db1 postgres[16408]: [2084-12] #011!#011Direct blocks:&#160; &#160; &#160; &#160; &#160; 0 read,&#160; &#160; &#160; &#160; &#160; 0 written<br />Dec 16 23:08:59 v222ent-db1 postgres[16408]: [2084-13] moodleINSTRUCTION :&#160; SELECT * FROM &quot;test&quot;<br />Dec 16 23:08:59 v222ent-db1 postgres[16408]: [2085-1] moodleLOG:&#160; durÃ©e : 0.009 ms&#160; exÃ©cute &lt;unnamed&gt;: SELECT * FROM &quot;test&quot;<br />Dec 16 23:08:59 v222ent-db1 postgres[16408]: [2086-1] moodleLOG:&#160; EXECUTE MESSAGE STATISTICS<br />Dec 16 23:08:59 v222ent-db1 postgres[16408]: [2086-2] moodleDÃ~ITAIL:&#160; ! system usage stats:<br /><span style="color: blue">Dec 16 23:08:59 v222ent-db1 postgres[16408]: [2086-3] #011!#0110.000028 elapsed 0.000000 user 0.000000 system sec<br />Dec 16 23:08:59 v222ent-db1 postgres[16408]: [2086-4] #011!#011[0.276957 user 0.210967 sys total]</span><br />Dec 16 23:08:59 v222ent-db1 postgres[16408]: [2086-5] #011!#0110/0 [0/0] filesystem blocks in/out<br />Dec 16 23:08:59 v222ent-db1 postgres[16408]: [2086-6] #011!#0110/0 [0/991] page faults/reclaims, 0 [0] swaps<br />Dec 16 23:08:59 v222ent-db1 postgres[16408]: [2086-7] #011!#0110 [0] signals rcvd, 0/0 [0/0] messages rcvd/sent<br />Dec 16 23:08:59 v222ent-db1 postgres[16408]: [2086-8] #011!#0110/0 [2601/81] voluntary/involuntary context switches<br />Dec 16 23:08:59 v222ent-db1 postgres[16408]: [2086-9] #011! buffer usage stats:<br />Dec 16 23:08:59 v222ent-db1 postgres[16408]: [2086-10] #011!#011Shared blocks:&#160; &#160; &#160; &#160; &#160; 0 read,&#160; &#160; &#160; &#160; &#160; 0 written, buff</p><p>A quoi correspond : 0.276957 user 0.210967 sys total&#160; &#160; &#160;c&#039;est du temps cpu consommé par l&#039;user et le temps cpu consommé par le systàme/&#160; </p><p>et comment interpreter la ligne : #011!#0110.000028 elapsed 0.000000 user 0.000000 system sec</p><p>Merci de votre aide<br />A+<br />Gilbert</p>]]></content>
+		<author>
+			<name><![CDATA[Gil34]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=521</uri>
+		</author>
+		<updated>2010-12-17T08:52:21Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7010#p7010</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Monitorer perf : explain ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7005#p7005"/>
+		<content type="html"><![CDATA[<p>Le temps de réponse d&#039;une requête, c&#039;est facile: log_min_duration_statement par exemple vous permettra de le tracer.</p><p>La consommation CPU n&#039;est pas tracée, sauf à activer log_executor_stats, mais là ça va devenir très gourmand.</p><p>Par ailleurs, avoir une forte charge cpu sur un test de charge d&#039;une base de données, c&#039;est normal. C&#039;est même plutôt bon signe, ça veut dire que vous avez suffisamment de RAM ou des disques suffisamment puissants pour ne pas avoir d&#039;attentes d&#039;entrées-sorties.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-12-16T08:23:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7005#p7005</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Monitorer perf : explain ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7004#p7004"/>
+		<content type="html"><![CDATA[<p>J&#039;entends mar minitorer : consommation CPU&#160; et&#160; temps de réponse à la requete faite.</p><p>Pour le moment mon souci est surtout la consommation CPU. Postgres tourne sur un vserver et lorsqu&#039;on fait un test de charge la CPU du système hote &quot;explose&quot; avec un load-average important.</p>]]></content>
+		<author>
+			<name><![CDATA[Gil34]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=521</uri>
+		</author>
+		<updated>2010-12-16T08:06:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7004#p7004</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Monitorer perf : explain ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6993#p6993"/>
+		<content type="html"><![CDATA[<p>C&#039;est suffisamment vague pour ne pas pouvoir vous répondre.</p><p>Explain n&#039;est pas un outil de monitoring, c&#039;est un outil de diagnostic. Explain ne vous aidera pas à découvrir quelle requête est lente, mais pourquoi elle est lente.</p><p>Si c&#039;est vraiment du monitoring que vous cherchez, il y a déjà le &#039;log_min_duration_statement&#039;, qui tracera les requêtes qui durent plus d&#039;un certain temps.</p><p>Sinon, il y a deux modules de contrib intéressants : pg_stat_statements et autoexplain. Mais ils ne sont disponibles qu&#039;à partir de la 8.4. Le premier fournit une vue mémoire avec les requêtes les plus fréquentes et leur durée, le second trace le plan d&#039;exécution des requêtes les plus lentes, directement dans la log.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-12-15T08:40:02Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6993#p6993</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Monitorer perf : explain ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6992#p6992"/>
+		<content type="html"><![CDATA[<p>Par curiosité c&#039;est quoi que vous appeler &quot;monitorer les perfs des requetes&quot; ? </p><p>Leur vitesse d&#039;execution ? leur consommation cpu ? i/O ?</p>]]></content>
+		<author>
+			<name><![CDATA[kenrio]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=964</uri>
+		</author>
+		<updated>2010-12-15T08:39:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6992#p6992</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Monitorer perf : explain ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6991#p6991"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Pour monitorer les perfs des requetes, y a t il un autre moyen que explain ? Car étant dans un centre hébergeur j&#039;aimerai savoir s&#039;il n&#039;existe pas une commande évitant de &quot;tripatouiller&quot; les sources.</p><p>Merci de votre aide et suggestions</p><p>Gilbert</p>]]></content>
+		<author>
+			<name><![CDATA[Gil34]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=521</uri>
+		</author>
+		<updated>2010-12-15T08:33:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6991#p6991</id>
+	</entry>
+</feed>

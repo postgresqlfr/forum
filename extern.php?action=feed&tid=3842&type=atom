@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Rupture Comm sur Streaming replication]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3842&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3842"/>
+	<updated>2016-05-27T11:08:48Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3842</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Rupture Comm sur Streaming replication]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23498#p23498"/>
+		<content type="html"><![CDATA[<p>Super, merci Marc.</p>]]></content>
+		<author>
+			<name><![CDATA[mortimer.pw]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=573</uri>
+		</author>
+		<updated>2016-05-27T11:08:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23498#p23498</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Rupture Comm sur Streaming replication]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23497#p23497"/>
+		<content type="html"><![CDATA[<p>Oui, vous aurez les WAL dans l&#039;archive. C&#039;est une des raisons pour lesquelles il est intéressant d&#039;avoir une archive en plus du streaming.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2016-05-27T10:47:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23497#p23497</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Rupture Comm sur Streaming replication]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23495#p23495"/>
+		<content type="html"><![CDATA[<p>Donc si mon esclave traîne à redémarrer et que je n&#039;ai pas défini de slot de réplication mais que j&#039;ai activé l&#039;archivage, les enregistrements WAL non transférés seront stockés dans les fichiers WAL archivés ?<br />Et comme mon esclave va les lire en redémarrant, tout va bien ?</p>]]></content>
+		<author>
+			<name><![CDATA[mortimer.pw]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=573</uri>
+		</author>
+		<updated>2016-05-27T10:09:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23495#p23495</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Rupture Comm sur Streaming replication]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23494#p23494"/>
+		<content type="html"><![CDATA[<p>Oui, les WAL sont recyclés au bout d&#039;un moment… sauf dans deux cas:</p><p>- si vous avez déclaré un slot de réplication, dans ce cas le maître sait où en est chacun des esclaves identifiés par replication slot, et garde les journaux aussi longtemps que nécessaire<br />- si la commande d&#039;archivage échoue… tant qu&#039;elle ne réussit pas, un fichier de WAL n&#039;est pas recyclable.S&#039;il y a une commande d&#039;archivage bien sûr.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2016-05-27T09:59:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23494#p23494</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Rupture Comm sur Streaming replication]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23493#p23493"/>
+		<content type="html"><![CDATA[<p>Bonjour Marc,<br />Merci pour la réponse.<br />J&#039;ai un peu de mal avec le mécanisme.<br />Les enregistrements WAL sont stockés dans les fichiers WAL &quot;courants&quot; et transférés sur l&#039;esclave au fil de l&#039;eau ?<br />Si je perds mon esclave, que se passe t&#039;il ? les enregistrements WAL s&#039;accumulent dans les fichiers WAL. Mais ils vont être recyclés au bout d&#039;un moment ?<br />Voulez-vous bien m&#039;éclairer sur le sujet, svp ?</p>]]></content>
+		<author>
+			<name><![CDATA[mortimer.pw]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=573</uri>
+		</author>
+		<updated>2016-05-27T09:42:29Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23493#p23493</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Rupture Comm sur Streaming replication]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23491#p23491"/>
+		<content type="html"><![CDATA[<p>Bonjour, ce sont les paramètres qui régissent le keepalive. C&#039;est directement pris en compte par l&#039;OS (c&#039;est un paramètre de socket).</p><p>idle, c&#039;est le temps depuis lequel une session tcp est inactive avant d&#039;activer le mécanisme de keepalive.<br />interval, c&#039;est l&#039;espace entre les envois de paquets de keepalive (si on n&#039;a pas de réponse bien sûr)<br />count, c&#039;est le nombre de keepalives avant de considérer la session tcp comme morte. 0 ça veut dire utiliser la valeur par défaut du système...</p><p>Sous linux, par exemple, les valeurs par défaut sont:</p><p>net.ipv4.tcp_keepalive_intvl = 75<br />net.ipv4.tcp_keepalive_probes = 9<br />net.ipv4.tcp_keepalive_time = 7200</p><p>Le paramétrage semble bon. Par contre, en 9.5, c&#039;est wal_sender_timeout et wal_receiver_timeout, qui sont utilisés pour les sessions de réplication</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2016-05-27T09:09:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23491#p23491</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Rupture Comm sur Streaming replication]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23489#p23489"/>
+		<content type="html"><![CDATA[<p>Bonjour Guillaume,</p><p>Effectivement, la communication est revenue, c&#039;est juste un peu long.</p><p>Est-ce lié aux paramètres ci-dessous du PostgreSQL.conf ?<br />&#160; &#160; &#160; &#160; &#160; tcp_keepalives_idle = 10<br />&#160; &#160; &#160; &#160; &#160; tcp_keepalives_interval = 10<br />&#160; &#160; &#160; &#160; &#160; tcp_keepalives_count = 0</p><p>Comment cela fonctionne-t-il ?<br />J&#039;ai activé l&#039;archivage des fichiers WAL.<br />Le transfert des enregistrements WAL se fait au travers du réseau.<br />Si celui-ci est coupé, est-ce que les enregistrements WAL sont stockés dans les fichiers WAL ?<br />Puis archivés ?<br />Puis restaurés sur l&#039;esclave ?</p><p>Pourriez-vous décrire le mécanisme, svp ?</p><p>Merci.</p>]]></content>
+		<author>
+			<name><![CDATA[mortimer.pw]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=573</uri>
+		</author>
+		<updated>2016-05-27T07:28:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23489#p23489</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Rupture Comm sur Streaming replication]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23486#p23486"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>La communication entre les 2 n&#039;est pas restaurée automatiquement ?</p></div></blockquote></div><p>Si.</p><div class="quotebox"><blockquote><div><p>Je dois faire un pg_ctl reload sur le Maître pour redémarrer Sender/Receiver. Est-ce normal ?</p></div></blockquote></div><p>Non.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2016-05-27T07:19:00Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23486#p23486</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Rupture Comm sur Streaming replication]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23485#p23485"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je travaille sur un moteur 9.5.3 sous Cent-OS 7.2. J&#039;ai 2 VM pour moi tester la haute disponibilité.</p><p>J&#039;ai mis&#160; en place la STREAMING REPLICATION.</p><p>J&#039;arrête l&#039;esclave.</p><p>J&#039;insère 10000 lignes sur le Maître.</p><p>Je redémarre l&#039;esclave, les 10000 lignes ne sont pas là.</p><p>La communication entre les 2 n&#039;est pas restaurée automatiquement ?<br />Je dois faire un pg_ctl reload sur le Maître pour redémarrer Sender/Receiver. Est-ce normal ?</p><p>Merci pour votre aide.</p>]]></content>
+		<author>
+			<name><![CDATA[mortimer.pw]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=573</uri>
+		</author>
+		<updated>2016-05-27T06:35:54Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23485#p23485</id>
+	</entry>
+</feed>

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / WARNING:pgstat wait timeout]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2577&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2577"/>
+	<updated>2013-04-01T09:18:43Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2577</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  WARNING:pgstat wait timeout]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17004#p17004"/>
+		<content type="html"><![CDATA[<p>Merci beaucoup julien.</p>]]></content>
+		<author>
+			<name><![CDATA[lemjid]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1579</uri>
+		</author>
+		<updated>2013-04-01T09:18:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17004#p17004</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  WARNING:pgstat wait timeout]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17003#p17003"/>
+		<content type="html"><![CDATA[<p>Cela dépend de l&#039;activité en écriture sur le maître. Il faut que les checkpoints soient assez fréquent pour que le shared_buffers ne soit pas saturé en permanence. S&#039;il n&#039;y a pas trop d&#039;activité en écriture, un checkpoint_delai de 5 minutes devrait convenir. Il faut donc que le checkpoint_segment soit supérieur au nombre moyen de wal généré en 5 minutes.</p><p>Pour avoir une idée de l&#039;activité, tu peux monitorer le nombre de wal généré par minute ou heure, et regarder les infos dans la vue pg_stat_bgwriter pour voir s&#039;il y a une contention sur le shared_buffers.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2013-03-31T22:36:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17003#p17003</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  WARNING:pgstat wait timeout]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17001#p17001"/>
+		<content type="html"><![CDATA[<p>Avec un shared_buffer de ~3GB, un checkpoint_segment à 40 et un wal_buffers à 32MB que peut on me conseiller pour le &quot;archive_timeout&quot; et le &quot;checkpoint_timeout&quot;?</p><p>Merci d&#039;avance</p>]]></content>
+		<author>
+			<name><![CDATA[lemjid]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1579</uri>
+		</author>
+		<updated>2013-03-31T14:01:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17001#p17001</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  WARNING:pgstat wait timeout]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16974#p16974"/>
+		<content type="html"><![CDATA[<p>Cela dépend de beaucoup de choses. Idéalement le checkpoint doit se déclencher par le timeout et non le checkpoint_segments, il fuat donc ajuster celui-ci pour qu&#039;il soit légèrement supérieur aux nombres de wal générés durant le timeout, bien évidemment si vos shared_buffers est capable d&#039;absorber cette charge. La vue pg_stat_bgwriter vous donnera des informations sur les checkpoint et le bgrwriter par exemple. Il faut également prendre en compte la configuration disque, le niveau de raid, la répartition des données, les traitements effectués etc. Bref il n&#039;y a pas de solution universelle.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2013-03-27T18:59:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16974#p16974</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  WARNING:pgstat wait timeout]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16973#p16973"/>
+		<content type="html"><![CDATA[<p>Merci encore,</p><p>Je suis entièrement d&#039;accord avec toi julien. J&#039;ai commencer par augmenter le checkpoint_segments à 40 pour un FS pg_xlog de 6Go. Je ne sais pas exactement ce que je peut faire aussi. Je fait un &quot;disable autovacuum&quot; avant traitement pour baisser la charge d&#039;ecriture...?? y a t il d&#039;autre pistes STP.</p><p>Voici la config de corosync mais pour l&#039;instant ce n&#039;ai pas la préoccupation majeure, le plus urgent c&#039;est ce pbm de gestion I/O.<br />#crm configure show<br />node MAITRE<br />node ESCLAVE<br />primitive pgsql-ip ocf:heartbeat:IPaddr2 \<br />&#160; &#160; &#160; &#160; params ip=&quot;x.x.x.x&quot; cidr_netmask=&quot;24&quot; \<br />&#160; &#160; &#160; &#160; op monitor interval=&quot;20s&quot; \<br />&#160; &#160; &#160; &#160; meta is-managed=&quot;true&quot;<br />primitive pgsqld ocf:pgsql:PostgreSQL \<br />&#160; &#160; &#160; &#160; op start interval=&quot;0&quot; timeout=&quot;120s&quot; \<br />&#160; &#160; &#160; &#160; op stop interval=&quot;0&quot; timeout=&quot;120s&quot; \<br />&#160; &#160; &#160; &#160; op monitor interval=&quot;20s&quot; \<br />&#160; &#160; &#160; &#160; meta is-managed=&quot;true&quot;<br />colocation pgsqld_with_pgsql-ip inf: pgsql-ip pgsqld<br />property $id=&quot;cib-bootstrap-options&quot; \<br />&#160; &#160; &#160; &#160; dc-version=&quot;1.1.6-3.el6-a02c0f19a00c1eb2527ad38f146ebc0834814558&quot; \<br />&#160; &#160; &#160; &#160; cluster-infrastructure=&quot;openais&quot; \<br />&#160; &#160; &#160; &#160; expected-quorum-votes=&quot;2&quot; \<br />&#160; &#160; &#160; &#160; stonith-enabled=&quot;false&quot; \<br />&#160; &#160; &#160; &#160; no-quorum-policy=&quot;ignore&quot; \<br />&#160; &#160; &#160; &#160; last-lrm-refresh=&quot;1364405383&quot;<br />rsc_defaults $id=&quot;rsc-options&quot; \<br />&#160; &#160; &#160; &#160; resource-stickiness=&quot;INFINITY&quot; \<br />&#160; &#160; &#160; &#160; migration-threshold=&quot;3&quot;</p><br /><p>Bien à toi</p>]]></content>
+		<author>
+			<name><![CDATA[lemjid]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1579</uri>
+		</author>
+		<updated>2013-03-27T18:19:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16973#p16973</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  WARNING:pgstat wait timeout]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16972#p16972"/>
+		<content type="html"><![CDATA[<p>Quelles sont les conditions de bascule sur votre cluster ? Il est plus probable que ce soit une surcharge qui ai causé la bascule et l&#039;affichage de ce message.</p><p>En ce qui concerne les unlogged tables, elles ne sont pas journalisées et ne génèrent donc pas de wal.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2013-03-27T17:32:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16972#p16972</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  WARNING:pgstat wait timeout]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16971#p16971"/>
+		<content type="html"><![CDATA[<p>Merci &quot;rjuju&quot;,<br />C&#039;est quand même grave car ça m&#039;a coûté une bascule sur l&#039;esclave par pacemaker à un moment donné.<br />Est ce que le fait que les traitement font un &quot;CREATE UNLOGGED TABLE table_temp AS select from table....&quot; engendre de l&#039;ecriture de plus si j&#039;augmente mon &quot;checkpoint_segments&quot; pourra aider à ne pas générer des I/O d&#039;avantage? Sinon que pourrais je faire?</p><p>Merci d&#039;avance</p>]]></content>
+		<author>
+			<name><![CDATA[lemjid]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1579</uri>
+		</author>
+		<updated>2013-03-27T14:53:02Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16971#p16971</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  WARNING:pgstat wait timeout]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16970#p16970"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>en général le message apparaît quand il y a trop d&#039;I/O sur le système, et cela pénalise le stats collector. Sauf si ces messages continuent à être loggés continuellement, ce n&#039;est pas un problème.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2013-03-27T14:02:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16970#p16970</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[WARNING:pgstat wait timeout]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16968#p16968"/>
+		<content type="html"><![CDATA[<p>Bonjour à toutes et à tous,</p><p>Je rencontre un problème sur ma base en streaming réplication, version ( PostgreSQL 9.1.6 on x86_64-unknown-linux-gnu, compiled by gcc (GCC) 4.4.6 20120305 (Red Hat 4.4.6-4), 64-bit).<br />Dans le log pendant le traitement de la nuit des message répétitifs &quot;WARNING : pgstat wait timeout&quot;.<br />J&#039;ai fait la tour dans google, Hélas je n&#039;ai pas trouvé une réponse qui correspond à mon problème.<br />Est ce que quelqu&#039;un pourra m&#039;aiguiller SVP?</p><p>Merci d&#039;avance</p>]]></content>
+		<author>
+			<name><![CDATA[lemjid]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1579</uri>
+		</author>
+		<updated>2013-03-27T13:05:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16968#p16968</id>
+	</entry>
+</feed>

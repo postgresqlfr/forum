@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / problème replication avec postgresql 8.3]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1937&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1937"/>
+	<updated>2012-03-08T14:05:00Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1937</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  problème replication avec postgresql 8.3]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13078#p13078"/>
+		<content type="html"><![CDATA[<p>Merci beaucoup pour cette réponse claire et rapide</p>]]></content>
+		<author>
+			<name><![CDATA[mlecot]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1586</uri>
+		</author>
+		<updated>2012-03-08T14:05:00Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13078#p13078</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  problème replication avec postgresql 8.3]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13077#p13077"/>
+		<content type="html"><![CDATA[<p>Ah. C&#039;est un bug (mineur, la plupart du temps) de la 8.3, ça a été corrigé depuis. Effectivement, il faudra prévoir d&#039;ignorer ce fichier dans votre script.</p><p>À chaque fois qu&#039;on fait une récupération partielle (un PITR) et qu&#039;on ouvre la base, ça crée une nouvelle timeline, donc un nouveau fichier history. Sauf évidemment pour la timeline 1, qui est celle créée au départ. Le fichier 000001.history n&#039;existe pas, mais c&#039;est normal. PostgreSQL lui même ignore cette erreur. Donc soit vous vérifiez dans votre script qu&#039;on vous demande ce fichier, et vous l&#039;ignorez, soit vous vous arrangez pour que votre script retourne $RETVAL comme code retour, que PostgreSQL puisse s&#039;en sortir. Le code retour de ces scripts est capital.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2012-03-08T13:30:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13077#p13077</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  problème replication avec postgresql 8.3]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13076#p13076"/>
+		<content type="html"><![CDATA[<p>avec le 2&gt;&amp;1 positionné, j&#039;ai le massage suivant dans le fichier /var/log/postgresql/RestaurationDebug.log:<br />cp: cannot stat `/var/lib/pgsql/xlog_maitre/00000001.history&#039;: No such file or directory<br />cp: cannot stat `/var/lib/pgsql/xlog_maitre/00000001.history&#039;: No such file or directory</p><p>ce fichier n&#039;est pas contenu dans le pg_xlog du maitre<br />Pourquoi pg_standby cherche t il a acceder à ce fichier ?</p><p>Il semblerait cependant que malgré ce compte rendu negatif du retour de pg_standby,<br />les wal buffers soient bien copiés dans la database esclave, si j&#039;arrête le processus de replication</p>]]></content>
+		<author>
+			<name><![CDATA[mlecot]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1586</uri>
+		</author>
+		<updated>2012-03-08T13:22:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13076#p13076</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  problème replication avec postgresql 8.3]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13075#p13075"/>
+		<content type="html"><![CDATA[<p>Vous pouvez déjà commencer par rajouter un 2&gt;&amp;1 à la fin de votre commande pg_standby pour récupérer aussi son stderr dans $LOGDEBUG, cela vous permettra peut-être de récupérer le message d&#039;erreur.</p><p>Sinon, difficile de vous dire comme ça ce qui ne va pas. Ça semble être bon, mais en script shell, chaque caractère compte et peut être la cause d&#039;une erreur <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2012-03-08T10:16:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13075#p13075</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[problème replication avec postgresql 8.3]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13074#p13074"/>
+		<content type="html"><![CDATA[<p>bonjour,<br />j&#039;essaie de tester la replication avec la version 8.3 de postgresql.<br />pour ce faire j&#039;ai un service &quot;replication&quot; sur la machine slave qui la lance.<br />ce service positionne sur le maitre l&#039;archiving par une commande ssh :<br />archive_mode = on<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # (change requires restart)<br />archive_command = &#039;/usr/bin/archivage.sh %p %f&#039; <br />puis relance le service.&#160; &#160;</p><p>le script /usr/bin/archivage.sh&#160; fait notamment:<br />scp $p ${SLAVE}:/var/lib/pgsql/xlog_maitre/$f et logge le resultat dans un fichier de log.</p><p>le service replication sur l&#039;esclave lance un backup sur le maitre par un script qui execute les actions suivantes:<br />psql -c &quot;SELECT pg_start_backup(&#039;label&#039;)&quot; postgres <br />scp -r /var/lib/pgsql/data ${SLAVE}:/var/lib/pgsql &amp;&gt; $LOG<br />psql -c &quot;SELECT pg_stop_backup()&quot; postgres &amp;&gt; $LOG</p><p>puis copy le fichier recovery.conf sur le repertoire /var/lib/pgsql/data de l&#039;esclave<br /> (contenu du fichier :&#160; )<br />restore_command = &#039;/usr/bin/restauration.sh %f %p&#039;</p><p>/usr/bin/restauration.sh:<br />#!/bin/sh<br />#</p><br /><p>f=$1<br />p=$2</p><p>MASTER=&quot;arm-db&quot;<br />SLAVE=&quot;arm-sp&quot;<br />DATE=$(date +&quot;%Y-%m-%d %H:%M:%S&quot;)<br />LOG=/var/log/postgresql/restauration.log<br />LOGDEBUG=/var/log/postgresql/restaurationDebug.log</p><p>pg_standby -k 100 -t /tmp/stopstandby /var/lib/pgsql/xlog_maitre $f $p &gt;&gt; $LOGDEBUG<br />RETVAL=$?</p><p>if $RETVAL -eq 0<br />then<br />&#160; echo &quot;$DATE LOG : journal $f restauration &quot; &gt;&gt; $LOG<br />else<br />&#160; echo &quot;$DATE ERROR : journal $f restauration problem&quot; &gt;&gt; $LOG<br />fi</p><p>le service de replication lance enfin le service postgres sur l&#039;esclave.</p><br /><br /><br /><p>Ce que je constate est:<br />les fichiers WAL sont bien envoyés sur l&#039;esclave, mais ne sont pas correctement traités par celui ci<br />Dans mon fichier restauration.log , j&#039;ai en effet :<br />2012-03-08 09:26:45 ERROR : journal 0000000100000000000000AF restauration problem<br />la commande pg_standby retourne une valeur différente de 0<br />Par contre, dans le fichier LOGDEBUG=/var/log/postgresql/restaurationDebug.log<br />je ne vois aucune ligne<br />Comment puis-je diagnostiquer pourquoi j&#039;ai un problème de restauration ?</p><p>Merci de votre aide.</p>]]></content>
+		<author>
+			<name><![CDATA[mlecot]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1586</uri>
+		</author>
+		<updated>2012-03-08T09:59:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13074#p13074</id>
+	</entry>
+</feed>

@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Changement d'encodage]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=820&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=820"/>
+	<updated>2010-05-27T13:33:44Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=820</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Changement d'encodage]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5173#p5173"/>
+		<content type="html"><![CDATA[<p>Bien en fait dans la colonne photoHL se sont des liens, j&#039;arrive donc à les insérer dans postgres avec la manipulation du &quot;on&quot; dans posgresql.conf mais il ne sont plus valide vue que &quot;\&quot; ne sont plus présent....Mais je vais arrêté sur ce sujet grâce à toi j&#039;ai identifié le problème il ne faut pas mettre de 0 derrière \ donc je pense que la solution la plus adaptée et de renommer mes photos (ce que je voulais faire dès le début mais trop fastidieux) et de refaire les chemins afin d&#039;éviter cette erreur, donc 5000 photos et lignes à retravailler....</p><p>Merci à toi pour tous tes précieux conseils mais je ne vais pas abuser de ta patience....Merci...</p>]]></content>
+		<author>
+			<name><![CDATA[Fab du 07]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=738</uri>
+		</author>
+		<updated>2010-05-27T13:33:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5173#p5173</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Changement d'encodage]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5172#p5172"/>
+		<content type="html"><![CDATA[<p>Un exemple de requête avec les données insérées ?</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-05-27T13:27:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5172#p5172</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Changement d'encodage]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5171#p5171"/>
+		<content type="html"><![CDATA[<p>Par contre comme tu le signalais la modification a eu d&#039;autre répercussion, j&#039;ai mes liens sans &quot;\&quot; ce qui ne me permet plus d&#039;ouvrir les hyperliens?</p>]]></content>
+		<author>
+			<name><![CDATA[Fab du 07]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=738</uri>
+		</author>
+		<updated>2010-05-27T13:01:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5171#p5171</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Changement d'encodage]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5166#p5166"/>
+		<content type="html"><![CDATA[<p>Et bien je viens d&#039;essayer et sa fonctionne pour un petit essai.....</p><p>Merci beaucoup de ta patience et de tes excellents conseil....Merci</p>]]></content>
+		<author>
+			<name><![CDATA[Fab du 07]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=738</uri>
+		</author>
+		<updated>2010-05-27T12:24:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5166#p5166</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Changement d'encodage]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5165#p5165"/>
+		<content type="html"><![CDATA[<p>La requête en erreur est celle-ci :</p><div class="codebox"><pre><code>UPDATE public.amenagement_hydraulique SET
+  &quot;numoperati&quot; = 27 , &quot;reftroncon&quot; = 14 ,
+  &quot;reftypeame&quot; = 9 , &quot;longueuram&quot; = 5 ,
+  &quot;nomamenage&quot; = &#039;pont buse de la pepiniere en aval de l&#039;&#039;abri forestier&#039; ,
+  &quot;nom&quot; = &#039;MEYRUEIS&#039; , &quot;numcom_fdp&quot; = 91 ,
+  &quot;PHOTOHL&quot; = &#039;C:\SDVMA48\Photos\BVTARN\08BetBuseInfranchpontdelapepiniÃ¨re.JPG&#039; ,
+  the_geom =  GeometryFromText( &#039;POINT (740022.9199803574 6337983.737803997)&#039;, 2154)
+WHERE gid = 26</code></pre></div><p>PHOTOHL se voit modifier avec la valeur &#039;C:\...&#039; sans prise en compte du fait que les antislashs sont susceptibles d&#039;être interprétés. On voit que le chemin contient \0 et ces deux caractères sont interprétés par PostgreSQL comme l&#039;octet 0. Il existe donc deux solutions. La première revient à modifier la requête pour que les antislashs soient doublés. La deuxième est plus simple mais pourrait avoir d&#039;autres répercussions. Il faut modifier la configuration en configurant standard_conforming_strings à on. Le fichier de configuration se trouve dans C:\Program Files\PostgreSQL\8.4\data\postgresql.conf. Ce paramètre se trouve plutôt en fin de fichier. Une fois modifié, demandez à PostgreSQL de recharger sa configuration (vous avez un menu pour ça dans le menu du programme du menu Windows).</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-05-27T12:03:38Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5165#p5165</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Changement d'encodage]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5163#p5163"/>
+		<content type="html"><![CDATA[<p>Là hélas je suis désolé gleu mais j&#039;ai l&#039;impression que tu me parles une autre langue...Donc, si je comprends bien il y a 5 erreurs dont la principale est l&#039;ajout d&#039;un caractère 0x00. Y-a-t-il un moyen de supprimer cette erreur?</p><p>Merci pour la réponse et ton attention.</p>]]></content>
+		<author>
+			<name><![CDATA[Fab du 07]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=738</uri>
+		</author>
+		<updated>2010-05-27T11:49:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5163#p5163</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Changement d'encodage]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5162#p5162"/>
+		<content type="html"><![CDATA[<p>En dehors de cinq erreurs pour ajout de colonne alors que la colonne existe déjà, je ne vois aucune erreur relative à un problème d&#039;accent. Par contre, un UPDATE essaie d&#039;ajouter un caractère 0x00 (donc l&#039;octet zéro) sur un champ texte, ce qui est impossible. Ce caractère, binaire, ne peut s&#039;insérer que dans une colonne de type bytea.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-05-27T11:45:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5162#p5162</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Changement d'encodage]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5161#p5161"/>
+		<content type="html"><![CDATA[<p>Merci, j&#039;ai réussi à aller dans le log le message d&#039;erreur est le suivant :</p><p>2010-05-27 07:52:57 CEST LOG:&#160; le système de bases de données a été arrêté à 2010-05-26 18:46:18 CEST<br />2010-05-27 07:52:59 CEST LOG:&#160; le système de bases de données est prêt pour accepter les connexions<br />2010-05-27 07:52:59 CEST LOG:&#160; lancement du processus autovacuum<br />2010-05-27 07:52:59 CEST FATAL:&#160; le système de bases de données se lance<br />2010-05-27 08:00:42 CEST ATTENTION:&#160; utilisation non standard de \\ dans une chaÃ®ne littÃ©rale au caractÃ¨re 99<br />2010-05-27 08:00:42 CEST ASTUCE :&#160; Utilisez la syntaxe de chaÃ®ne d&#039;Ã©chappement pour les antislashs, c&#039;est-Ã -dire E&#039;\\&#039;.<br />2010-05-27 08:00:42 CEST ATTENTION:&#160; utilisation non standard de \\ dans une chaÃ®ne littÃ©rale au caractÃ¨re 1213<br />2010-05-27 08:00:42 CEST ASTUCE :&#160; Utilisez la syntaxe de chaÃ®ne d&#039;Ã©chappement pour les antislashs, c&#039;est-Ã -dire E&#039;\\&#039;.<br />2010-05-27 08:00:44 CEST ATTENTION:&#160; une transaction est dÃ©jÃ&#160; en cours<br />2010-05-27 08:01:07 CEST ATTENTION:&#160; une transaction est dÃ©jÃ&#160; en cours<br />2010-05-27 08:01:07 CEST ATTENTION:&#160; une transaction est dÃ©jÃ&#160; en cours<br />2010-05-27 08:02:23 CEST ATTENTION:&#160; utilisation non standard de \\ dans une chaÃ®ne littÃ©rale au caractÃ¨re 99<br />2010-05-27 08:02:23 CEST ASTUCE :&#160; Utilisez la syntaxe de chaÃ®ne d&#039;Ã©chappement pour les antislashs, c&#039;est-Ã -dire E&#039;\\&#039;.<br />2010-05-27 08:02:23 CEST ATTENTION:&#160; utilisation non standard de \\ dans une chaÃ®ne littÃ©rale au caractÃ¨re 1213<br />2010-05-27 08:02:23 CEST ASTUCE :&#160; Utilisez la syntaxe de chaÃ®ne d&#039;Ã©chappement pour les antislashs, c&#039;est-Ã -dire E&#039;\\&#039;.<br />2010-05-27 08:02:28 CEST ATTENTION:&#160; une transaction est dÃ©jÃ&#160; en cours<br />2010-05-27 08:02:28 CEST ATTENTION:&#160; une transaction est dÃ©jÃ&#160; en cours<br />2010-05-27 08:03:26 CEST ATTENTION:&#160; utilisation non standard de \\ dans une chaÃ®ne littÃ©rale au caractÃ¨re 99<br />2010-05-27 08:03:26 CEST ASTUCE :&#160; Utilisez la syntaxe de chaÃ®ne d&#039;Ã©chappement pour les antislashs, c&#039;est-Ã -dire E&#039;\\&#039;.<br />2010-05-27 08:03:26 CEST ATTENTION:&#160; utilisation non standard de \\ dans une chaÃ®ne littÃ©rale au caractÃ¨re 1213<br />2010-05-27 08:03:26 CEST ASTUCE :&#160; Utilisez la syntaxe de chaÃ®ne d&#039;Ã©chappement pour les antislashs, c&#039;est-Ã -dire E&#039;\\&#039;.<br />2010-05-27 08:03:32 CEST ATTENTION:&#160; une transaction est dÃ©jÃ&#160; en cours<br />2010-05-27 08:03:32 CEST ATTENTION:&#160; une transaction est dÃ©jÃ&#160; en cours<br />2010-05-27 08:03:32 CEST ATTENTION:&#160; une transaction est dÃ©jÃ&#160; en cours<br />2010-05-27 08:05:18 CEST ATTENTION:&#160; utilisation non standard de \\ dans une chaÃ®ne littÃ©rale au caractÃ¨re 99<br />2010-05-27 08:05:18 CEST ASTUCE :&#160; Utilisez la syntaxe de chaÃ®ne d&#039;Ã©chappement pour les antislashs, c&#039;est-Ã -dire E&#039;\\&#039;.<br />2010-05-27 08:05:18 CEST ATTENTION:&#160; utilisation non standard de \\ dans une chaÃ®ne littÃ©rale au caractÃ¨re 1213<br />2010-05-27 08:05:18 CEST ASTUCE :&#160; Utilisez la syntaxe de chaÃ®ne d&#039;Ã©chappement pour les antislashs, c&#039;est-Ã -dire E&#039;\\&#039;.<br />2010-05-27 08:05:23 CEST ATTENTION:&#160; une transaction est dÃ©jÃ&#160; en cours<br />2010-05-27 08:05:23 CEST ATTENTION:&#160; une transaction est dÃ©jÃ&#160; en cours<br />2010-05-27 08:05:23 CEST ATTENTION:&#160; une transaction est dÃ©jÃ&#160; en cours<br />2010-05-27 08:05:23 CEST ATTENTION:&#160; une transaction est dÃ©jÃ&#160; en cours<br />2010-05-27 08:39:27 CEST ATTENTION:&#160; une transaction est dÃ©jÃ&#160; en cours<br />2010-05-27 08:39:27 CEST ATTENTION:&#160; une transaction est dÃ©jÃ&#160; en cours<br />2010-05-27 08:39:27 CEST ATTENTION:&#160; une transaction est dÃ©jÃ&#160; en cours<br />2010-05-27 08:40:00 CEST ATTENTION:&#160; utilisation non standard d&#039;un Ã©chappement dans une chaÃ®ne littÃ©rale au caractÃ¨re 220<br />2010-05-27 08:40:00 CEST ASTUCE :&#160; Utilisez la syntaxe de la chaÃ®ne d&#039;Ã©chappement pour les Ã©chappements,<br />&#160; &#160; c&#039;est-Ã -dire E&#039;\r\n&#039;.<br />2010-05-27 08:40:00 CEST ATTENTION:&#160; utilisation non standard d&#039;un Ã©chappement dans une chaÃ®ne littÃ©rale au caractÃ¨re 239<br />2010-05-27 08:40:00 CEST ASTUCE :&#160; Utilisez la syntaxe de la chaÃ®ne d&#039;Ã©chappement pour les Ã©chappements,<br />&#160; &#160; c&#039;est-Ã -dire E&#039;\r\n&#039;.<br />2010-05-27 08:40:00 CEST ATTENTION:&#160; utilisation non standard d&#039;un Ã©chappement dans une chaÃ®ne littÃ©rale au caractÃ¨re 263<br />2010-05-27 08:40:00 CEST ASTUCE :&#160; Utilisez la syntaxe de la chaÃ®ne d&#039;Ã©chappement pour les Ã©chappements,<br />&#160; &#160; c&#039;est-Ã -dire E&#039;\r\n&#039;.<br />2010-05-27 08:40:00 CEST ATTENTION:&#160; utilisation non standard d&#039;un Ã©chappement dans une chaÃ®ne littÃ©rale au caractÃ¨re 230<br />2010-05-27 08:40:00 CEST ASTUCE :&#160; Utilisez la syntaxe de la chaÃ®ne d&#039;Ã©chappement pour les Ã©chappements,<br />&#160; &#160; c&#039;est-Ã -dire E&#039;\r\n&#039;.<br />2010-05-27 08:40:00 CEST ATTENTION:&#160; utilisation non standard d&#039;un Ã©chappement dans une chaÃ®ne littÃ©rale au caractÃ¨re 249<br />2010-05-27 08:40:00 CEST ASTUCE :&#160; Utilisez la syntaxe de la chaÃ®ne d&#039;Ã©chappement pour les Ã©chappements,<br />&#160; &#160; c&#039;est-Ã -dire E&#039;\r\n&#039;.<br />2010-05-27 08:40:00 CEST ATTENTION:&#160; utilisation non standard d&#039;un Ã©chappement dans une chaÃ®ne littÃ©rale au caractÃ¨re 273<br />2010-05-27 08:40:00 CEST ASTUCE :&#160; Utilisez la syntaxe de la chaÃ®ne d&#039;Ã©chappement pour les Ã©chappements,<br />&#160; &#160; c&#039;est-Ã -dire E&#039;\r\n&#039;.<br />2010-05-27 08:40:00 CEST ATTENTION:&#160; utilisation non standard d&#039;un Ã©chappement dans une chaÃ®ne littÃ©rale au caractÃ¨re 245<br />2010-05-27 08:40:00 CEST ASTUCE :&#160; Utilisez la syntaxe de la chaÃ®ne d&#039;Ã©chappement pour les Ã©chappements,<br />&#160; &#160; c&#039;est-Ã -dire E&#039;\r\n&#039;.<br />2010-05-27 08:40:00 CEST ATTENTION:&#160; utilisation non standard d&#039;un Ã©chappement dans une chaÃ®ne littÃ©rale au caractÃ¨re 281<br />2010-05-27 08:40:00 CEST ASTUCE :&#160; Utilisez la syntaxe de la chaÃ®ne d&#039;Ã©chappement pour les Ã©chappements,<br />&#160; &#160; c&#039;est-Ã -dire E&#039;\r\n&#039;.<br />2010-05-27 08:40:00 CEST ATTENTION:&#160; utilisation non standard d&#039;un Ã©chappement dans une chaÃ®ne littÃ©rale au caractÃ¨re 234<br />2010-05-27 08:40:00 CEST ASTUCE :&#160; Utilisez la syntaxe de la chaÃ®ne d&#039;Ã©chappement pour les Ã©chappements,<br />&#160; &#160; c&#039;est-Ã -dire E&#039;\r\n&#039;.<br />2010-05-27 08:40:00 CEST ATTENTION:&#160; utilisation non standard d&#039;un Ã©chappement dans une chaÃ®ne littÃ©rale au caractÃ¨re 264<br />2010-05-27 08:40:00 CEST ASTUCE :&#160; Utilisez la syntaxe de la chaÃ®ne d&#039;Ã©chappement pour les Ã©chappements,<br />&#160; &#160; c&#039;est-Ã -dire E&#039;\r\n&#039;.<br />2010-05-27 08:40:00 CEST ATTENTION:&#160; utilisation non standard d&#039;un Ã©chappement dans une chaÃ®ne littÃ©rale au caractÃ¨re 225<br />2010-05-27 08:40:00 CEST ASTUCE :&#160; Utilisez la syntaxe de la chaÃ®ne d&#039;Ã©chappement pour les Ã©chappements,<br />&#160; &#160; c&#039;est-Ã -dire E&#039;\r\n&#039;.<br />2010-05-27 08:40:00 CEST ATTENTION:&#160; utilisation non standard d&#039;un Ã©chappement dans une chaÃ®ne littÃ©rale au caractÃ¨re 250<br />2010-05-27 08:40:00 CEST ASTUCE :&#160; Utilisez la syntaxe de la chaÃ®ne d&#039;Ã©chappement pour les Ã©chappements,<br />&#160; &#160; c&#039;est-Ã -dire E&#039;\r\n&#039;.<br />2010-05-27 08:40:00 CEST ATTENTION:&#160; utilisation non standard d&#039;un Ã©chappement dans une chaÃ®ne littÃ©rale au caractÃ¨re 237<br />2010-05-27 08:40:00 CEST ASTUCE :&#160; Utilisez la syntaxe de la chaÃ®ne d&#039;Ã©chappement pour les Ã©chappements,<br />&#160; &#160; c&#039;est-Ã -dire E&#039;\r\n&#039;.<br />2010-05-27 08:40:00 CEST ATTENTION:&#160; utilisation non standard d&#039;un Ã©chappement dans une chaÃ®ne littÃ©rale au caractÃ¨re 263<br />2010-05-27 08:40:00 CEST ASTUCE :&#160; Utilisez la syntaxe de la chaÃ®ne d&#039;Ã©chappement pour les Ã©chappements,<br />&#160; &#160; c&#039;est-Ã -dire E&#039;\r\n&#039;.<br />2010-05-27 08:40:00 CEST ATTENTION:&#160; utilisation non standard d&#039;un Ã©chappement dans une chaÃ®ne littÃ©rale au caractÃ¨re 261<br />2010-05-27 08:40:00 CEST ASTUCE :&#160; Utilisez la syntaxe de la chaÃ®ne d&#039;Ã©chappement pour les Ã©chappements,<br />&#160; &#160; c&#039;est-Ã -dire E&#039;\r\n&#039;.<br />2010-05-27 08:40:00 CEST ATTENTION:&#160; utilisation non standard d&#039;un Ã©chappement dans une chaÃ®ne littÃ©rale au caractÃ¨re 276<br />2010-05-27 08:40:00 CEST ASTUCE :&#160; Utilisez la syntaxe de la chaÃ®ne d&#039;Ã©chappement pour les Ã©chappements,<br />&#160; &#160; c&#039;est-Ã -dire E&#039;\r\n&#039;.<br />2010-05-27 08:40:00 CEST ATTENTION:&#160; utilisation non standard d&#039;un Ã©chappement dans une chaÃ®ne littÃ©rale au caractÃ¨re 221<br />2010-05-27 08:40:00 CEST ASTUCE :&#160; Utilisez la syntaxe de la chaÃ®ne d&#039;Ã©chappement pour les Ã©chappements,<br />&#160; &#160; c&#039;est-Ã -dire E&#039;\r\n&#039;.<br />2010-05-27 08:40:00 CEST ATTENTION:&#160; utilisation non standard d&#039;un Ã©chappement dans une chaÃ®ne littÃ©rale au caractÃ¨re 270<br />2010-05-27 08:40:00 CEST ASTUCE :&#160; Utilisez la syntaxe de la chaÃ®ne d&#039;Ã©chappement pour les Ã©chappements,<br />&#160; &#160; c&#039;est-Ã -dire E&#039;\r\n&#039;.<br />2010-05-27 08:40:00 CEST ATTENTION:&#160; utilisation non standard d&#039;un Ã©chappement dans une chaÃ®ne littÃ©rale au caractÃ¨re 266<br />2010-05-27 08:40:00 CEST ASTUCE :&#160; Utilisez la syntaxe de la chaÃ®ne d&#039;Ã©chappement pour les Ã©chappements,<br />&#160; &#160; c&#039;est-Ã -dire E&#039;\r\n&#039;.<br />2010-05-27 08:40:00 CEST ATTENTION:&#160; utilisation non standard d&#039;un Ã©chappement dans une chaÃ®ne littÃ©rale au caractÃ¨re 278<br />2010-05-27 08:40:00 CEST ASTUCE :&#160; Utilisez la syntaxe de la chaÃ®ne d&#039;Ã©chappement pour les Ã©chappements,<br />&#160; &#160; c&#039;est-Ã -dire E&#039;\r\n&#039;.<br />2010-05-27 08:40:00 CEST ATTENTION:&#160; utilisation non standard d&#039;un Ã©chappement dans une chaÃ®ne littÃ©rale au caractÃ¨re 261<br />2010-05-27 08:40:00 CEST ASTUCE :&#160; Utilisez la syntaxe de la chaÃ®ne d&#039;Ã©chappement pour les Ã©chappements,<br />&#160; &#160; c&#039;est-Ã -dire E&#039;\r\n&#039;.<br />2010-05-27 08:40:00 CEST ATTENTION:&#160; utilisation non standard d&#039;un Ã©chappement dans une chaÃ®ne littÃ©rale au caractÃ¨re 244<br />2010-05-27 08:40:00 CEST ASTUCE :&#160; Utilisez la syntaxe de la chaÃ®ne d&#039;Ã©chappement pour les Ã©chappements,<br />&#160; &#160; c&#039;est-Ã -dire E&#039;\r\n&#039;.<br />2010-05-27 08:40:00 CEST ATTENTION:&#160; utilisation non standard d&#039;un Ã©chappement dans une chaÃ®ne littÃ©rale au caractÃ¨re 236<br />2010-05-27 08:40:00 CEST ASTUCE :&#160; Utilisez la syntaxe de la chaÃ®ne d&#039;Ã©chappement pour les Ã©chappements,<br />&#160; &#160; c&#039;est-Ã -dire E&#039;\r\n&#039;.<br />2010-05-27 08:40:00 CEST ATTENTION:&#160; utilisation non standard d&#039;un Ã©chappement dans une chaÃ®ne littÃ©rale au caractÃ¨re 255<br />2010-05-27 08:40:00 CEST ASTUCE :&#160; Utilisez la syntaxe de la chaÃ®ne d&#039;Ã©chappement pour les Ã©chappements,<br />&#160; &#160; c&#039;est-Ã -dire E&#039;\r\n&#039;.<br />2010-05-27 08:40:00 CEST ATTENTION:&#160; utilisation non standard d&#039;un Ã©chappement dans une chaÃ®ne littÃ©rale au caractÃ¨re 210<br />2010-05-27 08:40:00 CEST ASTUCE :&#160; Utilisez la syntaxe de la chaÃ®ne d&#039;Ã©chappement pour les Ã©chappements,<br />&#160; &#160; c&#039;est-Ã -dire E&#039;\r\n&#039;.<br />2010-05-27 08:40:00 CEST ATTENTION:&#160; utilisation non standard d&#039;un Ã©chappement dans une chaÃ®ne littÃ©rale au caractÃ¨re 248<br />2010-05-27 08:40:00 CEST ASTUCE :&#160; Utilisez la syntaxe de la chaÃ®ne d&#039;Ã©chappement pour les Ã©chappements,<br />&#160; &#160; c&#039;est-Ã -dire E&#039;\r\n&#039;.<br />2010-05-27 08:40:00 CEST ERREUR:&#160; sÃ©quence d&#039;octets invalide pour l&#039;encodage Â« UTF8 Â» : 0x00<br />2010-05-27 08:40:00 CEST ASTUCE :&#160; Cette erreur peut aussi survenir si la sÃ©quence d&#039;octets ne correspond pas<br />&#160; &#160; au jeu de caractÃ¨res attendu par le serveur, le jeu Ã©tant contrÃ´lÃ© par<br />&#160; &#160; Â« client_encoding Â».<br />2010-05-27 08:40:00 CEST INSTRUCTION :&#160; UPDATE public.amenagement_hydraulique SET &quot;numoperati&quot; = 27 , &quot;reftroncon&quot; = 14 , &quot;reftypeame&quot; = 9 , &quot;longueuram&quot; = 5 , &quot;nomamenage&quot; = &#039;pont buse de la pepiniere en aval de l&#039;&#039;abri forestier&#039; , &quot;nom&quot; = &#039;MEYRUEIS&#039; , &quot;numcom_fdp&quot; = 91 , &quot;PHOTOHL&quot; = &#039;C:\SDVMA48\Photos\BVTARN\08BetBuseInfranchpontdelapepiniÃ¨re.JPG&#039; , the_geom =&#160; GeometryFromText( &#039;POINT (740022.9199803574 6337983.737803997)&#039;, 2154) WHERE gid = 26<br />2010-05-27 08:40:00 CEST ERREUR:&#160; la transaction est annulÃ©e, les commandes sont ignorÃ©es jusqu&#039;Ã&#160; la fin du bloc<br />&#160; &#160; de la transaction<br />2010-05-27 08:40:00 CEST INSTRUCTION :&#160; BEGIN<br />2010-05-27 08:40:00 CEST ERREUR:&#160; la transaction est annulÃ©e, les commandes sont ignorÃ©es jusqu&#039;Ã&#160; la fin du bloc<br />&#160; &#160; de la transaction<br />2010-05-27 08:40:00 CEST INSTRUCTION :&#160; BEGIN<br />2010-05-27 08:40:00 CEST ERREUR:&#160; la transaction est annulÃ©e, les commandes sont ignorÃ©es jusqu&#039;Ã&#160; la fin du bloc<br />&#160; &#160; de la transaction<br />2010-05-27 08:40:00 CEST INSTRUCTION :&#160; BEGIN<br />2010-05-27 08:40:00 CEST ERREUR:&#160; la transaction est annulÃ©e, les commandes sont ignorÃ©es jusqu&#039;Ã&#160; la fin du bloc<br />&#160; &#160; de la transaction<br />2010-05-27 08:40:00 CEST INSTRUCTION :&#160; BEGIN<br />2010-05-27 08:40:00 CEST ERREUR:&#160; la transaction est annulÃ©e, les commandes sont ignorÃ©es jusqu&#039;Ã&#160; la fin du bloc<br />&#160; &#160; de la transaction<br />2010-05-27 08:40:00 CEST INSTRUCTION :&#160; BEGIN<br />2010-05-27 08:41:26 CEST ERREUR:&#160; la colonne Â« PHOTOHL Â» de la relation Â« amenagement_hydraulique Â» existe dÃ©jÃ <br />2010-05-27 08:41:26 CEST INSTRUCTION :&#160; ALTER TABLE amenagement_hydraulique ADD COLUMN &quot;PHOTOHL&quot; text DEFAULT null;<br />2010-05-27 08:44:45 CEST ERREUR:&#160; la colonne Â« PHOTOHL Â» de la relation Â« amenagement_hydraulique Â» existe dÃ©jÃ <br />2010-05-27 08:44:45 CEST INSTRUCTION :&#160; ALTER TABLE amenagement_hydraulique ADD COLUMN &quot;PHOTOHL&quot; text DEFAULT null;<br />2010-05-27 08:50:46 CEST ATTENTION:&#160; aucune transaction en cours<br />2010-05-27 08:50:46 CEST ATTENTION:&#160; aucune transaction en cours<br />2010-05-27 08:50:51 CEST ATTENTION:&#160; aucune transaction en cours<br />2010-05-27 08:50:51 CEST ATTENTION:&#160; aucune transaction en cours<br />2010-05-27 08:50:51 CEST ATTENTION:&#160; aucune transaction en cours<br />2010-05-27 08:50:58 CEST ATTENTION:&#160; aucune transaction en cours<br />2010-05-27 08:50:58 CEST ATTENTION:&#160; aucune transaction en cours<br />2010-05-27 08:50:58 CEST ATTENTION:&#160; aucune transaction en cours<br />2010-05-27 08:50:59 CEST ATTENTION:&#160; aucune transaction en cours<br />2010-05-27 08:50:59 CEST ATTENTION:&#160; aucune transaction en cours<br />2010-05-27 08:50:59 CEST ATTENTION:&#160; aucune transaction en cours<br />2010-05-27 08:51:00 CEST ATTENTION:&#160; aucune transaction en cours<br />2010-05-27 08:51:00 CEST ATTENTION:&#160; aucune transaction en cours<br />2010-05-27 08:51:00 CEST ATTENTION:&#160; aucune transaction en cours<br />2010-05-27 08:51:02 CEST ATTENTION:&#160; aucune transaction en cours<br />2010-05-27 08:51:02 CEST ATTENTION:&#160; aucune transaction en cours<br />2010-05-27 08:51:02 CEST ATTENTION:&#160; aucune transaction en cours<br />2010-05-27 08:51:03 CEST ATTENTION:&#160; aucune transaction en cours<br />2010-05-27 08:51:03 CEST FATAL:&#160; la base de données « template0 » n&#039;accepte plus les connexions<br />2010-05-27 08:51:09 CEST ATTENTION:&#160; aucune transaction en cours<br />2010-05-27 08:51:09 CEST ATTENTION:&#160; aucune transaction en cours<br />2010-05-27 08:51:18 CEST ATTENTION:&#160; aucune transaction en cours<br />2010-05-27 08:51:18 CEST ATTENTION:&#160; aucune transaction en cours<br />2010-05-27 08:51:18 CEST ATTENTION:&#160; aucune transaction en cours<br />2010-05-27 08:51:25 CEST ERREUR:&#160; erreur de syntaxe sur ou prÃ¨s de Â« LIMIT Â» au caractÃ¨re 1<br />2010-05-27 08:51:25 CEST INSTRUCTION :&#160; LIMIT 1<br />2010-05-27 08:51:34 CEST ATTENTION:&#160; aucune transaction en cours<br />2010-05-27 08:53:40 CEST ATTENTION:&#160; aucune transaction en cours<br />2010-05-27 08:53:40 CEST ATTENTION:&#160; aucune transaction en cours<br />2010-05-27 08:53:44 CEST ATTENTION:&#160; aucune transaction en cours<br />2010-05-27 08:53:44 CEST ATTENTION:&#160; aucune transaction en cours<br />2010-05-27 08:53:44 CEST ATTENTION:&#160; aucune transaction en cours<br />2010-05-27 08:54:06 CEST ATTENTION:&#160; aucune transaction en cours<br />2010-05-27 08:57:10 CEST ERREUR:&#160; la colonne Â« PHOTOHL Â» de la relation Â« amenagement_hydraulique Â» existe dÃ©jÃ <br />2010-05-27 08:57:10 CEST INSTRUCTION :&#160; ALTER TABLE amenagement_hydraulique ADD COLUMN &quot;PHOTOHL&quot; text DEFAULT null;<br />2010-05-27 09:03:31 CEST ERREUR:&#160; la colonne Â« PHOTOHL Â» de la relation Â« amenagement_hydraulique Â» existe dÃ©jÃ <br />2010-05-27 09:03:31 CEST INSTRUCTION :&#160; ALTER TABLE amenagement_hydraulique ADD COLUMN &quot;PHOTOHL&quot; text DEFAULT null;<br />2010-05-27 09:17:18 CEST ERREUR:&#160; la colonne Â« PHOTOHL Â» de la relation Â« amenagement_hydraulique Â» existe dÃ©jÃ <br />2010-05-27 09:17:18 CEST INSTRUCTION :&#160; ALTER TABLE amenagement_hydraulique ADD COLUMN &quot;PHOTOHL&quot; text DEFAULT null;<br />2010-05-27 09:43:08 CEST LOG:&#160; n&#039;a pas pu recevoir les donnÃ©es du client : Unknown winsock error 10061<br />2010-05-27 09:43:08 CEST LOG:&#160; fin de fichier (EOF) inattendue de la connexion du client<br />2010-05-27 09:43:08 CEST LOG:&#160; n&#039;a pas pu recevoir les donnÃ©es du client : Unknown winsock error 10061<br />2010-05-27 09:43:08 CEST LOG:&#160; fin de fichier (EOF) inattendue de la connexion du client<br />2010-05-27 09:43:08 CEST LOG:&#160; n&#039;a pas pu recevoir les donnÃ©es du client : Unknown winsock error 10061<br />2010-05-27 09:43:08 CEST LOG:&#160; fin de fichier (EOF) inattendue de la connexion du client<br />2010-05-27 09:43:08 CEST LOG:&#160; n&#039;a pas pu recevoir les donnÃ©es du client : Unknown winsock error 10061<br />2010-05-27 09:43:08 CEST LOG:&#160; fin de fichier (EOF) inattendue de la connexion du client<br />2010-05-27 09:43:08 CEST LOG:&#160; n&#039;a pas pu recevoir les donnÃ©es du client : Unknown winsock error 10061<br />2010-05-27 09:43:08 CEST LOG:&#160; fin de fichier (EOF) inattendue de la connexion du client<br />2010-05-27 09:43:08 CEST LOG:&#160; n&#039;a pas pu recevoir les donnÃ©es du client : Unknown winsock error 10061<br />2010-05-27 09:43:08 CEST LOG:&#160; fin de fichier (EOF) inattendue de la connexion du client<br />2010-05-27 09:43:16 CEST LOG:&#160; a reçu une demande d&#039;arrêt rapide<br />2010-05-27 09:43:16 CEST LOG:&#160; annulation des transactions actives<br />2010-05-27 09:43:16 CEST LOG:&#160; arrêt du processus autovacuum<br />2010-05-27 09:43:16 CEST LOG:&#160; arrêt en cours<br />2010-05-27 09:43:16 CEST LOG:&#160; le système de base de données est arrêté</p><p>Bon d&#039;accord je sais c&#039;est très long....</p><p>MERCI de tes réponses gleu</p>]]></content>
+		<author>
+			<name><![CDATA[Fab du 07]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=738</uri>
+		</author>
+		<updated>2010-05-27T11:16:29Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5161#p5161</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Changement d'encodage]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5158#p5158"/>
+		<content type="html"><![CDATA[<p>OK. Donc le répertoire des logs devrait se trouver dans le sous-répertoire data/pg_log du répertoire d&#039;installation de PostgreSQL (donc, pour une version 8.4, sans modification du répertoire d&#039;installation, C:\Program Files\PostgreSQL\8.4\data\pg_log). Vous devriez y avoir un tas de fichiers avec une extension .log, ce sont eux qui nous intéressent, certainement dans les derniers qui ont été créés.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-05-27T10:05:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5158#p5158</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Changement d'encodage]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5157#p5157"/>
+		<content type="html"><![CDATA[<p>je l&#039;ai installé sur deux ordinateur un sous Vista et l&#039;autre sous XP pro, et en effet je n&#039;ai pas changé la configuration.</p>]]></content>
+		<author>
+			<name><![CDATA[Fab du 07]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=738</uri>
+		</author>
+		<updated>2010-05-27T10:03:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5157#p5157</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Changement d'encodage]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5156#p5156"/>
+		<content type="html"><![CDATA[<p>Ça dépend énormément de votre configuration. Étant novice, je suppose que vous n&#039;avez pas changé la configuration par défaut. Dans ce cas, il nous faut connaître le système d&#039;exploitation sur lequel est installé PostgreSQL pour pouvoir déterminer avec plus de certitudes l&#039;emplacement des logs.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-05-27T09:58:21Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5156#p5156</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Changement d'encodage]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5154#p5154"/>
+		<content type="html"><![CDATA[<p>Je suis un vrai boulet mais étant novice avec postgreSQL ou pourrais-je trouver les logs</p><p>Merci, pour toutes vos réponses....</p>]]></content>
+		<author>
+			<name><![CDATA[Fab du 07]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=738</uri>
+		</author>
+		<updated>2010-05-27T09:56:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5154#p5154</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Changement d'encodage]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5151#p5151"/>
+		<content type="html"><![CDATA[<p>Ce n&#039;est pas un message d&#039;erreur de PostgreSQL. Il nous faut le message d&#039;erreur renvoyé par PostgreSQL. Vous devriez l&#039;avoir dans les logs de PostgreSQL.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-05-27T09:16:35Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5151#p5151</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Changement d'encodage]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5150#p5150"/>
+		<content type="html"><![CDATA[<p>le message d&#039;erreur est :</p><p>Can&#039;t initialize writer : PostGIS Writer</p>]]></content>
+		<author>
+			<name><![CDATA[Fab du 07]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=738</uri>
+		</author>
+		<updated>2010-05-27T08:59:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5150#p5150</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Changement d'encodage]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5148#p5148"/>
+		<content type="html"><![CDATA[<p>Ça ne nous aide pas plus. Il nous faut le message d&#039;erreur pour pouvoir vous aider.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-05-27T08:37:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5148#p5148</id>
+	</entry>
+</feed>

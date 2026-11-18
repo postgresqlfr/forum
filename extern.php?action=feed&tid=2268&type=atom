@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / WIN: PGAgent: Execution JOB - toujours "Failed"]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2268&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2268"/>
+	<updated>2012-09-20T13:51:33Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2268</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  WIN: PGAgent: Execution JOB - toujours "Failed"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15185#p15185"/>
+		<content type="html"><![CDATA[<p>Fort de la constatations du &quot;failed&quot; reporté abusivement, je me suis lancé dans la mise en place du backup avec pg_dump.<br />Cette tâche est configure et produit le fichier backup... même si le job de backup retourne &quot;failed&quot; (comme pour le job SQL évoqué plus haut).<br />J&#039;ai d&#039;ailleurs utilisé ton SQL pour pêcher l&#039;output du JOB de backup.<br />&quot;<br />C:\Windows\system32&gt;&quot;c:\Program Files\PostgreSQL\9.1\bin\pg_dump.exe&quot; --no-password --host localhost --port 5432 --username &quot;postgres&quot; --role &quot;postgres&quot;&#160; --format tar --blobs --encoding UTF8 --oids --verbose --file &quot;d:\GGBackup\Serveur\StockProd.backup&quot; &quot;stockprod&quot; <br />pg_dump: lecture des schémas<br />pg_dump: lecture des tables utilisateur<br />pg_dump: lecture des extensions<br />pg_dump: lecture des fonctions utilisate<br />....<br />&quot;</p><p><strong>Je ne m&#039;explique pas cette persistance à retourner Failed</strong> mais le plus important dans ce premier temps c&#039;est que le Job fonctionne!</p><p>Merci rjuju, c&#039;est ton aide sur jsloutput qui m&#039;a mis la puce à l&#039;oreille (pgAgent qui retourne Failed même lorsque cela fonctionne :-/ ).</p><p>Si quelqu&#039;un a une suggestion pour le &quot;Failed&quot; même lorsque le Step est OK, je suis ouvert aux essais.</p>]]></content>
+		<author>
+			<name><![CDATA[dmeurisse]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1948</uri>
+		</author>
+		<updated>2012-09-20T13:51:33Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15185#p15185</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  WIN: PGAgent: Execution JOB - toujours "Failed"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15184#p15184"/>
+		<content type="html"><![CDATA[<p>Vous pouvez retailler la hauteur des lignes dans pgAdmin pour voir le contenu en cas de texte sur plusieurs lignes.</p><p>Pour ne filtrer que votre job, vous pouvez faire :</p><div class="codebox"><pre><code>SELECT jsloutput
+FROM pgagent.pga_job j
+JOIN pgagent.pga_jobstep js ON jstjobid = jobid
+JOIN pgagent.pga_jobsteplog jsl ON jsljstid = jstid
+WHERE jobname = &#039;Test&#039;</code></pre></div><p>Pour l&#039;erreur de sauvegarde, il faut soit fournir un mot de passe, soit passer en trust la connexion.</p><p>Sinon, est-ce le job et/ou le(s) step qui sont en erreur ?</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2012-09-20T13:05:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15184#p15184</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  WIN: PGAgent: Execution JOB - toujours "Failed"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15183#p15183"/>
+		<content type="html"><![CDATA[<p>Dans les statistiques d&#039;exécutions, tous les essais &quot;Run Now&quot; sont a &quot;failed&quot;.<br />Pourtant la colonne Result affiche 1 (normal, la commande est... Select &#039;hello&#039;) et pour les tâches plus anciennes la colonne Result contient &quot;12&quot; (normal, je faisait un select blblbla LIMIT 12).<br />Donc le SQL fonctionne bien... mais pourquoi donc ce job avec un seul step SQL se termine en failed?</p><p>Postscriptum:<br />Merci rjuju pour la requête dans jsloutput... ce sera utile!</p>]]></content>
+		<author>
+			<name><![CDATA[dmeurisse]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1948</uri>
+		</author>
+		<updated>2012-09-20T11:38:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15183#p15183</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  WIN: PGAgent: Execution JOB - toujours "Failed"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15182#p15182"/>
+		<content type="html"><![CDATA[<p>La liste contient plein de jsloutput vide, rien avec mes essais récents (commande SQL).<br />Par contre, je vois le texte d&#039;erreur une fois que fait un export (ou copier coller de la cellule apparemment vide de pgAdmin vers notepad).</p><p>L&#039;idéal serait d&#039;obtenir les outputs correspondants à mes essais &quot;Run Now&quot;. Ceux qui sont listés ci-dessous ne concerne que les tâches programmées.<br />J&#039;ai aussi noté quelque-chose d&#039;interessant... mais je fais un autre post juste après celui-ci.</p><p>&quot;<br />C:\Program Files (x86)\pgAgent\bin&gt;&quot;c:\Program Files\PostgreSQL\9.1\bin\pg_dump.exe&quot; --no-password --host localhost --port 5432 --username &quot;postgres&quot; --role &quot;postgres&quot;&#160; --format tar --blobs --encoding UTF8 --oids --verbose --file &quot;d:\GGBackup\Serveur\StockProd.backup&quot; &quot;stockprod&quot; <br />pg_dump: [programme d&#039;archivage (db)] la connexion à la base de données « stockprod » a échoué : fe_sendauth: no password supplied<br />pg_dump: *** interrompu du fait d&#039;erreurs<br />&quot;</p>]]></content>
+		<author>
+			<name><![CDATA[dmeurisse]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1948</uri>
+		</author>
+		<updated>2012-09-20T11:34:38Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15182#p15182</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  WIN: PGAgent: Execution JOB - toujours "Failed"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15181#p15181"/>
+		<content type="html"><![CDATA[<p>C&#039;est bizarre, en cas d&#039;erreur la colonne output devrait contenir un message.</p><p>Par sécurité, essayez</p><div class="codebox"><pre><code>SELECT jsloutput from pgagent.pga_jobsteplog WHERE jslstatus != &#039;s&#039; AND jslouput != &#039;&#039; ORDER BY jslstart DESC;</code></pre></div><p>Sinon, peut-être y a-t-il des informations dans les log de postgres.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2012-09-20T10:53:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15181#p15181</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  WIN: PGAgent: Execution JOB - toujours "Failed"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15180#p15180"/>
+		<content type="html"><![CDATA[<p>Merci pour la réaction rapide :-)</p><p>J&#039;ai essayé sans &quot;Host Agent&quot; (ne change rien)<br />La colonne output ne contient simplement rien, pas de messages particuliers (sauf à mes tout premiers essais ou l&#039;authentification échouait).</p><p>Par pure curiosité, j&#039;ai remplacé mon SQL par la suivant:<br />SELECT &#039;HELLO&#039;;</p><p>Mais il n&#039;y a toujours rien qui apparait dans la colonne output.<br />Pourtant ce SQL est valide... et la tâche (la seule du job) devrait retourner un résultat.<br />La question que je me pose: manque t&#039;il quelque-chose à mon SQL?</p><p>Toujours ouvert aux suggestions...</p>]]></content>
+		<author>
+			<name><![CDATA[dmeurisse]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1948</uri>
+		</author>
+		<updated>2012-09-20T10:17:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15180#p15180</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  WIN: PGAgent: Execution JOB - toujours "Failed"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15179#p15179"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>je ne suis pas certain que le &quot;Host agent&quot; soit nécessaire.</p><p>Sinon, si un pas est en erreur, vous devriez voir un message associé dans l&#039;onglet &quot;Statistics&quot; dans la colone &quot;Output&quot; du pas en question qui sera j&#039;espère plus parlant.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2012-09-20T09:37:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15179#p15179</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[WIN: PGAgent: Execution JOB - toujours "Failed"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15177#p15177"/>
+		<content type="html"><![CDATA[<p>Bonjour, j&#039;essaye de mettre en place une JOB de backup avec PGAgent sous Windows Server (Serveur SQL sur la même machine).<br />Ayant quelques problèmes, j&#039;ai commencé une série de &quot;test&quot; en régression pour mettre le doigt sur ce qui ne va pas!</p><p>Pour commencé, j&#039;ai défini une simple tâche SQL que j&#039;essaye d&#039;exécuter avec PGAgent (via l&#039;option &quot;Run Now&quot; sur PGAdmin).<br />Le but étant d&#039;avoir une tache qui fonctionne avant d&#039;aller plus avant.</p><p>0) Versions<br />PostgreSql: 9.1<br />pgAgent: installé avec le StackBuilder</p><p>1) Définition de la tâche:</p><p>=== JOB &quot;Test&quot; ===<br />Type: Miscellaneous<br />Steps: &quot;Run Sql&quot;<br />Host Agent: SERVEUR.home (trouvé via requête sur le seveur)<br />=== STEP &quot;Run SQL&quot; ===<br />Connection Type: Local<br />Database: stockprod<br />Kind: Sql<br />On Error: Fail<br />Definition:<br />select * from file0050 limit 12;&#160; (ce SQL fonctionne parfaitement depuis la pgAdminIII</p><p>2) Service pgAgent<br />Comme j&#039;ai eu beaucoup de problèmes, j&#039;ai démarré le service PGAgent en mode DEBUG<br />La ligne de commande utilisée est:</p><p>C:\Program Files (x86)\pgAgent\bin&gt;pgAgent.exe DEBUG hostaddr=127.0.0.1 dbname=postgres user=postgres password=xxx -l 2</p><p>Le mode debug semble fonctionner correctement.<br />Ce dernier présente d&#039;ailleurs l&#039;exécution du JOB.</p><p>C:\Program Files (x86)\pgAgent\bin&gt;pgAgent.exe DEBUG hostaddr=127.0.0.1 dbname=postgres user=postgres password=xxx -l 2<br />DEBUG: Creating primary connection<br />DEBUG: Connection Information:<br />DEBUG:&#160; &#160; &#160; user&#160; &#160; &#160; &#160; &#160;: postgres<br />DEBUG:&#160; &#160; &#160; port&#160; &#160; &#160; &#160; &#160;: 0<br />DEBUG:&#160; &#160; &#160; host&#160; &#160; &#160; &#160; &#160;: 127.0.0.1<br />DEBUG:&#160; &#160; &#160; dbname&#160; &#160; &#160; &#160;: postgres<br />DEBUG:&#160; &#160; &#160; password&#160; &#160; &#160;: xxx<br />DEBUG:&#160; &#160; &#160; conn timeout : 0<br />DEBUG: Connection Information:<br />DEBUG:&#160; &#160; &#160; user&#160; &#160; &#160; &#160; &#160;: postgres<br />DEBUG:&#160; &#160; &#160; port&#160; &#160; &#160; &#160; &#160;: 0<br />DEBUG:&#160; &#160; &#160; host&#160; &#160; &#160; &#160; &#160;: 127.0.0.1<br />DEBUG:&#160; &#160; &#160; dbname&#160; &#160; &#160; &#160;: postgres<br />DEBUG:&#160; &#160; &#160; password&#160; &#160; &#160;: xxx<br />DEBUG:&#160; &#160; &#160; conn timeout : 0<br />DEBUG: Creating DB connection: user=postgres hostaddr=127.0.0.1 password=xxx dbname=postgres<br />DEBUG: Database sanity check<br />DEBUG: Clearing zombies<br />DEBUG: Checking for jobs to run<br />DEBUG: Creating job thread for job 2<br />DEBUG: Creating DB connection: user=postgres hostaddr=127.0.0.1 password=xxx dbname=postgres<br />DEBUG: Allocating new connection to database postgres<br />DEBUG: Starting job: 2<br />DEBUG: Sleeping...<br />DEBUG: Creating DB connection: user=postgres hostaddr=127.0.0.1 password=xxx dbname=postgres dbname=stockprod<br />DEBUG: Allocating new connection to database stockprod<br />DEBUG: Executing SQL step 3 (part of job 2)<br />DEBUG: Returning connection to database stockprod<br />DEBUG: Returning connection to database postgres<br />DEBUG: Completed job: 2<br />DEBUG: Destroying job thread for job 2</p><p>Je ne note rien de vraiment spécial... sauf peut être une double utilisation de &quot;dbname=&quot; dans la ligne suivante:<br />&#160; Creating DB connection: user=postgres hostaddr=127.0.0.1 password=xxx dbname=postgres dbname=stockprod</p><p>Je n&#039;ai trouvé aucun message dans &quot;Event Viewer&quot; (rien d&#039;évident en tout cas).</p><p>Quelqu&#039;un aurait-il une suggestion?<br />Ai-je raté quelque-chose de fondamental?<br />Ou est caché la raison du &quot;failed?&quot;</p>]]></content>
+		<author>
+			<name><![CDATA[dmeurisse]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1948</uri>
+		</author>
+		<updated>2012-09-20T09:16:54Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15177#p15177</id>
+	</entry>
+</feed>

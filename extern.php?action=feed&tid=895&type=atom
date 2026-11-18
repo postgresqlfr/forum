@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / aide pour une petite query sql (newbie)]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=895&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=895"/>
+	<updated>2010-07-07T10:47:16Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=895</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  aide pour une petite query sql (newbie)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5554#p5554"/>
+		<content type="html"><![CDATA[<p>damned ! Marc a été plus rapide moi <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><br /><p>voila ma version :</p><div class="codebox"><pre><code>SELECT id,l 
+FROM ( 
+     SELECT id, title, 
+                 length(title) AS l, 
+                 min(length(title)) OVER (PARTITION BY md5) AS m 
+     FROM content
+     ) AS s 
+WHERE m=l;</code></pre></div><p>Ce qui donne :</p><div class="codebox"><pre><code>postgres=# select * from content;
+ id |   title   | md5 
+----+-----------+-----
+  1 | 1         | z
+  2 | 22        | z
+  3 | 999999999 | z
+  4 | 666666    | y
+  5 | 4444      | y
+  8 | 8         | z
+
+postgres=# SELECT id,title,m FROM ( SELECT id, title, length(title) as l, min(length(title)) OVER (PARTITION BY md5) as m FROM content) AS s where m=l;
+ id | title | m 
+----+-------+---
+  5 | 4444  | 4
+  1 | 1     | 1
+  8 | 8     | 1
+(3 lignes)</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[daamien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=19</uri>
+		</author>
+		<updated>2010-07-07T10:47:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5554#p5554</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  aide pour une petite query sql (newbie)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5553#p5553"/>
+		<content type="html"><![CDATA[<p>Merçi <br />je teste,partition est tout nouveau pour moi <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[dlamotte]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=609</uri>
+		</author>
+		<updated>2010-07-07T10:11:52Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5553#p5553</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  aide pour une petite query sql (newbie)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5552#p5552"/>
+		<content type="html"><![CDATA[<p>Dans ce cas, en 8.4, on peut le faire avec des &#039;window functions&#039;.<br />J&#039;ai mis ces données de test:</p><div class="codebox"><pre><code>marc=# SELECT * from content;
+ id |          title          |         md5         
+----+-------------------------+---------------------
+  1 | le beau danube bleu     | aaaaaaaaaaaaaaa
+  2 | le beau danube pas bleu | aaaaaaaaaaaaaaa
+  3 | tanhauser               | bbbbbbbbbbbbbbbbbbb
+  4 | tristan et iseult       | bbbbbbbbbbbbbbbbbbb
+
+
+SELECT rank() over (PARTITION BY md5 ORDER BY length(title) ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS classement, title, md5 from content;
+
+ classement |          title          |         md5         
+------------+-------------------------+---------------------
+          1 | le beau danube bleu     | aaaaaaaaaaaaaaa
+          3 | le beau danube pas bleu | aaaaaaaaaaaaaaa
+          1 | tanhauser               | bbbbbbbbbbbbbbbbbbb
+          2 | les walkiries           | bbbbbbbbbbbbbbbbbbb
+          3 | tristan et iseult       | bbbbbbbbbbbbbbbbbbb</code></pre></div><p>De là, on peut faire une sous requête:</p><div class="codebox"><pre><code>SELECT tmp.title, tmp.md5 FROM (SELECT rank() over (PARTITION BY md5 ORDER BY length(title) ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS classement, title, md5 from content) AS tmp WHERE classement = 1;
+
+        title        |         md5         
+---------------------+---------------------
+ le beau danube bleu | aaaaaaaaaaaaaaa
+ tanhauser           | bbbbbbbbbbbbbbbbbbb
+(2 rows)</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-07-07T10:07:52Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5552#p5552</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  aide pour une petite query sql (newbie)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5551#p5551"/>
+		<content type="html"><![CDATA[<p>avec postgres 8.4 (pardon de ne pas l&#039;avoir mentionné <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /> )</p>]]></content>
+		<author>
+			<name><![CDATA[dlamotte]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=609</uri>
+		</author>
+		<updated>2010-07-07T09:31:39Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5551#p5551</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  aide pour une petite query sql (newbie)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5550#p5550"/>
+		<content type="html"><![CDATA[<p>En quelle version ? 8.4 ? ou antérieure ?</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-07-07T09:30:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5550#p5550</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[aide pour une petite query sql (newbie)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5549#p5549"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />je dispose d&#039;une table content avec 3 champs id,title,md5 <br />et je veux retrouver tous les id dont la longueur des titres sont les plus courts pour un même md5</p><p>#select min(length(title)) as min&#160; from content group by md5<br />sur base de cette query je ne vois pas trop comment faire, j&#039;ai essayé des subquery et différentes choses <br />mais là je bloque</p><p>Bien à vous</p><p>#table<br />CREATE TABLE content<br />(<br />&#160; id serial NOT NULL,<br />&#160; title character varying(2000),<br />&#160; md5 text,<br />&#160; CONSTRAINT content_pkey PRIMARY KEY (id)<br />)<br />WITH (<br />&#160; OIDS=FALSE<br />);</p>]]></content>
+		<author>
+			<name><![CDATA[dlamotte]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=609</uri>
+		</author>
+		<updated>2010-07-07T09:23:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5549#p5549</id>
+	</entry>
+</feed>

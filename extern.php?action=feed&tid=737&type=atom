@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Replication qui reprend à l'état inital après arrêt]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=737&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=737"/>
+	<updated>2010-04-20T07:17:16Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=737</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Replication qui reprend à l'état inital après arrêt]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4603#p4603"/>
+		<content type="html"><![CDATA[<p>Merci pour votre réponse.<br />J&#039;ai eu l&#039;occasion de mettre en place la streaming replication avec la version alpha5 de PG 9. Une fois les tests réalisés, si ceux-ci sont concluant nous devrions très certainement utiliser cette réplication native pour nos futurs projets.</p>]]></content>
+		<author>
+			<name><![CDATA[panou]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=725</uri>
+		</author>
+		<updated>2010-04-20T07:17:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4603#p4603</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Replication qui reprend à l'état inital après arrêt]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4601#p4601"/>
+		<content type="html"><![CDATA[<p>OK, je comprends mieux. En fait, vous arrêtez le mode de réplication du serveur pour pouvoir l&#039;utiliser en lecture seule. Quelque soit la version que vous utilisez, vous allez être obligé de reconstruire entièrement l&#039;esclave. Le Warm Standby ne peut pas reprendre la réplication après coup car vous avez changé de timeline. Les deux serveurs ont des numéros de transactions différents. Donc deux possibilités : refaire une sauvegarde des fichiers sur le maître que vous envoyez sur l&#039;esclave (bref une reconstruction à l&#039;état t du serveur et dans ce cas pas besoin des anciens journaux), ou vous remettez une ancienne version des fichiers (et vous aurez besoin de tous les journaux générés depuis cette version des fichiers).</p><p>En 9.0 (toujours pas sorti), il vous sera possible d&#039;utiliser l&#039;esclave en lecture seule. Dans toutes les versions antérieures, l&#039;utilisation du serveur esclave fait qu&#039;il doit être complètement réinstaller pour le remettre dans la réplication.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-04-20T07:00:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4601#p4601</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Replication qui reprend à l'état inital après arrêt]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4600#p4600"/>
+		<content type="html"><![CDATA[<p>Ce n&#039;est pas moi qui m&#039;occupe de cette réplication, mais apparemment il l&#039;arrête à certain moment pour passer l&#039;esclave en lecture.<br />J&#039;ai parlé de l&#039;upgrade, mais solution non possible à cause de l&#039;utilisation de logiciels qui s&#039;appuie sur cette version, et ca serait apparemment trop compliqué de changer de version.<br />Si je comprends bien la seul solution en cas d&#039;un arrêt, est de resynchroniser les 2 serveurs ?</p>]]></content>
+		<author>
+			<name><![CDATA[panou]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=725</uri>
+		</author>
+		<updated>2010-04-20T06:29:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4600#p4600</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Replication qui reprend à l'état inital après arrêt]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4595#p4595"/>
+		<content type="html"><![CDATA[<p>Le WarmStandby en 8.1, c&#039;est loin d&#039;être recommandé. Ça peut fonctionner, mais ce n&#039;est en aucun cas garanti. Il faut au moins être en 8.2 pour cela.</p><div class="quotebox"><blockquote><div><p>Existe t-il une manip ou un fichier à configurer afin de modifier sa date de reprise ?</p></div></blockquote></div><p>Non, la date de début de reprise (ou plutôt la position dans le premier journal de transaction), il le trouve dans le fichier pg_control du répertoire global. Pas la peine de l&#039;éditer, c&#039;est un fichier binaire.</p><p>Le mieux dans votre cas serait certainement de passer dans une version plus récente (8.3 minimum).</p><p>Mais en fait, la première question qui me vient en tête est : pourquoi arrêter l&#039;esclave ?</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-04-19T15:23:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4595#p4595</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Replication qui reprend à l'état inital après arrêt]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4594#p4594"/>
+		<content type="html"><![CDATA[<p>Bonjour, </p><p>Désolé de poser beaucoup de question en ce moment.<br />J&#039;ai en production un postgresql 8.1.5 qui fait de la replication par log-shipping.<br />La replication marche bien, cependant, si je coupe le serveur de secours, lors de la reprise, celui-ci cherche à rejouer tous les walls depuis ca mise en place initial, et non depuis le dernier point de vérification.<br />Le problème est que les fichiers wal sont nettoyers régulièrement afin d&#039;éviter leur accumulation.<br />Existe t-il une manip ou un fichier à configurer afin de modifier sa date de reprise ?</p><p>Merci</p>]]></content>
+		<author>
+			<name><![CDATA[panou]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=725</uri>
+		</author>
+		<updated>2010-04-19T14:48:33Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4594#p4594</id>
+	</entry>
+</feed>

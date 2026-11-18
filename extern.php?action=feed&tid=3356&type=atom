@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Obtenir les derniers enregistrements pour une liste d'identifiants]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3356&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3356"/>
+	<updated>2014-10-31T14:02:57Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3356</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Obtenir les derniers enregistrements pour une liste d'identifiants]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20872#p20872"/>
+		<content type="html"><![CDATA[<p>Merci de votre réponse.<br />Voici la definition de ma table:</p><div class="codebox"><pre><code>CREATE TABLE matable
+(
+  id1 bigint NOT NULL,
+  date timestamp without time zone NOT NULL,
+  id2 integer NOT NULL,
+  ...
+)</code></pre></div><p>J&#039;arrive à obtenir le résultat avec cette requête:</p><div class="codebox"><pre><code>select b.* from matable b, 
+(select a.id2, max(a.date)
+from matable a 
+group by a.id2
+order by a.id2
+) a
+where a.id2= b.id2
+and b.date = a.max</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[sansli]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=4289</uri>
+		</author>
+		<updated>2014-10-31T14:02:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20872#p20872</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Obtenir les derniers enregistrements pour une liste d'identifiants]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20859#p20859"/>
+		<content type="html"><![CDATA[<p>Sans la définition complète de votre table, difficile de donner la meilleure solution. En imaginant qu&#039;elle s&#039;appelle matable, et que les champs s&#039;appellent respectivement id,id2 et dt, la requête suivante devrait fonctionner :</p><div class="codebox"><pre><code>select r.* from
+(select id2,max(dt) as max
+from matable
+group by id2
+) s
+join matable r on s.max = r.dt</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2014-10-29T19:48:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20859#p20859</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Obtenir les derniers enregistrements pour une liste d'identifiants]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20857#p20857"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Voici mon problème, j&#039;ai une table A avec les champs:<br />champ1 =&gt; id technique<br />champ2 =&gt; un identifiant<br />champ3 =&gt; date de dernière mise à jour<br />champ4....etc<br />Je cherche à récupérer la liste des dernières mise à jour groupé par identifiant(champ2) pour une liste d&#039;identifiant.<br />Je pense que je dois utiliser GROUP BY, mais je n&#039;ai pas réussit pour l&#039;instant.</p><p>exemple:<br />liste d&#039;identifiant = (257, 258)<br />champ1&#160; &#160; champ2&#160; &#160; &#160;champ3<br />1&#160; &#160; &#160; &#160; &#160; &#160; &#160; 257&#160; &#160; &#160; &#160; &#160; &#160;&quot;2013-04-12 10:28:13.234&quot;<br />2&#160; &#160; &#160; &#160; &#160; &#160; &#160; 257&#160; &#160; &#160; &#160; &#160; &#160;&quot;2013-04-11 17:24:49.941&quot;<br />3&#160; &#160; &#160; &#160; &#160; &#160; &#160; 258&#160; &#160; &#160; &#160; &#160; &#160;&quot;2013-03-29 12:08:27.70&quot;<br />4&#160; &#160; &#160; &#160; &#160; &#160; &#160; 258&#160; &#160; &#160; &#160; &#160; &#160;&quot;2013-04-12 10:28:12.667&quot;<br />5&#160; &#160; &#160; &#160; &#160; &#160; &#160; 259&#160; &#160; &#160; &#160; &#160; &#160;&quot;2013-06-12 14:32:41.522&quot;</p><p>résultat attendu:<br />champ1&#160; &#160; champ2&#160; &#160; &#160;champ3<br />1&#160; &#160; &#160; &#160; &#160; &#160; &#160; 257&#160; &#160; &#160; &#160; &#160; &#160;&quot;2013-04-12 10:28:13.234&quot;<br />4&#160; &#160; &#160; &#160; &#160; &#160; &#160; 258&#160; &#160; &#160; &#160; &#160; &#160;&quot;2013-04-12 10:28:12.667&quot;</p><p>Je suis sur PostgreSQL 8.3.8-1.<br />Merci.</p>]]></content>
+		<author>
+			<name><![CDATA[sansli]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=4289</uri>
+		</author>
+		<updated>2014-10-29T17:37:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20857#p20857</id>
+	</entry>
+</feed>

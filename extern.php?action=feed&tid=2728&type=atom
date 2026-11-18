@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / trigger entre deux tables : partage d'id]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2728&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2728"/>
+	<updated>2013-08-12T17:53:38Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2728</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  trigger entre deux tables : partage d'id]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17845#p17845"/>
+		<content type="html"><![CDATA[<p>Votre demande n&#039;est pas très compréhensible comme ça. Essayez de faire un exemple avec un jeu de tables simples et indiquez le schéma que vous obtenez ainsi (structure des tables, contenu de la fonction, déclaration du trigger). Ce sera bien plus simple pour vous aider.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2013-08-12T17:53:38Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17845#p17845</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  trigger entre deux tables : partage d'id]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17834#p17834"/>
+		<content type="html"><![CDATA[<p>Bonjour, </p><p>Le return NULL; de votre fonction vous oblige à la quitter avant le select et l&#039;update, il me semble.</p>]]></content>
+		<author>
+			<name><![CDATA[SAS]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=23</uri>
+		</author>
+		<updated>2013-08-08T14:28:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17834#p17834</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[trigger entre deux tables : partage d'id]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17833#p17833"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous,</p><p>après plusieurs tentatives et des recherches sur mon ami google je reste sur un échec ! je me tourne alors vers vous pour m&#039;aider.</p><p>j&#039;ai deux tables avec plusieurs champs mais je ne cite que ceux qui m&#039;intéresse :<br />sb_data_44 avec comme identifiant rowid(serial) et un champ id_tblcommerce (integer)<br />tbl_commerce_test avec un champ identifiant id_commerce(serial) et un champ rowid_tbldata44</p><p>mon objectif est que chaque table reçoit l&#039;identifiant de l&#039;autre après une insertion (le tout en gérant éventuellement des accès simultanés)<br />Hors je n&#039;arrive pas à recevoir l&#039;id ( id_commerce) de la table tbl_commerce_test dans la table sb_data_44 (sur le champ id_tblcommerce).<br />tbl_commerce_test reçoit bien lui l&#039;identifiant de sb_data_44.</p><p>je suis sur un système figé où les données sont utilisées et gérées dans par un premier logiciel métier, et dont l&#039;organisation ne permet d&#039;être attaquée par un second logiciel ... d&#039;où mon besoin de faire coincider les identifiants.</p><p>je soupçonne mon update en fin de fonction, je l&#039;ai placé ailleurs mais rien ...</p><p>voici ma fonction</p><div class="codebox"><pre class="vscroll"><code>CREATE OR REPLACE FUNCTION base_sig.fct_synchro()
+  RETURNS trigger AS
+$BODY$
+DECLARE idc integer;
+DECLARE rid_dyn integer;
+
+BEGIN
+ 
+IF (TG_OP = &#039;DELETE&#039;) THEN
+		DELETE FROM sch_t1_commerce.tbl_commerce_test WHERE rowid_tbldata44=OLD.rowid;
+		IF NOT FOUND THEN RETURN NULL; END IF;
+		RETURN OLD;
+ELSIF (TG_OP = &#039;INSERT&#039;) THEN
+		INSERT INTO sch_t1_commerce.tbl_commerce_test (rowid_tbldata44) VALUES (rid_dyn)	;
+
+		RETURN NEW;	
+END IF;
+	
+RETURN NULL; 
+
+
+SELECT tbl_commerce_test.id_commerce into idc FROM sch_t1_commerce.tbl_commerce_test, base_sig.sb_data_44 WHERE tbl_commerce_test.rowid_tbldata44=rid_dyn;
+UPDATE base_sig.sb_data_44 SET id_tblcommerce = idc WHERE sb_data_44.rowid=rid_dyn;
+
+
+END;
+
+$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+ALTER FUNCTION base_sig.fct_synchro()
+  OWNER TO postgres;</code></pre></div><p>et mon trigger :</p><div class="codebox"><pre><code>CREATE TRIGGER tg_synchro
+AFTER INSERT OR UPDATE OR DELETE
+ON base_sig.sb_data_44
+FOR EACH ROW
+EXECUTE PROCEDURE base_sig.fct_synchro();
+ALTER TABLE base_sig.sb_data_44;</code></pre></div><br /><p>Merci pour vos conseils</p>]]></content>
+		<author>
+			<name><![CDATA[elsane2908]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1374</uri>
+		</author>
+		<updated>2013-08-08T12:32:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17833#p17833</id>
+	</entry>
+</feed>

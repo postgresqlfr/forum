@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Problème d'automatisation de script]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4767&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4767"/>
+	<updated>2018-05-31T07:31:05Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4767</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème d'automatisation de script]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27702#p27702"/>
+		<content type="html"><![CDATA[<p>Oui, cette syntaxe est bonne.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2018-05-31T07:31:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27702#p27702</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème d'automatisation de script]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27701#p27701"/>
+		<content type="html"><![CDATA[<p>Bonsoir Guillaume , </p><p>Est-ce que tu penses que cette syntaxe est correcte :</p><p>function sql_query(){</p><p>  sudo -u postgres psql -p &quot;$PG_PORT&quot; -d &quot;$PG_DATABASE&quot; -c &quot;$1&quot;<br />}</p>]]></content>
+		<author>
+			<name><![CDATA[Mangone]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8044</uri>
+		</author>
+		<updated>2018-05-30T20:48:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27701#p27701</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème d'automatisation de script]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27700#p27700"/>
+		<content type="html"><![CDATA[<p>Dire &quot;elle génére des erreurs du genre&quot; ne nous aide pas du tout. Il nous faut les vrais messages d&#039;erreur et surtout les premiers s&#039;il y en a plusieurs.</p><p>Ceci étant dit, ce message d&#039;erreur laisse supposer qu&#039;il y a des caractères invisibles devant le nom de la commande. De plus, pour cette fonction, même sans cette erreur de commande introuvable, &quot;postgres -u psql -p...&quot;, je n&#039;ai aucune idée de ce que ça veut dire ?!?! Il n&#039;existe pas d&#039;option -u à la commande postgres, et de toute façon, on ne peut pas indiquer la commande psql à la commande postgres.</p><p>Enfin, un dernier point, plutôt que d&#039;utiliser des variables inventées comme CPV_DB_NAME et CPV_DB_PORT, pourquoi ne pas utiliser les variables prévues par PostgreSQL ? (respectivement PG_DATABASE et PG_PORT) Ça vous éviterait d&#039;avoir à les utiliser avec les options -p et -d. Et grâce à ça, ça vous permettrait de dégager la fonction sql_query pour avoir quelque chose de bien plus simple avec psql.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2018-05-30T19:43:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27700#p27700</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème d'automatisation de script]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27699#p27699"/>
+		<content type="html"><![CDATA[<p>Bonjour Sébastien , </p><p>Je viens de voir ta réponse et je te remercie . Je vais argumenté au niveau des problème que cela me pose . <br />Voici ce que j&#039;ai pu établir comme script d&#039;automatisation mais j&#039;ai des messages d&#039;erreurs au lancement: </p><p>Script:<br />#!/bin/bash</p><p>#SCRIPT de sauvegarde de la table clients<br />#A exécuter en tant que postgres ou via &quot;sudo -u postgres Livrable.sh&quot;</p><p>PGPATH=&quot;/usr/bin&quot;<br />QUIET=&quot;-q&quot;</p><p>#### TODO : VARIABLE A CHANGER SI BESOIN<br />CPV_DB_NAME=&quot;MYDATABASE&quot; #Nom de la base de données cible<br />CPV_DB_PORT=5333 #Numéro de port associé au cluster<br />REST_D=&quot;/mnt/MYDATABASE/DUMP&quot; #Dossier ou se trouve le .dump</p><p>function sql_query(){<br />  postgres -u psql -p &quot;$CPV_DB_PORT&quot; -d &quot;$CPV_DB_NAME&quot; -c &quot;$1&quot;<br />}<br />#1)Ajout de colonne mise_a_jour dans la table clients<br />sql_query &quot;Alter table clients add column mise_a_jour date;&quot;</p><p>#2)mise en place des données de la colonne MAJ<br />sql_query &quot;update clients set mise_a_jour = (select DETECTEDLAST from numéro de carte where oid = _oid and wid = _wid) where mise_a_jour  is null;&quot;</p><p>#3)Re-création de la nouvelle table client<br />sql_query &quot;alter table clients drop constraint fk xxxxxxxxxxxxx&quot;;<br />sql_query &quot;alter table clients rename to first_frist clients&quot;;<br />sql_query &quot;create&#160; table clients<br />&#160; &#160; &#160; &#160; _oid int8 not null,<br />&#160; &#160; &#160; &#160; _wid int8 not null,<br />&#160; &#160; &#160; &#160; tracks_oid int8 not null,<br />&#160; &#160; &#160; &#160; tracks_wid int8 not null,<br />&#160; &#160; &#160; &#160; mise_a_jour date,<br />&#160; &#160; &#160; &#160; primary key (_oid, _wid, tracks_oid, tracks_wid)&quot;;</p><p>#4)Remplissage de la table clients<br />pg_restore -p $CPV_DB_PORT -d $CPV_DB_NAME -a -F c -t clients  --disable-triggers --verbose -f /mnt/MYDATABASE/DUMP/clients-a-c.dump </p><br /><p>Je sais que toutes ces commandes tapées individuellement en ligne de commande fonctionnent. Lorsque je j&#039;utilise cette fonction elle génére des erreurs du genre &quot;Livrable.sh: ligne 15 $&#039;\302\240 :command introuvable.&#160; <br />La ligne 15 correspond à : postgres -u psql -p &quot;$CPV_DB_PORT&quot; -d &quot;$CPV_DB_NAME&quot; -c &quot;$1&quot;</p><p>Voilà les problèmes auxquels je suis confrontés.<br />Merci d&#039;avance pour l&#039;écoute et le dépannage .</p>]]></content>
+		<author>
+			<name><![CDATA[Mangone]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8044</uri>
+		</author>
+		<updated>2018-05-30T17:23:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27699#p27699</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème d'automatisation de script]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27685#p27685"/>
+		<content type="html"><![CDATA[<p>bonjour,</p><p>Je suis comme guillaume, je ne vois pas où est votre problème.<br />Pourquoi le fait de tout mettre dans un script vous pose problème ?<br />Ou alors il y a quelque chose qui m&#039;échappe...</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2018-05-30T07:06:35Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27685#p27685</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème d'automatisation de script]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27684#p27684"/>
+		<content type="html"><![CDATA[<p>Hey oui Guillaume, C&#039;est là que j&#039;ai un problème, et c&#039;est encore là ou je sollicite le forum&#160; pour une aide vraiment précieuse. <br />Je suis preneur de toute aide dans ce sens . <br />Merci d&#039;avance</p>]]></content>
+		<author>
+			<name><![CDATA[Mangone]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8044</uri>
+		</author>
+		<updated>2018-05-29T19:48:50Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27684#p27684</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème d'automatisation de script]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27683#p27683"/>
+		<content type="html"><![CDATA[<p>Il faut les mettre toutes dans un script (un fichier qui contient ces instructions), et exécuter le script.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2018-05-29T19:41:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27683#p27683</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème d'automatisation de script]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27682#p27682"/>
+		<content type="html"><![CDATA[<p>Bonsoir Guillaume, </p><p>Merci pour ta réponse . Il est vrai que j&#039;ai testé toutes ces instructions, elles fonctionnent toutes.<br />Mon problème je veux que la lancement soit automatique et non de façon individuelle. Je veux que la 1ère instruction lance toutes les autres instructions. <br />Je ne sais pas si je suis clair sans mon projet ?<br />Je pense que si !</p>]]></content>
+		<author>
+			<name><![CDATA[Mangone]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8044</uri>
+		</author>
+		<updated>2018-05-29T19:28:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27682#p27682</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème d'automatisation de script]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27680#p27680"/>
+		<content type="html"><![CDATA[<p>Je ne suis pas sûr de comprendre votre demande. Vous avez déjà tout pour le faire. Il y a toutes les instructions (sauf que j&#039;utiliserais plutôt psql -c que psql -f, mais ça ne change pas grand chose).</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2018-05-29T19:23:03Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27680#p27680</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Problème d'automatisation de script]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27679#p27679"/>
+		<content type="html"><![CDATA[<p>onsoir, </p><p>Merci pour cette oreille attentive, merci à ceux qui nous éclairent quand on ne sait plus ou donner de la tête. <br />Si je suis revenu ce soir, s&#039;est que j&#039;ai un problème que je n&#039;arrive pas à résoudre. Je remercie toutes contribution. <br />Il s&#039;agit dee scripts qui font appel à des fichiers sql et l&#039;objectif est pour moi de faire un lancement pour tout dérouler . <br />J&#039;ai vraiment besoin de cette aide. <br />1) Ajout de nouvelle colonne dans la table &quot;clients&quot;<br />* Fichier .sql contenant : psql -f<br />Alter table client add column mise_a_jour date;</p><p>2) Mise en place de données dans la table clients <br />*Fichier .sql contenant : psql -f<br />update tracks_transmitter set mise_a_jour = (select DETECTEDLAST from client where oid = _oid and wid = _wid) where mise_a_jour&#160; is null; </p><p>3) Un Pg-dump </p><p>#!/bin/bash</p><p>#SCRIPT DE SAUVEGARDE DE LA TABLE clients </p><p>PGPATH=&quot;/usr/bin&quot;<br />QUIET=&quot;-q&quot;</p><p>#### TODO : VARIABLE A CHANGER SI BESOIN<br />CPV_DB_NAME=&quot;MYDATABASE&quot; #Nom de la base de données cible<br />CPV_DB_PORT=5544 #Numéro de port associé au cluster<br />REST_D=&quot;/mnt/MyPC/DUMP&quot; #Dossier ou se trouve le .dump<br />#Restauration</p><p>sudo -u postgres pg_dump -p $CPV_DB_PORT -d $CPV_DB_NAME -a -F c -t clients&#160; --disable-triggers --verbose -f /mnt/MyPC/DUMP/client-a-c.dump&#160; </p><p>Voilà mes amis, je cherche à automatiser tout cela . <br />Je vous remercie de bien vouloir m&#039;aider s&#039;il vous plait</p>]]></content>
+		<author>
+			<name><![CDATA[Mangone]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8044</uri>
+		</author>
+		<updated>2018-05-29T17:53:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27679#p27679</id>
+	</entry>
+</feed>

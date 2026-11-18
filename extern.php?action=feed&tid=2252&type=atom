@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Répercution des résultats d'une fonction dans ma table via une vue]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2252&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2252"/>
+	<updated>2012-09-27T06:50:52Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2252</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Répercution des résultats d'une fonction dans ma table via une vue]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15236#p15236"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;ai finalement réussi à m&#039;en sortir, en ne faisant plus comme ça :</p><div class="codebox"><pre><code>RAISE NOTICE &#039;UPDATE %&#039;, &#039;UPDATE bd_adresse SET dom_num=&#039;&#039;&#039;||$4||$5||&#039;&#039;&#039;WHERE ogc_fid=&#039;&#039;&#039;||$6||&#039;&#039;&#039;&#039;;</code></pre></div><p>par</p><div class="codebox"><pre><code>UPDATE bd_adresse SET dom_num=$4||$5 WHERE ogc_fid=$6;</code></pre></div><p>Tout simplement.</p><p>Cdt</p>]]></content>
+		<author>
+			<name><![CDATA[Geo-x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1346</uri>
+		</author>
+		<updated>2012-09-27T06:50:52Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15236#p15236</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Répercution des résultats d'une fonction dans ma table via une vue]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15123#p15123"/>
+		<content type="html"><![CDATA[<p>Pour pouvoir vous aider, il faudrait nous fournir la déclaration de la table bd_adresse et de la vue bd_adresse_unique_view.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-09-14T20:09:54Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15123#p15123</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Répercution des résultats d'une fonction dans ma table via une vue]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15107#p15107"/>
+		<content type="html"><![CDATA[<p>Bonjour @ tous,</p><p>J&#039;ai un problème au niveau de la mise à jour d&#039;une table via un UPDATE en passant par une fonction, je vous explique :</p><p>J&#039;ai créé une fonction bidule2() qui s&#039;occupe de faire des update sur la base bd_adresse (ici le champ dom_num est mis à jour en faisant une concaténation du champ domanialite et num_voirie) :</p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION bidule2(&quot;$1&quot; character varying, &quot;$2&quot; character varying, &quot;$3&quot; character varying, &quot;$4&quot; character varying, &quot;$5&quot; character varying, &quot;$6&quot; integer)
+  RETURNS integer AS
+$BODY$
+ 
+BEGIN 
+ 
+    IF
+                        ($4=&#039;RD&#039; OR $4=&#039;VC&#039; OR $4=&#039;A&#039;) AND (($4&lt;&gt;&#039;&#039; AND $5&lt;&gt;&#039;&#039;)OR($4 IS NOT NULL AND $5 IS NOT NULL))
+            THEN
+                                RAISE NOTICE &#039;UPDATE %&#039;, &#039;UPDATE bd_adresse SET dom_num=&#039;&#039;&#039;||$4||$5||&#039;&#039;&#039;WHERE ogc_fid=&#039;&#039;&#039;||$6||&#039;&#039;&#039;&#039;;
+				
+                        RETURN 1;
+    ELSE
+                        RETURN 0;
+
+END IF;</code></pre></div><p>Dans la vue de ma table bd_adresse, j&#039;ai créé une RULE pour effectuer la mise à jour :</p><div class="codebox"><pre><code>CREATE OR REPLACE RULE &quot;_UPDATE&quot; AS
+    ON UPDATE TO bd_adresse_unique_view DO INSTEAD ( SELECT bidule2(new.nom_type, new.nom_article, new.nom_lib, new.domanialite, new.num_voirie, new.ogc_fid) AS bidule;
+ UPDATE bd_adresse SET ogc_fid = new.ogc_fid, wkb_geometry = new.wkb_geometry, code_insee = new.code_insee, commune = new.commune, id_troncon_bda = new.id_troncon_bda, id_voie_bda = new.id_voie_bda, id_troncon_diag = new.id_troncon_diag, id_voie_diag = new.id_voie_diag, iddomanialite = new.iddomanialite, domanialite = new.domanialite, nom_type = new.nom_type, nom_article = new.nom_article, nom_lib = new.nom_lib, num_voirie = new.num_voirie, nom_voie = new.nom_voie, dom_num = new.dom_num, nom_num = new.nom_num, nom_detaille = new.nom_detaille, nom_detaille_dom_num = new.nom_detaille_dom_num, long_carto_troncon = new.long_carto_troncon, long_carto_voie_bda = new.long_carto_voie_bda, modif_adresse = new.modif_adresse, nb_troncon_bda = new.nb_troncon_bda
+  WHERE bd_adresse.ogc_fid = old.ogc_fid;
+);</code></pre></div><p>Pourtant, lorsque je fais un UPDATE sur ma vue :</p><div class="codebox"><pre><code>UPDATE bd_adresse_unique_view SET num_voirie=&#039;30&#039; WHERE ogc_fid=&#039;7659&#039;</code></pre></div><p>Ni ma vue, ni ma table source ne se met à jour, hormis num_voirie, alors que le résultat de mon RAISE NOTICE semble plutôt positif :</p><div class="codebox"><pre><code>NOTICE:  UPDATE UPDATE bd_adresse_unique_view SET dom_num=&#039;RD30&#039;WHERE ogc_fid=&#039;7659&#039;</code></pre></div><p>Donc le problème que j&#039;ai ici est : la répercution des résultats de ma fonction dans ma table via une vue.</p><p>Merci.</p>]]></content>
+		<author>
+			<name><![CDATA[Geo-x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1346</uri>
+		</author>
+		<updated>2012-09-13T10:03:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15107#p15107</id>
+	</entry>
+</feed>

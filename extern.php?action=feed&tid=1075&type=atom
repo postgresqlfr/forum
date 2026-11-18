@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Probléme avec la taille de ma table]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1075&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1075"/>
+	<updated>2010-11-25T11:00:28Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1075</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Probléme avec la taille de ma table]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6799#p6799"/>
+		<content type="html"><![CDATA[<p>Merci beaucoup&#160; pour votre réponse.<br />Les éléments de réponse que j&#039;ai obtenu sont clairs.</p><p>Bien a vous.<br />Lebrun Nya</p>]]></content>
+		<author>
+			<name><![CDATA[lebrunnya]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=985</uri>
+		</author>
+		<updated>2010-11-25T11:00:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6799#p6799</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Probléme avec la taille de ma table]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6786#p6786"/>
+		<content type="html"><![CDATA[<p>Le problème, c&#039;est que votre théorie est fausse et que votre test est faux.</p><p>Commençons par la théorie. Votre table contient trois colonnes utilisateurs, ce qui fait 4+4+2, soit 10 octets pour les informations utilisateurs. À cela vous devez au moins ajouter 5*4+1*6 octets pour chaque ligne (5+1 car 6 colonnes systèmes, et 5*4+1*6 car 5 sont des entiers et 1 est un tableau sur 6 octets), ce qui fait 26 octets de plus par ligne. On arrive donc à environ 36 Mo. À cela, vous ajoutez des informations supplémentaires d&#039;en-tête pour chaque bloc, et on arrive à un total de 42 Mo (sur mon portable, avec une 9.0).</p><p>Pourquoi n&#039;arrive-je pas à 64 Mo comme vous ? tout simplement parce que votre test est faux. Vous utilisez pg_total_relation_size() comme si cela allait vous donner la taille de la table. C&#039;est faux. Cela donne la taille de la table et des index associés. pg_relation_size() vous aurait donné la taille de la table. Et dans ce cas, vous arrivez bien à 42 Mo. C&#039;est l&#039;index qui ajoute 21 Mo. Index créé par l&#039;ajout de la clé primaire (d&#039;où le fait que vous arrivez à 42 Mo une fois l&#039;index supprimé).</p><p>Pour répondre à votre dernière question, vous ne pouvez pas la minimiser. PostgreSQL a besoin de stocker des informations supplémentaires qui permettent un tas de fonctionnalités intéressantes comme le transactionnel.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-11-24T13:28:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6786#p6786</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Probléme avec la taille de ma table]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6783#p6783"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />Je suis une formation de développeur java grâce au site <a href="http://www.blackbeltfactory.com" rel="nofollow">www.blackbeltfactory.com</a>. Dans le cadre d’un projet lors de cette&#160; formation, je me pose une question&#160; sur la taille d’une table PostgreSQL 9.0 nommée questionnaire_questions qui contient 1 million d’enregistrements avec les champs suivants :<br />Questionnaireid (integer), Questionid (integer), Questionindex (smallint)</p><div class="codebox"><pre><code>CREATE TABLE questionnaires_questions (
+  questionnaireid integer NOT NULL,
+  questionid integer NOT NULL,
+  questionindex smallint NOT NULL,
+  CONSTRAINT questionnaires_questions_pkey PRIMARY KEY (questionnaireid, questionindex)
+)
+WITH (
+  OIDS=FALSE
+);</code></pre></div><p>Théoriquement, la taille des données donne (4bytes+ 4bytes +2bytes) * 1000 000 =&#160; <strong>10Mb.</strong><br />Lorsque je récupère la taille réelle grâce à la requête suivante :</p><div class="codebox"><pre><code> SELECT pg_size_pretty (pg_total_relation_size(&#039;public.questionnaires_questions_test&#039;))</code></pre></div><p>J’obtiens une taille de <strong>64Mb</strong>. Juste pour des tests, en supprimant la clé primaire,&#160; j’obtiens <strong>42Mb</strong>.</p><p><strong>Quelqu’un pourrait m’expliquer cette différence entre les deux tailles (théorique et réel)&#160; et comment la minimiser ? </strong></p>]]></content>
+		<author>
+			<name><![CDATA[lebrunnya]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=985</uri>
+		</author>
+		<updated>2010-11-24T09:41:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6783#p6783</id>
+	</entry>
+</feed>

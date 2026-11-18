@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Linux: Systemd plusieurs services Postgresql ?]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4437&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4437"/>
+	<updated>2017-10-31T10:05:47Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4437</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Linux: Systemd plusieurs services Postgresql ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26315#p26315"/>
+		<content type="html"><![CDATA[<p>C&#039;est parfait, merci !</p><p>J&#039;ai fait une archive avec les fichiers de conf de la version 9.3 et arrêté l&#039;ensemble de postgresql.</p>]]></content>
+		<author>
+			<name><![CDATA[Ulysse]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7782</uri>
+		</author>
+		<updated>2017-10-31T10:05:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26315#p26315</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Linux: Systemd plusieurs services Postgresql ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26314#p26314"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Les services &quot;postgresql@...&quot; sont déduits d&#039;un template &quot;/lib/systemd/system/postgresql@.service&quot;.</p><p>Si vous regardez le contenu du template, vous verrez:</p><p>* &quot;ConditionPathExists=/etc/postgresql/%I/postgresql.conf&quot;: si le fichier de conf existe, le service existe<br />* &quot;Before=postgresql.service&quot;: si le service &quot;postgresql.service&quot; est démarré, ces services doivent l&#039;être en premier</p><p>Donc, si vous souhaitez désactiver tout postgresql au démarrage, il faut désactiver le service &quot;postgresql.service&quot;.</p><p>Si vous ne souhaiter que désactiver une instance parmi d&#039;autres, il faut éditer le fichier &quot;/etc/postgresql/%I/main/start.conf&quot; correspondant.</p><p>Si vous souhaitez vous débarrasser du service &quot;postgresql@9.3-main.service&quot;, archivez le contenu de&#160; &quot;/etc/postgresql/9.3&quot; et potentiellement de ses fichiers de données.</p>]]></content>
+		<author>
+			<name><![CDATA[ioguix]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=43</uri>
+		</author>
+		<updated>2017-10-31T09:19:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26314#p26314</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Linux: Systemd plusieurs services Postgresql ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26313#p26313"/>
+		<content type="html"><![CDATA[<p>Bonjour.</p><p>Je suis sous Linux Mint 18, anciennement 17.3 mais upgradé.<br />Durant l&#039;upgrade, Postgresql est passé de la version 9.3 à la 9.5 et c&#039;est tant mieux.</p><p>Par contre, c&#039;est un peu confus avec systemd. Lorsque je lance la commande pour lister les services du système ( systemctl list-units --type=service --all ) , je vois apparaître trois services postgresql : </p><p>&#160; postgresql.service&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;loaded active exited&#160; &#160; PostgreSQL RDBMS<br />● postgresql@9.3-main.service&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; loaded failed failed&#160; &#160; PostgreSQL Cluster 9.3-main<br />&#160; postgresql@9.5-main.service&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; loaded active running&#160; &#160;PostgreSQL Cluster 9.5-main</p><p>Le package de Postgresql 9.3 n&#039;est plus installé sur l&#039;ordinateur et c&#039;est donc normal que le démarrage de ce service plante. Mais bon, l&#039;ordinateur mouline pour rien au démarrage.<br />Par contre, je n&#039;arrive pas à empêcher : <br /> - la tentative de démarrage automatique de Postgresql 9.3 qui ne sert à rien<br /> - le démarrage automatique de Postgresql 9.5, car je voudrais que le Postgresql soit lancé uniquement sur commande manuelle.</p><p>Les commandes &quot;systemctl disable postgresql@9.3-main.service&quot; (et idem pour 9.5) n&#039;ont pas eu d&#039;effet.</p><p>Dans /etc/systemd/system/multi-user.target.wants j&#039;ai bien un fichier postgresql.service, mais je n&#039;en trouve pas d&#039;autre.</p>]]></content>
+		<author>
+			<name><![CDATA[Ulysse]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7782</uri>
+		</author>
+		<updated>2017-10-31T08:50:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26313#p26313</id>
+	</entry>
+</feed>

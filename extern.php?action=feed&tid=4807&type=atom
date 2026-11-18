@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Estimation des lignes issues d'une jointure]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4807&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4807"/>
+	<updated>2018-06-27T13:27:19Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4807</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Estimation des lignes issues d'une jointure]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27903#p27903"/>
+		<content type="html"><![CDATA[<p>Effectivement, mais dans le cas présent, compte tenu de l&#039;erreur sur le nombre réel de lignes, il se trouve qu&#039;il devient la mauvaise option.<br />C&#039;est pour ça qu&#039;il faut que je cherche à améliorer l&#039;estimation du nombre de lignes. C&#039;est plus là qu&#039;est le point sensible.</p><p>Encore merci pour tes réponses.</p>]]></content>
+		<author>
+			<name><![CDATA[ced]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=461</uri>
+		</author>
+		<updated>2018-06-27T13:27:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27903#p27903</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Estimation des lignes issues d'une jointure]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27902#p27902"/>
+		<content type="html"><![CDATA[<p>Je tiens à dire qu&#039;un NestedLoop n&#039;est pas forcément une mauvaise option. Parfois, c&#039;est la seule. Parfois, c&#039;est la bonne. Et toutes les autres fois, c&#039;est la mauvaise. Mais bon, le NestedLoop n&#039;est pas un mal en soi.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2018-06-27T12:11:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27902#p27902</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Estimation des lignes issues d'une jointure]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27901#p27901"/>
+		<content type="html"><![CDATA[<p>Merci Guillaume pour cette piste de types différents. Je vais essayer de creuser de ce côté-là.<br />Dans la requête que j&#039;ai indiquée, le planificateur ne choisit effectivement pas le NestedLoop, mais avec plus de jointures, là il finit par choisir cette option, ce qui cause des problèmes de performances.<br />Je vais essayer de réécrire les requêtes qui font les jointures entre données en base et métadonnées pour lever le problème.</p>]]></content>
+		<author>
+			<name><![CDATA[ced]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=461</uri>
+		</author>
+		<updated>2018-06-27T09:08:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27901#p27901</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Estimation des lignes issues d'une jointure]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27877#p27877"/>
+		<content type="html"><![CDATA[<p>La condition de jointure se fait sur deux colonnes qui ne semblent pas être de même type. De ce fait, il devient difficile d&#039;estimer le nombre de correspondances. Sur ce cas précis, même si l&#039;erreur d&#039;estimation est importante, elle n&#039;a pas de conséquence sur le choix du plan. Même s&#039;il avait estimé le nombre de lignes résultants à 7518 lignes, il aurait toujours fait un HashJoin (le nombre de lignes est trop important pour faire un NestedLoop et trop petit pour pouvoir ignorer le HashJoin).</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2018-06-22T09:28:50Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27877#p27877</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Estimation des lignes issues d'une jointure]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27866#p27866"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;ai la requête suivante :</p><div class="codebox"><pre><code>SELECT p2.npp, round(p2.xgps :: numeric, 8) as xgps, round(p2.ygps :: numeric, 8) as ygps, echelon_init as echelon
+FROM inv_prod.e2point p2
+INNER JOIN metaifn.abmode m2 ON m2.mode = echelon_init and m2.unite = &#039;EX&#039;
+INNER JOIN inv_prod.unite_ech ue ON p2.id_unite = ue.id_unite
+INNER JOIN inv_prod.echantillon e ON ue.id_ech = e.id_ech
+WHERE e.incref = 11
+AND p2.tir2 = &#039;1&#039;
+AND e.inv IN (&#039;R&#039;, &#039;T&#039;);</code></pre></div><p>Dont la sortie d&#039;EXPLAIN (ANALYZE) donne ceci :</p><div class="quotebox"><blockquote><div><p>Hash Join&#160; (cost=22902.45..31314.85 rows=16 width=84) (actual time=126.721..159.288 rows=7518 loops=1)<br />&#160; Output: p2.npp, round((p2.xgps)::numeric, 8), round((p2.ygps)::numeric, 8), p2.echelon_init<br />&#160; Hash Cond: (p2.echelon_init = (m2.mode)::bpchar)<br />&#160; Buffers: shared hit=4861<br />&#160; -&gt;&#160; Hash Join&#160; (cost=14920.32..23079.09 rows=16887 width=36) (actual time=126.122..140.296 rows=7518 loops=1)<br />&#160; &#160; &#160; &#160; Output: p2.npp, p2.xgps, p2.ygps, p2.echelon_init<br />&#160; &#160; &#160; &#160; Hash Cond: (ue.id_unite = p2.id_unite)<br />&#160; &#160; &#160; &#160; Buffers: shared hit=4861<br />&#160; &#160; &#160; &#160; -&gt;&#160; Nested Loop&#160; (cost=0.43..7442.72 rows=146030 width=4) (actual time=0.035..30.451 rows=100184 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; Output: ue.id_unite<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; Buffers: shared hit=617<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; -&gt;&#160; Seq Scan on inv_prod.echantillon e&#160; (cost=0.00..1.58 rows=3 width=4) (actual time=0.018..0.035 rows=4 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Output: e.id_ech, e.nom_ech, e.type_enquete, e.type_unites, e.usite, e.site, e.surf_dom, e.deb_temp, e.fin_temp, e.proprietaire, e.phase_stat, e.id_parent, e.taille_ech, e.url_script, e.cyc, e.incref, e.inv<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Filter: ((e.inv = ANY (&#039;{R,T}&#039;::bpchar[])) AND (e.incref = 11))<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Rows Removed by Filter: 35<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Buffers: shared hit=1<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; -&gt;&#160; Index Only Scan using unite_ech_pkey on inv_prod.unite_ech ue&#160; (cost=0.43..1993.61 rows=48677 width=8) (actual time=0.011..4.669 rows=25046 loops=4)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Output: ue.id_ech, ue.famille, ue.format, ue.id_unite<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Index Cond: (ue.id_ech = e.id_ech)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Heap Fetches: 0<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Buffers: shared hit=616<br />&#160; &#160; &#160; &#160; -&gt;&#160; Hash&#160; (cost=13360.55..13360.55 rows=124747 width=40) (actual time=90.332..90.332 rows=124537 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; Output: p2.npp, p2.xgps, p2.ygps, p2.echelon_init, p2.id_unite<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; Buckets: 131072&#160; Batches: 1&#160; Memory Usage: 10506kB<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; Buffers: shared hit=4244<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; -&gt;&#160; Bitmap Heap Scan on inv_prod.e2point p2&#160; (cost=2375.21..13360.55 rows=124747 width=40) (actual time=10.731..63.092 rows=124537 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Output: p2.npp, p2.xgps, p2.ygps, p2.echelon_init, p2.id_unite<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Recheck Cond: (p2.tir2 = &#039;1&#039;::bpchar)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Heap Blocks: exact=3882<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Buffers: shared hit=4244<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; -&gt;&#160; Bitmap Index Scan on idx_e2point_tir2&#160; (cost=0.00..2344.03 rows=124747 width=0) (actual time=10.145..10.145 rows=124537 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Index Cond: (p2.tir2 = &#039;1&#039;::bpchar)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Buffers: shared hit=362<br />&#160; -&gt;&#160; Hash&#160; (cost=7982.01..7982.01 rows=10 width=5) (actual time=0.571..0.571 rows=50 loops=1)<br />&#160; &#160; &#160; &#160; Output: m2.mode<br />&#160; &#160; &#160; &#160; Buckets: 1024&#160; Batches: 1&#160; Memory Usage: 10kB<br />&#160; &#160; &#160; &#160; -&gt;&#160; Foreign Scan on metaifn.abmode m2&#160; (cost=100.00..7982.01 rows=10 width=5) (actual time=0.553..0.558 rows=50 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; Output: m2.mode<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; Remote SQL: SELECT mode FROM metaifn.abmode WHERE ((unite = &#039;EX&#039;::text))<br />Planning time: 0.687 ms<br />Execution time: 160.383 ms</p></div></blockquote></div><p>Ce que je ne comprends pas bien, c&#039;est comment le planificateur, sur la dernière jointure, en arrive à estimer qu&#039;il n&#039;y aura que 16 lignes à l&#039;arrivée (alors qu&#039;en réalité, il y en a 7518)... Il fait l&#039;hypothèse qu&#039;il n&#039;y a pas de correspondance sur toutes les lignes des deux tables ?</p><p>Merci d&#039;avance pour vos éclaircissements.</p>]]></content>
+		<author>
+			<name><![CDATA[ced]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=461</uri>
+		</author>
+		<updated>2018-06-21T08:16:52Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27866#p27866</id>
+	</entry>
+</feed>

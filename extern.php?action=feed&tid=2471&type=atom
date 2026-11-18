@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / [RESOLU] Forcer le tri dans le tablespace temp]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2471&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2471"/>
+	<updated>2013-03-04T08:46:36Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2471</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] Forcer le tri dans le tablespace temp]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16716#p16716"/>
+		<content type="html"><![CDATA[<p>Bonjour Guillaume,</p><p>C&#039;est ça, il manquait aux simples users les droits de create dans le tablespace temp.</p><p>Merci pour votre aide.</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2013-03-04T08:46:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16716#p16716</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] Forcer le tri dans le tablespace temp]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16684#p16684"/>
+		<content type="html"><![CDATA[<p>Ah OK, compris. Votre utilisateur n&#039;a pas de droit sur le tablespace des fichiers temporaires. Essayez un &quot;GRANT CREATE ON TABLESPACE temp TO mcod;&quot;, ça devrait aller mieux.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2013-02-28T20:56:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16684#p16684</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] Forcer le tri dans le tablespace temp]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16669#p16669"/>
+		<content type="html"><![CDATA[<p>Bonjour Guillaume,</p><p>J&#039;ai reproduis le test que vous avez fait ci-dessus :</p><p>Liste des tablespaces :</p><div class="quotebox"><blockquote><div><p>16384 -&gt; /D1DAYY50_2/tmp<br /> 16386 -&gt; /D1DAYY50_2/idx/choregie_db/choregie_db_idx<br /> 16385 -&gt; /D1DAYY50_1/data/choregie_db/choregie_db_data<br /> 16390 -&gt; /D1DAYY50_2/idx/choregie_db/sdbd_idx<br /> 16389 -&gt; /D1DAYY50_1/data/choregie_db/sdbd_data<br /> 16774 -&gt; /D1DAYY50_2/trv/choregie_db/cpro_trv<br /> 16773 -&gt; /D1DAYY50_2/idx/choregie_db/cpro_idx<br /> 16772 -&gt; /D1DAYY50_1/data/choregie_db/cpro_data<br /> 16886 -&gt; /D1DAYY50_2/trv/choregie_db/clog_trv<br /> 16885 -&gt; /D1DAYY50_2/idx/choregie_db/clog_idx<br /> 16884 -&gt; /D1DAYY50_1/data/choregie_db/clog_data<br /> 19209 -&gt; /D1DAYY50_2/idx/choregie_db/mcod_idx<br /> 19208 -&gt; /D1DAYY50_1/data/choregie_db/mcod_data<br /> 19210 -&gt; /D1DAYY50_2/trv/choregie_db/mcod_trv<br /> 24813 -&gt; /D1DAYY50_2/trv/choregie_db/mcod2_trv<br /> 24812 -&gt; /D1DAYY50_2/idx/choregie_db/mcod2_idx<br /> 24811 -&gt; /D1DAYY50_1/data/choregie_db/mcod2_data</p></div></blockquote></div><br /><p>1er test avec un superuser :</p><div class="quotebox"><blockquote><div><p>choregie_db=# create table t1 (c1 integer, c2 integer);<br />CREATE TABLE<br />choregie_db=# create table t2 (c1 integer, c2 integer);<br />CREATE TABLE<br />choregie_db=# create table t3 (c1 integer, c2 integer);<br />CREATE TABLE<br />choregie_db=# insert into t1 select i, i+1 from generate_series(1, 1000000) as i;<br />INSERT 0 1000000<br />choregie_db=# insert into t2 select i, i+1 from generate_series(1, 1000000) as i;<br />INSERT 0 1000000<br />choregie_db=# insert into t3 select i, i+1 from generate_series(1, 1000000) as i;<br />INSERT 0 1000000<br />choregie_db=# show temp_tablespaces ;<br /> temp_tablespaces<br />------------------<br /> temp<br />(1 row)</p><p>choregie_db=# explain analyze select t1.c1, t2.c2, t3.c2 from t1 join t2 on t1.c1=t2.c1 join t3 on t2.c1=t3.c1;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; QUERY PLAN<br />--------------------------------------------------------------------------------------------------------------------------------------<br /> Hash Join&#160; (cost=96861.00..141483.00 rows=1000000 width=12) (actual time=3014.398..4411.927 rows=1000000 loops=1)<br />&#160; &#160;Hash Cond: (t1.c1 = t2.c1)<br />&#160; &#160;-&gt;&#160; Seq Scan on t1&#160; (cost=0.00..14425.00 rows=1000000 width=4) (actual time=0.040..289.657 rows=1000000 loops=1)<br />&#160; &#160;-&gt;&#160; Hash&#160; (cost=79478.00..79478.00 rows=1000000 width=16) (actual time=3014.059..3014.059 rows=1000000 loops=1)<br />&#160; &#160; &#160; &#160; &#160;Buckets: 32768&#160; Batches: 8&#160; Memory Usage: 5873kB<br />&#160; &#160; &#160; &#160; &#160;-&gt;&#160; Hash Join&#160; (cost=30832.00..79478.00 rows=1000000 width=16) (actual time=625.612..2629.732 rows=1000000 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Hash Cond: (t2.c1 = t3.c1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Seq Scan on t2&#160; (cost=0.00..14425.00 rows=1000000 width=8) (actual time=0.029..312.378 rows=1000000 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Hash&#160; (cost=14425.00..14425.00 rows=1000000 width=8) (actual time=625.305..625.305 rows=1000000 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Buckets: 32768&#160; Batches: 4&#160; Memory Usage: 9774kB<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Seq Scan on t3&#160; (cost=0.00..14425.00 rows=1000000 width=8) (actual time=0.046..300.418 rows=1000000 loops=1)<br /> Total runtime: 4497.734 ms<br />(12 rows)</p><br /><p>choregie_db=# set enable_sort to off;<br />SET<br />choregie_db=#&#160; explain analyze select t1.c1, t2.c2, t3.c2 from t1 join t2 on t1.c1=t2.c1 join t3 on t2.c1=t3.c1;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; QUERY PLAN<br />--------------------------------------------------------------------------------------------------------------------------------------<br /> Hash Join&#160; (cost=96861.00..141483.00 rows=1000000 width=12) (actual time=2947.402..4259.715 rows=1000000 loops=1)<br />&#160; &#160;Hash Cond: (t1.c1 = t2.c1)<br />&#160; &#160;-&gt;&#160; Seq Scan on t1&#160; (cost=0.00..14425.00 rows=1000000 width=4) (actual time=0.026..221.649 rows=1000000 loops=1)<br />&#160; &#160;-&gt;&#160; Hash&#160; (cost=79478.00..79478.00 rows=1000000 width=16) (actual time=2947.172..2947.172 rows=1000000 loops=1)<br />&#160; &#160; &#160; &#160; &#160;Buckets: 32768&#160; Batches: 8&#160; Memory Usage: 5873kB<br />&#160; &#160; &#160; &#160; &#160;-&gt;&#160; Hash Join&#160; (cost=30832.00..79478.00 rows=1000000 width=16) (actual time=544.431..2563.179 rows=1000000 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Hash Cond: (t2.c1 = t3.c1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Seq Scan on t2&#160; (cost=0.00..14425.00 rows=1000000 width=8) (actual time=0.032..239.304 rows=1000000 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Hash&#160; (cost=14425.00..14425.00 rows=1000000 width=8) (actual time=544.221..544.221 rows=1000000 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Buckets: 32768&#160; Batches: 4&#160; Memory Usage: 9774kB<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Seq Scan on t3&#160; (cost=0.00..14425.00 rows=1000000 width=8) (actual time=0.012..235.212 rows=1000000 loops=1)<br /> Total runtime: 4346.078 ms<br />(12 rows)</p></div></blockquote></div><p>Résultat dans le log postgresql :</p><div class="quotebox"><blockquote><div><p>2013-02-28 11:12:11 CET [7493]: [6-1] user=sdbd,db=choregie_dbLOG:&#160; temporary file: path &quot;pg_tblspc/16384/PG_9.1_201105231/pgsql_tmp/pgsql_tmp7493.1&quot;, size 6990004<br />2013-02-28 11:12:11 CET [7493]: [8-1] user=sdbd,db=choregie_dbLOG:&#160; temporary file: path &quot;pg_tblspc/16384/PG_9.1_201105231/pgsql_tmp/pgsql_tmp7493.4&quot;, size 6990004<br />2013-02-28 11:12:11 CET [7493]: [10-1] user=sdbd,db=choregie_dbLOG:&#160; temporary file: path &quot;pg_tblspc/16384/PG_9.1_201105231/pgsql_tmp/pgsql_tmp7493.0&quot;, size 7001568<br />2013-02-28 11:12:12 CET [7493]: [12-1] user=sdbd,db=choregie_dbLOG:&#160; temporary file: path &quot;pg_tblspc/16384/PG_9.1_201105231/pgsql_tmp/pgsql_tmp7493.3&quot;, size 7001568<br />2013-02-28 11:12:12 CET [7493]: [14-1] user=sdbd,db=choregie_dbLOG:&#160; temporary file: path &quot;pg_tblspc/16384/PG_9.1_201105231/pgsql_tmp/pgsql_tmp7493.2&quot;, size 7005852<br />2013-02-28 11:12:12 CET [7493]: [16-1] user=sdbd,db=choregie_dbLOG:&#160; temporary file: path &quot;pg_tblspc/16384/PG_9.1_201105231/pgsql_tmp/pgsql_tmp7493.5&quot;, size 7005852<br />2013-02-28 11:12:13 CET [7493]: [18-1] user=sdbd,db=choregie_dbLOG:&#160; temporary file: path &quot;pg_tblspc/16384/PG_9.1_201105231/pgsql_tmp/pgsql_tmp7493.8&quot;, size 4497336<br />2013-02-28 11:12:13 CET [7493]: [20-1] user=sdbd,db=choregie_dbLOG:&#160; temporary file: path &quot;pg_tblspc/16384/PG_9.1_201105231/pgsql_tmp/pgsql_tmp7493.16&quot;, size 2998224<br />2013-02-28 11:12:13 CET [7493]: [22-1] user=sdbd,db=choregie_dbLOG:&#160; temporary file: path &quot;pg_tblspc/16384/PG_9.1_201105231/pgsql_tmp/pgsql_tmp7493.10&quot;, size 4503024<br />2013-02-28 11:12:13 CET [7493]: [24-1] user=sdbd,db=choregie_dbLOG:&#160; temporary file: path &quot;pg_tblspc/16384/PG_9.1_201105231/pgsql_tmp/pgsql_tmp7493.19&quot;, size 3002016<br />etc...</p></div></blockquote></div><p>2ème test (identique au premier) avec un user standard, résultat du log postgresql :</p><div class="quotebox"><blockquote><div><p>2013-02-28 11:21:51 CET [7721]: [10-1] user=mcod,db=choregie_dbLOG:&#160; temporary file: path &quot;pg_tblspc/16385/PG_9.1_201105231/pgsql_tmp/pgsql_tmp7721.0&quot;, size 14000000<br />2013-02-28 11:22:51 CET [7721]: [14-1] user=mcod,db=choregie_dbLOG:&#160; temporary file: path &quot;pg_tblspc/16385/PG_9.1_201105231/pgsql_tmp/pgsql_tmp7721.1&quot;, size 14000000<br />2013-02-28 11:22:59 CET [7721]: [18-1] user=mcod,db=choregie_dbLOG:&#160; temporary file: path &quot;pg_tblspc/16385/PG_9.1_201105231/pgsql_tmp/pgsql_tmp7721.2&quot;, size 14000000<br />2013-02-28 11:23:12 CET [7721]: [22-1] user=mcod,db=choregie_dbLOG:&#160; temporary file: path &quot;pg_tblspc/16385/PG_9.1_201105231/pgsql_tmp/pgsql_tmp7721.4&quot;, size 5991432<br />2013-02-28 11:23:12 CET [7721]: [24-1] user=mcod,db=choregie_dbLOG:&#160; temporary file: path &quot;pg_tblspc/16385/PG_9.1_201105231/pgsql_tmp/pgsql_tmp7721.7&quot;, size 6990004<br />2013-02-28 11:23:12 CET [7721]: [26-1] user=mcod,db=choregie_dbLOG:&#160; temporary file: path &quot;pg_tblspc/16385/PG_9.1_201105231/pgsql_tmp/pgsql_tmp7721.3&quot;, size 6001344<br />2013-02-28 11:23:13 CET [7721]: [28-1] user=mcod,db=choregie_dbLOG:&#160; temporary file: path &quot;pg_tblspc/16385/PG_9.1_201105231/pgsql_tmp/pgsql_tmp7721.6&quot;, size 7001568</p></div></blockquote></div><p>On voit bien dans le 2ème cas que les fichiers temporaires ne sont pas créés au bon endroit (dans le tablespace 16384).</p><br /><p>Voici la définition du user qui m&#039;a servi lors du 2ème test :</p><div class="quotebox"><blockquote><div><p>CREATE ROLE mcod LOGIN<br />&#160; ENCRYPTED PASSWORD &#039;md502a669307a4f88e39c45413e3ebf2b0e&#039;<br />&#160; NOSUPERUSER INHERIT NOCREATEDB NOCREATEROLE NOREPLICATION;</p><p>ALTER ROLE mcod<br />&#160; SET default_tablespace = &#039;mcod_data&#039;;<br />GRANT owner TO mcod;</p></div></blockquote></div><p>et voici les paramètres &quot;temp&quot; du cluster :</p><div class="quotebox"><blockquote><div><p>&quot;log_temp_files&quot;;&quot;0&quot;<br />&quot;stats_temp_directory&quot;;&quot;pg_stat_tmp&quot;<br />&quot;temp_buffers&quot;;&quot;1024&quot;<br />&quot;temp_tablespaces&quot;;&quot;temp&quot;</p><br /><p>CREATE TABLESPACE temp<br />&#160; OWNER postgres<br />&#160; LOCATION &#039;/D1DAYY50_2/tmp&#039;;</p></div></blockquote></div>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2013-02-28T10:41:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16669#p16669</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] Forcer le tri dans le tablespace temp]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16663#p16663"/>
+		<content type="html"><![CDATA[<p>J&#039;ai installé une 9.1.2 ainsi que la dernière 9.1 (la 9.1.8). En suivant mon jeu de tests, je ne reproduis pas votre problème. J&#039;ai aussi ajouté un tablespace par défaut pour mon utilisateur, cela ne change rien. Enfin, j&#039;ai regardé le changelog des versions 9.1, et je n&#039;ai rien vu relatif à votre problème.</p><p>Pouvez-vous produire un petit test, un peu comme ce que j&#039;ai fait ci-dessus qui montrerait le problème ?</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2013-02-27T20:39:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16663#p16663</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] Forcer le tri dans le tablespace temp]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16647#p16647"/>
+		<content type="html"><![CDATA[<p>9.1.2</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2013-02-27T08:58:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16647#p16647</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] Forcer le tri dans le tablespace temp]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16644#p16644"/>
+		<content type="html"><![CDATA[<p>Je n&#039;ai pas reproduit le problème avec une 9.2. À priori, vous avez une 9.1. Quelle version précise avez-vous ?</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2013-02-26T18:57:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16644#p16644</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] Forcer le tri dans le tablespace temp]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16639#p16639"/>
+		<content type="html"><![CDATA[<p>j&#039;ai refait le plan sur un cluster avec de la volumétrie :<br />&quot;Insert on cot_adhesioncouverture&#160; (cost=185750.98..209292.41 rows=225 width=16)&quot;<br />&quot;&#160; -&gt;&#160; Merge Join&#160; (cost=185750.98..209292.41 rows=225 width=16)&quot;<br />&quot;&#160; &#160; &#160; &#160; Merge Cond: ((cv.idecvt)::text = (map2.idecar)::text)&quot;<br />&quot;&#160; &#160; &#160; &#160; -&gt;&#160; Sort&#160; (cost=185750.82..185797.72 rows=18757 width=73)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; Sort Key: cv.idecvt&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; -&gt;&#160; Nested Loop&#160; (cost=21536.18..184419.53 rows=18757 width=73)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; -&gt;&#160; Merge Join&#160; (cost=21536.18..113374.87 rows=11430 width=60)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Merge Cond: ((a.ideah)::text = (map1.idecar)::text)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; -&gt;&#160; Index Scan using adhesion_trv_is2 on adhesion_trv a&#160; (cost=0.00..62701.34 rows=1497437 width=15)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Filter: ((top)::text = &#039;I&#039;::text)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; -&gt;&#160; Index Scan using mapping_trv_is2 on mapping_trv map1&#160; (cost=0.00..283046.50 rows=1443581 width=45)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Index Cond: ((cle)::text = &#039;ideah&#039;::text)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; -&gt;&#160; Index Scan using couvertures_trv_is3 on couvertures_trv cv&#160; (cost=0.00..6.18 rows=3 width=80)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Index Cond: ((ideah)::text = (a.ideah)::text)&quot;<br />&quot;&#160; &#160; &#160; &#160; -&gt;&#160; Index Scan using mapping_trv_is2 on mapping_trv map2&#160; (cost=0.00..313257.70 rows=2273485 width=45)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; Index Cond: ((cle)::text = &#039;idecvt&#039;::text)&quot;</p><br /><p>et nous avions déjà mis log_temp_files à 0 ce qui nous avez permis de voir que des fichiers temporaires étaient créés ailleurs que prévu (ailleurs que dans temp_tablespaces = &#039;temp&#039;).</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2013-02-26T16:08:09Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16639#p16639</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] Forcer le tri dans le tablespace temp]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16636#p16636"/>
+		<content type="html"><![CDATA[<p>La seule opération qui peut générer des fichiers temporaires est le Sort. J&#039;ai du mal à croire que pour 97 lignes d&#039;une largeur de 70 octets, il ait besoin de passer par des fichiers temporaires. Bref, comme dit dans la dernière note, mieux vaut placer log_temp_files à 0 pour en savoir plus.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2013-02-26T15:43:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16636#p16636</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] Forcer le tri dans le tablespace temp]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16632#p16632"/>
+		<content type="html"><![CDATA[<p>bonjour,</p><p>Voici le plan :</p><p>&quot;Insert on cot_adhesioncouverture&#160; (cost=6.17..8.75 rows=1 width=16)&quot;<br />&quot;&#160; -&gt;&#160; Nested Loop&#160; (cost=6.17..8.75 rows=1 width=16)&quot;<br />&quot;&#160; &#160; &#160; &#160; -&gt;&#160; Nested Loop&#160; (cost=6.17..8.00 rows=1 width=18)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; -&gt;&#160; Merge Join&#160; (cost=6.17..7.65 rows=1 width=13)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Merge Cond: ((cv.idecvt)::text = (map2.idecar)::text)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; -&gt;&#160; Sort&#160; (cost=6.17..6.41 rows=97 width=70)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Sort Key: cv.idecvt&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; -&gt;&#160; Seq Scan on couvertures_trv cv&#160; (cost=0.00..2.97 rows=97 width=70)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; -&gt;&#160; Index Scan using mapping_trv_is2 on mapping_trv map2&#160; (cost=0.00..15.73 rows=97 width=39)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Index Cond: ((cle)::text = &#039;idecvt&#039;::text)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; -&gt;&#160; Index Scan using adhesion_trv_is2 on adhesion_trv a&#160; (cost=0.00..0.33 rows=1 width=5)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Index Cond: ((ideah)::text = (cv.ideah)::text)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Filter: ((top)::text = &#039;I&#039;::text)&quot;<br />&quot;&#160; &#160; &#160; &#160; -&gt;&#160; Index Scan using mapping_trv_is2 on mapping_trv map1&#160; (cost=0.00..0.73 rows=1 width=39)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; Index Cond: (((cle)::text = &#039;ideah&#039;::text) AND ((idecar)::text = (cv.ideah)::text))&quot;</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2013-02-26T10:18:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16632#p16632</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] Forcer le tri dans le tablespace temp]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16627#p16627"/>
+		<content type="html"><![CDATA[<p>Enfin, dernière note pour aujourd&#039;hui, j&#039;ai essayé de monter un test. Pour moi, il montre que cela fonctionne comme prévu :</p><div class="codebox"><pre class="vscroll"><code>postgres=# create tablespace db1 location &#039;/opt/postgresql-9.2/db1&#039;;
+CREATE TABLESPACE
+postgres=# create database db1 tablespace db1;
+CREATE DATABASE
+postgres=# \c db1
+You are now connected to database &quot;db1&quot; as user &quot;guillaume&quot;.
+db1=# create table t1 (c1 integer, c2 integer);
+CREATE TABLE
+db1=# create table t2 (c1 integer, c2 integer);
+CREATE TABLE
+db1=# create table t3 (c1 integer, c2 integer);
+CREATE TABLE
+db1=# insert into t1 select i, i+1 from generate_series(1, 1000000) as i;
+INSERT 0 1000000
+db1=# insert into t2 select i, i+1 from generate_series(1, 1000000) as i;
+INSERT 0 1000000
+db1=# insert into t3 select i, i+1 from generate_series(1, 1000000) as i;
+INSERT 0 1000000
+db1=# show temp_tablespaces ;
+ temp_tablespaces 
+------------------
+ temp
+(1 row)
+
+db1=# explain analyze select t1.c1, t2.c2, t3.c2 from t1 join t2 on t1.c1=t2.c1 join t3 on t2.c1=t3.c1;
+                                                                QUERY PLAN                                                                 
+-------------------------------------------------------------------------------------------------------------------------------------------
+ Merge Join  (cost=401379.46..318496520035.65 rows=21228590216442 width=12) (actual time=1948.591..3343.789 rows=1000000 loops=1)
+   Merge Cond: (t3.c1 = t1.c1)
+   -&gt;  Sort  (cost=133793.15..136160.53 rows=946950 width=8) (actual time=655.040..775.805 rows=1000000 loops=1)
+         Sort Key: t3.c1
+         Sort Method: external sort  Disk: 17608kB
+         -&gt;  Seq Scan on t3  (cost=0.00..13894.50 rows=946950 width=8) (actual time=0.066..160.192 rows=1000000 loops=1)
+   -&gt;  Materialize  (cost=267586.31..78737189.89 rows=4483571512 width=12) (actual time=1293.542..2166.818 rows=1000000 loops=1)
+         -&gt;  Merge Join  (cost=267586.31..67528261.11 rows=4483571512 width=12) (actual time=1293.537..2010.638 rows=1000000 loops=1)
+               Merge Cond: (t1.c1 = t2.c1)
+               -&gt;  Sort  (cost=133793.15..136160.53 rows=946950 width=4) (actual time=626.027..741.727 rows=1000000 loops=1)
+                     Sort Key: t1.c1
+                     Sort Method: external sort  Disk: 13688kB
+                     -&gt;  Seq Scan on t1  (cost=0.00..13894.50 rows=946950 width=4) (actual time=0.081..150.144 rows=1000000 loops=1)
+               -&gt;  Materialize  (cost=133793.15..138527.90 rows=946950 width=8) (actual time=667.501..902.148 rows=1000000 loops=1)
+                     -&gt;  Sort  (cost=133793.15..136160.53 rows=946950 width=8) (actual time=667.497..790.738 rows=1000000 loops=1)
+                           Sort Key: t2.c1
+                           Sort Method: external sort  Disk: 17608kB
+                           -&gt;  Seq Scan on t2  (cost=0.00..13894.50 rows=946950 width=8) (actual time=0.045..177.096 rows=1000000 loops=1)
+ Total runtime: 3387.223 ms
+(19 rows)
+
+db1=# set enable_sort to off;
+SET
+db1=# explain analyze select t1.c1, t2.c2, t3.c2 from t1 join t2 on t1.c1=t2.c1 join t3 on t2.c1=t3.c1;
+                                                           QUERY PLAN                                                           
+--------------------------------------------------------------------------------------------------------------------------------
+ Hash Join  (cost=61664.00..136483.00 rows=1000000 width=12) (actual time=625.686..2128.473 rows=1000000 loops=1)
+   Hash Cond: (t1.c1 = t3.c1)
+   -&gt;  Hash Join  (cost=30832.00..74478.00 rows=1000000 width=12) (actual time=310.527..1132.626 rows=1000000 loops=1)
+         Hash Cond: (t1.c1 = t2.c1)
+         -&gt;  Seq Scan on t1  (cost=0.00..14425.00 rows=1000000 width=4) (actual time=0.017..135.661 rows=1000000 loops=1)
+         -&gt;  Hash  (cost=14425.00..14425.00 rows=1000000 width=8) (actual time=308.291..308.291 rows=1000000 loops=1)
+               Buckets: 4096  Batches: 64  Memory Usage: 625kB
+               -&gt;  Seq Scan on t2  (cost=0.00..14425.00 rows=1000000 width=8) (actual time=0.011..135.527 rows=1000000 loops=1)
+   -&gt;  Hash  (cost=14425.00..14425.00 rows=1000000 width=8) (actual time=315.101..315.101 rows=1000000 loops=1)
+         Buckets: 4096  Batches: 64  Memory Usage: 625kB
+         -&gt;  Seq Scan on t3  (cost=0.00..14425.00 rows=1000000 width=8) (actual time=0.038..137.582 rows=1000000 loops=1)
+ Total runtime: 2161.899 ms
+(12 rows)</code></pre></div><p>Que ce soit pour un tri ou pour un hachage, les données temporaires vont bien dans le bon tablespace, comme le montrent les traces :</p><div class="codebox"><pre><code>2013-02-24 18:30:32 CET [30105]: [18-1] user=guillaume,db=db1 LOG:  temporary file: path &quot;pg_tblspc/25506/PG_9.2_201204301/pgsql_tmp/pgsql_tmp30105.5&quot;, size 18030592
+2013-02-24 18:30:32 CET [30105]: [20-1] user=guillaume,db=db1 LOG:  temporary file: path &quot;pg_tblspc/25506/PG_9.2_201204301/pgsql_tmp/pgsql_tmp30105.4&quot;, size 14016512
+2013-02-24 18:30:32 CET [30105]: [22-1] user=guillaume,db=db1 LOG:  temporary file: path &quot;pg_tblspc/25506/PG_9.2_201204301/pgsql_tmp/pgsql_tmp30105.3&quot;, size 18030592
+2013-02-24 18:31:02 CET [30105]: [28-1] user=guillaume,db=db1 LOG:  temporary file: path &quot;pg_tblspc/25506/PG_9.2_201204301/pgsql_tmp/pgsql_tmp30105.76&quot;, size 435876
+2013-02-24 18:31:02 CET [30105]: [30-1] user=guillaume,db=db1 LOG:  temporary file: path &quot;pg_tblspc/25506/PG_9.2_201204301/pgsql_tmp/pgsql_tmp30105.139&quot;, size 373608
+2013-02-24 18:31:02 CET [30105]: [32-1] user=guillaume,db=db1 LOG:  temporary file: path &quot;pg_tblspc/25506/PG_9.2_201204301/pgsql_tmp/pgsql_tmp30105.72&quot;, size 439460
+2013-02-24 18:31:02 CET [30105]: [34-1] user=guillaume,db=db1 LOG:  temporary file: path &quot;pg_tblspc/25506/PG_9.2_201204301/pgsql_tmp/pgsql_tmp30105.135&quot;, size 376680
+2013-02-24 18:31:02 CET [30105]: [36-1] user=guillaume,db=db1 LOG:  temporary file: path &quot;pg_tblspc/25506/PG_9.2_201204301/pgsql_tmp/pgsql_tmp30105.79&quot;, size 436968
+2013-02-24 18:31:02 CET [30105]: [38-1] user=guillaume,db=db1 LOG:  temporary file: path &quot;pg_tblspc/25506/PG_9.2_201204301/pgsql_tmp/pgsql_tmp30105.142&quot;, size 374544</code></pre></div><p>25506 étant le tablespace temp pour mes fichiers temporaires (celui de la base db1 est 25507).</p><p>Bref, pour moi, cela fonctionne comme prévu.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2013-02-24T17:34:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16627#p16627</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] Forcer le tri dans le tablespace temp]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16626#p16626"/>
+		<content type="html"><![CDATA[<p>Oh, autre chose, un moyen pour être certain que PostgreSQL écrit des fichiers temporaires est de tracer leur création. Pour cela, placer log_temp_files à 0.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2013-02-24T17:21:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16626#p16626</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] Forcer le tri dans le tablespace temp]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16625#p16625"/>
+		<content type="html"><![CDATA[<p>Désolé pour le manque de réponse. En regardant le INSERT, la seule raison que je vois pour laquelle il générerait des fichiers temporaires est qu&#039;il passerait par des HashAggregate. Pouvez-vous donner le plan d&#039;exécution du INSERT ? (un EXPLAIN sans ANALYZE).</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2013-02-24T17:19:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16625#p16625</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] Forcer le tri dans le tablespace temp]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16398#p16398"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Dans le postgresql.conf : temp_tablespaces = &#039;temp&#039; (TABLESPACE temp LOCATION &#039;/P0K2YY51_2/tmp&#039;;)</p><p>Au niveau de la base de données : TABLESPACE = choregie_db_data (/P0K2YY51_1/data/choregie_db/choregie_db_data)</p><p>Au niveau du user : SET default_tablespace = &#039;user_data&#039;; (/P0K2YY51_1/data/choregie_db/user_data)</p><p>Au niveau de la session, je ne sais pas.</p><p>Donc à mon sens il n&#039;y a qu&#039;un seul tablespace temporaire définit dans nos cluster : &quot;temp&quot;</p><br /><p>select * from pg_tablespace :</p><p>&quot;pg_default&quot;;10;&quot;&quot;<br />&quot;pg_global&quot;;10;&quot;&quot;<br />&quot;temp&quot;;10;&quot;/P0K2YY51_2/tmp&quot;<br />&quot;choregie_db_data&quot;;10;&quot;/P0K2YY51_1/data/choregie_db/choregie_db_data&quot;<br />&quot;choregie_db_idx&quot;;10;&quot;/P0K2YY51_2/idx/choregie_db/choregie_db_idx&quot;<br />&quot;sdbd_choregie_db_data&quot;;16388;&quot;/P0K2YY51_1/data/choregie_db/sdbd_data&quot;<br />&quot;sdbd_choregie_db_idx&quot;;16388;&quot;/P0K2YY51_2/idx/choregie_db/sdbd_idx&quot;<br />&quot;clog_data&quot;;17942;&quot;/P0K2YY51_1/data/choregie_db/clog_data&quot;<br />&quot;clog_idx&quot;;17942;&quot;/P0K2YY51_2/idx/choregie_db/clog_idx&quot;<br />&quot;clog_trv&quot;;17942;&quot;/P0K2YY51_2/trv/choregie_db/clog_trv&quot;<br />&quot;mcod_data&quot;;28107;&quot;/P0K2YY51_1/data/choregie_db/mcod_data&quot;<br />&quot;mcod_idx&quot;;28107;&quot;/P0K2YY51_2/idx/choregie_db/mcod_idx&quot;<br />&quot;mcod_trv&quot;;28107;&quot;/P0K2YY51_2/trv/choregie_db/mcod_trv&quot;</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2013-01-23T08:54:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16398#p16398</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] Forcer le tri dans le tablespace temp]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16397#p16397"/>
+		<content type="html"><![CDATA[<p>Il est possible de définir le ou les tablespace temporaires à plusieurs endroits. Quelle valeur avez-vous dans le postgresql.conf pour la variable temp_tablespaces ? Est-il surchargé sur la base de donnée, sur l&#039;utilisateur ou dans la session ?<br />Si plusieurs sont définis, postgres les utilisera chacun son tour.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2013-01-23T08:44:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16397#p16397</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] Forcer le tri dans le tablespace temp]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16395#p16395"/>
+		<content type="html"><![CDATA[<p>Quelqu&#039;un a une idée ? parce que ce genre de comportement sur les fichiers temporaires fait exploser nos files system...</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2013-01-23T08:26:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16395#p16395</id>
+	</entry>
+</feed>

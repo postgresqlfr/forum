@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / [Résolu] Création d'un trigger SQL]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2608&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2608"/>
+	<updated>2013-04-22T15:04:06Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2608</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] Création d'un trigger SQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17131#p17131"/>
+		<content type="html"><![CDATA[<p>Chose promise, chose due !</p><p>Voilà finalement mon trigger ! Tout simple, mais quand on connait pas...</p><p>Merci beaucoup pour votre aide.</p><p>CREATE FUNCTION update_fct() RETURNS trigger<br />&#160; &#160; LANGUAGE plpgsql<br />&#160; &#160; AS $$<br />DECLARE<br />nb_item bigint;<br />nb_credits bigint;<br />BEGIN<br />&#160; &#160; SELECT INTO nb_item COUNT(*) FROM xxx WHERE xxx = NEW.id;<br />&#160; &#160; SELECT INTO nb_credits SUM(credits) FROM yyyy WHERE zzz = NEW.id;<br />&#160; &#160; UPDATE ddd SET nb_items=nb_item,credits=nb_credits,modified=NOW() WHERE id = NEW.id;<br />&#160; &#160; RETURN NULL;<br />END;$$;<br />CREATE TRIGGER update_fct AFTER INSERT OR UPDATE ON xxx FOR EACH ROW EXECUTE PROCEDURE update_fct();</p>]]></content>
+		<author>
+			<name><![CDATA[grandyoz]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2012</uri>
+		</author>
+		<updated>2013-04-22T15:04:06Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17131#p17131</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] Création d'un trigger SQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17106#p17106"/>
+		<content type="html"><![CDATA[<p>ça c&#039;est super sympa ! Je pense que ça va me mettre sur la bonne piste ! Merci beaucoup, c&#039;est cool.<br />Si j&#039;y arrive, je posterai mon résultat pour les suivants !<br />A+</p>]]></content>
+		<author>
+			<name><![CDATA[grandyoz]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2012</uri>
+		</author>
+		<updated>2013-04-18T11:25:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17106#p17106</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] Création d'un trigger SQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17105#p17105"/>
+		<content type="html"><![CDATA[<p>Un exemple réel vous aidera probablement. J&#039;ai écrit ce code alors que je découvrais PG, il est donc certainement perfectible,<br />mais ça fonctionne.</p><p>Le trigger :</p><div class="codebox"><pre><code>CREATE TRIGGER agenda_projet BEFORE INSERT OR UPDATE ON client_projet FOR EACH ROW EXECUTE PROCEDURE agenda_projet();</code></pre></div><p>La fonction :</p><div class="codebox"><pre class="vscroll"><code>CREATE FUNCTION agenda_projet() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$--
+--        A partir de l&#039;insertion ou update dans PROJET, on met à jour les agendas du projet, du licencié, de son équipe, et des acquéreurs concernés.
+--
+
+DECLARE
+vtypact integer;
+vlic record;
+vident record;
+vdesc varchar;
+vlib varchar;
+vevent integer;
+vtrt integer;
+vidlic integer;
+videquipe integer;
+vmandat record;
+vgroupe record;
+vmandatvendeur record;
+vdatfin date;
+vinit varchar;
+
+BEGIN
+
+    vtrt := 0;
+    CASE
+        WHEN  (TG_OP = &#039;INSERT&#039;) THEN
+            vtrt := 1;
+
+        WHEN (TG_OP = &#039;UPDATE&#039;) THEN
+            vtrt := 2;
+    END CASE; 
+   
+    
+    SELECT INTO vgroupe * FROM GROUPE_CLIENT WHERE  id_groupe=NEW.id_groupe;
+     IF NOT FOUND THEN
+         RAISE EXCEPTION &#039;Aucun acquéreur trouvé pour le projet %&#039;,NEW.id_groupe;
+         RETURN NULL;
+     END IF;
+
+    vidlic := NEW.nego_in;
+        IF (vidlic IS NULL) THEN
+            RAISE EXCEPTION &#039;Aucun licencié trouvé pour le projet %&#039;,NEW.id_projet;
+            RETURN NULL;
+        END IF;
+
+     SELECT INTO vlic * FROM LICENCIE WHERE id_licencie=vidlic;
+     IF NOT FOUND THEN
+         RAISE EXCEPTION &#039;Le licencié % n&#039;&#039;existe pas !&#039;, vidlic;
+         RETURN NULL;
+     END IF;        
+     
+     SELECT INTO videquipe id_equipe FROM LICENCIE_PERIODE WHERE (((id_licencie = vidlic) AND (dat_debut &lt;= current_date)) AND ((dat_fin &gt;= current_date OR dat_fin IS NULL)));
+     IF NOT FOUND THEN
+         RAISE EXCEPTION &#039;L&#039;&#039;équipe n&#039;&#039;a pas été trouvée pour le licencié %&#039;,vidlic;
+         RETURN NULL;
+     END IF;
+     
+     SELECT INTO vident * FROM IDENTITE where id_identite=vlic.id_identite;
+     IF NOT FOUND THEN
+         RAISE EXCEPTION &#039;Pas d&#039;&#039;identité pour le licencié % !&#039;, vidlic;
+         RETURN NULL;
+     END IF;        
+           
+     CASE
+         WHEN (vtrt = 1) THEN
+             IF (NEW.mandat_rech IS TRUE) THEN
+                 vlib := &#039;Mandat de recherche &#039;;
+             ELSE
+                 vlib := &#039;Mandat simple &#039;;
+             END IF;
+             vdesc:=vlib||&#039;no. &#039;||NEW.id_projet;
+
+         WHEN (vtrt = 2) THEN
+                 IF (NEW.typ_etat_projet != OLD.typ_etat_projet) THEN
+                     SELECT INTO vlib lib_long FROM LISTE_CHOIX WHERE (cd_lang = &#039;fr&#039; AND no_liste=10 AND no_val=NEW.typ_etat_projet);
+                     vdesc:= &#039;projet &#039;||NEW.id_projet||&#039;  &#039;||vlib;
+                 ELSE
+                     RETURN NEW;
+                 END IF;
+       
+     END CASE;
+     IF (NEW.dat_lim IS NULL) THEN
+         vdatfin := NEW.dat_projet + interval &#039;1 year&#039;;
+     ELSE
+         vdatfin := NEW.dat_lim;
+    END IF;
+
+     vtypact := 19;
+    
+     INSERT INTO AGENDA VALUES(default,1,vtypact,vdesc,NEW.dat_projet,vdatfin) RETURNING currval(&#039;agenda_id_event_seq&#039;) into vevent;
+     RAISE NOTICE &#039;Création de l&#039;&#039;évènement % dans l&#039;&#039;agenda&#039;,vevent;
+
+     INSERT INTO CLIENT_PROJET_AGENDA VALUES(NEW.id_projet,vevent);
+     RAISE NOTICE &#039;Création de l&#039;&#039;évènement % dans l&#039;&#039;agenda du client % projet %&#039;,vevent,NEW.id_groupe,NEW.id_projet;
+
+     INSERT INTO LICENCIE_AGENDA VALUES(vidlic,vevent);
+     RAISE NOTICE &#039;Création de l&#039;&#039;évènement % dans l&#039;&#039;agenda du licencié %&#039;,vevent,vidlic;
+
+     INSERT INTO EQUIPE_AGENDA VALUES(videquipe,vevent);
+     RAISE NOTICE &#039;Création de l&#039;&#039;évènement % dans l&#039;&#039;agenda de l&#039;&#039;équipe %&#039;,vevent,videquipe;
+
+  
+
+     RETURN NEW;
+    
+END;$$;
+
+
+ALTER FUNCTION public.agenda_projet() OWNER TO conclavi;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[MitsuTomoe]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1680</uri>
+		</author>
+		<updated>2013-04-18T10:59:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17105#p17105</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] Création d'un trigger SQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17104#p17104"/>
+		<content type="html"><![CDATA[<p>En fait, je n&#039;ai rien, je ne suis pas du tout à l&#039;aise avec la syntaxe car je ne la connais pas et je me base sur les docs et exemples.</p><p>Je vais regarder ce que je peux faire de plus.</p><p>A+</p>]]></content>
+		<author>
+			<name><![CDATA[grandyoz]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2012</uri>
+		</author>
+		<updated>2013-04-17T12:54:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17104#p17104</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] Création d'un trigger SQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17103#p17103"/>
+		<content type="html"><![CDATA[<p>Quelle erreur rencontrez-vous ? Votre procédure stockée est syntaxiquement correcte, ou est-ce à l&#039;exécution que vous rencontrez un problème ?</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2013-04-17T12:24:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17103#p17103</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] Création d'un trigger SQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17102#p17102"/>
+		<content type="html"><![CDATA[<p>oui, j&#039;ai vu... mais je ne m&#039;en sors pas !<br />Mais bon, c&#039;est pas grave, je vais faire autrement.<br />Merci quand même pour l&#039;aide.</p>]]></content>
+		<author>
+			<name><![CDATA[grandyoz]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2012</uri>
+		</author>
+		<updated>2013-04-17T12:14:09Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17102#p17102</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] Création d'un trigger SQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17101#p17101"/>
+		<content type="html"><![CDATA[<p>La documentation donne toutes les informations : <a href="http://docs.postgresql.fr/9.2/plpgsql-trigger.html" rel="nofollow">http://docs.postgresql.fr/9.2/plpgsql-trigger.html</a></p><p>Vous devrez créer une fonction avec un type de retour « trigger », et créer un trigger sur la table qui appelle cette fonction.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2013-04-17T11:32:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17101#p17101</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] Création d'un trigger SQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17100#p17100"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />Merci pour l&#039;info.<br />Les données de la table 2 ne peuvent pas être supprimées. Seulement ajoutées ou modifiées.<br />Pour les vues, c&#039;est vrai que c&#039;est une idée, mais un peu compliquée à mettre en oeuvre dans mon context actuel.</p><p>Pourriez-vous me donner des pistes sur la structure du trigger à créer ?</p><p>En vous remerciant</p>]]></content>
+		<author>
+			<name><![CDATA[grandyoz]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2012</uri>
+		</author>
+		<updated>2013-04-17T11:13:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17100#p17100</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] Création d'un trigger SQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17099#p17099"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>un tel trigger est possible, mais en général il est préférable d&#039;avoir cette information en utilisant une vue, plutôt que de maintenir un champ calculé à jour.</p><p>De plus, il faudrait également gérer un trigger sur la suppression.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2013-04-17T10:23:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17099#p17099</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[[Résolu] Création d'un trigger SQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17098#p17098"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je ne connais pas du tout les trigger et je me noie un peu !</p><p>J&#039;ai une table TABLE1 (id, champ1, champ2) et une autre TABLE2(id,table1_id,champ1,champ2)</p><p>Je souhaite qu&#039;à chaque fois qu&#039;un enregistrement est inséré ou modifié dans TABLE2 que l&#039;enregistrement lié de la TABLE1 soit mis à jour de telle sorte que TABLE1.champ1 (where TABLE1.id = TABLE2.table1_id de l&#039;enregistrement en cours) = (somme de TABLE2.champ1 WHERE TABLE2.table1_id = TABLE2.table1_id de l&#039;enregistrement en cours) </p><p>Pouvez-vous m&#039;aider ?</p><p>En vous remerciant,</p><p>AG</p>]]></content>
+		<author>
+			<name><![CDATA[grandyoz]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2012</uri>
+		</author>
+		<updated>2013-04-17T09:12:00Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17098#p17098</id>
+	</entry>
+</feed>

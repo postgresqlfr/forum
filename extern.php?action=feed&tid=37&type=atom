@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / mise à jour d'un trigger lors d'un delete]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=37&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=37"/>
+	<updated>2008-10-15T09:31:36Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=37</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  mise à jour d'un trigger lors d'un delete]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=146#p146"/>
+		<content type="html"><![CDATA[<p>D&#039;accord! Je te remercie...</p>]]></content>
+		<author>
+			<name><![CDATA[justine2401]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=96</uri>
+		</author>
+		<updated>2008-10-15T09:31:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=146#p146</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  mise à jour d'un trigger lors d'un delete]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=145#p145"/>
+		<content type="html"><![CDATA[<p>Le fait que le trigger ne se déclenche pas sur les DELETE ne change en rien la gestion des index. D&#039;ailleurs, PostgreSQL se débrouille très bien quand il n&#039;y a aucun trigger sur une table... donc pas de raison de s&#039;inquiéter.</p><p>De plus, au moins pour les index BTree, il n&#039;y a pas d&#039;information sur la disponibilité ou non de la ligne pointée par l&#039;index dans l&#039;index même. C&#039;est pour cela qu&#039;un parcours d&#039;index demande une lecture plus ou moins complète de l&#039;index puis une lecture ciblée de la table : les informations de visibilité des lignes ne sont stockées que dans la table. C&#039;est pour cela aussi qu&#039;un parcours d&#039;index n&#039;est pas toujours la solution. Si l&#039;élément recherché se trouve dans plus de 50% de la table, ce sera contreperformant.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2008-10-15T09:28:31Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=145#p145</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  mise à jour d'un trigger lors d'un delete]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=144#p144"/>
+		<content type="html"><![CDATA[<p>Ok merci.</p><p>J&#039;utilise également un index GIN sur vec_description. Celui-ci sera-t-il mis à jour lors d&#039;un delete?? Ma crainte est que si ce n&#039;est pas le cas, après avoir supprimé des enregistrements, si l&#039;index n&#039;est pas à jour, il se peut que, lors d&#039;une recherche, il croie toujours que ces enregistrements existent...</p>]]></content>
+		<author>
+			<name><![CDATA[justine2401]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=96</uri>
+		</author>
+		<updated>2008-10-15T09:11:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=144#p144</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  mise à jour d'un trigger lors d'un delete]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=142#p142"/>
+		<content type="html"><![CDATA[<p>La procédure stockée tsvectore_update_trigger sert à calculer la colonne tsvector, soit suite à une insertion, soit suite à une mise à jour. Après une suppression, il n&#039;y a pas de nouvelle valeur de cette colonne, donc le trigger n&#039;a pas d&#039;intérêt dans ce cadre.</p><p>Bref, le trigger sur DELETE dans ce cas n&#039;est pas utile.</p><p>J&#039;en profite pour faire de la pub pour mon prochain article dans Gnu Linux Magazine France (donc numéro 110). Il sera sur la recherche plein texte. Pas sûr par contre qu&#039;il te soit bien utile vu que tu as déjà l&#039;air de connaître ce qui se fait en matière de recherche plein texte.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2008-10-15T08:53:31Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=142#p142</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[mise à jour d'un trigger lors d'un delete]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=141#p141"/>
+		<content type="html"><![CDATA[<p>Bojour,</p><p>J&#039;ai une petite question concernant l&#039;utilisation d&#039;un trigger.</p><p>J&#039;utilise le trigger suivant :</p><p>CREATE TRIGGER tsupdate BEFORE INSERT AND UPDATE<br />ON doc FOR EACH ROW EXECUTE PROCEDURE<br />tsvectore_update_trigger(vec_description, &#039;pg_catalog.english&#039;, description)</p><p>vec_description étant une colonne contenant tsvector(description)</p><p>Lorsque j&#039;ajoute des données dans ma table, vec_description est bien mis à jour et ça prend donc plus de temps. Par contre, lorsque j&#039;en supprime, l&#039;opération est très rapide, j&#039;en conclus que vec_description n&#039;est pas mis à jour.</p><p>J&#039;ai bien essayé de rajouter dans mon trigger &quot;BEFORE INSERT OR UPDATE OR DELETE&quot; mais ça ne fonctionne pas...</p><p>Quelqu&#039;un peut-il m&#039;aider??</p><p>Merci</p>]]></content>
+		<author>
+			<name><![CDATA[justine2401]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=96</uri>
+		</author>
+		<updated>2008-10-15T08:00:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=141#p141</id>
+	</entry>
+</feed>

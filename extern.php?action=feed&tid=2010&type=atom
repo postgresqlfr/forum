@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Procédure avec utilisation de WITH]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2010&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2010"/>
+	<updated>2012-04-16T08:18:08Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2010</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Procédure avec utilisation de WITH]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13545#p13545"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>dverite a écrit&#160;:</cite><blockquote><div><p>C&#039;est dû potentiellement à l&#039;erreur classique du paramètre de fonction qui a le même nom qu&#039;une colonne utilisée dans la requête. (ici idauge)<br />Essaie en changeant le nom du paramètre.</p></div></blockquote></div><p>J&#039;ai fais le test, ca marche !!<br />Merci beaucoup, je m&#039;attendais a tout sauf à ça !!! ... <br />J&#039;ai beaucoup d&#039;autres procédures ou c&#039;est la cas et elles fonctionnent trés bien! Les mystères de l&#039;informatique parfois! <img src="http://forums.postgresql.fr/img/smilies/wink.png" width="15" height="15" alt="wink" /></p>]]></content>
+		<author>
+			<name><![CDATA[mystikilla]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=177</uri>
+		</author>
+		<updated>2012-04-16T08:18:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13545#p13545</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Procédure avec utilisation de WITH]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13542#p13542"/>
+		<content type="html"><![CDATA[<p>Si, tout à fait. Tenter de créer une fonction ainsi donne l&#039;erreur suivante : ERROR:&#160; function result type must be integer because of OUT parameters</p><p> record serait utilisable s&#039;il y avait au moins deux éléments à renvoyer.</p><p>Pour revenir à la question initiale, il est possible d&#039;imbriquer un WITH dans une procédure stockée :</p><div class="codebox"><pre><code>b1=# CREATE OR REPLACE FUNCTION public.f1(OUT id integer)
+ RETURNS SETOF integer
+ LANGUAGE plpgsql
+AS $function$
+DECLARE
+  rec record;
+BEGIN
+FOR rec IN
+WITH a(toto) AS (VALUES(1), (2))
+SELECT * FROM a
+LOOP
+  id := rec.toto;
+  return next;
+END LOOP;
+END
+$function$;
+CREATE FUNCTION
+b1=# SELECT * FROM f1();
+ id 
+----
+  1
+  2
+(2 rows)</code></pre></div><p>Donc il y a un soucis avec la façon dont la fonction est crée ou exécutée. Difficile de répondre plus précisément sans avoir le code réel de la fonction, les messages d&#039;erreur affichés par PostgreSQL (et la version de PostgreSQL serait un plus évident).</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-04-14T09:51:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13542#p13542</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Procédure avec utilisation de WITH]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13541#p13541"/>
+		<content type="html"><![CDATA[<p>Cette requête renvoi une vingtaine d&#039;enregistrements. Je l’insère dans une procédure :</p><div class="quotebox"><blockquote><div><p>CREATE OR REPLACE FUNCTION test(OUT idauge integer)<br />&#160; RETURNS SETOF record AS<br />...</p></div></blockquote></div><p>il me semble qu&#039;il y a une anomalie entre le fait de déclarer <em>idauge</em> comme paramètre de sortie<br />puis d&#039;indiquer que la fonction retourne un <em>SETOF record</em>.</p><br /><p>Le RETURNS ne devrait-il pas être <em>RETURNS SETOF integer</em> ?</p>]]></content>
+		<author>
+			<name><![CDATA[edlm]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1635</uri>
+		</author>
+		<updated>2012-04-14T07:42:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13541#p13541</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Procédure avec utilisation de WITH]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13539#p13539"/>
+		<content type="html"><![CDATA[<p>C&#039;est dû potentiellement à l&#039;erreur classique du paramètre de fonction qui a le même nom qu&#039;une colonne utilisée dans la requête. (ici idauge) <br />Essaie en changeant le nom du paramètre.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2012-04-13T19:18:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13539#p13539</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Procédure avec utilisation de WITH]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13538#p13538"/>
+		<content type="html"><![CDATA[<p>Je suis totalement&#160; d&#039;accord pour la requete, je l&#039;ai donnée à titre d&#039;exemple. <br />Ce qui ne fonctionne pas, c&#039;est son appel avec la procédure...</p>]]></content>
+		<author>
+			<name><![CDATA[mystikilla]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=177</uri>
+		</author>
+		<updated>2012-04-13T16:39:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13538#p13538</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Procédure avec utilisation de WITH]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13537#p13537"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>mystikilla a écrit&#160;:</cite><blockquote><div><p>WITH&#160; &#160; &#160;tmp_table1 AS&#160; &#160; ( <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; SELECT idauge<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; FROM auges a<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; WHERE idtypeauge=1<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; ORDER BY idauge<br />&#160; &#160; &#160; &#160; &#160; &#160; ),<br />&#160; &#160; tmp_table2 AS&#160; &#160; (<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; SELECT idauge<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; FROM auges<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; where idauge not in (select idauge from tmp_table1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; ORDER BY idauge<br />&#160; &#160; &#160; &#160; &#160; &#160; )<br />SELECT idauge FROM tmp_table2</p></div></blockquote></div><p>la requête ne pourrait elle pas être plus simple :</p><div class="codebox"><pre><code>WITH tmp_table AS ( 
+  SELECT idauge
+  FROM auges 
+  WHERE idtypeauge!=1
+  ORDER BY idauge
+)</code></pre></div><p>ou être faite avec une une opération ensembliste ?</p><div class="codebox"><pre><code>WITH tmp_table AS ( 
+  SELECT idauge
+  FROM auges 
+ ORDER BY 1
+ EXCEPT
+ SELECT idauge
+  FROM auges 
+ WHERE idtypeauge = 1
+)</code></pre></div><p>Cordialement</p>]]></content>
+		<author>
+			<name><![CDATA[meles]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=789</uri>
+		</author>
+		<updated>2012-04-13T16:28:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13537#p13537</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Procédure avec utilisation de WITH]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13536#p13536"/>
+		<content type="html"><![CDATA[<p>Par exemple ma requete (simplifiée) :</p><div class="quotebox"><blockquote><div><p>WITH &#160; &#160; tmp_table1 AS&#160; &#160; ( <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; SELECT idauge<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; FROM auges a<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; WHERE idtypeauge=1<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; ORDER BY idauge<br />&#160; &#160; &#160; &#160; &#160; &#160; ),<br />&#160; &#160; tmp_table2 AS&#160; &#160; (<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; SELECT idauge<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; FROM auges<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; where idauge not in (select idauge from tmp_table1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; ORDER BY idauge<br />&#160; &#160; &#160; &#160; &#160; &#160; )<br />SELECT idauge FROM tmp_table2</p></div></blockquote></div><p>Cette requête renvoi une vingtaine d&#039;enregistrements. Je l’insère dans une procédure :</p><div class="quotebox"><blockquote><div><p>CREATE OR REPLACE FUNCTION test(OUT idauge integer)<br />&#160; RETURNS SETOF record AS<br />$BODY$<br />DECLARE<br />&#160; &#160; rec record;<br />BEGIN<br />&#160; &#160; FOR rec IN (<br />&#160; &#160; &#160; &#160; WITH &#160; &#160; tmp_table1 AS&#160; &#160; (<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; SELECT idauge<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; FROM auges a<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; WHERE idtypeauge=1<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; ORDER BY idauge<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; ),<br />&#160; &#160; &#160; &#160; tmp_table2 AS&#160; &#160; (<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; SELECT idauge<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; FROM auges<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; where idauge not in (select idauge from tmp_table1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; ORDER BY idauge<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; )<br />&#160; &#160; &#160; &#160; SELECT idauge FROM tmp_table2)<br />&#160; &#160; LOOP<br />&#160; &#160; &#160; &#160; idauge := rec.idauge;<br />&#160; &#160; &#160; &#160; RETURN NEXT;<br />&#160; &#160; END LOOP;<br />END;<br />$BODY$<br />&#160; LANGUAGE plpgsql VOLATILE<br />&#160; COST 100<br />&#160; ROWS 1000;<br />ALTER FUNCTION test OWNER TO xxx;</p></div></blockquote></div><p>Mais l&#039;appel à cette procédure ne me renvoie pas mes enregistrement contrairement à des procédure similaire mais sans le WITH...</p>]]></content>
+		<author>
+			<name><![CDATA[mystikilla]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=177</uri>
+		</author>
+		<updated>2012-04-13T15:57:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13536#p13536</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Procédure avec utilisation de WITH]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13535#p13535"/>
+		<content type="html"><![CDATA[<p>WITH ne génère pas de tables temporaires. Voyez ça plutôt comme une facilité d&#039;écriture de la requête. Concernant votre procédure stockée, je ne vois pas de lien possible. Fournir le code de votre procédure pourrait aider.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-04-13T15:43:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13535#p13535</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Procédure avec utilisation de WITH]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13532#p13532"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;ai une requête utilisant WITH qui fonctionne (elle me retourne bien les résultat attendus) par contre lorsque <br />je me sers de cette même requête dans une procédure, l&#039;appel de ma procédure ne me renvoie rien...</p><p>Y a t-il un lien avec le fait que WITH génère des tables &#039;temporaires&#039; ?</p><p>Merci d&#039;avance</p>]]></content>
+		<author>
+			<name><![CDATA[mystikilla]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=177</uri>
+		</author>
+		<updated>2012-04-13T15:32:35Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13532#p13532</id>
+	</entry>
+</feed>

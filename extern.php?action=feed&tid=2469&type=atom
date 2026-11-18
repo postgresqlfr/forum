@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Problème de guillemets lors d'une insertion]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2469&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2469"/>
+	<updated>2013-01-16T11:38:53Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2469</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème de guillemets lors d'une insertion]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16329#p16329"/>
+		<content type="html"><![CDATA[<p>Bien vu !</p><p>J&#039;ai essayé de jouer avec les standard_conforming_string, sans succès, effectivement, car pg_escape_strings devait suffire.</p><p>Mais effectivement, je n&#039;avais pas pensé aux magic_quotes, et les config sont différents sur mes serveurs local et distant !<br />Merci pour ces éclairages ; je vais continuer ma quête sur les forum PHP pour voir comment désactiver ça proprement.</p>]]></content>
+		<author>
+			<name><![CDATA[charlie echo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2096</uri>
+		</author>
+		<updated>2013-01-16T11:38:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16329#p16329</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème de guillemets lors d'une insertion]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16327#p16327"/>
+		<content type="html"><![CDATA[<p>Ca ressemble à une mauvaise prise en compte de standard_conforming_strings.<br />Voir la doc à ce sujet: <a href="http://docs.postgresqlfr.org/9.1/sql-syntax.html" rel="nofollow">http://docs.postgresqlfr.org/9.1/sql-syntax.html</a></p><br /><p>En 9.1, standard_conforming_strings est à ON par défaut alors qu&#039;en 8.4 il était à OFF.<br />Mais le code montré avec le sprintf() est correct. Il doit fonctionner en 8.4, en 9.1 et quelque soit<br />la valeur de standard_conforming_strings, parce que&#160; pg_escape_string() fait ce qu&#039;il faut dans tous les cas de figure.</p><br /><p>Sinon il faut faire attention en PHP à désactiver les &quot;magic quotes&quot;<br />(voir <a href="http://php.net/manual/fr/security.magicquotes.php)" rel="nofollow">http://php.net/manual/fr/security.magicquotes.php)</a> qui&#160; transforment les champs<br />des posts pour y ajouter des antislashs et qui entrent justement en conflit avec l&#039;échappement explicite.<br />Voir pour ça voir la valeur de get_magic_quotes_gpc()</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2013-01-16T00:11:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16327#p16327</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème de guillemets lors d'une insertion]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16326#p16326"/>
+		<content type="html"><![CDATA[<p>Ca ne marche pas mieux...</p><p>En fait j&#039;ai le sentiment que mon code PHP est correct (puisqu&#039;il fonctionne sur mon PC), mais que la base est &quot;mal configurée&quot;.</p>]]></content>
+		<author>
+			<name><![CDATA[charlie echo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2096</uri>
+		</author>
+		<updated>2013-01-15T22:28:33Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16326#p16326</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème de guillemets lors d'une insertion]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16325#p16325"/>
+		<content type="html"><![CDATA[<p>Avez-vous essayé avec un échappement explicite ?</p><br /><p>$sql = sprintf(&quot;insert into table (message) values (E&#039;%s&#039;)&quot;, pg_escape_string($mess));</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2013-01-15T18:10:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16325#p16325</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème de guillemets lors d'une insertion]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16324#p16324"/>
+		<content type="html"><![CDATA[<p>Argh, ça ne marche pas (mais merci d&#039;avoir essayé !) :<br />pg_escape_literal n&#039;est supporté que sur les versions récentes de PHP, et sur OVH, le PHP n&#039;est pas assez récent...</p><p>J&#039;ai pris soin de n&#039;utiliser que des fonctions de PHP suffisamment &quot;anciennes&quot;.</p><p>D&#039;autres idées ?</p>]]></content>
+		<author>
+			<name><![CDATA[charlie echo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2096</uri>
+		</author>
+		<updated>2013-01-15T14:14:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16324#p16324</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème de guillemets lors d'une insertion]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16321#p16321"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>peut-être avec la fonction pg_escape_literal() ? (je n&#039;ai pas fait de php depuis longtemps). L&#039;échappement de postgres est lié à la norme SQL (pas de \, sauf échappement explicite avec un E devant la chaîne). Voir <a href="http://docs.postgresqlfr.org/9.1/sql-syntax.html#sql-syntax-strings-escape" rel="nofollow">http://docs.postgresqlfr.org/9.1/sql-sy … ngs-escape</a></p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2013-01-14T18:05:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16321#p16321</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Problème de guillemets lors d'une insertion]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16319#p16319"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />j&#039;ai développé un site sur mon PC qui fonctionne avec PHP et PostgreSQL 9.1.<br />J&#039;ai besoin d&#039;ajouter des formulaires avec guillemets simples (&#039;)&#160; et doubles ( &quot; ) ; j&#039;utilise la fonction pg_escape_string et ça marche bien.<br />La requête est :<br />$sql = sprintf(&quot;insert into table (message) values (&#039;%s&#039;)&quot;, pg_escape_string($mess));</p><br /><p>J&#039;ai mis ce site avec le même code sur OVH, avec PostgreSQL 8.4 . <br />Là, quand j&#039;ajoute des guillemets, il me les renvoie avec des anti-slash.<br />exemple : Le message d&#039;hier.&#160; &#160; devient :&#160; le message d\&#039;hier.</p><p>Je n&#039;arrive pas à m&#039;en débarrasser, sauf si j’enlève la fonction pg_escape_string :<br />$sql = sprintf(&quot;insert into table (message) values (&#039;%s&#039;)&quot;, $mess);<br />Mais j&#039;ai alors un trou de sécurité.</p><p>Que peut-il se passer ? Est-ce une histoire d&#039;encodage (je pense être en UTF-8 partout).</p><p>Merci pour toute piste !</p>]]></content>
+		<author>
+			<name><![CDATA[charlie echo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2096</uri>
+		</author>
+		<updated>2013-01-14T15:06:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16319#p16319</id>
+	</entry>
+</feed>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Comment lancer un script avec un argument ?]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5919&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5919"/>
+	<updated>2021-01-18T14:08:24Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5919</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Comment lancer un script avec un argument ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31871#p31871"/>
+		<content type="html"><![CDATA[<p>Les variables n&#039;étant pas interpolées par :copy, si on veut vraiment injecter un nom de fichier variable, on peut générer toute la commande \copy dans une variable et exécuter cette variable. C&#039;est un usage peu connu des variables, mais qui marche.</p><br /><p>Hélas il y a une complexité syntaxique non négligeable pour faire ça correctement, parce que les espaces, les apostrophes, les antislash ont des rôles spéciaux dans la syntaxe des méta-commandes.</p><p>Par exemple:</p><div class="codebox"><pre><code>\set file &#039;nomdefichier.csv&#039;
+\set customcopy &#039;\\copy adm_med_check(med_num,med_pay) from &#039;&#039;D:/Users/jl3/2_ETUDES/18_INTENSETBM/&#039; :file &#039;&#039;&#039;&#039; &#039; WITH CSV HEADER DELIMITER &#039;&#039;,&#039;&#039; QUOTE &#039;&#039;&quot;&#039;&#039; NULL AS &#039;&#039;&#039;&#039; &#039;
+\echo :customcopy</code></pre></div><p>Résultat du \echo :customcopy</p><div class="codebox"><pre><code>\copy adm_med_check(med_num,med_pay) from &#039;D:/Users/jl3/2_ETUDES/18_INTENSETBM/nomdefichier.csv&#039; WITH CSV HEADER DELIMITER &#039;,&#039; QUOTE &#039;&quot;&#039; NULL AS &#039;&#039; </code></pre></div><br /><p>On voit que cette commande est propre. Elle serait exécutable simplement avec</p><div class="codebox"><pre><code>:customcopy</code></pre></div><p>Après il faut voir si ça vaut la peine de faire cette usine à échappement (qui suppose aussi que le contenu de :file soit propre, donc de l&#039;échapper aussi surtout s&#039;il vient de l&#039;extérieur), en fonction du contexte...</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2021-01-18T14:08:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31871#p31871</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Comment lancer un script avec un argument ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31861#p31861"/>
+		<content type="html"><![CDATA[<p>Pas très étonnant que vous ayez cette erreur. Il est indiqué nul part que vous pouvez ajouter un deuxième argument à \i.</p><p>Bref, le seul moyen d&#039;avoir des variables avec un script psql est d&#039;utiliser \set. Mais comme le dit la documentation, &quot;ni l&#039;interpolation des variables ni la substitution par guillemets inverses ne seront effectuées sur les arguments&quot; (<a href="https://docs.postgresql.fr/13/app-psql.html#APP-PSQL-META-COMMANDS-COPY" rel="nofollow">https://docs.postgresql.fr/13/app-psql. … MANDS-COPY</a>).</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2021-01-15T08:47:00Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31861#p31861</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Comment lancer un script avec un argument ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31860#p31860"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>j&#039;ai un script (script.txt) qui doit comparer 2 tables à l&#039;aide d&#039;une fonction (pharmacy_control(table1,table2)) que je lance dans psql \i &#039;chemin/vers/script.txt&#039;</p><p>j&#039;aimerais passer le nom du fichier utilisé dans le script en paramètre de la commande du genre \i &#039;chemin/vers/nom_du_script&#039; file=&#039;nom_du_fichier&#039;<br />mais çà ne fonctionne pas : &#039;invalid argument&#039;</p><br /><p>script.txt</p><div class="codebox"><pre><code>DROP TABLE IF EXISTS adm_med_check;
+CREATE TABLE IF NOT EXISTS adm_med_check
+(med_ide SERIAL, med_num varchar(3), med_pay varchar(3));
+
+\copy adm_med_check(med_num,med_pay) FROM &#039;D:/Users/jl3/2_ETUDES/18_INTENSETBM/:file WITH CSV HEADER DELIMITER &#039;,&#039; QUOTE &#039;&quot;&#039; NULL AS &#039;&#039;;
+
+SELECT * FROM pharmacy_control(&#039;adm_med&#039;,&#039;adm_med_check&#039;);</code></pre></div><p>d&#039;avance merci pour votre aide</p>]]></content>
+		<author>
+			<name><![CDATA[LECARROU]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8824</uri>
+		</author>
+		<updated>2021-01-14T16:30:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31860#p31860</id>
+	</entry>
+</feed>

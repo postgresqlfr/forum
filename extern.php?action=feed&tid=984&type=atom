@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Liste Deroulante Non Alimentee A Cause D'un Pb De Connection A La Base]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=984&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=984"/>
+	<updated>2010-09-20T11:12:22Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=984</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Liste Deroulante Non Alimentee A Cause D'un Pb De Connection A La Base]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6117#p6117"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>le code n&#039;est déjà pas bon en lui-même, puisque nulle part vous ne vérifiez le code retour de pg_connect, ou de votre fonction connexion. Si une erreur se produit à ce niveau là, vous aurez donc une erreur cryptique plus loin, n&#039;ayant aucun rapport avec le problème lui même.<br />Pareil d&#039;ailleurs pour tous les appels à la base suivant (pg_exec principalement).</p><p>Mettez déjà cela en place. Vous saurez ensuite où ça plante, cela évitera de devoir deviner.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-09-20T11:12:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6117#p6117</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Liste Deroulante Non Alimentee A Cause D'un Pb De Connection A La Base]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6114#p6114"/>
+		<content type="html"><![CDATA[<p>Bonjour à toutes et à tous,</p><p>J&#039;ai un problème que je n&#039;arrive pas à résoudre depuis vendredi passé.<br />Je souhaite alimenter une liste déroulante. j&#039;ai vérifié le code, apparement aucun soucis à ce niveau. Je soupçonne un problème de connection:<br />dans un fichier nomé: &quot;fct_bdd.inc&quot; j&#039;ai le code suivant:<br />&lt;?php<br />&#160; &#160; function connexion()<br />&#160; &#160; {<br />&#160; &#160; &#160; &#160;&#160; $connect=pg_connect(&quot;host=******** port=5432 dbname=pg_tldrna user=***** password=*****&quot;) ;<br />&#160; &#160; &#160; &#160;&#160; return($connect);</p><p>&#160; &#160; }</p><p>?&gt;<br />Ce fichier se trouve dans un dossier nomé &quot;inclusions&quot;.<br />Ensuite, dans un autre fichier stocké au même niveau que le fichier inclusions, j&#039;ai un fichier nomé &quot;ent_new_biologic_sample.html&quot; avec une partie du code suivant:</p><p>&lt;html&gt;</p><p>&lt;?php<br />&#160; &#160;&#160; &#160; Include(&quot;./inclusions/fct_bdd.inc&quot;);<br />&#160; &#160; $idc=connexion();<br />?&gt; </p><p>&#160; &#160; &lt;link href=&quot;CSS/structure.css&quot; rel=&quot;stylesheet&quot;&#160; &#160; type=&quot;text/css&quot; media=&quot;screen&quot;&gt;&#160; &#160; &#160; &#160; <br />&#160; &#160; <br />&#160; &#160; &lt;div class=&quot;logosan&quot;&gt; <br />&#160; &#160; &lt;h1 class=&quot;logo_unit&quot;&gt; PAGE 1&lt;/h1 &gt;&#160; &#160; <br />&#160; &#160; &lt;/div&gt;<br />&#160; &#160; &lt;hr&gt;</p><p>&#160; &#160; &lt;form name=&quot;biologic_sample_form&quot; action=&quot;enr_new_biologic_sample.php&quot; method=&quot;post&quot;&gt;</p><p>&#160; &#160; &lt;br&gt;<br />&#160; &#160; &lt;h2&gt;New Biologic Sample&lt;/h2&gt;<br />&#160; &#160; &#160; &#160; <br />&#160; &#160; &lt;br&gt;&lt;br&gt;<br />&#160; &#160; &lt;h3&gt;Please complete the following input fields to entering a new &lt;i&gt;&lt;font size=3 color=blue&gt;biologic sample&lt;/font&gt;&lt;/i&gt; in the Database : &lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;/h3&gt;</p><p>&lt;table&gt;<br />&#160; &#160; <br />&#160; &#160; &lt;tr&gt;<br />&#160; &#160; &#160; &#160; &lt;td class=&quot;label_zds&quot;&gt;Type :&lt;/td&gt;<br />&#160; &#160; &#160; &#160; &lt;td class=&quot;pos_zds&quot;&gt;</p><p>&#160; &#160; &#160; &#160; &#160; &#160; &lt;select name=&quot;zl_type&quot;&gt;&lt;option value=&quot;&quot;&gt;&lt;/option&gt;&lt;br&gt;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &lt;?php<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; $sql=&quot;SELECT sample_reference,sample_type FROM t_biologic_sample ORDER BY sample_type&quot;;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; $rs=pg_exec($idc,$sql);<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; while ($lg=pg_fetch_assoc($rs))<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; {<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; print(&quot;&lt;option value=\&quot;&quot;.$lg[&quot;sample_reference&quot;].&quot;\&quot;&gt; &quot;.$lg[&quot;sample_type&quot;].&quot; &lt;/option&gt;&quot;);&#160; &#160; <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; }&#160; &#160; &#160; &#160; <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; ?&gt;<br />&#160; &#160; &#160; &#160; &#160; &#160; &lt;/select&gt;<br />&#160; &#160; &#160; &#160; &lt;/td&gt;<br />&#160; &#160; &lt;/tr&gt;&#160; &#160; <br />&lt;/table&gt;<br />&lt;/html&gt;</p><br /><p>Est-ce que pourriez m&#039;aider car je ne vois pas du tout d&#039;où vient le problème.<br />Je vous remercie par avance!</p><br /><p>Myr</p>]]></content>
+		<author>
+			<name><![CDATA[myr]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=895</uri>
+		</author>
+		<updated>2010-09-20T09:18:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6114#p6114</id>
+	</entry>
+</feed>

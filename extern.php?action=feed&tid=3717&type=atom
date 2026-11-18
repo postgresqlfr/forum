@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Transactions dans une procédure stocké]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3717&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3717"/>
+	<updated>2015-12-14T17:18:32Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3717</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Transactions dans une procédure stocké]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22812#p22812"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><p>@Papychampi votre requête n&#039;est pas claire.</p><br /><p>Si je pars sur l&#039;hypothèse que ce que vous cherchez à faire dans votre procédure stockée est de récupérer le numéro de série suivant d&#039;une colonne de type séquence <br />vous pouvez pour une table ressemblant à ca:</p><div class="codebox"><pre><code>CREATE TABLE test(
+    num_serie SERIAL,
+    data1 integer...
+);</code></pre></div><p>faire la requête suivante dans votre procèdure stockée:</p><div class="codebox"><pre><code>...
+INSERT INTO test(data1) VALUES(9999) RETURNING num_serie INTO ma_variable_de_ma_procedure_stockee;
+...</code></pre></div><p>qui placera dans <em>ma_variable_de_ma_procedure_stockee</em> le numéro de série suivant.</p><br /><p>Le principe est, <strong>si c&#039;est possible</strong>,de laisser faire la base pour attribuer le numéro de série.</p><br /><p>Pourquoi &quot;<strong>si c&#039;est possible</strong>&quot;&#160; ? Parce que les séquences PostgreSQL peuvent avoir des &quot;trous&quot; car même si la transaction dans laquelle se situe l&#039;appel à nextval est annulée (rollback) <br />le numéro de série est considéré quand même comme attribué (il ne sera pas réutilisé).</p><br /><p>Si votre application ne tolère pas ce genre de saut il faut trouver une autre solution qui risque d&#039;être beaucoup beaucoup moins simple avec plein d&#039;inconvénients... mais dont le principe<br />va être de de bloquer certrains accès concurrent à la table pendant qu&#039;une transaction attribue un nouveau numéro. Comme ca je dirais que la transaction enveloppante (celle dans laquelle s&#039;exécute<br />la procédure stockée) doit être positionnée sur SERIALIZABLE et que l&#039;application doit être prête à gérer les annulations des transactions en cours.</p>]]></content>
+		<author>
+			<name><![CDATA[edlm]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1635</uri>
+		</author>
+		<updated>2015-12-14T17:18:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22812#p22812</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Transactions dans une procédure stocké]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22811#p22811"/>
+		<content type="html"><![CDATA[<p>Et pourtant, Marc a raison.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2015-12-14T16:05:52Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22811#p22811</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Transactions dans une procédure stocké]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22810#p22810"/>
+		<content type="html"><![CDATA[<p>Et bien apparemment ce n&#039;est pas le cas...</p>]]></content>
+		<author>
+			<name><![CDATA[Papychampi]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5287</uri>
+		</author>
+		<updated>2015-12-14T15:55:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22810#p22810</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Transactions dans une procédure stocké]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22809#p22809"/>
+		<content type="html"><![CDATA[<p>On ne peut pas faire ça dans PostgreSQL. Une procédure s&#039;exécute dans la transaction de la fonction qui l&#039;appelle. Par contre, la procédure devrait voir le résultat de tout ce qu&#039;elle a fait, et donc devrait voir ses propres modifications…</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2015-12-14T15:45:00Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22809#p22809</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Transactions dans une procédure stocké]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22808#p22808"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous!</p><p>j&#039;ai une une procédure stockée qui créé des produits dans mes tables tout est expliquer ici <a href="http://forums.postgresql.fr/viewtopic.php?id=3716" rel="nofollow">http://forums.postgresql.fr/viewtopic.php?id=3716</a> et du coup j&#039;ai un petit problème... Il s&#039;avère que lors de la création de la deuxième cadence le numéro récupéré est le dernier mais d&#039;avant la création de la commande...</p><p>Du coup je viens implorer votre aide... Comment fait on pour gérer les transactions en procédures stockées...?</p><p>Cordialement,</p><p>Papychampi</p>]]></content>
+		<author>
+			<name><![CDATA[Papychampi]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5287</uri>
+		</author>
+		<updated>2015-12-14T15:12:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22808#p22808</id>
+	</entry>
+</feed>

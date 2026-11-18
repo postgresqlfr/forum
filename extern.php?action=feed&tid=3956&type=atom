@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Requête WITH RECURSIVE et ordre naturel des résultats]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3956&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3956"/>
+	<updated>2016-09-26T08:47:50Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3956</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête WITH RECURSIVE et ordre naturel des résultats]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24027#p24027"/>
+		<content type="html"><![CDATA[<p>Si vous pouvez avoir plusieurs enregistrement à un même niveau de profondeur d&#039;arbre, il&#160; vous faut une autre colonne pour ordonner ces lignes. À vous de voir selon votre besoin quelle information fait sens pour ce tri.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2016-09-26T08:47:50Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24027#p24027</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête WITH RECURSIVE et ordre naturel des résultats]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24021#p24021"/>
+		<content type="html"><![CDATA[<p>Désolé ce n&#039;est pas la bonne version de la requête que j&#039;ai posté, celle que j&#039;ai posté c&#039;était un essai pour ajouter un numero unique à chaque ligne retourné par la requête mais sans succès car dans la colonne distance ajoutée j&#039;avais plusieurs lignes avec le même numéro de distance, et non pas un numéro unique. De plus je ne pense pas que la requête permette de donner un numéro unique à chaque ligne dans le bon ordre.</p><p>Par exemple au niveau 1 je peux avoir 4 branches, donc dans la table j&#039;ai le champ path avec les valeurs 1.1 1.2 1.3 1.4 avec le même parent pour les 4. Je ne pense pas que pour construire l&#039;arbre la requête retourne d&#039;abord 1.1 et non 1.4 par exemple, raison pour laquelle j&#039;ai arrêté d&#039;essayer de donner un numéro unique&#160; à chaque ligne (ce qui serait sans doute plus rapide que de reconstruire le chemin).</p><p>Voici la bonne requête et le schéma de la table:</p><p>WITH RECURSIVE tree AS<br />(SELECT id_texte, id_type, path, id_parent, etat, CAST(path AS text) AS fullpath<br />FROM arborescence<br />WHERE id_parent=&#039;(null)&#039; AND id_texte=&#039;6070633&#039;<br />UNION ALL<br />SELECT si.id_texte,si.id_type,si.path,si.id_parent,si.etat, <br />&#160; &#160; CAST(sp.fullpath || &#039;.&#039; || si.path AS text) AS fullpath<br />FROM arborescence AS si<br />&#160; &#160; INNER JOIN tree AS sp<br />&#160; &#160; ON (si.id_parent = sp.id_texte)<br />)<br />SELECT * FROM (SELECT *, lag(id_texte, 1) OVER (ORDER BY fullpath ASC) AS precedent, lead(id_texte,1) OVER (ORDER BY fullpath ASC) AS suivant FROM tree WHERE (id_type=&#039;ART&#039; AND etat=&#039;V&#039;) ) AS foo WHERE id_texte=&#039;6421555&#039;</p><p>Schéma:</p><p>&#160; id_parent text,<br />&#160; id_texte text,<br />&#160; id_type text,<br />&#160; id_origine text,<br />&#160; etat text,<br />&#160; path text</p>]]></content>
+		<author>
+			<name><![CDATA[Mint]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=6934</uri>
+		</author>
+		<updated>2016-09-25T16:31:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24021#p24021</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête WITH RECURSIVE et ordre naturel des résultats]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24020#p24020"/>
+		<content type="html"><![CDATA[<p>Sans le schéma est les données c&#039;est un peu difficile, mais à priori vous devriez pouvoir ordonner le résultat final en fonction de votre colonne distance. Ou alors il y a un autre problème ?</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2016-09-25T16:12:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24020#p24020</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Requête WITH RECURSIVE et ordre naturel des résultats]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24018#p24018"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;ai besoin de pouvoir reconstituer un arbre afin de pouvoir passer dans l&#039;ordre hiérarchique d&#039;une branche à l&#039;autre. Chaque branche dans la table à un niveau et un ordre dans ce niveau. J&#039;arrive à reconstituer l&#039;arbre mais je n&#039;arrive pas à ordonner les résultats de tel sorte que je puisse identifier par rapport à une branche donnée la branche précédente et la suivante car les chemins reconstitués par la requête ne sont pas classé dans un ordre naturel.</p><p>Cela donne l&#039;ordre suivant:</p><p>branche A: 1.1.2.2.6.3.2.4.1.5.3.6.2.7.3.8.5.12<br />branche B: 1.1.2.2.6.3.2.4.1.5.3.6.2.7.3.8.5.9<br />branche C: 1.1.2.2.6.3.2.4.1.5.3.6.2.7.3.8.6.2</p><p>Je cherche la branche suivante par rapport à la branche B, la requête devrait me donner A mais me retourne C.</p><p>Ma requête est la suivante:</p><br /><br /><p>WITH RECURSIVE tree AS<br />(SELECT id_texte, id_type, path, id_parent, etat, 1 AS distance, CAST(path AS text) AS fullpath<br />FROM arborescence<br />WHERE id_parent=&#039;(null)&#039; AND id_texte=&#039;6070633&#039;<br />UNION ALL<br />SELECT si.id_texte,si.id_type,si.path,si.id_parent,si.etat,distance+1, <br />&#160; &#160; CAST(sp.fullpath || &#039;.&#039; || si.path AS text) AS fullpath<br />FROM arborescence AS si<br />&#160; &#160; INNER JOIN tree AS sp<br />&#160; &#160; ON (si.id_parent = sp.id_texte)<br />)<br />SELECT * FROM (SELECT *, lag(id_texte, 1) OVER (ORDER BY fullpath ASC) AS precedent, lead(id_texte,1) OVER (ORDER BY fullpath ASC) AS suivant FROM tree WHERE (id_type=&#039;ART&#039; AND etat=&#039;V&#039;) ) AS foo WHERE id_texte=&#039;6421555&#039;</p><br /><br /><p>J&#039;ai lu ce que j&#039;ai trouvé sur Postgresql et l&#039;ordre naturel pour sortir les résultats mais je n&#039;ai pas trouvé de solution par rapport au chemin de mes branches.</p><p>Est-ce que l&#039;un d&#039;entre vous aurait un suggestion pour me permettre d&#039;y arriver ?</p><p>Merci par avance.</p>]]></content>
+		<author>
+			<name><![CDATA[Mint]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=6934</uri>
+		</author>
+		<updated>2016-09-25T15:42:50Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24018#p24018</id>
+	</entry>
+</feed>

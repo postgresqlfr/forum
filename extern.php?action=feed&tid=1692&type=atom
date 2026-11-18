@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / [Hot Standby Replication] Mise en pause de la replication]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1692&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1692"/>
+	<updated>2011-10-14T10:30:27Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1692</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Hot Standby Replication] Mise en pause de la replication]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11397#p11397"/>
+		<content type="html"><![CDATA[<p>merci beaucoup !<br />je vais donc lancer une petite campagne de creation d&#039;indexes sur mon nouveau tablespace <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[ebs]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1159</uri>
+		</author>
+		<updated>2011-10-14T10:30:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11397#p11397</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Hot Standby Replication] Mise en pause de la replication]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11396#p11396"/>
+		<content type="html"><![CDATA[<p>Il va probablement prendre le plus petit, ça sera celui qu&#039;il estimera comme étant le moins cher à utiliser.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-10-14T09:26:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11396#p11396</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Hot Standby Replication] Mise en pause de la replication]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11394#p11394"/>
+		<content type="html"><![CDATA[<p>super ! merci pour ces précisions Marc.</p><p>j&#039;ai une question un peu bête du coup mais si je décide d&#039;opter pour recréer l&#039;index... à un moment il y aura 2 indexes avec des noms différents mais avec le même contenu, comment se comporte postgres dans ce cas là ?</p>]]></content>
+		<author>
+			<name><![CDATA[ebs]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1159</uri>
+		</author>
+		<updated>2011-10-14T09:24:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11394#p11394</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Hot Standby Replication] Mise en pause de la replication]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11392#p11392"/>
+		<content type="html"><![CDATA[<p>Avec le concurrently on n&#039;a plus qu&#039;en verrou &#039;share update exclusive&#039; sur la table (qui permet les mises à jour)<br />Sans le concurrently, on a un verrou &#039;share&#039; (qui empêche les mises à jour)<br />Reindex (index ou table) prend un &#039;access exclusive&#039; (qui bloque les mises à jour) sur les index. Il peut (il va probablement…) bloquer les select qui auront besoin d&#039;accéder au catalogue pendant la reconstruction de l&#039;index (pour planifier une requête): ces select auront besoin de prendre un access share sur l&#039;index. Une requête déjà préparée qui n&#039;utilise pas l&#039;index ne sera pas bloquée par contre.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-10-14T08:12:54Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11392#p11392</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Hot Standby Replication] Mise en pause de la replication]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11391#p11391"/>
+		<content type="html"><![CDATA[<p>Merci pour ta réponse arthurr !<br />En fait je n&#039;ai pas de souci sur les locks en écriture (je peux me permettre de ne pas écrire qqtemps sur mes tables) mais en lecture! Et hier quand j&#039;ai fait mon réindex mes requêtes (uniquement des select) sur mon slave étaient en WAITING (ce que je comprends pas bien car je pensais que c&#039;était au moins accessible en lecture)).<br />Cependant ta méthode me plait car je pourrai directement créer ce nouvel index dans mon nouveau tablespace, droper l&#039;ancien et renommer le nouveau et hop ! ainsi j&#039;éviterai les différents locks non ?</p>]]></content>
+		<author>
+			<name><![CDATA[ebs]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1159</uri>
+		</author>
+		<updated>2011-10-13T15:30:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11391#p11391</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Hot Standby Replication] Mise en pause de la replication]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11389#p11389"/>
+		<content type="html"><![CDATA[<p>Juste une petite précision pour le &#039;Reindex&#039;.<br />Sur les serveurs de Prod, nous créons un nouvel index (identiques à celui que l&#039;on souhaite ré-indexer) en mode &quot;CONCURRENTLY&quot; puis je supprime le vieux et je renomme le nouveau.</p><p>Exemple pour l&#039;index idx_patate :</p><div class="codebox"><pre><code>SQL&gt; create index CONCURRENTLY idx_patate_prov on la_table(la_colonne1, la_colonne2);
+...
+SQL&gt; drop index  idx_patate;
+...
+SQL&gt; alter index  idx_patate_prov rename to  idx_patate;</code></pre></div><p>Et Zou !</p>]]></content>
+		<author>
+			<name><![CDATA[arthurr]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=62</uri>
+		</author>
+		<updated>2011-10-13T15:00:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11389#p11389</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[[Hot Standby Replication] Mise en pause de la replication]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11386#p11386"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je me permets d&#039;ouvrir à nouveau un thread concernant ma réplication dans un contexte master-slave par une réplication hot standby sur des serveurs PostgreSQL 9.0 (installés via les backports Debian Squeeze).</p><p>Suite à mon <a href="http://forums.postgresql.fr/viewtopic.php?id=1690" rel="nofollow">thread précédent</a>, j&#039;ai bien compris que pour réaliser certaines opérations de maintenance (type réindex, alter de tablespace, full vaccum...) ma base allait être inaccessible en écriture mais aussi en lecture le temps de l&#039;opération.<br />Cependant j&#039;ai un pgpool-II en frontal par lequel toutes mes requêtes en lecture passent. Mon idée était de stopper la réplication et de rediriger toutes les lectures sur le slave le temps de faire mes opérations de maintenance sur mon master. Une fois ces opérations finies, je réactive la synchro (qui va en fait envoyer tous les WAL générés durant la maintenance) tout en redirigeant toute mes requêtes en lecture sur mon master.<br />Une fois que mon slave a bien tout rattrapé, alors je peux reconfigurer mon pgpool-II comme avant.</p><p>Ce que j&#039;ai fait pour cela est de changer mon script archive_command, en ajoutant la condition suivante: si un fichier témoin existe alors le script sort en &quot;exit 1&quot;</p><div class="codebox"><pre class="vscroll"><code>#!/bin/bash
+# Script to copy WAL archives to slave servers
+# Usage:
+# archive_command = &#039;/usr/local/sbin/postgres_archive_command %p %f&#039;
+
+
+FILE_SRC=&quot;$1&quot;
+FILE_DEST=&quot;/var/lib/postgresql/wal_hot_standby/$2&quot;
+slave=&quot;10.0.1.48&quot;
+MAIL=&quot;plop@plop.com&quot;
+LOG=&quot;/var/log/postgresql/archives_log_process.log&quot;
+DEBUG_VALUE=1
+STOP_FILE=&quot;/var/run/postgresql/pg_standby-stopfile&quot;
+
+[ $DEBUG_VALUE -ge 1 ] &amp;&amp; echo &quot;$0 2.0 - `date` - INFO - start archive log process&quot; &gt;&gt; $LOG 2&gt;&amp;1
+
+
+if [ -e &quot;$STOP_FILE&quot; ]
+then
+        echo &quot;$0 2.0 - `date` - WARN - $STOP_FILE exists, archive process suspended...&quot; &gt;&gt; $LOG 2&gt;&amp;1
+        exit 1
+fi
+
+[ $DEBUG_VALUE -ge 1 ] &amp;&amp; echo &quot;$0 2.0 - `date` - INFO - start transfert for $slave&quot; &gt;&gt; $LOG 2&gt;&amp;1
+[ $DEBUG_VALUE -ge 1 ] &amp;&amp; echo &quot;$0 2.0 - `date` - INFO - scp $FILE_SRC postgres@$slave:$FILE_DEST&quot; &gt;&gt; $LOG 2&gt;&amp;1
+scp $FILE_SRC postgres@$slave:$FILE_DEST  &gt;&gt; $LOG 2&gt;&amp;1
+if [ $? -ne 0 ] 
+then
+                echo &quot;$0 2.0 - `date` - ERROR when trying to scp $FILE_SRC postgres@$slave:$FILE_DEST&quot; &gt;&gt; $LOG 2&gt;&amp;1
+                (echo -e &quot;Master: `hostname -f`\nSlave: $slave\nFile: $FILE_SRC\nLog: $LOG\n\n&quot;) | mail -s &quot;[Postgresql ALERT] error copying wal file $FILE_SRC&quot; $MAIL
+                exit 1
+fi
+
+[ $DEBUG_VALUE -ge 1 ] &amp;&amp; echo &quot;$0 2.0 - `date` - INFO - archive log process done&quot; &gt;&gt; $LOG 2&gt;&amp;1</code></pre></div><p>Je viens de tester et ça semble bien fonctionner... quand je supprime mon fichier témoin les WAL sont bien tous renvoyés et mon slave rattrape son retard. Mais je doutais de la bonne pratique de cette méthode (en imaginant que je n&#039;ai pas de souci de stockage des WALs durant cette opération)</p><p>De plus je n&#039;ai pas bien compris pourquoi mon master essaye toutes les minutes de renvoyer les WALs alors qu&#039;en temps normal s&#039;il n&#039;y a pas d&#039;activité, il envoie le WAL toutes les 5 minutes (== checkpoint_timeout)... Sachant que pour mes tests j&#039;ai mis archive_timeout à 30 secondes. J&#039;imagine qu&#039;il y a d&#039;autres paramètres expliquant le &quot;toutes les minutes&quot; mais je ne vois pas bien lequel, si vous avez des pistes je suis preneur!</p><p>D&#039;avance, merci beaucoup !<br />/Erwan</p>]]></content>
+		<author>
+			<name><![CDATA[ebs]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1159</uri>
+		</author>
+		<updated>2011-10-13T13:28:35Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11386#p11386</id>
+	</entry>
+</feed>

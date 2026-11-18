@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / [ABANDONNE] [9.6] Plus de checkpoint]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5659&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5659"/>
+	<updated>2020-01-02T23:13:34Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5659</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [ABANDONNE] [9.6] Plus de checkpoint]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30533#p30533"/>
+		<content type="html"><![CDATA[<p>Après quelques jours de congés, première chose regardé à ma reprise et j&#039;ai la réponse... action humaine &quot;in&quot;volontaire avec un beau kill du process retrouvé dans l&#039;historique des commandes.<br />Depuis, le moteur ne semble pas avoir bronché.</p><p>Merci pour vos contributions bien qu&#039;elles n&#039;aient pas eu le temps de conduire à une résolution non violente.</p>]]></content>
+		<author>
+			<name><![CDATA[jeff7194]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8764</uri>
+		</author>
+		<updated>2020-01-02T23:13:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30533#p30533</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [ABANDONNE] [9.6] Plus de checkpoint]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30520#p30520"/>
+		<content type="html"><![CDATA[<p>Ça ne me parait pas spécialement surprenant que le checkpointer finisse par exploser en vol, il serait cependant intéressant de savoir ce qui l&#039;a vraiment tué.</p><br /><p>Pour le reste, à priori je ne vois pas de raison qui ferait que des données seraient corrompues : tous les WALs étaient présentes, les fichiers ont été à priori normalement écrits etc etc.&#160; Vous pouvez essayer d&#039;utiliser des outils comme amcheck ou pg_catcheck au cas où, mais cela ne garantirait que peu de choses.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2019-12-25T18:13:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30520#p30520</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [ABANDONNE] [9.6] Plus de checkpoint]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30519#p30519"/>
+		<content type="html"><![CDATA[<p>Je suis dépité... horreur en me connectant ce mardi matin pour faire l&#039;état des lieux...</p><br /><p>Bien que ce soit certainement sans mauvaises intentions, je n&#039;ai pas pu faire avouer, je pense qu&#039;un lutin venait à l&#039;instant de me planter le moteur en tuant le process checkpointer ! <img src="http://forums.postgresql.fr/img/smilies/sad.png" width="15" height="15" alt="sad" /><br />Le process père a résisté et, comme sur l&#039;environnement de test, tous les process fils ont été recyclés..</p><br /><p>Magie de l&#039;ambiance de Noël, checkpoint et sauvegardes refonctionnent <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /><br />Le dossier pg_xlog a repris un cycle de vie et de purge normal.</p><br /><p>Je n&#039;ai eu aucun écho d&#039;un dysfonctionnement de l&#039;application ou même d&#039;incohérences de données.<br />J&#039;ai contrôlé la réplication et elle était toujours fonctionnelles.<br />Je reste dubitatif sur l&#039;état réel du moteur et je pense qu&#039;une reconstruction à court terme est à envisager.</p><br /><p>Je rechercherai s&#039;il s&#039;agit bien d&#039;une action humaine ou finalement d&#039;une véritable défaillance du moteur telle qu&#039;elle aurait pu/dû de produire initialement.</p>]]></content>
+		<author>
+			<name><![CDATA[jeff7194]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8764</uri>
+		</author>
+		<updated>2019-12-24T23:33:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30519#p30519</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [ABANDONNE] [9.6] Plus de checkpoint]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30518#p30518"/>
+		<content type="html"><![CDATA[<p>Donc, le checkpoint est bloqué sur la partie des slots de réplication, en attente du lightweight lock ReplicationSlotAllocationLock en accès partagé.&#160; Les seuls endroits dans le code où ce verrou est pris de manière exclusive est dans ReplicationSlotCreate(), c&#039;est-à-dire lorsqu&#039;un slot de réplication est créé et ReplicationSlotDropPtr(), pour supprimer un slot.&#160; Je ne vois à priori aucune possibilité de deadlock ou de non relachement de ce verrou dans le code.&#160; Quelle version mineure de postgres utilisez-vous exactement ?</p><br /><p>Avez-vous eu un problème durant la création de slot de réplication ?&#160; Avez-vous une requête bloquée depuis (très) longtemps exécutant pg_create_(physical|logical)_replication_slot(), pg_drop_replication_slot(), ou une autre requête qui semble bloquée?&#160; Il faudrait trouver quel processus détient ce verrou, mais malheureusement l&#039;information n&#039;est pas facilement disponible avec un build standard de postgres.</p><br /><p>En tout logique, vous ne devriez pas non plus pouvoir créer ou supprimer de slot de réplication.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2019-12-24T09:45:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30518#p30518</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [ABANDONNE] [9.6] Plus de checkpoint]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30517#p30517"/>
+		<content type="html"><![CDATA[<div class="codebox"><pre><code>(gdb) backtrace
+#0  0x00007fb2781583e7 in semop () from /lib/x86_64-linux-gnu/libc.so.6
+#1  0x00007fb27a05f202 in PGSemaphoreLock ()
+#2  0x00007fb27a0c4f0c in LWLockAcquire ()
+#3  0x00007fb27a097c47 in ?? ()
+#4  0x00007fb27a099657 in CheckPointReplicationSlots ()
+#5  0x00007fb279eb818a in ?? ()
+#6  0x00007fb279ec00c0 in CreateCheckPoint ()
+#7  0x00007fb27a065ae9 in CheckpointerMain ()
+#8  0x00007fb279ed15c9 in AuxiliaryProcessMain ()
+#9  0x00007fb27a06ee27 in ?? ()
+#10 0x00007fb27a07001a in ?? ()
+#11 &lt;signal handler called&gt;
+#12 0x00007fb27814f613 in select () from /lib/x86_64-linux-gnu/libc.so.6
+#13 0x00007fb27a07149a in PostmasterMain ()
+#14 0x00007fb279e480e2 in main ()</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[jeff7194]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8764</uri>
+		</author>
+		<updated>2019-12-23T15:24:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30517#p30517</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [ABANDONNE] [9.6] Plus de checkpoint]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30516#p30516"/>
+		<content type="html"><![CDATA[<p>La stack est très parlante...</p><div class="codebox"><pre><code># pstack 9471
+
+9471: postgres: checkpointer process
+(No symbols found)
+0x7fb2781583e7: ???? (1007ffdeb7b9270, 7fb2729798f8, 0, 7fb2739c4400, 7ffdeb7b9420, 7ffdeb7b9520) + 10
+0x7fb27a0c4f0c: ???? (7ffdeb7b9398, f7a334613, 7ffdeb7b9290, 7ffdeb7b9280, 7ffdeb7b9468, 7fb27a2349cd) + 8d0
+0x7fb27a097c47: ???? (736c7065725f6770, 657361622f746f6c, 5f70756b6361625f, 34353a00746f6c73, 7ffdeb7b9620, 7fb2781a4b60) + 410
+0x7fb27a099657: ???? (7fb27a61f1b8, 7fb27a637d58)
+0x7fb279eb818a: ???? (3, cfe52b00, 1192c7000060, 200000002, 1, 1162b5906845a2f) + 70
+0x7fb279ec00c0: ???? (7ffdeb7b9a70, 7fb27bdd0290, 7fb27a60f680, 8d01f7267e7cf438, 2, 7fb27a22b520) + e0
+0x7fb27a065ae9: ???? (4, 0, 0, 7fb27a1f8d9c, 7ffdeb7b9bb0, 7fb27a638550) + 20
+0x7fb279ed15c9: ???? (7fb27a318cd0, 7ffdeb7b9c10, 0, 5, 7ffdeb7b9b40, 10) + 60
+0x7fb27a06ee27: ???? (7ffdeb7b9c90, 7fb2781646b9, 0, 7841a720, 7ffdeb7b9f20, 0) + 20
+0x7fb27a07001a: ???? (1, 0, 0, 7fb200000002, 0, 7ffdeb7ba3c0) + 730
+0x7fb2780960b0: ???? (7ffdeb7ba578, 0, 7fb279e48114, 7ffdeb7ba540, 0, 0)
+0x7fb279e480e2: ???? (7ffdeb7ba578, 7ffdeb7ba548, 500000000, 7fb279e478c0, 0, 72fa21d148dcf438) + ffff800214845b60</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[jeff7194]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8764</uri>
+		</author>
+		<updated>2019-12-23T15:08:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30516#p30516</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [ABANDONNE] [9.6] Plus de checkpoint]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30502#p30502"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Ce dont je reste preneur, ce serait une solution indolore pour &quot;réveiller&quot; le process checkpointer.</p></div></blockquote></div><br /><p>Malheureusement, comme c&#039;est la première fois que j&#039;entends parler de ce problème, sans plus d&#039;informations (au minimum la stack trace du processus), il va être impossible d&#039;aider.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2019-12-17T10:53:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30502#p30502</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [ABANDONNE] [9.6] Plus de checkpoint]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30501#p30501"/>
+		<content type="html"><![CDATA[<p>Le fichier pg_control reste bien en date du dernier CHECKPOINT.<br />Mon sentiment est donc que ce qui a été restauré sur l&#039;environnement de test est basé sur à une sauvegarde qui n&#039;aurait pas été lancée depuis ce CHECKPOINT... à noter qu&#039;en temps normal la sauvegarde est loi d&#039;être instantanée, mais autour de 30min.<br />Toutefois, je précise que l&#039;objectif n&#039;est pas de faire une restauration sur l&#039;environnement principal, il s&#039;agissait de vérifier en test que les fichiers sur disque n&#039;étaient pas corrompus.</p><p>Ce dont je reste preneur, ce serait une solution indolore pour &quot;réveiller&quot; le process checkpointer.</p>]]></content>
+		<author>
+			<name><![CDATA[jeff7194]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8764</uri>
+		</author>
+		<updated>2019-12-16T23:17:50Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30501#p30501</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [ABANDONNE] [9.6] Plus de checkpoint]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30500#p30500"/>
+		<content type="html"><![CDATA[<p>Oui, tout à fait. Je cherchais juste à indiquer à quel moment au plus tard on était assuré d&#039;avoir une sauvegarde corrompue.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2019-12-15T16:57:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30500#p30500</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [ABANDONNE] [9.6] Plus de checkpoint]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30499#p30499"/>
+		<content type="html"><![CDATA[<p>Je tiens quand même à préciser que même si la sauvegarde ne dure qu&#039;une milliseconde, il est tout de même possible de finir avec une sauvegarde corrompue pour peu que le fichier pg_control corresponde à une version plus récente que certains autre fichiers modifiés.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2019-12-14T20:03:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30499#p30499</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [ABANDONNE] [9.6] Plus de checkpoint]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30498#p30498"/>
+		<content type="html"><![CDATA[<p>Sans faire appel à pg_start_backup(), le moteur ne saura pas à quel checkpoint commencer la restauration. Il se basera sur le contenu du fichier pg_control. Si ce dernier n&#039;a pas été modifié depuis le début de la sauvegarde, parfait. S&#039;il l&#039;a été, votre sauvegarde est corrompue. Si on cherche à estimer ça, prenez la valeur du checkpoint_timeout. Si la durée de la sauvegarde dépasse la valeur du checkpoint_timeout, alors la sauvegarde est corrompue.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2019-12-14T14:19:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30498#p30498</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [ABANDONNE] [9.6] Plus de checkpoint]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30497#p30497"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>jeff7194 a écrit&#160;:</cite><blockquote><div><p>Je ne suis pas certain quant à la corruption puisque ce qui a été restauré selon procédure correspond à ce qui aurait été embarqué dans une sauvegarde qui n&#039;aurait pas tourné depuis plusieurs jours.</p></div></blockquote></div><br /><p>Oui, mais les WAL nécessaires pour obtenir des données cohérentes n&#039;ont probablement pas été rejoués.&#160; C&#039;est entre autre à ça que sert le pg_start_backup().</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2019-12-14T14:10:50Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30497#p30497</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [ABANDONNE] [9.6] Plus de checkpoint]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30496#p30496"/>
+		<content type="html"><![CDATA[<p>Je ne suis pas certain quant à la corruption puisque ce qui a été restauré selon procédure correspond à ce qui aurait été embarqué dans une sauvegarde qui n&#039;aurait pas tourné depuis plusieurs jours.</p><p>Dilemme avec la saturation du FS sur l&#039;environnement de test où le contexte n&#039;est pas reproduit... le moteur a fait un shutdown brutal... contrairement à l&#039;environnement principal qui lui tourne toujours.</p>]]></content>
+		<author>
+			<name><![CDATA[jeff7194]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8764</uri>
+		</author>
+		<updated>2019-12-14T10:46:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30496#p30496</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [ABANDONNE] [9.6] Plus de checkpoint]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30490#p30490"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>jeff7194 a écrit&#160;:</cite><blockquote><div><p>Toutefois, une sauvegarde de la base selon son mode habituel, en shuntant le pg_start_backup, a pu être rechargée sur un serveur de test.</p></div></blockquote></div><br /><p>Le résultat de cette sauvegarde est très probablement une instance totalement corrompue.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2019-12-13T11:40:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30490#p30490</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [ABANDONNE] [9.6] Plus de checkpoint]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30488#p30488"/>
+		<content type="html"><![CDATA[<p>Pas eu le temps d&#039;analyser plus avant le problème aujourd&#039;hui.<br />Toutefois, une sauvegarde de la base selon son mode habituel, en shuntant le pg_start_backup, a pu être rechargée sur un serveur de test.<br />Avec la mise en ligne des quelque 30Go de fichiers WAL générés depuis le dernier checkpoint valide, la base a démarré sans anomalie et les checkpoints passent normalement, y compris la sauvegarde.</p><p>Sur cette environnement de test, petite expérience qui ne coûtait rien, un &quot;kill -9&quot; du process checkpointer.<br />Le moteur n&#039;a pas planté, juste une refresh de l&#039;ensemble de tous les process fils de PostgresSQL (writer, vaccum, etc)</p><p>A dire que c&#039;est ce quipourrait être joué sur l&#039;environnement principal...</p><p>Test de saturation du FS à venir en espérant reproduite le même phénomène.</p>]]></content>
+		<author>
+			<name><![CDATA[jeff7194]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8764</uri>
+		</author>
+		<updated>2019-12-12T22:03:39Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30488#p30488</id>
+	</entry>
+</feed>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / pgBackRest - ERROR: [070]]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5774&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5774"/>
+	<updated>2020-06-03T18:08:16Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5774</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pgBackRest - ERROR: [070]]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31246#p31246"/>
+		<content type="html"><![CDATA[<p>Bien vu Monsieur est un connaisseur <img src="http://forums.postgresql.fr/img/smilies/wink.png" width="15" height="15" alt="wink" /></p><p>J&#039;ai posté (bien avant ici) sur le Github de pgBackRest, et la réponse est similaire:</p><br /><p>A tablespace may not be located inside PGDATA (data_directory setting). PostgreSQL will warn in this case:</p><p>&#160; &#160; /* Warn if the tablespace is in the data directory. */<br />&#160; &#160; if (path_is_prefix_of_path(DataDir, location))<br />&#160; &#160; &#160; &#160; ereport(WARNING,<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; (errcode(ERRCODE_INVALID_OBJECT_DEFINITION),<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;&#160; errmsg(&quot;tablespace location should not be inside the data directory&quot;)));<br />but we treat it as an error. Resolving and remapping these types of links during a restore can be very confusing for the user and therefore error prone.</p><p>In short -- move the tablespace link destination outside of PGDATA.</p>]]></content>
+		<author>
+			<name><![CDATA[JacquotDeDromie]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8915</uri>
+		</author>
+		<updated>2020-06-03T18:08:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31246#p31246</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pgBackRest - ERROR: [070]]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31245#p31245"/>
+		<content type="html"><![CDATA[<p>ça sent le portage 1:1 d&#039;Oracle, c&#039;est une pratique habituelle, séparer les data et les index dans des schémas différents</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2020-06-03T15:16:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31245#p31245</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pgBackRest - ERROR: [070]]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31244#p31244"/>
+		<content type="html"><![CDATA[<p>Notre prestataire est allé mettre des Databases, des Tables, des Séquences et des Index dans les tablespaces <img src="http://forums.postgresql.fr/img/smilies/sad.png" width="15" height="15" alt="sad" /><br />Mais ils sont bien dans le même filesystem...</p><p>/axihome/base2/postgresdata/pg_tblspc<br />|<br />--16432 ==&gt; /axihome/base2/postgresdata/axidata<br />|<br />---16433 ==&gt; /axihome/base2/postgresdata/axiindex<br />|<br />----16434 ==&gt; /axihome/base2/postgresdata/connectdata<br />|<br />-----16435 ==&gt; /axihome/base2/postgresdata/connectindex<br />|<br />------16436 ==&gt; /axihome/base2/postgresdata/axiccam</p><br /><p>Or les 2 databases de l&#039;instances sont:</p><p>CREATE DATABASE &quot;AXIBASE&quot;<br />&#160; &#160; WITH <br />&#160; &#160; OWNER = postgres<br />&#160; &#160; ENCODING = &#039;UTF8&#039;<br />&#160; &#160; LC_COLLATE = &#039;fr_FR.UTF-8&#039;<br />&#160; &#160; LC_CTYPE = &#039;fr_FR.UTF-8&#039;<br />&#160; &#160; <strong>TABLESPACE = axidata</strong><br />&#160; &#160; CONNECTION LIMIT = -1;</p><p>CREATE DATABASE &quot;CONNECT&quot;<br />&#160; &#160; WITH <br />&#160; &#160; OWNER = postgres<br />&#160; &#160; ENCODING = &#039;UTF8&#039;<br />&#160; &#160; LC_COLLATE = &#039;fr_FR.UTF-8&#039;<br />&#160; &#160; LC_CTYPE = &#039;fr_FR.UTF-8&#039;<br />&#160; &#160;<strong>TABLESPACE = connectdata</strong><br />&#160; &#160; CONNECTION LIMIT = -1;</p><p>Je vais voir avec le prestataire l&#039;intérêt de ces tablespaces et éventuellement s&#039;ils sont OK pour les supprimer.</p>]]></content>
+		<author>
+			<name><![CDATA[JacquotDeDromie]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8915</uri>
+		</author>
+		<updated>2020-06-03T14:08:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31244#p31244</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pgBackRest - ERROR: [070]]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31243#p31243"/>
+		<content type="html"><![CDATA[<p>Le répertoire cible d&#039;un tablespace ne devrait pas être dans le PGDATA. Sinon vous courrez le risque de le backuper deux fois, d&#039;avoir le système de backup qui écrase les mauvais fichiers, etc… c&#039;est pour ça que pgbackrest refuse de backuper. Mieux vaut vous alerter maintenant.</p><p>À moins que axidata soit un point de montage vers un autre filesystem, ce tablespace n&#039;a aucun intérêt pour postgres de toutes façons, le but d&#039;un tablespace sous postgres, c&#039;est juste de pouvoir utiliser un système de fichiers différent (sur un type de stockage différent par exemple) pour certains objets. Donc deux possibilités pour résoudre votre problème:<br />- soit axidata est un point de montage. Dans ce cas là, arrêtez l&#039;instance, remontez le ailleurs, qui ne soit pas un sous répertoire de /axihome/base2/postgresdata/, et mettez à jour le lien symbolique (techniquement le tablespace n&#039;est qu&#039;un lien symbolique) de &#039;pg_tblspc/16432 pour pointer vers la nouvelle destination<br />- soit c&#039;est juste un répertoire. dans ce cas, il ne sert vraiment à rien, vous allez plus vous compliquer la vie qu&#039;autre chose. ramenez les objets dans le tablespace par défaut, supprimez le tablespace. ça a un sens sous oracle par exemple, parce qu&#039;il gère des datafiles, sous postgres ça ne sert à rien.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2020-06-03T13:25:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31243#p31243</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[pgBackRest - ERROR: [070]]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31242#p31242"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>je viens de déployer pgBackRest sur une instance de test.<br />Mon paramétrage:</p><p>pgBackRest version: 2.26</p><p>PostgreSQL version: 9.3.25</p><p>Operating system/version: Debian 8.11</p><p>Did you install pgBackRest from source or from a package? Package</p><p>pgbackrest.conf file(s):</p><p>[global]<br />repo1-path=/media/backup/pgbackrest<br />repo1-retention-full=2<br />process-max=1<br />log-level-console=info<br />log-level-file=detail<br />start-fast=y</p><p>[global:archive-push]<br />compress-level=1</p><p>[main]<br />pg1-path=/axihome/base2/postgresdata</p><p>postgresql.conf file :</p><p>data_directory = &#039;/axihome/base2/postgresdata&#039;<br />hba_file = &#039;/etc/postgresql/9.3/main/pg_hba.conf&#039;<br />ident_file = &#039;/etc/postgresql/9.3/main/pg_ident.conf&#039;<br />wal_level = archive<br />archive_mode = on<br />archive_command = &#039;pgbackrest --stanza=main archive-push %p&#039;<br />archive_timeout = 600</p><br /><p>/var/log/pgbackrest/main_backup.log</p><p>2020-06-02 23:41:54.948 P00 INFO: backup command begin 2.26: --log-level-console=info --log-level-file=detail --pg1-path=/axihome/base2/postgresdata --process-max=1 --repo1-path=/media/backup/pgbackrest --repo1-retention-full=2 --stanza=main --start-fast --type=full<br />2020-06-02 23:41:55.560 P00 INFO: execute exclusive pg_start_backup(): backup begins after the requested immediate checkpoint completes<br />2020-06-02 23:41:56.061 P00 INFO: backup start archive = 000000020000025D0000004D, lsn = 25D/4D000028<br /><strong>2020-06-02 23:41:56.313 P00 ERROR: [070]: link &#039;pg_tblspc/16432&#039; destination &#039;/axihome/base2/postgresdata/axidata&#039; is in PGDATA</strong><br />2020-06-02 23:41:56.313 P00 INFO: backup command end: aborted with exception [070]</p><p>L&#039;archivage des WAL fonctionne sans soucis</p><p>Au lancement manuel du backup :</p><p>postgres@DPICHCDBTST:~$ pgbackrest --stanza=main --type=full backup<br />2020-06-02 23:41:54.948 P00 INFO: backup command begin 2.26: --log-level-console=info --log-level-file=detail --pg1-path=/axihome/base2/postgresdata --process-max=1 --repo1-path=/media/backup/pgbackrest --repo1-retention-full=2 --stanza=main --start-fast --type=full<br />2020-06-02 23:41:55.560 P00 INFO: execute exclusive pg_start_backup(): backup begins after the requested immediate checkpoint completes<br />2020-06-02 23:41:56.061 P00 INFO: backup start archive = 000000020000025D0000004D, lsn = 25D/4D000028<br /><strong>ERROR: [070]: link &#039;pg_tblspc/16432&#039; destination &#039;/axihome/base2/postgresdata/axidata&#039; is in PGDATA</strong><br />2020-06-02 23:41:56.313 P00 INFO: backup command end: aborted with exception [070]</p><br /><p>Une idée du pourquoi le backup ne s&#039;exécute pas à cause du lien &#039;pg_tblspc/16432&#039; (présent dans &#039;/axihome/base2/postgresdata/pg_tblspc&#039;) qui pointe sur &#039;/axihome/base2/postgresdata/axidata&#039;&#160; ???</p>]]></content>
+		<author>
+			<name><![CDATA[JacquotDeDromie]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8915</uri>
+		</author>
+		<updated>2020-06-03T13:16:54Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31242#p31242</id>
+	</entry>
+</feed>

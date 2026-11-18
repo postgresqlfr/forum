@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Mise à jour de table distante]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=6332&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=6332"/>
+	<updated>2022-09-01T15:37:49Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=6332</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Mise à jour de table distante]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33682#p33682"/>
+		<content type="html"><![CDATA[<p>ah je vois.<br />merci beaucoup dverite</p>]]></content>
+		<author>
+			<name><![CDATA[Lamethode]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9925</uri>
+		</author>
+		<updated>2022-09-01T15:37:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33682#p33682</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Mise à jour de table distante]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33679#p33679"/>
+		<content type="html"><![CDATA[<p>Le fait de créer des variables avec DECLARE est une fonctionnalité du langage plpgsql, mais cette fonction est déclarée avec language &#039;sql&#039;, donc DECLARE n&#039;est pas possible. C&#039;est la raison de l&#039;erreur.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2022-08-31T14:09:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33679#p33679</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Mise à jour de table distante]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33678#p33678"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous,<br />Encore Débutant que je suis, je désire mettre à jour 4 champs d&#039;une table B en utilisant des données d&#039;une Table A. Il existe une relation de 1 à plusieurs allant de la table A vers la table B. Je précise que a mise à jour doit se faire à chaque fois qu&#039;on entre une nouvelle information. <br />Sans trop savoir si ma vision ou mon script marchera, je tente le coup.</p><p>le script pour les 2 tables est </p><p>create table trou(<br />code varchar(10) PRIMARY KEY,<br />position_x numeric NOT NULL,<br />position_y numeric NOT NULL,<br />angle1 numeric NOT NULL,<br />angle2 numeric NOT NULL<br />);<br />create table contenu_trou(<br />code varchar(10),<br />debut numeric,<br />fin numeric,<br />attitude varchar(5),<br />debut_x numeric,<br />debut_y numeric,<br />fin_x numeric, <br />fin_y numeric,<br />geom geometry GENERATED ALWAYS AS <br />&#160; &#160; (ST_MakeLine(ST_Point(debut_x, debut_y,32644), ST_Point(fin_x, fin_y,32644))) STORED,<br />constraint con_trou primary key (code, &quot;debut&quot;),<br />CONSTRAINT &quot;trou?&quot; FOREIGN KEY (code)<br />&#160; &#160; &#160; &#160; REFERENCES trou (code) MATCH SIMPLE<br />&#160; &#160; &#160; &#160; ON UPDATE CASCADE<br />&#160; &#160; &#160; &#160; ON DELETE NO ACTION);</p><p>Pour y arriver,&#160; je décide de tenter une fonction qui pourra automatiser la mise à jour des champs (debut_x, debut_y, fin_x et fin_y) en se servant des champs debut et fin de la table trou (la relation mathématique étant connue).<br />Je me dit qu&#039;un trigger pourrait faire l&#039;affaire mais vu les paramètres à définir au préalable, je suis hésitant et j&#039;opte pour une fonction retournant un void.</p><p>CREATE OR REPLACE FUNCTION position_contenu() <br />RETURNS void <br />as $$<br />DECLARE<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;cd varchar(10),<br />&#160; &#160; &#160; &#160;&#160; &#160; &#160;st numeric,<br />&#160; &#160;&#160; &#160; &#160; &#160; &#160; &#160; nd numeric,<br />&#160; &#160; &#160; &#160;&#160; &#160; x1 numeric,<br />&#160; &#160; &#160; &#160;&#160; &#160; y1 numeric,<br />&#160; &#160;&#160; &#160; &#160; &#160; &#160; &#160; x2 numeric,<br />&#160; &#160; &#160; &#160;&#160; &#160; y2 numeric;<br />BEGIN<br />&#160; &#160; &#160; &#160; SELECT CASE&#160; <br />&#160; &#160; &#160; &#160; &#160; WHEN code= $1 THEN --tester la correspondance des HoleID et opérer l&#039;ensemble des calculs-- <br />&#160; &#160; &#160; &#160; &#160; &#160;&#160; &#160;New.$4:=position_x+(New.$6*cos(radian(angle1))*sin(radian(180-angle2)))<br />&#160; &#160; &#160; &#160;&#160; &#160;AND New.$5:=position_y-(New.$6*cos(radian(angle1))*sin(radian(angle2-90)))&#160; &#160; &#160; &#160; &#160; &#160;&#160; <br />&#160; &#160; &#160; &#160;&#160; &#160;AND New.$6:=position_x+(New.$7*cos(radian(angle1))*sin(radian(180-angle2)))<br />&#160; &#160; &#160; &#160;&#160; &#160;AND New.$7:=position_y-(New.$7*cos(radian(angle1))*sin(radian(angle2-90)))<br />&#160; &#160; &#160; &#160; &#160; ELSE FALSE<br />&#160; &#160; &#160; &#160; END<br />&#160; &#160; &#160; &#160;&#160; &#160;FROM trou<br />END<br />$$<br />language &#039;sql&#039;;</p><p>A peine la fonction lancer, j&#039;ai une erreur que je ne comprends pas</p><p>ERROR: ERREUR:&#160; erreur de syntaxe sur ou près de « varchar »<br />LINE 7:&#160; &#160; &#160; &#160; &#160;cd varchar(10),<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;^</p><br /><p>Merci de m&#039;aider.</p>]]></content>
+		<author>
+			<name><![CDATA[Lamethode]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9925</uri>
+		</author>
+		<updated>2022-08-30T03:55:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33678#p33678</id>
+	</entry>
+</feed>

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / TRIGGER : Erreur "... being used by active queries in this session"]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3594&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3594"/>
+	<updated>2015-07-08T13:31:52Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3594</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  TRIGGER : Erreur "... being used by active queries in this session"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22153#p22153"/>
+		<content type="html"><![CDATA[<p>Merci.<br />Je regarde la doc et vois ce que je peux faire.<br />Cordialement<br />JP</p>]]></content>
+		<author>
+			<name><![CDATA[jpl]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5028</uri>
+		</author>
+		<updated>2015-07-08T13:31:52Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22153#p22153</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  TRIGGER : Erreur "... being used by active queries in this session"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22151#p22151"/>
+		<content type="html"><![CDATA[<p>Ok...</p><p>Peut-être que session_replication_role pourrait vous aider (voir <a href="http://docs.postgresql.fr/9.4/sql-altertable.html" rel="nofollow">http://docs.postgresql.fr/9.4/sql-altertable.html</a> ).</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2015-07-08T13:21:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22151#p22151</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  TRIGGER : Erreur "... being used by active queries in this session"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22150#p22150"/>
+		<content type="html"><![CDATA[<p>J&#039;ai une table <strong>A</strong> sur un serveur <strong>A</strong> alimentée par un trigger positionné sur un serveur <strong>B</strong> avec des bases que je n&#039;administre pas.<br />Lorsque les utilisateurs métier sur&#160; <strong>B</strong> créent un nouvel objet, alors ma table <strong>A</strong> est implémentée.<br />D&#039;où un premier trigger INSERT qui va balancer un certain nombre d&#039;update sur cette même table <strong>A</strong> (par exemple je récupère la géométrie de mon nouvel objet et je l&#039;affecte à tous les dossiers qui ont le même numéro).<br />J&#039;ai un deuxième trigger UPDATE qui permet de prendre en compte les modifications apportées par mes utilisateurs métier&#160; et d&#039;impacter tous les objets ayant le même numéro de dossier ( exemple je modifie la géométrie d&#039;un objet et j&#039;applique cette modification à tous les dossiers ayant le même numéro). Mais je ne souhaite pas qu&#039;il se déclenche lorsque j&#039;effectue un update à partir de mon trigger INSERT, d&#039;où la tentative de désactivation du trigger UPDATE</p><p>JP</p>]]></content>
+		<author>
+			<name><![CDATA[jpl]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5028</uri>
+		</author>
+		<updated>2015-07-08T12:54:06Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22150#p22150</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  TRIGGER : Erreur "... being used by active queries in this session"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22147#p22147"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Aucune idée si un trigger peut désactiver un autre trigger sur une même table, mais ça me parait intuitivement une mauvaise idée de toutes façons. Quel problème cherchez vous à résoudre exactement ?</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2015-07-08T11:25:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22147#p22147</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[TRIGGER : Erreur "... being used by active queries in this session"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22142#p22142"/>
+		<content type="html"><![CDATA[<p>Bonjour.<br />J&#039;ai un trigger en INSERT qui doit, entre autre, désactiver un autre trigger en UPDATE en début d&#039;exécution et le réactiver en fin.<br />Les deux triggers sont rattachés à le même table.<br />Sauf que lorsque je lance une requête INSERT j&#039;ai le message suivant :</p><p><strong>ERROR:&#160; cannot ALTER TABLE &quot;sig_conformite&quot; because it is being used by active queries in this session<br />CONTEXT:&#160; SQL statement &quot;Alter table sig_conformite disable trigger t_conformite_up_alerte&quot;<br />PL/pgSQL function &quot;conformite_insert&quot; line 7 at SQL statement</strong></p><p>Pour le besoin j&#039;ai simplifié au maximum les triggers :</p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION conformite_insert()
+  RETURNS trigger AS
+$BODY$DECLARE
+
+BEGIN
+
+Alter table sig_conformite disable trigger t_conformite_up_alerte;
+
+return 	NEW; 
+END;$BODY$
+  LANGUAGE plpgsql VOLATILE SECURITY DEFINER
+  COST 100;
+ALTER FUNCTION conformite_insert()
+  OWNER TO postgres;
+
+CREATE TRIGGER t_conformite_insert
+  BEFORE INSERT
+  ON sig_conformite
+  FOR EACH ROW
+  EXECUTE PROCEDURE conformite_insert();</code></pre></div><p>Le trigger update se contente de renseigner un variable et de me retourner l&#039;info avec un raise notice.</p><p>Il semble donc qu&#039;un trigger sur une table ne puisse en désactiver un autre sur la même table quand bien même les fonctions INSERT et UPDATE sont bien distinguées . Quelqu&#039;un peut-il me le confirmer ? <br />L&#039;option qu&#039;il me reste est l&#039;utilisation des variables TG_OP<br />Cordialement<br />JP</p>]]></content>
+		<author>
+			<name><![CDATA[jpl]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5028</uri>
+		</author>
+		<updated>2015-07-08T10:13:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22142#p22142</id>
+	</entry>
+</feed>

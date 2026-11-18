@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Trigger gestion stock]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1406&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1406"/>
+	<updated>2011-05-17T08:17:59Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1406</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Trigger gestion stock]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9342#p9342"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous,</p><p>Euh … encore une fois SQLpro avec ces commentaires de …, à l’instant ou j’ai répandu à Marc j’ai pas vue leur message de merde, je parle de ça c’est juste pour dire que le MERCI c’est pour Marc, c’est pas pour toi Mr Pro !</p><br /><p>J’ai regardé coté developpez.com et autre sites, toujours la même personne parle les même phrases (ne connaissez rien, difficile, bêtise, merde, bizarre, blabla, …)</p><p>SQLpro essayer d’être plus professionnelle, arrêter de traiter les choses de cette façon, les personnes viennent ici pour prendre c’est pas pour voir vos messages …</p><p>Regarde bien la qualité des réponses de Marc, de Guillaume, … c’est vraiment un vrai support pour partager, pour prendre, pour connaître, pour respecter les autres …</p><p>A Propos, c’est hors sujet, mais pour info, je ne suis pas ni DBA, ni un spécialiste SQL, je code essentiellement en&#160; C / WinDev, je suis un spécialiste bancs de tests &amp; mesures …</p><p>Encore une fois MERCI d’être plus ouvert, plus professionnelle …</p><p>Guillaume, Marc, exécutez-moi de cette façon, mais vraiment …</p><p>Allez Bonne journée, conteniez à développez ce super forum.</p>]]></content>
+		<author>
+			<name><![CDATA[NOURI]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=644</uri>
+		</author>
+		<updated>2011-05-17T08:17:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9342#p9342</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Trigger gestion stock]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9335#p9335"/>
+		<content type="html"><![CDATA[<p>Et du coup, j&#039;oubliais aussi de dire que la vue, c&#039;est bien beau, mais c&#039;est pas modifiable sauf à lui ajouter une règle qui est plus complexe à mettre en place qu&#039;un trigger.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-05-16T15:41:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9335#p9335</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Trigger gestion stock]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9334#p9334"/>
+		<content type="html"><![CDATA[<p>SQLpro, les commentaires du style &quot;et que visiblement vous ne maitrisez pas&quot;, j&#039;aimerais que cela s&#039;arrête définitivement. On n&#039;a jamais banni qui que ce soit ici, j&#039;aimerais mieux ne pas avoir à y être contraint, mais je n&#039;hésiterai pas à le faire si votre mauvais comportement continue.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-05-16T15:37:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9334#p9334</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Trigger gestion stock]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9325#p9325"/>
+		<content type="html"><![CDATA[<p>MERCI <img src="http://forums.postgresql.fr/img/smilies/wink.png" width="15" height="15" alt="wink" /></p><p>ça marche</p><p>Voila mon code</p><div class="codebox"><pre><code>CREATE FUNCTION maj_etat_stock() RETURNS trigger AS $maj_etat_stock$
+    BEGIN
+    
+         -- Verifie que etat_article est donnés
+        IF NEW.etat_article IS NULL THEN
+            RAISE EXCEPTION &#039;etat_article ne peut pas être NULL&#039;;
+        END IF;
+        
+        -- Verifie si la quantité en à ajouter / mettre à jour est &gt; a la qte min en stock
+        IF NEW.quantite_stock &gt; NEW.quantite_stock_min THEN
+
+        -- Mettre l&#039;état &#039;EN STOCK&#039;
+         NEW.etat_article  := &#039;EN STOCK&#039;;
+         
+         ELSE
+          -- Mettre l&#039;état &#039;A COMMANDER&#039;
+          NEW.etat_article  := &#039;A COMMANDER&#039;;
+ 
+        END IF;
+        
+        RETURN NEW;
+        
+    END;
+$maj_etat_stock$ LANGUAGE plpgsql;
+
+CREATE TRIGGER maj_etat_stock BEFORE INSERT OR UPDATE ON articles
+    FOR EACH ROW EXECUTE PROCEDURE maj_etat_stock();</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[NOURI]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=644</uri>
+		</author>
+		<updated>2011-05-16T13:37:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9325#p9325</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Trigger gestion stock]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9322#p9322"/>
+		<content type="html"><![CDATA[<p>Quel est donc l&#039;intérêt de faire un trigger complexe couteux et que visiblement vous ne maitrisez pas....</p><div class="quotebox"><cite>NOURI a écrit&#160;:</cite><blockquote><div><p>je voudrais mettre à jour l&#039;état du stock (c&#039;est à dire la valeur de la colonne <strong>etat_article</strong>)</p><p>pour un UPDATE OR INSERT je dois vérifier si quantite_stock &gt; quantite_stock_min si c&#039;est le cas je mettre à jour la colonne&#160; :<br /><strong>etat_article = &#039;EN STOCK&#039;</strong></p><p>sinon (quantite_stock &lt; quantite_stock_min), je mettre <strong>etat_article = &#039;A COMMANDER&#039;</strong></p></div></blockquote></div><p>...alors que la solution est d&#039;utiliser une vue ?</p><p><strong>RAPPEL :</strong> toutes les applications que l&#039;on développe avec accès à une base de données relationnelle, devraient faire appel exclusivement à des vues (et éventuellement des procédures stockées). Cela s’appelle le MED ou Modèle Externe de Données.</p><p>Dans votre cas :</p><p><strong>1) La bonne table</strong> </p><div class="codebox"><pre><code>CREATE TABLE articles
+(
+  id_article              bigserial NOT NULL,
+  id_sous_famille         bigint NOT NULL,
+  code                    character varying(300) NOT NULL,
+  article                 character varying(300) NOT NULL,
+  designation             character varying(300) NOT NULL,
+  id_fournisseur          bigint NOT NULL,
+  quantite_stock          integer NOT NULL,
+  quantite_stock_min      integer NOT NULL,
+  type_derniere_mouvement character varying(40) NOT NULL,
+  utilisateur             character varying(50),
+  datecreation            timestamp with time zone,
+  datemaj                 timestamp with time zone,
+  CONSTRAINT pk_article PRIMARY KEY (id_article),
+  CONSTRAINT articles_fournisseurs_fk1 
+      FOREIGN KEY (id_fournisseur)
+      REFERENCES fournisseurs (id_fournisseur) 
+      MATCH SIMPLE ON UPDATE NO ACTION ON DELETE RESTRICT,
+  CONSTRAINT articles_sousfamilles_fk1 
+      FOREIGN KEY (id_sous_famille)
+      REFERENCES sousfamilles (id_sous_famille) 
+      MATCH SIMPLE ON UPDATE NO ACTION ON DELETE RESTRICT,
+  CONSTRAINT un_article_designation UNIQUE (designation)
+)</code></pre></div><p><strong>2) La vue</strong></p><div class="codebox"><pre><code>CREATE VIEW V_articles
+AS
+SELECT *,
+       CASE 
+          WHEN quantite_stock &gt;= quantite_stock_min THEN &#039;EN STOCK&#039;
+          WHEN quantite_stock &lt; quantite_stock_min &#039;A COMMANDER&#039;
+          ELSE NULL
+       END AS etat_article
+FROM   articles</code></pre></div><p>N&#039;oubliez par qu&#039;une vue peut être mise à jour, sauf pour les colonnes dérivées (constantes, calcules...)</p><p>A +</p>]]></content>
+		<author>
+			<name><![CDATA[SQLpro]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1054</uri>
+		</author>
+		<updated>2011-05-16T12:58:35Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9322#p9322</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Trigger gestion stock]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9320#p9320"/>
+		<content type="html"><![CDATA[<p>En fait, il suffit de déclarer le trigger comme étant for each row, et before. Et ensuite, de manipuler directement la variable NEW.<br />Cf :<br /><a href="http://docs.postgresql.fr/9.0/plpgsql-trigger.html" rel="nofollow">http://docs.postgresql.fr/9.0/plpgsql-trigger.html</a> (&#160; &#160; &#160;Rappelons-nous qui a changé le salaire et quand )</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-05-16T11:47:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9320#p9320</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Trigger gestion stock]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9319#p9319"/>
+		<content type="html"><![CDATA[<p>Merci Marc pour l&#039;aide.</p><p>je voudrais mettre à jour l&#039;état du stock (c&#039;est à dire la valeur de la colonne <strong>etat_article</strong>)</p><p>pour un UPDATE OR INSERT je dois vérifier si quantite_stock &gt; quantite_stock_min si c&#039;est le cas je mettre à jour la colonne&#160; :<br /><strong>etat_article = &#039;EN STOCK&#039;</strong></p><br /><p>sinon (quantite_stock &lt; quantite_stock_min), je mettre <strong>etat_article = &#039;A COMMANDER&#039;</strong></p><p>merci</p>]]></content>
+		<author>
+			<name><![CDATA[NOURI]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=644</uri>
+		</author>
+		<updated>2011-05-16T11:37:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9319#p9319</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Trigger gestion stock]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9318#p9318"/>
+		<content type="html"><![CDATA[<p>En fait, c&#039;est l&#039;enregistrement modifié au moment du déclenchement du trigger que vous voulez modifier dans le trigger, si j&#039;ai bien compris ? Parce que là, effectivement, vous mettez à jour l&#039;enregistrement si il est mis à jour, ce qui redéclenche le trigger en boucle, d&#039;où le message de récursion.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-05-16T10:57:45Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9318#p9318</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Trigger gestion stock]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9317#p9317"/>
+		<content type="html"><![CDATA[<p>MERCI Marc !</p><p>après passage de la commande :</p><div class="codebox"><pre><code>CREATE TRIGGER maj_etat_stock
+  after INSERT or update
+  ON articles
+  FOR EACH ROW
+  EXECUTE PROCEDURE maj_etat_stock();</code></pre></div><p>je lance la commande :</p><div class="codebox"><pre><code>UPDATE articles SET quantite_stock = &#039;200&#039; WHERE id_article = &#039;35&#039;;</code></pre></div><p>pg_admin me répandre :<br />ERREUR:&#160; dépassement de limite (en profondeur) de la pile<br />HINT:&#160; Augmenter le paramètre « max_stack_depth » après vous être assuré que la<br />limite de profondeur de la pile de la plateforme est adéquate.<br />CONTEXT:&#160; instruction SQL « SELECT 1 FROM ONLY &quot;public&quot;.&quot;fournisseurs&quot; x WHERE &quot;id_fournisseur&quot; OPERATOR(pg_catalog.=) $1 FOR SHARE OF x »<br />instruction SQL « UPDATE articles SET etat_article = &#039;EN STOCK&#039; WHERE articles.id_article = NEW.id_article »<br />PL/pgSQL function &quot;maj_etat_stock&quot; line 25 at instruction SQL<br />instruction SQL « UPDATE articles SET etat_article = &#039;EN STOCK&#039; WHERE articles.id_article = NEW.id_article »<br />PL/pgSQL function &quot;maj_etat_stock&quot; line 25 at instruction SQL<br />instruction SQL « UPDATE articles SET etat_article = &#039;EN STOCK&#039; WHERE articles.id_article = NEW.id_article »<br />PL/pgSQL function &quot;maj_etat_stock&quot; line 25 at instruction SQL<br />instruction SQL « UPDATE articles SET etat_article = &#039;EN STOCK&#039; WHERE articles.id_article = NEW.id_article »<br />PL/pgSQL function &quot;maj_etat_stock&quot; line 25 at instruction SQL<br />instruction SQL « UPDATE articles SET etat_article = &#039;EN STOCK&#039; WHERE articles.id_article = NEW.id_article »<br />PL/pgSQL function &quot;maj_etat_stock&quot; line 25 at instruction SQL<br />instruction SQL « UPDATE articles SET etat_article = &#039;EN STOCK&#039; WHERE articles.id_article = NEW.id_article »<br />PL/pgSQL function &quot;maj_etat_stock&quot; line 25 at instruction SQL<br />instruction SQL « UPDATE articles SET etat_article = &#039;EN STOCK&#039; WHERE articles.id_article = NEW.id_article »<br />PL/pgSQL function &quot;maj_etat_stock&quot; line 25 at instruction SQL<br />instruction SQL « UPDATE articles SET etat_article = &#039;EN STOCK&#039; WHERE articles.id_article = NEW.id_article »<br />PL/pgSQL function &quot;maj_etat_stock&quot; line 25 at instruction SQL</p><p>...</p>]]></content>
+		<author>
+			<name><![CDATA[NOURI]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=644</uri>
+		</author>
+		<updated>2011-05-16T10:16:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9317#p9317</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Trigger gestion stock]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9311#p9311"/>
+		<content type="html"><![CDATA[<p>Avant de chercher une solution complexe au problème, il y a eu une commande &#039;CREATE&#160; TRIGGER&#039; de passée ?</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-05-16T08:39:02Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9311#p9311</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Trigger gestion stock]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9310#p9310"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous,</p><p>j&#039;ai un problème avec un trigger qui me permet de mettre à jour l’état d&#039;un stock (&#039;EN STOCK&#039; / &#039;A COMMANDER&#039;)</p><p>la table est la suivante :</p><div class="codebox"><pre><code>CREATE TABLE articles
+(
+  id_article bigserial NOT NULL,
+  id_sous_famille bigint NOT NULL,
+  code character varying(300) NOT NULL,
+  article character varying(300) NOT NULL,
+  designation character varying(300) NOT NULL,
+  id_fournisseur bigint NOT NULL,
+  quantite_stock integer NOT NULL,
+  quantite_stock_min integer NOT NULL,
+  etat_article character varying(60) NOT NULL,
+  type_derniere_mouvement character varying(40) NOT NULL,
+  utilisateur character varying(50),
+  datecreation timestamp with time zone,
+  datemaj timestamp with time zone,
+  CONSTRAINT pk_article PRIMARY KEY (id_article),
+  CONSTRAINT articles_fournisseurs_fk1 FOREIGN KEY (id_fournisseur)
+      REFERENCES fournisseurs (id_fournisseur) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE RESTRICT,
+  CONSTRAINT articles_sousfamilles_fk1 FOREIGN KEY (id_sous_famille)
+      REFERENCES sousfamilles (id_sous_famille) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE RESTRICT,
+  CONSTRAINT un_article_designation UNIQUE (designation)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE articles OWNER TO postgres;</code></pre></div><p>et le code du trigger est :</p><div class="codebox"><pre class="vscroll"><code>CREATE OR REPLACE FUNCTION maj_etat_stock()
+  RETURNS trigger AS
+$BODY$
+DECLARE
+	
+int_quantite_stock integer;
+int_quantite_stock_min integer;
+intId_id_article bigint;
+
+BEGIN
+-- pour chaque mouvement on cherche la quantité, et la quantité min ...
+SELECT articles.id_article,
+articles.quantite_stock,
+articles.quantite_stock_min 
+
+INTO intId_id_article,
+int_quantite_stock,
+int_quantite_stock_min
+
+FROM articles
+
+WHERE articles.id_article = NEW.id_article; -- pour chaque INSERT / UPDATE
+
+-------------------------------------------------------------------------------------------
+
+IF (int_quantite_stock &gt; int_quantite_stock_min) THEN
+
+UPDATE articles SET etat_article = &#039;EN STOCK&#039; WHERE articles.id_article = NEW.id_article;
+
+ELSE
+
+UPDATE articles SET etat_article = &#039;A COMMANDER&#039; WHERE articles.id_article = NEW.id_article;
+
+END IF;
+
+RETURN NULL;
+
+END;
+
+$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+ALTER FUNCTION maj_etat_stock() OWNER TO postgres;</code></pre></div><p>je fais UPDATE, INSERT dans la table articles, mais toujours l&#039;etat du stock reste la même !</p><p>Pourrez-vous m&#039;aider à trouver une solution ?</p><p>MERCI d&#039;avance.</p>]]></content>
+		<author>
+			<name><![CDATA[NOURI]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=644</uri>
+		</author>
+		<updated>2011-05-16T08:20:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9310#p9310</id>
+	</entry>
+</feed>

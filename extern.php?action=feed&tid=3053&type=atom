@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / arrondi superieur]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3053&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3053"/>
+	<updated>2014-03-28T09:06:23Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3053</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  arrondi superieur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19502#p19502"/>
+		<content type="html"><![CDATA[<p>Je mets la solution que j&#039;ai utilisé pour ceux que ça intéresserait!</p><div class="codebox"><pre class="vscroll"><code>CREATE OR REPLACE FUNCTION arrondir_sup_type_excel ( prix_htc numeric) RETURNS numeric AS
+$$
+DECLARE
+   v_prix numeric;
+   S_QUERY    text;
+   v_digit    text;
+BEGIN
+   v_prix := trunc(prix_htc,3);
+
+
+S_QUERY := &#039;SELECT SUBSTR(&#039;||quote_literal(v_prix) || &#039;,char_length(&#039; || quote_literal(v_prix) ||&#039;),char_length(&#039;|| quote_literal(v_prix) ||&#039;))&#039;;
+
+   EXECUTE S_QUERY INTO v_digit;
+  IF v_digit = &#039;0&#039; THEN
+    RETURN trunc(v_prix,2);
+  ELSE
+    RETURN trunc(v_prix,2) +0.01;
+  END IF;
+
+
+
+END
+
+$$
+LANGUAGE &#039;plpgsql&#039;
+STABLE
+;</code></pre></div><p>Comme j&#039;ai affaire à des utilisateurs ils m&#039;ont suggérés&#160; que dans excel arrondir_sup(1.00000009,2) = 1.10.<br />Alors que pour moi c&#039;est bien 1.01.</p><p>Merci arthurr pour tes réponses.</p>]]></content>
+		<author>
+			<name><![CDATA[Postgres.0]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1310</uri>
+		</author>
+		<updated>2014-03-28T09:06:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19502#p19502</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  arrondi superieur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19477#p19477"/>
+		<content type="html"><![CDATA[<p>OK merci, je me suis vautré.</p>]]></content>
+		<author>
+			<name><![CDATA[Postgres.0]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1310</uri>
+		</author>
+		<updated>2014-03-20T16:25:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19477#p19477</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  arrondi superieur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19475#p19475"/>
+		<content type="html"><![CDATA[<p>j&#039;ai du mal à suivre ...<br />premier exemple que tu donnes :</p><div class="codebox"><pre><code>round(123.121958,2) = 123.13</code></pre></div><p>puis :</p><div class="codebox"><pre><code>SELECT arrondir_sup(1.00000009,2) ;</code></pre></div><p>Ce dernier exemple demande 2 chiffre après la virgule arrondi au supérieur, donc 1.01<br />Pour moi, si tu veux 1.10, tu fais :</p><div class="codebox"><pre><code>postgres=# SELECT special_round(1.00000009,1);
+ special_round 
+---------------
+           1.1</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[arthurr]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=62</uri>
+		</author>
+		<updated>2014-03-20T15:59:54Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19475#p19475</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  arrondi superieur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19474#p19474"/>
+		<content type="html"><![CDATA[<p>SELECT arrondir_sup(1.00000009,2) ;<br />arrondir_sup<br />-----------------<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160;1.01</p><p>alors que le résultat attendu est 1.10</p>]]></content>
+		<author>
+			<name><![CDATA[Postgres.0]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1310</uri>
+		</author>
+		<updated>2014-03-20T15:49:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19474#p19474</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  arrondi superieur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19473#p19473"/>
+		<content type="html"><![CDATA[<p>Merci arthur!</p>]]></content>
+		<author>
+			<name><![CDATA[Postgres.0]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1310</uri>
+		</author>
+		<updated>2014-03-20T15:03:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19473#p19473</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  arrondi superieur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19468#p19468"/>
+		<content type="html"><![CDATA[<p>Testé chez moi :</p><div class="codebox"><pre><code>CREATE OR REPLACE function special_round(p_to_round decimal,p_nbre_decimal integer) RETURNS decimal AS $$
+DECLARE
+	p_return decimal;
+BEGIN
+	IF(round(p_to_round,p_nbre_decimal)&lt;p_to_round) THEN
+		p_to_round := p_to_round + 9 /10^(p_nbre_decimal+1);
+	END IF;
+	p_return := round(p_to_round,p_nbre_decimal);
+	RETURN p_return;
+END;
+$$ LANGUAGE plpgsql;</code></pre></div><br /><p>Tests :</p><div class="codebox"><pre><code>test=# select * from special_round(123.121958,2);
+ special_round 
+---------------
+        123.13
+(1 row)
+test=# select * from special_round(123.120,3);
+ special_round 
+---------------
+       123.120
+(1 row)</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[arthurr]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=62</uri>
+		</author>
+		<updated>2014-03-19T15:23:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19468#p19468</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  arrondi superieur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19467#p19467"/>
+		<content type="html"><![CDATA[<p>Si quelqu&#039;un a une piste pour compter le nombre de chiffre après une virgule je suis preneur.<br />Je suis également preneur de toute indication qui pourra m&#039;aider à écrire la procédure stockée évoquée par arthur.</p>]]></content>
+		<author>
+			<name><![CDATA[Postgres.0]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1310</uri>
+		</author>
+		<updated>2014-03-19T09:44:38Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19467#p19467</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  arrondi superieur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19433#p19433"/>
+		<content type="html"><![CDATA[<p>Ok, merci!</p>]]></content>
+		<author>
+			<name><![CDATA[Postgres.0]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1310</uri>
+		</author>
+		<updated>2014-03-14T14:39:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19433#p19433</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  arrondi superieur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19430#p19430"/>
+		<content type="html"><![CDATA[<p>à mon avis, vous allez devoir passer par un procédure stockée maison ...</p>]]></content>
+		<author>
+			<name><![CDATA[arthurr]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=62</uri>
+		</author>
+		<updated>2014-03-14T14:29:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19430#p19430</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[arrondi superieur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19427#p19427"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>je suis à la recherche du&#039;une fonction d&#039;arrondi supérieur qui me donne le résultat suivant:</p><p>round(123.121958,2) = 123.13 </p><p>Dans excel ça existe mais PG, je ne la trouve pas!</p><p>Merci</p>]]></content>
+		<author>
+			<name><![CDATA[Postgres.0]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1310</uri>
+		</author>
+		<updated>2014-03-14T13:57:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19427#p19427</id>
+	</entry>
+</feed>

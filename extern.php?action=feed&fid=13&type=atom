@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / C et C++]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;fid=13&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/index.php"/>
+	<updated>2023-03-21T14:09:20Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/index.php</id>
+	<entry>
+		<title type="html"><![CDATA[Problème avec libpqxx]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?id=6487&amp;action=new"/>
+		<summary type="html"><![CDATA[<p>Bonjour</p><p>macOS 13.3 (M1 pro) - Xcode 14.3</p><p>Mon application en c++ doit se connecter à un server Postgresql.</p><p>Avec Macports, libpqxx-7.2.dylib (universal) OK, mais intégré à l&#039;application 7 erreur du format :<br />&#160; &#160; &#160;Undefined symbol: pqxx::field::c_str() const &amp;<br />&#160; &#160; &#160;aucun code de l&#039;applicaton ne comprend pqxx::field::c_str()<br />&#160; &#160; &#160;même chose pour les 6 autres erreurs.</p><p>Avec la dernière version de libpqxx obtenue sur github, libpqxx-master (=7.8.0), build complet, mais impossible d&#039;obtenir l&#039;universal de libpqxx-7.8 :<br />&#160; &#160; &#160;Xcode trouve aucun pqxx::... dans le code.<br />&#160; &#160; &#160;./configure&#160; --prefix=/opt/local CC=&quot;gcc -arch arm64 -arch x86_64&quot; CXXFLAGS=&quot;-std=c++20 -O3&quot; --enable-shared --with-postgres-include=/opt/local/include/postgresql13</p><p>Je passe sur les essais intermédiaires que je fais depuis plusieurs jours.<br />NB: mon appli fait plus de 20000 lignes de code, donc pas réaliste de passer à libpq : trop de conversions de types<br />&#160; &#160; &#160; &#160;dans une autre vie ça marchait...</p><p>Merci de l&#039;aide</p>]]></summary>
+		<author>
+			<name><![CDATA[mybofy]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2277</uri>
+		</author>
+		<updated>2023-03-21T14:09:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?id=6487&amp;action=new</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Résolu : transactions distribuées - two phase commit]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?id=6333&amp;action=new"/>
+		<summary type="html"><![CDATA[<p>Oui c&#039;est ce que nous avons fait.</p><p>&#160; &#160;sprintf( sql_text, &quot;PREPARE TRANSACTION &#039;%s&#039; &quot;, idtx );<br />&#160; &#160; EXEC SQL EXECUTE IMMEDIATE :sql_text ;</p><p>&#160; &#160; EXEC SQL SET AUTOCOMMIT TO ON;<br />&#160; &#160; sprintf( sql_text, &quot;COMMIT PREPARED &#039;%s&#039; &quot;, idtx );<br />&#160; &#160; EXEC SQL EXECUTE IMMEDIATE :sql_text ;<br />&#160; &#160; EXEC SQL SET AUTOCOMMIT TO OFF;<br />&#160; &#160; EXEC SQL ROLLBACK; --pour eviter&#160; unexpected EOF on client connection with an open transaction</p><p>Par contre&#160; j&#039;ai encore du mal a comprendre la philosophie que: l&#039;autocommit n&#039;ouvre pas une transaction explicite alors qu&#039;un ordre EXEC SQL sans BEGIN WORK pour ouvrir un transaction, va ouvrir de lui même une transaction. J&#039;aurai pensé que c&#039;était l&#039;inverse.</p><p>Merci encore pour votre aide.</p>]]></summary>
+		<author>
+			<name><![CDATA[Gwajo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=10546</uri>
+		</author>
+		<updated>2022-09-02T08:45:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?id=6333&amp;action=new</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Différences entre PQexec de libpq et l'outil cmd psql.exe ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?id=6253&amp;action=new"/>
+		<summary type="html"><![CDATA[<p>psql utilise PQexec pour lancer les commandes, mais il analyse le script de commandes pour trouver le début et la fin de chaque requête et les envoie une par une après découpage.</p><p>J&#039;ai l&#039;impression que c&#039;est l&#039;étape que vous n&#039;avez pas dans votre programme.</p><p>Ce découpage est fait dans psql avec un analyseur lexical dédié fait avec lex, qui lui même est une copie de l&#039;analyseur lexical du moteur SQL. Voir <a href="https://git.postgresql.org/gitweb/?p=postgresql.git;a=blob_plain;f=src/fe_utils/psqlscan.l" rel="nofollow">https://git.postgresql.org/gitweb/?p=po … psqlscan.l</a></p><div class="codebox"><pre><code> * This code is mainly concerned with determining where the end of a SQL
+ * statement is: we are looking for semicolons that are not within quotes,
+ * comments, or parentheses.  The most reliable way to handle this is to
+ * borrow the backend&#039;s flex lexer rules, lock, stock, and barrel.  The rules
+ * below are (except for a few) the same as the backend&#039;s, but their actions
+ * are just ECHO whereas the backend&#039;s actions generally do other things.</code></pre></div><p>On peut toujours envoyer un énorme bloc plein de requêtes SQL accolées à PQexec en espérant que ça va passer, mais à titre d&#039;exemple si on envoie ça à PQexec: </p><div class="codebox"><pre><code>CREATE DATABASE dbtest; select 1;</code></pre></div><p> ça échouera avec une erreur disant que CREATE DATABASE ne marche pas dans une transaction, alors qu&#039;avec psql ça passerait sans erreur, parce qu&#039;il aura découpé ça en 2 requêtes à envoyer séparément.</p>]]></summary>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2022-04-21T20:23:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?id=6253&amp;action=new</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Pb en exécution : EXEC SQL SELECT retournant plusieurs enregistrements]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?id=6159&amp;action=new"/>
+		<summary type="html"><![CDATA[<p>Bonjour,</p><p>Nous souhaitons migrer une application d&#039;un SGBD IngresSQL vers PostgreSQL.</p><p>Sous Ingres, nous utilisons du code du style :<br />EXEC SQL SELECT clicode, clinom<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; INTO :cli.clicode, :cli.clinom<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; FROM CLIENT ORDER BY CLICODE;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; printf(&quot;SELECT - sqlcode = %d sqlstate = %s\n&quot;, sqlca.sqlcode, sqlca.sqlstate);<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; EXEC SQL BEGIN;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; printf(&quot;LOOP Client %d %s\n&quot;, cli.clicode, cli.clinom);<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; EXEC SQL END;</p><p>Ce qui permet sans passer par un curseur d&#039;effectuer du code après chaque enregistrement trouvé dans la requête.</p><p>Sous Postgre, la précompilation se passe bien, mais en exécution, après le select, on à l&#039;erreur sqlcode -203 (ECPG_TOO_MANY_MATCHES) sqlstate 21000 (cardinality_violation).<br />Ce qui sous-entend visiblement que le select donne plusieurs enregistrements, ce qui ne serait pas permis.</p><p>Nous avons utilisé cette méthode dans de nombreux programmes et nous cherchons à effectuer un minimum de modifications si c&#039;est possible</p><p>Est-ce que quelqu&#039;un saurait comment palier à ce problème (sans passer par un curseur évidemment)</p><p>Merci à tous</p>]]></summary>
+		<author>
+			<name><![CDATA[Mascaret]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9821</uri>
+		</author>
+		<updated>2021-10-28T13:55:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?id=6159&amp;action=new</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[comment afficher la valeur de mon champs dans une variable c++]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?id=4640&amp;action=new"/>
+		<summary type="html"><![CDATA[<p>Bon, je vous tiens au courant de l&#039;état de mes recherches : comment gérer cette fonction </p><p>QVariant QSqlRecord :: value (const QString &amp; name ) const</p><p>Ceci est une fonction surchargée.</p><p>Renvoie la valeur du champ appelé nom dans l&#039;enregistrement. Si le nom du champ n&#039;existe pas, une variante non valide est renvoyée.</p><p>Voir aussi indexOf ().</p>]]></summary>
+		<author>
+			<name><![CDATA[vincent HARDY]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7905</uri>
+		</author>
+		<updated>2018-03-30T10:25:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?id=4640&amp;action=new</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[ecpg - Mon curseur se ferme après un commit - utiliser WITH HOLD]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?id=3703&amp;action=new"/>
+		<summary type="html"><![CDATA[<p>Bonjour, je vais peut être enfoncer une porte ouverte, mais bon, on a cherché un peu avant de trouver :</p><p>EXEC SQL DECLARE testcsc_csr3 CURSOR FOR SELECT....</p><p>EXEC SQL OPEN testcsc_csr3;<br />EXEC SQL FETCH testcsc_csr3....;<br />EXEC SQL COMMIT;<br />EXEC SQL FETCH testcsc_csr3...;</p><p>ERROR:&#160; cursor &quot;testcsc_csr3&quot; does not exist</p><p>La raison est la suivante : le curseur n&#039;a pas été déclaré avec la mention WITH HOLD</p><p>voir ici la documentation sur la signification du WITH/WITHOUT&#160; HOLD : </p><p><a href="http://www.postgresql.org/docs/current/static/sql-declare.html" rel="nofollow">http://www.postgresql.org/docs/current/ … clare.html</a></p><p>Fred</p>]]></summary>
+		<author>
+			<name><![CDATA[fbamiere@yahoo.com]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2174</uri>
+		</author>
+		<updated>2015-11-26T10:30:29Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?id=3703&amp;action=new</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[ecpg : indicateur (variable indicatrice) et type varchar]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?id=3661&amp;action=new"/>
+		<summary type="html"><![CDATA[<p>Bonjour,</p><p>La réponse de la part de Michael Meskes :<br />&quot;<br />&gt; Why the indicator equals 0 (is not strictly positive) and the value is<br />&gt; truncated (modified) ?</p><p>Because according to standard C types it is not truncated. The string does<br />have more digits tha a flot can handle, but they are all valid, i.e. a<br />convesion does correctly eat them all but the internal representation is not<br />able to store them all.</p><p>You bring up an interesting point here, the data is not exactly truncated, it<br />is just rounded. Not sure what (if anything) the standard says.</p><p>&gt; Why this error message whereas an example is given in the PostgreSQL 9.4<br />&gt; documentation (see above) ?</p><p>I guess the documentation is wrong, but I have to look into it. Normally the<br />varchar type needs a length (as an array of char) or it will become a pointer<br />to char.<br />&quot;</p>]]></summary>
+		<author>
+			<name><![CDATA[jacques]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1066</uri>
+		</author>
+		<updated>2015-10-05T16:06:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?id=3661&amp;action=new</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Appel d'une fonction PL/pgSQL qui renvoie plusieurs valeurs]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?id=3658&amp;action=new"/>
+		<summary type="html"><![CDATA[<p>Bonjour,<br />je me permets de faire un post sur la manière d&#039;écrire une fonction qui renvoie plusieurs valeurs dans un record, et la manière de récupérer ces valeurs :<br />&#160; - avec psql,<br />&#160; - avec une fonction PL/pgSQL <br />&#160; - avec un programme C écrit en ecpg.</p><p>J&#039;ai un peu galéré pour y arriver (je comprends .... lentement),&#160; je me dis que cela pourrait servir à d&#039;autres, alors voici l&#039;exemple.<br />A exécuter sur psql :</p><p>\echo -- ------------------------------<br />\echo -- creation de la fonction qui renvoie un record<br />\echo -- contenant 2 parametres :<br />\echo --&#160; &#160; &#160; po_number&#160; bigint<br />\echo --&#160; &#160; &#160; po_coderet bigint<br />\echo -- ------------------------------<br />CREATE OR REPLACE FUNCTION zz0001t_seq(<br />&#160; &#160; pi_classe text,<br />&#160; &#160; pi_nbre bigint DEFAULT 1)<br />&#160; RETURNS record AS<br />$BODY$<br />DECLARE<br />&#160; ret RECORD;<br />&#160; po_number&#160; bigint;<br />&#160; po_coderet bigint;<br />BEGIN<br /> -- doing some stuff...<br /> po_number:=23456;<br /> po_coderet:=12;<br /> -- je retourne 2 parametres valorises dans un record (bigint,bigint)<br /> ret := (po_number,po_coderet);<br /> return ret;<br />END<br />$BODY$<br />&#160; LANGUAGE plpgsql VOLATILE<br />&#160; COST 100;</p><p>\echo -- -----------------------------------------<br />\echo -- appel de la fonction avec psql pour test<br />\echo -- -----------------------------------------<br />select N_NUMBER,&#160; TS_CODE_RETOUR<br />FROM zz0001t_seq(&#039;ENIMODIFCL&#039;,1)<br />AS (N_NUMBER bigint, TS_CODE_RETOUR bigint)<br />\echo -- ------------------------------<br />\echo -- creation de la fonction qui va appeler une autre fonction PL/pgSQL<br />\echo -- et afficher les 2 parametres<br />\echo -- ------------------------------<br />CREATE OR REPLACE FUNCTION zz0001t_appel ()<br />RETURNS void<br />as<br />$BODY$<br />DECLARE<br />WS_IDENT&#160; &#160;bigint;<br />WS_CODERET bigint;<br />&#160; ret RECORD;<br />BEGIN</p><p>-- Recuperer identifiant systeme<br />select N_NUMBER,&#160; TS_CODE_RETOUR<br />FROM zz0001t_seq(&#039;ENIMODIFCL&#039;,1)<br />AS (N_NUMBER bigint, TS_CODE_RETOUR bigint)<br />INTO WS_IDENT, WS_CODERET;</p><p>-- Affichage<br />RAISE INFO &#039;sequence lue %&#039;,WS_IDENT;<br />RAISE INFO &#039;Code retour&#160; %&#039;,WS_CODERET;<br />END<br />$BODY$<br />&#160; LANGUAGE plpgsql VOLATILE<br />&#160; COST 100;</p><p>\echo -- ------------------------------<br />\echo -- appel de la fonction<br />\echo -- ------------------------------<br />select zz0001t_appel();</p><p>L&#039;exécuton sur pgsql donne ceci : <br />idev05=&gt; \i demo_2_param_out.sql<br />-- ------------------------------<br />-- creation de la fonction qui renvoie un record<br />-- contenant 2 parametres :<br />-- po_number bigint<br />-- po_coderet bigint<br />-- ------------------------------<br />CREATE FUNCTION<br />-- -----------------------------------------<br />-- appel de la fonction avec psql pour test<br />-- -----------------------------------------<br /> n_number | ts_code_retour<br />----------+----------------<br />&#160; &#160; 23456 |&#160; &#160; &#160; &#160; &#160; &#160; &#160;12<br />(1 ligne)</p><p>-- ------------------------------<br />-- creation de la fonction qui va appeler une autre fonction PL/pgSQL<br />-- et afficher les 2 parametres<br />-- ------------------------------<br />CREATE FUNCTION<br />-- ------------------------------<br />-- appel de la fonction<br />-- ------------------------------<br />psql:demo_2_param_out.sql:66: INFO:&#160; sequence lue 23456<br />psql:demo_2_param_out.sql:66: INFO:&#160; Code retour&#160; 12<br /> zz0001t_appel<br />---------------</p><p>(1 ligne)</p><p>Pour l&#039;appel en ecpg,l&#039;écriture est la suivante&#160; : </p><p>EXEC SQL SELECT a, b INTO :N_NUMBER,:TS_CODE_RETOUR<br />FROM zz0001t_seq(:N_CLASS,:N_INCREMENT)<br />AS (a bigint, b bigint);</p><p>voila, j&#039;espère que je n&#039;ai pas dit trop de bêtises, si vous avez plus simple, je suis preneur.</p><p>Fred</p>]]></summary>
+		<author>
+			<name><![CDATA[fbamiere@yahoo.com]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2174</uri>
+		</author>
+		<updated>2015-09-29T09:24:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?id=3658&amp;action=new</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[ecpg - comment gérer les codes erreurs applicatifs]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?id=3578&amp;action=new"/>
+		<summary type="html"><![CDATA[<p>Bonjour Guillaume,<br />Effectivement, avec les savepoint, on s&#039;en sort. Voici un exemple et le résultat sur psql</p><p>\set AUTOCOMMIT off</p><p>-- debut DDL<br />drop table fred;</p><p>create table fred (<br />cle&#160; &#160; &#160;integer&#160; &#160; &#160;not null,<br />libelle varchar(30) not null);</p><p>alter table fred add constraint fred_pk primary key (cle);<br />commit;</p><p>-- fin&#160; &#160;DDL</p><p>-- debut DML<br />begin transaction;</p><p>insert into fred (cle, libelle ) values (10,&#039;frederic&#039;);<br />insert into fred (cle, libelle ) values (20,&#039;frederic&#039;);</p><p>-- on genere un plantage, pour continuer, il faut faire rollback;<br />savepoint CLE_DUPLIQUEE;<br />insert into fred (cle, libelle) values (10,&#039;frederic&#039;);<br />rollback to savepoint CLE_DUPLIQUEE;</p><p>update fred set libelle=&#039;fred&#039; where cle=10;</p><p>commit;</p><p>select * from fred order by 1;</p><br /><p>DROP TABLE<br />CREATE TABLE<br />ALTER TABLE<br />COMMIT<br />BEGIN<br />INSERT 0 1<br />INSERT 0 1<br />SAVEPOINT<br />psql:test_transaction2.sql:23: ERREUR:&#160; la valeur d&#039;une clé dupliquée rompt la contrainte unique « fred_pk »<br />DÉTAIL : La clé « (cle)=(10) » existe déjà.<br />ROLLBACK<br />UPDATE 1<br />COMMIT<br /> cle | libelle<br />-----+----------<br />&#160; 10 | fred<br />&#160; 20 | frederic<br />(2 lignes)</p>]]></summary>
+		<author>
+			<name><![CDATA[fbamiere@yahoo.com]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2174</uri>
+		</author>
+		<updated>2015-06-18T07:40:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?id=3578&amp;action=new</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[[Extension C] multimedia]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?id=3575&amp;action=new"/>
+		<summary type="html"><![CDATA[<p>Bonjour,</p><p>Pour répondre à votre question:</p><p>Sinon, je ne comprend pas tout à fait votre problématique, vous chercher à stocker les méta-données de fichiers volumineux uniquement dans postgres ou le fichier volumineux y compris ?</p><p>Les deux, je voudrais au moment de l&#039;insert utiliser une librairie externe pour par exemple, dans le cadre d&#039;un vidéo extraire les métas (encodage vidéo, son, auteur, durée ..... ) dans un champ qui serait l&#039;image de la signature de la vidéo.</p><br /><p>Olivier</p>]]></summary>
+		<author>
+			<name><![CDATA[nathieb]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=505</uri>
+		</author>
+		<updated>2015-06-12T21:09:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?id=3575&amp;action=new</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[LIBPQ.DLL version 64 bits]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?id=3422&amp;action=new"/>
+		<summary type="html"><![CDATA[<p>Problème résolu.<br />Mon pc ayant plusieurs versions en 32 et 64 plus divers programmes utilisant chacun libpq, je pense qu&#039;il se mélangeait les pinceaux...<br />Avec &quot;Dependency walker for Win64&quot; j&#039;ai regardé la liste des dll que libpq.dll utilisait et j&#039;ai testé les différentes combinaisons et voici l&#039;ordre de chargement qui fonctionne<br />1° libeay32.dll<br />2° libintl-8.dll<br />3° ssleay32.dll<br />4° libpq.dll&quot;</p>]]></summary>
+		<author>
+			<name><![CDATA[Pasquali.Philippe]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3634</uri>
+		</author>
+		<updated>2015-01-17T11:52:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?id=3422&amp;action=new</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[RESOLU  descripteur schéma catalog ne fonctionne que sur pgadmin]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?id=3323&amp;action=new"/>
+		<summary type="html"><![CDATA[<p>j&#039;ai trouvé </p><p>a) je maintiens que la fonction ne fonctionne pas tel que décrite sous pgadmin et ecpg dans la doc.</p><br /><br /><p>b) la réponse&#160; pour que les deux fonctionne <br /><em><br />EXEC SQL AT pg_RTABLE DECLARE pg_RTABLE_cur CURSOR FOR<br />select<br />&#160; &#160; &#160;cl.table_catalog<br />&#160; &#160; ,cl.table_name<br />&#160; &#160; ,d.description<br />&#160; &#160; ,cl.column_name<br />&#160; &#160; ,e.description<br />&#160; &#160; ,cl.ORDINAL_POSITION<br />&#160; &#160; ,cl.DATA_TYPE<br />&#160; &#160; ,coalesce(cl.CHARACTER_MAXIMUM_LENGTH,0)<br />&#160; &#160; ,coalesce(cl.NUMERIC_PRECISION,0)<br />&#160; &#160; ,coalesce(cl.NUMERIC_SCALE,0)</em></p><br /><br /><br /><p><em>from<br />&#160; &#160; information_schema.columns cl ,<br />&#160; &#160; pg_catalog.pg_attribute a<br />&#160; &#160; inner join pg_catalog.pg_class c on a.attrelid = c.oid,<br />&#160; &#160; pg_catalog.pg_description d,<br />&#160; &#160; pg_catalog.pg_description e<br />where<br />&#160; &#160; cl.table_catalog =:nzdbname<br />&#160; &#160; and c.relname =:nzfile<br />&#160; &#160; and a.attnum &gt; 0<br />&#160; &#160; and a.attisdropped is false<br />&#160; &#160; and pg_catalog.pg_table_is_visible(c.oid)<br />&#160; &#160; and cl.table_name&#160; = c.relname<br />&#160; &#160; and cl.ORDINAL_POSITION = a.attnum<br />&#160; &#160; and d.objoid = a.attrelid<br />&#160; &#160; and d.objsubid = 0<br />&#160; &#160; and e.objoid = a.attrelid<br />&#160; &#160; and e.objsubid = a.attnum<br />order by a.attnum;</em></p><p><em>EXEC SQL&#160; AT pg_RTABLE&#160; OPEN pg_RTABLE_cur ; </em></p><br /><br /><br /><p><em> EXEC SQL&#160; AT pg_RTABLE&#160; FETCH pg_RTABLE_cur&#160; &#160;INTO&#160; &#160;:nzSERVER, :nzTABLE, :nzTEXT , :nCNAME, :nCTEXT, :nCPOS, :nCTYP, :nCLEN, :nCDEC, :nCVIR ;</em></p><p><em> fprintf(stderr, &quot;\n db_read_RTABLE \n&#160; zSERVER: %s \n&#160; zTABLE: %s \n zTEXT: %s \n zNAME: %s \n&#160; CTEXT: %s \n CPOS: %d \n CTYP: %s \n CLEN: %d \n CDEC: %d \n&#160; CVIR: %d \n &quot;,<br /> nzSERVER, nzTABLE, nzTEXT, nCNAME, nCTEXT, nCPOS, nCTYP, nCLEN, nCDEC, nCVIR);</em></p><br /><p>là ça fonctionne</p><p>je souhaite que cela serve pour les autres </p><p>pour info</p><p><em><br />EXEC SQL BEGIN DECLARE SECTION;</em></p><p><em>/* $FIELD&#160; */</em></p><p><em>char*&#160; &#160; &#160;nzdbname&#160; &#160;;&#160; &#160; &#160; /* connection user name */<br />char*&#160; &#160; &#160;nzfile&#160; &#160; &#160;;&#160; &#160; &#160; &#160; &#160; &#160;/* connection user name */<br />char*&#160; &#160; &#160;nzSERVER&#160; &#160;;<br />char*&#160; &#160; &#160;nzTABLE&#160; &#160; ;<br />char*&#160; &#160; &#160;nCNAME&#160; &#160; &#160;;<br />int&#160; &#160; &#160; &#160;nCPOS&#160; &#160; &#160; ;&#160; &#160; &#160; &#160; &#160; /* Position */<br />char*&#160; &#160; &#160;nCTYP&#160; &#160; &#160; ;<br />int&#160; &#160; &#160; &#160;nCLEN&#160; &#160; &#160; ;&#160; &#160; &#160; &#160; &#160; /* Longueur zone alpha */<br />int&#160; &#160; &#160; &#160;nCDEC&#160; &#160; &#160; ;&#160; &#160; &#160; &#160; &#160;/* ENTIER */<br />int&#160; &#160; &#160; &#160;nCVIR&#160; &#160; &#160; ;&#160; &#160; &#160; &#160; &#160; /* NBR CHIFFRE APRES VIRGULE */<br />char*&#160; &#160; &#160;nzTEXT&#160; &#160; &#160;;&#160; &#160; &#160; &#160;/* texte Table */<br />char*&#160; &#160; &#160;nCTEXT&#160; &#160; &#160;;&#160; &#160; &#160; /* texte de la Colonne */<br />int&#160; &#160; &#160; &#160;nCCOL&#160; &#160; &#160; ;&#160; &#160; &#160; &#160; &#160;/* Nbr colonne */<br />int&#160; &#160; &#160; &#160;nCKEY&#160; &#160; &#160; ;&#160; &#160; &#160; &#160; &#160;/* Nbr key&#160; */</em></p><p><em>EXEC SQL END DECLARE SECTION;<br /></em></p><p>attention ne pas oublier <br />&#160; &#160; ,coalesce(cl.CHARACTER_MAXIMUM_LENGTH,0)<br />&#160; &#160; ,coalesce(cl.NUMERIC_PRECISION,0)<br />&#160; &#160; ,coalesce(cl.NUMERIC_SCALE,0)<br />sino error (les valeurs sont NULL donc les forcer a zeros )</p><p>pour donner ce résultat:<br /><em><br />&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;<br />&lt;FILE&gt;<br />&#160; &#160; &lt;ENTETE&gt;<br />&#160; &#160; &#160; &#160; &lt;VERSION&gt;20170217144517&lt;/VERSION&gt;<br />&#160; &#160; &#160; &#160; &lt;SERVEUR&gt;CGIFCH&lt;/SERVEUR&gt;<br />&#160; &#160; &#160; &#160; &lt;TABLE&gt;FC0CLI&lt;/TABLE&gt;<br />&#160; &#160; &#160; &#160; &lt;TEXT&gt;CLIENT FACTURATION&lt;/TEXT&gt;<br />&#160; &#160; &#160; &#160; &lt;NBRCOL&gt;031&lt;/NBRCOL&gt;<br />&#160; &#160; &#160; &#160; &lt;NBRKEY&gt;001&lt;/NBRKEY&gt;<br />&#160; &#160; &lt;/ENTETE&gt;<br />&#160; &#160; &lt;ZONED&gt;<br />&#160; &#160; &#160; &#160; &lt;row NAME=&quot;C0CDEP&quot; TEXT=&quot;CODE DEPARTEMENT&quot; ORD=&quot;1&quot; TYP=&quot;character&quot; LEN=&quot;3&quot; ENT=&quot;0&quot; DEC=&quot;0&quot; LNG=&quot;3&quot;/&gt;<br />&#160; &#160; &#160; &#160; &lt;row NAME=&quot;C0CFAC&quot; TEXT=&quot;CODE FACTURATION&quot; ORD=&quot;2&quot; TYP=&quot;character&quot; LEN=&quot;1&quot; ENT=&quot;0&quot; DEC=&quot;0&quot; LNG=&quot;1&quot;/&gt;<br />&#160; &#160; &#160; &#160; &lt;row NAME=&quot;C0CJRD&quot; TEXT=&quot;CODE FORME JURIDIQUE&quot; ORD=&quot;3&quot; TYP=&quot;character&quot; LEN=&quot;4&quot; ENT=&quot;0&quot; DEC=&quot;0&quot; LNG=&quot;4&quot;/&gt;<br />&#160; &#160; &#160; &#160; &lt;row NAME=&quot;C0CPAY&quot; TEXT=&quot;CODE PAYS&quot; ORD=&quot;4&quot; TYP=&quot;character&quot; LEN=&quot;3&quot; ENT=&quot;0&quot; DEC=&quot;0&quot; LNG=&quot;3&quot;/&gt;<br />&#160; &#160; &#160; &#160; &lt;row NAME=&quot;C0CRGI&quot; TEXT=&quot;CODE REGION ECONOMIQ&quot; ORD=&quot;5&quot; TYP=&quot;numeric&quot; LEN=&quot;0&quot; ENT=&quot;2&quot; DEC=&quot;0&quot; LNG=&quot;3&quot;/&gt;<br />&#160; &#160; &#160; &#160; &lt;row NAME=&quot;C0CRGL&quot; TEXT=&quot;CODE REGLEMENT&quot; ORD=&quot;6&quot; TYP=&quot;numeric&quot; LEN=&quot;0&quot; ENT=&quot;3&quot; DEC=&quot;0&quot; LNG=&quot;4&quot;/&gt;<br />&#160; &#160; &#160; &#160; &lt;row NAME=&quot;C0CST1&quot; TEXT=&quot;CODE REGION&#160; STAT.&quot; ORD=&quot;7&quot; TYP=&quot;numeric&quot; LEN=&quot;0&quot; ENT=&quot;2&quot; DEC=&quot;0&quot; LNG=&quot;3&quot;/&gt;<br />&#160; &#160; &#160; &#160; &lt;row NAME=&quot;C0CST2&quot; TEXT=&quot;CODE SECTEUR STAT.&quot; ORD=&quot;8&quot; TYP=&quot;numeric&quot; LEN=&quot;0&quot; ENT=&quot;2&quot; DEC=&quot;0&quot; LNG=&quot;3&quot;/&gt;<br />&#160; &#160; &#160; &#160; &lt;row NAME=&quot;C0CTRS&quot; TEXT=&quot;CODE TRESORERIE&quot; ORD=&quot;9&quot; TYP=&quot;numeric&quot; LEN=&quot;0&quot; ENT=&quot;2&quot; DEC=&quot;0&quot; LNG=&quot;3&quot;/&gt;<br />&#160; &#160; &#160; &#160; &lt;row NAME=&quot;C0CTTV&quot; TEXT=&quot;CODE TVA EXO EXPORT&quot; ORD=&quot;10&quot; TYP=&quot;character&quot; LEN=&quot;1&quot; ENT=&quot;0&quot; DEC=&quot;0&quot; LNG=&quot;1&quot;/&gt;<br />&#160; &#160; &#160; &#160; &lt;row NAME=&quot;C0999E&quot; TEXT=&quot;DATE DE CREATION ENR&quot; ORD=&quot;11&quot; TYP=&quot;date&quot; ENT=&quot;0&quot; DEC=&quot;0&quot; LNG=&quot;8&quot; LEN=&quot;8&quot;/&gt;<br />&#160; &#160; &#160; &#160; &lt;row NAME=&quot;C0999M&quot; TEXT=&quot;DATE DE MODIFCATION&quot; ORD=&quot;12&quot; TYP=&quot;date&quot; ENT=&quot;0&quot; DEC=&quot;0&quot; LNG=&quot;8&quot; LEN=&quot;8&quot;/&gt;<br />&#160; &#160; &#160; &#160; &lt;row NAME=&quot;C0NARR&quot; TEXT=&quot;N. ARRONDISSEMENT&quot; ORD=&quot;13&quot; TYP=&quot;numeric&quot; LEN=&quot;0&quot; ENT=&quot;3&quot; DEC=&quot;0&quot; LNG=&quot;4&quot;/&gt;<br />&#160; &#160; &#160; &#160; &lt;row NAME=&quot;C0NCLI&quot; TEXT=&quot;N° CLIENT&quot; ORD=&quot;14&quot; TYP=&quot;numeric&quot; LEN=&quot;0&quot; ENT=&quot;6&quot; DEC=&quot;0&quot; LNG=&quot;7&quot;/&gt;<br />&#160; &#160; &#160; &#160; &lt;row NAME=&quot;C0NPTT&quot; TEXT=&quot;N. CODE POSTAL&quot; ORD=&quot;15&quot; TYP=&quot;numeric&quot; LEN=&quot;0&quot; ENT=&quot;5&quot; DEC=&quot;0&quot; LNG=&quot;6&quot;/&gt;<br />&#160; &#160; &#160; &#160; &lt;row NAME=&quot;C0NESC&quot; TEXT=&quot;N. ESCOMPTE&quot; ORD=&quot;16&quot; TYP=&quot;numeric&quot; LEN=&quot;0&quot; ENT=&quot;2&quot; DEC=&quot;1&quot; LNG=&quot;3&quot;/&gt;<br />&#160; &#160; &#160; &#160; &lt;row NAME=&quot;C0SHS&quot; TEXT=&quot;0/1&#160; N=0 O=1 H.SERVICE&quot; ORD=&quot;17&quot; TYP=&quot;numeric&quot; LEN=&quot;0&quot; ENT=&quot;1&quot; DEC=&quot;0&quot; LNG=&quot;2&quot;/&gt;<br />&#160; &#160; &#160; &#160; &lt;row NAME=&quot;C0SLCR&quot; TEXT=&quot;O/N&#160; L.C.R.&quot; ORD=&quot;18&quot; TYP=&quot;character&quot; LEN=&quot;1&quot; ENT=&quot;0&quot; DEC=&quot;0&quot; LNG=&quot;1&quot;/&gt;<br />&#160; &#160; &#160; &#160; &lt;row NAME=&quot;C0SMLG&quot; TEXT=&quot;O/N MAILING&quot; ORD=&quot;19&quot; TYP=&quot;character&quot; LEN=&quot;1&quot; ENT=&quot;0&quot; DEC=&quot;0&quot; LNG=&quot;1&quot;/&gt;<br />&#160; &#160; &#160; &#160; &lt;row NAME=&quot;C0TRPL&quot; TEXT=&quot;TYPE BLOCAGE RAPPEL&quot; ORD=&quot;20&quot; TYP=&quot;character&quot; LEN=&quot;1&quot; ENT=&quot;0&quot; DEC=&quot;0&quot; LNG=&quot;1&quot;/&gt;<br />&#160; &#160; &#160; &#160; &lt;row NAME=&quot;C0ZPTT&quot; TEXT=&quot;Z. CODE POSTAL&quot; ORD=&quot;21&quot; TYP=&quot;character&quot; LEN=&quot;10&quot; ENT=&quot;0&quot; DEC=&quot;0&quot; LNG=&quot;10&quot;/&gt;<br />&#160; &#160; &#160; &#160; &lt;row NAME=&quot;C0ZCTC&quot; TEXT=&quot;PERSONNE A CONTACTER&quot; ORD=&quot;22&quot; TYP=&quot;character&quot; LEN=&quot;30&quot; ENT=&quot;0&quot; DEC=&quot;0&quot; LNG=&quot;30&quot;/&gt;<br />&#160; &#160; &#160; &#160; &lt;row NAME=&quot;C0ZDST&quot; TEXT=&quot;PERSONNE DESTINATAIR&quot; ORD=&quot;23&quot; TYP=&quot;character&quot; LEN=&quot;30&quot; ENT=&quot;0&quot; DEC=&quot;0&quot; LNG=&quot;30&quot;/&gt;<br />&#160; &#160; &#160; &#160; &lt;row NAME=&quot;C0ZNOM&quot; TEXT=&quot;NOM / RAISON SOCIAL&quot; ORD=&quot;24&quot; TYP=&quot;character&quot; LEN=&quot;30&quot; ENT=&quot;0&quot; DEC=&quot;0&quot; LNG=&quot;30&quot;/&gt;<br />&#160; &#160; &#160; &#160; &lt;row NAME=&quot;C0ZOBS&quot; TEXT=&quot;OBSERVATIONS&quot; ORD=&quot;25&quot; TYP=&quot;character&quot; LEN=&quot;30&quot; ENT=&quot;0&quot; DEC=&quot;0&quot; LNG=&quot;30&quot;/&gt;<br />&#160; &#160; &#160; &#160; &lt;row NAME=&quot;C0ZTVA&quot; TEXT=&quot;REFERENCE TVA&quot; ORD=&quot;26&quot; TYP=&quot;character&quot; LEN=&quot;15&quot; ENT=&quot;0&quot; DEC=&quot;0&quot; LNG=&quot;15&quot;/&gt;<br />&#160; &#160; &#160; &#160; &lt;row NAME=&quot;C0ZRU1&quot; TEXT=&quot;NOM / RUE1&quot; ORD=&quot;27&quot; TYP=&quot;character&quot; LEN=&quot;30&quot; ENT=&quot;0&quot; DEC=&quot;0&quot; LNG=&quot;30&quot;/&gt;<br />&#160; &#160; &#160; &#160; &lt;row NAME=&quot;C0ZRU2&quot; TEXT=&quot;SUITE NOM / RUE1&quot; ORD=&quot;28&quot; TYP=&quot;character&quot; LEN=&quot;30&quot; ENT=&quot;0&quot; DEC=&quot;0&quot; LNG=&quot;30&quot;/&gt;<br />&#160; &#160; &#160; &#160; &lt;row NAME=&quot;C0ZTL1&quot; TEXT=&quot;N. TEL. PERS. A CONT&quot; ORD=&quot;29&quot; TYP=&quot;character&quot; LEN=&quot;15&quot; ENT=&quot;0&quot; DEC=&quot;0&quot; LNG=&quot;15&quot;/&gt;<br />&#160; &#160; &#160; &#160; &lt;row NAME=&quot;C0ZTLX&quot; TEXT=&quot;N. TELEX / TELECOPIE&quot; ORD=&quot;30&quot; TYP=&quot;character&quot; LEN=&quot;15&quot; ENT=&quot;0&quot; DEC=&quot;0&quot; LNG=&quot;15&quot;/&gt;<br />&#160; &#160; &#160; &#160; &lt;row NAME=&quot;C0ZVIL&quot; TEXT=&quot;VILLE&quot; ORD=&quot;31&quot; TYP=&quot;character&quot; LEN=&quot;25&quot; ENT=&quot;0&quot; DEC=&quot;0&quot; LNG=&quot;25&quot;/&gt;<br />&#160; &#160; &lt;/ZONED&gt;<br />&#160; &#160; &lt;ZONEK&gt;<br />&#160; &#160; &#160; &#160; &lt;row NAME=&quot;C0NCLI&quot; ORD=&quot;1&quot; TYP=&quot;numeric&quot; LEN=&quot;0&quot; ENT=&quot;6&quot; DEC=&quot;0&quot; LNG=&quot;7&quot;/&gt;<br />&#160; &#160; &lt;/ZONEK&gt;<br />&lt;/FILE&gt;<br /></em></p>]]></summary>
+		<author>
+			<name><![CDATA[jplaroche]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=4144</uri>
+		</author>
+		<updated>2014-10-06T20:19:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?id=3323&amp;action=new</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Ecriture d'integer dans une base de données à partir d'un code C]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?id=3304&amp;action=new"/>
+		<summary type="html"><![CDATA[<p>Il vous faut aussi transformer la valeur entière suivant le &quot;network byte order&quot;, autrement dit :</p><p>compteurI = htonl(1);</p>]]></summary>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-09-20T14:47:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?id=3304&amp;action=new</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[PSQL Select bigint from a database // C]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?id=677&amp;action=new"/>
+		<summary type="html"><![CDATA[<p>Vous savez qu&#039;un float n&#039;a pas de valeur fixe ? je ne suis pas étonné qu&#039;une valeur 12.45 vous soit renvoyé en 12.4502. Ça n&#039;a rien à voir avec PostgreSQL mais plutôt avec la façon dont les floats sont gérés par le langage.</p>]]></summary>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-09-18T17:32:35Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?id=677&amp;action=new</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[utilisation de PQsetSingleRowMode]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?id=2754&amp;action=new"/>
+		<summary type="html"><![CDATA[<p>Bonjour,</p><p>Je reprends un peu le fil de la conversation, j&#039;ai toujours des problèmes de performances. J&#039;ai remarqué des différences notables entre Oracle et PostGre. Sur une table de plusieurs millions d&#039;enregistrements, je remarque une différence notable entre les requêtes suivantes :<br />Oracle (via oci.dll, 8 sec, avec un forçage pour l&#039;utilisation de l&#039;index)</p><div class="codebox"><pre><code>SELECT /*+ index_asc(F60 if60a) */  F60.*, ROWID FROM F60 WHERE f60type&gt;&#039; &#039; ORDER BY f60type, f60n_pers</code></pre></div><p>PostGre (via libpq, 30sec)</p><div class="codebox"><pre><code>BEGIN
+DECLARE F60c1 CURSOR WITH HOLD FOR SELECT F60.*, OID FROM F60 WHERE f60type&gt;&#039; &#039; ORDER BY f60type, f60n_pers
+FETCH 1 FROM F60c1
+COMMIT</code></pre></div><p>Dans la librairie oci.dll, on peut itérer sur un résultat via des fonctions spécifiques (OCIfetch), c&#039;est pourquoi je n&#039;utilise pas de curseur en Oracle.</p><p>VACUUM ANALYSE effectué sur toute la table.<br />Pour Postgre, la requête est exécutée lors de l&#039;appel au premier FETCH, est-ce que le fait de passer par un curseur ralentit les performances ?<br />Est-ce que je dois me tourner vers la configuration des indexs? Optimiser la configuration de la base Postgre?</p><p>Ci-dessous la configuration de mes indexs :</p><p>Oracle</p><div class="codebox"><pre><code>-INDEX-	-uniqueness-	-status-	-type-	-temporary-	-partitioned-	-join index-	-columns-
+IF60A	NONUNIQUE	VALID		NORMAL	N		NO		NO		F60TYPE, F60N_PERS	
+IF60B	NONUNIQUE	VALID		NORMAL	N		NO		NO		F60TYPE, F60ATOME	</code></pre></div><p>PostGre</p><div class="codebox"><pre><code>CREATE INDEX if60a
+  ON f60
+  USING btree
+  (f60type COLLATE pg_catalog.&quot;default&quot;, f60n_pers COLLATE pg_catalog.&quot;default&quot;);</code></pre></div><p>Cordialement,<br />Thomas</p>]]></summary>
+		<author>
+			<name><![CDATA[thomasfr]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2543</uri>
+		</author>
+		<updated>2013-09-18T07:23:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?id=2754&amp;action=new</id>
+	</entry>
+</feed>

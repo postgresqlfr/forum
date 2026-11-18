@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / probleme de CRL]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3129&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3129"/>
+	<updated>2014-05-09T12:42:22Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3129</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  probleme de CRL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19851#p19851"/>
+		<content type="html"><![CDATA[<p>J&#039;étais déjà tombé dessus, merci.<br />De ce que je comprend, la personen a eu cette erreur lorsqu&#039;elle ne fournissait pas au serveur le CA root, or dans mon cas je l&#039;ai fait, d&#039;ailleurs ça fonctionne très bien dès lors que je ne fournit pas de CRL.</p><p>Je n&#039;ai pas réussi a trouver du mode débug de la transaction SSL via psql, ni réussi a afficher sur le serveur plus d&#039;infos, du coup je ne sais pas trop comment investiguer sur ce problème.</p>]]></content>
+		<author>
+			<name><![CDATA[tsn77130]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1906</uri>
+		</author>
+		<updated>2014-05-09T12:42:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19851#p19851</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  probleme de CRL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19850#p19850"/>
+		<content type="html"><![CDATA[<p>Ceci pourrait peut être vous aider :<br /><a href="http://www.postgresql.org/message-id/5146A103.8080609@2ndquadrant.com" rel="nofollow">http://www.postgresql.org/message-id/51 … adrant.com</a></p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2014-05-09T11:45:07Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19850#p19850</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  probleme de CRL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19847#p19847"/>
+		<content type="html"><![CDATA[<p>Bon, 1ère partie du problème résolu, le durée de vie de la CRL était expirée...<br />Mais maintenant, j&#039;ai l&#039;erreur suivante : &quot;psql: SSL error: tlsv1 alert unknown ca&quot;, toujours seulement lorsque ma CRL est activée sur le serveur</p><br /><br /><p>Mon pg_hba.conf<br />#local network<br />hostssl&#160; &#160; &#160; &#160; &#160;DB1&#160; &#160; &#160; &#160; prod&#160; &#160; &#160; &#160; &#160; &#160; 172.20.0.0/16&#160; &#160; &#160; &#160; &#160; &#160;cert clientcert=1 map=prod_srvs<br />(je précise que la map fonctionne bien)</p>]]></content>
+		<author>
+			<name><![CDATA[tsn77130]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1906</uri>
+		</author>
+		<updated>2014-05-09T09:47:02Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19847#p19847</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  probleme de CRL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19846#p19846"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Le problème vient sans doute du fichier pg_hba.conf.<br />Pouvez-vous nousen faire une copie ici ?</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2014-05-09T09:28:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19846#p19846</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[probleme de CRL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19845#p19845"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous,</p><p>je suis actuellement en train de mettre en place un système d&#039;authentification par certificats pour ma DB.<br />J&#039;ai créé via une pki les certificats de ma db ainsi que de mes clients.<br />test de connexion OK</p><p>Par contre, j&#039;ai un problème au niveau de mes CRL.<br />J&#039;ai effectué quelques tests de révocation de certificats, et maintenant, dès que j&#039;active la directive crl dans postgresql.conf, mes connexions sont rejetées, que le certificat ait effectivement été rejeté ... ou pas.</p><p>Voici les logs du serveur :<br />2014-05-09 10:19:08.163 CEST [14141]: [1-1] user=[unknown],db=[unknown] LOG:&#160; connection received: host=172.20.0.102 port=46148<br />2014-05-09 10:19:08.173 CEST [14141]: [2-1] user=[unknown],db=[unknown] LOG:&#160; could not accept SSL connection: no certificate returned<br />2014-05-09 10:19:08.173 CEST [14142]: [1-1] user=[unknown],db=[unknown] LOG:&#160; connection received: host=172.20.0.102 port=46149<br />2014-05-09 10:19:08.174 CEST [14142]: [2-1] user=prod,db=DB1 FATAL:&#160; no pg_hba.conf entry for host &quot;172.20.0.102&quot;, user &quot;prod&quot;, database &quot;DB1&quot;, SSL off<br />2014-05-09 10:19:08.174 CEST [14142]: [3-1] user=prod,db=DB1 DETAIL:&#160; Client IP address resolved to &quot;172.20.0.102&quot;, forward lookup not checked.</p><br /><p>Et du client :<br />psql -h 172.20.0.11 -U prod DB1<br />psql: SSL error: sslv3 alert certificate expired<br />FATAL:&#160; no pg_hba.conf entry for host &quot;172.20.0.102&quot;, user &quot;prod&quot;, database &quot;DB1&quot;, SSL off.</p><p>J&#039;ai bien vérifié les serial numbers, le certificat avec lequel je tente de me connecter n&#039;est pas listé dans la liste des certificats révoqués</p><p>Client :<br />Certificate:<br />&#160; &#160; Data:<br />&#160; &#160; &#160; &#160; Version: 3 (0x2)<br />&#160; &#160; &#160; &#160; Serial Number: 7 (0x7)</p><br /><br /><p>Server :<br />Revoked Certificates:<br />&#160; &#160; Serial Number: 01<br />&#160; &#160; &#160; &#160; Revocation Date: May&#160; 7 15:37:02 2014 GMT<br />&#160; &#160; &#160; &#160; CRL entry extensions:<br />&#160; &#160; &#160; &#160; &#160; &#160; X509v3 CRL Reason Code: <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Key Compromise<br />&#160; &#160; Serial Number: 03<br />&#160; &#160; &#160; &#160; Revocation Date: May&#160; 6 14:13:28 2014 GMT<br />&#160; &#160; &#160; &#160; CRL entry extensions:<br />&#160; &#160; &#160; &#160; &#160; &#160; X509v3 CRL Reason Code: <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Key Compromise<br />&#160; &#160; Serial Number: 06<br />&#160; &#160; &#160; &#160; Revocation Date: May&#160; 7 16:05:16 2014 GMT<br />&#160; &#160; &#160; &#160; CRL entry extensions:<br />&#160; &#160; &#160; &#160; &#160; &#160; X509v3 CRL Reason Code: <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Superseded</p><br /><p>Avez vos une idée d&#039;ou peut venir le problème ?<br />Merci !</p>]]></content>
+		<author>
+			<name><![CDATA[tsn77130]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1906</uri>
+		</author>
+		<updated>2014-05-09T08:47:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19845#p19845</id>
+	</entry>
+</feed>

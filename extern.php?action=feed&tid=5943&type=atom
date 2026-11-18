@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Retour ROWCOUNT sur un trigger INSTEAD OF DELETE]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5943&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5943"/>
+	<updated>2021-02-15T09:36:32Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5943</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Retour ROWCOUNT sur un trigger INSTEAD OF DELETE]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32051#p32051"/>
+		<content type="html"><![CDATA[<p>C&#039;est pas faux ^^</p>]]></content>
+		<author>
+			<name><![CDATA[herve.lefebvre]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=506</uri>
+		</author>
+		<updated>2021-02-15T09:36:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32051#p32051</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Retour ROWCOUNT sur un trigger INSTEAD OF DELETE]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32050#p32050"/>
+		<content type="html"><![CDATA[<p>Il n&#039;est pas possible de modifier le message &quot;DELETE 0&quot;, qui est de toute façon exact (aucune ligne n&#039;a été suprimée de la vue étant donné que la vue ne contient pas de ligne). La seule façon de connaître le nombre de lignes supprimées est d&#039;ajouter un RAISE.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2021-02-15T09:15:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32050#p32050</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Retour ROWCOUNT sur un trigger INSTEAD OF DELETE]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32049#p32049"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><p>Je fais du trigger INSTEAD OF DELETE sur des vues multitables ; et je me demande comment faire pour que le DELETE renvoie un ROWCOUNT qui ne soit pas zéro.</p><p>Concrètement, j&#039;aimerai bien que dans le cas suivant, suite à l&#039;instruction DELETE, psql retourne &quot;DELETE 2&quot;.</p><div class="codebox"><pre class="vscroll"><code>aegir=# CREATE TABLE T1(ID INTEGER, FK INTEGER);
+CREATE TABLE
+aegir=# CREATE TABLE T2 (ID INTEGER);
+CREATE TABLE
+aegir=# CREATE VIEW V1 AS SELECT T1.*, T2.ID as ID2 FROM T1,T2 WHERE T1.FK=T2.ID;
+CREATE VIEW
+aegir=# INSERT INTO T2 ( SELECT * FROM generate_series(100,110));
+INSERT 0 11
+aegir=# INSERT INTO T1( SELECT generate_series(0,10),generate_series(100,110));
+INSERT 0 11
+aegir=# CREATE FUNCTION tiod_test() RETURNS trigger AS $$
+aegir$# BEGIN
+aegir$# DELETE FROM T1 WHERE ID=OLD.ID;
+aegir$# RETURN NEW;
+aegir$# END
+aegir$# $$ LANGUAGE &#039;plpgsql&#039; SECURITY DEFINER;
+CREATE FUNCTION
+aegir=# CREATE TRIGGER trigger_tiod_test INSTEAD OF DELETE ON V1 FOR EACH ROW EXECUTE PROCEDURE tiod_test();
+CREATE TRIGGER
+aegir=# select * from V1;
+ id | fk  | id2
+----+-----+-----
+  0 | 100 | 100
+  1 | 101 | 101
+  2 | 102 | 102
+  3 | 103 | 103
+  4 | 104 | 104
+  5 | 105 | 105
+  6 | 106 | 106
+  7 | 107 | 107
+  8 | 108 | 108
+  9 | 109 | 109
+ 10 | 110 | 110
+(11 rows)
+
+aegir=# delete from V1 where id in (2,3);
+DELETE 0
+aegir=# select * from V1;
+ id | fk  | id2
+----+-----+-----
+  0 | 100 | 100
+  1 | 101 | 101
+  4 | 104 | 104
+  5 | 105 | 105
+  6 | 106 | 106
+  7 | 107 | 107
+  8 | 108 | 108
+  9 | 109 | 109
+ 10 | 110 | 110
+(9 rows)</code></pre></div><p>Il y aurait un moyen ?</p>]]></content>
+		<author>
+			<name><![CDATA[herve.lefebvre]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=506</uri>
+		</author>
+		<updated>2021-02-15T08:44:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32049#p32049</id>
+	</entry>
+</feed>

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / PostgreSQL 9 et les BLOBS (bytea)]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1058&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1058"/>
+	<updated>2010-11-09T16:18:32Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1058</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  PostgreSQL 9 et les BLOBS (bytea)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6615#p6615"/>
+		<content type="html"><![CDATA[<p>Je ne sais pas comment vous obtenez ces résultats. Je pense que quelque chose d&#039;autre en modifie l&#039;affichage (le driver ?).</p><p>Ce que vous récupérez ne ressemble pas tellement à ce qu&#039;on voit dans la doc : <a href="http://docs.postgresql.fr/9.0/datatype-binary.html" rel="nofollow">http://docs.postgresql.fr/9.0/datatype-binary.html</a></p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-11-09T16:18:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6615#p6615</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  PostgreSQL 9 et les BLOBS (bytea)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6613#p6613"/>
+		<content type="html"><![CDATA[<p>Je suis d&#039;accord, ce n&#039;est pas élégant... mais suffisant pour constater que les résultats diffèrent.</p><p>En théorie, je ne devrais pas avoir besoin du tout d&#039;éditer les résultats, un simple cmp suffit.<br />Ce que je voulais exprimer, maladroitement j&#039;en conviens, c&#039;est qu&#039;en fonction de l&#039;utilisation ou non de la fonction encode, j&#039;obtenais des résultats différents mais jamais celui souhaité !</p><p>Mais bon, ce n&#039;est pas très grave, puisque le problème est simplement résolu en modifiant le postgresql.conf</p><p>Cependant, pour ma culture, j&#039;aurai aimé comprendre; a priori, je pense que l&#039;ajout était toujours bon (avec ou sans encode), mais je ne n&#039;ai visiblement pas su trouver la bonne séquence pour le SELECT.</p>]]></content>
+		<author>
+			<name><![CDATA[jhashe]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=379</uri>
+		</author>
+		<updated>2010-11-09T16:05:45Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6613#p6613</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  PostgreSQL 9 et les BLOBS (bytea)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6604#p6604"/>
+		<content type="html"><![CDATA[<p>N&#039;éditez pas l&#039;image avec vim. Regardez plutôt ce que vaut le fichier avec un éditeur hexadécimal comme hexdump. Vous comprendrez mieux ce qui se passe. Postez le résultat de hexdump si vous voulez, cela nous donnera une base saine sur laquelle discuter.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-11-09T13:47:39Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6604#p6604</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  PostgreSQL 9 et les BLOBS (bytea)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6602#p6602"/>
+		<content type="html"><![CDATA[<p>Merci pour votre réponse.<br />J&#039;étais effectivement passé à côté de ce point.</p><p>Cependant, l&#039;utilisation de ces nouvelles fonctions encode et decode doit quelque peu m&#039;échapper; j&#039;ai en effet modifié ma requête<br />SELECT vignette FROM table_vignette WHERE...<br />en <br />SELECT encode(vignette,&#039;escape&#039;) FROM table_vignette WHERE...</p><p>L&#039;image (éditée sous vim) que j&#039;essaye d&#039;injecter dans PostgreSQL a la forme suivante (extrait du début - en réalité, contient des caractères non imprimables):</p><p>GIF89ax^@x^@÷^@^@ò÷ý^@^@^@ßêøÐÁÄÂ«±|ioÓÅÌßÉÕa^@9Y^@8Á¯º~W~O~TØÍÕÍÀÊÔÈÑ716´¢±ÕÉÓÏÃÍ¬~X©Ê»ÈÈºÆ×ÐÖÖÏÕÓÌÒNF</p><p>alors que le résultat du SELECT me donne:</p><p>GIF89ax\000x\000\367\000\000\362\367\ (sous forme de caractères imprimables)</p><p>C&#039;est certes plus proche du &quot;bon&quot; résultat, car le SELECT sans decode retourne:<br />G494638396178007800f7000</p><p>Pour info, SELECT encode(vignette,&#039;hex&#039;) retourne quant à lui:<br />47494638396178007800f70000f2f7fd</p><p>Tout celà n&#039;est pas bien grave car, effectivement, en modifiant le postgresql.conf comme suggéré (bytea_output = &#039;escape&#039; ), tout est rentré dans l&#039;ordre. <br />Mais bon, j&#039;aurai aimé comprendre...</p><p>En tout cas, encore merci pour votre aide, qui m&#039;a permis de résoudre mon problème.</p>]]></content>
+		<author>
+			<name><![CDATA[jhashe]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=379</uri>
+		</author>
+		<updated>2010-11-09T13:41:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6602#p6602</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  PostgreSQL 9 et les BLOBS (bytea)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6591#p6591"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je pense que la réponse que vous cherchez est dans ce thread : <a href="http://forums.postgresql.fr/viewtopic.php?id=1022" rel="nofollow">http://forums.postgresql.fr/viewtopic.php?id=1022</a></p><p>Le mode par défaut de conversion entre bytea et texte (pour la récupération par les clients) a changé en 9.0.</p><p>Si vous avez davantage de questions, n&#039;hésitez pas à continuer la discussion <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-11-09T12:26:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6591#p6591</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[PostgreSQL 9 et les BLOBS (bytea)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6585#p6585"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;utilise quelques blobs dans une base PostgreSQL que je viens de migrer de la version 8.3 vers 9.0.1. Tout se passe correctement, sauf pour les blobs.<br />Mon code (en PHP avec ADODB) n&#039;a pas changé d&#039;une ligne mais il ne fonctionne plus correctement.</p><p>Pour ajouter une image, mon code est le suivant:<br />$strSQL= sprintf(&quot;INSERT INTO table_vignette(id_table_vignette) VALUES (%d)&quot;,$_GET[&#039;id&#039;]);&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; <br />$maCnx-&gt;execute($strSQL);<br />$maCnx-&gt;updateBlob(&quot;table_vignette&quot;,&quot;vignette&quot;,file_get_contents($tmp),sprintf(&quot;id_table_vignette=%d&quot;,$_GET[&#039;id&#039;]));</p><p>Dans mon exemple, il s&#039;agit d&#039;une image GIF de 6Ko</p><p>Pour récupérer la vignette, mon code est:</p><p>$strSQL= sprintf(&quot;SELECT vignette FROM table_vignette WHERE id_table_vignettet=%d&quot;,$_GET[&#039;id&#039;]);<br />$rs=$maCnx-&gt;selectLimit($strSQL);<br />$rs-&gt;moveFirst();<br />$fic= CACHE_SYSTEME.time().&#039;_&#039;.rand(1,100).&#039;.gif&#039;;<br />file_put_contents($fic,$rs-&gt;Fields(&#039;vignette&#039;));</p><p>Génère un fichier de 13Ko (mauvais, évidemment) ???</p><p>Le même code fonctionnait parfaitement auparavant.</p><p>Le champ vignette est de type bytea, avec le mode de stockage extended (?).</p><p>Par avance, merci pour votre aide,</p><p>Cordialement,</p><p>Jérôme</p>]]></content>
+		<author>
+			<name><![CDATA[jhashe]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=379</uri>
+		</author>
+		<updated>2010-11-09T10:44:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6585#p6585</id>
+	</entry>
+</feed>

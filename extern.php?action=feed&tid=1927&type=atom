@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / valeurs des variables de postgresql.conf et /etc/sysctl.conf]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1927&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1927"/>
+	<updated>2012-03-01T16:18:40Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1927</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  valeurs des variables de postgresql.conf et /etc/sysctl.conf]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13028#p13028"/>
+		<content type="html"><![CDATA[<p>Ok, go pour shmmax = 2Go!<br />C&#039;est un serveur dédié à PostgreSQL, donc il n&#039;y a pas grand risque de toute façon.<br />Merci pour les éclaircissements</p>]]></content>
+		<author>
+			<name><![CDATA[saigamp]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=767</uri>
+		</author>
+		<updated>2012-03-01T16:18:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13028#p13028</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  valeurs des variables de postgresql.conf et /etc/sysctl.conf]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13027#p13027"/>
+		<content type="html"><![CDATA[<p>À mon avis, ce qui n&#039;est pas forcément clair dans les explications, c&#039;est que les paramètres du noyau linux (shmmax, shmall) n&#039;augmentent pas la consommation de ressources sur le système: ce ne sont que des limites administratives, pour éviter qu&#039;un programme ou un utilisateur ne puisse allouer un segment de mémoire partagé géant sans aucun contrôle. La limite par défaut à 32Mo est par contre devenue ridiculement petite avec le temps <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>Mettre un shmmax à 2Go ne va pas augmenter la charge du système. Cela va seulement permettre aux programmes installés sur le système d&#039;allouer des segments plus grands.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2012-03-01T14:53:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13027#p13027</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  valeurs des variables de postgresql.conf et /etc/sysctl.conf]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13026#p13026"/>
+		<content type="html"><![CDATA[<p>La formule &quot;((block_size + 208) * shared_buffers)&quot; suppose que shared_buffers soit en nombre de buffers, pas en octet. Le (block_size+208) permet justement de transformer ça en octets. Donc, les octets au carré, c&#039;est logique si vous avez laissé shared_buffers en octets <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /> Le 1Go/8192 est le bon calcul pour avoir le nombre de buffers.</p><p>Mais bon, vous vous embêtez vraiment pour pas grand-chose. Vous voulez 1GB pour le shared_buffers ? pas de soucis, mettez 2 Go pour shmmax sera amplement suffisant. Et mettre moins, calculer au plus juste n&#039;a aucun intérêt.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-03-01T14:38:00Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13026#p13026</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  valeurs des variables de postgresql.conf et /etc/sysctl.conf]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13025#p13025"/>
+		<content type="html"><![CDATA[<p>Bonjour, je rebondis sur ce fil car je configure aussi les 2 fichiers postgresql.conf et /etc/sysctl.d/30-postgresql-shm.conf (je suis sous debian).</p><p>Je possède 4 Go de Ram. Mes paramètres de conf sont:<br />max_connections = 100<br />shared_buffers = 1024MB<br />#max_prepared_transactions = 0<br />#wal_buffers = -1<br />#autovacuum_max_workers = 3<br />#max_locks_per_transaction = 64</p><p>D&#039;après la doc (<a href="http://www.postgresql.org/docs/9.1/static/kernel-resources.html#SHARED-MEMORY-PARAMETERS" rel="nofollow">http://www.postgresql.org/docs/9.1/stat … PARAMETERS</a>), j&#039;ai fixé les 2 paramètres shmmax et shmall à:<br />kernel.shmmax = 1137327240<br />kernel.shmall = 277668 </p><p>Mon calcul est le suivant:<br />shmmax = ((1800 + 270 * 64) * 100) + ((1800 + 270 * 64) * 3) + ((770 + 270 * 64) * 0) + (8400 * 1 Go / 8192) + (8200 * 1/32 * 1 Go / 8192) + 770 Ko<br />shmall = ceil (1137327240 / 4096)</p><p>J&#039;ai un doute sur le calcul de Shared disk buffers: 8400 * 1 Go / 8192<br />Si j&#039;applique la définition de la doc ((block_size + 208) * shared_buffers) j&#039;obtiens des octets au carré <img src="http://forums.postgresql.fr/img/smilies/hmm.png" width="15" height="15" alt="hmm" /> C&#039;est pourquoi je fait 1 Go / 8192: est-ce le bon calcul?</p><p>Merci de vos réponses</p>]]></content>
+		<author>
+			<name><![CDATA[saigamp]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=767</uri>
+		</author>
+		<updated>2012-03-01T13:54:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13025#p13025</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  valeurs des variables de postgresql.conf et /etc/sysctl.conf]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13018#p13018"/>
+		<content type="html"><![CDATA[<p>S&#039;agit-il également d&#039;un serveur dédié postgresql ? Car si ce n&#039;est pas le cas il faut penser à laisser de la place au reste.</p><p>40% peut-être une bonne valeur mais il est souvent préférable de commencer plus bas, 25% par exemple, et d&#039;augmenter si besoin. Cela dépend aussi des requêtes effectuées en permanence. Si elle utilisent beaucoup de tri ou utilisent beaucoup de données, il convient d&#039;augmenter le work_mem, ce qui diminue fortement la mémoire disponible pour le shared_buffer. La valeur utilisée par work_mem est allouée à chaque connexion, donc dans votre exemple 30Mo * 60 connexions = 1.8 Go utilisés.</p><p>shmma et shmall correspondent à la quantité totale de mémoire partagée que vous voulez pouvoir allouer. Si pour une erreur de configuration postgres il y a trop de mémoire demandée, cela posera soucis soit au niveau postgres a cause d&#039;un shmmax trop faible soit au niveau système avec un OOM. Le plus simple je pense est de le mettre à la quantité de mémoire vive sur votre machine (6 Go je crois), et de faire en sorte que shared_buffers + (nb connexion * work_mem) + (maintenance_work_mem * autovacuum_max_workers) ne dépasse pas votre quantité de mémoire vive.</p><p>Je ne suis cependant pas le plus qualifié ici pour vous aider, je n&#039;ai pas eu énormément de machines à configurer.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2012-02-27T21:06:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13018#p13018</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  valeurs des variables de postgresql.conf et /etc/sysctl.conf]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13017#p13017"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>est ce la memoire totale ou memoire free?</p></div></blockquote></div><p>Sur un serveur dédié, c&#039;est plutôt de l&#039;ordre d&#039;1/3 de la RAM. Sur un serveur non dédié, 1/3 de la RAM restante (ie, après avoir enlevé la mémoire prise par les autres programmes).</p><div class="quotebox"><blockquote><div><p>aussi quelle valeure donnees a shmmax et shmall ?</p></div></blockquote></div><p>Il faut les configurer pour que PostgreSQL puisse allouer le shared_buffers et quelques petits trucs en plus.</p><p>Votre mémoire fait apparemment 6 Go. J&#039;en mettrais bien 2 au niveau du shared_buffers. Du coup, vos shmmax et shmall sont déjà bien configurés.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-02-27T21:05:52Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13017#p13017</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  valeurs des variables de postgresql.conf et /etc/sysctl.conf]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13016#p13016"/>
+		<content type="html"><![CDATA[<p>salut,<br />environ 60 connexions simultanées.<br />bcp d’écritures a la seconde.<br />j&#039;ai vu dans un la documentation postgresql(http://docs.postgresql.fr/8.4/runtime-config-resource.html), qu&#039;il faut allouer 40% de la memoire a la variable shared_buffer.<br />est ce la memoire totale ou memoire free?<br />aussi quelle valeure donnees a shmmax et shmall ?</p><p>merci</p>]]></content>
+		<author>
+			<name><![CDATA[baradji]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=849</uri>
+		</author>
+		<updated>2012-02-27T20:18:52Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13016#p13016</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  valeurs des variables de postgresql.conf et /etc/sysctl.conf]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13015#p13015"/>
+		<content type="html"><![CDATA[<p>Bonjour.<br />Pour pouvoir répondre il faut que nous en sachions plus sur l&#039;utilisation du serveur. Par exemple, le nombre d&#039;utilisateurs connectés en même temps, quelle utilisation est faite de la base de donnée (beaucoup de lectures, beaucoup d&#039;écriture) etc ...</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2012-02-27T19:19:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13015#p13015</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[valeurs des variables de postgresql.conf et /etc/sysctl.conf]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13014#p13014"/>
+		<content type="html"><![CDATA[<p>Bonjour, j&#039;ai un nouveau serveur dédié postgresql-8.4 installe sur ubuntu.<br />voici les paramètres <br /># free<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;total&#160; &#160; &#160; &#160; &#160;used&#160; &#160; &#160; &#160; &#160; &#160; &#160; free&#160; &#160; &#160;shared&#160; &#160; buffers&#160; &#160; &#160;cached<br />Mem:&#160; &#160; &#160; &#160;6117392&#160; &#160; 4239636&#160; &#160; 1877756&#160; &#160; &#160; &#160; &#160; 0&#160; &#160; &#160;112308&#160; &#160; 3796344<br />-/+ buffers/cache:&#160; &#160; &#160;330984&#160; &#160; 5786408<br />Swap:&#160; &#160; &#160; 2000052&#160; &#160; &#160; &#160; &#160;76&#160; &#160; 1999976<br />-----<br /># df -h /*<br />Filesystem&#160; &#160; &#160; &#160; &#160; &#160; Size&#160; Used Avail Use% Mounted on<br />/dev/sda7&#160; &#160; &#160; &#160; &#160; &#160; &#160;546G&#160; &#160;42G&#160; 477G&#160; &#160;8% /<br />/dev/sda1&#160; &#160; &#160; &#160; &#160; &#160; &#160;183M&#160; &#160;22M&#160; 152M&#160; 13% /boot<br />none&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; 3.0G&#160; 220K&#160; 3.0G&#160; &#160;1% /dev<br />-------------<br />le répertoire data de la bd est actuellement a 42 Go.</p><p>Ma préoccupation est de donner les meilleurs valeurs aux variables shared_buffers et autres.</p><p>sur l’ancien serveur, voici les valeurs qui existent:<br />shared_buffers = 1024MB&#160; &#160; &#160; &#160; &#160; &#160;<br />temp_buffers = 10MB&#160; &#160; &#160; &#160; &#160; <br />#max_prepared_transactions = 5&#160; &#160; &#160; <br />effective_cache_size = 3000MB<br />work_mem = 30MB&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;<br />maintenance_work_mem = 16MB </p><p>et dans le fichier /etc/sysctl.conf, on <br />kernel.shmmax=4907034880<br />kernel.shmall=40971520<br />net.ipv6.conf.all.disable_ipv6 = 1</p><p>or sur le nouveau serveur, ces variables sont inexistant </p><p>Quel sera votre conseil pour parametrer postgresql.conf et /etc/sysctl.conf ?</p>]]></content>
+		<author>
+			<name><![CDATA[baradji]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=849</uri>
+		</author>
+		<updated>2012-02-27T17:21:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13014#p13014</id>
+	</entry>
+</feed>

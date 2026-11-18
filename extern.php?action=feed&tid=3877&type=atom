@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Automic replacement in SQL query]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3877&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3877"/>
+	<updated>2016-07-21T07:23:09Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3877</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Automic replacement in SQL query]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23654#p23654"/>
+		<content type="html"><![CDATA[<p>No need to apologize… I&#039;m happy your problem&#039;s solved <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2016-07-21T07:23:09Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23654#p23654</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Automic replacement in SQL query]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23653#p23653"/>
+		<content type="html"><![CDATA[<p>Apologize for this.<br />I might have missed an update when doing my test, you are right this is working fine.<br />Thanks for your help.</p>]]></content>
+		<author>
+			<name><![CDATA[massup]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=6711</uri>
+		</author>
+		<updated>2016-07-21T07:21:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23653#p23653</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Automic replacement in SQL query]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23652#p23652"/>
+		<content type="html"><![CDATA[<p>Ok, first thing: please don&#039;t post untested code… this one didn&#039;t run as is (the first IF has no END IF)</p><p>Second: once corrected, everything works here:</p><div class="codebox"><pre class="vscroll"><code>test=# create table audit (stamp timestamp with time zone, query text);
+
+test=# create table test (id int, description text);
+
+test=# CREATE TRIGGER test_audit
+AFTER INSERT OR UPDATE OR DELETE ON test
+    FOR EACH ROW EXECUTE PROCEDURE audit_function();
+
+test=# CREATE OR REPLACE FUNCTION audit_function() RETURNS TRIGGER AS
+$audit$                                 
+  BEGIN                                             
+        --
+        -- Create a row audit to reflect the operation performed on test,
+        --
+    IF (TG_TABLE_NAME = &#039;test&#039;) THEN
+        IF (TG_OP = &#039;DELETE&#039;) THEN
+            INSERT INTO audit (stamp,query) VALUES(now(), CONCAT(&#039;DELETE FROM test WHERE id=&#039;,OLD.id,&#039;;&#039;));
+            RETURN OLD;
+        ELSIF (TG_OP = &#039;UPDATE&#039;) THEN
+            INSERT INTO audit (stamp,query) VALUES( now(), CONCAT(&#039;UPDATE test SET id=&#039;, NEW.id, &#039;,description=&#039;, quote_literal(NEW.description)&#039;;&#039;));
+            RETURN NEW;
+        ELSIF (TG_OP = &#039;INSERT&#039;) THEN
+            INSERT INTO audit (stamp,query) VALUES( now(), CONCAT(&#039;INSERT INTO test VALUES(&#039;,NEW.id,&#039;,&#039;,quote_literal(NEW.description),&#039;);&#039;));
+            RETURN NEW;
+        END IF;
+    END IF;
+    RETURN NULL; 
+  END;
+$audit$ 
+LANGUAGE plpgsql;
+
+
+
+
+test=# select * from audit ;
+             stamp             |               query                
+-------------------------------+------------------------------------
+ 2016-07-20 15:21:29.036159+02 | INSERT INTO test VALUES(1,&#039;toto&#039;);
+(1 ligne)
+
+test=# insert into test values (1,&#039;toto&#039;);
+
+test=# insert into test values (2,&#039;Here&#039;&#039;s the example&#039;);
+INSERT 0 1
+test=# select * from audit ;
+             stamp             |                       query                       
+-------------------------------+---------------------------------------------------
+ 2016-07-20 15:21:29.036159+02 | INSERT INTO test VALUES(1,&#039;toto&#039;);
+ 2016-07-20 15:21:53.053199+02 | INSERT INTO test VALUES(2,&#039;Here&#039;&#039;s the example&#039;);
+(2 lignes)</code></pre></div><br /><p>So I think you have another problem in your code.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2016-07-20T13:26:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23652#p23652</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Automic replacement in SQL query]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23651#p23651"/>
+		<content type="html"><![CDATA[<p>Let&#039;s consider:<br />-table test containing fields id and description.<br />-Table audit containing fields id, timestamp, query<br />-The audit_function:</p><p>CREATE OR REPLACE FUNCTION audit_function() RETURNS TRIGGER AS $audit$<br />&#160; &#160; BEGIN<br />&#160; &#160; &#160; &#160; --<br />&#160; &#160; &#160; &#160; -- Create a row audit to reflect the operation performed on test,<br />&#160; &#160; &#160; &#160; --<br />&#160; &#160; &#160; &#160; &#160; IF (TG_TABLE_NAME = &#039;test&#039;) THEN<br />&#160; &#160; &#160; &#160; IF (TG_OP = &#039;DELETE&#039;) THEN<br />&#160; &#160; &#160; &#160; &#160; &#160; INSERT INTO audit (stamp,query) VALUES(now(), CONCAT(&#039;DELETE FROM test WHERE id=&#039;,OLD.id,&#039;;&#039;));<br />&#160; &#160; &#160; &#160; &#160; &#160; RETURN OLD;<br />&#160; &#160; &#160; &#160; ELSIF (TG_OP = &#039;UPDATE&#039;) THEN<br />&#160; &#160; &#160; &#160; &#160; &#160; INSERT INTO audit (stamp,query) VALUES( now(), CONCAT(&#039;UPDATE test SET id=&#039;, NEW.id, &#039;,description=&#039;, quote_literal(NEW.description)&#039;;&#039;));<br />&#160; &#160; &#160; &#160; &#160; &#160; RETURN NEW;<br />&#160; &#160; &#160; &#160; ELSIF (TG_OP = &#039;INSERT&#039;) THEN<br />&#160; &#160; &#160; &#160; &#160; &#160; INSERT INTO audit (stamp,query) VALUES( now(), CONCAT(&#039;INSERT INTO test VALUES(&#039;,NEW.id,&#039;,&#039;,quote_literal(NEW.description),&#039;);&#039;));<br />&#160; &#160; &#160; &#160; &#160; &#160; RETURN NEW;<br />&#160; &#160; &#160; &#160; END IF;<br />&#160; &#160; &#160; RETURN NULL; <br />&#160; &#160; END;<br />$audit$ LANGUAGE plpgsql;</p><p>-Trigger<br />CREATE TRIGGER test_audit<br />AFTER INSERT OR UPDATE OR DELETE ON test<br />&#160; &#160; FOR EACH ROW EXECUTE PROCEDURE audit_function();</p><p>If i insert record id=1, description=Here&#039;s the example (INSERT INTO test (id,description) VALUES (1,&#039;Here&#039;&#039;s the example&#039;);)<br />I will get in audit table a record with query=INSERT INTO test (stamp,query) VALUES (yyyymmdd-hhmmss,&#039;Here&#039;s the example&#039;);</p>]]></content>
+		<author>
+			<name><![CDATA[massup]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=6711</uri>
+		</author>
+		<updated>2016-07-20T13:05:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23651#p23651</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Automic replacement in SQL query]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23650#p23650"/>
+		<content type="html"><![CDATA[<p>It works exactly the same. There must be something wrong in the way you do it. Post an example function where you have a problem.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2016-07-20T07:42:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23650#p23650</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Automic replacement in SQL query]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23649#p23649"/>
+		<content type="html"><![CDATA[<p>It works in your example.<br />But how can i manage it in the case of a variable new.text containing &lt;&lt; doesn&#039;t&#160; &gt;&gt; with no backslash?<br />quote_nullable(new.text) doesn&#039;t return expected result.</p>]]></content>
+		<author>
+			<name><![CDATA[massup]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=6711</uri>
+		</author>
+		<updated>2016-07-20T07:21:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23649#p23649</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Automic replacement in SQL query]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23648#p23648"/>
+		<content type="html"><![CDATA[<p>It does:</p><div class="codebox"><pre><code>select E&#039;doesn\&#039;t&#039;;
+ ?column? 
+----------
+ doesn&#039;t
+
+
+select quote_nullable(E&#039;doesn\&#039;t&#039;);
+ quote_nullable 
+----------------
+ &#039;doesn&#039;&#039;t&#039;</code></pre></div><p>Something else must be wrong. Please provide a complete test case.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2016-07-20T06:59:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23648#p23648</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Automic replacement in SQL query]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23647#p23647"/>
+		<content type="html"><![CDATA[<p>Hello,</p><p>I tried with quote_nullable and quote_literal but it doesn&#039;t produces expected result.<br />For example i have a variable new.text containing txt : doesn&#039;t.<br />quote_nullable(new.text) returns &#039;doesn&#039;t&#039; while i would have expected to get &#039;doesn&#039;&#039;t&#039; <br />I obtain same result with quote_literal.</p>]]></content>
+		<author>
+			<name><![CDATA[massup]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=6711</uri>
+		</author>
+		<updated>2016-07-20T06:25:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23647#p23647</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Automic replacement in SQL query]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23646#p23646"/>
+		<content type="html"><![CDATA[<p>Hi,</p><p>I think what you are looking for is quote_nullable: <a href="https://www.postgresql.org/docs/current/static/functions-string.html" rel="nofollow">https://www.postgresql.org/docs/current … tring.html</a></p><p>This will protect everything in you strings. Because there is a lot of room for SQL injections in what you are doing…</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2016-07-18T15:24:54Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23646#p23646</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Automic replacement in SQL query]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23645#p23645"/>
+		<content type="html"><![CDATA[<p>Hello,<br />In order to audit all changes made on a database and reapply them when necessary on an other copy of this db, i have created triggers on related tables, an audit table and a function which writes in audit table each time a change occures on other tables.<br />I&#039;m reconstructing the SQL query when writting it in audit.<br />The problem is with text strings containing apastrophe. I would like to automaticaly replace single apastrophe by double apastrophe in order to have a correct syntax.<br />Below example of the syntax i&#039;m using:</p><p>CREATE OR REPLACE FUNCTION process_audit() RETURNS TRIGGER AS $audit$<br />&#160; &#160; BEGIN<br />&#160; &#160; &#160; &#160; --<br />&#160; &#160; &#160; &#160; -- Create a row in auditv2 to reflect the operation performed on tablename,<br />&#160; &#160; &#160; &#160; -- make use of the special variable TG_OP to work out the operation.<br />&#160; &#160; &#160; &#160; --<br />&#160; &#160; &#160; &#160; &#160; IF (TG_TABLE_NAME = &#039;tablename&#039;) THEN<br />&#160; &#160; &#160; &#160; IF (TG_OP = &#039;DELETE&#039;) THEN<br />&#160; &#160; &#160; &#160; &#160; &#160; INSERT INTO auditv2 (stamp,query) VALUES(now(), CONCAT(&#039;DELETE FROM tablename WHERE id=&#039;,OLD.id,&#039;;&#039;));<br />&#160; &#160; &#160; &#160; &#160; &#160; RETURN OLD;<br />&#160; &#160; &#160; &#160; ELSIF (TG_OP = &#039;UPDATE&#039;) THEN<br />&#160; &#160; &#160; &#160; &#160; &#160; INSERT INTO auditv2 (stamp,query) VALUES( now(), CONCAT(&#039;UPDATE tablename SET &quot;typeId&quot;=&#039;, NEW.&quot;typeId&quot;, &#039;,subgroup=&#039;&#039;&#039;, NEW.subgroup, &#039;&#039;&#039;,name=&#039;&#039;&#039;, NEW.name, &#039;&#039;&#039;,&quot;imageName&quot;=&#039;&#039;&#039;, NEW.&quot;imageName&quot;, &#039;&#039;&#039; WHERE id=&#039;, NEW.id,&#039;;&#039;));<br />&#160; &#160; &#160; &#160; &#160; &#160; RETURN NEW;<br />&#160; &#160; &#160; &#160; ELSIF (TG_OP = &#039;INSERT&#039;) THEN<br />&#160; &#160; &#160; &#160; &#160; &#160; INSERT INTO auditv2 (stamp,query) VALUES( now(), CONCAT(&#039;INSERT INTO tablename VALUES(&#039;,NEW.id,&#039;,&#039;&#039;&#039;, NEW.&quot;typeId&quot;,&#039;&#039;&#039;,&#039;&#039;&#039;,NEW.subgroup,&#039;&#039;&#039;,&#039;&#039;&#039;,NEW.name,&#039;&#039;&#039;,&#039;&#039;&#039;,NEW.&quot;imageName&quot;,&#039;&#039;&#039;);&#039;));<br />&#160; &#160; &#160; &#160; &#160; &#160; RETURN NEW;</p><p>If name field contains for example &quot;It&#039;s the example&quot; i would like to replace it by &quot;It&#039;&#039;s the example&quot;.</p><p>I tried with REPLACE command ( REPLACE (NEW.name, &quot;&#039;&quot;, &quot;&#039;&#039;&quot;) but when inserting a record SQL tells me column &quot;&#039;&quot; doesn&#039;t exist!</p><p>Any idea?</p>]]></content>
+		<author>
+			<name><![CDATA[massup]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=6711</uri>
+		</author>
+		<updated>2016-07-18T14:22:39Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23645#p23645</id>
+	</entry>
+</feed>

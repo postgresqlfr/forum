@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Problème de droit - WARNING : no privileges were granted]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5872&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5872"/>
+	<updated>2020-12-01T10:07:16Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5872</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème de droit - WARNING : no privileges were granted]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31701#p31701"/>
+		<content type="html"><![CDATA[<p>Ok c&#039;est bon, pour information, j&#039;ai attribué mon nouveau_user en tant que propriétaire sur les deux schémas à modifier.<br />De fait mon user_proprietaire historique qui hérite des droits du superuser, continue à pouvoir faire des ALTER sur ces mêmes schémas.<br />C&#039;est donc une affaire résolu, merci beaucoup de votre précieuse aide.</p><p>Geo-x</p>]]></content>
+		<author>
+			<name><![CDATA[Geo-x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1346</uri>
+		</author>
+		<updated>2020-12-01T10:07:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31701#p31701</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème de droit - WARNING : no privileges were granted]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31700#p31700"/>
+		<content type="html"><![CDATA[<p>Bonjour Guillaume.</p><p>En effet en faisant un </p><div class="codebox"><pre><code>GRANT ROLE user_proprietaire TO nouveau_user;</code></pre></div><p>Ca fonctionne, sauf que maintenant nouveau_user a accès à beaucoup de choses, il ne me reste plus qu&#039;à restreindre.</p>]]></content>
+		<author>
+			<name><![CDATA[Geo-x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1346</uri>
+		</author>
+		<updated>2020-12-01T09:28:02Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31700#p31700</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème de droit - WARNING : no privileges were granted]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31678#p31678"/>
+		<content type="html"><![CDATA[<p>Pour faire des ALTER sur un objet, il faut être propriétaire de l&#039;objet ou membre du propriétaire de l&#039;objet.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2020-11-25T20:50:45Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31678#p31678</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème de droit - WARNING : no privileges were granted]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31677#p31677"/>
+		<content type="html"><![CDATA[<p>Merci pour cette précieuse requête.<br />Cependant comme je vous disais je cherche à voir qui a les droits pour attribuer par exemple le droit de faire des ALTER (sans mauvais jeu de mot niveau muscu) ou bien qui a accès à des fonctions.<br />Là c&#039;est plus compliqué puisque mon besoin est le suivant :<br />&gt; utiliser les fonctions du schéma dans lequel elle a accès + le schéma public<br />&gt; Créer ou modifier des tabes et des vues sur un schéma spécifique<br />Ce n&#039;est peut-être pas possible en fait.</p>]]></content>
+		<author>
+			<name><![CDATA[Geo-x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1346</uri>
+		</author>
+		<updated>2020-11-25T16:26:35Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31677#p31677</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème de droit - WARNING : no privileges were granted]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31676#p31676"/>
+		<content type="html"><![CDATA[<p>Vous pouve utiliser la fonction aclexplode sur pg_class.relacl; qui vous donnera le détail.</p><br /><p>Par exemple:</p><div class="codebox"><pre><code>with s as (select aclexplode(relacl) acl from pg_class where relname = &#039;nomtable&#039;)
+select (acl).grantor::regrole, (acl).grantee.regrole, (acl).privilege_type, (acl).is_grantable from s ;</code></pre></div><br /><p>Vous pouvez sinon utiliser la fonction has_table_privilege(), en précisant le droit voulu, par exemple &quot;SELECT WITH GRANT OPTION&quot;, cf <a href="https://www.postgresql.org/docs/current/functions-info.html" rel="nofollow">https://www.postgresql.org/docs/current … -info.html</a></p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2020-11-25T16:22:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31676#p31676</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème de droit - WARNING : no privileges were granted]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31675#p31675"/>
+		<content type="html"><![CDATA[<p>Bonjour <strong>rjuju</strong> et merci de votre réponse.</p><p>Je vois le problème, comment pourrais-je faire pour visualiser les droits d&#039;attribuer des droits (pas forcément table par table) ?</p>]]></content>
+		<author>
+			<name><![CDATA[Geo-x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1346</uri>
+		</author>
+		<updated>2020-11-25T13:29:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31675#p31675</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème de droit - WARNING : no privileges were granted]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31674#p31674"/>
+		<content type="html"><![CDATA[<p>Le message indique que votre utilisateur n&#039;a pas les droits suffisants pour donner des droits à un autre utilisateur.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2020-11-25T12:32:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31674#p31674</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Problème de droit - WARNING : no privileges were granted]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31673#p31673"/>
+		<content type="html"><![CDATA[<p>Bonjour @ tous.</p><p>Je rencontre de grosses difficultés pour attribuer à un utilisateur le droit de création/modification de table et également au niveau de l&#039;utilisation des fonctions, j&#039;ai toujours ceci qui s&#039;affiche lorsque j&#039;essaie d&#039;attribuer les droits :</p><div class="codebox"><pre><code>WARNING:  no privileges were granted for &quot;unaccent_init&quot;
+WARNING:  no privileges were granted for &quot;unaccent_lexize&quot;</code></pre></div><p>J&#039;ai contrôlé les droits du rôle qui me semblent bon :<br /><span class="postimg"><img src="https://nsa40.casimages.com/img/2020/11/25/201125110926711335.jpg" alt="201125110926711335.jpg" /></span><br />J&#039;ai contrôlé les droits sur <strong>pg_database</strong> et j&#039;ai ceci : </p><div class="codebox"><pre><code>{group=CTc/group,monuser=c/group}</code></pre></div><p>Lorsque je regarde sur <strong>pg_class</strong> sur une table cible pour contrôler, j&#039;ai ceci : </p><div class="codebox"><pre><code>{admin=a*r*w*d*D*x*t*/monuser=arwdDxt/admin}</code></pre></div><p>De mon côté ce que je souhaite c&#039;est que le user <strong>monuser</strong> puisse :<br />&gt; utiliser les fonctions du schéma dans lequel elle a accès + le schéma public<br />&gt; Créer ou modifier des tabes et des vues sur un schéma spécifique<br />Est-ce que vous auriez une idée de ce qui bloque ?</p><p>Merci d&#039;avance de votre aide.<br /><strong>Geo-x</strong></p>]]></content>
+		<author>
+			<name><![CDATA[Geo-x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1346</uri>
+		</author>
+		<updated>2020-11-25T10:38:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31673#p31673</id>
+	</entry>
+</feed>

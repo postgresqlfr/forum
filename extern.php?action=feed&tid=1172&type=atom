@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / manipulation xml en plpgsql  avec postgreSQL 8.3]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1172&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1172"/>
+	<updated>2011-01-18T12:03:01Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1172</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  manipulation xml en plpgsql  avec postgreSQL 8.3]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7562#p7562"/>
+		<content type="html"><![CDATA[<p>Les accolades, c&#039;est parce que le résultat est un tableau (vous pourriez avoir plusieurs valeurs correspondant au xpath). Il vous reste donc juste à récupérer le premier élément du tableau…</p><p><a href="http://docs.postgresql.fr/9.0/arrays.html" rel="nofollow">http://docs.postgresql.fr/9.0/arrays.html</a></p><p>(il faut mettre un [0] à la fin je pense)</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-01-18T12:03:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7562#p7562</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  manipulation xml en plpgsql  avec postgreSQL 8.3]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7558#p7558"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>voici un petit résumé de mon état d&#039;avance (au cas ou quelqu&#039;un souhaiterait répondre à la même problèmatique que moi)</p><p>J&#039;ai mis en place une fonction trigger permettant de valider la modification d&#039;un champ avant son enregistrement dans un table d&#039;une base de données PostgreSQL 8.3.6 installée à partir du package de binaires Windows téléchargé sur le site <a href="http://www.postgresql.org" rel="nofollow">http://www.postgresql.org</a>. Cette installation se fait par défaut avec le module libxml de configuré ce qui permet un certain nombre de manipulation &#039;xml&#039;.( libxml2 n&#039;est pas configuré ).</p><p>Le champ en question est de type texte mais contient des données formatées en XML.<br />Il me faut tester la valeur &#039;donnée4&#039; qui est une chaine dans un champ de la forme :</p><p>&lt;... entete XML configuré en UTF 16...&gt;<br />&lt;rootNode&gt;<br />&#160; &lt;balise1&gt;<br />&#160; &#160; &lt;balise11&gt;donnée1 &lt;/balise11&gt;<br />&#160; &#160; &lt;balise12&gt;donnée2 &lt;/balise12&gt;<br />&#160; &lt;/balise1&gt;<br />&#160; &lt;balise2&gt;<br />&#160; &#160; &lt;balise21&gt;donnée3 &lt;/balise21&gt;<br />&#160; &#160; &lt;balise22&gt;donnée4 &lt;/balise22&gt;<br />&#160; &lt;/balise2&gt;<br />&lt;/rootNode&gt;</p><p>le code résumé de cette fonction est le suivant :</p><p>DECLARE <br />&#160; maVariableXML xml; <br />&#160; monChampTEXTE text; <br />BEGIN <br />&#160; IF (TG_OP = &#039;UPDATE&#039;) THEN <br />&#160; &#160; IF OLD.ChampTextContenantDesDonnéesXML &lt;&gt; NEW.ChampTextContenantDesDonnéesXML <br />&#160; &#160; &#160; &#160;maVariableXML := XMLPARSE(DOCUMENT NEW.ChampTextContenantDesDonnéesXML); <br />&#160; &#160; &#160; &#160;monChampTEXTE :=&#160; xpath(&#039;/rootNode/balise2/balise22/text()&#039;,maVariableXML); </p><p>&#160; &#160; &#160; &#160;-- ici monChampTEXTE contient {donnée4} avec les accolades --</p><p>&#160; &#160; &#160; &#160;IF monChampTEXTE..... THEN<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160;.... ensemble de traitement<br />&#160; &#160; &#160; &#160;END IF;<br />&#160; &#160; &#160; &#160;RETURN NEW;<br />&#160; &#160; END IF; <br />&#160; END IF; <br />END; </p><p>C&#039;est déjà pas mal... maintenant si j&#039;arrivais à récupérer donnée4 sans les accolades, je serais le roi du monde <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" />. Je continu donc à chercher l&#039;éventuel paramètre à passer à la fonction xpath pour ne pas avoir à bricoler la chaine reçue.</p><p>En espérant avoir été clair,<br />je remercie toutes les personnes m&#039;ayant donné un coup de main à dégrossir le problème car je partais de ZERO.</p>]]></content>
+		<author>
+			<name><![CDATA[mrZeby]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1057</uri>
+		</author>
+		<updated>2011-01-18T08:17:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7558#p7558</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  manipulation xml en plpgsql  avec postgreSQL 8.3]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7543#p7543"/>
+		<content type="html"><![CDATA[<p>Non, comme vu sur irc: comme c&#039;est du windows, recompiler, c&#039;est un cauchemar.</p><p>Reste à déterminer si xml est compilé, sous PostgreSQL, sous Windows. Quel installeur avez vous utilisé ?</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-01-17T13:22:35Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7543#p7543</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  manipulation xml en plpgsql  avec postgreSQL 8.3]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7537#p7537"/>
+		<content type="html"><![CDATA[<p>merci pour la réponse si rapide...</p><p>il me vient une autre question du coup... pour l&#039;utilisation de libxml, vous dites qu&#039;il faut recompiler ??? c&#039;est à dire récupèrer directement les sources de postgreSQL pour les recompiler pour ensuite réinstaller postgreSQL ?... ou bien vous entendez autre chose par recompiler ?</p><p>Le logiciel est installé sous sous windows xp et 7.</p>]]></content>
+		<author>
+			<name><![CDATA[mrZeby]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1057</uri>
+		</author>
+		<updated>2011-01-17T11:09:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7537#p7537</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  manipulation xml en plpgsql  avec postgreSQL 8.3]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7536#p7536"/>
+		<content type="html"><![CDATA[<p>Pour commencer, le chapitre de la doc associé:<br /><a href="http://docs.postgresql.fr/8.3/datatype-xml.html" rel="nofollow">http://docs.postgresql.fr/8.3/datatype-xml.html</a></p><p>Donc oui, pour xml, il faut que la libxml soit installée, et que le moteur soit compilé avec --with-libxml</p><p>Si ce n&#039;est pas le cas (ça dépend de comment vous avez installé, et de quel est votre système d&#039;exploitation), il faudra recompiler.</p><p>Ensuite, si c&#039;est le cas, vous avez un type XML. Comme indiqué dans la doc, vous avez ce qu&#039;il faut pour passer de texte à xml (xmlparse) et vice versa.</p><p>Par ailleurs, il y a eu beaucoup d&#039;améliorations dans le support de XML dans la version 8.4, de mémoire.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-01-17T10:59:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7536#p7536</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[manipulation xml en plpgsql  avec postgreSQL 8.3]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7534#p7534"/>
+		<content type="html"><![CDATA[<p>Bonjour tout le monde...</p><p>Je suis développeur logiciel sur un logiciel utilisant une base de données postgreSQL 8.3.</p><p>Je cherche à mettre au point une fonction trigger en plpgsql qui récupère un champ de type texte mais dont le contenu est du xml dont j&#039;ai besoin de vérifier une donnée pour valider ou non l&#039;enregistrement des modifications.</p><p>Peut-on et si oui comment, en plpgsql passer d&#039;un texte à du xml dont je pourrais récupérer les données ?</p><p>Il me semble avoir lu dans la doc postgreSQL qu&#039;il fallait utiliser/configurer libxml ? comment le faire sur une base existante ? </p><p>merci d&#039;avance pour vos réponses...</p>]]></content>
+		<author>
+			<name><![CDATA[mrZeby]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1057</uri>
+		</author>
+		<updated>2011-01-17T10:44:33Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7534#p7534</id>
+	</entry>
+</feed>

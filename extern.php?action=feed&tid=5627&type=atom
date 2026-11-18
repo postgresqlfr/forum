@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / [PG9.6] Identification d'une connexion]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5627&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5627"/>
+	<updated>2019-11-15T15:30:01Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5627</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [PG9.6] Identification d'une connexion]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30408#p30408"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><p>Désolé du délais de la réponse, j&#039;avais complètement changé mon fusil d&#039;épaule et ... j&#039;ai zappé ce post <img src="http://forums.postgresql.fr/img/smilies/roll.png" width="15" height="15" alt="roll" /><br />Le but était de savoir qui, de mes utilisateurs, était connecté. Mais c&#039;est vraiment une fonction peu utile, je laisse tomber l&#039;affaire.</p><br /><p>Merci quand même !</p>]]></content>
+		<author>
+			<name><![CDATA[ramirez22]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8315</uri>
+		</author>
+		<updated>2019-11-15T15:30:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30408#p30408</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [PG9.6] Identification d'une connexion]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30323#p30323"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>le ROLLBACK effacerait les informations de débuggage ....</p></div></blockquote></div><p>Je ne comprends toujours pas pourquoi utiliser SAVEPOINT / ROLLBACK TO et/ou des blocs d&#039;exceptions plpgsql ne résoudraient pas votre problème</p><div class="quotebox"><blockquote><div><p>Bref, je ne vois pas trop comment faire. Si vous pouvez allumer ma lanterne SVP ...</p></div></blockquote></div><p>Pas sur de comprendre exactement votre problème, mais utiliser &quot;SET application_name to &#039;les infos qui vous intéressent&#039;;&quot; n&#039;irait pas ?</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2019-10-25T18:29:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30323#p30323</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[[PG9.6] Identification d'une connexion]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30322#p30322"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Le titre est peu explicite, je vais développer pas de panique.</p><p>Ma base PostgreSQL ne m&#039;appartient pas : je n&#039;ai que très peu de droit et notamment, l&#039;impossibilité de créer des roles.<br />Du coup, je suis obligé de passer par un role (créé par l&#039;administrateur du serveur) qui possède avec la totalité des droits (alors que certains utilisateurs n&#039;auraient pas besoin de certains droits ... mais bon, j&#039;ai pas le choix de toute façon) sauf CREATEROLE evidemment.</p><br /><p>La gestion des utilisateurs de mon application est donc faite par une table spécifique dans mon appli.</p><br /><p>Afin de complexifier la chose, j&#039;ouvre 2 connexions distinctes pour chaque utilisateur. Ceci étant pour permettre d&#039;enregistrer des informations de débogage en cas de plantage d&#039;une requête (le ROLLBACK effacerait les informations de débuggage ....)</p><p>Forcément, si je fais un </p><div class="codebox"><pre><code>SELECT * FROM pg_stat_activity;</code></pre></div><p>Je me retrouve avec les 2 connexions actives, mais seuls le pid, les ports et les adresses IP changent. Et j&#039;ai pas la liste des adresses IP de chaque utilisateur (DHCP en plus ...)</p><br /><p>L&#039;accès à la base utilisateur ne se fait en 2 occasions :<br />- à la connexion pour récupérer les infos utilisateur. Si le profil utilisateur est supprimé, pas de problème car cela sera pris en compte lors de la prochaine connexion<br />- lors de changement du mot de passe. Et là, c&#039;est le drame : si un administrateur a supprimé le compte, on va droit dans le mur !</p><br /><p>J&#039;avais imaginer mettre un verrou sur l&#039;enregistrement avec une troisième connexion. Mais ça commence à faire beaucoup de connexions pour peu de chose. De plus, que devient un verrou si la connexion est perdue. Et ça le permet d&#039;empêcher une suppression d&#039;utilisateur, mais pas de savoir si l&#039;utilisateur est connecté.</p><br /><p>Bref, je ne vois pas trop comment faire. Si vous pouvez allumer ma lanterne SVP ...</p><p>A+</p>]]></content>
+		<author>
+			<name><![CDATA[ramirez22]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8315</uri>
+		</author>
+		<updated>2019-10-25T18:17:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30322#p30322</id>
+	</entry>
+</feed>

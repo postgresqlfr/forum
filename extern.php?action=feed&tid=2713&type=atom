@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Group By problème]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2713&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2713"/>
+	<updated>2013-07-17T20:36:04Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2713</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Group By problème]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17734#p17734"/>
+		<content type="html"><![CDATA[<p>Par définition, vous ne pouvez pas afficher d&#039;autre colonnes que view_id si vous ne voulez que les view_id différents, à moins que vous n&#039;ayez une contrainte d&#039;unicité entre view_id et les autres champs, sinon il faut utiliser un aggrégat sur les autres champs également (min, max ...).</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2013-07-17T20:36:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17734#p17734</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Group By problème]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17731#p17731"/>
+		<content type="html"><![CDATA[<p>Non avec cette requête j&#039;ai toutes mes colonnes:<br />Au lieu de 2;2015;34 | 3;2014;29<br />J&#039;ai 2;2015;34 | 3;2014;29 | 2;2013;23</p><p>Je veux autant de sorties qu&#039;il y ai de view_id différents</p>]]></content>
+		<author>
+			<name><![CDATA[ant]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2398</uri>
+		</author>
+		<updated>2013-07-17T13:04:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17731#p17731</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Group By problème]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17730#p17730"/>
+		<content type="html"><![CDATA[<p>Dans ce cas, ta première requête est bonne, il ne te reste qu&#039;à rempalcer * par les noms de tes champs. Par exemple :</p><div class="codebox"><pre><code>SELECT id,view_id, max(date) as last_date FROM postr GROUP BY view_id,id;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[Geo-x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1346</uri>
+		</author>
+		<updated>2013-07-17T12:46:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17730#p17730</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Group By problème]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17729#p17729"/>
+		<content type="html"><![CDATA[<p>par exemple</p><p>view_id&#160; |&#160; date&#160; &#160;| user_id</p><p>2&#160; &#160; &#160; &#160; &#160; &#160;| 2013&#160; &#160;| 23</p><p>3&#160; &#160; &#160; &#160; &#160; &#160;| 2014&#160; &#160;| 29</p><p>2&#160; &#160; &#160; &#160; &#160; &#160;| 2015&#160; &#160;| 34</p><p>(mes date sont au format ditetime mais c&#039;est pour simplifier)</p><p>Les entités à retourner seraient 2;2015;34 et 3;2014;29</p>]]></content>
+		<author>
+			<name><![CDATA[ant]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2398</uri>
+		</author>
+		<updated>2013-07-17T11:40:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17729#p17729</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Group By problème]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17728#p17728"/>
+		<content type="html"><![CDATA[<p>Tout dépend du nombre de colonnes dans la table mais je trouve aussi que cette demande n&#039;est pas claire. SI on veut des valeurs distinctes de view_id, on ne peut pas avoir les autres colonnes, cela n&#039;a pas de sens.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2013-07-17T09:46:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17728#p17728</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Group By problème]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17727#p17727"/>
+		<content type="html"><![CDATA[<p>Bonjour ant,</p><p>je ne suis pas sûr de bien comprendre ce que tu souhaites comme résultat.</p><p>Peut-être la requête suivante pourra-t-elle répondre à ta question :</p><div class="codebox"><pre><code>SELECT array_agg(id),view_id, max(date) as last_date FROM postr GROUP BY view_id;</code></pre></div><p>Si la fonction array_agg() ne fonctionne pas, lances d&#039;abord le code suivant dans la base de données voulue:</p><div class="codebox"><pre><code>CREATE AGGREGATE array_agg (
+        sfunc = array_append,
+        basetype = anyelement,
+        stype = anyarray,
+        initcond = &#039;{}&#039;
+);</code></pre></div><p>En fait, cela va te créer un tableau de résultat.</p>]]></content>
+		<author>
+			<name><![CDATA[Geo-x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1346</uri>
+		</author>
+		<updated>2013-07-17T09:24:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17727#p17727</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Group By problème]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17726#p17726"/>
+		<content type="html"><![CDATA[<p>Merci, j&#039;ai déjà essayé mais je veux tout en retour en non que view_id</p>]]></content>
+		<author>
+			<name><![CDATA[ant]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2398</uri>
+		</author>
+		<updated>2013-07-17T08:36:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17726#p17726</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Group By problème]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17725#p17725"/>
+		<content type="html"><![CDATA[<p>Essayez cette requête :</p><div class="codebox"><pre><code>SELECT view_id, max(date) as last_date FROM ViewUpdate GROUP BY view_id</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2013-07-17T08:34:54Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17725#p17725</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Group By problème]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17724#p17724"/>
+		<content type="html"><![CDATA[<p>Bonjour.<br />Je viens juste de de passer de mysql à PgSql mais j&#039;ai un problème avec mes group by.</p><p>Voici ma table</p><p>id, user_id, view_id et date</p><p>Je voudrai récupérer toutes les colonnes ayant la plus grande date avec in view_id distinct.</p><p>J&#039;ai donc essayé:</p><div class="codebox"><pre><code>SELECT *, max(date) as last_date FROM ViewUpdate GROUP BY view_id</code></pre></div><p>Mais j&#039;ai une erreur comme quoi le l&#039;id doit être dans le group by, or si je mets l&#039;id dans le group by je n&#039;ai plu le résultat voulu. J&#039;ai regardé quelques forums et ils parlent d&#039;aggregation mais je ne sais pas du tout ce que c&#039;est</p><p>Merci pour l&#039;aide</p>]]></content>
+		<author>
+			<name><![CDATA[ant]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2398</uri>
+		</author>
+		<updated>2013-07-17T08:31:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17724#p17724</id>
+	</entry>
+</feed>

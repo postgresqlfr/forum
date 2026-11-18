@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Traces du VACUUM: pages removed/deleted et dead rows]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2075&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2075"/>
+	<updated>2012-05-31T19:38:26Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2075</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Traces du VACUUM: pages removed/deleted et dead rows]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13991#p13991"/>
+		<content type="html"><![CDATA[<p>Merci pour votre aide, je vais retourner sur le wiki.</p>]]></content>
+		<author>
+			<name><![CDATA[roya]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=542</uri>
+		</author>
+		<updated>2012-05-31T19:38:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13991#p13991</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Traces du VACUUM: pages removed/deleted et dead rows]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13990#p13990"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Pour revenir sur l&#039;information &quot;There were 999616 unused item pointers&quot;, avez-vous une explication à me donner svp ?</p></div></blockquote></div><p>Un index contient des pointeurs. Il a trouvé 999616 pointeurs inutilisés, ce qui paraît étonnant.</p><div class="quotebox"><blockquote><div><p>Est-ce que par hasard vous auriez une documentation à me recommenter pour comprendre les outputs du VACUUM ?</p></div></blockquote></div><p>Sur les messages eux-mêmes non. Leur signification se comprend par la compréhension du moteur et notamment du système MVCC. Il existe quelques conférences sur le sujet, que vous pourrez trouver assez facilement, sur youtube (pour la vidéo) comme le wiki de postgresql.org (pour les slides).</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-05-31T19:22:52Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13990#p13990</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Traces du VACUUM: pages removed/deleted et dead rows]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13986#p13986"/>
+		<content type="html"><![CDATA[<p>Merci pour ces précisions.<br />Pour revenir sur l&#039;information &quot;There were 999616 unused item pointers&quot;, avez-vous une explication à me donner svp ?<br />Est-ce que par hasard vous auriez une documentation à me recommenter pour comprendre les outputs du VACUUM ?</p>]]></content>
+		<author>
+			<name><![CDATA[roya]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=542</uri>
+		</author>
+		<updated>2012-05-31T18:10:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13986#p13986</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Traces du VACUUM: pages removed/deleted et dead rows]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13981#p13981"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>D&#039;après ces traces, je comprends que 384 rows ont été flaggés périmés (&quot;removed&quot;). Est-ce correct ?</p></div></blockquote></div><p>Si vous parlez de la ligne &quot;INFO:&#160; scanned index &quot;pk_my_table&quot; to remove 384 row versions&quot;, VACUUM vous indique qu&#039;il a lu l&#039;index pk_my_table pour flagguer les éléments de l&#039;index correspondant aux 384 lignes modifiées dans la table.</p><div class="quotebox"><blockquote><div><p>Est-ce que la ligne &quot;DETAIL : 0 dead row versions cannot be removed yet&quot; indique bien qu&#039;il n&#039;y a pas de transactions en mode &quot;pending&quot; ou &quot;idle&quot; ?</p></div></blockquote></div><p>Non, cela indique seulement que les lignes mortes (ie, lignes non visibles par les transactions) n&#039;ont pas été supprimées physiquement du fichier de la table. Autrement dit, vous n&#039;avez rien gagné en espace disque.</p><div class="quotebox"><blockquote><div><p>Par contre, que signifie &quot;There were 999616 unused item pointers&quot; et &quot;0 pages are entirely empty&quot; ?</p></div></blockquote></div><p>Pour le second, aucune page n&#039;est vide d&#039;enregistrements visibles, donc pas de possibilité de dire au système de tronquer le fichier de la table.</p><div class="quotebox"><blockquote><div><p>Que signifie &quot;0 dead rows&quot; dans les traces du ANALYZE&#160; ?</p></div></blockquote></div><p>Cela signifie que ANALYZE a rencontré 1 million de lignes visibles par des transactions, et 0 lignes invisibles (ce qui ne veut pas dire qu&#039;il n&#039;y a pas de fragmentation dans la table).</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-05-31T14:22:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13981#p13981</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Traces du VACUUM: pages removed/deleted et dead rows]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13980#p13980"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je me perds dans les traces de la commande VACUUM VERBOSE et j&#039;aurai besoin de quelques &quot;explications de texte&quot; ou d&#039;un pointeur vers la doc. Je travaille avec la version 9.1.<br />Je viens de mettre à jour 384 lignes (sur 1000000) et e VACUUM ANALYZE me renvoie ces informations : <br />entrepot=# vacuum analyze verbose my_table;<br />INFO:&#160; vacuuming &quot;public.my_table&quot;<br />INFO:&#160; scanned index &quot;pk_my_table&quot; to remove 384 row versions<br />DÉTAIL : CPU 0.00s/0.06u sec elapsed 0.07 sec.<br />INFO:&#160; scanned index &quot;my_table_rand_id_idx&quot; to remove 384 row versions<br />DÉTAIL : CPU 0.00s/0.07u sec elapsed 0.07 sec.<br />INFO:&#160; &quot;my_table&quot;: removed 384 row versions in 3 pages<br />DÉTAIL : CPU 0.00s/0.00u sec elapsed 0.00 sec.<br />INFO:&#160; index &quot;pk_my_table&quot; now contains 1000000 row versions in 5486 pages<br />DÉTAIL : 384 index row versions were removed.<br />0 index pages have been deleted, 0 are currently reusable.<br />CPU 0.00s/0.00u sec elapsed 0.00 sec.<br />INFO:&#160; index &quot;my_table_rand_id_idx&quot; now contains 1000000 row versions in 6128 pages<br />DÉTAIL : 384 index row versions were removed.<br />1 index pages have been deleted, 0 are currently reusable.<br />CPU 0.00s/0.00u sec elapsed 0.00 sec.<br />INFO:&#160; &quot;my_table&quot;: found 384 removable, 502 nonremovable row versions in 4427 out of 8850 pages<br />DÉTAIL : 0 dead row versions cannot be removed yet.<br />There were 999616 unused item pointers.<br />0 pages are entirely empty.<br />CPU 0.00s/0.16u sec elapsed 0.16 sec.<br />INFO:&#160; analyzing &quot;public.my_table&quot;<br />INFO:&#160; &quot;my_table&quot;: scanned 8850 of 8850 pages, containing 1000000 live rows and 0 dead rows; 30000 rows in sample, 1000000 estimated total rows</p><br /><p>D&#039;après ces traces, je comprends que 384 rows ont été flaggés périmés (&quot;removed&quot;). Est-ce correct ? </p><p>Est-ce que la ligne &quot;DETAIL : 0 dead row versions cannot be removed yet&quot; indique bien qu&#039;il n&#039;y a pas de transactions en mode &quot;pending&quot; ou &quot;idle&quot; ? </p><p>Par contre, que signifie &quot;There were 999616 unused item pointers&quot; et &quot;0 pages are entirely empty&quot; ?<br />Que signifie &quot;0 dead rows&quot; dans les traces du ANALYZE&#160; ?</p><p>Merci pour votre aide.</p>]]></content>
+		<author>
+			<name><![CDATA[roya]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=542</uri>
+		</author>
+		<updated>2012-05-31T13:54:31Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13980#p13980</id>
+	</entry>
+</feed>

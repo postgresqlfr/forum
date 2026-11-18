@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / ALTER TABLE SET NEW_TABLESPACE sur un autre FS]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4294&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4294"/>
+	<updated>2017-07-21T12:15:58Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4294</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ALTER TABLE SET NEW_TABLESPACE sur un autre FS]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25833#p25833"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;ai supprimé les fichiers manuellement puis drop de tablespace tout est OK.<br />Merci beaucoup pour votre aide !</p><p>Cordialement.<br />Mahdi,</p>]]></content>
+		<author>
+			<name><![CDATA[mba]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7264</uri>
+		</author>
+		<updated>2017-07-21T12:15:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25833#p25833</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ALTER TABLE SET NEW_TABLESPACE sur un autre FS]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25826#p25826"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>@Julien</p><p>C&#039;est exactement ce que s&#039;est passé, le premier ALTER a échoué à cause de la génération des wal le FS était plein.</p><p>-bash-4.1$ oid2name -p 5436 -d mkgetuprd -f 467033<br />From database &quot;mkgetuprd&quot;:<br />&#160; Filenode&#160; Table Name<br />----------------------<br />-bash-4.1$</p><p>Je suis partant pour un nettoyage manuel mais je voudrais savoir la méthode (la bonne pratique).</p><p>D&#039;avance merci !</p><p>Cordialement.<br />Mahdi BAICHE</p>]]></content>
+		<author>
+			<name><![CDATA[mba]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7264</uri>
+		</author>
+		<updated>2017-07-21T08:40:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25826#p25826</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ALTER TABLE SET NEW_TABLESPACE sur un autre FS]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25824#p25824"/>
+		<content type="html"><![CDATA[<p>La seule explication que j&#039;ai serais due à un scénario tel que :</p><br /><p>- vous avez une table relativement volumineuse (au moins 25 Go dans votre cas)<br />- vous déplacez cette table sur le tablespace en question, ce qui prend un certain temps<br />- durant le déplacement, un arrêt brutal survient (crash de l&#039;instance, kill -SIGKILL du processus...)</p><p>Dans ce cas, effectivement la partie de la tale déjà copiée sur le nouveau tablespace restera en l&#039;état et ne sera pas nettoyée.</p><br /><p>Est-ce qu&#039;un scénario de ce genre est survenu sur votre instance ?&#160; Si oui, le seul moyen dans ce cas est de nettoyer manuellement les fichiers, en ayant vérifié, revérifié et contrevérifié qu&#039;il s&#039;agit bien de données mortes.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2017-07-20T20:56:55Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25824#p25824</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ALTER TABLE SET NEW_TABLESPACE sur un autre FS]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25823#p25823"/>
+		<content type="html"><![CDATA[<p>Avez-vous essayé l&#039;outil oid2name pour voir s&#039;il arrive à donner un nom à l&#039;objet représenté par ces ficheirs ?</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2017-07-20T20:38:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25823#p25823</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ALTER TABLE SET NEW_TABLESPACE sur un autre FS]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25821#p25821"/>
+		<content type="html"><![CDATA[<p>Pour information, j&#039;ai rebooté l&#039;instance pareil.</p>]]></content>
+		<author>
+			<name><![CDATA[mba]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7264</uri>
+		</author>
+		<updated>2017-07-20T15:31:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25821#p25821</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ALTER TABLE SET NEW_TABLESPACE sur un autre FS]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25820#p25820"/>
+		<content type="html"><![CDATA[<p>L&#039;OID correspond bien à ma base mais je n&#039;ai aucune ligne dans pg_class pour ce refilenode</p><p>mkgetuprd=# select count(*) from pg_class where relfilenode=467033;<br /> count<br />-------<br />&#160; &#160; &#160;0<br />(1 row)</p><p>mkgetuprd=# \c postgres<br />You are now connected to database &quot;postgres&quot; as user &quot;postgres&quot;.<br />postgres=# select count(*) from pg_class where relfilenode=467033;<br /> count<br />-------<br />&#160; &#160; &#160;0<br />(1 row)</p><p>postgres=# \c nobody<br />You are now connected to database &quot;nobody&quot; as user &quot;postgres&quot;.<br />nobody=# select count(*) from pg_class where relfilenode=467033;<br /> count<br />-------<br />&#160; &#160; &#160;0<br />(1 row)</p><p>nobody=# \c template1<br />You are now connected to database &quot;template1&quot; as user &quot;postgres&quot;.<br />template1=# select count(*) from pg_class where relfilenode=467033;<br /> count<br />-------<br />&#160; &#160; &#160;0<br />(1 row)</p><p>template1=#</p><p>Ma table pointe bien vers le tablespace par défaut:<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; ^<br />template1=# \c mkgetuprd<br />You are now connected to database &quot;mkgetuprd&quot; as user &quot;postgres&quot;.<br />mkgetuprd=# select pg_relation_filepath(&#039;public.idg_etu_vente_lig&#039;);<br /> pg_relation_filepath<br />----------------------<br /> base/16386/475347<br />(1 row)</p><p>mkgetuprd=# select count(*) from pg_class where relfilenode=475347;<br /> count<br />-------<br />&#160; &#160; &#160;1<br />(1 row)<br />mkgetuprd=#</p>]]></content>
+		<author>
+			<name><![CDATA[mba]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7264</uri>
+		</author>
+		<updated>2017-07-20T11:43:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25820#p25820</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ALTER TABLE SET NEW_TABLESPACE sur un autre FS]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25819#p25819"/>
+		<content type="html"><![CDATA[<p>Donc il existe bien un objet. Il faudrait se connecter sur la base d&#039;OID 16386 et chercher à quelle table correspond le relfilenode 467033.</p><p>Je ne serais pas étonné que ça corresponde à votre base. La requête que vous utilisez pour récupérer tous les objets compris dans un tablespace fonctionne uniquement pour les objets qui ne sont pas dans une base de données dont le tablespace par défaut est ce tablespace.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2017-07-20T11:29:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25819#p25819</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ALTER TABLE SET NEW_TABLESPACE sur un autre FS]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25818#p25818"/>
+		<content type="html"><![CDATA[<p>@Guillaume:</p><p>Aucun objet d&#039;autres bases.<br />De toutes façons je l&#039;ai utilisé que pour une seule base, j&#039;ai déplacé une table, j&#039;ai fait un vacuum et en suite j&#039;ai remis la table à son tablespace initial (pg_default).<br />postgres=# \c template1<br />You are now connected to database &quot;template1&quot; as user &quot;postgres&quot;.<br />template1=# SELECT<br />template1-#&#160; &#160;c.relname,<br />template1-#&#160; &#160;t.spcname<br />template1-# FROM<br />template1-#&#160; &#160;pg_class c<br />template1-#&#160; &#160; &#160;JOIN pg_tablespace t ON c.reltablespace = t.oid<br />template1-# WHERE<br />template1-#&#160; &#160;t.spcname = &#039;new_tbspace&#039;;<br /> relname | spcname<br />---------+---------<br />(0 rows)</p><p>template1=# \c template0<br />FATAL:&#160; database &quot;template0&quot; is not currently accepting connections<br />Previous connection kept<br />template1=# \c postgres<br />You are now connected to database &quot;postgres&quot; as user &quot;postgres&quot;.<br />postgres=# SELECT<br />postgres-#&#160; &#160;c.relname,<br />postgres-#&#160; &#160;t.spcname<br />postgres-# FROM<br />postgres-#&#160; &#160;pg_class c<br />postgres-#&#160; &#160; &#160;JOIN pg_tablespace t ON c.reltablespace = t.oid<br />postgres-# WHERE<br />postgres-#&#160; &#160;t.spcname = &#039;new_tbspace&#039;;<br /> relname | spcname<br />---------+---------<br />(0 rows)</p><p>postgres=#</p>]]></content>
+		<author>
+			<name><![CDATA[mba]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7264</uri>
+		</author>
+		<updated>2017-07-20T11:17:33Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25818#p25818</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ALTER TABLE SET NEW_TABLESPACE sur un autre FS]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25817#p25817"/>
+		<content type="html"><![CDATA[<p>postgres=# \! ls -ltr /u02/vacuum/psql5436/PG_9.4_201409291/16386<br />total 26478116<br />-rw------- 1 postgres postgres 1073741824 Jul 13 10:09 467033<br />-rw------- 1 postgres postgres 1073741824 Jul 13 10:09 467033.1<br />-rw------- 1 postgres postgres 1073741824 Jul 13 10:09 467033.2<br />-rw------- 1 postgres postgres 1073741824 Jul 13 10:10 467033.3<br />-rw------- 1 postgres postgres 1073741824 Jul 13 10:10 467033.4<br />-rw------- 1 postgres postgres 1073741824 Jul 13 10:10 467033.5<br />-rw------- 1 postgres postgres 1073741824 Jul 13 10:10 467033.6<br />-rw------- 1 postgres postgres 1073741824 Jul 13 10:11 467033.7<br />-rw------- 1 postgres postgres 1073741824 Jul 13 10:11 467033.8<br />-rw------- 1 postgres postgres 1073741824 Jul 13 10:11 467033.9<br />-rw------- 1 postgres postgres 1073741824 Jul 13 10:11 467033.10<br />-rw------- 1 postgres postgres 1073741824 Jul 13 10:12 467033.11<br />-rw------- 1 postgres postgres 1073741824 Jul 13 10:12 467033.12<br />-rw------- 1 postgres postgres 1073741824 Jul 13 10:12 467033.13<br />-rw------- 1 postgres postgres 1073741824 Jul 13 10:12 467033.14<br />-rw------- 1 postgres postgres 1073741824 Jul 13 10:13 467033.15<br />-rw------- 1 postgres postgres 1073741824 Jul 13 10:13 467033.16<br />-rw------- 1 postgres postgres 1073741824 Jul 13 10:13 467033.17<br />-rw------- 1 postgres postgres 1073741824 Jul 13 10:13 467033.18<br />-rw------- 1 postgres postgres 1073741824 Jul 13 10:13 467033.19<br />-rw------- 1 postgres postgres 1073741824 Jul 13 10:14 467033.20<br />-rw------- 1 postgres postgres 1073741824 Jul 13 10:14 467033.21<br />-rw------- 1 postgres postgres 1073741824 Jul 13 10:14 467033.22<br />-rw------- 1 postgres postgres 1073741824 Jul 13 10:14 467033.23<br />-rw------- 1 postgres postgres 1073741824 Jul 13 10:15 467033.24<br />-rw------- 1 postgres postgres&#160; 269942784 Jul 13 10:15 467033.25<br />postgres=# postgres=# \db+ new_tbspace<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; List of tablespaces<br />&#160; &#160; Name&#160; &#160; &#160;|&#160; Owner&#160; &#160;|&#160; &#160; &#160; &#160;Location&#160; &#160; &#160; &#160;| Access privileges | Options | Description<br />-------------+----------+----------------------+-------------------+---------+-------------<br /> new_tbspace | postgres | /u02/vacuum/psql5436 |&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;|&#160; &#160; &#160; &#160; &#160;|<br />(1 row)</p><p>postgres-# select version();<br />ERROR:&#160; syntax error at or near &quot;postgres&quot;<br />LINE 1: postgres=#<br />&#160; &#160; &#160; &#160; ^<br />postgres=# select version();<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; version<br />----------------------------------------------------------------------------------------------------------------<br /> PostgreSQL 9.4.11 on x86_64-unknown-linux-gnu, compiled by gcc (GCC) 4.4.7 20120313 (Red Hat 4.4.7-17), 64-bit<br />(1 row)<br />postgres=#</p>]]></content>
+		<author>
+			<name><![CDATA[mba]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7264</uri>
+		</author>
+		<updated>2017-07-20T11:10:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25817#p25817</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ALTER TABLE SET NEW_TABLESPACE sur un autre FS]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25816#p25816"/>
+		<content type="html"><![CDATA[<p>Que contient le répertoire pointé par votre tablespace, sur 2 niveaux d&#039;aborescence ?&#160; Quelle version de postgres et quel système d&#039;exploitation utilisez-vous ?</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2017-07-20T10:47:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25816#p25816</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ALTER TABLE SET NEW_TABLESPACE sur un autre FS]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25815#p25815"/>
+		<content type="html"><![CDATA[<p>S&#039;il vous dit simplement qu&#039;il n&#039;est pas vide, sans indiquer d&#039;objets, c&#039;est que d&#039;autres bases contiennent des objets dans ce tablespace. Vous avez forcément d&#039;autres bases, notamment postgres, template1 et template0.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2017-07-20T10:46:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25815#p25815</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ALTER TABLE SET NEW_TABLESPACE sur un autre FS]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25814#p25814"/>
+		<content type="html"><![CDATA[<p>J&#039;ai qu&#039;une seule base.<br />You are now connected to database &quot;mkgetuprd&quot; as user &quot;postgres&quot;.<br />mkgetuprd=# SELECT<br />mkgetuprd-#&#160; &#160;c.relname,<br />mkgetuprd-#&#160; &#160;t.spcname<br />mkgetuprd-# FROM<br />mkgetuprd-#&#160; &#160;pg_class c<br />mkgetuprd-#&#160; &#160; &#160;JOIN pg_tablespace t ON c.reltablespace = t.oid<br />mkgetuprd-# WHERE<br />mkgetuprd-#&#160; &#160;t.spcname = &#039;new_tbspace&#039;;<br /> relname | spcname<br />---------+---------<br />(0 rows)<br />mkgetuprd=#<br />mkgetuprd=# DROP TABLESPACE new_tbspace;<br />ERROR:&#160; tablespace &quot;new_tbspace&quot; is not empty<br />mkgetuprd=#</p><p>Même problème.</p><p>Mahdi,</p>]]></content>
+		<author>
+			<name><![CDATA[mba]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7264</uri>
+		</author>
+		<updated>2017-07-20T10:40:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25814#p25814</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ALTER TABLE SET NEW_TABLESPACE sur un autre FS]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25813#p25813"/>
+		<content type="html"><![CDATA[<p>Vérifiez s&#039;il n&#039;y a pas des objets sur les autres bases.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2017-07-20T10:30:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25813#p25813</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ALTER TABLE SET NEW_TABLESPACE sur un autre FS]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25812#p25812"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Effectivement, j&#039;ai kill toutes les sessions en idle et ça fonctionné.<br />Par contre j&#039;ai un un autre problème je n&#039;arrive pas à supprimer un tablespace que j&#039;ai utilisé pour les opérations de vacuum.<br />Pourtant il n&#039;y a aucun objet dessus:<br />postgres=# SELECT<br />postgres-#&#160; &#160;c.relname,<br />postgres-#&#160; &#160;t.spcname<br />postgres-# FROM<br />postgres-#&#160; &#160;pg_class c<br />postgres-#&#160; &#160; &#160;JOIN pg_tablespace t ON c.reltablespace = t.oid<br />postgres-# WHERE<br />postgres-#&#160; &#160;t.spcname = &#039;new_tbspace&#039;;<br /> relname | spcname<br />---------+---------<br />(0 rows)</p><p>postgres=# DROP TABLESPACE new_tbspace;<br />ERROR:&#160; tablespace &quot;new_tbspace&quot; is not empty<br />postgres=#</p><p>Quelqu&#039;un aurait une idée SVP.</p><p>Cordialement.<br />Mahdi,</p>]]></content>
+		<author>
+			<name><![CDATA[mba]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7264</uri>
+		</author>
+		<updated>2017-07-20T08:49:02Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25812#p25812</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ALTER TABLE SET NEW_TABLESPACE sur un autre FS]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25753#p25753"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>La ligne DETAIL:&#160; 68880619 dead row versions cannot be removed yet. correspond à quoi exactement ?.</p></div></blockquote></div><p>Cela veut dire que vous avez une transaction suffisamment vieille pour voir ces lignes, et qu&#039;elles ne peuvent donc pas être supprimées.</p><p>Regardez dans pg_stat_activity si vous avez une transaction très vieille.&#160; Sinon, c&#039;est probablement une transaction préparée (pg_prepared_xacts) ou un slot de réplication oublié (pg_replication_slots)</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2017-07-11T08:51:50Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25753#p25753</id>
+	</entry>
+</feed>

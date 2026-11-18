@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Syntaxe pour créer une fonction contenant des caractères réservés]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=64&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=64"/>
+	<updated>2008-11-06T22:05:48Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=64</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Syntaxe pour créer une fonction contenant des caractères réservés]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=282#p282"/>
+		<content type="html"><![CDATA[<p>$1 étant entre guillemet, il fait partie de la chaîne et n&#039;est pas remplacé. Il faut donc l&#039;écrire ainsi :</p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION nouvelindex(text)
+RETURNS bigint AS
+$BODY$
+SELECT COUNT(*) FROM auteur WHERE idaut LIKE $1||&#039;%&#039;
+$BODY$
+LANGUAGE &#039;sql&#039;;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2008-11-06T22:05:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=282#p282</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Syntaxe pour créer une fonction contenant des caractères réservés]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=279#p279"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Commençant tout juste à me former sur Postgres je rencontre un problème de syntaxe pour créer une fonction<br />Le but de la fonction est de compter le nombre de lignes commençant par une chaîne et de renvoyer le résultat :</p><p>voici la syntaxe que j&#039;ai utilisé :</p><p>CREATE OR REPLACE FUNCTION nouvelindex(text)<br />RETURNS bigint AS<br />$BODY$ <br />SELECT COUNT(*) FROM auteur WHERE idaut LIKE &#039;$1%&#039;<br />$BODY$<br />LANGUAGE &#039;sql&#039;;</p><br /><p>Cette fonction ne fonctionne pas et renvoie toujours 0 :</p><p> select nouvelindex(&#039;STEI&#039;);<br /> nouvelindex <br />-------------<br />&#160; &#160; &#160; &#160; &#160; &#160;0<br />(1 ligne)</p><p>alors que lancé à la main j&#039;obtiens bien le bon résultat :</p><p>select count(*) from auteur where idaut like &#039;STEI%&#039;;<br /> count <br />-------<br />&#160; &#160; &#160;1<br />(1 ligne)</p><p>Je suppose qu&#039;il s&#039;agit d&#039;échapper les &#039; ou le % mais je n&#039;y arrive pas <br />quelqu&#039;un a une idée ?</p><p>Merci d&#039;avance</p>]]></content>
+		<author>
+			<name><![CDATA[YannT]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=162</uri>
+		</author>
+		<updated>2008-11-06T21:22:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=279#p279</id>
+	</entry>
+</feed>

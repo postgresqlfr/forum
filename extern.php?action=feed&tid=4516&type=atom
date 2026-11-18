@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / x en fonction <= a la date]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4516&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4516"/>
+	<updated>2018-01-12T15:24:25Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4516</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  x en fonction <= a la date]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26669#p26669"/>
+		<content type="html"><![CDATA[<p>voici le code et merci :<br />SELECT<br />to_char((table2.date) ::timestamp with time zone, &#039;MM/YYYY&#039; ::text) AS date,<br />table2.user,<br />min(table2.depense),<br />min(table1.budget)<br />FROM<br />table1<br />INNER JOIN <br />table2 ON public.table1.user = table2.user<br />and to_char((table2.date) ::timestamp with time zone, &#039;MM/YYYY&#039; ::text) = to_char((public.table1.date) ::timestamp with time zone, &#039;MM/YYYY&#039; ::text) <br />GROUP BY<br />to_char((table2.date) ::timestamp with time zone, &#039;MM/YYYY&#039; ::text),<br />table2.user</p>]]></content>
+		<author>
+			<name><![CDATA[reimic5]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=4794</uri>
+		</author>
+		<updated>2018-01-12T15:24:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26669#p26669</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  x en fonction <= a la date]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26668#p26668"/>
+		<content type="html"><![CDATA[<p>Vos 2 tables semblant identiques, ne faudrait-il pas revoir le modèle :<br />U<br />Date<br />Type (budget ou depense)<br />Montant<br />?</p><p>Ensuite avec une fonction de fenêtrage, on doit pouvoir travailler facilement sur chaque partition (U)</p>]]></content>
+		<author>
+			<name><![CDATA[damalaan]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1000</uri>
+		</author>
+		<updated>2018-01-12T14:31:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26668#p26668</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  x en fonction <= a la date]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26667#p26667"/>
+		<content type="html"><![CDATA[<p>Que voulez-vous dire par &quot;elle ne fonctionne pas&quot; ? elle renvoie un message d&#039;erreur ? si oui, lequel ? elle ne renvoie pas les bons résultats ? si oui, lesquels ?</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2018-01-12T13:55:21Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26667#p26667</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[x en fonction <= a la date]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26649#p26649"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Merci beaucoup pour votre aide.<br />J&#039;ai deux table :<br />La table table1 avec 3 colonnes user, date, budget.</p><p>-- Table1 --<br />U&#160; |&#160; &#160; &#160;date&#160; &#160; &#160;|&#160; Budget<br />1&#160; | 01/01/17&#160; |&#160; 100<br />2&#160; | 01/01/17&#160; |&#160; 110<br />3&#160; | 01/01/17&#160; |&#160; 101<br />2&#160; | 15/02/17&#160; |&#160; 111<br />2&#160; | 03/03/17&#160; |&#160; 109<br />3&#160; | 07/06/17&#160; |&#160; 102</p><p>La table2 avec trois colonnes user, date depense</p><p>-- Table2 --<br />U&#160; |&#160; &#160; &#160;date&#160; &#160; |&#160; depense<br />1&#160; | 04/01/17 |&#160; 100<br />2&#160; | 06/01/17 |&#160; 150<br />1&#160; | 24/02/17 |&#160; 130<br />2&#160; | 20/03/17 |&#160; 110<br />1&#160; | 14/07/17 |&#160; 170<br />3&#160; | 16/08/17 |&#160; 180</p><p>je souhaiterai avoir la table 2 avec une colonne du budget aloue (&lt; ou = a la date de depense) en fonction des users.</p><br /><p>resultat souhaite:</p><p>-- resultat --<br />U&#160; |&#160; date&#160; | depense | budget<br />1&#160; | 01/17 |&#160; &#160; 100&#160; &#160; &#160;| 100<br />2&#160; | 01/17 |&#160; &#160; 150&#160; &#160; &#160;| 110<br />1&#160; | 02/17 |&#160; &#160; 130&#160; &#160; &#160;| 100<br />2&#160; | 03/17 |&#160; &#160; 110&#160; &#160; &#160;| 109<br />1&#160; | 07/17 |&#160; &#160; 170&#160; &#160; &#160;| 100<br />3&#160; | 08/17 |&#160; &#160; 180&#160; &#160; &#160;| 102</p><p>je n&#039;y arrive pas, ma formule ne fonctionne pas:</p><p>SELECT <br />&#160; to_char((table2.date) ::timestamp with time zone, &#039;MM/YYYY&#039; ::text) AS date,<br />&#160; table2.depense,<br />&#160; table2.user,<br />&#160; table1.budget<br />FROM<br />&#160; table1<br />&#160; INNER JOIN table2 ON (public.table1.user = table2.user)<br />GROUP BY<br />&#160; to_char((table2.date) ::timestamp with time zone, &#039;MM/YYYY&#039; ::text),<br />&#160; table2.user,<br />&#160; table1.budget</p>]]></content>
+		<author>
+			<name><![CDATA[reimic5]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=4794</uri>
+		</author>
+		<updated>2018-01-10T15:11:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26649#p26649</id>
+	</entry>
+</feed>

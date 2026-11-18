@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Date mediane]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3149&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3149"/>
+	<updated>2014-06-16T08:53:28Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3149</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Date mediane]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20156#p20156"/>
+		<content type="html"><![CDATA[<p>À lire : <a href="http://sqlpro.developpez.com/optimisation/mediane/" rel="nofollow">Calcul de la médiane en SQL</a></p><p>A +</p>]]></content>
+		<author>
+			<name><![CDATA[SQLpro]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1054</uri>
+		</author>
+		<updated>2014-06-16T08:53:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20156#p20156</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Date mediane]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19969#p19969"/>
+		<content type="html"><![CDATA[<p>PS : Finalement, la requête utilisée :</p><p>1/ Je crée la fonction médiane d&#039;après <a href="http://wiki.postgresql.org/wiki/Aggregate_Median" rel="nofollow">http://wiki.postgresql.org/wiki/Aggregate_Median</a>:</p><div class="codebox"><pre><code>CREATE FUNCTION _final_median(anyarray) RETURNS float8 AS $$ 
+  WITH q AS
+  (
+     SELECT val
+     FROM unnest($1) val
+     WHERE VAL IS NOT NULL
+     ORDER BY 1
+  ),
+  cnt AS
+  (
+    SELECT COUNT(*) AS c FROM q
+  )
+  SELECT AVG(val)::float8
+  FROM 
+  (
+    SELECT val FROM q
+    LIMIT  2 - MOD((SELECT c FROM cnt), 2)
+    OFFSET GREATEST(CEIL((SELECT c FROM cnt) / 2.0) - 1,0)  
+  ) q2;
+$$ LANGUAGE sql IMMUTABLE;
+ 
+CREATE AGGREGATE median(anyelement) (
+  SFUNC=array_append,
+  STYPE=anyarray,
+  FINALFUNC=_final_median,
+  INITCOND=&#039;{}&#039;
+);</code></pre></div><p>2/ Je l&#039;utilise dans mon cas bien particulier en définissant une date d&#039;origine antérieure à toute mes dates (en prenant le 1 mars 1900 dans mon cas) :</p><div class="codebox"><pre><code>SELECT num_year, id_station, txt_variety, txt_stage,
+	cast(median(dat_stage-&#039;1900-03-01&#039;) as integer) + &#039;1900-03-01&#039;::date dat_stage_median
+FROM t_plot JOIN t_stage ON t_plot.id_plot=t_stage.id_plot
+GROUP BY num_year, id_station, txt_variety, txt_stage
+ORDER BY num_year, id_station, txt_variety, txt_stage</code></pre></div><p>Encore merci.</p>]]></content>
+		<author>
+			<name><![CDATA[Fanch]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3597</uri>
+		</author>
+		<updated>2014-05-23T07:35:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19969#p19969</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Date mediane]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19968#p19968"/>
+		<content type="html"><![CDATA[<p>Bonjour, <br />Encore merci pour vos suggestions. Quelques précisions sont ici à prendre en compte:<br />- Dans le cas bien particulier de mes dates de stade, c&#039;est bien une date et non pas un délai. En effet, on cherche la date médiane d&#039;atteinte du stade quelque soit la date de semis qui peut légèrement varier. Par contre utiliser une date de référence autre que le semis comme tu le proposes me paraît intéressant.<br />- Dans le cas de date de stade, la contrainte de calcul de la médiane nombre pair/impair à moins de sens, on peut s&#039;en affranchir. On cherche véritablement la date à partir de laquelle au moins 50% des plants on passé le stade.</p><p>Enfin, j&#039;ai testé ta requête meles, et celle ci me va complètement (le volume de mes données n&#039;est pas énorme), et me donne un bon exemple que je tacherai d&#039;utiliser par la suite. Pour la dernière proposition basée sur l&#039;utilisation de la fonction median proposées ici <a href="http://wiki.postgresql.org/wiki/Aggregate_Median" rel="nofollow">http://wiki.postgresql.org/wiki/Aggregate_Median</a>, je m&#039;étais bien penché dessus et ne voyais pas comment l&#039;utiliser dans mon cas, je vais regarder ça de plus prêt.</p><p>En tout les cas, merci pour vos réponses.</p>]]></content>
+		<author>
+			<name><![CDATA[Fanch]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3597</uri>
+		</author>
+		<updated>2014-05-23T07:18:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19968#p19968</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Date mediane]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19967#p19967"/>
+		<content type="html"><![CDATA[<p>Autre solution, en se référent à la formule de cette page: <a href="http://wiki.postgresql.org/wiki/Aggregate_Median" rel="nofollow">http://wiki.postgresql.org/wiki/Aggregate_Median</a><br />on convertit les dates en délais (admettons que ma plantation soit en 2014-03-01):</p><div class="codebox"><pre><code>select gr,median(stade-&#039;2014-03-01&#039;)  from test group by gr</code></pre></div><p>a rajouter à la date de plantation (mais j&#039;ai du mal avec les opération sur les dates).</p><p>Cordialement</p>]]></content>
+		<author>
+			<name><![CDATA[meles]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=789</uri>
+		</author>
+		<updated>2014-05-23T07:00:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19967#p19967</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Date mediane]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19966#p19966"/>
+		<content type="html"><![CDATA[<p>Sinon, pour repartir de ton exemple:</p><div class="codebox"><pre><code>/*
+create table test ( id int, gr char(1), stade date);
+insert into test values (1,&#039;A&#039;,&#039;2014-05-22&#039;);
+insert into test values (2,&#039;A&#039;,&#039;2014-05-19&#039;);
+insert into test values (3,&#039;A&#039;,&#039;2014-05-20&#039;);
+insert into test values (4,&#039;B&#039;,&#039;2014-05-15&#039;);
+insert into test values (5,&#039;B&#039;,&#039;2014-05-13&#039;);
+insert into test values (6,&#039;B&#039;,&#039;2014-05-14&#039;);
+insert into test values (7,&#039;B&#039;,&#039;2014-05-16&#039;);
+*/
+
+with foo as(
+ with tmp as (
+  select gr, stade, rank() over (partition by gr order by stade asc) from test
+  )
+ select gr, round(max(rank+1)/2) as rank
+ from tmp 
+ group by gr), bar as (select gr, stade, rank() over (partition by gr order by stade asc) from test
+)
+select bar.gr, bar.stade
+from foo inner join bar using (gr, rank)</code></pre></div><p>me donne:<br />&quot;A&quot;;&quot;2014-05-20&quot;<br />&quot;B&quot;;&quot;2014-05-14&quot;</p><p>mais vu le code alambiqué, je doutes que ce soit très perfomant sur des très grosse séries.</p><p>Cordialement</p>]]></content>
+		<author>
+			<name><![CDATA[meles]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=789</uri>
+		</author>
+		<updated>2014-05-23T06:53:21Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19966#p19966</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Date mediane]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19965#p19965"/>
+		<content type="html"><![CDATA[<p>Bonjour, s&#039;agissant de traiter une médiane, j&#039;imagine qu&#039;au delà de la date médiane, il s&#039;agit de calculer le délai median entre la plantation et l&#039;épiaison. Pourquoi dans ce cas ne pas calculer ces délais en amont, quitte à reconvertir en date si&#160; besoin. Faire une médiane sur un entier est déjà plus simple. Ne pas oublier également que la médiane se calcule différemment suivant que le nombre de valeurs est pair ou impair.</p><p>Mais faire des stats sur des dates, c&#039;est toujours assez prise de tête.</p><p>@+</p>]]></content>
+		<author>
+			<name><![CDATA[meles]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=789</uri>
+		</author>
+		<updated>2014-05-23T06:30:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19965#p19965</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Date mediane]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19960#p19960"/>
+		<content type="html"><![CDATA[<p>voici un lien qui pourrait vous intéresser :<br /><a href="http://www.bortzmeyer.org/postgresql-quantiles.html" rel="nofollow">http://www.bortzmeyer.org/postgresql-quantiles.html</a></p>]]></content>
+		<author>
+			<name><![CDATA[damalaan]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1000</uri>
+		</author>
+		<updated>2014-05-22T10:24:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19960#p19960</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Date mediane]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19959#p19959"/>
+		<content type="html"><![CDATA[<p>Merci pour cette première solution qui me donne bien la date moyenne.</p><p>Néanmoins, la question est toujours ouverte pour le calcul d&#039;une date médiane : date à laquelle 50% de mes plants de blé ont passé le stade en question.</p>]]></content>
+		<author>
+			<name><![CDATA[Fanch]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3597</uri>
+		</author>
+		<updated>2014-05-22T10:08:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19959#p19959</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Date mediane]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19958#p19958"/>
+		<content type="html"><![CDATA[<p>Bonjour</p><p>un truc dans ce genre là :</p><div class="codebox"><pre><code>select gr, min(date_stade) + (max(date_stade) - min(date_stade))/2
+ from latable group by gr;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[damalaan]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1000</uri>
+		</author>
+		<updated>2014-05-22T10:00:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19958#p19958</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Date mediane]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19956#p19956"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je cherche à calculer la date médiane (ou à défaut moyenne) par groupe, de la table suivante :<br />id&#160; gr&#160; &#160;date_stade<br />1&#160; &#160;A&#160; &#160; &#160;2014-05-22<br />2&#160; &#160;A&#160; &#160; &#160;2014-05-19<br />3&#160; &#160;A&#160; &#160; &#160;2014-05-20<br />4&#160; &#160;B&#160; &#160; &#160;2014-05-15<br />5&#160; &#160;B&#160; &#160; &#160;2014-05-13<br />6&#160; &#160;B&#160; &#160; &#160;2014-05-14<br />7&#160; &#160;B&#160; &#160; &#160;2014-05-16</p><p>Pour donner un peu de contexte, je suis des plants de blé (1 id = 1 plant de blé) qui ont atteint un stade particulier : l&#039;épiaison qui se caractérise par une date. Je souhaite pour chaque variété (=chaque groupe), connaître la date à laquelle 50% de mes plants de blé ont passé le stade en question, soit la date médiane. J&#039;ai déjà pas mal cherché et je ne trouve pas de solution adaptée pour calculer une date médiane au travers d&#039;une requête ou de la création d&#039;une fonction.</p><p>Le résultat attendu serait ici:<br />&#160; &#160;gr&#160; &#160; date_stade_mediane<br />1&#160; A&#160; &#160; 2014-05-20<br />2&#160; B&#160; &#160; 2014-05-14</p><p>Pouvez-vous m&#039;aider ?</p><p>Merci.</p>]]></content>
+		<author>
+			<name><![CDATA[Fanch]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3597</uri>
+		</author>
+		<updated>2014-05-22T08:46:50Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19956#p19956</id>
+	</entry>
+</feed>

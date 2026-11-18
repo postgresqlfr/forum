@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Erreur lors de création d'une vue]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1237&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1237"/>
+	<updated>2011-02-15T15:49:16Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1237</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Erreur lors de création d'une vue]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8105#p8105"/>
+		<content type="html"><![CDATA[<p>[RESOLU]</p><p>Suite et fin du problème.</p><p>En fait nous construisions le BODY des vues qui appelaient des fonctions, créées elles aussi dynamiquement pour être exploitées à la volée par du code.<br />La définition incluait en guise de paramètre de la clause WHERE le &quot;$1&quot; qui était remplacé par &quot;1&quot; pour tester la syntaxe SQL de la rèquête.</p><p>En 8.2, avant la migration, le CAST devait être implicite. Mais avec la 8.4, il faut expliciter le CAST pour éviter ce genre d&#039;erreur.</p><p>Voilà.</p>]]></content>
+		<author>
+			<name><![CDATA[bluelephant]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1116</uri>
+		</author>
+		<updated>2011-02-15T15:49:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8105#p8105</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Erreur lors de création d'une vue]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8092#p8092"/>
+		<content type="html"><![CDATA[<p>Ok merci pour cette piste, je reviendrai poster une fois la solution trouvée.</p><p>Bonne journée.</p>]]></content>
+		<author>
+			<name><![CDATA[bluelephant]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1116</uri>
+		</author>
+		<updated>2011-02-15T07:32:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8092#p8092</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Erreur lors de création d'une vue]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8090#p8090"/>
+		<content type="html"><![CDATA[<p>Le lien est direct. Un certain nombre de conversions implicites ont été supprimées en 8.3. Du coup, certaines requêtes fonctionnant dans les versions antérieures à la 8.3 ne fonctionnaient plus en 8.3 et ultérieures.</p><p>Du coup, la vue que vous créé sans problème en 8.2 peut très bien ne plus être &quot;créable&quot; en 8.4. Il vous faut vérifier la vue en question, il doit y avoir un type de colonne d&#039;une sous-requête qui ne correspond pas au type de cette même colonne dans une autre sous-requête. Recherchez particulièrement les colonnes integer qui seraient automatiquement converties en text. Il y a de fortes chances que cela soit dû à ça.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-02-14T18:16:54Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8090#p8090</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Erreur lors de création d'une vue]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8088#p8088"/>
+		<content type="html"><![CDATA[<p>Effectivement nous étions en 8.2 et nous sommes passé en 8.4 il y a presque 1 an, un potentiel lien ?</p><p>Je vais continuer à creuser le système de création des vues pour voir s&#039;il me manque pas quelque chose dans notre processus interne au niveau d&#039;une des vues sur laquelle s&#039;appuie la globale.</p><p>Si je n&#039;ai pas gain de cause je reviendrai vers vous.</p><p>Merci.</p>]]></content>
+		<author>
+			<name><![CDATA[bluelephant]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1116</uri>
+		</author>
+		<updated>2011-02-14T17:27:00Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8088#p8088</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Erreur lors de création d'une vue]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8086#p8086"/>
+		<content type="html"><![CDATA[<p>Auriez-vous changé de version de PostgreSQL ?</p><p>En tout cas, le message indique que vous essayez de faire passer une colonne d&#039;un type inconnu en un type textuel et qu&#039;il ne dispose pas de la fonction de conversion correspondante.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-02-14T16:41:29Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8086#p8086</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Erreur lors de création d'une vue]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8084#p8084"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Nous avons un système qui créé automatiquement des vues.</p><p>Or lorsque l&#039;exécution de la création d&#039;une des vues doit se faire le message suivant arrive :</p><p>&quot;<strong>failed to find conversion function from unknown to character varying</strong>&quot;</p><p>Il s&#039;agit d&#039;une vue qui fait l&#039;UNION de 54 requêtes SELECT qui sont basé également sur des vues.</p><p>Le système qui créé les vues fonctionne depuis des années. Y-a-t-il une limite dans la définition des vues ?</p><br /><p>version PG : 8.4</p>]]></content>
+		<author>
+			<name><![CDATA[bluelephant]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1116</uri>
+		</author>
+		<updated>2011-02-14T16:29:21Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8084#p8084</id>
+	</entry>
+</feed>

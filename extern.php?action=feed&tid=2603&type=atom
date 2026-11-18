@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / [9.2] – empilement des sessions IDLE]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2603&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2603"/>
+	<updated>2013-05-10T06:50:56Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2603</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [9.2] – empilement des sessions IDLE]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17203#p17203"/>
+		<content type="html"><![CDATA[<p>Bonjour</p><p>Si des sessions sont en IDLE, c&#039;est que le traitement est fini, ais que la connexion à la base n&#039;est pas fermé, il faut donc regarder quelle application les a lancés (PostgreSQL ne fait rien tout seul)</p><p>sinon utiliser pg_terminate_backend() avec le numéro de PID du process lancé celui-ci est disponible dans pg_stat_activity dans la colonne procpid ou pid (depuis la 9.2)</p>]]></content>
+		<author>
+			<name><![CDATA[KrysKool]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=46</uri>
+		</author>
+		<updated>2013-05-10T06:50:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17203#p17203</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [9.2] – empilement des sessions IDLE]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17090#p17090"/>
+		<content type="html"><![CDATA[<p>Utilisez-vous un autre pooler de connexion ?</p><p>Sinon, postgres ne lance pas de connexion tout seul, il s&#039;agit forcément d&#039;un logiciel installé. Vous pouvez voir d&#039;où viennent les connexion avec la colonne client_addr de la vue pg_stat_activity.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2013-04-15T09:57:38Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17090#p17090</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [9.2] – empilement des sessions IDLE]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17089#p17089"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Merci de vous intéresser à mon problème.</p><p>Un grand nombre de sessions sont lancées (semble t-il par le moteur postgres) pour exécuter la requête : SET extra_float_digits = 3<br />ces sessions s&#039;empilent au sens où elles ne se libérent pas - A un moment donné les sessions clientes ne peuvent plus se connecter (max_connections atteint)</p><p>Nous avons découvert vendredi que pg_bouncer était activé sur cette instance. Nous l&#039;avons arrêté.</p><p>Beaucoup moins de sessions semble t-il sont lancées mais nous avons tjs des sessions qui exécutent cette requête et qui ne se libérent pas.<br />Pour nous ces requêtes ne sont pas lancées par l&#039;applicatif</p><p>Pour vous donner un ordre idées - actuellement :<br />37 sessions au niveau pg_stat_activity<br />20 sessions sont en status idle avec cette requête comme indication de traitement.</p><p>1- je voudrai tout d&#039;abord comprendre pourquoi ces requêtes sont lancées ?<br />2- je voudrai finalement qu&#039;elles se libérent très rapidement -</p><p>Merci pour votre aide</p>]]></content>
+		<author>
+			<name><![CDATA[PpPool]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2196</uri>
+		</author>
+		<updated>2013-04-15T09:51:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17089#p17089</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [9.2] – empilement des sessions IDLE]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17083#p17083"/>
+		<content type="html"><![CDATA[<p>Je ne comprends pas bien le problème. Si au niveau de pg_stat_activity, vous avez le statut idle pour chaque connexion, ce n&#039;est pas un problème. La requête affichée est la dernière requête exécutée. Donc il n&#039;y a pas d&#039;activité.</p><p>Quel est votre problème réellement ?</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2013-04-13T01:13:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17083#p17083</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[[9.2] – empilement des sessions IDLE]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17078#p17078"/>
+		<content type="html"><![CDATA[<p>Bonjour</p><p>Release Postgres 9.2</p><p>Sur une instance, nous avons un comportement atypique que nous ne savons solutionner.</p><p>Nous observons un empilement de sessions (status IDLE ) -&#160; &#160;Au niveau de pg_stats_activity – query : SET extra_float_digits = 3</p><p>Ce qui est encore plus surprenant c’est que ce phénomène survient essentiellement sur une database qui n’est pour le moment pas requêtée au niveau applicatif.</p><p>Des sessions d’ailleurs de ce type ont été trapées en pleine nuit !! (Aucune activité applicative batch lancée !!)</p><p>Nous avons setté&#160; la valeur de extra_float_digits directement dans le postgresql.conf – mais le problème persiste.</p><p>Ce problème est bloquant car l’empilement de ces sessions nécessite plusieurs restarts quotidiens. Nous atteignons vite la limite de max_connections (settée à 100 – ce qui est largement suffisant vu le nombre d’utilisateurs actuels (&lt;10 threads //).</p><p>Des idées . effets de bord du vaccum ?<br />Merci du coup de main</p>]]></content>
+		<author>
+			<name><![CDATA[PpPool]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2196</uri>
+		</author>
+		<updated>2013-04-12T09:29:21Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17078#p17078</id>
+	</entry>
+</feed>

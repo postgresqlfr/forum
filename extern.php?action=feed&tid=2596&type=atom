@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Alerte de Sécurité PostgreSQL : mettez vos serveurs à jour !]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2596&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2596"/>
+	<updated>2015-12-30T12:47:14Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2596</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Alerte de Sécurité PostgreSQL : mettez vos serveurs à jour !]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22870#p22870"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><p>Merci de créer un nouveau thread plutôt que de répondre à un thread qui n&#039;a rien à voir. Merci.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2015-12-30T12:47:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22870#p22870</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Alerte de Sécurité PostgreSQL : mettez vos serveurs à jour !]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22869#p22869"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;ai un souci de génération de script. Voici ce que j&#039;aimerais faire : un seul script, gigantesque, qui transforme un fichier de données en script que je pourrais injecter dans PostgreSQL.<br />J&#039;ai un énorme fichier d&#039;objets (oui, des objets simples au sens propre du terme en français !) :</p><p>- crayon<br />- gomme<br />- stylo<br />- voiture</p><p>etc..</p><p>Et je sais que ces objets sont dans un ordre précis de &quot;groupes de couleurs&quot;. Pour faire simple, je vous donne un exemple de &quot;groupes de couleurs&quot; :</p><p>- bleu et rouge<br />- bleu et jaune<br />- orange et bleu<br />- orange et vert<br />- orange et rouge</p><p>et cet ordre tourne, c&#039;est à dire que quand on arrive au dernier, on repart au premier, et cela pour toute la liste des objets.</p><p>Je veux créer :<br />- une table &quot;couleurs&quot;<br />- une table &quot;groupe_couleurs&quot; : ce sera une table qui pourra être lié à une ou plusieurs couleurs, et une couleur pourra être reliée à une ou plusieurs groupe_couleurs : c&#039;est donc une many_to_many<br />- une table &quot;objets&quot; : un objet aura un et un seul groupe de couleurs, ce sera donc une relation one_to_many</p><div class="codebox"><pre><code>DROP TABLE IF EXISTS color;
+CREATE TABLE color (
+   id AUTOINC,
+   description VARCHAR(50)
+)
+DROP TABLE IF EXISTS group_colors;
+CREATE TABLE group_colors(
+   id AUTOINC,
+   description VARCHAR(50)
+)
+DROP TABLE IF EXISTS group_colors_color;
+CREATE TABLE group_colors_color(
+   group_colors_id INT,
+   color_id INT,
+   group_colors_id INT,
+   CONSTRAINT color_id NOT NULL FOREIGN KEY REFERENCES color(id),
+   CONSTRAINT group_colors_id NOT NULL FOREIGN KEY REFERENCES group_colors(id)
+)
+DROP TABLE IF EXISTS obj;
+CREATE TABLE obj(
+   id AUTOINC,
+   description VARCHAR(50),
+   group_colors_id INT,
+   CONSTRAINT group_colors_id NOT NULL FOREIGN KEY REFERENCES group_colors(id)
+)</code></pre></div><p>A partir de là, et mon <strong>vrai problème est là</strong> : dans le même script, ce que je ne sais pas faire, c&#039;est insérer des éléments, par exemple une couleur, <strong>puis récupérer son id et le ressortir pour pouvoir lier cette couleur à un ou plusieurs groupes</strong>. Même problème juste après : il me faut insérer des objets, et après l&#039;insertion, pouvoir y lier un groupe de couleurs, que j&#039;aurai crée au tout début du script (je rappelle que j&#039;ai &gt; 600000 objets à insérer !)</p><p>Comment faudrait-il m&#039;y prendre ?</p><p>Merci par avance pour votre aide,</p><p>Olivier Pons</p>]]></content>
+		<author>
+			<name><![CDATA[olivierpons]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5489</uri>
+		</author>
+		<updated>2015-12-30T10:02:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22869#p22869</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Alerte de Sécurité PostgreSQL : mettez vos serveurs à jour !]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17055#p17055"/>
+		<content type="html"><![CDATA[<p>Si ce n&#039;est pas encore fait, prenez le temps de lire l&#039;annonce et la FAQ<br />ci-dessous :</p><p><a href="http://blog.postgresql.fr/index.php?post/2013/04/04/Mises-%C3%A0-jour-mineures-de-PostgreSQL-%3A-9.2.4%2C-9.1.9%2C-9.0.13%2C-8.4.17" rel="nofollow">http://blog.postgresql.fr/index.php?pos … %2C-8.4.17</a></p><p><a href="http://www.postgresql.fr/faq_correctif_20130404" rel="nofollow">http://www.postgresql.fr/faq_correctif_20130404</a></p><p>Et mettez à jour vos serveurs dès que possible !</p><br /><p>PS : Merci à Guillaume Lelarge et Julien Rouhaud pour la traduction</p>]]></content>
+		<author>
+			<name><![CDATA[daamien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=19</uri>
+		</author>
+		<updated>2013-04-04T21:07:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17055#p17055</id>
+	</entry>
+</feed>

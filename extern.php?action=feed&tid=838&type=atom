@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Parsing]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=838&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=838"/>
+	<updated>2010-06-07T17:53:14Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=838</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Parsing]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5266#p5266"/>
+		<content type="html"><![CDATA[<p>Merci pour les réponses,<br />J&#039;ai fait une fonction qui me retourne le type ch_rule :</p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION ch_rule_in(text)
+  RETURNS ch_rule AS
+$BODY$
+WITH p AS (
+    SELECT
+        lower(split_part( l, &#039;=&#039;, 1)) AS k,
+        lower(split_part( l, &#039;=&#039;, 2)) AS v
+    FROM (SELECT regexp_split_to_table ($1, &#039;;&#039;)) AS r(&quot;l&quot;)
+    )
+SELECT
+    (SELECT p.v FROM p WHERE p.k=&#039;freq&#039;      )::ch_freq_enum  AS &quot;freq&quot;,
+    (SELECT p.v FROM p WHERE p.k=&#039;interval&#039;  )::int           AS &quot;interval&quot;,
+    (SELECT p.v FROM p WHERE p.k=&#039;until&#039;     )::timestamp     AS &quot;until&quot;,
+    (SELECT p.v FROM p WHERE p.k=&#039;count&#039;     )::int           AS &quot;count&quot;,
+    (SELECT p.v FROM p WHERE p.k=&#039;bysecond&#039;  )::int           AS &quot;bysecond&quot;,
+    (SELECT p.v FROM p WHERE p.k=&#039;byminute&#039;  )::int           AS &quot;byminute&quot;,
+    (SELECT p.v FROM p WHERE p.k=&#039;byhour&#039;    )::int           AS &quot;byhour&quot;,
+    (SELECT (p.v)::ch_byday_type FROM p WHERE p.k=&#039;byday&#039;)    AS &quot;byday&quot;,
+    (SELECT p.v FROM p WHERE p.k=&#039;bymonthday&#039;)::int           AS &quot;bymonthday&quot;,
+    (SELECT p.v FROM p WHERE p.k=&#039;byyearday&#039; )::int           AS &quot;byyearday&quot;,
+    (SELECT p.v FROM p WHERE p.k=&#039;byweekno&#039;  )::int           AS &quot;byweekno&quot;,
+    (SELECT p.v FROM p WHERE p.k=&#039;bymonth&#039;   )::int           AS &quot;bymonth&quot;,
+    (SELECT p.v FROM p WHERE p.k=&#039;bysetpos&#039;  )::int           AS &quot;bysetpos&quot;
+$BODY$
+  LANGUAGE &#039;sql&#039; IMMUTABLE</code></pre></div><p>@ioguix : Merci pour la suggestion. Mais je n&#039;en suis pas encore là : je ne connais pas perl (un peu python), quand à faire dialoguer postgres et perl... Peut-être un jour...</p><p>@Marc Cousin : ETL ? Si je connaissais un peu le C, je m&#039;essaierai avec des fonctions appelant la libical. Mais je fais avec ce que je connais. Il y a deux mois, je ne connaissais pas postgres...</p><p>Je cherche à faire des requêtes sur une table du genre :</p><div class="codebox"><pre><code>SELECT evt.name, evt.occurence FROM event AS evt WHERE date1 &lt; evt.occurence &lt; date2 AND st_intersect(evt.way, bbox)</code></pre></div><p>C&#039;est postGIS qui s&#039;occupe du spatial, mais je n&#039;ai pas trouvé d&#039;extension postgres pour traiter iCal.<br />Donc j&#039;essaie...<br />Je commence à arriver à quelques résultats simples et grossiers... mais j&#039;avance...</p><p>Encore merci.</p>]]></content>
+		<author>
+			<name><![CDATA[FrViPofm]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=807</uri>
+		</author>
+		<updated>2010-06-07T17:53:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5266#p5266</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Parsing]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5262#p5262"/>
+		<content type="html"><![CDATA[<p>Ou bien un ETL ou script en amont : convertir une chaine de caractère brute en données n&#039;est pas le travail &#039;habituel&#039; d&#039;une base de données.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-06-07T12:02:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5262#p5262</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Parsing]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5259#p5259"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je pense que dans votre cas d&#039;utilisation, l&#039;utilisation de pl/perl serait 1/ plus simple, 2/ plus performante... si vous en avez la possibilité.</p>]]></content>
+		<author>
+			<name><![CDATA[ioguix]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=43</uri>
+		</author>
+		<updated>2010-06-07T11:18:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5259#p5259</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Parsing]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5253#p5253"/>
+		<content type="html"><![CDATA[<p>Je ne comprends pas l&#039;idée de le faire « entrer dans un type ». Vous ne voulez pas plutôt dire l&#039;enregistrer dans une table composée de ces colonnes ?</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-06-05T08:02:45Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5253#p5253</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Parsing]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5249#p5249"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />Je découvre Postgres. Je ne suis pas très fort en SQL. Et je suis confronté à un problème :<br />Créer une fonction(s) pour parser la ligne (1) :</p><div class="codebox"><pre><code>FREQ=YEARLY;INTERVAL=2;BYMONTH=1;BYDAY=SU;BYHOUR=8,9;BYMINUTE=30</code></pre></div><p>et la faire entrer dans un type &#039;rule&#039; maison (2) :</p><div class="codebox"><pre><code>CREATE TYPE ch_rule AS (
+    &quot;freq&quot;          ch_enum_freq,
+    &quot;until&quot;         timestamp,
+    &quot;count&quot;         integer,
+    &quot;interval&quot;      integer,
+    &quot;bymonth&quot;       text,
+    &quot;byday&quot;         text
+    ...
+);</code></pre></div><p>J&#039;arrive bien avec (3) :</p><div class="codebox"><pre><code>SELECT *
+FROM
+    (SELECT
+        lower(split_part( l, &#039;=&#039;, 1)) AS k,
+        lower(split_part( l, &#039;=&#039;, 2)) AS v
+    FROM (SELECT regexp_split_to_table (&#039;FREQ=YEARLY;INTERVAL=2;BYMONTH=1;BYDAY=SU;BYHOUR=8,9;BYMINUTE=30&#039;, &#039;;&#039;)) AS r(&quot;l&quot;)
+    ) AS t</code></pre></div><p>à obtenir un tableau du genre (4)</p><div class="codebox"><pre><code>     k     |     v     
+---------------------
+ freq      | yearly
+ interval  | 2
+ bymonth   | 1</code></pre></div><p>mais pas quelque chose du genre (5)</p><div class="codebox"><pre><code> freq      | interval | bymonth | ...
+--------------------------------------
+ yearly    | 2        | 1       | ...</code></pre></div><p>J&#039;ai essayé (un peu) avec crosstab. Je ne suis pas sur que ça corresponde à mon besoin. Il semble que crosstab interroge une &#039;table en dur&#039;. <br />J&#039;obtiens des messages du genre &quot;la relation t n&#039;existe pas.&quot;<br />Une piste ?<br />Merci d&#039;avance.<br />--<br />Vincent<br />(postgres 8.4)</p>]]></content>
+		<author>
+			<name><![CDATA[FrViPofm]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=807</uri>
+		</author>
+		<updated>2010-06-04T15:52:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5249#p5249</id>
+	</entry>
+</feed>

@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Réplication par fichier journaux : fonctionnement aléatoire...]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2915&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2915"/>
+	<updated>2013-12-23T16:08:00Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2915</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Réplication par fichier journaux : fonctionnement aléatoire...]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18853#p18853"/>
+		<content type="html"><![CDATA[<p>Bon ça y est, tout fonctionne.<br />Je me suis inspiré de la procédure dans les articles que tu m&#039;as donnés. Je fais une sauvegarde manuelle, et pour le transfert des journaux, j&#039;utilise un script qui les envoie à deux endroits : sur le serveur de sauvegarde de Barman comme auparavant, ainsi que dans un répertoire sur le serveur esclave. Mais je ne vois pas pourquoi ça ne fonctionnait pas auparavant avec Barman, et je voudrais bien savoir ce qui clochait. Peut être qu&#039;en faisant la restauration avec Barman, et en conservant l&#039;envoi des fichiers journaux sur l&#039;esclave ça marchera. On verra si j&#039;ai le temps de faire l&#039;essai.<br />Maintenant, je m&#039;amuse avec pgpool pour mettre en place un failover auto.</p><p>Merci pour ton aide.</p><p>Denis</p>]]></content>
+		<author>
+			<name><![CDATA[dt]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2928</uri>
+		</author>
+		<updated>2013-12-23T16:08:00Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18853#p18853</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Réplication par fichier journaux : fonctionnement aléatoire...]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18846#p18846"/>
+		<content type="html"><![CDATA[<p>Tout à fait, les 2 VMs sont identiques, à la taille du disque près. <br />Je viens de finir les essais sans barman, j&#039;ai eu des problèmes d&#039;espace disque justement. Je casse l&#039;esclave et le remonte avant de recommencer...</p><p>Merci pour votre aide.</p>]]></content>
+		<author>
+			<name><![CDATA[dt]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2928</uri>
+		</author>
+		<updated>2013-12-19T16:32:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18846#p18846</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Réplication par fichier journaux : fonctionnement aléatoire...]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18845#p18845"/>
+		<content type="html"><![CDATA[<p>Refaites sans barman. Pas que barman soit un mauvais logiciel, bien au contraire. Mais clairement, ça va être un soucis pour vous aider.</p><p>Juste une petite question : on est d&#039;accord que le maître et l&#039;esclave sont des machines de même architecture (ie, les deux 32 ou 64 bits ?).</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2013-12-19T16:27:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18845#p18845</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Réplication par fichier journaux : fonctionnement aléatoire...]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18844#p18844"/>
+		<content type="html"><![CDATA[<p>Tout à fait. Voici les étapes que j&#039;ai suivi :<br />1 - j&#039;ai recréé le maitre<br />2 - je l&#039;ai passé à wal_level = hot_standby<br />3 - je l&#039;ai redémarré<br />4 - j&#039;ai mis à jour ubuntu, pour avoir la même version que l&#039;esclave<br />5 - j&#039;ai importé la base sur le maitre<br />6 - j&#039;ai fait la sauvegarde du maitre avec barman<br />7 - j&#039;ai restauré la base sur l&#039;esclave toujours avec barman<br />8 - j&#039;ai redémarré postgresql sur l&#039;esclave<br />9 - j&#039;ai en place la réplication : création des fichiers restore_command.sh, recovery.conf, archive_command.sh, j&#039;ai mis dans postgresql.conf hot_standby = on<br />10 - Postgresql n&#039;a pas redémarré, voici les logs :</p><div class="codebox"><pre><code>2013-12-19 15:02:59 CET  LOG:  entering standby mode
+2013-12-19 15:02:59 CET  LOG:  connection received: host=[local]
+2013-12-19 15:02:59 CET [local] LOG:  incomplete startup packet
+bzip2: Can&#039;t guess original name for pg_xlog/RECOVERYXLOG -- using pg_xlog/RECOVERYXLOG.out
+2013-12-19 15:03:00 CET  LOG:  connection received: host=[local]
+2013-12-19 15:03:00 CET [local] FATAL:  the database system is starting up
+2013-12-19 15:03:00 CET  LOG:  restored log file &quot;00000001000000010000005B&quot; from archive
+2013-12-19 15:03:00 CET  LOG:  record with zero length at 1/5B0000A8
+2013-12-19 15:03:00 CET  WARNING:  WAL was generated with wal_level=minimal, data may be missing
+2013-12-19 15:03:00 CET  HINT:  This happens if you temporarily set wal_level=minimal without taking a new base backup.
+2013-12-19 15:03:00 CET  FATAL:  hot standby is not possible because wal_level was not set to &quot;hot_standby&quot; on the master server
+2013-12-19 15:03:00 CET  HINT:  Either set wal_level to &quot;hot_standby&quot; on the master, or turn off hot_standby here.
+2013-12-19 15:03:00 CET  LOG:  startup process (PID 2711) exited with exit code 1
+2013-12-19 15:03:00 CET  LOG:  aborting startup due to startup process failure</code></pre></div><p>J&#039;ai beau cherché, je ne vois pas ce qui diffère de la procédure telle que décrite dans la doc officielle, si ce n&#039;est que je me sers de barman pour la sauvegarde et que je dois décompresser les fichiers wals. Mais d&#039;après ce que j&#039;ai compris, barman ne fait qu&#039;automatiser la procédure de sauvegarde manuelle, dans les logs je vois bien le select pg_start_backup() et le pg_end_backup.<br />Le pire, c&#039;est que la semaine dernière tout a fonctionné du premier coup. C&#039;est depuis que j&#039;ai voulu refaire l&#039;ensemble des opérations et les noter en prévision du passage en prod que ça coince...<br />--<br />Denis</p>]]></content>
+		<author>
+			<name><![CDATA[dt]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2928</uri>
+		</author>
+		<updated>2013-12-19T16:21:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18844#p18844</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Réplication par fichier journaux : fonctionnement aléatoire...]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18843#p18843"/>
+		<content type="html"><![CDATA[<p>Après avoir recréé le maître, vous avez fait de nouveau une sauvegarde du maître ? après la configuration ?</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2013-12-19T16:10:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18843#p18843</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Réplication par fichier journaux : fonctionnement aléatoire...]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18842#p18842"/>
+		<content type="html"><![CDATA[<p>Mais justement c&#039;est ça que je ne comprends pas : sur le master, le wal_level a toujours été à hot_standby, il n&#039;a jamais été à minimal !<br />Pourquoi donc ai-je ce message ? Ça va me rendre fou. Ce matin j&#039;ai pété la VM maitre pour réinstaller ubuntu, et la première chose que j&#039;ai faite, c&#039;est de mettre wal_level à hot_standby et de redémarrer postgresql, avant même d&#039;importer ma base de test. Et pourtant, j&#039;ai encore eu ce message de wal_level à minimal... J&#039;ai noté étape par étape ce que je faisais, je n&#039;ai pas trouvé ce qui cloche...</p><p>J&#039;en suis maintenant à faire une sauvegarde manuelle comme décrit dans l&#039;article plutôt qu&#039;avec barman, mais je crains que ça continue pareil. Un coup ça marche, je refais pareil, ça marche plus, et sans que je trouve ce qui diffère...</p><p>PS : merci pour le truc des logs à stderr, les logs sont effectivement beaucoup plus facile à lire.</p>]]></content>
+		<author>
+			<name><![CDATA[dt]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2928</uri>
+		</author>
+		<updated>2013-12-19T15:56:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18842#p18842</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Réplication par fichier journaux : fonctionnement aléatoire...]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18840#p18840"/>
+		<content type="html"><![CDATA[<p>Il y a quelque chose que vous faites mal. Difficile de dire quoi, mais il y a un truc qui se passe mal. Vous devez avoir le wal_level à autre chose que minimal avant de faire la sauvegarde de base car vous devez avoir l&#039;archivage fonctionnel. Et un archivage fonctionnel, ça veut dire un wal_level à autre chose que minimal.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2013-12-19T15:36:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18840#p18840</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Réplication par fichier journaux : fonctionnement aléatoire...]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18837#p18837"/>
+		<content type="html"><![CDATA[<p>Bonjour, et merci pour la réponse.</p><p>Si j&#039;ai utilisé barman, c&#039;est simplement que la documentation de PostgreSQL indique que les fichiers wals utilisés pour la réplication doivent être à un endroit accessible par le maitre et l&#039;esclave. J&#039;ai donc tout naturellement pensé au serveur de sauvegarde, pour éviter d&#039;utiliser un autre serveur pour faire la même chose. Pour restaurer la base sur le serveur esclave avant la mise en place de la réplication, je la fais avec barman également. Ce n&#039;est qu&#039;une fois que la base restaurée tourne que je mets en œuvre la réplication, en demandant au serveur esclave d&#039;aller chercher les fichiers journaux que le maitre a envoyé sur le serveur de sauvegarde. Et c&#039;est quand j&#039;arrive à faire tourner le réplication par transfert de fichiers journaux que je met en place la réplication par streaming, qui elle marche très bien. Est-ce les bonnes étapes : Restauration -&gt; Réplication par fichier journal -&gt; Réplication par streaming ?</p><p>Quant au message d&#039;erreur indiquant que wal_level est à minimal, il a toujours été à hot_standby, du moins après l&#039;import de la base. Je ne comprends donc pas pourquoi j&#039;ai ce message. Je vais essayer ce matin en le mettant à hot_standby avant l&#039;import, juste après l&#039;installation de PostgreSQL.</p><p>Et merci pour ces deux articles que je ne connaissais pas, je vais me plonger dedans. Pour mettre en place la réplication, je m&#039;étais basé uniquement sur la documentation officielle. J&#039;espère trouver quelques pistes intéressantes dans ces articles.</p>]]></content>
+		<author>
+			<name><![CDATA[dt]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2928</uri>
+		</author>
+		<updated>2013-12-19T08:26:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18837#p18837</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Réplication par fichier journaux : fonctionnement aléatoire...]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18830#p18830"/>
+		<content type="html"><![CDATA[<p>Il y a déjà une grosse incompréhension : pourquoi utiliser barman ? barman, c&#039;est pour de la sauvegarde, pas pour de la réplication. De plus, c&#039;est un outil qui vous facilite la vie, mais pour cela, il faut avoir compris comment cela fonctionnait. Et pour comprendre, il vaut mieux commencer par le système de base. Donc oubliez barman dans un premier temps.</p><p>Ensuite, vous donnez plein de détails mais ça part un peu dans tous les sens. Il serait préférable de montrer ce que vous faites, de A à Z. Par exemple, quand vous dites &quot;je restaure cette sauvegarde...&quot;, OK, mais comment ?</p><p>Bref, pour en revenir sur les messages d&#039;erreur que vous avez, tout d&#039;abord évitez le format csvlog, c&#039;est difficile à lire par un humain (stderr est préférable). Ensuite, chaque exemple indique que wal_level est à minimal, ce qui n&#039;est pas bon. Il faut qu&#039;il soit au minimum à archive, voire mieux à hot_standby.</p><p>Avez-lu des articles sur ce sujet ? notamment ceux qui se trouvent sur dalibo.org ? (je pense surtout à <a href="http://www.dalibo.org/glmf131_mise_en_place_replication_postgresl_9.0_1" rel="nofollow">http://www.dalibo.org/glmf131_mise_en_p … resl_9.0_1</a> et <a href="http://www.dalibo.org/glmf131_mise_en_place_replication_postgresl_9.0_2)" rel="nofollow">http://www.dalibo.org/glmf131_mise_en_p … esl_9.0_2)</a></p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2013-12-18T22:11:07Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18830#p18830</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réplication par fichier journaux : fonctionnement aléatoire...]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18829#p18829"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>j&#039;essaye depuis plusieurs jours de mettre en place la réplication par fichier journaux entre 2 serveurs PostgreSQL, en préalable de la réplication par streaming. Et des fois, ça fonctionne, mais plus souvent, ça ne fonctionne pas, et je n&#039;arrive pas à savoir pourquoi ...<br />Voilà comment je procède ;<br />Je fais une sauvegarde du serveur maître avec barman. La configuration de l&#039;archivage est configuré comme suit :</p><div class="codebox"><pre><code>wal_level = hot_standby
+checkpoint_segments = 3
+checkpoint_timeout = 5min
+checkpoint_completion_target = 0.5
+checkpoint_warning = 30s
+archive_mode = on
+archive_command = &#039;rsync -a %p barman@backup:/var/lib/barman/master/incoming/%f&#039;
+archive_timeout = 60</code></pre></div><p>Je restaure cette sauvegarde sur le serveur esclave, je redémarre ma base, c&#039;est OK, je retrouve bien mes enregistrements. Je mets donc en place la réplication par fichier journaux. Voici la partie réplication de mon postgresql.conf : </p><div class="codebox"><pre><code>hot_standby = on
+max_standby_archive_delay = 30s
+max_standby_streaming_delay = 30s
+wal_receiver_status_interval = 10s
+hot_standby_feedback = off</code></pre></div><p>Mon recovery.conf :</p><div class="codebox"><pre><code>restore_command = &#039;/var/lib/postgresql/9.1/main/restore_command.sh %f %p&#039;
+standby_mode = on
+archive_cleanup_command = &#039;pg_archivecleanup /var/lib/postgres/9.1/main/pg_xlog %r&#039;</code></pre></div><p>Mon script restore_command.sh :</p><div class="codebox"><pre><code>#!/bin/bash
+# $1: %f nom du journal souhaité
+# $2: %p nom du chemin où copier le journal
+scp barman@backup:master/wals/0000000100000000/$1 $2
+bzip2 -d $2
+mv $2.out $2</code></pre></div><p>Mon script archive_command.sh :</p><div class="codebox"><pre><code>#!/bin/bash
+# $1: %r le fichier le plus ancien à conservé
+pg_archivecleanup /var/lib/postgres/9.1/main/pg_xlog $1</code></pre></div><p>Et là, je n&#039;arrive plus à redémarrer postgresql, j&#039;ai ça dans les logs :</p><div class="codebox"><pre><code>2013-12-18 18:05:53.327 CET,,,2334,,52b1d5f0.91e,3,,2013-12-18 18:05:52 CET,,0,LOG,00000,&quot;restored log file &quot;&quot;00000001000000000000008C&quot;&quot; from archive&quot;,,,,,,,,,&quot;&quot;
+2013-12-18 18:05:53.327 CET,,,2334,,52b1d5f0.91e,4,,2013-12-18 18:05:52 CET,,0,LOG,00000,&quot;invalid record length at 0/8C0000A8&quot;,,,,,,,,,&quot;&quot;
+2013-12-18 18:05:53.411 CET,,,2334,,52b1d5f0.91e,5,,2013-12-18 18:05:52 CET,,0,WARNING,01000,&quot;WAL was generated with wal_level=minimal, data may be missing&quot;,,&quot;This happens if you temporarily set wal_level=minimal without taking a new base backup.&quot;,,,,,,,&quot;&quot;
+2013-12-18 18:05:53.412 CET,,,2334,,52b1d5f0.91e,6,,2013-12-18 18:05:52 CET,,0,FATAL,XX000,&quot;hot standby is not possible because wal_level was not set to &quot;&quot;hot_standby&quot;&quot; on the master server&quot;,,&quot;Either set wal_level to &quot;&quot;hot_standby&quot;&quot; on the master, or turn off hot_standby here.&quot;,,,,,,,&quot;&quot;</code></pre></div><p>Si je mets hot_standby sur off, ça reste bloqué en démarrage : service postgresql restart me dit ok, mais je peux pas me connecter, et j&#039;ai ça dans les logs :</p><div class="codebox"><pre><code>2013-12-18 18:07:10.639 CET,&quot;postgres&quot;,&quot;postgres&quot;,2413,&quot;[local]&quot;,52b1d63e.96d,2,&quot;&quot;,2013-12-18 18:07:10 CET,,0,FATAL,57P03,&quot;the database system is starting up&quot;,,,,,,,,,&quot;&quot;
+2013-12-18 18:07:10.944 CET,,,2404,,52b1d63e.964,3,,2013-12-18 18:07:10 CET,,0,LOG,00000,&quot;restored log file &quot;&quot;00000001000000000000008C&quot;&quot; from archive&quot;,,,,,,,,,&quot;&quot;
+2013-12-18 18:07:10.944 CET,,,2404,,52b1d63e.964,4,,2013-12-18 18:07:10 CET,,0,LOG,00000,&quot;invalid record length at 0/8C0000A8&quot;,,,,,,,,,&quot;&quot;
+2013-12-18 18:07:10.964 CET,,,2404,,52b1d63e.964,5,,2013-12-18 18:07:10 CET,,0,WARNING,01000,&quot;WAL was generated with wal_level=minimal, data may be missing&quot;,,&quot;This happens if you temporarily set wal_level=minimal without taking a new base backup.&quot;,,,,,,,&quot;&quot;
+2013-12-18 18:07:10.967 CET,,,2404,,52b1d63e.964,6,,2013-12-18 18:07:10 CET,,0,LOG,00000,&quot;consistent recovery state reached at 0/8C000100&quot;,,,,,,,,,&quot;&quot;
+2013-12-18 18:07:10.967 CET,,,2404,,52b1d63e.964,7,,2013-12-18 18:07:10 CET,,0,LOG,00000,&quot;record with zero length at 0/8C000100&quot;,,,,,,,,,&quot;&quot;
+2013-12-18 18:07:11.145 CET,,,2424,&quot;&quot;,52b1d63f.978,1,&quot;&quot;,2013-12-18 18:07:11 CET,,0,LOG,00000,&quot;connection received: host=[local]&quot;,,,,,,,,,&quot;&quot;</code></pre></div><p>J&#039;ai pensé à moment donné que le problème venait que barman compressait les archives, puisqu&#039;en lui disant de ne pas les compresser, ça fonctionnait. J&#039;ai remis la compression, ça fonctionnait. J&#039;ai recommencé à 0, ça marche plus ... J&#039;ai fait un md5 des fichiers archives sur le maitre et après décompression sur l&#039;esclave, c&#039;est le même... <br />J&#039;ai pensé qu&#039;il me mettait record with zero length at 0/8C000100 parce que je n&#039;avais pas modifié la base après la sauvegarde et que mon fichier wal était vide, j&#039;ai donc inséré un enregistrement, attendu que mon fichier wal arrive sur le serveur de backup, ça a marché. J&#039;ai recommencé, ça marche de nouveau plus...<br />Bref, je suis incapable de voir la différence des cas où ça fonctionne, et où ça ne fonctionne pas...<br />PostgreSQL est en version 9.1.11 sur les deux machines, des Ubuntu Server 12.04.</p><p>Merci de votre aide, je n&#039;ai vraiment pas la moindre idée de ce qui se passe.</p>]]></content>
+		<author>
+			<name><![CDATA[dt]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2928</uri>
+		</author>
+		<updated>2013-12-18T17:35:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18829#p18829</id>
+	</entry>
+</feed>

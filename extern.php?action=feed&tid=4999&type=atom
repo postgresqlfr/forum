@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / PostgreSQL - ERREUR:  la relation « nom_table » n'existe pas]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4999&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4999"/>
+	<updated>2018-12-01T09:16:58Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4999</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  PostgreSQL - ERREUR:  la relation « nom_table » n'existe pas]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28688#p28688"/>
+		<content type="html"><![CDATA[<p>I get it!!</p><p>il fallait s&#039;assurer que Python sorte bien <strong>&quot;T_Employes&quot;</strong> et non juste <strong>T_Employes</strong>, et cela est possible par la déclaration <strong>TableTest2 = (&#039;&quot;T_Employes&quot;&#039;)</strong>.<br />c&#039;est documenté ici:</p><p><a href="https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-IDENTIFIERS" rel="nofollow">https://www.postgresql.org/docs/current … DENTIFIERS</a> </p><p>Donc, merci.</p>]]></content>
+		<author>
+			<name><![CDATA[revealmap]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8392</uri>
+		</author>
+		<updated>2018-12-01T09:16:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28688#p28688</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  PostgreSQL - ERREUR:  la relation « nom_table » n'existe pas]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28687#p28687"/>
+		<content type="html"><![CDATA[<p>Bonjour rjuju,</p><p>Merci pour ta réponse rapide, et pour la petite correction.</p><p>Bon, actuellement, après redémarrage de mon pc et création de la table &#039;test&#039;, je n&#039;ai plus l&#039;erreur sur la table &#039;test&#039;.<br />Par contre, j&#039;obtiens de nouveau l&#039;erreur si je t&#039;ente d&#039;accéder dans la même base de données à la table &#039;T_employes&#039;, avec la syntaxe suivante:</p><p><strong> Select * from T_employes </strong></p><p>et si je met les guillemets, <strong> select * from &quot;T_employes&quot; </strong>, je n&#039;ai plus d&#039;erreur. (Je pensais pourtant avoir effectué les mêmes test hier, avec échec.</p><p>J&#039;en conclus que le souci provient des guillemets... obligatoires qd on utilise le symbole &#039;_&#039; sur les noms de tables.<br />---<br /><span class="bbu">Reste donc, l&#039;exécution de cette requête depuis Python :</span><br />Avec le code suivant:</p><div class="codebox"><pre class="vscroll"><code>###########################################################
+################ CONNEXION A 2 EME BD = ECHEC   ###########
+###########################################################
+# Credentials 1:
+Server_postgres = (&quot;localhost&quot;)
+Port2 = 5432
+Login2 = &#039;openpg&#039;
+Password2 = &#039;Password123&#039;
+dbname2 = &quot;basedonnées2&quot;
+TableTest2 = &quot;test&quot;
+
+# CONNEXION A LA BD
+connect2 = psycopg2.connect(database=dbname2, user=Login2, password=Password2)
+if connect2:
+    cursor2 = connect2.cursor()
+    print(&quot; \nConnexion établie avec succès vers Base de données 2:&quot;, dbname2)
+
+# Requete SQL
+req2 = (&#039;SELECT * from {}&#039;.format(TableTest2))
+
+# Exécution de la requête
+cursor2.execute(req2)
+
+# Sortie à l&#039;écran
+print(&quot; ######   Résultat de la Requête 2 :     #######&quot;)
+data2 = cursor2.fetchall()
+for entry2 in data2:
+    print(entry2)
+
+print(&quot;###############################################&quot;)
+print(&quot;\n\n----------------------------------------------------&quot;)
+print(&quot;\n\n&quot;)
+
+# Fermeture de la connexion
+cursor2.close()
+connect2.close</code></pre></div><p>- Lorsque <strong>TableTest2 = &quot;test&quot;</strong> je n&#039;ai pas d&#039;erreur, <br />- Et, lorsque <strong>TableTest2 = &quot;T_Employes&quot;</strong> j&#039;obtiens l&#039;erreur:</p><div class="codebox"><pre><code> 
+Connexion établie avec succès vers Base de données 2: basedonnées2
+Traceback (most recent call last):
+  File &quot;C:/Users/.../database_sqlsrv.py&quot;, line 62, in &lt;module&gt;
+    cursor2.execute(req2)
+psycopg2.ProgrammingError: ERREUR:  la relation « t_employes » n&#039;existe pas
+LINE 1: SELECT * from T_Employes
+                      ^
+
+
+Process finished with exit code 1</code></pre></div><p><span class="bbu">Je dois donc découvrir, je crois, comment forcer Python à renvoyer </span><br /><strong>&quot;LINE 1: SELECT * from &quot;T_Employes&quot;&quot;</strong> (avec les guillemets sur &quot;T_employes&quot; au lieu de <strong>&quot;LINE 1: SELECT * from T_Employes&quot;</strong>.</p><p>une aide sur cet aspect serait la buienvenue.</p><p>merci à vous</p>]]></content>
+		<author>
+			<name><![CDATA[revealmap]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8392</uri>
+		</author>
+		<updated>2018-12-01T06:27:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28687#p28687</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  PostgreSQL - ERREUR:  la relation « nom_table » n'existe pas]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28685#p28685"/>
+		<content type="html"><![CDATA[<p>Je ne suis pas sur de comprendre.&#160; La table test n&#039;existe apparemment pas, du coup le message d&#039;erreur semble normal.</p><br /><p>Au passage:</p><div class="codebox"><pre><code>connect2 = psycopg2.connect(database=dbname2, user=Login2, password=Password2)
+if connect:
+    cursor2 = connect2.cursor()</code></pre></div><p>cela devrait être &quot;if connect2&quot;</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2018-11-30T22:52:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28685#p28685</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[PostgreSQL - ERREUR:  la relation « nom_table » n'existe pas]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28683#p28683"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous,</p><br /><p>Je débute en postgresSQL et en Python.<br />Je voudrais savoir pourquoi j&#039;obtiens l&#039;erreur suivante: </p><div class="codebox"><pre><code>Connexion établie avec succès vers Base de données 2: basedonnées2
+Traceback (most recent call last):
+  File &quot;C:/Users/.../PycharmProjects/.../database_sqlsrv.py&quot;, line 62, in &lt;module&gt;
+    cursor2.execute(req2)
+psycopg2.ProgrammingError: ERREUR:  la relation « test » n&#039;existe pas
+LINE 1: SELECT * from test
+                      ^
+
+
+Process finished with exit code 1</code></pre></div><p>Je poste ici parceque je pense qu&#039;il s&#039;agit d&#039;une erreur Postgresql et non Python.</p><p><strong><br />Voici mon environnement:<br />OS Windows 8<br />PostgreSQL 9.5.8<br />Pgadmin 3<br />Python 3.7.1 et PyCharm 2018.3<br />+ Psycopg2 pour Interconnexion de Python et PostgreSQL<br /></strong></p><p>Donc,<br />Je tente d&#039;établir deux connexions distinctes (avec des paramètres distincts mais exactement le même code) sur deux bases de données du même serveur depuis Python (en utilisant Pycharm)&#160; via le script ci-dessous.<br />L&#039;une des connexions s&#039;établie sans souci, mais l&#039;autre non.</p><p>le message d&#039;erreur indique :</p><div class="codebox"><pre><code>psycopg2.ProgrammingError: ERREUR:  la relation « test » n&#039;existe pas
+LINE 1: SELECT * from test</code></pre></div><p>Le fait est qie j&#039;obtien exactement le même message d&#039;erreur avec pgAdmin 3, si je vais dans l&#039;interpréteur SQL pour la BD à problème (sauf si j&#039;utilise le créateur de requête graphique), et ce n&#039;est pas le cas sur la VB qui ne pose pas de pb...</p><p>Voici le code Python</p><br /><div class="codebox"><pre class="vscroll"><code>import psycopg2
+
+###########################################################
+################ CONNEXION A 1 ERE BD = OK      ###########
+###########################################################
+# Credentials 1:
+Server_postgres = (&quot;localhost&quot;)
+Port = 5432
+Login = &#039;openpg&#039;
+Password = &#039;Password123&#039;
+dbname = &quot;basedonnée1&quot;
+TableTest1 = &quot;djangotable&quot;
+
+# CONNEXION A LA BD 1
+connect = psycopg2.connect(database=dbname, user=Login, password=Password)
+if connect:
+    cursor = connect.cursor()
+    print(&quot; \nConnexion établie avec succès vers Base de données 1 : &quot;, dbname)
+
+# Requete SQL
+req = (&#039;SELECT * from {}&#039;.format(TableTest1))
+
+# Exécution de la requête
+cursor.execute(req)
+
+# Sortie à l&#039;écran
+print(&quot; ######   Résultat de la Requête 1 :     #######&quot;)
+data = cursor.fetchall()
+for entry in data:
+    print(entry)
+
+# Fermeture de la connexion
+cursor.close()
+connect.close
+
+print(&quot;###############################################&quot;)
+print(&quot;\n\n----------------------------------------------------&quot;)
+print(&quot;\n\n&quot;)
+
+
+###########################################################
+################ CONNEXION A 2 EME BD = ECHEC   ###########
+###########################################################
+# Credentials 1:
+Server_postgres = (&quot;localhost&quot;)
+Port2 = 5432
+Login2 = &#039;openpg&#039;
+Password2 = &#039;Password123&#039;
+dbname2 = &quot;basedonnée2&quot;
+TableTest2 = &quot;test&quot;
+
+# CONNEXION A LA BD
+connect2 = psycopg2.connect(database=dbname2, user=Login2, password=Password2)
+if connect:
+    cursor2 = connect2.cursor()
+    print(&quot; \nConnexion établie avec succès vers Base de données 2:&quot;, dbname2)
+
+# Requete SQL
+req2 = (&#039;SELECT * from {}&#039;.format(TableTest2))
+
+# Exécution de la requête
+cursor2.execute(req2)
+
+# Sortie à l&#039;écran
+print(&quot; ######   Résultat de la Requête 2 :     #######&quot;)
+data2 = cursor2.fetchall()
+for entry2 in data2:
+    print(entry2)
+
+print(&quot;###############################################&quot;)
+print(&quot;\n\n----------------------------------------------------&quot;)
+print(&quot;\n\n&quot;)
+
+# Fermeture de la connexion
+cursor2.close()
+connect2.close</code></pre></div><br /><p>et voici le log sur la console Python:</p><div class="codebox"><pre class="vscroll"><code>&quot;C:\....\venv\Scripts\python.exe&quot; &quot;C:/Users/.../PycharmProjects/.../database_postgresql.py&quot;
+ 
+Connexion établie avec succès vers Base de données 1 :  djangodb
+ ######   Résultat de la Requête 1 :     #######
+(1, &#039;Toto&#039;)
+(2, &#039;Tata&#039;)
+(3, &#039;Titi&#039;)
+###############################################
+
+
+----------------------------------------------------
+
+
+
+ 
+Connexion établie avec succès vers Base de données 2: basedonnées2
+Traceback (most recent call last):
+  File &quot;C:/Users/.../PycharmProjects/.../database_sqlsrv.py&quot;, line 62, in &lt;module&gt;
+    cursor2.execute(req2)
+psycopg2.ProgrammingError: ERREUR:  la relation « test » n&#039;existe pas
+LINE 1: SELECT * from test
+                      ^
+
+
+Process finished with exit code 1</code></pre></div><p>sur postgressSQL (via pgAdmin 3) l&#039;erreur apparait come suit:</p><div class="codebox"><pre><code>ERREUR:  la relation « test » n&#039;existe pas
+LINE 1: select * from test
+                      ^
+********** Erreur **********
+
+ERREUR: la relation « test » n&#039;existe pas
+État SQL :42P01
+Caractère : 15</code></pre></div><p>Merci pour votre aide.</p>]]></content>
+		<author>
+			<name><![CDATA[revealmap]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8392</uri>
+		</author>
+		<updated>2018-11-30T18:25:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28683#p28683</id>
+	</entry>
+</feed>

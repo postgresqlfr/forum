@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / multi index et between]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1944&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1944"/>
+	<updated>2012-03-12T07:49:50Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1944</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  multi index et between]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13120#p13120"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Un autre note: avez vous regardé les types natifs dans PostgreSQL (http://www.postgresql.org/docs/9.1/interactive/datatype-net-types.html et <a href="http://www.postgresql.org/docs/9.1/interactive/functions-net.html)" rel="nofollow">http://www.postgresql.org/docs/9.1/inte … -net.html)</a>, voire ceci : <a href="http://pgfoundry.org/projects/ip4r/" rel="nofollow">http://pgfoundry.org/projects/ip4r/</a></p><p>Ce sont des types de données optimisés pour ça (surtout ip4r, mais c&#039;est externe, donc à compiler en plus). Déjà avec le type inet/cidr, vous pouvez faire des recherches de ce genre qui passent par un index:</p><br /><p>CREATE TABLE test_cidr (a cidr);<br />CREATE INDEX idx1 on test_cidr (a );</p><p>Je remplis la table de cochonneries…</p><p>Ensuite on peut écrire:</p><p>EXPLAIN ANALYZE select * from test_cidr where a &lt;&lt;= &#039;192.168.0.0&#039;::inet;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;QUERY PLAN&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;<br />--------------------------------------------------------------------------------------------------------------------<br /> Index Scan using idx1 on test_cidr&#160; (cost=0.00..8.27 rows=25600 width=7) (actual time=0.010..0.010 rows=0 loops=1)<br />&#160; &#160;Index Cond: (((a)::inet &gt;= &#039;192.168.0.0&#039;::inet) AND ((a)::inet &lt;= &#039;192.168.0.0&#039;::inet))<br />&#160; &#160;Filter: ((a)::inet &lt;&lt;= &#039;192.168.0.0&#039;::inet)<br /> Total runtime: 0.032 ms</p><p>Ça marche aussi si on met à droite un autre cidr:</p><p>marc=# EXPLAIN ANALYZE select * from test_cidr where a &lt;&lt;= &#039;192.168.0.0/20&#039;::cidr;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;QUERY PLAN&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; <br />---------------------------------------------------------------------------------------------------------------------<br /> Bitmap Heap Scan on test_cidr&#160; (cost=53.86..304.86 rows=25600 width=7) (actual time=0.461..3.102 rows=1920 loops=1)<br />&#160; &#160;Filter: ((a)::inet &lt;&lt;= &#039;192.168.0.0/20&#039;::inet)<br />&#160; &#160;-&gt;&#160; Bitmap Index Scan on idx1&#160; (cost=0.00..47.46 rows=1920 width=0) (actual time=0.430..0.430 rows=1920 loops=1)<br />&#160; &#160; &#160; &#160; &#160;Index Cond: (((a)::inet &gt;= &#039;192.168.0.0/20&#039;::inet) AND ((a)::inet &lt;= &#039;192.168.15.255&#039;::inet))<br /> Total runtime: 4.669 ms<br />(5 lignes)</p><br /><p>Attention, l&#039;index ne marche que pour &lt;&lt;= (le plan cidr de gauche contient le plan cidr de droite). C&#039;est l&#039;intérêt de ip4r qui sait faire des choses plus compliquées.</p><p>Bon évidemment, ça ne marche que si le range d&#039;ip peut être écrit en cidr… ce qui est, je l&#039;espère, le cas.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2012-03-12T07:49:50Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13120#p13120</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  multi index et between]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13119#p13119"/>
+		<content type="html"><![CDATA[<p>Pour qu&#039;un index soit utilisé, il faut que l&#039;ensemble de lignes à récupérer dans cet index soit très faible. Donc une première question est de savoir combien de lignes se trouvent dans la table ipblocks. Une autre question est de connaître les statistiques de PostgreSQL sur les deux colonnes recherchées, ce qui peut se connaître avec la requête :</p><div class="codebox"><pre><code>select * from pg_stats where tablename=&#039;ipblocks&#039; and attname in (&#039;start_ip&#039;, &#039;end_ip&#039;);</code></pre></div><p>Enfin, dernier point, un EXPLAIN ANALYZE donnerait plus d&#039;informations et permettrait donc de mieux vous aider.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-03-12T07:44:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13119#p13119</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  multi index et between]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13117#p13117"/>
+		<content type="html"><![CDATA[<p>Bonjour.<br />Quelle version de postgresql utilisez-vous ?</p><p>Un index sur start_ip devrait être utilisé s&#039;il est présent.</p><p>Un index multiple sur start_ip,end_ip devrait également être utilisé. Si ce n&#039;est pas le cas, cela vient sans doute d&#039;un problème autre, statistiques de la table ou configuration postgresql par exemple.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2012-03-11T16:02:50Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13117#p13117</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[multi index et between]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13116#p13116"/>
+		<content type="html"><![CDATA[<p>Bonjour, ce problème doit être fréquent mais je n&#039;ai pas trouvé de solution sur google.</p><p>J&#039;ai une table avec start_ip bigint, end_ip bigint, loc_id integer.<br />Je cherche à trouver loc_id lorsque mon ip est comprise entre start_ip et end_ip.</p><p>anb=&gt; explain (select loc_id from ipblocks where 3649595313 between start_ip and end_ip);<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;QUERY PLAN<br />---------------------------------------------------------------------------------<br /> Seq Scan on ipblocks&#160; (cost=0.00..38340.18 rows=22560 width=4)<br />&#160; &#160;Filter: ((3649595313::bigint &gt;= start_ip) AND (3649595313::bigint &lt;= end_ip))<br />(2 rows)</p><p>La création d&#039;un index multiple sur start_ip, end_ip n&#039;apporte aucune amélioration.</p><p>anb=&gt; explain (select loc_id from ipblocks where 3649595313 between start_ip and end_ip);<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;QUERY PLAN<br />---------------------------------------------------------------------------------<br /> Seq Scan on ipblocks&#160; (cost=0.00..38340.18 rows=20974 width=4)<br />&#160; &#160;Filter: ((3649595313::bigint &gt;= start_ip) AND (3649595313::bigint &lt;= end_ip))<br />(2 rows)</p><p>D&#039;après ce que j&#039;ai lu sur le web c&#039;est normal.<br />Cela semble venir de la méthode btree par default pour un index multiple, si j&#039;ai bien compris...<br />(cf ce lien <a href="http://archives.postgresql.org/pgsql-general/2005-09/msg01072.php" rel="nofollow">http://archives.postgresql.org/pgsql-ge … g01072.php</a> )</p><p>J&#039;ai également tenté de créer un index uniquement sur la première colonne (start_ip), mais à nouveau il y a strictement aucune amélioration.</p><p>La seule manière que j&#039;ai trouvé, c&#039;est d&#039;ajouter &quot;limit 1&quot; car je sais que je n&#039;attend qu&#039;un resultat (il n&#039;y a pas de chevauchement normalement entre les blocs d&#039;ip). <br />(d&#039;après ce texte sur l&#039;analyse du problème similaire sous Oracle : <a href="http://www.orafaq.com/node/1798" rel="nofollow">http://www.orafaq.com/node/1798</a> )</p><p>Cela a réduit significativement le temps de requête :</p><p>anb=&gt; explain (select loc_id from ipblocks where 3649595313 between start_ip and end_ip limit 1);<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; QUERY PLAN<br />---------------------------------------------------------------------------------------<br /> Limit&#160; (cost=0.00..1.91 rows=1 width=4)<br />&#160; &#160;-&gt;&#160; Seq Scan on ipblocks&#160; (cost=0.00..38340.18 rows=20053 width=4)<br />&#160; &#160; &#160; &#160; &#160;Filter: ((3649595313::bigint &gt;= start_ip) AND (3649595313::bigint &lt;= end_ip))</p><br /><br /><br /><p>Avez-vous une idée (plus clean que &#039;limit 1&#039;) pour réduire le temps de requête ?</p><p>Merci d&#039;avance !</p>]]></content>
+		<author>
+			<name><![CDATA[ilrico]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1234</uri>
+		</author>
+		<updated>2012-03-11T15:08:21Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13116#p13116</id>
+	</entry>
+</feed>

@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Haute disponibilité , quelle solution choisir ?]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5730&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5730"/>
+	<updated>2020-04-10T12:32:27Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5730</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Haute disponibilité , quelle solution choisir ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31037#p31037"/>
+		<content type="html"><![CDATA[<p>je vous remercie tous pour vos réponses : elles m&#039;aident beaucoup.<br />le logiciel libre a un sacré coup à jouer en ce moment ! croyez moi.</p>]]></content>
+		<author>
+			<name><![CDATA[ledufakademy]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8845</uri>
+		</author>
+		<updated>2020-04-10T12:32:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31037#p31037</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Haute disponibilité , quelle solution choisir ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31018#p31018"/>
+		<content type="html"><![CDATA[<p>Salut,</p><br /><p>notice: dev PAF et j&#039;aime la HA</p><br /><p>Les deux solutions viables actuelles sont Patroni et Pacemaker/PAF, pour une raison claire: ils font de la HA correctement et pas avec des bouts de scotch ou en laissant l&#039;administrateur développer lui même les points critique de l&#039;archi.</p><br /><p>Repmgr ou pgPool ne supportent ni le fencing, ni le watchdog, ni de (vrai) quorum. Ils nécessitent de fournir des scripts où vous aurez à gérer ce type de notions vous même. Des notions dev et maintenues par des experts en HA depuis plus de dix ans dans Pacemaker. Vous n&#039;obtiendrez jamais quelque chose de propre et fiable. Néanmoins, si vous avez précisément identifié les différents cas où l&#039;outil n&#039;est pas capable de gérer correctement une bascule, que vous acceptez ce risque et que vous avez bien tout documenté, alors pourquoi pas.</p><br /><p>Concernant repmgr, le witness n&#039;est pas un vrai qorum. Chaque nœud dans son coin décide de quand il faut faire une élection. Sur ce point, c&#039;est déjà un peu risqué. Ensuite, si il &quot;voit&quot; le witness, il le compte d&#039;office pour une voix dans son calcul. Le witness est complètement passif. On pourrait le comparer au qdevice dans une stack Pacemaker, sauf que le qdevice prend réellement part à l&#039;élection et décide à qui il donne sa voix en fonction de l&#039;algo choisi. Mais bon, contrairement à pgPool, on peut éventuellement construire une stack repmgr convenable avec beaucoup d&#039;investissement et une surcouche de développement importante pour fiabiliser la chose au maximum. Reste ensuite à documenter ce qui ne va pas, comme d&#039;hab.</p><br /><p>Patroni ne supporte pas le fencing. Mais lui, il a un vrai quorum grâce au cluster DCS (à monter de préférence *à part*) et surtout supporte le watchdog. Une stack Patroni saine active le watchdog. Il y a deux/trois petits détails (peu significatifs) dans Patroni qui me font malgré tout préférer Pacemaker. En outre, la gestion d&#039;une vIP pour atteindre le primaire est plus complexe qu&#039;il n&#039;y parait. Du coup, utilisez HAProxy, mais ça rajoute un service à gérer dans votre stack...Ou collez l&#039;intelligence dans la couche applicative si vous le pouvez, mais votre archi devient invasive coté applicatif. Nous avons creusé vip-manager ces derniers temps, plutôt une bonne idée, mais le diable se cache dans les détails. Bref, Ici aussi, tant qu&#039;on a conscience des failles possibles de son archi et que c&#039;est documenté, on peut dormir sur ses deux oreilles. Moi, je dors mieux en sachant Patroni/DCS aux manettes qu&#039;avec l&#039;un des deux précédents. Surtout quand un watchdog est prêt à te coller un reset derrière les oreilles si ton process n&#039;est pas obéissant <img src="http://forums.postgresql.fr/img/smilies/big_smile.png" width="15" height="15" alt="big_smile" /></p><br /><p>Enfin, Pacemaker supporte le fencing, le quorum, le watchdog, le qdevice ou encore le storage base death (sbd). Avec tout ça, vous pouvez construire tout pleins d&#039;archis fiables différentes et rigolotes (j&#039;en fait trop ?) en fonction de vos moyens, matériel dispo, équipes concernées, etc:</p><br /><p>* un cluster 2 nœuds FIABLE avec quorum (un peu spécial) et fencing quand on est serré en nombre de machine<br />* l&#039;équivalent de Patroni avec 2+ nœuds + un qdevice (capable de participer à plusieurs clusters comme un cluster DCS)<br />* un cluster shared storage, simple et efficace si bien construit<br />* un cluster shared nothing avec PAF, pas très compliqué à monter et efficace si bien construit<br />* du poison pill pour le fencing si vous avez du stockage accessible depuis tous les nœuds (sbd)<br />* ...</p><br /><p>Mais c&#039;est bien là le problème de Pacemaker. Il propose de gérer la HA de tout type de services, le plus correctement possible. La HA et toutes ces notions sont complexes, donc Pacemaker est complexe et on se perd dans la jungle des notions et possibilités. Mais une fois l&#039;archi construite et comprise, c&#039;est que du bonheur. En échange:</p><br /><p>* gérer une vIP avec Pacemaker, c&#039;est 4 lignes de **définition** (<a href="https://clusterlabs.github.io/PAF/Quick_Start-CentOS-7.html#cluster-resources" rel="nofollow">https://clusterlabs.github.io/PAF/Quick … -resources</a>). Nous n&#039;avons toujours pas trouver comment faire fiable avec les autres solutions.<br />* une bascule de rôle se fait en une commande, sans redémarrage des standby<br />* pas de split brain possible<br />* un projet *activement* développé par RedHat, Suse, Linbit et hastexo<br />* du support professionnel coté système (RH et Suse entre autre)<br />* paquets dispos et à jour sur toutes les distro Linux de bon goût (utilisez pcs!)<br />* intégrer HAProxy au dessus de votre stack Pacemaker (inutile de l&#039;y intégrer), c&#039;est aussi complexe qu&#039;avec Patroni. Pas plus pas moins. Bienvenue la répartition de charge</p><br /><p>Bref, je suis biaisé, c&#039;est évident. Plus je creuse Pacemaker, plus je découvre sa souplesse et sa robustesse. Sans parler de sa petite communauté bienveillante et accueillante. On peut éventuellement lui reprocher de ne pas avoir assez de documentation, mais nous avons tenté d&#039;y répondre un peu dans la doc PAF...et nous devrions encore ajouter des pages de doc.</p><br /><p>Concernant Patroni, il est simple et fiable et je l&#039;aime aussi pour ça. Mais pour être juste dans la comparaison, il faut aussi compter la montée en compétence sur le DCS choisi (mais parfois déjà présent dans le réseau) et l&#039;ajout au dessus d&#039;autres briques (eg. HAProxy, confd). Reste que se prendre des backtrace python sur de la prod (coté cli ou daemon) ça peut parfois effrayer un peu <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /> (rare hein, mais par exemple: <a href="https://github.com/zalando/patroni/issues/1418" rel="nofollow">https://github.com/zalando/patroni/issues/1418</a>)</p><br /><p>Quelque soit l&#039;outil choisi, vous ne devez pas faire l&#039;économie de tests poussés, de torture de votre cluster, de tout documenter, d&#039;écrire **toutes** les procédures, de penser à vos backups, de prévenir l&#039;équipe réseau, l&#039;équipe SAN, les dev ou devops. Bref, préparez-vous à l&#039;imprévisible <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><br /><p>Bon courage !</p>]]></content>
+		<author>
+			<name><![CDATA[ioguix]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=43</uri>
+		</author>
+		<updated>2020-04-07T09:20:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31018#p31018</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Haute disponibilité , quelle solution choisir ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31009#p31009"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>ruizsebastien a écrit&#160;:</cite><blockquote><div><p>oui avec 3 sites c&#039;est jouable sans probleme. tel qu&#039;indiqué dans le lien.<br />primary : c&#039;est le master qui est ouvert en ecriture.<br />replica et standby : ce sont les slaves en lecture seule et en attente.<br />witness : ?</p></div></blockquote></div><p>Witness est le témoin pour le quorum du cluster. (nombre impairs pour les votes !)</p>]]></content>
+		<author>
+			<name><![CDATA[ledufakademy]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8845</uri>
+		</author>
+		<updated>2020-04-06T17:32:06Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31009#p31009</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Haute disponibilité , quelle solution choisir ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31008#p31008"/>
+		<content type="html"><![CDATA[<p>D&#039;après le support de formation Dalibo (les outils de réplication):<br /><em><br />L’outil repmgr3 de 2ndQuadrant permet la gestion de la haute disponibilité avec notamment la gestion des opérations de clonage, de promotion d’une instance en primaire et lad émotion d’une instance.L’outil repmgr peut également être en charge de la promotion automatique du nœud secondaire en cas de panne du nœud primaire, cela implique la mise en place d’un serveur supplémentaire par cluster HA (paire primaire/secondaire) appelé <strong>témoin (witness)</strong>. Cette machine héberge une instance PostgreSQL dédiée au processus daemon repmgrd, processus responsable d’effectuer les contrôles d’accès réguliers à l’instance primaire et de promouvoir le nœud secondaire lorsqu’une panne est détectée et confirmée suite à plusieurs tentatives échouées consécutives.Afin de faciliter la bascule du trafic sur l’instance secondaire en cas de panne du primaire,l’utilisation d’une adresse IP virtuelle (VIP) est requise. Les applications clientes (hors administration) doivent se connecter directement à la VIP.<br /> </em></p><br /><p>Ce concept de&#160; témoin est un concept général souvent utilisé dans les systèmes de haute-disponibilité.</p>]]></content>
+		<author>
+			<name><![CDATA[pifor]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8375</uri>
+		</author>
+		<updated>2020-04-06T16:18:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31008#p31008</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Haute disponibilité , quelle solution choisir ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31007#p31007"/>
+		<content type="html"><![CDATA[<p>oui avec 3 sites c&#039;est jouable sans probleme. tel qu&#039;indiqué dans le lien.<br />primary : c&#039;est le master qui est ouvert en ecriture.<br />replica et standby : ce sont les slaves en lecture seule et en attente.<br />witness : ?</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2020-04-06T16:05:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31007#p31007</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Haute disponibilité , quelle solution choisir ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31006#p31006"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>ruizsebastien a écrit&#160;:</cite><blockquote><div><p>Bonjour,</p><p>Ma petite contribution :<br />Pgpool : testé et abandonné aussitôt (problèmes de bascule, de cohérence de données (séquences), peu résistant à un arrêt brutal électrique, complexe à mettre en œuvre si on veut faire les choses bien)<br />pacemaker/corosync/PAF : actuellement en production dans notre (grosse) entreprise : ça marche très bien. Un peu de complexité au départ mais une fois que c&#039;est en place, ça fait bien le boulot (au niveau de la disponibilité).<br />Patroni : en cours d&#039;évaluation chez nous car il semble très prometteur et plus simple que pacemaker/PAF et plus fiable d&#039;après les tests que j&#039;ai pu voir en POC. En plus adossé à du HA proxy, si votre application est faite pour, on peut faire de la répartition de charge (select sur les slaves) pour faire de la scalabilité horizontale.</p><p>Les autres technos, je ne connais pas.</p></div></blockquote></div><p>ben déjà merci pour ta réponse : ca fait toujours plaisir d&#039;avoir des avis solides.</p><p>Sinon le lien mis au-dessus niveau archi, ils vous semblent jouable ? (on a trois sites) :<br /><a href="https://nuage.ilinux.fr/s/yzS3BBpDW38QNEF" rel="nofollow">https://nuage.ilinux.fr/s/yzS3BBpDW38QNEF</a></p><p>Note : j&#039;ai pas trop compris&#160; la différence entre des serveurs<br />- PG StandBy (???) ,<br />- PG Replica<br />- PG Witness replica ?</p><p>- PG primary ?</p>]]></content>
+		<author>
+			<name><![CDATA[ledufakademy]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8845</uri>
+		</author>
+		<updated>2020-04-06T15:51:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31006#p31006</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Haute disponibilité , quelle solution choisir ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31005#p31005"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Ma petite contribution :<br />Pgpool : testé et abandonné aussitôt (problèmes de bascule, de cohérence de données (séquences), peu résistant à un arrêt brutal électrique, complexe à mettre en œuvre si on veut faire les choses bien)<br />pacemaker/corosync/PAF : actuellement en production dans notre (grosse) entreprise : ça marche très bien. Un peu de complexité au départ mais une fois que c&#039;est en place, ça fait bien le boulot (au niveau de la disponibilité).<br />Patroni : en cours d&#039;évaluation chez nous car il semble très prometteur et plus simple que pacemaker/PAF et plus fiable d&#039;après les tests que j&#039;ai pu voir en POC. En plus adossé à du HA proxy, si votre application est faite pour, on peut faire de la répartition de charge (select sur les slaves) pour faire de la scalabilité horizontale.</p><p>Les autres technos, je ne connais pas.</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2020-04-06T13:56:09Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31005#p31005</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Haute disponibilité , quelle solution choisir ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31002#p31002"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />Pour avoir testé pas mal de solutions (repmgr, paf , pgpool et patroni).<br />Pour moi, la solution la plus fiable, moderne et facile a mettre en place est patroni.<br />Elle est de plus largement éprouvée par l&#039;entreprise conceptrice du produit (zalando)<br />Cordialement</p>]]></content>
+		<author>
+			<name><![CDATA[yohmartin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=6363</uri>
+		</author>
+		<updated>2020-04-06T07:13:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31002#p31002</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Haute disponibilité , quelle solution choisir ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31000#p31000"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>gleu a écrit&#160;:</cite><blockquote><div><p>pgpool nécessite l&#039;écriture d&#039;un paquet de scripts, ce qui fait qu&#039;au final, vous n&#039;y gagnez rien, sauf des problèmes. Dans la liste, seuls PAF et patroni semblent être suffisamment fiables.</p><p>Le multi-maître n&#039;existe pas actuellement nativement avec PostgreSQL. BDM de 2ndQuadrant et Bucardo de End Point Corporation sont souvent cités comme des solutions potentielles. Je n&#039;ai jamais essayé le premier, mais je sais que le second a été une galère monumentale à administrer. Donc plus jamais <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p></div></blockquote></div><p>je viens d&#039;acheter et suis en train de lire&#160; : PostgreSQL 12 High Availability Cookbook: Over&#160; (3rd edition)</p><p>Oui l&#039;auteur semble dire :<br />Primary - replica (et witness nodes) (pas de multi-maitre donc ...? vs Mariadb avec galera ou c&#039;est ok.)</p><p>Est ce que pour une conf avec trois sites , c&#039;est bon comme archi. :</p><p><a href="https://nuage.ilinux.fr/s/yzS3BBpDW38QNEF" rel="nofollow">https://nuage.ilinux.fr/s/yzS3BBpDW38QNEF</a></p>]]></content>
+		<author>
+			<name><![CDATA[ledufakademy]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8845</uri>
+		</author>
+		<updated>2020-04-05T15:31:50Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31000#p31000</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Haute disponibilité , quelle solution choisir ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30998#p30998"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>gleu a écrit&#160;:</cite><blockquote><div><p>pgpool nécessite l&#039;écriture d&#039;un paquet de scripts, ce qui fait qu&#039;au final, vous n&#039;y gagnez rien, sauf des problèmes. Dans la liste, seuls PAF et patroni semblent être suffisamment fiables.</p><p>Le multi-maître n&#039;existe pas actuellement nativement avec PostgreSQL. BDM de 2ndQuadrant et Bucardo de End Point Corporation sont souvent cités comme des solutions potentielles. Je n&#039;ai jamais essayé le premier, mais je sais que le second a été une galère monumentale à administrer. Donc plus jamais <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p></div></blockquote></div><p>J&#039;avais vu ces solutions aussi : donc patroni ou&#160; PAF.<br />ok, merci beaucoup.</p>]]></content>
+		<author>
+			<name><![CDATA[ledufakademy]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8845</uri>
+		</author>
+		<updated>2020-04-04T10:06:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30998#p30998</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Haute disponibilité , quelle solution choisir ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30997#p30997"/>
+		<content type="html"><![CDATA[<p>pgpool nécessite l&#039;écriture d&#039;un paquet de scripts, ce qui fait qu&#039;au final, vous n&#039;y gagnez rien, sauf des problèmes. Dans la liste, seuls PAF et patroni semblent être suffisamment fiables.</p><p>Le multi-maître n&#039;existe pas actuellement nativement avec PostgreSQL. BDM de 2ndQuadrant et Bucardo de End Point Corporation sont souvent cités comme des solutions potentielles. Je n&#039;ai jamais essayé le premier, mais je sais que le second a été une galère monumentale à administrer. Donc plus jamais <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2020-04-04T09:36:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30997#p30997</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Haute disponibilité , quelle solution choisir ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30996#p30996"/>
+		<content type="html"><![CDATA[<p>Oui , fiable me semble le bon mot .... mais il nous faut aussi des performances pour une prod. , ce n &#039;est pas pour un POC mais bien pour pas mal d&#039;utilisateurs ;-)<br />j&#039;avais lorgné sur Corosync et pacemaker mais avais en tête aussi : pgpool-ii, repmgr , patroni mais aussi ... HAProxy/Keepalived, OpenSVC.<br />Je te remercie de ta réponse.<br />Je vais chercher avec les brique systèmes que tu me conseilles.</p>]]></content>
+		<author>
+			<name><![CDATA[ledufakademy]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8845</uri>
+		</author>
+		<updated>2020-04-04T09:17:45Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30996#p30996</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Haute disponibilité , quelle solution choisir ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30995#p30995"/>
+		<content type="html"><![CDATA[<p>Pour moi, le meilleur adjectif à utiliser pour une solution de haute disponibilité n&#039;est certainement pas &quot;performant&quot;, mais &quot;fiable&quot;.&#160; Si vous cherchez une solution fiable, robuste et éprouvée je vous conseillerais donc corosync/pacemaker avec le resource agent PAF: <a href="https://clusterlabs.github.io/PAF/" rel="nofollow">https://clusterlabs.github.io/PAF/</a>.&#160; Le seul bémol est qu&#039;il s&#039;agit d&#039;une solution complexe à prendre en main (ce qui est normal vu que le problème à résoudre est complexe).</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2020-04-04T09:13:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30995#p30995</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Haute disponibilité , quelle solution choisir ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30993#p30993"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Dans le cadre de la création d&#039;un hébergeur web alternatif (associatif) nous souhaitons proposer à nos adhérents la possibilité d&#039;avoir 5 bases de données par adhérents (de toutes tailles&#160; : utilisation perso à gros SIG ).<br />(nous sommes nombreux ;-)), il nous faudrait donc un cluster postgresql (3 nœuds mini)</p><p>Quelle(s) solution(s) de haute disponibilité est, selon vous, la plus performante avec postgresql ?<br />j&#039;ai cru comprendre que pour l’instant postgresql ne fait pas comme, mariadb, du clustering multi-maitre.</p>]]></content>
+		<author>
+			<name><![CDATA[ledufakademy]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8845</uri>
+		</author>
+		<updated>2020-04-04T09:00:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30993#p30993</id>
+	</entry>
+</feed>

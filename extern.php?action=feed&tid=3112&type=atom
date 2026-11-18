@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / mauvais choix de l'optimiseur]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3112&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3112"/>
+	<updated>2014-05-13T19:50:39Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3112</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  mauvais choix de l'optimiseur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19880#p19880"/>
+		<content type="html"><![CDATA[<p>Les implémentations Oracle et PostgreSQL sont tellement différentes que les comparer (en dehors de comparer la durée pure et simple d&#039;une requête) n&#039;apporte pas grand chose.</p><p>Quand à la compréhension du comportement de PostgreSQL, non, pas vraiment de détails à vous donner. Il faudrait avoir la main sur la machine pour pouvoir faire plus de tests. C&#039;est assez difficile à faire à distance.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-05-13T19:50:39Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19880#p19880</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  mauvais choix de l'optimiseur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19876#p19876"/>
+		<content type="html"><![CDATA[<p>Je relance encore ce topic...</p><br /><p>Après avoir mis en doute le matériel, je remets en doute la partie logiciels. Afin de bien comparer, j&#039;ai installé une base de données Oracle 11g sur le même type de machine que celle sur laquelle j&#039;ai fait mes tests avec PostgreSQL: machine virtuelle hébergée sur le même datastore, exécutée par le même ESX, avec le même OS Debian et la même quantité de ressources. Je fais les tests sur les mêmes tables (export avec oracle_fdw). La requête passe par défaut par un HashAggregate et met 23s. En forçant le group by à passer par un GroupAggregate à l&#039;aide d&#039;un hint la requête met 41s (contre 10min avec PostgreSQL). Étant donné que le GroupAggregate fait aussi son tri sur disque (le tablespace temporaire est utilisé pour la requête), on peut dire que le matériel peut supporter la charge d&#039;un GroupAggregate ce qui n&#039;est pas le cas avec PostgreSQL. Ceci me fait dire que je dois avoir un problème de configuration quelque part. Les tests sont faits avec une installation à partir du paquet postgresql-9.3 et avec des clusters créés à partir de pg_createcluster ou initdb.</p><br /><p>Les résultats de vmstat ci-dessous (intervalle de 5s) montre que Oracle écrit fortement pendant une trentaine de secondes en même temps qu&#039;il utilise la CPU. Sous PostgreSQL, il n&#039;écrit fortement que toutes les 35s environ et consomme de la CPU pendant toute la durée de la requête. Que fait-il entre 2 séances d&#039;écritures? A priori c&#039;est pendant les périodes de non écriture qu&#039;il perd du temps. De plus, après la dernière &quot;écriture&quot;, il passe près de 4 min à travailler sur CPU. Sur la machine physique, le phénomène est le même; ça ne doit donc pas être lié à la virtualisation. Comprenez-vous ce type de comportement? Faut-il des infos supplémentaires sur ma configuration?</p><br /><p>vmstat Oracle</p><div class="codebox"><pre><code>procs -----------memory---------- ---swap-- -----io---- -system-- ----cpu----
+ r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa
+ 0  0      0 997376  14984 2897928    0    0  1262  3023 1072 2093 17 12 69  2
+ 1  0      0 931888  15000 2897920    0    0     0    30 1095 1990 34  4 62  0
+ 1  0      0 847328  15016 2898272    0    0     0 19289 1289 2068 82 12  0  6
+ 0  1      0 847328  15024 2898272    0    0     0 21202 1319 2118 85  9  0  6
+ 1  0      0 847328  15048 2898272    0    0     0 21706 1303 2091 86  8  0  6
+ 1  0      0 847204  15056 2898272    0    0     0 19804 1301 2081 85  9  0  6
+ 1  0      0 847204  15080 2898272    0    0     0 19626 1309 2102 87  8  0  5
+ 1  0      0 847204  15088 2898272    0    0     0 22246 1309 2108 86  7  0  6
+ 1  0      0 996624  15104 2898280    0    0     0 18555 1284 2075 84 10  1  6
+ 0  0      0 996500  15120 2898272    0    0     0    29 1012 1984  0  0 99  0
+ 0  0      0 996500  15128 2898284    0    0     0    25 1007 1989  0  0 100  0
+ 0  0      0 996500  15144 2898284    0    0     0    18 1011 1986  0  0 99  0</code></pre></div><br /><p>vmstat PostgreSQL</p><div class="codebox"><pre class="vscroll"><code>procs -----------memory---------- ---swap-- -----io---- -system-- ----cpu----
+ r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa
+ 0  0    104 3588416  62172 315624    0    0    30    42   37   44  1  0 99  0
+ 2  0    104 3565460  62180 315812    0    0     0    10   91   42 23  1 76  0
+ 1  0    104 3559500  62196 321360    0    0     0    28  277   41 100  0  0  0
+ 1  0    104 3554424  62204 326580    0    0     0     7  282   33 99  1  0  0
+ 1  0    104 3549340  62220 331628    0    0     0    18  279   38 100  0  0  0
+ 1  0    104 3544000  62228 336620    0    0     0    10  283   38 100  0  0  0
+ 1  0    104 3539296  62244 341664    0    0     0    10  277   35 100  0  0  0
+ 1  0    104 3534088  62252 346692    0    0     0    11  281   37 100  0  0  0
+ 1  0    104 3528624  62268 351676    0    0     0  6442  289   39 100  0  0  0
+ 1  0    104 3523920  62276 356668    0    0     0    15  277   36 100  0  0  0
+ 1  0    104 3518836  62292 361780    0    0     0     6  279   36 99  1  0  0
+ 1  0    104 3513620  62304 366892    0    0     0    16  279   40 100  0  0  0
+ 1  0    104 3508916  62320 371952    0    0     0    10  279   34 100  0  0  0
+ 1  0    104 3503708  62328 376900    0    0     0     8  274   36 100  0  0  0
+ 1  0    104 3498492  62348 382076    0    0     0    22  276   40 100  0  0  0
+ 1  0    104 3493292  62356 387200    0    0     0  7098  297   35 99  1  0  0
+ 1  0    104 3488208  62372 392272    0    0     0    11  279   37 99  0  0  0
+ 1  0    104 3482868  62380 397456    0    0     0    10  281   39 100  0  0  0
+ 1  0    104 3478164  62396 402524    0    0     0    10  278   34 99  1  0  0
+ 1  0    104 3473080  62404 407532    0    0     0     9  284   36 100  0  0  0
+ 1  0    104 3467864  62420 412572    0    0     0    14  282   39 100  0  0  0
+ 2  0    104 3462540  62428 417800    0    0     0  6118  290   36 99  1  0  0
+ 1  0    104 3457580  62444 422804    0    0     0    14  279   35 100  0  0  0
+ 1  0    104 3452488  62452 427828    0    0     0    10  283   39 100  0  0  0
+ 1  0    104 3447784  62468 432880    0    0     0    16  280   36 100  0  0  0
+ 1  0    104 3442452  62476 438016    0    0     0     2  281   37 99  1  0  0
+ 1  0    104 3437360  62492 443060    0    0     0    20  280   39 100  0  0  0
+ 1  0    104 3432532  62500 448112    0    0     0     7  280   35 100  0  0  0
+ 1  0    104 3427076  62520 453256    0    0     1  7118  296   39 99  0  0  0
+ 1  0    104 3421736  62528 458388    0    0     0    10  281   39 99  1  0  0
+ 1  0    104 3417032  62544 463420    0    0     0    11  284   35 99  1  0  0
+ 1  0    104 3411948  62552 468524    0    0     0    14  284   36 100  0  0  0
+ 1  0    104 3406608  62568 473620    0    0     0    14  282   39 100  0  0  0
+...</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[saigamp]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=767</uri>
+		</author>
+		<updated>2014-05-13T14:06:07Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19876#p19876</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  mauvais choix de l'optimiseur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19861#p19861"/>
+		<content type="html"><![CDATA[<p>J&#039;avais fait des tests avec sysbench sans savoir à quels chiffres les comparer. Le test avec dd me renvoie 290MB/s. Couplé avec un processeur de faible fréquence, ceci doit expliquer cela!</p><br /><p>Merci pour votre aide!</p>]]></content>
+		<author>
+			<name><![CDATA[saigamp]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=767</uri>
+		</author>
+		<updated>2014-05-12T09:26:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19861#p19861</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  mauvais choix de l'optimiseur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19855#p19855"/>
+		<content type="html"><![CDATA[<p>Vous avez un soucis soit au niveau de la supervision, soit au niveau des disques. Je ne voisd pas d&#039;autres explications. Avez-vous testé les performances disques avec un bête dd ? par exemple :</p><div class="codebox"><pre><code>$ time dd if=/dev/zero of=tests bs=8192 count=50000
+50000+0 records in
+50000+0 records out
+409600000 bytes (410 MB) copied, 0.528054 s, 776 MB/s</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-05-09T20:46:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19855#p19855</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  mauvais choix de l'optimiseur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19838#p19838"/>
+		<content type="html"><![CDATA[<p>les données temporaires (qui ne tiennent pas dans le work_mem) sont écrite sur disque puis lues pour un tri par exemple</p>]]></content>
+		<author>
+			<name><![CDATA[arthurr]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=62</uri>
+		</author>
+		<updated>2014-05-07T15:08:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19838#p19838</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  mauvais choix de l'optimiseur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19837#p19837"/>
+		<content type="html"><![CDATA[<p>La CPU est bien à 100% pendant l&#039;exécution de la requête. Mon vCPU est cadencé à 1.6GHz, le tri sur disque met 652s. Ce même tri met 26s sur le portable de gleu. La vitesse de tri ne doit pas être proportionnelle à la fréquence du processeur, car si on omet l&#039;utilisation du disque gleu doit avoir un processeur à 40GHz!! Peut-être exponentielle?</p><p>Concernant l&#039;écriture sur disque, il n&#039;y a jamais que 350Mo à écrire. Il ne faut pas plus de quelques seconde au pire pour le faire. Par contre je n&#039;ai pas compris le &quot;écrire pour lire&quot;. Quel est le mécanisme mis en œuvre? Mon disque virtuel est sur un datastore du SAN.</p><p>Je dois avoir une mauvaise combinaison CPU+disque.</p>]]></content>
+		<author>
+			<name><![CDATA[saigamp]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=767</uri>
+		</author>
+		<updated>2014-05-07T15:04:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19837#p19837</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  mauvais choix de l'optimiseur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19835#p19835"/>
+		<content type="html"><![CDATA[<p>pour moi, le HashAggregate va utiliser du CPU et des IO sur les disques.<br />Faire un tri avec un CPU 1Ghz ne va pas donner les mêmes résultats qu&#039;avec un cpu à 3.2Ghz (vous devez observer un CPU à 100% pendant le traitement de la requête).<br />PostgreSQL ne sait pas utiliser plusieurs CPU pour le moment, donc plus la vitesse d&#039;un core va être rapide plus ça va aller vite.<br />Pour le disque, pas de mystère : si il doit écrire pour lire sur un fichier de N Go, il faut des disques rapides (SSD, RAID10 en 15k, ...).</p>]]></content>
+		<author>
+			<name><![CDATA[arthurr]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=62</uri>
+		</author>
+		<updated>2014-05-07T14:25:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19835#p19835</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  mauvais choix de l'optimiseur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19833#p19833"/>
+		<content type="html"><![CDATA[<p>Je relance cette conversation car après avoir testé plusieurs types de matériels, je reproduis toujours le même problème: le tri sur disque lors du GroupAggregate est très lent. Étant en environnement virtuel, et ayant toujours entendu dire que le virtuel et les SGBD ne faisaient pas bon ménage, j&#039;ai cru que la virtualisation était la source de mon problème. Or sur un PC la lenteur se reproduit (même configuration logicielle, postgresql.conf par défaut). Peut-être est-ce dû là à la lenteur des disques durs classiques. Mais sur votre portable ça fonctionne. Est-ce dû à la fréquence de mes processeurs (1.6GHz en virtuel et 1Ghz sur le PC)? Sur un serveur AiX sur Power6 avec SAN: idem.</p><br /><p>Quelqu&#039;un arrive-t-il à reproduire mon problème? Je suis sur Debian Wheezy avec PostgreSQL 9.3.4. La configuration de mes paramètres système est:</p><br /><div class="codebox"><pre><code>kernel.shmall = 134217728
+kernel.shmmax = 549755813888
+vm.dirty_background_ratio = 1
+vm.dirty_ratio = 2
+vm.swappiness = 10
+vm.zone_reclaim_mode = 0
+vm.overcommit_memory = 2
+vm.overcommit_ratio = 90</code></pre></div><br /><p>Les disques sont formatés en ext4 et montés avec les options defaults,noatime,nodiratime.</p>]]></content>
+		<author>
+			<name><![CDATA[saigamp]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=767</uri>
+		</author>
+		<updated>2014-05-07T14:08:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19833#p19833</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  mauvais choix de l'optimiseur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19825#p19825"/>
+		<content type="html"><![CDATA[<p>Merci pour cette réécriture de la requête qui améliore grandement les choses de mon côté: je suis tombé à 32s (même plan d&#039;exécution). La plus grande partie de l&#039;amélioration se situe dans l&#039;utilisation du HashAggregate final (comme avec des stats fausses). Avec la table de 14M de lignes, la requête ne met plus que 14min au lieu de plusieurs heures.</p><br /><p>Cette solution nous dépanne temporairement, tant il semble que nous ayons un problème de matériel qui nous faut régler...</p>]]></content>
+		<author>
+			<name><![CDATA[saigamp]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=767</uri>
+		</author>
+		<updated>2014-05-05T11:20:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19825#p19825</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  mauvais choix de l'optimiseur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19802#p19802"/>
+		<content type="html"><![CDATA[<p>Peut être une solution à creuser : une requête CTE.<br />Elle va prendre 9 sec (contre 6 sec pour votre requête mais avec un work_mem = 1GB) sur mon simple PC mais ne nécessite &quot;que&quot; 64MB de work_mem pour fonctionner.<br />Avec un work_mem de 32MB elle monte à 12sec</p><div class="codebox"><pre class="vscroll"><code>test=# set work_mem to &#039;64MB&#039;;
+SET
+Time: 0,166 ms
+test=# explain(analyse, verbose) WITH toto as (select distinct nivgeo_zone,codgeo_zone,nivgeo_englobe,codgeo_englobe from t1)
+SELECT
+sum(valeur),
+inatc,
+sexe,
+age4,
+iranr,
+nivgeo_englobe,
+codgeo_englobe
+from
+t2 data join toto on (data.nivgeo = toto.nivgeo_zone AND data.codgeo = toto.codgeo_zone)
+group by 2,3,4,5,6,7;
+                                                                            QUERY PLAN                                                                            
+------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ HashAggregate  (cost=40376.15..41106.14 rows=72999 width=64) (actual time=7817.584..9237.119 rows=4104270 loops=1)
+   Output: sum(data.valeur), data.inatc, data.sexe, data.age4, data.iranr, toto.nivgeo_englobe, toto.codgeo_englobe
+   Group Key: data.inatc, data.sexe, data.age4, data.iranr, toto.nivgeo_englobe, toto.codgeo_englobe
+   CTE toto
+     -&gt;  HashAggregate  (cost=10004.24..10364.73 rows=36049 width=49) (actual time=189.425..296.358 rows=330062 loops=1)
+           Output: t1.nivgeo_zone, t1.codgeo_zone, t1.nivgeo_englobe, t1.codgeo_englobe
+           Group Key: t1.nivgeo_zone, t1.codgeo_zone, t1.nivgeo_englobe, t1.codgeo_englobe
+           -&gt;  Seq Scan on public.t1  (cost=0.00..6703.62 rows=330062 width=49) (actual time=0.002..19.243 rows=330062 loops=1)
+                 Output: t1.nivgeo_zone, t1.codgeo_zone, t1.nivgeo_englobe, t1.codgeo_englobe
+   -&gt;  Merge Join  (cost=3449.89..28733.94 rows=72999 width=64) (actual time=2414.251..5089.454 rows=4492665 loops=1)
+         Output: data.inatc, data.sexe, data.age4, data.iranr, data.valeur, toto.nivgeo_englobe, toto.codgeo_englobe
+         Merge Cond: ((data.nivgeo = toto.nivgeo_zone) AND (data.codgeo = toto.codgeo_zone))
+         -&gt;  Index Scan using t2_nivgeo_codgeo_idx on public.t2 data  (cost=0.42..21506.11 rows=500175 width=32) (actual time=0.016..131.288 rows=500175 loops=1)
+               Output: data.nivgeo, data.codgeo, data.iranr, data.inatc, data.age4, data.sexe, data.valeur
+         -&gt;  Sort  (cost=3449.47..3539.59 rows=36049 width=76) (actual time=2414.227..2636.629 rows=4492666 loops=1)
+               Output: toto.nivgeo_englobe, toto.codgeo_englobe, toto.nivgeo_zone, toto.codgeo_zone
+               Sort Key: toto.nivgeo_zone, toto.codgeo_zone
+               Sort Method: quicksort  Memory: 55778kB
+               -&gt;  CTE Scan on toto  (cost=0.00..720.98 rows=36049 width=76) (actual time=189.428..392.457 rows=330062 loops=1)
+                     Output: toto.nivgeo_englobe, toto.codgeo_englobe, toto.nivgeo_zone, toto.codgeo_zone
+ Planning time: 0.185 ms
+ Total runtime: 9389.032 ms
+(22 rows)
+
+Time: 9393,596 ms</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[arthurr]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=62</uri>
+		</author>
+		<updated>2014-04-30T16:01:31Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19802#p19802</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  mauvais choix de l'optimiseur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19801#p19801"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>arthurr a écrit&#160;:</cite><blockquote><div><p>Pas grand chose à faire : il doit trier 4 486 995 lignes sur 6 colonnes (zone.nivgeo_englobe, zone.codgeo_englobe, data.inatc, data.sexe, data.age4, data.iranr) -&gt; le group by<br />et vu la taille, il est obligé de passer par un fichier sur disque (360Mo), les données ne tenant pas dans le work_mem.<br />Donc : c&#039;est du cpu et du disque</p></div></blockquote></div><p>j&#039;ai répondu trop vite (je n&#039;ai lu que votre dernier post et pas depuis le début) : ma réponse ne va pas aider beaucoup .... désolé</p>]]></content>
+		<author>
+			<name><![CDATA[arthurr]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=62</uri>
+		</author>
+		<updated>2014-04-30T15:38:03Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19801#p19801</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  mauvais choix de l'optimiseur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19800#p19800"/>
+		<content type="html"><![CDATA[<p>Pas grand chose à faire : il doit trier 4 486 995 lignes sur 6 colonnes (zone.nivgeo_englobe, zone.codgeo_englobe, data.inatc, data.sexe, data.age4, data.iranr) -&gt; le group by<br />et vu la taille, il est obligé de passer par un fichier sur disque (360Mo), les données ne tenant pas dans le work_mem.<br />Donc : c&#039;est du cpu et du disque</p>]]></content>
+		<author>
+			<name><![CDATA[arthurr]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=62</uri>
+		</author>
+		<updated>2014-04-30T14:21:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19800#p19800</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  mauvais choix de l'optimiseur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19799#p19799"/>
+		<content type="html"><![CDATA[<p>J&#039;ai fait le test avec le postgresql.conf.sample et le résultat est toujours lent. J&#039;en déduit que j&#039;ai surtout un problème de matériel. Pendant les 10 min de l&#039;exécution, ma cpu est à 100%, je vais creuser par là.</p><br /><p>J&#039;ai critiqué un peu vite l&#039;optimiseur avant de mettre en cause mon matériel <img src="http://forums.postgresql.fr/img/smilies/hmm.png" width="15" height="15" alt="hmm" /></p><br /><p>Merci pour avoir pris le temps de tester tout ceci <img src="http://forums.postgresql.fr/img/smilies/big_smile.png" width="15" height="15" alt="big_smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[saigamp]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=767</uri>
+		</author>
+		<updated>2014-04-30T12:44:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19799#p19799</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  mauvais choix de l'optimiseur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19791#p19791"/>
+		<content type="html"><![CDATA[<p>Bon, j&#039;ai testé sur mon portable. En gros, les performances sont les mêmes avant et après ANALYZE. J&#039;ai même désactivé mon autovacuum pour être sûr qu&#039;il ne se moquait pas de moi <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>Sans ANALYZE :</p><div class="codebox"><pre class="vscroll"><code>postgres=# explain (analyze, buffers) SELECT
+  SUM(valeur) AS valeur, inatc, sexe, age4, iranr, nivgeo, codgeo
+FROM (
+  SELECT
+    data.valeur, data.inatc, data.sexe, data.age4, data.iranr, zone.nivgeo_englobe AS nivgeo, zone.codgeo_englobe AS codgeo
+  FROM
+    t2 data
+    INNER JOIN t1 zone
+  ON data.nivgeo = zone.nivgeo_zone AND data.codgeo = zone.codgeo_zone
+  ) agrege
+GROUP BY
+  nivgeo, codgeo, inatc, sexe, age4, iranr
+;
+                                                                  QUERY PLAN                                                                   
+-----------------------------------------------------------------------------------------------------------------------------------------------
+ GroupAggregate  (cost=629352.09..694481.67 rows=2170986 width=64) (actual time=26687.083..31854.412 rows=4079970 loops=1)
+   Buffers: shared hit=4096 read=2989 dirtied=7085, temp read=202680 written=205255
+   -&gt;  Sort  (cost=629352.09..634779.56 rows=2170986 width=64) (actual time=26687.070..30186.325 rows=4486995 loops=1)
+         Sort Key: zone.nivgeo_englobe, zone.codgeo_englobe, data.inatc, data.sexe, data.age4, data.iranr
+         Sort Method: external merge  Disk: 359696kB
+         Buffers: shared hit=4096 read=2989 dirtied=7085, temp read=202680 written=205255
+         -&gt;  Merge Join  (cost=115188.35..155975.69 rows=2170986 width=64) (actual time=2790.844..4995.593 rows=4486995 loops=1)
+               Merge Cond: ((zone.nivgeo_zone = data.nivgeo) AND (zone.codgeo_zone = data.codgeo))
+               Buffers: shared hit=4096 read=2989 dirtied=7085, temp read=6880 written=9455
+               -&gt;  Sort  (cost=52959.31..53615.15 rows=262339 width=76) (actual time=1007.896..1014.713 rows=11080 loops=1)
+                     Sort Key: zone.nivgeo_zone, zone.codgeo_zone
+                     Sort Method: external sort  Disk: 21328kB
+                     Buffers: shared hit=2048 read=1359 dirtied=3407, temp read=91 written=2666
+                     -&gt;  Seq Scan on t1 zone  (cost=0.00..6030.39 rows=262339 width=76) (actual time=0.044..75.394 rows=330418 loops=1)
+                           Buffers: shared hit=2048 read=1359 dirtied=3407
+               -&gt;  Materialize  (cost=62229.04..63884.14 rows=331020 width=60) (actual time=1782.935..2637.027 rows=4486990 loops=1)
+                     Buffers: shared hit=2048 read=1630 dirtied=3678, temp read=6789 written=6789
+                     -&gt;  Sort  (cost=62229.04..63056.59 rows=331020 width=60) (actual time=1782.931..2266.112 rows=500175 loops=1)
+                           Sort Key: data.nivgeo, data.codgeo
+                           Sort Method: external merge  Disk: 20552kB
+                           Buffers: shared hit=2048 read=1630 dirtied=3678, temp read=6789 written=6789
+                           -&gt;  Seq Scan on t2 data  (cost=0.00..6988.20 rows=331020 width=60) (actual time=0.037..122.679 rows=500175 loops=1)
+                                 Buffers: shared hit=2048 read=1630 dirtied=3678
+ Total runtime: 32137.151 ms
+(24 rows)</code></pre></div><p>Avec ANALYZE :</p><div class="codebox"><pre class="vscroll"><code>postgres=# explain (analyze, buffers) SELECT
+  SUM(valeur) AS valeur, inatc, sexe, age4, iranr, nivgeo, codgeo
+FROM (
+  SELECT
+    data.valeur, data.inatc, data.sexe, data.age4, data.iranr, zone.nivgeo_englobe AS nivgeo, zone.codgeo_englobe AS codgeo
+  FROM
+    t2 data
+    INNER JOIN t1 zone
+  ON data.nivgeo = zone.nivgeo_zone AND data.codgeo = zone.codgeo_zone
+  ) agrege
+GROUP BY
+  nivgeo, codgeo, inatc, sexe, age4, iranr
+;
+                                                               QUERY PLAN                                                               
+----------------------------------------------------------------------------------------------------------------------------------------
+ GroupAggregate  (cost=1225036.29..1362919.44 rows=4596105 width=65) (actual time=24481.894..29912.238 rows=4094145 loops=1)
+   Buffers: shared hit=4124 read=2963, temp read=203526 written=203464
+   -&gt;  Sort  (cost=1225036.29..1236526.55 rows=4596105 width=65) (actual time=24481.883..28299.933 rows=4511700 loops=1)
+         Sort Key: zone.nivgeo_englobe, zone.codgeo_englobe, data.inatc, data.sexe, data.age4, data.iranr
+         Sort Method: external merge  Disk: 361680kB
+         Buffers: shared hit=4124 read=2963, temp read=203526 written=203464
+         -&gt;  Hash Join  (cost=14905.53..150891.26 rows=4596105 width=65) (actual time=201.674..1993.739 rows=4511700 loops=1)
+               Hash Cond: ((data.nivgeo = zone.nivgeo_zone) AND (data.codgeo = zone.codgeo_zone))
+               Buffers: shared hit=4124 read=2963, temp read=6121 written=6059
+               -&gt;  Seq Scan on t2 data  (cost=0.00..8679.75 rows=500175 width=32) (actual time=0.056..109.649 rows=500175 loops=1)
+                     Buffers: shared hit=2076 read=1602
+               -&gt;  Hash  (cost=6715.61..6715.61 rows=330661 width=49) (actual time=201.146..201.146 rows=330661 loops=1)
+                     Buckets: 2048  Batches: 32  Memory Usage: 941kB
+                     Buffers: shared hit=2048 read=1361, temp written=2959
+                     -&gt;  Seq Scan on t1 zone  (cost=0.00..6715.61 rows=330661 width=49) (actual time=0.016..77.980 rows=330661 loops=1)
+                           Buffers: shared hit=2048 read=1361
+ Total runtime: 30168.335 ms
+(17 rows)</code></pre></div><p>32 secondes contre 30 secondes. Kif kif. Pour infos, mon postgresql.conf n&#039;est pas modifié.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-04-29T19:54:54Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19791#p19791</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  mauvais choix de l'optimiseur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19777#p19777"/>
+		<content type="html"><![CDATA[<p>Au temps pour moi... J&#039;ai édité la requête et la création de la première table dans le message précédent. Ça devrait fonctionner cette fois-ci.</p>]]></content>
+		<author>
+			<name><![CDATA[saigamp]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=767</uri>
+		</author>
+		<updated>2014-04-29T08:12:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19777#p19777</id>
+	</entry>
+</feed>

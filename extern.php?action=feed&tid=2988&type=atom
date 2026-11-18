@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / [9.3] RAISE et niveaux de log]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2988&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2988"/>
+	<updated>2014-02-10T19:37:49Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2988</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [9.3] RAISE et niveaux de log]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19201#p19201"/>
+		<content type="html"><![CDATA[<p>Malheureusement, vous ne pourrez pas.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-02-10T19:37:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19201#p19201</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [9.3] RAISE et niveaux de log]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19189#p19189"/>
+		<content type="html"><![CDATA[<p>Effectivement cela fonctionne avec le &quot;set client_min_messages to&quot; que je n&#039;avais pas trouvé..<br />Merci.</p><p>Il ne me reste qu&#039;à trouver comment me débarrasser du &quot;Context&quot; pour passer de </p><div class="codebox"><pre><code>NOTICE:  Lancement de l&#039;Allumeur à 2014-02-10 10:24:32.297771+01
+INFO:  Procédure de traitement du flux INFOLT2      (19) : transport.allum_format_infolt()
+INFO:  48 transactions insérées dans tmp_transactions
+CONTEXT:  SQL statement &quot;SELECT transport.allum_format_infolt()&quot;
+PL/pgSQL function tampon.allumeur() line 46 at EXECUTE statement
+INFO:  4661 données insérées dans tmp_verif_datas_infolt
+CONTEXT:  SQL statement &quot;SELECT transport.allum_format_infolt()&quot;
+PL/pgSQL function tampon.allumeur() line 46 at EXECUTE statement
+INFO:  0 données rejetées pour Longueur n° LT invalide
+CONTEXT:  SQL statement &quot;SELECT transport.allum_verif_infolt()&quot;
+..</code></pre></div><p>à</p><div class="codebox"><pre><code>NOTICE:  Lancement de l&#039;Allumeur à 2014-02-10 10:24:32.297771+01
+INFO:  Procédure de traitement du flux INFOLT2      (19) : transport.allum_format_infolt()
+INFO:  48 transactions insérées dans tmp_transactions
+INFO:  4661 données insérées dans tmp_verif_datas_infolt
+INFO:  0 données rejetées pour Longueur n° LT invalide
+...</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[GAEREL]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3069</uri>
+		</author>
+		<updated>2014-02-10T09:27:07Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19189#p19189</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [9.3] RAISE et niveaux de log]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19176#p19176"/>
+		<content type="html"><![CDATA[<p>Il est possible de changer dynamiquement le niveau de log avec client_min_messages, y compris en tant que simple utilisateur. La preuve :</p><div class="codebox"><pre><code>postgres=# select 1;
+ ?column? 
+----------
+        1
+(1 row)
+
+postgres=# show client_min_messages;
+ client_min_messages 
+---------------------
+ notice
+(1 row)
+
+postgres=# set client_min_messages to log;
+LOG:  durée : 27.994 ms, instruction : set client_min_messages to log;
+SET
+postgres=# select 1;
+LOG:  durée : 0.134 ms, instruction : select 1;
+ ?column? 
+----------
+        1
+(1 row)</code></pre></div><p>J&#039;ai bien un message de niveau LOG maintenant.</p><p>Pour le changement de log_line_prefix, c&#039;est un paramètre valable pour le serveur complet. Vous pouvez le changer dynamiquement mais uniquement en modifiant le fichier de configuration, puis en demandant à PostgreSQL de relire sa configuration. Et comme son nom l&#039;indique, ça ne concerne que les traces serveur, pas les traces clients (donc log_min_messages et pas client_min_messages pour être un peu rapide).</p><div class="quotebox"><blockquote><div><p>&gt; Pourquoi ce paramétrage est il réservé au serveur ? donc au DBA (ce que je peux comprendre en production mais moins en phase de dev...)</p><p>En effet, à un instant T je peux avoir besoin du niveau DEBUG pour un deboguage profond et vouloir revenir au niveau NOTICE lors d&#039;un test de plus grande envergure nécessitant moins de traces</p></div></blockquote></div><p>Si vous parlez de log_line_prefix, c&#039;est parce que c&#039;est un paramètre côté serveur. Vous avez client_min_messages pour ce que vous voulez obtenir.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-02-08T17:09:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19176#p19176</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[[9.3] RAISE et niveaux de log]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19168#p19168"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous.</p><p>J&#039;ai un peu de mal avec le paramétrage de la fonction RAISE [niveau] [format] [expression,...]<br />Surtout coté client<br />Car je développe des fonctions assez longues qui contiennent des RAISE avec des niveau de log différents (de NOTICE à DEBUG)</p><p>&gt; Pourquoi n&#039;est il pas possible, dynamiquement, de changer le niveau (client_min_message) et/ou, d&#039;ailleurs, le log_line_prefix en fonction de mes besoins ?<br />&gt; Pourquoi ce paramétrage est il réservé au serveur ? donc au DBA (ce que je peux comprendre en production mais moins en phase de dev...)</p><p>En effet, à un instant T je peux avoir besoin du niveau DEBUG pour un deboguage profond et vouloir revenir au niveau NOTICE lors d&#039;un test de plus grande envergure nécessitant moins de traces</p><p>Ceci, d&#039;ailleurs, quel que soit le client : je développe avec pgadmin et teste mes scripts via psql</p><p>Merci d&#039;avance de vos réponses éclairées.</p><p>Cordialement<br />Fred</p>]]></content>
+		<author>
+			<name><![CDATA[GAEREL]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3069</uri>
+		</author>
+		<updated>2014-02-07T10:30:54Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19168#p19168</id>
+	</entry>
+</feed>

@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Retour à la ligne RAISE INFO 'bla bla']]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=593&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=593"/>
+	<updated>2010-01-25T14:45:50Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=593</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Retour à la ligne RAISE INFO 'bla bla']]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=3709#p3709"/>
+		<content type="html"><![CDATA[<p>Ce n&#039;est pas un &quot;.&quot; en particulier qu&#039;il faut mais un caractère, n&#039;importe lequel après le \n...</p><p>J&#039;ai testé ton exemple avec&#160; char(10), ça ne marche pas.</p>]]></content>
+		<author>
+			<name><![CDATA[glenn]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=623</uri>
+		</author>
+		<updated>2010-01-25T14:45:50Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=3709#p3709</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Retour à la ligne RAISE INFO 'bla bla']]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=3707#p3707"/>
+		<content type="html"><![CDATA[<p>Je ne vois pas où vous avez lu qu&#039;il fallait un point supplémentaire pour que cela fonctionne. En fait, il vous faut remplacer le \n par un chr(10). Vous devez concaténer les chaînes mais RAISE utilise un moyen spécial pour cela (à la sprintf en C) :</p><div class="codebox"><pre class="vscroll"><code>a=# select version();
+                                         version                                          
+------------------------------------------------------------------------------------------
+ PostgreSQL 8.3.9 on i686-pc-linux-gnu, compiled by GCC gcc (Ubuntu 4.4.1-4ubuntu8) 4.4.1
+(1 ligne)
+
+a=# select diff_tm_structure();
+INFO:  première lignen
+INFO:  seconde lignen
+ diff_tm_structure 
+-------------------
+ 
+(1 ligne)
+
+a=# CREATE OR REPLACE FUNCTION diff_tm_structure() RETURNS void AS $$
+DECLARE
+BEGIN
+    RAISE INFO &#039;première ligne%&#039;, chr(10);
+    RAISE INFO &#039;seconde ligne%&#039;, chr(10);
+END;
+$$ LANGUAGE plpgsql;
+CREATE FUNCTION
+a=# select diff_tm_structure();
+INFO:  première ligne
+
+INFO:  seconde ligne
+
+ diff_tm_structure 
+-------------------
+ 
+(1 ligne)</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-01-25T14:43:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=3707#p3707</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Retour à la ligne RAISE INFO 'bla bla']]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=3703#p3703"/>
+		<content type="html"><![CDATA[<p>Non plus...</p><p>Merci bien pour ton aide. C&#039;est sûrement dû à ma version... Je vais upgrader.</p>]]></content>
+		<author>
+			<name><![CDATA[glenn]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=623</uri>
+		</author>
+		<updated>2010-01-25T14:02:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=3703#p3703</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Retour à la ligne RAISE INFO 'bla bla']]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=3702#p3702"/>
+		<content type="html"><![CDATA[<p>Ici ça marche :</p><div class="codebox"><pre><code>test=# SET client_min_messages TO debug;
+SET                       
+test=# CREATE OR REPLACE FUNCTION diff_tm_structure() RETURNS void AS $$
+DECLARE
+BEGIN
+    RAISE INFO &#039;première ligne\n&#039;;
+    RAISE INFO &#039;seconde ligne\n&#039;;
+END;
+$$ LANGUAGE plpgsql;
+WARNING:  nonstandard use of escape in a string literal
+HINT:  Use the escape string syntax for escapes, e.g., E&#039;\r\n&#039;.
+CONTEXT:  string literal in PL/PgSQL function &quot;diff_tm_structure&quot; near line 3
+WARNING:  nonstandard use of escape in a string literal
+HINT:  Use the escape string syntax for escapes, e.g., E&#039;\r\n&#039;.
+CONTEXT:  string literal in PL/PgSQL function &quot;diff_tm_structure&quot; near line 4
+CREATE FUNCTION
+test=# SELECT diff_tm_structure();
+INFO:  première ligne
+
+INFO:  seconde ligne
+
+ diff_tm_structure
+-------------------</code></pre></div><p>Je suis en 8.4.2, et je n&#039;ai pas de 8.3 sous la main pour tester pour le moment. Vous n&#039;avez pas le même résultat ?</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-01-25T13:58:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=3702#p3702</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Retour à la ligne RAISE INFO 'bla bla']]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=3701#p3701"/>
+		<content type="html"><![CDATA[<p>ça ne marche pas non plus avec E...</p>]]></content>
+		<author>
+			<name><![CDATA[glenn]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=623</uri>
+		</author>
+		<updated>2010-01-25T13:47:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=3701#p3701</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Retour à la ligne RAISE INFO 'bla bla']]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=3700#p3700"/>
+		<content type="html"><![CDATA[<p>Essayez tout de même de remplacer &#039;première ligne\n&#039; par E&#039;première ligne\n&#039;, ceci précise à postgresql que la chaine entre parenthèses est une chaine définie avec la syntaxe d&#039;escape C, et non la syntaxe SQL</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-01-25T13:44:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=3700#p3700</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Retour à la ligne RAISE INFO 'bla bla']]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=3699#p3699"/>
+		<content type="html"><![CDATA[<p>Oups ! la version est 8.3.5 !</p>]]></content>
+		<author>
+			<name><![CDATA[glenn]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=623</uri>
+		</author>
+		<updated>2010-01-25T13:34:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=3699#p3699</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Retour à la ligne RAISE INFO 'bla bla']]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=3698#p3698"/>
+		<content type="html"><![CDATA[<p>Ici ça marche, avec exactement votre code.<br />Par contre je présume que la version, c&#039;est 8.4.1 ?</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-01-25T13:33:03Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=3698#p3698</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Retour à la ligne RAISE INFO 'bla bla']]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=3695#p3695"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>&#160; &#160;Question bête ! Comment revenir à la ligne dans un message levé par&#160; RAISE ? </p><p>J&#039;ai essayé&#160; : </p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION diff_tm_structure() RETURNS void AS $$
+
+DECLARE
+BEGIN
+	RAISE INFO &#039;première ligne\n&#039;;
+	RAISE INFO &#039;seconde ligne\n&#039;;
+END;
+$$ LANGUAGE plpgsql;</code></pre></div><p>... mais toujours pas de retour à la ligne !</p><p>Merci par avance de votre aide !</p><p>Note : je suis en version 1.8.4.</p><br /><p>J&#039;ai vu le post sur le même sujet<a href="http://forums.postgresql.fr/viewtopic.php?id=427" rel="nofollow">le post sur le même sujet</a> mais la solution</p><p>RAISE INFO &#039;première ligne\n.&#039;; </p><p>si elle marche n&#039;est pas satisfaisante car elle parasite la ligne suivante avec un caractère !</p><p>Glenn.</p>]]></content>
+		<author>
+			<name><![CDATA[glenn]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=623</uri>
+		</author>
+		<updated>2010-01-25T13:21:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=3695#p3695</id>
+	</entry>
+</feed>

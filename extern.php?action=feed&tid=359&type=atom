@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Erreur could not access status of transaction]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=359&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=359"/>
+	<updated>2009-07-21T15:54:30Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=359</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Erreur could not access status of transaction]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2030#p2030"/>
+		<content type="html"><![CDATA[<p>Oui, en fait, avec votre commande, vous avez en quelque sort forcé le fait que toutes les transactions ont été commitées. Si certaines étaient rollbackées, vos données ne seront pas cohérentes. Bref, vous avez choisi la solution de facilité qui risque de vous revenir rapidement dans la figure.</p><p>Personnellement, je préfère perdre quelques jours, plutôt que quelques mois car si vous vous rendez compte dans un ou deux mois que les données ne sont pas cohérentes, vous aurez deux choix : 1. corriger à chaque erreur trouvée (ça risque de vous prendre énormément de temps pour un résultat hasardeux), 2. recharger la sauvegarde qui datera dans ce cas de deux/trois mois.</p><p>Bref, reprenez la sauvegarde, c&#039;est comme je disais la meilleure solution.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2009-07-21T15:54:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2030#p2030</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Erreur could not access status of transaction]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2029#p2029"/>
+		<content type="html"><![CDATA[<p>les logs des transactions sont nécessaires parce que postgresql fonctionne avec un modèle MVCC : chaque enregistrement peut exister en plusieurs versions dans les tables, et chaque version est marquée par une transaction de création et une transaction de destruction. Mais une transaction peut se terminer soit en commit soit en rollback. Dans les deux cas, la seule chose que PostgreSQL fasse, c&#039;est marquer l&#039;état final de cette transaction dans la clog.</p><p>Le problème est donc qu&#039;à l&#039;heure actuelle, dans votre base, il y a des enregistrements ayant des transactions de début/fin d&#039;état inconnu à cause de la perte de cette clog. Et donc de gros doutes quant à leur visibilité.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2009-07-21T15:11:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2029#p2029</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Erreur could not access status of transaction]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2028#p2028"/>
+		<content type="html"><![CDATA[<p>Ce que je ne comprends pas, c&#039;est pourquoi les logs des transactions sont nécessaires pour exporter les données ?</p><p>Les données de la bases ne sont-elles pas dans le dossier pgsql/data/base ?</p>]]></content>
+		<author>
+			<name><![CDATA[egrange]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=436</uri>
+		</author>
+		<updated>2009-07-21T14:53:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2028#p2028</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Erreur could not access status of transaction]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2027#p2027"/>
+		<content type="html"><![CDATA[<p>Les informations de la base sont probablement incorrectes, sauf dans l&#039;hypothèse que toutes les transactions aient toujours commité.</p><p>Le risque de perte est assez important. Et vous ne vous en rendrez compte que dans des mois, quand les utilisateurs constateront des incohérences.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2009-07-21T13:59:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2027#p2027</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Erreur could not access status of transaction]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2026#p2026"/>
+		<content type="html"><![CDATA[<p>Merci Gleu pour ta rapidité et ton aide.</p><p>En ce qui concerne nos serveurs ce sont des machines VMWare ESX haute performance. Je ne dis pas quels sont exempt de toutes défaillances, mais elle sont tellement surveillée que s&#039;il y avait le moindre pb, on serait prévenu.</p><p>D&#039;abord, tous les utilisateurs n&#039;utilisent pas notre application tous les jours.<br />De plus, la panne n&#039;empèche pas notre application de tourner, et nous nous en sommes donc apperçu que plusieurs jour après le début du problème, et donc certains users ont continués à travailler dessus (sauf les quelques personnes dont les lignes sont corrompues, qui nous ont prévenu)</p><p>Il nous est donc difficile de repartir d&#039;un dump exécuté plusieurs jours auparavent.</p><p>Après quelques recherches sur le net, nous avons trouvé une solution qui consiste à créer les fichiers manquant (de la même taille que les autres) rempli de 0 (ou de 0x55) avec la commande : </p><div class="codebox"><pre><code>dd bs=8k count=1 &lt; /dev/zero &gt;&gt; /var/lib/pgsql/data/pg_clog/00A6</code></pre></div><p>Cela semble fonctionner, après avoir remplacer tous les fichiers manquant, nous avons réussi à récupéré la base.</p><p>Cependant un doute subsiste :<br />Est-ce que toutes les informations de la base sont correcte ?<br />Y-a-t&#039;il un risque de perte ?</p><p>Nous avons aussi prévu de faire une mise à jour de version de postgres prochainement.</p><p>Merci</p>]]></content>
+		<author>
+			<name><![CDATA[egrange]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=436</uri>
+		</author>
+		<updated>2009-07-21T13:38:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2026#p2026</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Erreur could not access status of transaction]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2025#p2025"/>
+		<content type="html"><![CDATA[<p>Oh, de plus, 8.1.9 est une vieille version. Vous feriez mieux d&#039;en profiter pour mettre à jour vers la 8.1.17, dernière version mineure de cette branche à ce jour.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2009-07-21T12:40:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2025#p2025</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Erreur could not access status of transaction]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2024#p2024"/>
+		<content type="html"><![CDATA[<p>Le problème vient des fichiers indiquant si les transactions ont été COMMITées ou ROLLBACKées. Le problème est soit logicielle, au niveau du driver du disque, soit matérielle, directement au niveau du disque.</p><p>À mon sens, la meilleure solution dans ce cas est de restaurer une sauvegarde. Mais la première chose à faire est de comprendre pourquoi ce fichier n&#039;existe plus. Avez-vous supprimé un fichier ? avez-vous eu un problème disque ? ou de système de fichiers ? un crash serveur ?</p><p>Bref, la première chose est de s&#039;assurer du disque et du système de fichiers. La seconde chose à faire est de restaurer une sauvegarde.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2009-07-21T12:33:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2024#p2024</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Erreur could not access status of transaction]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2023#p2023"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Nous avons actuellement un problème avec application web utilisant une base de données PostgreSQL. <br />Depuis quelques jours maintenant, certaines lignes de certaines tables ne sont plus accessible.<br />L&#039;application fonctionne toujours, mais seule quelques users n&#039;arrive plus à accéder à leur page.</p><p>Après recherche, voici les erreurs qui nous sont retournées :<br /><em>pg_dump: ERROR:&#160; could not access status of transaction 174194688<br />DETAIL:&#160; could not open file &quot;pg_clog/00A6&quot;: No such file or directory</em></p><p>Connaissez-vous un moyen de récuperer la BD sans revenir en arrière depuis un dump ?<br /><strong>Y-a-t&#039;il un risque de perte de données ?</strong></p><p>Merci d&#039;avance pour votre aide</p><p>Cordialement,<br />Emmanuel</p><p>Système : SLES 10 SP2<br />PostgreSQL : 8.1.9</p>]]></content>
+		<author>
+			<name><![CDATA[egrange]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=436</uri>
+		</author>
+		<updated>2009-07-21T10:23:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2023#p2023</id>
+	</entry>
+</feed>

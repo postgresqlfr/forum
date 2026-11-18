@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / CLUSTER ou VACUUM]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=401&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=401"/>
+	<updated>2009-09-18T08:08:22Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=401</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  CLUSTER ou VACUUM]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2362#p2362"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Merci pour touts ces infos, les choses deviennent plus claires.<br />J&#039;ai retenu l&#039;idée de l&#039;historisattion (excellente). Ca ma permet de comprendre un peut mieux comment &quot;fonctionne&quot; cette table.<br />J&#039;ai fait un pg_stat_reset et programmé un cron pour collecter et stocker les stats de cette table toutes les 15 mn.</p><p>A vue de nez je pense que les 20% sont largement atteint. </p><br /><p>+Eric.</p>]]></content>
+		<author>
+			<name><![CDATA[Erjo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=465</uri>
+		</author>
+		<updated>2009-09-18T08:08:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2362#p2362</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  CLUSTER ou VACUUM]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2347#p2347"/>
+		<content type="html"><![CDATA[<p>Oui, les valeurs sont un cumul. On peut soit calculer le différentiel soit même entre 2 relevés, soit les remettre à zéro avec pg_stat_reset() (personnellement j&#039;historise à intervalle régulier le contenu de pg_stat_user_tables dans une table à moi.</p><p>Habituellement un vacuum commence à être justifié à partir de 20% d&#039;enregistrements supprimé ou mis à jour (pas insérés). C&#039;est la valeur par défaut d&#039;auto vacuum dans les versions récentes.</p><p>Bref le mieux c&#039;est peut être d&#039;historiser le contenu de cette vue toutes les quelques minutes afin de pouvoir évaluer le pourcentage de mise à jour dans une journée. Et de là trancher pour la politique de vacuum.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2009-09-16T15:00:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2347#p2347</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  CLUSTER ou VACUUM]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2345#p2345"/>
+		<content type="html"><![CDATA[<p>Le stats_row_level est à true dans postgresql.conf.<br />Je suppose que le résultat est stocké dans pg_stat_*_tables, en tout cas ce sont les infos que j&#039;ai utilisé pour identifier les tables à &quot;problèmes&quot;.<br />Par rapport à ce que j&#039;ai lu et compris de postgres et de sa gestion des updates/insert/delete j&#039;ai fait une requette qui me ramène les tables les plus mouvementées.</p><p>Mais je reconnais volontier que je ne sais pas forcement bien en interpréter le résultat.</p><p>Pour l&#039;une des tables les plus solicités j&#039;obtiens ceci:</p><div class="codebox"><pre><code> relname | seq_scan | seq_tup_read | idx_scan | idx_tup_fetch | n_tup_ins | n_tup_upd | n_tup_del 
+---------+----------+--------------+----------+---------------+-----------+-----------+-----------
+ offre   |    10169 |   2813393725 |   554878 |     687402756 |       853 |    620862 |         0
+(1 ligne)</code></pre></div><p>Question bête (encore): les valeurs représentent un cumul depuis la première mise en route de postgres ?</p>]]></content>
+		<author>
+			<name><![CDATA[Erjo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=465</uri>
+		</author>
+		<updated>2009-09-16T11:54:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2345#p2345</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  CLUSTER ou VACUUM]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2343#p2343"/>
+		<content type="html"><![CDATA[<p>oui, sachant qu&#039;en les passant en même temps, on augmente ses chances que les données soient dans le cache et donc de ne pas faire trop d&#039;entrées-sorties inutiles.</p><p>Le vacuum pourrait très bien être toutes les minutes si c&#039;est justifié. Ça dépend vraiment de l&#039;activité sur la table (qui peut être tracée en activant stats_row_level en 7.4)</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2009-09-16T09:59:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2343#p2343</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  CLUSTER ou VACUUM]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2337#p2337"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Effectivement le VACUUM toute les heures améliorement beaucoup les choses (testé sur une autre table à problème).<br />Question bête un VACUUM ANALYZE c&#039;est bien l&#039;équivalent des deux commandes séparée (VACCUM et ANALYZE) ?</p><p>+Eric.</p>]]></content>
+		<author>
+			<name><![CDATA[Erjo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=465</uri>
+		</author>
+		<updated>2009-09-16T07:00:09Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2337#p2337</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  CLUSTER ou VACUUM]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2331#p2331"/>
+		<content type="html"><![CDATA[<p>* Ok, c&#039;est déja plus raisonnable, mais si la taille de la table est multipliée entre le matin et le soir, c&#039;est qu&#039;il n&#039;y a pas assez de vacuum.<br />* Oui, la valeur est pour toutes les bases. 20 000, ca veut dire que le système ne peut tracer, en tout, que 80 Mo de pages réutilisables après le vacuum.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2009-09-15T14:53:07Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2331#p2331</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  CLUSTER ou VACUUM]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2329#p2329"/>
+		<content type="html"><![CDATA[<p>* Pour être plsu précis c&#039;est plutôt ~100Mo par jour. </p><p>* max_fsm_pages vaut 20 000 (valeur par défaut). Je vais regarder pour auguementer. <br />Je suppose que cette valeur est partagée par toutes les bases,&#160; Je devrais en tenir compte, non ?</p><p>* Merci pour la doc.</p>]]></content>
+		<author>
+			<name><![CDATA[Erjo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=465</uri>
+		</author>
+		<updated>2009-09-15T14:36:39Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2329#p2329</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  CLUSTER ou VACUUM]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2327#p2327"/>
+		<content type="html"><![CDATA[<p>Ok. oui avec cette version autovacuum était plutot approximatif.</p><p>Vu l&#039;activité (passage de qq Mo a 1500Mo chaque jour), le vacuum devrait être beaucoup plus fréquent.</p><p>Essayez de le passer chaque heure, voire plus fréquemment.</p><p>Pour info, combien vaut max_fsm_pages à l&#039;heure actuelle ? Si c&#039;est moins de 100 000 je vous conseille de l&#039;augmenter, pour au moins pouvoir contenir tous le blocs de cette table. Par contre cela risque de vous demander d&#039;augmenter shmmax au niveau du système.</p><p>Des liens vers les docs à lire avant de se lancer :<br /><a href="http://docs.postgresql.fr/7.4/runtime-config.html#RUNTIME-CONFIG-RESOURCE" rel="nofollow">http://docs.postgresql.fr/7.4/runtime-c … G-RESOURCE</a><br /><a href="http://docs.postgresqlfr.org/8.4/kernel-resources.html" rel="nofollow">http://docs.postgresqlfr.org/8.4/kernel-resources.html</a> (elle n&#039;existait pas dans la doc de la 7.4)</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2009-09-15T13:49:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2327#p2327</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  CLUSTER ou VACUUM]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2326#p2326"/>
+		<content type="html"><![CDATA[<p>Effectivement les perfs de nos applis web deviennent parfois désespérentes...<br />Une vielle version de postgres 7.4.23 sur Debian.<br />le vacuum analyze est passé tous les jours.<br />Il n&#039; y a pas de autovacuum, je me suis laissé dire qu&#039;il était buggé.</p><p>Pour exemple:</p><p>J&#039;ai une table de -300 000 lignes, ~30 colonnes qui fait plus de ~1.5Go et qui doit tomber à ~Mo après un vacuum full.</p><p>+Eric.</p>]]></content>
+		<author>
+			<name><![CDATA[Erjo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=465</uri>
+		</author>
+		<updated>2009-09-15T13:27:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2326#p2326</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  CLUSTER ou VACUUM]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2325#p2325"/>
+		<content type="html"><![CDATA[<p>Si c&#039;est le cas, c&#039;est, je pense, que le vacuum &quot;normal&quot; n&#039;est pas passé assez souvent, ou que la free space map est trop petite. Le vacuum full, c&#039;est plus une mesure desespérée qu&#039;autre chose. Quelle version de postgres ? y a t&#039;il un autovacuum ? si oui, est ce qu&#039;il se déclenche ?</p><p>Par contre oui, autant passer un analyze en même temps que vacuum.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2009-09-15T13:05:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2325#p2325</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  CLUSTER ou VACUUM]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2323#p2323"/>
+		<content type="html"><![CDATA[<p>Merci pour la réponse (c&#039;est rapide!).<br />Ca à l&#039;air intéressant mais plus destiné aux développeurs à priori.</p><p>En fait mon objectif c&#039;est d&#039;optimiser des tables sur lesquelles il y a beaucoup de mouvement (UPDATE, DELETE, INSERT en masse).</p><p>J&#039;ai remarqué que la requette VACUUM FULL sur les tables incriminées améliorait les temps de réponses de l&#039;application. <br />J&#039;ai donc imaginé de lance tous les jours un VACUUM FULL suivit d&#039;un REINDEX.<br />Mais peut être peut-on faire plus subtil ?<br />Aurais-je intérêt à&#160; faire un ANALYZE en plus ?</p><p>Merci d&#039;avance.</p><p>+Eric.</p>]]></content>
+		<author>
+			<name><![CDATA[Erjo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=465</uri>
+		</author>
+		<updated>2009-09-15T12:44:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2323#p2323</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  CLUSTER ou VACUUM]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2321#p2321"/>
+		<content type="html"><![CDATA[<p>Cluster permet de réordonner la table, ce que ne fait pas vacuum full. Par contre, cluster crée une nouvelle table pour le faire, ce qui prend de la place. La plupart du temps cluster est plus rapide.</p><p>Ceci dit, il faut être capable de décider sur quoi clusteriser : l&#039;idée est de regrouper physiquement, dans les mêmes blocs, des enregistrements susceptibles d&#039;être souvent ramenés ensemble dans une même requête. Il faut donc une connaissance de l&#039;application et des requêtes exécutées.</p><p>L&#039;exemple typique, c&#039;est une table de clients, sur laquelle les utilisateurs recherchent le plus souvent les clients par leur nom. On aura fortement intérêt à clusteriser sur le nom dans ce cas (surtout si l&#039;application permet de faire des recherche de type like sur le début du nom).</p><p>Évidemment, le problème c&#039;est qu&#039;on ne peut clusteriser que sur un seul index. Et qu&#039;on ne peut clusteriser que sur ce qui est indexé…</p><p>Donc ça permet d&#039;avoir des meilleures perfs. Mais pas en clusterisant au hasard. Et rarement sur la clé primaire, surtout si elle est technique (autogénérée).</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2009-09-15T11:55:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2321#p2321</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[CLUSTER ou VACUUM]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2320#p2320"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;ai lu que la requette CLUSTER permettait de ré-ordonner une table (c&#039;est du moins ce que j&#039;ai compris.).<br />Est-ce que ce serait l&#039;équivalent d&#039;un VACUUM FULL par exemple ?<br />Cela permet-il vraiment d&#039;obtenir de meilleurs performance que une table ou ça n&#039;a rien à voire ?</p><p>+Eric.</p>]]></content>
+		<author>
+			<name><![CDATA[Erjo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=465</uri>
+		</author>
+		<updated>2009-09-15T10:16:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2320#p2320</id>
+	</entry>
+</feed>

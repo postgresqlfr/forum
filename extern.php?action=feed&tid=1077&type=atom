@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Tester l'état de la réplication sur l'esclave]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1077&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1077"/>
+	<updated>2010-11-25T15:20:37Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1077</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Tester l'état de la réplication sur l'esclave]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6807#p6807"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>gleu a écrit&#160;:</cite><blockquote><div><div class="quotebox"><blockquote><div><p>j&#039;obtiens à peu près ce que je veux: si les deux valeurs sont identiques c&#039;est que l&#039;esclave a réussi à rejoindre le maitre.</p></div></blockquote></div><p>Pas vraiment. C&#039;est plutôt que l&#039;esclave a réussi à rejouer tout ce qu&#039;il a reçu du maître. Mais le maître peut être bien plus avancé que l&#039;esclave.</p></div></blockquote></div><p>Certe mais le cas que je veux adresser est surtout celui où au démarrage l&#039;esclave n&#039;arrive pas à récupérer les premiers logs et est donc sûr de ne pas réussir à se resynchroniser.</p><div class="quotebox"><cite>gleu a écrit&#160;:</cite><blockquote><div><div class="quotebox"><blockquote><div><p>Par contre, si le maître n&#039;a strictement aucune activité en écriture il est fréquent que la valeur de pg_last_xlog_replay_location() s&#039;approche de l&#039;autre sans l&#039;atteindre, elle l&#039;atteint quand il s&#039;est passé archive_timeout secondes (ou qu&#039;il y a eu des écritures sur le maitre).</p></div></blockquote></div><p>Vous êtes sûrs ? n&#039;est-ce pas plutôt parce que les sessions en question ont mis du temps à envoyer leur commit ?</p></div></blockquote></div><p>A priori non, car si j&#039;abaisse l&#039;archive_timeout à 60 secondes j&#039;ai un &quot;alignement&quot; total de l&#039;esclave dans les 60 secondes. De plus mon maitre et mon esclave n&#039;ont strictement aucune activité.</p><div class="quotebox"><cite>gleu a écrit&#160;:</cite><blockquote><div><div class="quotebox"><blockquote><div><p>Est-ce que vous auriez un moyen plus fiable de savoir si on doit repartir d&#039;un dump du master, ou bien si l&#039;esclave peut se récupérer tout seul ?</p></div></blockquote></div><p>Le mieux est la comparaison entre pg_current_xlog_location() sur le maître et pg_last_xlog_receive_location()/pg_last_xlog_replay_location(); sur l&#039;esclave. Ce que fait d&#039;ailleurs pgPool-II pour abandonner un esclave s&#039;il laggue trop.</p></div></blockquote></div><p>Oui merci, je suis parti sur cette manière de faire. <br />L&#039;autre possibilité que je voyais était de faire tourner les logs sur le maitre avec un pg_switch_xlog()</p>]]></content>
+		<author>
+			<name><![CDATA[dfort]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=989</uri>
+		</author>
+		<updated>2010-11-25T15:20:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6807#p6807</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Tester l'état de la réplication sur l'esclave]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6803#p6803"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>j&#039;obtiens à peu près ce que je veux: si les deux valeurs sont identiques c&#039;est que l&#039;esclave a réussi à rejoindre le maitre.</p></div></blockquote></div><p>Pas vraiment. C&#039;est plutôt que l&#039;esclave a réussi à rejouer tout ce qu&#039;il a reçu du maître. Mais le maître peut être bien plus avancé que l&#039;esclave.</p><div class="quotebox"><blockquote><div><p>Par contre, si le maître n&#039;a strictement aucune activité en écriture il est fréquent que la valeur de pg_last_xlog_replay_location() s&#039;approche de l&#039;autre sans l&#039;atteindre, elle l&#039;atteint quand il s&#039;est passé archive_timeout secondes (ou qu&#039;il y a eu des écritures sur le maitre).</p></div></blockquote></div><p>Vous êtes sûrs ? n&#039;est-ce pas plutôt parce que les sessions en question ont mis du temps à envoyer leur commit ?</p><div class="quotebox"><blockquote><div><p>Est-ce que vous auriez un moyen plus fiable de savoir si on doit repartir d&#039;un dump du master, ou bien si l&#039;esclave peut se récupérer tout seul ?</p></div></blockquote></div><p>Le mieux est la comparaison entre pg_current_xlog_location() sur le maître et pg_last_xlog_receive_location()/pg_last_xlog_replay_location(); sur l&#039;esclave. Ce que fait d&#039;ailleurs pgPool-II pour abandonner un esclave s&#039;il laggue trop.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-11-25T13:33:06Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6803#p6803</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Tester l'état de la réplication sur l'esclave]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6801#p6801"/>
+		<content type="html"><![CDATA[<p>Bonjour, j&#039;ai déployé un maitre et un esclave en 9.0 avec de la SR.</p><p>Je cherche un moyen &quot;programmatique&quot; (c&#039;est à dire pas en greppant dans les logs avec mes yeux d&#039;humain) de savoir si l&#039;esclave arrivera à se réaligner avec le maitre via la connexion TCP et/ou la restore_command.</p><p>Sur l&#039;esclave en lançant plusieurs fois cette requête SQL:<br />select pg_last_xlog_receive_location(), pg_last_xlog_replay_location();</p><p>j&#039;obtiens à peu près ce que je veux: si les deux valeurs sont identiques c&#039;est que l&#039;esclave a réussi à rejoindre le maitre. </p><p>Par contre, si le maître n&#039;a strictement aucune activité en écriture il est fréquent que la valeur de pg_last_xlog_replay_location() s&#039;approche de l&#039;autre sans l&#039;atteindre, elle l&#039;atteint quand il s&#039;est passé archive_timeout secondes (ou qu&#039;il y a eu des écritures sur le maitre).</p><p>Mon test case est le suivant, le master et le slave en ligne et en mode SR opérationnel.<br />1 - éteindre le maitre<br />2 - faire un restart sur le slave<br />3 - démarrer le maitre<br />4 - sur l&#039;esclave je lance la requête SQL donnée plus haut, en espérant avoir les deux même valeurs</p><p>Est-ce que vous auriez un moyen plus fiable de savoir si on doit repartir d&#039;un dump du master, ou bien si l&#039;esclave peut se récupérer tout seul ?</p>]]></content>
+		<author>
+			<name><![CDATA[dfort]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=989</uri>
+		</author>
+		<updated>2010-11-25T11:27:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6801#p6801</id>
+	</entry>
+</feed>

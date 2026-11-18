@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / La réplication en 8.5: Un aperçu ?]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=316&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=316"/>
+	<updated>2009-06-12T08:25:25Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=316</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  La réplication en 8.5: Un aperçu ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1690#p1690"/>
+		<content type="html"><![CDATA[<p>C&#039;est à cela que sert le mode mixte : quand tu as des now, random &amp; co, il génère des ordres en mode &#039;row based replication&#039;, si j&#039;ai bien compris. Donc on a le &#039;moins pire&#039; des deux mondes. Quand ça marche...</p><p>Juste pour le plaisir :<br /><a href="http://dev.mysql.com/doc/refman/5.4/en/open-bugs.html" rel="nofollow">http://dev.mysql.com/doc/refman/5.4/en/open-bugs.html</a></p><p>Quand la réplication ne marche pas, autant dire que c&#039;est la faute du développeur qui fait des requêtes &quot;ne respectant pas les bonnes pratiques&quot;.</p><p>Bon, d&#039;un autre côté, je ne l&#039;ai pas utilisé depuis longtemps, vu qu&#039;une réplication qui &#039;pourrait ne pas marcher&#039;, c&#039;est le genre de choses qui ne m&#039;encourage pas à m&#039;en servir, même si c&#039;est dans des cas très particuliers. Les développeurs sont quelquefois suffisamment inventifs... <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2009-06-12T08:25:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1690#p1690</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  La réplication en 8.5: Un aperçu ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1689#p1689"/>
+		<content type="html"><![CDATA[<p>J&#039;avais bien vu la réplication par envoi des instructions SQL mais je n&#039;osais pas croire que c&#039;était ce que kedare appelait génial. S&#039;il n&#039;y a que ça pour lui faire plaisir, pgpool sait le faire, mais avec les limitations qu&#039;on connaît (à savoir que les fonctions style now() ou random() donneront pratiquement à coup sûr des valeurs différentes sur le maître et sur l&#039;esclave).</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2009-06-12T06:55:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1689#p1689</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  La réplication en 8.5: Un aperçu ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1688#p1688"/>
+		<content type="html"><![CDATA[<p>Aux dernières nouvelles, la réplication Mysql, c&#039;est de la réplication par ordres SQL :<br />- Statement based replication (on envoie les ordres SQL de l&#039;autre côté). Cette solution a le défaut que des appels de fonctions dépendantes du contexte (comme l&#039;heure) peuvent entrainer des différences sur la base esclave (c&#039;est peut être corrigé depuis le temps mais je ne crois pas)<br />- row based replication (on envoie des ordres enreg par enreg pour exécuter l&#039;équivalent des modifs de la base de prod sur la base de backup). elle a le défaut, à la place, d&#039;être lente, si par exemple on veut répliquer un delete d&#039;un million d&#039;enreg</p><p>C&#039;est pour cela que maintenant mysql a un mode mixte. Son défaut à lui ? il est plein de bugs. C&#039;est d&#039;ailleurs un des trucs pleins de bugs qui ont fait parler de lui à la sortie de la 5.1.</p><p>Le but n&#039;est pas de troller. Le point fort de mysql, c&#039;est que cette réplication est bien intégrée. Le défaut, c&#039;est que la partie &#039;basse&#039;, c&#039;est à dire ce qui génère la réplication, est assez fragile, et encore buggué malgré le temps qu&#039;ils ont déjà passé à le développer.<br />De son côté, PostgreSQL a une réplication un peu plus manuelle (encore qu&#039;avec les skytools, ca devient assez raisonnable), mais extrêmement fiable (elle utilise le mécanisme de journalisation de la base, qui existe depuis très longtemps et est la garantie, déjà en temps normal, de la fiabilité de la base). La surcouche &#039;réplication facile&#039; va venir, on espère tous en 8.5. Mais sur des fondations solides, alors que mysql a choisi l&#039;approche inverse : d&#039;abord une interface facile, et ensuite essayer de rendre le mécanisme solide.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2009-06-12T05:17:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1688#p1688</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  La réplication en 8.5: Un aperçu ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1687#p1687"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>oui je parle du log shipping, qui utilise scp pour copier les logs binaires, donc c&#039;est quand meme externe a postgresql je trouve, postgresql n&#039;a pas vraiment de controle la dessus,</p></div></blockquote></div><p>Je comprend pas cette phrase. PostgreSQL n&#039;a pas n&#039;ont plus le controle sur la pile TCP/IP et sur le driver de la carte ethernet <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /><br />C&#039;est pareil pour MySQL. La différence c&#039;est que MySQL te cache cette complexité et ne te laisse pas le choix.</p><div class="quotebox"><blockquote><div><p>a aucun moment le master peut connaitre le status du slave par exemple comme l&#039;on pourrait le faire dans mysql avec &quot;SHOW PROCESSLIST&quot; ( par exemple: Has sent all binlog to slave; waiting for binlog to be updated ),</p></div></blockquote></div><p>C&#039;est faux. Il est possible avec la Warm Standby de savoir précisément quel est le dernier journal de transcation envoyé et déduire si l&#039;esclave est désynchronisé. C&#039;est plus rustique que ce que tu décris mais ça sera amélioré avec le Hot Standby</p><div class="quotebox"><blockquote><div><p>on a pas non plus autant d&#039;informations sur le slave, par exemple le slave ne connais pas l&#039;adresse du master ou d&#039;autres informations utiles (SHOW SLAVE STATUS),</p></div></blockquote></div><p>Regarde du coté de walmanager, un projet développé par Skype.</p><div class="quotebox"><blockquote><div><p>et a la moindre coupure du master, il faut recopier toute la base de donnée il me semble...</p></div></blockquote></div><p>Là encore c&#039;est faux :-) Le seul cas ou tu dois reconstuire entièrement ta base c&#039;est lorsque master a subit un crash et que tu demandes à l&#039;esclave de prendre le relai. En gros une fois que tu as transformé l&#039;esclave en maitre, tu ne peux plus le retransformer en esclave. ça s&#039;appelle le FAIL BACK, je suis pas certain que MySQL soit capable de le faire non plus.</p><div class="quotebox"><blockquote><div><p>bref c&#039;est vraiment bidouille bidouille je trouve par apport a Mysql</p></div></blockquote></div><p>Je vois déjà le troll arriver.&#160; En terme de bidouillage, je suis pas sur que le projet MySQL ait des leçons à donner :-)<br />Pour donner juste deux exemples : </p><p>* Il y a des bugs connus depuis MySQL 5.0 qui n&#039;ont pas été corrigés dans la 5.1. C&#039;est le fondateur de MySQL qui le dit : <a href="http://monty-says.blogspot.com/2008/11/oops-we-did-it-again-mysql-51-released.html" rel="nofollow">http://monty-says.blogspot.com/2008/11/ … eased.html</a></p><p>* La doc de la 5.1 n&#039;est pas traduite en français. Je trouve ça relativement décevant pour un projet qui a le prétention d&#039;être le SGBD le plus populaire.</p><br /><div class="quotebox"><blockquote><div><p>bref j&#039;ai l&#039;impression qu&#039;on verra jamais une réplication aussi bien foutu que sur mysql, et c&#039;est vraiment dommage, car pour moi c&#039;est LE truc qui me bloque sur Postgresql (même si pour le moment je n&#039;ai pas encore besoin d&#039;utiliser la réplication)</p></div></blockquote></div><p>Attention à ne pas tout mélanger. Derrière le mot &quot;réplication&quot; on peut mettre énormément de concepts différents : Haute-disponibité ou répartition de charge, réplication synchrone ou asynchrone, symétrique ou asymétrique. </p><p>En l&#039;occurence, le Warm Standby est une technique simple pour mettre en place un serveur de secours et garantir une reprise rapide en cas de panne. Cela n&#039;a pas d&#039;autre prétention. Le Hot Standby apportera des avancées intéressantes ( synchronicité, esclave accessible en lecture) et dans ce cas là les noeuds auront &quot;conscience&quot; de la présence des autres noeuds mais cela restera une solution limitée&#160; sur certains aspects, le fail back et la granularité notamment.</p><p>Pour avoir, plus de finesse il faut se tourner vers des outils externes (Slony, bucardo) qui ajoutent de la complexité. </p><p>Il me parait également important de préciser quel moteur on utilise avec MySQL : les différences entre MyISAM et InnoDB ne sont pas anodines. Par exemple, je serais curieux de connaitre les perfs d&#039;un cluster de réplication avec MYSQL/InnoDB</p>]]></content>
+		<author>
+			<name><![CDATA[daamien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=19</uri>
+		</author>
+		<updated>2009-06-11T22:44:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1687#p1687</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  La réplication en 8.5: Un aperçu ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1686#p1686"/>
+		<content type="html"><![CDATA[<p>oui je parle du log shipping, qui utilise scp pour copier les logs binaires, donc c&#039;est quand meme externe a postgresql je trouve, postgresql n&#039;a pas vraiment de controle la dessus, a aucun moment le master peut connaitre le status du slave par exemple comme l&#039;on pourrait le faire dans mysql avec &quot;SHOW PROCESSLIST&quot; ( par exemple: Has sent all binlog to slave; waiting for binlog to be updated ), on a pas non plus autant d&#039;informations sur le slave, par exemple le slave ne connais pas l&#039;adresse du master ou d&#039;autres informations utiles (SHOW SLAVE STATUS), et a la moindre coupure du master, il faut recopier toute la base de donnée il me semble... bref c&#039;est vraiment bidouille bidouille je trouve par apport a Mysql</p><p>la réplication est expliqué ici : <br /><a href="http://dev.mysql.com/doc/refman/5.0/fr/replication.html" rel="nofollow">http://dev.mysql.com/doc/refman/5.0/fr/replication.html</a> (version plus vielle en français)<br /><a href="http://dev.mysql.com/doc/refman/5.1/en/replication-solutions.html" rel="nofollow">http://dev.mysql.com/doc/refman/5.1/en/ … tions.html</a> (version plus récente en anglais)</p><p>bref j&#039;ai l&#039;impression qu&#039;on verra jamais une réplication aussi bien foutu que sur mysql, et c&#039;est vraiment dommage, car pour moi c&#039;est LE truc qui me bloque sur Postgresql (même si pour le moment je n&#039;ai pas encore besoin d&#039;utiliser la réplication) <img src="http://forums.postgresql.fr/img/smilies/sad.png" width="15" height="15" alt="sad" /></p>]]></content>
+		<author>
+			<name><![CDATA[kedare]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=402</uri>
+		</author>
+		<updated>2009-06-11T21:10:45Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1686#p1686</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  La réplication en 8.5: Un aperçu ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1685#p1685"/>
+		<content type="html"><![CDATA[<p>scp comme méthode de réplication ? c&#039;est une blague ? ou alors tu parles du log shipping ? mais dans ce cas, j&#039;ai du mal à voir en quoi c&#039;est totalement détaché de PostgreSQL (vu que c&#039;est intégré). Par contre, je suis d&#039;accord que Slony n&#039;est pas simple à mettre en place.</p><p>Concernant la réplication en 8.5, il faut bien voir qu&#039;il y a deux patchs prévus.</p><p>Le premier, HotStandby, va permettre d&#039;utiliser l&#039;esclave. Cela se configure exactement comme le LogShipping (aussi appelé WarmStandby) aujourd&#039;hui, vu que ce n&#039;est qu&#039;une amélioration de ce dernier.</p><p>Le second est SyncRep. Son but est de permettre une réplication beaucoup plus fine que le LogShipping. Au lieu d&#039;attendre qu&#039;un journal de transactions soit complètement rempli, un nouveau processus, walsender, va envoyer le résultat transaction par transaction sur le serveur en attente. Du coup, on a une réplication à la transaction prêt. La configuration demandera d&#039;indiquer au serveur esclave qui est le maître pour que le dialogue entre les deux puisse se faire.</p><p>Tu trouveras plus de détails sur <a href="http://wiki.postgresql.org/wiki/Hot_Standby" rel="nofollow">http://wiki.postgresql.org/wiki/Hot_Standby</a> et <a href="http://wiki.postgresql.org/wiki/NTT%27s_Development_Projects" rel="nofollow">http://wiki.postgresql.org/wiki/NTT%27s … t_Projects</a>.</p><p>Tu as un lien expliquant la réplication façon MySQL ? que je puisse me faire une idée, vu que je ne connais pas.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2009-06-11T19:15:31Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1685#p1685</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[La réplication en 8.5: Un aperçu ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1684#p1684"/>
+		<content type="html"><![CDATA[<p>Hello,<br />Je voudrais savoir si l&#039;on a des informations sur comment se présentera la réplication qui a la base été prévu pour la 8.4 mais retardé a la 8.5 ?<br />Sera t-elle aussi simple a utiliser que la réplication de Mysql par exemple ? (Qui est tout simplement génial je doit dire.... Un des seuls avantages de Mysql)<br />Ou sera t-on encore avec des réplications complexe, totalement détaché de postgresql et non accessible aux novice (Style l&#039;actuelle via scp ou slony) ?<br />Merci <img src="http://forums.postgresql.fr/img/smilies/wink.png" width="15" height="15" alt="wink" /></p>]]></content>
+		<author>
+			<name><![CDATA[kedare]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=402</uri>
+		</author>
+		<updated>2009-06-11T18:38:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1684#p1684</id>
+	</entry>
+</feed>

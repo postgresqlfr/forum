@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Droit nécessaire Pour interroger la vue pg_stat_activity  && pg_databa]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4502&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4502"/>
+	<updated>2017-12-29T09:56:28Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4502</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Droit nécessaire Pour interroger la vue pg_stat_activity  && pg_databa]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26611#p26611"/>
+		<content type="html"><![CDATA[<p>À noter que cela a changé avec la version 10, et l&#039;arrivée du pseudo role pg_read_all_stats qui permet de donner ce privilège à un utilisateur non super-utilisateur.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2017-12-29T09:56:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26611#p26611</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Droit nécessaire Pour interroger la vue pg_stat_activity  && pg_databa]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26605#p26605"/>
+		<content type="html"><![CDATA[<p>Seul un superutilisateur peut voir les requêtes en cours d&#039;exécution.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2017-12-28T15:05:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26605#p26605</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Droit nécessaire Pour interroger la vue pg_stat_activity  && pg_databa]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26604#p26604"/>
+		<content type="html"><![CDATA[<p>bonjour </p><p>Suite au demande faite vers l&#039;equipe de supervision on a demandé la possibilité d&#039;avoir une&#160; alerte centreon sur les transaction ouverts et qui son toujours en statut Running </p><p>la requête il interroge la vue pg_stat_activity avec une jointure a pg_database </p><div class="codebox"><pre><code>SELECT d.datname,
+                COALESCE(elapsed, -1),
+                COALESCE(query, &#039;&#039;)
+            FROM pg_database AS d
+            LEFT JOIN (
+                SELECT datname, current_query AS query,
+                    extract(&#039;epoch&#039; FROM
+                        date_trunc(&#039;second&#039;, current_timestamp-query_start)
+                    ) AS elapsed
+                FROM pg_stat_activity
+                WHERE current_query NOT LIKE &#039;&lt;IDLE&gt;%&#039;
+            ) AS s ON (d.datname=s.datname)
+            WHERE d.datallowconn</code></pre></div><p>le retour de l’exécution de cette requête est le suivant &lt;INSUFFICIENT PRIVILEGE&gt; </p><p>j&#039;ai ajouter ces deux lignes </p><div class="codebox"><pre><code>GRANT SELECT ON TABLE pg_database  TO supervision2;
+
+GRANT SELECT ON TABLE pg_stat_activity TO supervision2 ;</code></pre></div><p> mais j&#039;aurai toujours la même pb </p><p>Qui peut m&#039;aider sur la cause racine de cette Restriction</p><p>merci</p>]]></content>
+		<author>
+			<name><![CDATA[abdallah007]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7882</uri>
+		</author>
+		<updated>2017-12-28T13:02:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26604#p26604</id>
+	</entry>
+</feed>

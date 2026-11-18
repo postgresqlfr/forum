@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / VACUUM]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=273&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=273"/>
+	<updated>2009-06-02T14:21:29Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=273</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  VACUUM]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1601#p1601"/>
+		<content type="html"><![CDATA[<p>Les tuple sont physiquement supprimés.</p><p>C&#039;est la fonction lazy_vacuum_page qui s&#039;en occupe. En fait l&#039;enregistrement lui même n&#039;est pas supprimé, mais son pointeur en début de bloc (l&#039;ItemPointer) l&#039;est, ce qui revient au même.<br />La donnée pourra aussi être écrasée juste après, puisqu&#039;une fois le ménage fait dans les ItemPointers, on fait un PageRepairFragmentation (qui &#039;retasse&#039; les données en début de bloc).</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2009-06-02T14:21:29Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1601#p1601</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  VACUUM]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1600#p1600"/>
+		<content type="html"><![CDATA[<p>Vu que j&#039;ai enfin un peu de temps, j&#039;ai relu le thread histoire de s&#039;assurer de certaines choses.</p><div class="quotebox"><cite>Marc Cousin a écrit&#160;:</cite><blockquote><div><p>Non, on n&#039;est pas d&#039;accord <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>C&#039;est le boulot de la fonction lazy_vacuum_heap, appelée après le nettoyage des index, dans le lazy. Elle fait un ItemIdSetUnused pour les tuples à supprimer, page par page, et réorganise les pages derrière si nécessaire. Tout ça se trouve dans lazy_scan_heap. <br />C&#039;est aussi pour ça qu&#039;on a un vacuum_cost_page_dirty, pour avoir le coût du &#039;salissage&#039; d&#039;une page quand on a du nettoyage dedans.</p><p>Désolé pour l&#039;appropriation du thread, bil69, mais c&#039;est un sujet passionnant <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p></div></blockquote></div><p>Aucun tuple n&#039;est physiquement supprimé, ni dans les tables ni dans les index, avec un VACUUM simple. Un tuple invisible pour chaque transaction en cours est marqué comme réutilisable, c&#039;est tout. Seule exception, si ça a vidé un groupe de blocs en fin de fichier et que postgres peut placer un verrou exclusif sur la table le temps de tronquer physiquement la table pour supprimer ce groupe de blocs. On est d&#039;accord là-dessus ?</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2009-06-02T13:40:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1600#p1600</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  VACUUM]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1456#p1456"/>
+		<content type="html"><![CDATA[<p>Merci beaucoup !!!!!!!&#160; <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" />&#160; <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" />&#160; <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[bil69]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=310</uri>
+		</author>
+		<updated>2009-05-15T13:49:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1456#p1456</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  VACUUM]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1454#p1454"/>
+		<content type="html"><![CDATA[<p>voila, la FSM doit être suffisamment grande. Pour savoir si elle est suffisamment grande, 2 solutions : <br />- regarder les messages à la fin d&#039;un vacuum sur une base<br />- utiliser le contrib pg_freespacemap, qui permet de faire des requêtes sur la fsm, et voir son état de remplissage</p><p>Pour un gros vacuum, le maintenance_work_mem est je pense le plus important : c&#039;est ce qui va déterminer combien de passes tu feras sur tes index (tu le verras dans le vacuum verbose, si tu vois passer plusieurs fois le même index...)<br />Ensuite, avoir pas mal de shared_buffers peut aider aussi (histoire que les écritures dues au vacuum puissent être retardées un maximum et faites de façon asynchrones), et surveiller les checkpoints (checkpoint_segments) doit être assez gros pour ne pas se retrouver à faire un checkpoint toutes les 10 secondes...</p><p>Je pense que ce sont les paramètres les plus importants.</p><p>Un dernier truc : maintenance_work_mem, les checkpoints et tout ça, c&#039;est dans le cas ou il y a un grand nombre d&#039;enregistrements à nettoyer. Si une table fait 10 millions de tuples, mais qu&#039;il n&#039;y en a que 10 000 à nettoyer, ça n&#039;aura pas beaucoup d&#039;impact.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2009-05-15T13:03:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1454#p1454</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  VACUUM]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1453#p1453"/>
+		<content type="html"><![CDATA[<p>Merci pour tes réponses !!!</p><p>C&#039;est pas grave ça m&#039;intéresse justement de connaitre les mécanismes du vacuum afin de l&#039;optimiser au maximum !!! smile</p><p>en résumé : avoir la FSM suffisamment grande pour pas perdre des tuples suite à un vacuum (surtout si avant le vacuum on a fait un gros delete)</p><p>Sinon si tu dois optimisé un vacuum qui agit sur une base de plusieurs millions de tuples, à part maintenance_work_mem quels seront les autres param à étudier ???</p><br /><br /><p>Merci,</p>]]></content>
+		<author>
+			<name><![CDATA[bil69]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=310</uri>
+		</author>
+		<updated>2009-05-15T12:54:09Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1453#p1453</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  VACUUM]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1451#p1451"/>
+		<content type="html"><![CDATA[<p>bil69 : ces paramètres n&#039;optimisent pas les performances du vacuum. Ils permettent (les max_fsm) de dimensionner la free space map (une structure mémoire qui stocke la quantité de mémoire libre dans chaque bloc non totalement rempli d&#039;une table ou d&#039;un index) afin de pouvoir mémoriser tous les blocs &#039;libres&#039; de la base. Le problème étant que si la FSM est trop petite, on se retrouve avec des blocs libres mais non réutilisables (les processus postgres ne savent pas que ces blocs sont libres) et une base qui grossit inutilement. Ces deux paramètres disparaissent en 8.4, on a une sorte de free space map automatique.</p><p>le default_statistics_target ne permet que de modifier la finesse d&#039;échantillonnage et la quantité de données stockées pour les statistiques sur les tables (et les histogrammes), donc de savoir par exemple qu&#039;il y a 1% d&#039;enregistrements ayant &#039;toto&#039; dans la colonne nom de famille, et d&#039;obtenir ce 1% avec plus ou moins de précision, ce qui permettra à l&#039;optimiseur de mieux choisir ses plans d&#039;exécution.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2009-05-15T12:45:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1451#p1451</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  VACUUM]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1450#p1450"/>
+		<content type="html"><![CDATA[<p>Non, on n&#039;est pas d&#039;accord <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>C&#039;est le boulot de la fonction lazy_vacuum_heap, appelée après le nettoyage des index, dans le lazy. Elle fait un ItemIdSetUnused pour les tuples à supprimer, page par page, et réorganise les pages derrière si nécessaire. Tout ça se trouve dans lazy_scan_heap. <br />C&#039;est aussi pour ça qu&#039;on a un vacuum_cost_page_dirty, pour avoir le coût du &#039;salissage&#039; d&#039;une page quand on a du nettoyage dedans.</p><p>Désolé pour l&#039;appropriation du thread, bil69, mais c&#039;est un sujet passionnant <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2009-05-15T12:39:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1450#p1450</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  VACUUM]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1449#p1449"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>VACUMM VERBOSE</p><p>Affiche un rapport détaillé de l&#039;activité de vacuum sur chaque table. Peut être utilisé pour aider à déterminer le paramètrage approprié pour max_fsm_pages, max_fsm_relations et default_statistics_target.</p></div></blockquote></div><p>il me semble que ces param rentrent en compte pour avoir un vacuum optimisé...</p><p>merci,</p>]]></content>
+		<author>
+			<name><![CDATA[bil69]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=310</uri>
+		</author>
+		<updated>2009-05-15T12:35:54Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1449#p1449</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  VACUUM]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1448#p1448"/>
+		<content type="html"><![CDATA[<p>Marc, on est bien d&#039;accord que le VACUUM ne supprime physiquement rien, mais qu&#039;il stocke des pointeurs vers les espaces libres dans une structure en mémoire ? (la fameuse structure FSM) que ce soit pour les tables et pour les index d&#039;ailleurs...</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2009-05-15T12:05:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1448#p1448</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  VACUUM]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1443#p1443"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>Marc Cousin a écrit&#160;:</cite><blockquote><div><p>En fait, ca ne l&#039;est pas, j&#039;étais pas très clair hier soir dans mes explications <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /><br />Le fonctionnement de vacuum, grosso modo, c&#039;est ceci :<br />1) il part en full scan sur la table (sauf en 8.4, ou il sait ou aller chercher dans la table, mais c&#039;est une autre histoire), et stocke tous les tid (tuple id, c&#039;est l&#039;adresse de l&#039;enregistrement dans la table, qui permet de l&#039;identifier de façon unique et est ce que l&#039;index stocke) des enregistrements qui sont supprimables.<br />2) une fois qu&#039;il a rempli maintenance_work_mem de tid (ou bien fini le parcours de la table), il scan les index 1 par 1 pour supprimer toutes les références à ces tid<br />3) une fois le nettoyage des index faits, il revient sur la table et fait la suppression effective des enregistrements dans les blocs, et continue le scan de la table si il n&#039;a pas fini (retour à 1)</p></div></blockquote></div><p>Merci de m&#039;avoir eclairer <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>Aurais tu un lien ... ??? stp</p>]]></content>
+		<author>
+			<name><![CDATA[bil69]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=310</uri>
+		</author>
+		<updated>2009-05-14T08:43:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1443#p1443</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  VACUUM]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1442#p1442"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>Marc Cousin a écrit&#160;:</cite><blockquote><div><p>Bon, finalement, j&#039;ai voulu vérifier <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /><br />Le travail se fait dans lazy_scan_heap, qui stocke les tid via lazy_record_dead_tuple, et une fois que la maintenance_work_mem est presque pleine de tuples, vacuum fait un scan des index, via lazy_vacuum_index, qui lui même fait un index_bulk_delete, pour virer les enregistrements qui correspondent à ces tid, puis retourne dans la table pour faire le ménage (une fois que les index sont nettoyés, pas avant). L&#039;intérêt d&#039;avoir un gros maintenance_work_mem, c&#039;est donc de réduire le nombre de scans de l&#039;index avant tout (je pense...).</p><p>C&#039;est un truc qu&#039;on constate et qui est assez frustrant avec les vacuum partiels de la 8.4 : on se tape quand même un scan d&#039;index sur tous les index de la table, même s&#039;il n&#039;y a quasiment rien à faire dans le heap.</p></div></blockquote></div><p>Pourrais tu me passer le lien stp </p><br /><p>Merci,</p>]]></content>
+		<author>
+			<name><![CDATA[bil69]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=310</uri>
+		</author>
+		<updated>2009-05-14T08:41:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1442#p1442</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  VACUUM]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1441#p1441"/>
+		<content type="html"><![CDATA[<p>Pour ce qui est de la commande, le second ordre affiche la taille en octets, le premier la convertit en une version lisible par un cerveau humain (en Méga octets).</p><p>Ensuite, l&#039;erreur, comme indiquée, c&#039;est que le disque est plein et qu&#039;il ne peut donc plus agrandir une des relations, probablement la table.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2009-05-14T08:35:35Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1441#p1441</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  VACUUM]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1440#p1440"/>
+		<content type="html"><![CDATA[<p>En fait, ca ne l&#039;est pas, j&#039;étais pas très clair hier soir dans mes explications <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /><br />Le fonctionnement de vacuum, grosso modo, c&#039;est ceci :<br />1) il part en full scan sur la table (sauf en 8.4, ou il sait ou aller chercher dans la table, mais c&#039;est une autre histoire), et stocke tous les tid (tuple id, c&#039;est l&#039;adresse de l&#039;enregistrement dans la table, qui permet de l&#039;identifier de façon unique et est ce que l&#039;index stocke) des enregistrements qui sont supprimables.<br />2) une fois qu&#039;il a rempli maintenance_work_mem de tid (ou bien fini le parcours de la table), il scan les index 1 par 1 pour supprimer toutes les références à ces tid<br />3) une fois le nettoyage des index faits, il revient sur la table et fait la suppression effective des enregistrements dans les blocs, et continue le scan de la table si il n&#039;a pas fini (retour à 1)</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2009-05-14T08:33:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1440#p1440</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  VACUUM]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1438#p1438"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><div class="codebox"><pre><code>SELECT pg_size_pretty(pg_database_size(&#039;pagila&#039;));
+ pg_size_pretty
+----------------
+ 4573 MB
+(1 row)
+
+SELECT pg_database_size(&#039;pagila&#039;);
+ pg_database_size
+------------------
+       4795362924</code></pre></div><p>Voilà j&#039;aimerai savoir quelle est la différence entre ces 2 commandes ? Je voulais avoir un base d&#039;au moins 2 giga !!</p><div class="codebox"><pre><code>insert into film (film_id, title, language_id) select generate_series(1001,1000000), &#039;RAMBOAZERTYUIOPQSDFGHJKLMWXCVBNAZERUEZOEZEZIJEZOINJDSFCNDCDS.NFKDSLJFVCNX.NSDLJFDLSJFDSJFCDSLKF?V?DPFJDOPFJZEFHDSKNFDSLFNDSLJFPODSJFNDFKLDSNFLDSJFPDSJFDSNFLXCNLJDSJFDSNFEZKFODSK?FCDSLM?DSKJDDLC?SLDMKFPODSDSDSMLFSDMKPO&#039; || generate_series(1001,1000000),1;
+ERROR:  could not extend relation 1663/16863/16894: No space left on device
+HINT:  Check free disk space.</code></pre></div><p>Merci d&#039;avance,</p>]]></content>
+		<author>
+			<name><![CDATA[bil69]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=310</uri>
+		</author>
+		<updated>2009-05-14T08:15:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1438#p1438</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  VACUUM]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1437#p1437"/>
+		<content type="html"><![CDATA[<p>MERCI BEAUCOUP&#160; &#160; &#160;<img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" />&#160; &#160; &#160; <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /> </p><p>Je vais voir ça de plus près !!! mais ça l&#039;air très compliqué !!</p>]]></content>
+		<author>
+			<name><![CDATA[bil69]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=310</uri>
+		</author>
+		<updated>2009-05-14T07:39:06Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1437#p1437</id>
+	</entry>
+</feed>

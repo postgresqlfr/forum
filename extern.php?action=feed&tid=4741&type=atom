@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Créer une table à partir d'un fichier CVS]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4741&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4741"/>
+	<updated>2018-05-19T17:14:14Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4741</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Créer une table à partir d'un fichier CVS]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27607#p27607"/>
+		<content type="html"><![CDATA[<p>Vous avez compris ce que fait ce script ? parce que ça peut fonctionner pour certains fichiers CSV mais clairement pas pour tous. En gros, ce script récupère la première ligne du fichier CSV en espérant y trouver les noms des colonnes. Il construit ensuite l&#039;ordre SQL de création de table en supposant que toutes ces colonnes sont de type numeric(10,2), ce qui est possible dans certains cas et hautement improbable dans la majorité des cas.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2018-05-19T17:14:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27607#p27607</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Créer une table à partir d'un fichier CVS]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27599#p27599"/>
+		<content type="html"><![CDATA[<p>Bonjour Guillaume,<br />Il y a des scripts ou manières qui crée une table et importe les données à partir d&#039;un fichier CSV.</p><p>Script:</p><p><a href="https://stackoverflow.com/questions/42493887/import-csv-to-postgresql-programmatically?utm_medium=organic&amp;utm_source=google_rich_qa&amp;utm_campaign=google_rich_qa" rel="nofollow">https://stackoverflow.com/questions/424 … le_rich_qa</a></p><div class="codebox"><pre><code>#!/bin/bash
+
+# makes a CREATE TABLE statement out of the first line of a CSV file
+
+# usage: mktab &lt;tabname&gt; &lt;CSV file&gt;
+
+if [ -z &quot;$2&quot; -o -n &quot;$3&quot; ]; then
+    echo &quot;usage: mktab &lt;tabname&gt; &lt;CSV file&gt;&quot; 1&gt;&amp;2
+    exit 1
+fi
+
+IFS=,
+first=1
+
+echo -n &quot;CREATE TABLE \&quot;$1\&quot; (&quot;
+for col in $(head -1 &quot;$2&quot;); do
+    if [ $first -eq 1 ]; then
+        first=0
+    else
+        echo -n &#039;, &#039;
+    fi
+    echo -n &quot;\&quot;$col\&quot; numeric(10,2)&quot;
+done
+echo &#039;);&#039;
+
+exit 0</code></pre></div><p>Outil:<br /> pgfutter:<br /><a href="https://github.com/lukasmartinelli/pgfutter" rel="nofollow">https://github.com/lukasmartinelli/pgfutter</a></p><p>Y a-t-il une méthode propre à Postgres autre que pgfutter?</p><p>D&#039;avance merci.</p>]]></content>
+		<author>
+			<name><![CDATA[big1]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7880</uri>
+		</author>
+		<updated>2018-05-19T09:34:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27599#p27599</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Créer une table à partir d'un fichier CVS]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27597#p27597"/>
+		<content type="html"><![CDATA[<p>Merci de détailler votre question, elle n&#039;a pas trop de sens comme ça. (ie, un fichier CSV, ce sont des données, pas la définition d&#039;une table... donc on peut peupler une table à partir d&#039;un fichier CSV mais pas deviner sa définition).</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2018-05-19T08:44:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27597#p27597</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Créer une table à partir d'un fichier CVS]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27593#p27593"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />en 9.6 <br />Comment&#160; Créer une table à partir d&#039;un fichier CVS?<br />D&#039;avance merci.</p>]]></content>
+		<author>
+			<name><![CDATA[big1]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7880</uri>
+		</author>
+		<updated>2018-05-19T04:01:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27593#p27593</id>
+	</entry>
+</feed>

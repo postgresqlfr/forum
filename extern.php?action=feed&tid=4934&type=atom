@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Erreur : "FATAL:  authentification peer échouée pour l'utilisateur"]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4934&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4934"/>
+	<updated>2018-10-25T09:17:54Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4934</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Erreur : "FATAL:  authentification peer échouée pour l'utilisateur"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28454#p28454"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>faut-il pour chaque utilisateur sa base pour se connecter</p></div></blockquote></div><p>Non pas spécialement. Quand on lance psql sans l&#039;option -d pour désigner une base, il utilise par défaut le nom de l&#039;utilisateur Unix comme nom de base. Pareil pour -U d&#039;ailleurs. C&#039;est le seul lien entre nom d&#039;utilisateur et nom de base.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2018-10-25T09:17:54Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28454#p28454</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Erreur : "FATAL:  authentification peer échouée pour l'utilisateur"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28453#p28453"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>désolé pour le retard de ma réponse.</p><p>Effectivement avec les modifications données par dverite, j&#039;arrive maintenant à me connecter depuis un autre user avec psql -U toto</p><p>Question,</p><p>faut-il pour chaque utilisateur sa base pour se connecter ? même si il a des privilèges LOGIN CREATEDB CREATEROLE INHERIT</p><p>Merci</p>]]></content>
+		<author>
+			<name><![CDATA[dznet]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8308</uri>
+		</author>
+		<updated>2018-10-25T08:20:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28453#p28453</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Erreur : "FATAL:  authentification peer échouée pour l'utilisateur"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28447#p28447"/>
+		<content type="html"><![CDATA[<p>Le pg_hba.conf par défaut est fait pour avoir un niveau de sécurité raisonnable par défaut.<br />C&#039;est pourquoi il faut être utilisateur postgres sous Unix pour se connecter sans mot de passe en tant qu&#039;utilisateur de BDD du même nom.</p><p>Si vous voulez que n&#039;importe quel utilisateur Unix puisse se connecter avec psql -U postgres<br /><strong>sans mot de passe</strong>, remplacer le champ METHOD (le plus à droite) sur cette règle:</p><p>local&#160; &#160;all&#160; &#160; &#160; &#160; &#160; &#160; &#160;all&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;peer</p><p>par celle-là:</p><p>local&#160; &#160;all&#160; &#160; &#160; &#160; &#160; &#160; &#160;all&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;trust</p><p>Si vous voulez la même chose mais avec un mot de passe, utiliser comme méthode <strong>md5</strong> et non <strong>trust</strong>.</p><br /><p>Pour les connexions via -h localhost, c&#039;est la ligne d&#039;après qui est à modifier:</p><p>host&#160; &#160; all&#160; &#160; &#160; &#160; &#160; &#160; &#160;all&#160; &#160; &#160; &#160; &#160; &#160; &#160;127.0.0.1/32&#160; &#160; &#160; &#160; &#160; &#160; ident</p><p>Toutes les lignes du pg_hba.conf sont interprétées dans l&#039;ordre comme si c&#039;était un IF ligne1 ... ELSIF ligne2.. ELSIF ligne3.. ELSIF..</p><p>Il faut aussi faire un reload du service pour que les changements de pg_hba.conf soient pris en compte.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2018-10-22T16:17:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28447#p28447</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Erreur : "FATAL:  authentification peer échouée pour l'utilisateur"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28446#p28446"/>
+		<content type="html"><![CDATA[<p>le user postgres a t&#039;il été créé dans l&#039;instance ?</p><p>Pour faire une connexion peer (en local) ou ident (à distance), il faut être sûr de 2 choses :<br />- le user postgres existe dans l&#039;instance<br />- vous êtes connecté à l&#039;OS en tant que postgres</p><p>il faut que les 2 users matchent exactement.</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2018-10-22T14:12:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28446#p28446</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Erreur : "FATAL:  authentification peer échouée pour l'utilisateur"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28445#p28445"/>
+		<content type="html"><![CDATA[<p>Voici le fichier</p><div class="codebox"><pre><code># TYPE  DATABASE        USER            ADDRESS                 METHOD
+
+# &quot;local&quot; is for Unix domain socket connections only
+local   all             all                                     peer
+# IPv4 local connections:
+host    all             all             127.0.0.1/32            ident
+# IPv6 local connections:
+host    all             all             ::1/128                 ident
+# Allow replication connections from localhost, by a user with the
+# replication privilege.
+local   replication     all                                     peer
+host    replication     all             127.0.0.1/32            ident
+host    replication     all             ::1/128                 ident</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[dznet]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8308</uri>
+		</author>
+		<updated>2018-10-22T13:47:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28445#p28445</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Erreur : "FATAL:  authentification peer échouée pour l'utilisateur"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28444#p28444"/>
+		<content type="html"><![CDATA[<p>pouvez-vous nous poster votre pg_hba.conf (sans les lignes commentées) ?</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2018-10-22T13:38:29Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28444#p28444</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Erreur : "FATAL:  authentification peer échouée pour l'utilisateur"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28443#p28443"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>ruizsebastien a écrit&#160;:</cite><blockquote><div><p>bonjour,</p><p>si vous faisiez &quot;su - postgres&quot; au lieu de &quot;su postgres&quot; vous vous placeriez avec l&#039;environnement du user postgres et non pas celui de root.</p></div></blockquote></div><p>Oui, je sais, mais ce n&#039;est pas le prolème.<br />Le problème c&#039;est pour se connecter à la base en faisant : psql -U postgres</p>]]></content>
+		<author>
+			<name><![CDATA[dznet]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8308</uri>
+		</author>
+		<updated>2018-10-22T13:24:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28443#p28443</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Erreur : "FATAL:  authentification peer échouée pour l'utilisateur"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28442#p28442"/>
+		<content type="html"><![CDATA[<p>bonjour,</p><p>si vous faisiez &quot;su - postgres&quot; au lieu de &quot;su postgres&quot; vous vous placeriez avec l&#039;environnement du user postgres et non pas celui de root.</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2018-10-22T13:17:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28442#p28442</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Erreur : "FATAL:  authentification peer échouée pour l'utilisateur"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28441#p28441"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;utilise postgres depuis peu, je suis habitué à MySQL ou MariaDB.</p><p>J&#039;ai fait l&#039;installation de postgresql 10 sur CentOS 7</p><p>Pas de soucis lors de l&#039;installation, tout vas bien, j&#039;arrive à me connecter avec l&#039;utilisateur postgres, mais en passant par sa cession</p><div class="codebox"><pre><code>[root@bdds ~]# su postgres
+bash-4.2$ psql
+could not change directory to &quot;/root&quot;: Permission non accordée
+psql (10.5)
+Type &quot;help&quot; for help.
+
+postgres=# </code></pre></div><p>Mais impossible de me connecter directement via une autre session, et cela que ce soit avec </p><div class="codebox"><pre><code>psql -U postgres</code></pre></div><p>ou </p><div class="codebox"><pre><code>psql -U postgres -h localhost</code></pre></div><div class="codebox"><pre><code>psql -U postgres -D postgres -h localhost</code></pre></div><p>J&#039;ai l&#039;erreur : </p><div class="quotebox"><blockquote><div><p>psql: FATAL:&#160; authentification Ident échouée pour l&#039;utilisateur « postgres »</p></div></blockquote></div><p>J&#039;ai créer un autre utilisateur toto avec la commande suivante </p><div class="codebox"><pre><code>CREATE ROLE toto LOGIN CREATEDB CREATEROLE INHERIT;</code></pre></div><p>Mais en pareil en me connectant avec &quot;psql -U toto&quot; j&#039;ai le même message d&#039;erreur.</p><p>Merci de votre aide et explication.</p><p>Dz</p>]]></content>
+		<author>
+			<name><![CDATA[dznet]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8308</uri>
+		</author>
+		<updated>2018-10-22T12:34:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28441#p28441</id>
+	</entry>
+</feed>

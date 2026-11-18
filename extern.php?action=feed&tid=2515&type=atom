@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / shell Linux et batch postgres]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2515&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2515"/>
+	<updated>2013-02-22T03:37:22Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2515</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  shell Linux et batch postgres]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16608#p16608"/>
+		<content type="html"><![CDATA[<p>merci MitsuTomoe,&#160; je vais m&#039;inspirer de ce script ...</p>]]></content>
+		<author>
+			<name><![CDATA[tamaloo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2129</uri>
+		</author>
+		<updated>2013-02-22T03:37:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16608#p16608</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  shell Linux et batch postgres]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16596#p16596"/>
+		<content type="html"><![CDATA[<p>Un exemple sera certainement plus parlant : </p><div class="codebox"><pre class="vscroll"><code>DATE=$(date +%Y-%m-%d)
+TIME=$(date +%T)
+rm -f /var/lib/postgresql/diff_ann.ok
+rm -f /var/lib/postgresql/1131422.xml
+rm -f /var/lib/postgresql/1131422.zip
+
+psql &lt;&lt; EOF
+    select diff_annonces(1,1,1000);
+    copy  (select id_envoi from diffusion_envoi where dat_envoi is null order by id_envoi limit 1) to &#039;/var/lib/postgresql/diff_ann.ok&#039;;
+EOF
+
+id=`head -1 /var/lib/postgresql/diff_ann.ok`
+if [ -z &quot;$id&quot; ]
+    then 
+        echo &quot;Aucun fichier à envoyer&quot;
+    else
+        echo &quot;Traitement envoi $id&quot; 
+         psql &lt;&lt; EOF
+             copy  (select fichier_contenu from diffusion_envoi where id_envoi = $id) to &#039;/var/lib/postgresql/1131422.xml&#039; csv;
+             update diffusion_envoi set dat_envoi=&#039;$DATE $TIME&#039; WHERE id_envoi = $id;
+EOF
+        sed --in-place -e &#039;s/\&quot;\&quot;/\&quot;/g&#039; 1131422.xml
+        sed --in-place -e &#039;s/\&quot;&lt;?xml/&lt;?xml/g&#039; 1131422.xml
+        sed --in-place -e &#039;s/&quot;$//g&#039; 1131422.xml
+        zip -r 1131422.zip 1131422.xml
+        ftp -in &lt;&lt;THEEND
+            open xxxx
+            user xxx xxx
+            put 1131422.zip
+            close
+            bye
+THEEND
+        msg=&quot; $DATE $TIME          Envoi no. $id effectué&quot;
+        echo $msg | mail -s &quot;Multi-diffusion&quot; -t xxx@xx.fr -t  -a From:no-reply@xx.xx
+fi</code></pre></div><p>diff_annonces est une fonction pl/PgSQL . Le shell est lancé dans le cron .</p><p>Alex</p>]]></content>
+		<author>
+			<name><![CDATA[MitsuTomoe]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1680</uri>
+		</author>
+		<updated>2013-02-21T12:35:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16596#p16596</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  shell Linux et batch postgres]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16595#p16595"/>
+		<content type="html"><![CDATA[<p>donc vous faites comme vous avez dis plus haut, faire un script shell avec le psql et la sortie vous la redirigez vers un fichier de log stderr &gt; blabla</p>]]></content>
+		<author>
+			<name><![CDATA[kenrio]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=964</uri>
+		</author>
+		<updated>2013-02-21T11:42:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16595#p16595</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  shell Linux et batch postgres]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16594#p16594"/>
+		<content type="html"><![CDATA[<p>je souhaite pouvoir planifier le soir un batch par cron, qu&#039;il s&#039;execute sans sortie autre que comme je le fais maintenant, dans un log .. <br />les maj concernent ma base de données .. Le traitement peut être déclenché par l&#039;arrivée d&#039;un fichier par CFT par exemple, le batch met à jour mes bases .. qui sont consultables par des pages web ( php .. )</p>]]></content>
+		<author>
+			<name><![CDATA[tamaloo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2129</uri>
+		</author>
+		<updated>2013-02-21T11:34:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16594#p16594</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  shell Linux et batch postgres]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16593#p16593"/>
+		<content type="html"><![CDATA[<p>le retour vous voulez dans une interface ou dans le terminal quand vous l&#039;exécutez ?</p>]]></content>
+		<author>
+			<name><![CDATA[kenrio]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=964</uri>
+		</author>
+		<updated>2013-02-21T11:27:02Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16593#p16593</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  shell Linux et batch postgres]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16592#p16592"/>
+		<content type="html"><![CDATA[<p>dois-je&#160; lancer les batch par</p><p>psql $dbname $dbuser -c &#039;select mafonction()&#039;&#160; </p><p>dans mon shell linux ?</p><p>Si oui, comment récupérer mon return code ?</p>]]></content>
+		<author>
+			<name><![CDATA[tamaloo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2129</uri>
+		</author>
+		<updated>2013-02-21T10:58:52Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16592#p16592</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  shell Linux et batch postgres]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16591#p16591"/>
+		<content type="html"><![CDATA[<p>Non, je souhaite lancer des batch en shell linux ... batch qui m&#039;exécute des procédures ( fonctions pour PostgreSQL ) .. </p><p>en gros </p><p>#/bin/sh<br /># mon traitement</p><p>mois=$1<br />annee=$2</p><p>exec proc1($1,$2)<br />if $? = 0 on continue ..<br />else<br />exit ..</p><p>exec proc2($1,$2)<br />if $? = 0 on continue ..<br />else<br />exit</p><p>etc etc ..</p><p>mais d&#039;une part, je ne sais pas comment lancer les batch postgres , ni comment récupérer le return code pour savoir si la procedure s&#039;est bien passée ..</p>]]></content>
+		<author>
+			<name><![CDATA[tamaloo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2129</uri>
+		</author>
+		<updated>2013-02-21T10:55:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16591#p16591</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  shell Linux et batch postgres]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16590#p16590"/>
+		<content type="html"><![CDATA[<p>Vous voulez lancer des scripts shell par php ?</p>]]></content>
+		<author>
+			<name><![CDATA[kenrio]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=964</uri>
+		</author>
+		<updated>2013-02-21T10:37:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16590#p16590</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[shell Linux et batch postgres]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16585#p16585"/>
+		<content type="html"><![CDATA[<p>Issu de la filière Oracle sans en être pour autant un cador et parfait débutant PostgreSQL, je souhaiterais pouvoir lancer des chargements de données dans postgres depuis un shell linux, mais également executer des batchs à partir de l&#039;équivalent de procédures stockées (oracle) dans postgresql.&#160; Sous Oracle, j&#039;ai des outils type sqlloader puis j&#039;execute ensuite mes procédures stockées dans mon schéma user et tout cela depuis mon shell linux. Qu&#039;existe-t-il sous postgresql ? </p><p>Je me heurte déjà beaucoup aux problèmes d&#039;organisation entre oracle et postgres .. mais je poserai mes questions dans un autre topic .. </p><p>Ma présente question est la suivante :</p><p>comment mettre en œuvre de tels appels à des fonctions ..&#160; en gros, à quoi ressemblerait un shell linux appelant des fonctions stockées dans postgres ?&#160; Comment tester les codes retour postgres ( erreur sur un &quot;batch&quot; postgres ) ? </p><p>Je recherche sur le web mais ne trouve rien de très complet .. </p><p>Si vous avez un début de réponse ou même un shell type qui puisse me servir de base de départ, je suis preneur.</p><p>Merci</p>]]></content>
+		<author>
+			<name><![CDATA[tamaloo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2129</uri>
+		</author>
+		<updated>2013-02-20T10:56:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16585#p16585</id>
+	</entry>
+</feed>

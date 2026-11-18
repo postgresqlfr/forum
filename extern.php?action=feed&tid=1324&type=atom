@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / requête récursive with]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1324&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1324"/>
+	<updated>2011-04-15T05:54:00Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1324</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  requête récursive with]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8915#p8915"/>
+		<content type="html"><![CDATA[<p>Vous avez un problème avec cette requête:</p><p>WITH recursive enfant(idEnfant,nomEnfant,level) AS<br />(<br />&#160; &#160; &#160;SELECT d.id,d.nom,1 <br />&#160; &#160; &#160;FROM domaine d WHERE d.id=BE509765&#160; <br />&#160; &#160;union ALL<br />&#160; &#160; &#160;SELECT d.id,d.nom,e.level + 1&#160; &#160; &#160;<br />&#160; &#160; &#160;FROM domaine d,enfant e <br />&#160; &#160; &#160;where d.parent=e.idEnfant<br />&#160; &#160; &#160;)<br />SELECT * FROM enfant ORDER BY level;</p><p>Que se passe t&#039;il si vous avez une erreur dans la base, et une boucle ? Il est probablement utile de rajouter une colonne profondeur de récursion, et une condition de sortie si elle devient trop élever.</p><p>Pour faire le sys_connect_by_path avec la syntaxe with de postgresql, je pense que vous avez intérêt à stocker dans un tableau, pour chaque élément, tous les parents de l&#039;élément (regardez le chapitre sur les fonctions de tableau: <a href="http://docs.postgresql.fr/9.0/arrays.html)" rel="nofollow">http://docs.postgresql.fr/9.0/arrays.html)</a> et ensuite concaténez les éléments de ce tableau sous la forme qui vous plait (à mon avis avec array_to_string: <a href="http://docs.postgresql.fr/9.0/functions-array.html)" rel="nofollow">http://docs.postgresql.fr/9.0/functions-array.html)</a></p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-04-15T05:54:00Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8915#p8915</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  requête récursive with]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8909#p8909"/>
+		<content type="html"><![CDATA[<p>effectivement j&#039;avais pris la requête du début du sujet.<br />la requête suivante fonctionne:</p><div class="codebox"><pre><code>WITH recursive enfant(idEnfant,nomEnfant,level) AS
+(
+     SELECT d.id,d.nom,1 
+	 FROM domaine d WHERE d.id=BE509765  
+   union ALL
+     SELECT d.id,d.nom,e.level + 1     
+	 FROM domaine d,enfant e 
+	 where d.parent=e.idEnfant
+	 )
+SELECT * FROM enfant ORDER BY level;</code></pre></div><p>.</p><p>merci pour votre et désolé d&#039;avoir largement débordé sur l&#039;installation.</p><p>Une dernière question tant que j&#039;y suis. j&#039;aimerai récupérer les ascendant d&#039;un élément. Avec oracle, il y a SYS_CONNECT_BY_PATH qui est bien pratique. est ce qu&#039;il y a un équivalant pour postgresql ou qui s&#039;en rapproche?</p>]]></content>
+		<author>
+			<name><![CDATA[chris0938]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=784</uri>
+		</author>
+		<updated>2011-04-14T12:09:09Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8909#p8909</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  requête récursive with]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8891#p8891"/>
+		<content type="html"><![CDATA[<p>Je présume qu&#039;il y a une erreur dans la récursion qui fait que la requête n&#039;a aucune condition de sortie.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-04-13T05:08:50Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8891#p8891</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  requête récursive with]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8873#p8873"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />je suis finalement arrive a lancer postgres.<br />Donc maintenant je peux utiliser les requête récursive. J&#039;ai repris la requête du début du sujet. Elle tourne pendant ~5 et après j&#039;ai ce message </p><div class="codebox"><pre><code> ERROR: write failed</code></pre></div><p>.</p>]]></content>
+		<author>
+			<name><![CDATA[chris0938]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=784</uri>
+		</author>
+		<updated>2011-04-12T08:56:21Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8873#p8873</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  requête récursive with]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8861#p8861"/>
+		<content type="html"><![CDATA[<p>Non, ça ne suffira pas. Il vous faut voir avec quelqu&#039;un qui peut manipuler le serveur avec vous.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-04-11T10:04:54Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8861#p8861</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  requête récursive with]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8860#p8860"/>
+		<content type="html"><![CDATA[<p>bonjour,<br />est ce que en faisant rpm -e et ensuite rpm -ivh cela pourrai résoudre le probléme?</p>]]></content>
+		<author>
+			<name><![CDATA[chris0938]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=784</uri>
+		</author>
+		<updated>2011-04-11T09:55:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8860#p8860</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  requête récursive with]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8855#p8855"/>
+		<content type="html"><![CDATA[<p>L&#039;initialisation s&#039;est mal passée. Il manque des fichiers. Aucune idée de pourquoi, par contre.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-04-09T08:34:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8855#p8855</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  requête récursive with]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8851#p8851"/>
+		<content type="html"><![CDATA[<p>j&#039;ai fait</p><div class="codebox"><pre><code>pg_ctl restart -l logfile -D /var/lib/pgsql/data
+waiting for server to shut down.... done
+server stopped
+server starting</code></pre></div><p>ensuite j&#039;ai pensé que je pouvais me connecter a une base </p><div class="codebox"><pre><code> psql template1
+psql: FATAL:  could not open file &quot;global/pg_database&quot;: No such file or directory</code></pre></div><p>il y a le message.<br />quel étape ai-je loupé?</p>]]></content>
+		<author>
+			<name><![CDATA[chris0938]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=784</uri>
+		</author>
+		<updated>2011-04-08T12:19:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8851#p8851</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  requête récursive with]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8849#p8849"/>
+		<content type="html"><![CDATA[<p>est ce normal que j&#039;ai ceci dans mon fichier logfile</p><div class="codebox"><pre><code>postmaster cannot access the server configuration file &quot;/usr/local/pgsql/data/postgresql.conf&quot;: No such file or directory</code></pre></div><p>pgsql n&#039;existe pas a cet endroit.</p>]]></content>
+		<author>
+			<name><![CDATA[chris0938]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=784</uri>
+		</author>
+		<updated>2011-04-08T11:58:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8849#p8849</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  requête récursive with]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8848#p8848"/>
+		<content type="html"><![CDATA[<p>Bon comme vous l&#039;avez compris je suis une quiche. <br />là il y a tout les fichiers et dossier dans la dossier data. j&#039;ai lu qu&#039;on devait changer des parametre dans postgresql.conf et pg_hba mais quand je veux restart postgres pour qu&#039;il prenne les modification et il me mets [FAILED]</p>]]></content>
+		<author>
+			<name><![CDATA[chris0938]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=784</uri>
+		</author>
+		<updated>2011-04-08T11:13:52Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8848#p8848</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  requête récursive with]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8847#p8847"/>
+		<content type="html"><![CDATA[<p>Je vois ce qu&#039;est un script de démarrage mais je voyais pas lequel.<br />Mais c&#039;est sur qu&#039;une formation unix me serait très utile.</p>]]></content>
+		<author>
+			<name><![CDATA[chris0938]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=784</uri>
+		</author>
+		<updated>2011-04-08T10:49:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8847#p8847</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  requête récursive with]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8846#p8846"/>
+		<content type="html"><![CDATA[<p>Si vous en êtes à demander ce qu&#039;est un script de démarrage, il me semble qu&#039;il faut vous retourner vers votre administrateur système qui pourra vous expliquer ça ou carrément vous installer PostgreSQL. Sinon il vous faut une formation à Unix.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-04-08T10:39:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8846#p8846</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  requête récursive with]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8845#p8845"/>
+		<content type="html"><![CDATA[<p>j&#039;ai fais donc /etc/init.d/postgresql. une ligne d&#039;option s&#039;est affiché. j&#039;ai pris initdb</p><div class="codebox"><pre><code>/etc/init.d/postgresql initdb
+Initializing database  [OK]</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[chris0938]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=784</uri>
+		</author>
+		<updated>2011-04-08T10:37:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8845#p8845</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  requête récursive with]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8843#p8843"/>
+		<content type="html"><![CDATA[<p>/etc/init.d/postgresql</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-04-08T10:35:03Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8843#p8843</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  requête récursive with]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8841#p8841"/>
+		<content type="html"><![CDATA[<p>Je suis bien en root quand le lance la commande.<br />Que voulez vous dire par script de démarrage?</p>]]></content>
+		<author>
+			<name><![CDATA[chris0938]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=784</uri>
+		</author>
+		<updated>2011-04-08T09:56:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8841#p8841</id>
+	</entry>
+</feed>

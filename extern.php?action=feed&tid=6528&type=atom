@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / [Résolu] question à propos des déclencheurs]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=6528&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=6528"/>
+	<updated>2023-05-10T14:48:51Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=6528</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] question à propos des déclencheurs]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34282#p34282"/>
+		<content type="html"><![CDATA[<p>merci rjuju, je ne pensais pas que ça fonctionnait, j&#039;aurais dû essayer avant.<br />Pas de soucis c&#039;est bien une valeur par défaut car l&#039;utilisateur peut saisir une autre année à l&#039;insertion.</p>]]></content>
+		<author>
+			<name><![CDATA[PEREZ J.]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=10077</uri>
+		</author>
+		<updated>2023-05-10T14:48:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34282#p34282</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] question à propos des déclencheurs]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34280#p34280"/>
+		<content type="html"><![CDATA[<p>De la même façon, en utilisant &quot;date_part(&#039;year&#039;, now())&quot; en expression pour la clause DEFAULT.</p><br /><p>Attention toutefois, ce n&#039;est pas exactement le même comportement qu&#039;un trigger: la valeur par défaut, comme son nom l&#039;indique, est uniquement utilisée pour spécifier une valeur si la requête qui insert la ligne n&#039;en spécifie pas, mais ne garantit donc pas que la ligne contiendra l&#039;année en cours si un utilisateur insère une ligne avec explicitement une autre année.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2023-05-10T13:18:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34280#p34280</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] question à propos des déclencheurs]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34279#p34279"/>
+		<content type="html"><![CDATA[<p>ça serait l&#039;idéal mais je ne vois pas comment afficher l&#039;année en cours comme valeur par défaut en postgresql</p>]]></content>
+		<author>
+			<name><![CDATA[PEREZ J.]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=10077</uri>
+		</author>
+		<updated>2023-05-10T09:32:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34279#p34279</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] question à propos des déclencheurs]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34276#p34276"/>
+		<content type="html"><![CDATA[<p>Pourquoi ne pas utiliser une valeur par défaut à la place ? ce serait plus performant.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2023-05-09T19:35:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34276#p34276</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] question à propos des déclencheurs]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34275#p34275"/>
+		<content type="html"><![CDATA[<p>en réfléchissant un peu, j&#039;aurais dû y penser.<br />Par contre je n&#039;y connais rien en PL/pgSQL mais je vais voir si je m&#039;en sors avec quelque chose du style </p><div class="codebox"><pre><code> if new.annee is null then new.annee = select date_part(&#039;year&#039;, now()) endif;</code></pre></div><p>dans ma fonction</p>]]></content>
+		<author>
+			<name><![CDATA[PEREZ J.]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=10077</uri>
+		</author>
+		<updated>2023-05-09T15:59:52Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34275#p34275</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] question à propos des déclencheurs]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34274#p34274"/>
+		<content type="html"><![CDATA[<p>Il ne faut surtout pas faire un UPDATE lors d&#039;un trigger sinon votre trigger va s&#039;appeler récursivement.&#160; Il faut simplement modifier la ligne en cours.&#160; Vous pouvez vous inspirer de l&#039;exemple &quot;emp_stamp&quot; à l&#039;adresse <a href="https://docs.postgresql.fr/15/plpgsql-trigger.html#PLPGSQL-DML-TRIGGER" rel="nofollow">https://docs.postgresql.fr/15/plpgsql-t … ML-TRIGGER</a></p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2023-05-09T15:47:35Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34274#p34274</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[[Résolu] question à propos des déclencheurs]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34272#p34272"/>
+		<content type="html"><![CDATA[<p>Bonjour.<br />Je n&#039;ai jamais eu besoin de travailler avec les triggers mais là, je dois mettre en place un trigger qui rempli un champs smallint vide avec l&#039;année en cours.<br />Je souhaite donc intégrer la requête update table set annee = select date_part(&#039;year&#039;, now()) where annee is null dans un trigger after insert or update mais je ne sais pas comment faire?<br />Quelqu&#039;un serait-il susceptible de m&#039;aider?<br />Merci d&#039;avance.</p><p>Résolu en mettant default = date_part(&#039;year&#039;, now())</p>]]></content>
+		<author>
+			<name><![CDATA[PEREZ J.]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=10077</uri>
+		</author>
+		<updated>2023-05-09T14:11:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34272#p34272</id>
+	</entry>
+</feed>

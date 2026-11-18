@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / quote to NULL]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3371&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3371"/>
+	<updated>2017-01-26T10:05:55Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3371</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  quote to NULL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24665#p24665"/>
+		<content type="html"><![CDATA[<p>Après plus de deux ans de test, je tenais simplement à préciser que cette façon de faire est la plus sûre, même si elle ralentit un tantinet la requête associée.</p><p>Geo-x</p>]]></content>
+		<author>
+			<name><![CDATA[Geo-x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1346</uri>
+		</author>
+		<updated>2017-01-26T10:05:55Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24665#p24665</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  quote to NULL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20949#p20949"/>
+		<content type="html"><![CDATA[<p>Oui en effet, pour être sur que le champ soit NULL c&#039;est sûrement ce qu&#039;il y a de mieux à faire.</p><p>Merci rjuju !</p>]]></content>
+		<author>
+			<name><![CDATA[Geo-x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1346</uri>
+		</author>
+		<updated>2014-11-18T15:52:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20949#p20949</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  quote to NULL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20948#p20948"/>
+		<content type="html"><![CDATA[<p>Alors SELECT * FROM matable WHERE COALESCE(champ,&#039;&#039;) = &#039;&#039; ?</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2014-11-18T15:41:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20948#p20948</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  quote to NULL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20947#p20947"/>
+		<content type="html"><![CDATA[<p>Bonjour Rjuju.</p><p>Non, je ne peux pas toucher à mes données (ce serait trop simple ;-) )</p><p>et les champs ne sont pas vides, quand je regarde les tables via pgadmin ils contiennent des doubles quotes : &#039;&#039; , mais quand je fais un SELECT champ1, là j&#039;ai un résultat vide.</p><p>Et moi ce que j&#039;ai besoin de faire c&#039;est filtrer tous les champs vides/NULL.</p>]]></content>
+		<author>
+			<name><![CDATA[Geo-x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1346</uri>
+		</author>
+		<updated>2014-11-18T12:08:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20947#p20947</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  quote to NULL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20946#p20946"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Vos champs sont-ils vides ou contiennent-ils des simples ou doubles quotes ? Si vous ne pouvez pas toucher à vos données (ce qui serait la meilleure solution), le plus simple serait certainement</p><br /><p>COALESCE(champ,&#039;&quot;&quot;&#039;) = &#039;&quot;&quot;&#039;</p><br /><p>pour tester à la fois les champs NULL et les champs valant &quot;&quot;.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2014-11-18T11:28:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20946#p20946</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[quote to NULL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20945#p20945"/>
+		<content type="html"><![CDATA[<p>Bonjour @tous.</p><p>Il y a une question à laquelle je n&#039;arrive pas à répondre concernant le passage d&#039;une valeur VIDE en NULL.</p><p>En effet, certains champs de ma BDD sont composés de double quote &#039;&#039;. Le problème c&#039;est que lorsque je requête sur ces champs-là (ex. champ1 IS NULL) et bien ils n&#039;appraissent pas dans le résultat.</p><p>J&#039;ai donc tenté un certain nombre d&#039;opération pour pouvoir les sélectionner avec ce genre de chose :</p><div class="codebox"><pre><code>select replace(quote_ident(champ1),&#039;&quot;&quot;&#039;,NULL) from table1</code></pre></div><p>Mais cette requête me met tous les résultats en NULL. J&#039;ai également testé en faisant un simple </p><div class="codebox"><pre><code>replace(quote_nullable(designation),&#039;&#039;&#039;&#039;,&#039;&#039;)</code></pre></div><p>Mais pas mieux, je tourne en rond et je ne trouve pas de solution. Existe-t-il une fonction existantes pour régler ce genre de souci ?</p><p>Par avance merci.</p><p>Geo-x</p>]]></content>
+		<author>
+			<name><![CDATA[Geo-x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1346</uri>
+		</author>
+		<updated>2014-11-18T11:22:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20945#p20945</id>
+	</entry>
+</feed>

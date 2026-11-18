@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / [Débutant] Réutilisation de numéros de séquence]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=853&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=853"/>
+	<updated>2010-06-10T14:28:14Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=853</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Débutant] Réutilisation de numéros de séquence]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5329#p5329"/>
+		<content type="html"><![CDATA[<p>Oui, c&#039;est plus clair maintenant.</p>]]></content>
+		<author>
+			<name><![CDATA[Alain V.]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=30</uri>
+		</author>
+		<updated>2010-06-10T14:28:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5329#p5329</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Débutant] Réutilisation de numéros de séquence]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5328#p5328"/>
+		<content type="html"><![CDATA[<p>Une clé primaire empêche qu&#039;il y ait des valeurs doublées ou NULL dans la table. Autrement dit, elle assure de l&#039;unicité des valeurs et de leur non NULLité. Les anciennes valeurs ne sont donc pas prises en compte.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-06-10T14:21:21Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5328#p5328</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Débutant] Réutilisation de numéros de séquence]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5327#p5327"/>
+		<content type="html"><![CDATA[<p>Je n&#039;avais pas compris qu&#039;une séquence n&#039;était prise en compte que sur un INSERT sans valeur pour la colonne t_00_noid (ou avec la valeur DEFAULT).</p><p>Je pensais aussi que la clef primaire que j&#039;avais mise dessus permettait de préserver les valeurs détruites de toute réutilisation future :<br />ALTER TABLE ONLY t_00_dic_medical<br />&#160; &#160; ADD CONSTRAINT t_00_dic_medical_pkey PRIMARY KEY (t_00_noid);</p><p>Il faut donc que je revoie la contrainte sur la colonne.</p><p>Encore merci pour le coup de pouce.</p>]]></content>
+		<author>
+			<name><![CDATA[Alain V.]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=30</uri>
+		</author>
+		<updated>2010-06-10T14:14:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5327#p5327</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Débutant] Réutilisation de numéros de séquence]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5321#p5321"/>
+		<content type="html"><![CDATA[<p>Pourquoi le INSERT des valeurs 1 et 2 vous seraient interdits ? il n&#039;y a strictement aucune contrainte sur la table et/ou les colonnes qui le permette. Pas plus que de triggers. Sans clé primaire, vous pouvez même avoir des valeurs en double ou NULL. La séquence ici est liée à la table en tant que valeur par défaut. Donc la séquence n&#039;est prise en compte que quand vous faites un INSERT sans valeur pour la colonne t_00_noid (ou avec la valeur DEFAULT).</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-06-10T13:51:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5321#p5321</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Débutant] Réutilisation de numéros de séquence]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5320#p5320"/>
+		<content type="html"><![CDATA[<p>Merci pour votre intérêt.</p><p>Voici ce que j&#039;ai fait avec le dump qui génère le message d&#039;erreur :</p><div class="codebox"><pre><code>bd_archimede=&gt; SELECT * FROM t_00_dic_medical;
+ t_00_noid | t_00_tri |   t_00_jp    | t_00_class |       t_00_fr        | t_00_fr_gramm | t_00_uk | t_00_uk_gramm |                          t_00_explication
+-----------+----------+--------------+------------+----------------------+---------------+---------+---------------+--------------------------------------------------------------------
+         1 |        2 | いぼ（疣）   |            | verrue               | nf            |         |               |
+         2 |       11 | 傷を焼灼する |            | cautériser une plaie |               |         |               | en brûler superficiellement les tissus afin d&#039;éviter son infection
+         7 |        0 |              |            | français             |               |         |               |
+(3 lignes)
+
+bd_archimede=&gt; TRUNCATE t_00_dic_medical ;
+TRUNCATE TABLE
+bd_archimede=&gt;</code></pre></div><p>En ligne de commande :</p><div class="codebox"><pre class="vscroll"><code>$ psql -h 192.168.3.105 -U archimede -W bd_archimede &lt; dump_t_00_dic_medical.txt
+Mot de passe pour l&#039;utilisateur archimede :
+SET
+SET
+SET
+SET
+SET
+SET
+SET
+SET
+ERREUR:  la relation « t_00_dic_medical » existe déjà
+ALTER TABLE
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+ERREUR:  la relation « t_00_dic_medical_t_00_noid_seq » existe déjà
+ALTER TABLE
+ALTER SEQUENCE
+ setval
+--------
+      6
+(1 ligne)
+
+ALTER TABLE
+INSERT 0 1
+INSERT 0 1
+ERREUR:  les clés primaires multiples ne sont pas autorisées pour la table « t_00_dic_medical »
+ATTENTION:  aucun droit n&#039;a pu être révoqué pour « public »
+REVOKE
+ATTENTION:  aucun droit n&#039;a pu être révoqué pour « public »
+REVOKE
+ATTENTION:  aucun droit n&#039;a été accordé pour « public »
+GRANT
+ATTENTION:  aucun droit n&#039;a été accordé pour « public »
+GRANT
+$</code></pre></div><p>Le dump :</p><div class="codebox"><pre class="vscroll"><code>--
+-- PostgreSQL database dump
+--
+
+SET client_encoding = &#039;UTF8&#039;;
+SET standard_conforming_strings = off;
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+SET escape_string_warning = off;
+
+SET search_path = public, pg_catalog;
+
+SET default_tablespace = &#039;&#039;;
+
+SET default_with_oids = false;
+
+--
+-- Name: t_00_dic_medical; Type: TABLE; Schema: public; Owner: archimede; Tablespace: 
+--
+
+CREATE TABLE t_00_dic_medical (
+    t_00_noid bigint NOT NULL,
+    t_00_tri numeric(6,0) DEFAULT 0,
+    t_00_jp character varying(100),
+    t_00_class character varying(10),
+    t_00_fr character varying(100),
+    t_00_fr_gramm character varying(10),
+    t_00_uk character varying(100),
+    t_00_uk_gramm character varying(10),
+    t_00_explication text
+);
+
+
+ALTER TABLE public.t_00_dic_medical OWNER TO archimede;
+
+--
+-- Name: COLUMN t_00_dic_medical.t_00_noid; Type: COMMENT; Schema: public; Owner: archimede
+--
+
+COMMENT ON COLUMN t_00_dic_medical.t_00_noid IS &#039;Numérotation auto-incrémentée. Maximum = ???? Avec clef primaire&#039;;
+
+
+--
+-- Name: COLUMN t_00_dic_medical.t_00_tri; Type: COMMENT; Schema: public; Owner: archimede
+--
+
+COMMENT ON COLUMN t_00_dic_medical.t_00_tri IS &#039;Numéro de tri. Maximum = 1.000.000 de lignes dans ce dictionnaire&#039;;
+
+
+--
+-- Name: COLUMN t_00_dic_medical.t_00_jp; Type: COMMENT; Schema: public; Owner: archimede
+--
+
+COMMENT ON COLUMN t_00_dic_medical.t_00_jp IS &#039;Japonais. Limite 100 caractères. A voir les doubles octets&#039;;
+
+
+--
+-- Name: COLUMN t_00_dic_medical.t_00_class; Type: COMMENT; Schema: public; Owner: archimede
+--
+
+COMMENT ON COLUMN t_00_dic_medical.t_00_class IS &#039;Japonais pour classement. Limite 10 caractères. A voir les doubles octets&#039;;
+
+
+--
+-- Name: COLUMN t_00_dic_medical.t_00_fr; Type: COMMENT; Schema: public; Owner: archimede
+--
+
+COMMENT ON COLUMN t_00_dic_medical.t_00_fr IS &#039;Français. Limite 100 caractères.&#039;;
+
+
+--
+-- Name: COLUMN t_00_dic_medical.t_00_fr_gramm; Type: COMMENT; Schema: public; Owner: archimede
+--
+
+COMMENT ON COLUMN t_00_dic_medical.t_00_fr_gramm IS &#039;Français. Grammaire. Limite 10 caractères.&#039;;
+
+
+--
+-- Name: COLUMN t_00_dic_medical.t_00_uk; Type: COMMENT; Schema: public; Owner: archimede
+--
+
+COMMENT ON COLUMN t_00_dic_medical.t_00_uk IS &#039;Anglais. Limite 100 caractères.&#039;;
+
+
+--
+-- Name: COLUMN t_00_dic_medical.t_00_uk_gramm; Type: COMMENT; Schema: public; Owner: archimede
+--
+
+COMMENT ON COLUMN t_00_dic_medical.t_00_uk_gramm IS &#039;Anglais. Grammaire. Limite 10 caractères.&#039;;
+
+
+--
+-- Name: COLUMN t_00_dic_medical.t_00_explication; Type: COMMENT; Schema: public; Owner: archimede
+--
+
+COMMENT ON COLUMN t_00_dic_medical.t_00_explication IS &#039;Explication. Type de champs texte&#039;;
+
+
+--
+-- Name: t_00_dic_medical_t_00_noid_seq; Type: SEQUENCE; Schema: public; Owner: archimede
+--
+
+CREATE SEQUENCE t_00_dic_medical_t_00_noid_seq
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.t_00_dic_medical_t_00_noid_seq OWNER TO archimede;
+
+--
+-- Name: t_00_dic_medical_t_00_noid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: archimede
+--
+
+ALTER SEQUENCE t_00_dic_medical_t_00_noid_seq OWNED BY t_00_dic_medical.t_00_noid;
+
+
+--
+-- Name: t_00_dic_medical_t_00_noid_seq; Type: SEQUENCE SET; Schema: public; Owner: archimede
+--
+
+SELECT pg_catalog.setval(&#039;t_00_dic_medical_t_00_noid_seq&#039;, 6, true);
+
+
+--
+-- Name: t_00_noid; Type: DEFAULT; Schema: public; Owner: archimede
+--
+
+ALTER TABLE t_00_dic_medical ALTER COLUMN t_00_noid SET DEFAULT nextval(&#039;t_00_dic_medical_t_00_noid_seq&#039;::regclass);
+
+
+--
+-- Data for Name: t_00_dic_medical; Type: TABLE DATA; Schema: public; Owner: archimede
+--
+
+INSERT INTO t_00_dic_medical (t_00_noid, t_00_tri, t_00_jp, t_00_class, t_00_fr, t_00_fr_gramm, t_00_uk, t_00_uk_gramm, t_00_explication) VALUES (1, 2, &#039;いぼ（疣）&#039;, &#039;&#039;, &#039;verrue&#039;, &#039;nf&#039;, &#039;&#039;, &#039;&#039;, NULL);
+INSERT INTO t_00_dic_medical (t_00_noid, t_00_tri, t_00_jp, t_00_class, t_00_fr, t_00_fr_gramm, t_00_uk, t_00_uk_gramm, t_00_explication) VALUES (2, 11, &#039;傷を焼灼する&#039;, &#039;&#039;, &#039;cautériser une plaie&#039;, &#039;&#039;, NULL, &#039;&#039;, &#039;en brûler superficiellement les tissus afin d&#039;&#039;éviter son infection&#039;);
+
+
+--
+-- Name: t_00_dic_medical_pkey; Type: CONSTRAINT; Schema: public; Owner: archimede; Tablespace: 
+--
+
+ALTER TABLE ONLY t_00_dic_medical
+    ADD CONSTRAINT t_00_dic_medical_pkey PRIMARY KEY (t_00_noid);
+
+
+--
+-- Name: public; Type: ACL; Schema: -; Owner: postgres
+--
+
+REVOKE ALL ON SCHEMA public FROM PUBLIC;
+REVOKE ALL ON SCHEMA public FROM postgres;
+GRANT ALL ON SCHEMA public TO postgres;
+GRANT ALL ON SCHEMA public TO PUBLIC;
+
+
+--
+-- PostgreSQL database dump complete
+--</code></pre></div><p>Et le nouveau remplissage de la table :</p><div class="codebox"><pre><code>bd_archimede=&gt; SELECT * FROM t_00_dic_medical;
+ t_00_noid | t_00_tri |   t_00_jp    | t_00_class |       t_00_fr        | t_00_fr_gramm | t_00_uk | t_00_uk_gramm |                          t_00_explication
+-----------+----------+--------------+------------+----------------------+---------------+---------+---------------+--------------------------------------------------------------------
+         1 |        2 | いぼ（疣）   |            | verrue               | nf            |         |               |
+         2 |       11 | 傷を焼灼する |            | cautériser une plaie |               |         |               | en brûler superficiellement les tissus afin d&#039;éviter son infection
+(2 lignes)
+
+bd_archimede=&gt;</code></pre></div><p>Je n&#039;ai passé aucune autre commande, ni côté serveur, ni sur ma machine. Vous avez ici dans l&#039;ordre la totalité de ce que je vois et de ce que j&#039;ai exécuté.</p>]]></content>
+		<author>
+			<name><![CDATA[Alain V.]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=30</uri>
+		</author>
+		<updated>2010-06-10T13:47:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5320#p5320</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Débutant] Réutilisation de numéros de séquence]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5317#p5317"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Pourriez-vous copier ici l&#039;ensemble du fichier ou des ordres passés, en un seul bloc?</p>]]></content>
+		<author>
+			<name><![CDATA[flo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=216</uri>
+		</author>
+		<updated>2010-06-10T12:35:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5317#p5317</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[[Débutant] Réutilisation de numéros de séquence]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5314#p5314"/>
+		<content type="html"><![CDATA[<p>Bonjour le forum.</p><p>Suite à un TRUNCATE TABLE qui ne détruit pas le compteur je m&#039;attendais à ce que la progression de la séquence continue en tenant compte de la valeur &quot;last_value&quot; du catalogue.<br />Lors du repeuplement de cette table devenue vide j&#039;ai constaté que la valeur &quot;last_value&quot; était bien prise en compte mais qu&#039;il était quand même possible de réutiliser des valeurs détruites.</p><p>Est-ce normal qu&#039;un INSERT INTO des valeurs de séquences ayant été déjà utilisées soient acceptées quand même avec le message d&#039;erreur &quot;clés primaires multiples ne sont pas autorisées&quot;?</p><p>Voici un extrait de la table. Pour la lisibilité, j&#039;ai supprimé les ALTER TABLE... OWNER TO.</p><div class="codebox"><pre><code>CREATE TABLE t_00_dic_medical (
+    t_00_noid bigint NOT NULL,
+    t_00_tri numeric(6,0) DEFAULT 0,
+    t_00_jp character varying(100),
+    [...]</code></pre></div><p>La totalité de la séquence avec une valeur 6 pour &quot;last_value&quot; :</p><div class="codebox"><pre><code>CREATE SEQUENCE t_00_dic_medical_t_00_noid_seq
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+ALTER SEQUENCE t_00_dic_medical_t_00_noid_seq OWNED BY t_00_dic_medical.t_00_noid;
+SELECT pg_catalog.setval(&#039;t_00_dic_medical_t_00_noid_seq&#039;, 6, true);
+ALTER TABLE t_00_dic_medical ALTER COLUMN t_00_noid SET DEFAULT nextval(&#039;t_00_dic_medical_t_00_noid_seq&#039;::regclass);</code></pre></div><p>Je peuple un peu la table pour tester. Le compteur monte à 6. Je la &quot;truncate&quot; puis je la repeuple à nouveau avec ce dump :</p><div class="codebox"><pre><code>INSERT INTO t_00_dic_medical (t_00_noid, t_00_tri, t_00_jp, [...]) VALUES (1, 2, &#039;いぼ（疣）&#039;, [...]); (notez la valeur 1 entrée en première colonne)
+INSERT INTO t_00_dic_medical (t_00_noid, t_00_tri, t_00_jp, [...]) VALUES (2, 11, &#039;傷を焼灼する&#039;,[...]); (notez la valeur 2 entrée en première colonne)
+ALTER TABLE ONLY t_00_dic_medical
+    ADD CONSTRAINT t_00_dic_medical_pkey PRIMARY KEY (t_00_noid);</code></pre></div><p>L&#039;erreur :</p><div class="codebox"><pre><code>$psql labonnebase &lt; dump.txt
+[...]
+ERREUR:  la relation « t_00_dic_medical » existe déjà (Ce message me semble normal car la description de la table est aussi dans le dump)
+ALTER TABLE
+ERREUR:  la relation « t_00_dic_medical_t_00_noid_seq » existe déjà (Ce message me semble normal puisque je n&#039;ai fait que &quot;truncaté&quot; la table et non &quot;droppée&quot;)
+ALTER TABLE
+ALTER SEQUENCE
+ setval
+--------
+      6
+(1 ligne)
+
+ALTER TABLE
+INSERT 0 1
+INSERT 0 1
+ERREUR:  les clés primaires multiples ne sont pas autorisées pour la table « t_00_dic_medical »</code></pre></div><p>Le résultat :</p><div class="codebox"><pre><code> t_00_noid | t_00_tri |   t_00_jp    |
+-----------+----------+--------------+
+         1 |        2 | いぼ（疣）   |
+         2 |       11 | 傷を焼灼する |
+         7 |        0 |              |</code></pre></div><p>Pour la première colonne, je m&#039;attendais à ce qu&#039;on m&#039;interdise le INSERT INTO 1, 2 et que la séquence reprenne à partir de 7. Je m&#039;attendais donc à cette seule séquence autorisée : 7, 8, 9, et non 1, 2, 7 que j&#039;ai forcé.</p><p>La valeur de la séquence dans le catalogue :</p><div class="codebox"><pre><code>select * from t_00_dic_medical_t_00_noid_seq ;
+         sequence_name          | last_value | increment_by |      max_value      | min_value | cache_value | log_cnt | is_cycled | is_called
+--------------------------------+------------+--------------+---------------------+-----------+-------------+---------+-----------+-----------
+ t_00_dic_medical_t_00_noid_seq |          7 |            1 | 9223372036854775807 |         1 |           1 |      32 | f         | t</code></pre></div><p>Où est-ce que j&#039;ai fait une erreur?<br />Qu&#039;est-ce que je n&#039;ai pas compris?</p><p>Merci beaucoup d&#039;avance pour le temps que vous accorderez à mes interrogations.</p>]]></content>
+		<author>
+			<name><![CDATA[Alain V.]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=30</uri>
+		</author>
+		<updated>2010-06-10T11:00:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5314#p5314</id>
+	</entry>
+</feed>

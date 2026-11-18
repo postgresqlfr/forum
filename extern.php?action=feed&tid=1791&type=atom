@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Pouvoir lancer deux fonctions qui utilisent la même table]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1791&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1791"/>
+	<updated>2011-12-16T10:02:27Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1791</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Pouvoir lancer deux fonctions qui utilisent la même table]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12154#p12154"/>
+		<content type="html"><![CDATA[<p>Merci à tous pour vos réponses,</p><p>Marc Cousin je vais tenter ta solution.</p>]]></content>
+		<author>
+			<name><![CDATA[vince44]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1484</uri>
+		</author>
+		<updated>2011-12-16T10:02:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12154#p12154</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Pouvoir lancer deux fonctions qui utilisent la même table]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12125#p12125"/>
+		<content type="html"><![CDATA[<p>Vous pourriez vous en sortir quand même en récupérant les enregistrements sur lesquels travailler un par un avec des select for update nowait dans chaque bloc de PL (et dans ce cas là, même pas la peine de s&#039;embêter avec un champs LOCK)</p><p>Je vous explique sans coder l&#039;algo (la flemme <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" />, et vous avez l&#039;air de vous en sortir déjà correctement en PL )</p><p>FOREACH pk_temp IN SELECT champs_primary_key FROM stats_raw_temp ORDER BY stat_id ASC<br />LOOP<br />&#160; SELECT * INTO enreg_a_traiter FROM&#160; stats_raw_temp WHERE primary_key=pk_temp NOWAIT;<br />&#160; IF FOUND<br />&#160; &#160; mon_compteur:=mon_compteur +1;<br />&#160; &#160; INSERT INTO&#160; temp_stats_raw_temp SELECT enreg_a_traiter.*;<br />&#160; END IF<br />&#160; EXIT WHEN mon_compteur &gt; limite_max_a_verrouiller;<br />END LOOP</p><p>L&#039;idée est que chaque session va verrouiller des enregistrements de la liste des enregistrements utilisables avec les SELECT FOR UPDATE unitaires, à hauteur du nombre max à verrouiller. Le verrouillage va être plus lent qu&#039;avec la méthode précédente, mais je présume que ce n&#039;est pas là que le traitement est lent mais dans l&#039;appel des fonctions:</p><p>&#160; &#160; &#160; &#160; PERFORM 1 FROM calc_visit_duration_daily();<br />&#160; &#160; &#160; &#160; PERFORM 1 FROM calc_visit_duration_monthly();<br />&#160; &#160; &#160; &#160; PERFORM 1 FROM calc_visit_duration_yearly();&#160; &#160; </p><p>En espérant avoir été assez clair et que ça aide… Par ailleurs, le champ lock devient inutile, vu qu&#039;on utilise les verrous du moteur postgres directement.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-12-15T08:18:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12125#p12125</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Pouvoir lancer deux fonctions qui utilisent la même table]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12124#p12124"/>
+		<content type="html"><![CDATA[<p>Bonjour.<br />Hélas, tant que la procédure stockée n&#039;est pas finie, les modifications ne seront pas visibles à l&#039;extérieur de la transaction.</p><p>Il y a eu une discussion qui portait un peu sur le même sujet il y a peu, des éléments de contournement ont été apportés, peut-être cela pourra vous aiguiller vers une solution ?</p><p><a href="http://forums.postgresql.fr/viewtopic.php?id=1713" rel="nofollow">http://forums.postgresql.fr/viewtopic.php?id=1713</a></p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2011-12-14T21:31:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12124#p12124</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Pouvoir lancer deux fonctions qui utilisent la même table]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12123#p12123"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Est-il possible à l&#039;intérieur de ma fonction de faire un 2 commits (un au début puis un autre à la fin).</p></div></blockquote></div><p>Non, ce n&#039;est pas possible.</p><p>Qu&#039;est-ce que vous voulez réellement faire ?</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-12-14T21:28:00Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12123#p12123</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Pouvoir lancer deux fonctions qui utilisent la même table]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12122#p12122"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je suis actuellement sur un postGresql 9.1 (depuis peu car migration depuis mysql).<br />J&#039;ai certains calculs qui s&#039;exécutent en base (base type décisionnel), pour une base mon calcul est trop lent alors je voulais pourvoir lancer plusieurs fois la procédure. J&#039;ai fait ce qu&#039;il fallait, mais un problème dans ma procédure m&#039;embête...</p><p>En gros le problème:<br />- au début de la procédure je mets à jour un champ dans un table pour dire que je suis en cour de traitement puis j&#039;effectue mes calculs. -&gt; En solo ça marche<br />- Lorsque je lance le deuxième il retape sur les mêmes lignes (que j&#039;ai locké) car mon update fait au début de ma procédure n&#039;est pas commité, il essai donc de locker les mêmes ligne... </p><p>Ma question:<br />- Est-il possible à l&#039;intérieur de ma fonction de faire un 2 commits (un au début puis un autre à la fin).</p><p>Si ça peut aider voici la procedure:</p><br /><br /><p>CREATE OR REPLACE FUNCTION execCalc()<br />RETURNS VOID<br />AS $$<br />DECLARE statsLocked boolean DEFAULT false;<br />DECLARE statId INT DEFAULT 0;<br />DECLARE _tstamp TIMESTAMP;<br />DECLARE _tag varchar(50) DEFAULT &#039;&#039;;<br />DECLARE deviceId varchar(50) DEFAULT &#039;&#039;;<br />DECLARE _ctx1 varchar(300) DEFAULT &#039;&#039;;<br />DECLARE _ctx2 varchar(300) DEFAULT &#039;&#039;;<br />DECLARE _ctx3 varchar(300) DEFAULT &#039;&#039;;<br />DECLARE _ctx4 varchar(300) DEFAULT &#039;&#039;;<br />DECLARE _ctx5 varchar(300) DEFAULT &#039;&#039;;<br />DECLARE first smallint DEFAULT 0;<br />DECLARE beginDate TIMESTAMP;<br />DECLARE endDate TIMESTAMP;<br />DECLARE curStats refcursor;<br />DECLARE _bloc int DEFAULT 2500;<br />BEGIN<br />&#160; &#160; --SELECT pg_try_advisory_lock(12345) INTO statsLocked;<br />&#160; &#160; <br />&#160; &#160; --IF statsLocked = true THEN<br />&#160; &#160; <br />&#160; &#160; &#160; &#160; PERFORM 1 FROM fill_general_tables();<br />&#160; &#160; &#160; &#160; <br />&#160; &#160; &#160; &#160; select cast(value as integer) into _bloc from parametrage where key = &#039;bloc_exec&#039;;<br />&#160; &#160; &#160; &#160; <br />&#160; &#160; &#160; &#160; --BEGIN;<br />&#160; &#160; &#160; &#160; --START TRANSACTION READ COMMITTED<br />&#160; &#160; &#160; &#160; <br />&#160; &#160; &#160; &#160; &#160; &#160; --LOCK TABLE stats_raw_temp IN ACCESS SHARE MODE;<br />&#160; &#160; &#160; &#160; &#160; &#160; <br />&#160; &#160; &#160; &#160; &#160; &#160; CREATE TEMPORARY TABLE temp_stats_raw_temp ON commit DROP AS <br />&#160; &#160; &#160; &#160; &#160; &#160; SELECT * FROM stats_raw_temp WHERE &quot;lock&quot; = false ORDER BY stat_id ASC LIMIT (select _bloc) FOR UPDATE NOWAIT;<br />&#160; &#160; &#160; &#160; <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; ------C&#039;est ce update là que je voudrais commiter en cours de travaille.<br />&#160; &#160; &#160; &#160; &#160; &#160; UPDATE stats_raw_temp SET &quot;lock&quot; = true WHERE stat_id IN (SELECT stat_id FROM temp_stats_raw_temp);<br />&#160; &#160; &#160; &#160; &#160; &#160; <br />&#160; &#160; &#160; &#160; --END;<br />&#160; &#160; &#160; &#160; --COMMIT;</p><p>&#160; &#160; &#160; &#160; <br />&#160; &#160; &#160; &#160;&#160; PERFORM pg_sleep(60);</p><p>&#160; &#160; <br />&#160; &#160; &#160; &#160; --PERFORM pg_advisory_unlock(12345);<br />&#160; &#160; &#160; &#160; <br />&#160; &#160; &#160; &#160; PERFORM 1 FROM processvisit();</p><br /><p>&#160; &#160; &#160; &#160; OPEN curStats FOR SELECT &quot;stat_id&quot;,&quot;stat_time&quot;,&quot;tag&quot;,&quot;device_id&quot;,&quot;ctx1&quot;,&quot;ctx2&quot;,&quot;ctx3&quot;,&quot;ctx4&quot;,&quot;ctx5&quot; FROM temp_stats_raw_temp ORDER BY stat_id ASC;<br />&#160; &#160; &#160; &#160; LOOP<br />&#160; &#160; &#160; &#160; &#160; &#160; FETCH curStats INTO statId, _tstamp, _tag, deviceId, _ctx1, _ctx2, _ctx3, _ctx4, _ctx5;<br />&#160; &#160; &#160; &#160; &#160; &#160; EXIT WHEN NOT FOUND;<br />&#160; &#160; &#160; &#160;&#160; &#160; &#160;IF first = 0 THEN<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; beginDate := _tstamp;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; first := 1;<br />&#160; &#160; &#160; &#160; &#160; &#160; END IF;<br />&#160; &#160; &#160; &#160; &#160; &#160; endDate := _tstamp;<br />&#160; &#160; &#160; &#160; &#160; &#160; PERFORM 1 FROM processStats(statId, _tstamp, _tag, deviceId, _ctx1, _ctx2, _ctx3, _ctx4, _ctx5);<br />&#160; &#160; &#160; &#160; end LOOP;<br />&#160; &#160; <br />&#160; &#160; &#160; &#160; DELETE FROM stats_raw_temp WHERE stat_id IN (SELECT stat_id FROM temp_stats_raw_temp);<br />&#160; &#160; &#160; &#160; PERFORM 1 FROM processStatsEnd(beginDate, endDate);<br />&#160; &#160; &#160; &#160; <br />&#160; &#160; &#160; &#160; PERFORM 1 FROM calc_visit_duration_daily();<br />&#160; &#160; &#160; &#160; PERFORM 1 FROM calc_visit_duration_monthly();<br />&#160; &#160; &#160; &#160; PERFORM 1 FROM calc_visit_duration_yearly();&#160; &#160; <br />&#160; &#160; &#160; &#160; <br />&#160; &#160; --END IF;<br />&#160; &#160; <br />EXCEPTION WHEN TRANSACTION_ROLLBACK then<br />&#160; &#160; UPDATE stats_raw_temp SET &quot;lock&quot; = false WHERE stat_id IN (SELECT stat_id FROM temp_stats_raw_temp);<br />END;<br />$$ LANGUAGE PLPGSQL;</p>]]></content>
+		<author>
+			<name><![CDATA[vince44]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1484</uri>
+		</author>
+		<updated>2011-12-14T17:30:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12122#p12122</id>
+	</entry>
+</feed>

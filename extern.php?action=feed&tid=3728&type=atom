@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Requête incorrecte utilisant la clause With]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3728&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3728"/>
+	<updated>2015-12-22T16:58:02Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3728</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête incorrecte utilisant la clause With]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22860#p22860"/>
+		<content type="html"><![CDATA[<p>Merci de la réponse.</p>]]></content>
+		<author>
+			<name><![CDATA[Mlan2]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5297</uri>
+		</author>
+		<updated>2015-12-22T16:58:02Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22860#p22860</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête incorrecte utilisant la clause With]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22858#p22858"/>
+		<content type="html"><![CDATA[<p>Le bon usage serait de rajouter un alias à la sous requête, comme l&#039;indique l&#039;erreur.</p><p>Par exemple :</p><div class="codebox"><pre><code>select * from (with toto as (select 1) select * from toto);
+ERROR:  subquery in FROM must have an alias
+LINE 1: select * from (with toto as (select 1) select * from toto);
+                      ^
+HINT:  For example, FROM (SELECT ...) [AS] foo.
+
+select * from (with toto as (select 1) select * from toto) AS s;
+ ?column? 
+══════════
+        1
+(1 row)
+
+Time: 1.325 ms</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2015-12-22T13:16:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22858#p22858</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête incorrecte utilisant la clause With]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22856#p22856"/>
+		<content type="html"><![CDATA[<p>En modifiant la requête comme ci-dessous, on contourne le problème de l&#039;usage du WITH :</p><div class="codebox"><pre><code>SELECT * FROM (
+ SELECT DISTINCT groupe,libelle FROM sfpgrps WHERE groupe NOT IN (SELECT DISTINCT grouph FROM hopempl)
+  INTERSECT
+ SELECT DISTINCT hierar,libelle FROM sfphierg WHERE hierar NOT IN (SELECT DISTINCT hierar FROM sfphierd 
+                                                                    UNION
+                                                                   SELECT DISTINCT hierar FROM sfpsupl)
+) as req1;</code></pre></div><p>Quel serait le bon usage du WITH ?</p>]]></content>
+		<author>
+			<name><![CDATA[Mlan2]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5297</uri>
+		</author>
+		<updated>2015-12-22T10:41:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22856#p22856</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête incorrecte utilisant la clause With]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22855#p22855"/>
+		<content type="html"><![CDATA[<p>Désolé,</p><p>Je n&#039;ai fourni la bonne requête posant problème.</p><p>La voici ci-dessous :</p><div class="codebox"><pre><code>CREATE TABLE temp_res AS
+ SELECT * FROM (WITH req1 as (SELECT DISTINCT hierar FROM sfphierd 
+                               UNION
+                              SELECT DISTINCT hierar FROM sfpsupl)
+ SELECT DISTINCT groupe,libelle FROM sfpgrps WHERE groupe NOT IN (SELECT DISTINCT grouph FROM hopempl)
+  INTERSECT
+ SELECT DISTINCT hierar,libelle FROM sfphierg WHERE hierar NOT IN (SELECT * FROM req1)
+);	</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[Mlan2]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5297</uri>
+		</author>
+		<updated>2015-12-22T10:37:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22855#p22855</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Requête incorrecte utilisant la clause With]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22854#p22854"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je transpose sous PostgreSQL quelques requêtes écrites initialement sous Oracle.</p><p>J&#039;ai la requête ci-dessous qui me pose problème.</p><div class="codebox"><pre><code>CREATE TABLE temp_res AS
+ SELECT hierar FROM (WITH req1 as (SELECT DISTINCT hierar FROM sfphierd 
+                               UNION
+                              SELECT DISTINCT hierar FROM sfpsupl)
+ SELECT DISTINCT groupe,libelle FROM sfpgrps WHERE groupe NOT IN (SELECT DISTINCT grouph FROM hopempl)
+  INTERSECT
+ SELECT DISTINCT hierar,libelle FROM sfphierg WHERE hierar NOT IN (SELECT * FROM req1)
+);	</code></pre></div><p>J&#039;ai le message suivant lorsque je l&#039;exécute :</p><div class="codebox"><pre><code>la sous-requête du FROM doit avoir un alias</code></pre></div><p>Avez vous une idée sur la nature de l&#039;erreur, et comment la transposer ?</p><p>D&#039;avance merci de vos retours.</p>]]></content>
+		<author>
+			<name><![CDATA[Mlan2]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5297</uri>
+		</author>
+		<updated>2015-12-22T10:18:07Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22854#p22854</id>
+	</entry>
+</feed>

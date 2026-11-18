@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Requête lente sur volume de données réduit]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=673&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=673"/>
+	<updated>2010-03-12T07:53:09Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=673</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête lente sur volume de données réduit]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4233#p4233"/>
+		<content type="html"><![CDATA[<p>Ok. Désolé pour la formulation un peu abrupte. En tout cas, cette modification là est justifiable, étant donné qu&#039;il s&#039;agit d&#039;une erreur de conception flagrante au départ.</p><p>Commencez par expliquer que le caractère de contrôle ne fait pas partie de la clé (il n&#039;identifie pas l&#039;enregistrement), et doit donc être stocké dans une colonne séparée. Celà devrait bien simplifier les choses pour la suite : vous aurez normalement juste l&#039;identifiant du document dans les deux tables.</p><p>Sinon pour revenir à l&#039;autre piste possible : est-ce que comparer les 7 premiers caractères des deux tables de façon inconditionnelle serait une solution ? Si oui, on peut résoudre le problème assez simplement.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-03-12T07:53:09Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4233#p4233</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête lente sur volume de données réduit]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4232#p4232"/>
+		<content type="html"><![CDATA[<p>Bonjour Marc,<br />Ce n&#039;est pas que je ne veux pas comprendre mais je dois migrer une base Oracle en production.<br />Les changements de structure ne peuvent pas se faire facilement.<br />Je vais travailler dans ce sens.<br />Merci pour votre analyse.</p>]]></content>
+		<author>
+			<name><![CDATA[mortimer.pw]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=573</uri>
+		</author>
+		<updated>2010-03-12T06:47:21Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4232#p4232</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête lente sur volume de données réduit]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4221#p4221"/>
+		<content type="html"><![CDATA[<p>Au passage, votre algorithme ne pourrait il déjà pas être un peu simplifié en testant (toujours) les 7 premiers caractères de T avec les 7 premiers caractères de D ?</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-03-11T07:11:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4221#p4221</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête lente sur volume de données réduit]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4220#p4220"/>
+		<content type="html"><![CDATA[<p>Vous n&#039;avez pas l&#039;air de vouloir comprendre :<br />Si vous n&#039;arrivez pas à vous ramener à une requête écrite correctement (LEFT OUTER JOIN Document D ON (T.Doc=D.Realdoc)), les performances resteront mauvaises.<br />Ce n&#039;est pas le fait que ça soit un LEFT JOIN qui pose problème (cas des documents qui ne sont pas dans la liste). C&#039;est que ce case n&#039;est pas une condition de jointure, et oblige postgres à faire quelque chose qui s&#039;approche d&#039;un cross join en filtrant à posteriori les enregistrements.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-03-11T06:56:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4220#p4220</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête lente sur volume de données réduit]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4219#p4219"/>
+		<content type="html"><![CDATA[<p>Bonjour Marc,</p><p>Le fait d&#039;avoir cette nouvelle colonne dans la table Document ne réglerai pas le problème des Documents qui ne sont pas dans la liste.</p><p>Concernant le CASE WHEN, je teste si le dernier caractère est alphanumérique.<br />&#160; &#160; &#160;Si non Alors je prends la valeur entière de T.Doc<br />&#160; &#160; &#160;Si oui Alors je prends la valeur de T.doc - le dernier caractère<br />Ensuite je compare avec la valeur de D.doc - le dernier caractère</p>]]></content>
+		<author>
+			<name><![CDATA[mortimer.pw]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=573</uri>
+		</author>
+		<updated>2010-03-11T06:46:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4219#p4219</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête lente sur volume de données réduit]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4217#p4217"/>
+		<content type="html"><![CDATA[<p>L&#039;idéal serait d&#039;avoir le caractère de contrôle dans un champ distinct : ce n&#039;est pas l&#039;identifiant du document. Le champ contient à la fois l&#039;identifiant du document et ce caractère de contrôle, et n&#039;est donc pas atomique (la base n&#039;est donc pas en première forme normale).</p><p>Si c&#039;est insurmontable de corriger le problème, calculez au moins un autre champ dans la table document sans le caractère de contrôle, qui sera lui le vrai identifiant du document.</p><p>Une fois que vous aurez ce champ, vous pourrez écrire<br /> Travail T LEFT OUTER JOIN Document D ON (T.Doc=D.Realdoc)</p><br /><p>Autre chose au passage (je viens de le voir) :<br />CASE WHEN LastAlpha(T.doc)=0 THEN T.doc ELSE SUBSTR(T.doc,1,LENGTH(T.doc)-1) END)=SUBSTR(D.doc,1,LENGTH(D.doc)-1<br />ne devrait il pas plutôt être<br />CASE WHEN LastAlpha(T.doc)=0 THEN T.doc=D.doc ELSE SUBSTR(T.doc,1,LENGTH(T.doc)-1) END)=SUBSTR(D.doc,1,LENGTH(D.doc)-1 ?</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-03-10T16:14:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4217#p4217</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête lente sur volume de données réduit]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4213#p4213"/>
+		<content type="html"><![CDATA[<p>La table Document est alimentée grâce à une liste de documents à produire fournie par le client (la lettre de contrôle est ajoutée pendant cette alimentation).</p><p>La table Travail est alimentée par la production qui ne connait pas forcément le caractère de contrôle et qui parfois traite des documents qui ne sont pas dans la liste.</p>]]></content>
+		<author>
+			<name><![CDATA[mortimer.pw]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=573</uri>
+		</author>
+		<updated>2010-03-10T15:21:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4213#p4213</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête lente sur volume de données réduit]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4212#p4212"/>
+		<content type="html"><![CDATA[<p>Pourquoi ne pas stocker directement l&#039;identifiant du document dans chaque table ? à quoi sert ce caractère de contrôle ?</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-03-10T14:26:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4212#p4212</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête lente sur volume de données réduit]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4211#p4211"/>
+		<content type="html"><![CDATA[<p>Dans la table document, j&#039;ai la liste des documents sur 7 chiffres + 1 lettre de contrôle</p><p>Exemple :<br />&#160; &#160; 1111111A<br />&#160; &#160; 4444444K<br />&#160; &#160; 2222222R<br />&#160; &#160; 6666666C</p><br /><p>Alors que dans la table Travail, dans le champ doc, je peux recevoir soit :<br />&#160; &#160; - 7 chiffres + 1 lettre de contrôle<br />&#160; &#160; - 7 chiffres<br />&#160; &#160; - X chiffres</p><p>Exemple :<br />&#160; &#160; 1111111A<br />&#160; &#160; 4444444K<br />&#160; &#160; 2222222<br />&#160; &#160; 6666666<br />&#160; &#160; 6487<br />&#160; &#160; 4474</p><br /><p>Dans le CASE WHEN, je fais donc :</p><p>&#160; &#160; &#160;SI&#160; le dernier caractère de T.doc n&#039;est pas une lettre&#160; ALORS&#160; je cherche T.doc = 7 premiers caractères de D.doc</p><p>&#160; &#160; &#160;SINON&#160; je cherche 7 premiers caractères de T.doc = 7 premiers caractères de D.doc</p><br /><br /><p>Je fais un&#160; LEFT OUTER JOIN&#160; pour récupérer les lignes de Travail même si le document n&#039;existe pas dans Document.</p><p>J&#039;espère être clair.</p>]]></content>
+		<author>
+			<name><![CDATA[mortimer.pw]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=573</uri>
+		</author>
+		<updated>2010-03-10T13:52:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4211#p4211</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête lente sur volume de données réduit]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4210#p4210"/>
+		<content type="html"><![CDATA[<p>Tout le coût de la requête est là :<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Nested Loop Left Join&#160; (cost=965.91..630170.27 rows=10847 width=235) (actual time=768.841..30267.651 rows=43 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Join Filter: (CASE WHEN (lastalpha(t.doc) = 0::numeric) THEN (t.doc)::text ELSE substr((t.doc)::text, 1, (length((t.doc)::text) - 1)) END = substr((d.doc)::text, 1, (length((d.doc)::text) - 1)))<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Index Scan using travail1 on travail t&#160; (cost=0.01..66.19 rows=62 width=219) (actual time=0.068..0.420 rows=43 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Index Cond: ((jour = ((&#039;now&#039;::text)::date - 1)) AND (personne = &#039;0000123&#039;::bpchar))<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Materialize&#160; (cost=965.90..1315.81 rows=34991 width=25) (actual time=0.001..13.739 rows=34991 loops=43)</p><p>On fait 43 passes complètes sur la table documents (une par travail), parce que le moteur ne sait pas interpréter </p><p>Travail T LEFT OUTER JOIN Document D ON (CASE WHEN LastAlpha(T.doc)=0 THEN T.doc ELSE SUBSTR(T.doc,1,LENGTH(T.doc)-1) END)=SUBSTR(D.doc,1,LENGTH(D.doc)-1)</p><p>Je ne vois pas par quel miracle Oracle se sort de celle là, mais le problème est que ça n&#039;est vraiment pas une jointure.</p><p>Pouvez vous m&#039;expliquer ce que vous voulez vraiment faire (avec des mots), que nous voyons comment écrire cela en relationnel si c&#039;est possible (j&#039;ai une idée de ce que vous voulez faire, mais j&#039;ai besoin du détail). Donnez moi des exemples si vous pouvez de comment les tables sont raccordées (avec des exemples de champ doc).</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-03-10T13:31:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4210#p4210</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête lente sur volume de données réduit]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4209#p4209"/>
+		<content type="html"><![CDATA[<p>La vue utilisée est la suivante :<br />&#160; &#160; &#160; &#160; &#160; CREATE VIEW Vue_Action AS<br />&#160; &#160; SELECT a.id_act1,ss1.libelle AS lib1,a.id_act2,ss2.libelle AS lib2,a.id_act3,ss3.libelle AS lib3,a.id_act4,ss4.libelle AS lib4<br />&#160; &#160; FROM action a,ss_action1 ss1,ss_action2 ss2,ss_action3 ss3,ss_action4 ss4<br />&#160; &#160; WHERE a.id_type1=&#039;G&#039;<br />&#160; &#160; AND a.id_type2=1<br />&#160; &#160; AND to_char(&#039;now&#039;::text::date::timestamp WITH time zone,&#039;YYYYMMDD&#039;::text)&lt;=a.fin_action::text<br />&#160; &#160; AND a.id_act1=ss1.id<br />&#160; &#160; AND a.id_act2=ss2.id<br />&#160; &#160; AND a.id_act3=ss3.id<br />&#160; &#160; AND a.id_act4=ss4.id;</p><p>La clé primaire sur A est : ALTER TABLE action ADD CONSTRAINT pk_action PRIMARY KEY(id_act1,id_act2,id_act3,id_act4,fin_action);</p><p>Il ya a également un index sur travail : CREATE INDEX travail1 ON travail(jour,personne);</p><p>Et voici le explain analyze :<br /> Limit&#160; (cost=643219.80..643219.81 rows=1 width=367) (actual time=30633.571..30633.572 rows=1 loops=1)<br />&#160; &#160;-&gt;&#160; Sort&#160; (cost=643219.80..643878.07 rows=263307 width=367) (actual time=30633.569..30633.569 rows=1 loops=1)<br />&#160; &#160; &#160; &#160; &#160;Sort Key: t.heure<br />&#160; &#160; &#160; &#160; &#160;Sort Method:&#160; top-N heapsort&#160; Memory: 25kB<br />&#160; &#160; &#160; &#160; &#160;-&gt;&#160; Merge Join&#160; (cost=632566.01..641903.27 rows=263307 width=367) (actual time=30633.309..30633.462 rows=43 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Merge Cond: ((((((a.id_act1)::text || (a.id_act2)::text) || (a.id_act3)::text) || (a.id_act4)::text)) = ((t.id_action)::text))<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Sort&#160; (cost=1668.72..1680.86 rows=4855 width=132) (actual time=364.533..364.702 rows=726 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Sort Key: (((((a.id_act1)::text || (a.id_act2)::text) || (a.id_act3)::text) || (a.id_act4)::text))<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Sort Method:&#160; quicksort&#160; Memory: 4222kB<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Hash Join&#160; (cost=49.88..1371.46 rows=4855 width=132) (actual time=1.566..234.961 rows=14447 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Hash Cond: (a.id_act1 = ss1.id)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Hash Join&#160; (cost=48.29..1303.12 rows=4855 width=120) (actual time=1.500..194.138 rows=14447 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Hash Cond: (a.id_act3 = ss3.id)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Hash Join&#160; (cost=35.57..1223.65 rows=4855 width=107) (actual time=1.115..177.392 rows=14447 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Hash Cond: (a.id_act4 = ss4.id)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Hash Join&#160; (cost=7.42..1128.74 rows=4855 width=91) (actual time=0.299..159.552 rows=14447 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Hash Cond: (a.id_act2 = ss2.id)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Seq Scan on action a&#160; (cost=0.00..1054.56 rows=4855 width=82) (actual time=0.065..132.866 rows=14447 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Filter: ((id_type1 = &#039;G&#039;::bpchar) AND (id_type2 = 1::numeric) AND (to_char(((&#039;now&#039;::text)::date)::timestamp with time zone, &#039;YYYYMMDD&#039;::text) &lt;= (fin_action)::text))<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Hash&#160; (cost=4.41..4.41 rows=241 width=13) (actual time=0.223..0.223 rows=241 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Seq Scan on ss_action2 ss2&#160; (cost=0.00..4.41 rows=241 width=13) (actual time=0.007..0.091 rows=241 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Hash&#160; (cost=16.40..16.40 rows=940 width=21) (actual time=0.803..0.803 rows=940 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Seq Scan on ss_action4 ss4&#160; (cost=0.00..16.40 rows=940 width=21) (actual time=0.009..0.347 rows=940 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Hash&#160; (cost=7.32..7.32 rows=432 width=17) (actual time=0.374..0.374 rows=432 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Seq Scan on ss_action3 ss3&#160; (cost=0.00..7.32 rows=432 width=17) (actual time=0.008..0.172 rows=432 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Hash&#160; (cost=1.26..1.26 rows=26 width=16) (actual time=0.046..0.046 rows=26 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Seq Scan on ss_action1 ss1 (cost=0.00..1.26 rows=26 width=16) (actual time=0.014..0.031 rows=26 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Sort&#160; (cost=630897.29..630924.41 rows=10847 width=235) (actual time=30268.120..30268.133 rows=43 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Sort Key: ((t.id_action)::text)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Sort Method:&#160; quicksort&#160; Memory: 31kB<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Nested Loop Left Join&#160; (cost=965.91..630170.27 rows=10847 width=235) (actual time=768.841..30267.651 rows=43 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Join Filter: (CASE WHEN (lastalpha(t.doc) = 0::numeric) THEN (t.doc)::text ELSE substr((t.doc)::text, 1, (length((t.doc)::text) - 1)) END = substr((d.doc)::text, 1, (length((d.doc)::text) - 1)))<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Index Scan using travail1 on travail t&#160; (cost=0.01..66.19 rows=62 width=219) (actual time=0.068..0.420 rows=43 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Index Cond: ((jour = ((&#039;now&#039;::text)::date - 1)) AND (personne = &#039;0000123&#039;::bpchar))<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Materialize&#160; (cost=965.90..1315.81 rows=34991 width=25) (actual time=0.001..13.739 rows=34991 loops=43)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Seq Scan on document d&#160; (cost=0.00..930.91 rows=34991 width=25) (actual time=0.010..31.729 rows=34991 loops=1)<br /> Total runtime: 30636.099 ms<br />(37 rows)</p><p>Merci pour votre aide Marc.</p>]]></content>
+		<author>
+			<name><![CDATA[mortimer.pw]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=573</uri>
+		</author>
+		<updated>2010-03-10T13:21:21Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4209#p4209</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête lente sur volume de données réduit]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4205#p4205"/>
+		<content type="html"><![CDATA[<p>Ce n&#039;est pas ce que vous faites :<br />ON (CASE WHEN LastAlpha(T.doc)=0 THEN T.doc ELSE SUBSTR(T.doc,1,LENGTH(T.doc)-1) END)=SUBSTR(D.doc,1,LENGTH(D.doc)-1)<br />Est très différent de<br />ON (doc), qui est vraiment une jointure (on raccorde la foreign key d&#039;une table avec la primary key d&#039;une autre).</p><p>Pour la jointure entre T et A, c&#039;est la même chose : la clé de la table T est découpée en 4 clés dans la table A, que vous concaténez. À la rigueur, celle là pourrait fonctionner quand même en créant un index fonctionnel sur la concaténation des 4 colonnes de A.</p><p>Peut-être qu&#039;Oracle arrive à faire fonctionner cette requête, mais cela n&#039;en fait pas une requête écrite correctement : une jointure raccorde un enregistrement d&#039;une table à un enregistrement d&#039;une autre table, par le biais de clé (et pas de CASE ou de concaténation de clé, qui ne peuvent pas être optimisés correctement).</p><p>Par ailleurs, il semblerait qu&#039;un certain nombre d&#039;éléments de la requête sont des vues, dont vous n&#039;avez pas fourni la définition (le plan ne correspond pas du tout à la jointure de 3 tables)</p><p>Dernier point, si vous tenez vraiment à ce qu&#039;on l&#039;optimise en l&#039;état, il faudrait le résultat d&#039;un explain analyze, pas d&#039;un explain simple.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-03-10T12:36:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4205#p4205</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête lente sur volume de données réduit]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4204#p4204"/>
+		<content type="html"><![CDATA[<p>Bonjour Marc,</p><p>En fait je travaille à la migration d&#039;un système basé sur une BD Oracle vers PostgreSQL.<br />En Oracle, cela fonctionne trés bien avec des temps de réponse trés acceptables et sur des volumes beaucoup plus importants surtout sur la table travail.</p><p>Pourquoi dites-vous &quot;il n&#039;y a pas jointure au sens relationnel&quot; ?<br />je cherche l&#039;égalité entre le champ T.doc de la table travail et le champ D.doc de la table document.<br />Idem pour le champ T.id_action qui doit avoir une correspondance dans la table Action en concaténant les champs A.id_act1||A.id_act2||A.id_act3||A.id_act4</p>]]></content>
+		<author>
+			<name><![CDATA[mortimer.pw]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=573</uri>
+		</author>
+		<updated>2010-03-10T11:33:02Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4204#p4204</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête lente sur volume de données réduit]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4203#p4203"/>
+		<content type="html"><![CDATA[<p>FROM Travail T LEFT OUTER JOIN Document D ON (CASE WHEN LastAlpha(T.doc)=0 THEN T.doc ELSE SUBSTR(T.doc,1,LENGTH(T.doc)-1) END)=SUBSTR(D.doc,1,LENGTH(D.doc)-1),Vue_Action A<br />N&#039;est pas une jointure au sens relationnel (égalité entre les colonnes des deux tables). Comment voulez vous que PostgreSQL effectuel la jointure sans prendre tous les champs de document, et faire le calcul pour chacun d&#039;entre eux.<br />La jointure sur action ne vaut pas mieux.</p><p>Il n&#039;y a aucune solution pour faire fonctionner correctement cette requête, et même si il y en avait une, cela ne ferait que repousser le problème réel : le schéma de la base n&#039;est pas (du tout) bon.</p><p>En première lecture, je vous conseille <a href="http://fr.wikipedia.org/wiki/Forme_normale_(bases_de_données_relationnelles)" rel="nofollow">http://fr.wikipedia.org/wiki/Forme_norm … ionnelles)</a></p><p>Si votre base vérifie les critères jusqu&#039;à la troisième forme normale, c&#039;est la plupart du temps suffisant.</p><p>Désolé pour la réponse un peu abrupte, mais je pense qu&#039;il ne faut surtout pas que vous continuiez avec ce schéma de base de données.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-03-10T11:19:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4203#p4203</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Requête lente sur volume de données réduit]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4200#p4200"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je travaille sur une BD 8.4.2 sous Cent-OS 5.2.</p><p>J&#039;ai une requête qui est trés lente alors que le volume de données dans ma base est ridicule.<br />La requête doit me retourner la dernière ligne de travail de la personne &#039;0000123&#039; pour la veille.</p><p>Voilà la requête :<br />&#160; &#160; SELECT T.*,A.*,D.libelle<br />&#160; &#160; FROM Travail T LEFT OUTER JOIN Document D ON (CASE WHEN LastAlpha(T.doc)=0 THEN T.doc ELSE SUBSTR(T.doc,1,LENGTH(T.doc)-1) END)=SUBSTR(D.doc,1,LENGTH(D.doc)-1),Vue_Action A<br />&#160; &#160; WHERE T.jour=CURRENT_DATE-1<br />&#160; &#160; AND T.personne=&#039;0000123&#039;<br />&#160; &#160; AND T.id_action=A.id_act1||A.id_act2||A.id_act3||A.id_act4<br />&#160; &#160; ORDER BY T.jour DESC,T.heure DESC LIMIT 1;</p><p>Je fais une jointure entre travail et action pour récupérer les paramètres liés à une action.<br />Je fais une jointure entre travail et document pour récupérer le libelle du document</p><p>Le volume des tables est :<br />&#160; &#160;travail : 82591 enregistrements<br />&#160; &#160;action : 20325 enregistrements<br />&#160; &#160;document : 34991 enregistrements</p><p>J&#039;ai fait un explain mais je ne sais pas l&#039;exploiter : <br /> Limit&#160; (cost=632614.91..632614.92 rows=1 width=367)<br />&#160; &#160;-&gt;&#160; Sort&#160; (cost=632614.91..632620.69 rows=2309 width=367)<br />&#160; &#160; &#160; &#160; &#160;Sort Key: t.heure<br />&#160; &#160; &#160; &#160; &#160;-&gt;&#160; Hash Join&#160; (cost=2102.89..632603.37 rows=2309 width=367)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Hash Cond: (a.id_act1 = ss1.id)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Hash Join&#160; (cost=2101.30..632570.04 rows=2309 width=355)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Hash Cond: (a.id_act2 = ss2.id)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Hash Join&#160; (cost=2093.88..632530.86 rows=2309 width=346)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Hash Cond: (a.id_act3 = ss3.id)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Nested Loop&#160; (cost=2081.16..632486.40 rows=2309 width=333)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Hash Join&#160; (cost=2081.16..631828.23 rows=2309 width=317)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Hash Cond: ((t.id_action)::text = ((((a.id_act1)::text || (a.id_act2)::text) || (a.id_act3)::text)|| (a.id_act4)::text))<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Nested Loop Left Join&#160; (cost=965.91..630170.27 rows=95 width=235)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Join Filter: (CASE WHEN (lastalpha(t.doc) = 0::numeric) THEN (t.doc)::text ELSE substr((t.doc)::text, 1, (length((t.doc)::text) - 1)) END = substr((d.doc)::text, 1, (length((d.doc)::text) - 1)))<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Index Scan using travail1 on travail t&#160; (cost=0.01..66.19 rows=62 width=219)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Index Cond: ((jour = ((&#039;now&#039;::text)::date - 1)) AND (personne = &#039;0000781&#039;::bpchar))<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Materialize&#160; (cost=965.90..1315.81 rows=34991 width=25)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Seq Scan on document d&#160; (cost=0.00..930.91 rows=34991 width=25)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Hash&#160; (cost=1054.56..1054.56 rows=4855 width=82)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Seq Scan on action a&#160; (cost=0.00..1054.56 rows=4855 width=82)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Filter: ((id_type1 = &#039;G&#039;::bpchar) AND (id_type2 = 1::numeric) AND (to_char(((&#039;now&#039;::text<br />)::date)::timestamp with time zone, &#039;YYYYMMDD&#039;::text) &lt;= (fin_action)::text))<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Index Scan using pk_ss_action4 on ss_action4 ss4&#160; (cost=0.00..0.27 rows=1 width=21)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Index Cond: (ss4.id = a.id_act4)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Hash&#160; (cost=7.32..7.32 rows=432 width=17)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Seq Scan on ss_action3 ss3&#160; (cost=0.00..7.32 rows=432 width=17)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Hash&#160; (cost=4.41..4.41 rows=241 width=13)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Seq Scan on ss_action2 ss2&#160; (cost=0.00..4.41 rows=241 width=13)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Hash&#160; (cost=1.26..1.26 rows=26 width=16)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Seq Scan on ss_action1 ss1 (cost=0.00..1.26 rows=26 width=16)<br />(29 rows)</p><p>J&#039;espère fournir suffisamment d&#039;éléments.</p><p>Pouvez-vous m&#039;aider ?</p>]]></content>
+		<author>
+			<name><![CDATA[mortimer.pw]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=573</uri>
+		</author>
+		<updated>2010-03-10T10:19:38Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4200#p4200</id>
+	</entry>
+</feed>

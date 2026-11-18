@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Index inéfficace]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1336&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1336"/>
+	<updated>2011-04-13T05:11:59Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1336</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Index inéfficace]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8892#p8892"/>
+		<content type="html"><![CDATA[<p>Alors je pense que la principale différence pour le temps d&#039;exécution pourrait provenir du fait que la machine du lieu de travail a davantage de mémoire ? Le résultat d&#039;une requête ayant énormément de résultat est stocké en mémoire côté client, avant d&#039;être affiché.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-04-13T05:11:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8892#p8892</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Index inéfficace]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8871#p8871"/>
+		<content type="html"><![CDATA[<p>Pour les résultats depuis mon ordinateur personnel, j&#039;ai d&#039;abord lancé pgadmin 3, puis grâce au bouton &quot;pluggin&quot; j&#039;ai ouvert le terminal pour psql. J&#039;ai alors fait les tests depuis ce terminal.</p><p>Sur le lieu de travail, tout s&#039;est fait depuis le terminal (connexion a la base de données puis test).</p>]]></content>
+		<author>
+			<name><![CDATA[kris_le_parisien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1075</uri>
+		</author>
+		<updated>2011-04-12T07:00:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8871#p8871</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Index inéfficace]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8869#p8869"/>
+		<content type="html"><![CDATA[<p>Pour les temps d&#039;affichage, est-ce que ce sont toujours les temps d&#039;affichage sous pgadmin ? Dans les deux tests ?</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-04-12T05:27:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8869#p8869</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Index inéfficace]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8859#p8859"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>on appellera R1: la requête: Select * from rel_kohonen_sig where size_x = 10;</p><p>et R2:&#160; select id_kohonen_map,id_signature, size_x,size_y,map_type,neighborhood_function<br /> from signature, kohonen_map, signature_has_kohonen_map where<br /> signature.id_signature=signature_has_kohonen_map.signature_id_signature and<br /> signature_has_kohonen_map.kohonen_map_id_kohonen_map=kohone<br />and size_x=10;</p><p>J&#039;ai testé les requêtes via la console psql. J&#039;ai deux cas:</p><p>-lors d&#039;un test sur mon ordinateur personnel (qui possede une copie de la base) ,&#160; R1 donne 2516,133 ms et R2 donne 38 573,545 ms.<br />On peut dire que c&#039;est environ 10 fois le temps des EXPLAIN ANALYZE. Le temps de rapatriement des resultats est-il a l&#039;origine de cette difference? Peut on diminuer ce temps?&#160; <br />j&#039;ai essaye d&#039;augmenter default_statistics_target de 100 à 1000 puis 10 000--&gt; les requetes R1 et R2 vont alors plus vite, mais si je demande toutes les lignes (on enleve la condition &quot;size_x=10&quot;)&#160; les requêtes ont un temps d&#039;execution beaucoup plus long. Ca ne semble pas un bon compromis.</p><p>-lors d&#039;un test sur le lieu de travail: on obtient&#160; R1 donne 2516,133 ms et R2 donne&#160; 5723,545 ms. <br />J&#039;avais modifie le parametre work_mem de 1 a 5MB (dans postgresql.conf ), cela peut il expliquer la diminution de l&#039;ecart?</p><p>Merci a vous</p>]]></content>
+		<author>
+			<name><![CDATA[kris_le_parisien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1075</uri>
+		</author>
+		<updated>2011-04-11T07:22:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8859#p8859</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Index inéfficace]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8798#p8798"/>
+		<content type="html"><![CDATA[<p>- Quels sont les temps réels dans ce cas (via pgadmin)</p><p>- Possible. Mais n&#039;affichez pas le résultat, envoyez le vers un fichier (avec un \o par exemple).</p><p>Les temps par explain analyze ne sont pas totalement fiables, parce que le moteur doit récupérer de nombreuses fois la date (ce qui est plus ou moins rapide suivant les composants permettant de récupérer l&#039;heure sur la machine), afin de mesurer les durées réelles de chaque étape. Mais ils restent malgré tout dans le bon ordre de grandeur.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-04-06T15:27:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8798#p8798</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Index inéfficace]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8797#p8797"/>
+		<content type="html"><![CDATA[<p>Mais j&#039;ai lancé les 2 requêtes via pgadmin. Pourquoi est-ce que la différence de temps n&#039;est pas conservé?</p><p>Si je lance depuis un terminal, est-il possible que je vois la différence de temps?</p><p>merci beaucoup</p>]]></content>
+		<author>
+			<name><![CDATA[kris_le_parisien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1075</uri>
+		</author>
+		<updated>2011-04-06T15:24:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8797#p8797</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Index inéfficace]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8796#p8796"/>
+		<content type="html"><![CDATA[<p>Ah ok, je ne savais pas que vous affichiez via pgadmin. Le temps, c&#039;est probablement seulement le temps de dessiner un tableau de 400 000 enregistrements. pgadmin n&#039;est pas vraiment fait pour ça, et est assez lent quand il a à le faire.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-04-06T15:16:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8796#p8796</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Index inéfficace]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8795#p8795"/>
+		<content type="html"><![CDATA[<p>Je précise que j&#039;ai fait plusieurs fois un vacuum analyze après la création des index, de la table et de son remplissage.</p>]]></content>
+		<author>
+			<name><![CDATA[kris_le_parisien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1075</uri>
+		</author>
+		<updated>2011-04-06T15:16:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8795#p8795</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Index inéfficace]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8794#p8794"/>
+		<content type="html"><![CDATA[<p>Il y a -t-il un moyen d&#039;évaluer le temps de récuppération sur le réseau depuis pgadmin 3? <br />La cause éventuelle de ce temps de ce récupération est-il que le réseau est trop chargé? Sinon, connaissez vous les raisons les plus probables?</p><p>Est-ce qu&#039;on ne peut rien faire pour améliorer ce temps à partir de pgadmin?</p><p>merci bien.</p>]]></content>
+		<author>
+			<name><![CDATA[kris_le_parisien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1075</uri>
+		</author>
+		<updated>2011-04-06T15:13:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8794#p8794</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Index inéfficace]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8793#p8793"/>
+		<content type="html"><![CDATA[<p>Oui. Ce qui laisserait supposer que si le temps total entre les deux est similaire, alors que le temps d&#039;exécution de la requête elle même est dans un cas de 200ms et dans l&#039;autre de 5s, c&#039;est que le temps d&#039;exécution est négligeable par rapport au temps de récupération sur le réseau par exemple.</p><p>Parce que les plans montre bien un rapport 50 entre les deux temps d&#039;exécution (ce qui est logique, vous avez précalculé le résultat de la requête).</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-04-06T15:05:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8793#p8793</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Index inéfficace]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8792#p8792"/>
+		<content type="html"><![CDATA[<p>Je ne sais pas. Lors d&#039;un précédent message vous aviez dit qu&#039;un lien lent entre le serveur et la machine, ou un grand volume de données pouvait être la cause.</p>]]></content>
+		<author>
+			<name><![CDATA[kris_le_parisien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1075</uri>
+		</author>
+		<updated>2011-04-06T15:02:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8792#p8792</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Index inéfficace]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8791#p8791"/>
+		<content type="html"><![CDATA[<p>C&#039;est un peu difficile à suivre.</p><p>=&gt; Pourquoi est-ce que le total runtime est très inférieur au temps réel ? (c&#039;est louche)</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-04-06T14:56:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8791#p8791</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Index inéfficace]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8790#p8790"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Voici ma situation. J&#039;ai trois tables:<br /> signature(id_signature,...autres paramètres) --&gt; 1 645 070 lignes<br />signature_has_kohonen_map --&gt; (signature_id_signature,kohonen_map_id_kohonen_map)--&gt; 6 578 784 lignes<br />kohonen_map --&gt; (id_kohonen_map, size_x, size_y, map, n_fun,...autres paramètres)--&gt; 144 lignes.</p><p>Je veux effectuer la requête suivante:</p><p>SELECT&#160; *<br />&#160; FROM&#160; signature, sign_koh, kohonen where size_x= 10 AND sizeconditions_de_jointures_sur_clés_des_les_tables </p><p>La requête s&#039;exécute en 31234 ms pour 411174 lignes. <br />La jointures donne un total de 6 578 784 lignes. Il faut préciser qu&#039;il y a 16 valeurs différentes de size_x, et que chaque valeur est présente dans 411174 lignes différentes du résultat de la jointure. (6.25% de la table) </p><p>Pour essayer de réduire ce temps, j&#039;ai crée une table rel_kohonen_sig où j&#039;ai inséré le résultat de la requête précédente. J&#039;ai ensuite mis un index sur la colonne size_x de cette table.<br />Mais quand j&#039;exécute la requête select sur rel_kohonen_sig, elle à un temps équivalent à celle appliquant sur la jointure des tables. Pourtant l&#039;index que j&#039;ai créé est bie utilisé.</p><p>Savez-vous si c&#039;est normal, ou si il y a besoin de modifier quelque&#160; chose?</p><br /><p>Voici les arbres obtenus: (ne pas prendre en compte les temps indiqués dans Total runtime, ils sont largement inférieurs au temps réel d&#039;exécution de la requête)</p><p>pour la table&#160; rel_kohonen_sig:</p><p>&quot;Bitmap Heap Scan on rel_kohonen_sig&#160; (cost=7720.06..54777.44 rows=412270 width=24) (actual time=60.583..166.575 rows=411174 loops=1)&quot;<br />&quot;&#160; Recheck Cond: (size_x = 10)&quot;<br />&quot;&#160; -&gt;&#160; Bitmap Index Scan on size_x_index_rks_table&#160; (cost=0.00..7617.00 rows=412270 width=0) (actual time=59.703..59.703 rows=411174 loops=1)&quot;<br />&quot;&#160; &#160; &#160; &#160; Index Cond: (size_x = 10)&quot;<br />&quot;Total runtime: 219.340 ms&quot;</p><br /><p>pour la jointure de tables:</p><p>&quot;Hash Join&#160; (cost=50725.88..193876.37 rows=411174 width=24) (actual time=1433.593..5263.581 rows=411174 loops=1)&quot;<br />&quot;&#160; Hash Cond: (signature_has_kohonen_map.signature_id_signature = signature.id_signature)&quot;<br />&quot;&#160; -&gt;&#160; Hash Join&#160; (cost=4.91..123684.93 rows=411174 width=24) (actual time=272.374..2979.550 rows=411174 loops=1)&quot;<br />&quot;&#160; &#160; &#160; &#160; Hash Cond: (signature_has_kohonen_map.kohonen_map_id_kohonen_map = kohonen_map.id_kohonen_map)&quot;<br />&quot;&#160; &#160; &#160; &#160; -&gt;&#160; Seq Scan on signature_has_kohonen_map&#160; (cost=0.00..94897.84 rows=6578784 width=8) (actual time=0.023..1240.166 rows=6578784 loops=1)&quot;<br />&quot;&#160; &#160; &#160; &#160; -&gt;&#160; Hash&#160; (cost=4.80..4.80 rows=9 width=20) (actual time=0.084..0.084 rows=9 loops=1)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; -&gt;&#160; Seq Scan on kohonen_map&#160; (cost=0.00..4.80 rows=9 width=20) (actual time=0.022..0.073 rows=9 loops=1)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Filter: (size_x = 10)&quot;<br />&quot;&#160; -&gt;&#160; Hash&#160; (cost=23730.65..23730.65 rows=1645065 width=4) (actual time=1160.420..1160.420 rows=1645065 loops=1)&quot;<br />&quot;&#160; &#160; &#160; &#160; -&gt;&#160; Seq Scan on signature&#160; (cost=0.00..23730.65 rows=1645065 width=4) (actual time=0.014..500.493 rows=1645065 loops=1)&quot;<br />&quot;Total runtime: 5320.108 ms&quot;</p><br /><p>merci</p>]]></content>
+		<author>
+			<name><![CDATA[kris_le_parisien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1075</uri>
+		</author>
+		<updated>2011-04-06T14:49:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8790#p8790</id>
+	</entry>
+</feed>

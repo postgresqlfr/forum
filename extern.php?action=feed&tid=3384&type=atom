@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Postgres_fdw : user mapping, groupe et droits]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3384&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3384"/>
+	<updated>2014-12-05T08:03:45Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3384</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Postgres_fdw : user mapping, groupe et droits]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21077#p21077"/>
+		<content type="html"><![CDATA[<p>Je regretterais presque d&#039;avoir compris... Ça va m&#039;obliger à créer un mapping utilisateur par utilisateur réellement connecté, mais qu&#039;à cela ne tienne.</p><p>Merci pour les confirmations.</p>]]></content>
+		<author>
+			<name><![CDATA[ced]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=461</uri>
+		</author>
+		<updated>2014-12-05T08:03:45Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21077#p21077</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Postgres_fdw : user mapping, groupe et droits]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21056#p21056"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Cela signifie-t-il que si user1 est membre de serveur1_admin, qui a les droits pour interroger la table distante, je suis obligé de créer un mapping user pour chaque utilisateur membre de serveur1_admin ?</p></div></blockquote></div><p>Exact. Le mapping se fait pour l&#039;utilisateur connecté.</p><div class="quotebox"><blockquote><div><p>Ce qui est étonnant (quoi que), c&#039;est qu&#039;un user mapping avec PUBLIC fonctionne bien (mais c&#039;est sans doute dû au caractère particulier du rôle PUBLIC)</p></div></blockquote></div><p>Vous avez compris. PUBLIC est très particulier, dans le sens où il englobe tout le monde et est non modifiable.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-12-04T07:51:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21056#p21056</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Postgres_fdw : user mapping, groupe et droits]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21044#p21044"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je commence à tester postgres_fdw pour connecter deux serveurs distants, dont les bases de données sont complémentaires.<br />Sur mon serveur1 (celui sur lequel je veux installer les tables distantes contenues physiquement dans le serveur2), j&#039;ai un utilisateur user1 qui est membre d&#039;un rôle serveur1_admin. Ce rôle possède tous les droits sur serveur1 (quasi super-user).</p><p>Voici ce que ça donne : <br />-------------------------------------------------------------------------------------<br />CREATE SERVER serv2 FOREIGN DATA WRAPPER postgres_fdw OPTIONS (host &#039;serveur2&#039;, dbname &#039;base2&#039;, port &#039;5432&#039;);<br />ALTER SERVER serv2 OWNER TO serveur1_admin;<br />-------------------------------------------------------------------------------------<br />Je crée un mapping utilisateur pour serveur1_admin sur mon serveur2 (en utilisant un utilisateur user2 qui a les droits de SELECT sur serveur2) :<br />-------------------------------------------------------------------------------------<br />CREATE USER MAPPING FOR serveur1_admin SERVER serv2 OPTIONS (user &#039;user2&#039;, password &#039;pwd2&#039;);<br />-------------------------------------------------------------------------------------</p><p>Je crée un nouveau schéma sur serveur1 pour recevoir les tables étrangères de serveur2 :<br />-------------------------------------------------------------------------------------<br />CREATE SCHEMA base2<br />&#160; AUTHORIZATION production_admin;<br />GRANT ALL ON SCHEMA base2 TO serveur1_admin;<br />GRANT USAGE ON SCHEMA base2 TO public;<br />-------------------------------------------------------------------------------------<br />Je crée une table étrangère sur serveur1 :<br />-------------------------------------------------------------------------------------<br />CREATE FOREIGN TABLE base2.matable<br />(<br />&#160; col1 INT NOT NULL,<br />&#160; col2 character varying(12),<br />&#160; col3 character varying(12),<br />&#160; col4 character varying(50)<br />)<br />SERVER serv2<br />OPTIONS (schema_name &#039;schema2&#039;, table_name &#039;matable_sur_serveur2&#039;);<br />ALTER FOREIGN TABLE base2.matable<br />&#160; OWNER TO serveur1_admin;<br />-------------------------------------------------------------------------------------<br />Maintenant, si je suis connecté comme user1, la requête sur la table distante échoue avec le message suivant :<br />ERROR: user mapping not found for &quot;user1&quot;<br />État SQL :42704</p><p>Cela signifie-t-il que si user1 est membre de serveur1_admin, qui a les droits pour interroger la table distante, je suis obligé de créer un mapping user pour chaque utilisateur membre de serveur1_admin ?<br />Ou bien est-ce que j&#039;ai raté une étape ?</p><p>Ce qui est étonnant (quoi que), c&#039;est qu&#039;un user mapping avec PUBLIC fonctionne bien (mais c&#039;est sans doute dû au caractère particulier du rôle PUBLIC) :<br />-------------------------------------------------------------------------------------<br />CREATE USER MAPPING FOR public SERVER serv2 OPTIONS (user &#039;user2&#039;, password &#039;pwd2&#039;);<br />-------------------------------------------------------------------------------------<br />Là, la requête sur la table étrangère renvoie un résultat conforme.</p><p>Merci d&#039;avance pour votre aide,</p><p>ced</p>]]></content>
+		<author>
+			<name><![CDATA[ced]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=461</uri>
+		</author>
+		<updated>2014-12-02T13:57:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21044#p21044</id>
+	</entry>
+</feed>

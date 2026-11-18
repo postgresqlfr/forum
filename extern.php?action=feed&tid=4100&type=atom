@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / meta sql]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4100&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4100"/>
+	<updated>2017-02-06T16:45:11Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4100</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  meta sql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24790#p24790"/>
+		<content type="html"><![CDATA[<p>merci</p><p>ça marche encore mieux avec </p><div class="codebox"><pre><code>    || string_agg(quote_ident(a.attname || &#039; (&#039; || format_type(a.atttypid, a.atttypmod) || &#039;) &#039;), &#039;, &#039;)</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[Michel Depiesse]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5329</uri>
+		</author>
+		<updated>2017-02-06T16:45:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24790#p24790</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  meta sql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24784#p24784"/>
+		<content type="html"><![CDATA[<p>Regardez sur <a href="http://docs.postgresql.fr/9.6/catalog-pg-attribute.html" rel="nofollow">http://docs.postgresql.fr/9.6/catalog-pg-attribute.html</a>, et donc joindre pg_type pour récupérer l&#039;information dont vous avez besoin sur le type.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2017-02-06T12:05:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24784#p24784</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  meta sql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24778#p24778"/>
+		<content type="html"><![CDATA[<p>Merci !</p><p>Il me faudrait encore le data type de la colonne qui fait partie de la pk.</p><p>Pourriez-vous m&#039;indiquer la solution optimale ?</p>]]></content>
+		<author>
+			<name><![CDATA[Michel Depiesse]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5329</uri>
+		</author>
+		<updated>2017-02-06T10:19:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24778#p24778</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  meta sql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24763#p24763"/>
+		<content type="html"><![CDATA[<p>Pour créer une contrainte unique qui correspond aux champs d&#039;une PK :</p><div class="codebox"><pre><code>WITH s AS (
+    select conrelid, t.relname, unnest(c.conkey) as attnum
+    from pg_constraint c
+    join pg_class t on c.conrelid = t.oid
+    where conname = &#039;t1_pkey&#039;
+)
+
+SELECT &#039;ALTER TABLE &#039; || quote_ident(s.relname) || &#039; ADD UNIQUE (&#039;
+       || string_agg(quote_ident(a.attname), &#039;, &#039;) || &#039;) ;&#039;
+FROM s
+JOIN pg_attribute a on a.attrelid = s.conrelid AND a.attnum = s.attnum
+GROUP BY s.relname;</code></pre></div><p>Vous pouvez adapter ça pour les FK ou autre au cas où j&#039;aurais mal compris votre besoin.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2017-02-02T14:33:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24763#p24763</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  meta sql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24762#p24762"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je précise ma question : je veux transformer des contraintes PK et FK en contraintes UNIQUE.</p><p>Ces contraintes PK et FK pouvent, bien entendu, porter sur plusieurs colonnes.</p><p>Un query dans le data dictionnary me donnera toutes les infos sur les contraintes PK et FK.</p><p>Comment générer les commandes du type : alter table x add constraint unique (col1, col2, col3);</p><p>En fait, j&#039;ai vu sur le net un procédé mais je ne me souviens plus où.</p><p>Mais il existe !</p><p>Bonne après-midi aux dalibiens !</p>]]></content>
+		<author>
+			<name><![CDATA[Michel Depiesse]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5329</uri>
+		</author>
+		<updated>2017-02-02T13:59:39Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24762#p24762</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  meta sql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24761#p24761"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>à part utiliser quote_ident() à la place des &#039;&quot;&#039; (et gérer le nom de schéma si besoin), pas trop possible de faire mieux.&#160; Sur psql, vous pouvez utiliser \gexec&#160; (depuis la version 9.6) qui exécutera le sql généré directement.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2017-02-02T13:44:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24761#p24761</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[meta sql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24760#p24760"/>
+		<content type="html"><![CDATA[<p>J&#039;écris souvent des scripts sql qui écrivent des scripts sql.</p><p>Jusqu&#039;à présent, je faisais comme ça :</p><div class="codebox"><pre><code>select 
+           &#039;alter table &quot;&#039; 
+        || table_name_fk 
+        || &#039;&quot; drop constraint &quot;&#039; 
+        || column_name_fk 
+        || &#039;_fk&quot;&#039; 
+        || &#039;;&#039;
+from fks_contacts;</code></pre></div><p>Existe-t-il en pg un procédé plus élégant ?</p><p>Merci</p>]]></content>
+		<author>
+			<name><![CDATA[Michel Depiesse]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5329</uri>
+		</author>
+		<updated>2017-02-02T10:27:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24760#p24760</id>
+	</entry>
+</feed>

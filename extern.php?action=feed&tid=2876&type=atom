@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Ajout de droits sur l'ensemble des tables d'un schéma]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2876&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2876"/>
+	<updated>2013-11-15T15:41:36Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2876</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Ajout de droits sur l'ensemble des tables d'un schéma]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18672#p18672"/>
+		<content type="html"><![CDATA[<p>Effectivement : un WHERE en plus pour ne travailler que sur un seul schéma et ça correspond tout à fait à mon besoin.</p><p>En fait, quand ça ne marchait pas, je ne savais pas vraiment ce que je devais attendre de ma requête ...</p><p>et donc, au vu de l&#039;autre lien, je pensais qu&#039;il fallait les droits postgres.</p><p>Ce n&#039;est que quand j&#039;ai pu&#160; voir le résultat partiel du select, que j&#039;ai compris qu&#039;on ne modifiait pas &quot;en force&quot; le contenu des tables systèmes mais que l&#039;on voulait générer les grant ...</p><p>Une fois ça compris, il était simple de voir que le nom du shéma manquait</p><p>Quand on manque de bases (sans mauvais jeu de mot), tout devient plus compliqué</p><p>merci encore</p><p>DB</p>]]></content>
+		<author>
+			<name><![CDATA[Didier Bétored]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=677</uri>
+		</author>
+		<updated>2013-11-15T15:41:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18672#p18672</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Ajout de droits sur l'ensemble des tables d'un schéma]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18671#p18671"/>
+		<content type="html"><![CDATA[<p>Je pensais que votre problème venait de l&#039;authentification, pas des requêtes générées.</p><p>Un moyen simple pour ne récupérer que les tables utilisateurs avec leurs schémas est d&#039;utiliser pg_stat_user_tables. Par exemple :</p><p>SELECT &#039;GRANT SELECT ON &#039; || quote_ident(schemaname) || &#039;.&#039; || quote_ident(relname) || &#039; to nwazen;&#039; FROM pg_stat_user_tables ;</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2013-11-15T15:32:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18671#p18671</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Ajout de droits sur l'ensemble des tables d'un schéma]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18670#p18670"/>
+		<content type="html"><![CDATA[<p>Bon, ben j&#039;ai finalement trouvé !</p><p>J&#039;en suis surpris moi même ...</p><p>en fait, les deux exemples identiques trouvés sur le net, travaillent sur des tables dans le schema &quot;public&quot; sous entendu par défaut.</p><p>Comme ici je travaille dans un autre schéma, il faut le spécifier en plus</p><p>select &#039;grant select on meta.&#039; || tablename || &#039; to nwazen;&#039; from pg_tables where schemaname = &#039;meta&#039;</p><p>la liste des commandes générées sort dans la fenetre --&gt; un copier coller et ça roule</p><p>Merci à&#160; rjuju de son intervention</p><p>DB</p>]]></content>
+		<author>
+			<name><![CDATA[Didier Bétored]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=677</uri>
+		</author>
+		<updated>2013-11-15T15:15:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18670#p18670</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Ajout de droits sur l'ensemble des tables d'un schéma]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18669#p18669"/>
+		<content type="html"><![CDATA[<p>pour info, le select marche bien :</p><p>select &#039;grant select on &#039; || tablename || &#039; to nwazen;&#039; from pg_tables where schemaname = &#039;meta&#039;</p><p>renvoie</p><p>?column?<br />grant select on traits_animaux to nwazen;<br />grant select on etudes to nwazen;<br />grant select on raunkiaer_lifeform to nwazen;<br />...</p><p>donc, c&#039;est plutot l&#039;exécution ensuite qui coince</p><p>Des droits manquants sans doute</p>]]></content>
+		<author>
+			<name><![CDATA[Didier Bétored]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=677</uri>
+		</author>
+		<updated>2013-11-15T15:06:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18669#p18669</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Ajout de droits sur l'ensemble des tables d'un schéma]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18666#p18666"/>
+		<content type="html"><![CDATA[<p>Oui : excusez moi, j&#039;avais aussi effectivement un message d&#039;erreur dans cette version</p><p>Avec celles ci :</p><p>/usr/local/pgsql/bin/psql -h /var/run/postgresql -qAt -c &quot;select &#039;grant select on &#039; || tablename || &#039; to nwazen;&#039; from pg_tables where schemaname = &#039;meta&#039;&quot; URUEFM_divers</p><p>/usr/local/pgsql/bin/psql -h /var/run/postgresql -qAt -c &quot;select &#039;grant select on &#039; || tablename || &#039; to nwazen;&#039; from pg_tables where schemaname = &#039;meta&#039;&quot; URUEFM_divers |/usr/local/pgsql/bin/psql -h /var/run/postgresql URUEFM_divers</p><br /><p>J&#039;arrive à la demande du mot de passe sans injure particulière</p><p>J&#039;ai fait un copier coller exact ne voyant pas de risque à le faire</p><p>et merci pour la réponse</p><p>Ne saisissant pas l&#039;interet de la fin de la requête, j&#039;ai tenté les deux versions pour voir l&#039;effet ...</p>]]></content>
+		<author>
+			<name><![CDATA[Didier Bétored]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=677</uri>
+		</author>
+		<updated>2013-11-15T11:07:52Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18666#p18666</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Ajout de droits sur l'ensemble des tables d'un schéma]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18665#p18665"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>est-ce que la première partie de la commande marche ? Si oui ajoutez également le -h /var/run/postgresql pour la seconde partie.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2013-11-15T10:58:33Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18665#p18665</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Ajout de droits sur l'ensemble des tables d'un schéma]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18664#p18664"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>j&#039;ai trouvé deux réponses à cette question mais ça ne semble pas fonctionner.</p><p>soit je lance cette requête dans la fenêtre SQL d&#039;un phppgadmin (en tant que simple user car sur ce lien : <a href="http://www.postgresqlfr.org/support:trucs_et_astuces:modifier_les_droits_d_un_utilisateur_sur_toutes_les_tables_d_un_schema" rel="nofollow">http://www.postgresqlfr.org/support:tru … _un_schema</a>&#160; &#160;on ne me dit pas de faire autrement (enfin un simple user qui a tous les droits qd meme))</p><p>SELECT &#039;GRANT SELECT ON &#039;||table_schema||&#039;.&#039;||table_name||&#039; TO userpg;&#039; FROM&#160; &#160;information_schema.TABLES WHERE&#160; table_type=&#039;BASE TABLE&#039; AND&#160; &#160; table_schema=&#039;nom_schema&#039;;</p><p>ça ne me jette pas mais ça ne fait rien</p><p>Soit je lance celle-ci</p><p>/usr/local/pgsql/bin/psql -h /var/run/postgresql -qAt -c &quot;select &#039;grant select on &#039; || tablename || &#039; to userpg;&#039; from pg_tables where schemaname = &#039;nom_schema&#039;&quot; nombase |psql nombase</p><p>trouvée là :<br /><a href="http://trac.evolix.net/infogerance/wiki/HowtoPostgreSQL" rel="nofollow">http://trac.evolix.net/infogerance/wiki/HowtoPostgreSQL</a></p><p>et là, ça me demande le mot de passe de postgres que bien sûr je n&#039;ai pas à connaitre.<br />Cette ligne de commande est lancée dans un terminal où je suis entré en root puis passé en su postgres.</p><p>Qqun a t&#039;il une idée de ce que je rate ?</p><p>ou une autre solution ...</p><p>Peut-être que ce que je prends pour des noms de tables système&#160; est en fait des noms à changer ...</p><p>merci d&#039;avance</p><p>DB</p><p>j&#039;ai remplacé mes vrais par userpg,&#160; nom_schema,&#160; nombase uniquement pour ces 3 valeurs. J&#039;ai réellement tapé le reste tel que ...</p>]]></content>
+		<author>
+			<name><![CDATA[Didier Bétored]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=677</uri>
+		</author>
+		<updated>2013-11-15T10:43:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18664#p18664</id>
+	</entry>
+</feed>

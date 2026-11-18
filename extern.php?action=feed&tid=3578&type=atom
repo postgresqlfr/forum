@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / ecpg - comment gérer les codes erreurs applicatifs]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3578&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3578"/>
+	<updated>2015-06-18T07:40:08Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3578</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ecpg - comment gérer les codes erreurs applicatifs]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22072#p22072"/>
+		<content type="html"><![CDATA[<p>Bonjour Guillaume,<br />Effectivement, avec les savepoint, on s&#039;en sort. Voici un exemple et le résultat sur psql</p><p>\set AUTOCOMMIT off</p><p>-- debut DDL<br />drop table fred;</p><p>create table fred (<br />cle&#160; &#160; &#160;integer&#160; &#160; &#160;not null,<br />libelle varchar(30) not null);</p><p>alter table fred add constraint fred_pk primary key (cle);<br />commit;</p><p>-- fin&#160; &#160;DDL</p><p>-- debut DML<br />begin transaction;</p><p>insert into fred (cle, libelle ) values (10,&#039;frederic&#039;);<br />insert into fred (cle, libelle ) values (20,&#039;frederic&#039;);</p><p>-- on genere un plantage, pour continuer, il faut faire rollback;<br />savepoint CLE_DUPLIQUEE;<br />insert into fred (cle, libelle) values (10,&#039;frederic&#039;);<br />rollback to savepoint CLE_DUPLIQUEE;</p><p>update fred set libelle=&#039;fred&#039; where cle=10;</p><p>commit;</p><p>select * from fred order by 1;</p><br /><p>DROP TABLE<br />CREATE TABLE<br />ALTER TABLE<br />COMMIT<br />BEGIN<br />INSERT 0 1<br />INSERT 0 1<br />SAVEPOINT<br />psql:test_transaction2.sql:23: ERREUR:&#160; la valeur d&#039;une clé dupliquée rompt la contrainte unique « fred_pk »<br />DÉTAIL : La clé « (cle)=(10) » existe déjà.<br />ROLLBACK<br />UPDATE 1<br />COMMIT<br /> cle | libelle<br />-----+----------<br />&#160; 10 | fred<br />&#160; 20 | frederic<br />(2 lignes)</p>]]></content>
+		<author>
+			<name><![CDATA[fbamiere@yahoo.com]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2174</uri>
+		</author>
+		<updated>2015-06-18T07:40:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22072#p22072</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ecpg - comment gérer les codes erreurs applicatifs]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22068#p22068"/>
+		<content type="html"><![CDATA[<p>Avez-vous essayé les SAVEPOINT ? c&#039;est la seule solution à ma connaissance.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2015-06-16T19:14:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22068#p22068</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ecpg - comment gérer les codes erreurs applicatifs]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22064#p22064"/>
+		<content type="html"><![CDATA[<p>Bon, je me suis mal exprimé.<br />Soit une transaction faisant plusieurs ordres SQL en ecpg.<br />le 15eme ordre SQL fait un insert qui renvoie une erreur de type viloation de contrainte.<br />Comment faire en sorte de pouvoir gérer applicativement cette erreur et poursuivre la transaction jusqu&#039;à un commit ?</p><p>sqlcode: -400<br />sqlerrm.sqlerrml: 124<br />sqlerrm.sqlerrmc: une instruction insert ou update sur la table « acelcothcl » viole la contrainte de clé<br />étrangère « acelacegfk » on line 276</p><br /><p>Exemple&#160; : voici ce que je souhaite faire :&#160; si j&#039;ai l&#039;erreur ci-dessus, alors, je fais update puis je termine ma transaction.</p><p>Ce que je comprends actuellement, c&#039;est que le 15eme ordre SQL qui part au tapis fiche en l&#039;air toute la transaction, et qu&#039;il n&#039;y a plus qu&#039;à faire un rollback(ou commit)&#160; pour pouvoir continuer.<br />a la différence d&#039;autres sgbd, où l&#039;on peut gérer chaque code errreur sans qu&#039;un rollback général se produise.</p><p>Autrement dit, une transaction doit être un &quot;sans faute&quot; sinon, il n&#039;y a plus qu&#039;à recommencer depuis le début.</p><p>j&#039;ai tenté de gérer cela avec les WHENEVER </p><p>j&#039;espère que ce sera plus clair, et que vous pourrez m&#039;aider.</p><p>Merci</p><p>Fred</p>]]></content>
+		<author>
+			<name><![CDATA[fbamiere@yahoo.com]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2174</uri>
+		</author>
+		<updated>2015-06-16T06:52:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22064#p22064</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ecpg - comment gérer les codes erreurs applicatifs]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22063#p22063"/>
+		<content type="html"><![CDATA[<p>En dehors d&#039;un savepoint, non. Mais je n&#039;en vois pas l&#039;intérêt vu que vous n&#039;avez fait qu&#039;une seule requête (à savoir, le INSERT). Et de toute façon, si vous faites un SELECT dans une transaction, cela ne vous garantit pas que l&#039;insertion n&#039;aura pas lieu la milli-seconde d&#039;après par une autre session.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2015-06-15T19:39:33Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22063#p22063</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[ecpg - comment gérer les codes erreurs applicatifs]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22062#p22062"/>
+		<content type="html"><![CDATA[<p>Bonjour.</p><p>j&#039;ai un programme ecpg que je suis en train de porter sur PG.</p><p>son comportement initial est le suivant : il essaie d&#039;insérer, et si l&#039;enregistrement existe déjà, il fait un update.</p><p>begin transaction</p><p>exec sql insert into TABLE1 (CLE_PK, VALEUR) values (&#039;A&#039;,&#039;fred&#039;);<br /># si le code erreur retourné vaut &quot;duplicate key&quot; alors je fais un update</p><p>if (sqlcode= &#039;dupkey&#039; ) then <br />EXEC SQL UPDATE TABLE1 SET VALEUR=&#039;fred&#039; WHERE CLE_PK=&#039;A&#039;;<br />end if;</p><p>EXEC SQL COMMIT;</p><p>Dans la pratique, je comprends que la première instruction qui renvoie un code erreur différent de zéro rollbacke toute la transaction.</p><p>je me vois mal devoir faire des select avant les insert afin d&#039;éviter de tomber sur des erreurs.<br />y a t il un moyen de gérer les codes erreurs, sans &quot;casser&quot; la transaction embedded C ?<br />je vous remercie</p><p>Fred</p>]]></content>
+		<author>
+			<name><![CDATA[fbamiere@yahoo.com]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2174</uri>
+		</author>
+		<updated>2015-06-15T14:43:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22062#p22062</id>
+	</entry>
+</feed>

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Migration de données géoréférencées, quel type PostGIS utilisé]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1698&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1698"/>
+	<updated>2011-10-18T13:39:55Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1698</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Migration de données géoréférencées, quel type PostGIS utilisé]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11462#p11462"/>
+		<content type="html"><![CDATA[<p>Difficile de vous répondre avec les informations disponibles (et je ne connais pas très bien postgis). Vos traces, en termes de taille, c&#039;est plutôt des courants océaniques, ou bien des enregistrements de randonnées pédestres ? Le second cas est plus facile à projeter en geometry, le premier est assez peu compatible avec des geometry.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-10-18T13:39:55Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11462#p11462</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Migration de données géoréférencées, quel type PostGIS utilisé]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11461#p11461"/>
+		<content type="html"><![CDATA[<p>La migration de telles données semble quasi impossible</p>]]></content>
+		<author>
+			<name><![CDATA[jonquieres]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1410</uri>
+		</author>
+		<updated>2011-10-18T12:49:09Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11461#p11461</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Migration de données géoréférencées, quel type PostGIS utilisé]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11457#p11457"/>
+		<content type="html"><![CDATA[<p>Ça risque de ne pas marcher pour tout ce qui est &#039;bords&#039; de la projection (+ et - 180° de latitude, et près des pôles). Pour le reste, je ne sais pas si ça va marcher, l&#039;arc sur le sphéroïde et la droite projetée en WGS84 sont très différents.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-10-18T10:22:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11457#p11457</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Migration de données géoréférencées, quel type PostGIS utilisé]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11455#p11455"/>
+		<content type="html"><![CDATA[<p>Merci pour vos réponses.</p><p>Le système référentiel 8307 est une définition OGC qui est identique au référentiel 4326 ( qui lui provient de EPSG )</p><p>Pourrait-on choisir la solution suivante :</p><p>Au vu des opérations effectuées sur ces données géoréférencées qui ne sont que des opérations d’ordre topologique ( il n’y a pas de calcul de distance, de surface ) est-il possible d’utiliser le type « geometry » tout en gardant le système référentiel EPSG:4326 ?</p>]]></content>
+		<author>
+			<name><![CDATA[jonquieres]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1410</uri>
+		</author>
+		<updated>2011-10-18T09:41:35Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11455#p11455</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Migration de données géoréférencées, quel type PostGIS utilisé]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11454#p11454"/>
+		<content type="html"><![CDATA[<p>Le 8307 c&#039;est bien le SRID de WGS84 ? (pas trouvé de trace dans spatial_ref_sys.sql de cet id, juste dans une doc Oracle). Je vais partir de cette hypothèse pour la suite.</p><p>- Peut-on travailler avec des types « geometry » ?<br />Oui, mais en les reprojetant bien sûr, ce qui risque donc d&#039;être compliqué si les traces s&#039;étendent sur toute la planète. Vous avez toujours les SRID WGS84 UTM (les SRID 32601 et suivants) qui permettent de faire des projections locales par tranche de 6 degrés sur le globe, pour avoir des données «pas trop absurdes» en termes de projection.<br />- Peut-on travailler avec des types « geometry » et utiliser les projections ? et comment ?<br />Avec la fonction ST_Transform. Par exemple, si votre géométrie est the_geom, et le SRID cible 3395:<br />ST_Transform(the_geom,3395)<br />- Peut-on travailler avec des types « geography » et utiliser des transformations ponctuelles au moment des recherches ? et ce sans dégrader les performances ?<br />Le type geography est stocké en coordonnées WGS84. Il se reprojette comme une geométrie au besoin… pour un certain nombre des fonctions, ça ne sera pas forcément la peine de reprojeter. Mais les opérations sur un type geography sont plus lentes que sur un type geometry. Et reprojeter un type geography en geometry à la volée a aussi un coût.</p><p>Pour savoir ce qui est supporté en Geography par rapport à Geometry:<br /><a href="http://postgis.refractions.net/documentation/manual-1.5/ch08.html#PostGIS_TypeFunctionMatrix" rel="nofollow">http://postgis.refractions.net/document … tionMatrix</a><br />Et en 2.0 (version de dev):<br /><a href="http://postgis.refractions.net/documentation/manual-svn/PostGIS_Special_Functions_Index.html#PostGIS_TypeFunctionMatrix" rel="nofollow">http://postgis.refractions.net/document … tionMatrix</a></p><p>Sinon, je vous recommande la lecture de &#039;PostGIS in action&#039; : <a href="http://www.manning.com/obe/" rel="nofollow">http://www.manning.com/obe/</a> (en anglais…), parfait pour commencer sur le sujet.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-10-18T09:33:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11454#p11454</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Migration de données géoréférencées, quel type PostGIS utilisé]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11451#p11451"/>
+		<content type="html"><![CDATA[<p>Je fais une étude sur la migration d&#039;un projet qui comporte des données géoréférencées.</p><p>Système référentiel utilisé est le 8307.<br />Les données stockées sont des traces au sol allant d&#039;un pôle à un autre. Ces données couvrent le globe.<br />Les seules opérations réalisées sur ces données sont des opérations de type topologique ( par ex : recherche des données à partir d&#039;une emprise . <br />Nous avons besoin de toutes les opérations possibles comme st_equal, st_disjoint, st_intersects, st_overlaps, ...<br />Quel type postGIS je peux utiliser et comment ?</p><p>- Peut-on travailler avec des types « geometry » ?<br />- Peut-on travailler avec des types « geometry » et utiliser les projections ? et comment ?<br />- Peut-on travailler avec des types « geography » et utiliser des transformations ponctuelles au moment des recherches ? et ce sans dégrader les performances ?</p><p>Merci pour vos réponses.</p>]]></content>
+		<author>
+			<name><![CDATA[jonquieres]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1410</uri>
+		</author>
+		<updated>2011-10-18T08:09:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11451#p11451</id>
+	</entry>
+</feed>

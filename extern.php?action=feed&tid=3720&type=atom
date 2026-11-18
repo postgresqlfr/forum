@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Génération de messages personnalisés]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3720&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3720"/>
+	<updated>2015-12-16T17:22:06Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3720</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Génération de messages personnalisés]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22842#p22842"/>
+		<content type="html"><![CDATA[<p>Merci de l&#039;information.</p><p>Effectivement, après avoir échappé les $$, le script se déroule correctement.</p>]]></content>
+		<author>
+			<name><![CDATA[Mlan2]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5297</uri>
+		</author>
+		<updated>2015-12-16T17:22:06Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22842#p22842</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Génération de messages personnalisés]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22841#p22841"/>
+		<content type="html"><![CDATA[<p>Le shell interprète les $$ comme étant la variable d&#039;environnement pour le PID (identifiant processus). D&#039;où le nombre qui apparaît. Vous devez échapper les $$.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2015-12-16T16:56:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22841#p22841</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Génération de messages personnalisés]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22840#p22840"/>
+		<content type="html"><![CDATA[<p>Merci de vos retours.</p><p>Je continue mes investigations en utilisant RAISE NOTICE pour mes sorties de messages.</p><p>Ci-dessous, un exemple de code, qui s&#039;exécute correctement en copiant le texte dans la console psql :</p><div class="codebox"><pre><code>DO
+$$
+
+DECLARE
+
+  V_Message         VARCHAR (255) := NULL;
+
+BEGIN 
+
+  V_Message := &#039;Le message : &#039;;
+  RAISE NOTICE &#039;%&#039;, V_Message;
+	
+
+  V_Message := &#039;-----------------------------&#039;;
+  RAISE NOTICE &#039;%&#039;, V_Message;
+  V_Message := &#039;Recapitulatif : &#039;;
+  RAISE NOTICE &#039;%&#039;, V_Message;
+  V_Message := &#039;-----------------------------&#039;;
+  RAISE NOTICE &#039;%&#039;, V_Message;
+ 
+END;
+$$ LANGUAGE plpgsql;</code></pre></div><p>Les messages générés par RAISE NOTICE ressortent bien sur la console de psql.</p><div class="codebox"><pre><code>NOTICE:  Le message :
+NOTICE:  -----------------------------
+NOTICE:  Recapitulatif :
+NOTICE:  -----------------------------</code></pre></div><p>A présent, je veux inclure ce code dans un shell script </p><p>de la façon suivante :</p><div class="codebox"><pre><code>psql -h ${PGSERVEUR} -d ${PGDB} -U ${PGUSR} -t &lt;&lt;EOF &gt;/dev/null
+DO
+$$
+
+DECLARE
+
+  V_Message         VARCHAR (255) := NULL;
+
+BEGIN 
+
+  V_Message := &#039;Le message : &#039;;
+  RAISE NOTICE &#039;%&#039;, V_Message;
+	
+
+  V_Message := &#039;-----------------------------&#039;;
+  RAISE NOTICE &#039;%&#039;, V_Message;
+  V_Message := &#039;Recapitulatif : &#039;;
+  RAISE NOTICE &#039;%&#039;, V_Message;
+  V_Message := &#039;-----------------------------&#039;;
+  RAISE NOTICE &#039;%&#039;, V_Message;
+ 
+END;
+$$ LANGUAGE plpgsql;
+
+EOF</code></pre></div><p>J&#039;obtiens les erreurs ci-dessous :</p><div class="codebox"><pre class="vscroll"><code>+ psql -h localhost -d user -U password -t
+ERROR:  syntax error at or near &quot;15653&quot;
+LINE 2: 15653
+        ^
+ERROR:  syntax error at or near &quot;V_Message&quot;
+LINE 2:   V_Message := &#039;Le message : &#039;;
+          ^
+ERROR:  syntax error at or near &quot;RAISE&quot;
+LINE 1: RAISE NOTICE &#039;%&#039;, V_Message;
+        ^
+ERROR:  syntax error at or near &quot;V_Message&quot;
+LINE 1: V_Message := &#039;-----------------------------&#039;;
+        ^
+ERROR:  syntax error at or near &quot;RAISE&quot;
+LINE 1: RAISE NOTICE &#039;%&#039;, V_Message;
+        ^
+ERROR:  syntax error at or near &quot;V_Message&quot;
+LINE 1: V_Message := &#039;Recapitulatif : &#039;;
+        ^
+ERROR:  syntax error at or near &quot;RAISE&quot;
+LINE 1: RAISE NOTICE &#039;%&#039;, V_Message;
+        ^
+ERROR:  syntax error at or near &quot;V_Message&quot;
+LINE 1: V_Message := &#039;-----------------------------&#039;;
+        ^
+ERROR:  syntax error at or near &quot;RAISE&quot;
+LINE 1: RAISE NOTICE &#039;%&#039;, V_Message;
+        ^
+WARNING:  there is no transaction in progress
+ERROR:  syntax error at or near &quot;15653&quot;
+LINE 1: 15653 LANGUAGE plpgsql;</code></pre></div><p>Que se passe t&#039;il ?</p><p>Il semble que toutes les lignes soient en erreur.</p><p>D&#039;avance merci de votre retour.</p>]]></content>
+		<author>
+			<name><![CDATA[Mlan2]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5297</uri>
+		</author>
+		<updated>2015-12-16T15:57:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22840#p22840</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Génération de messages personnalisés]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22835#p22835"/>
+		<content type="html"><![CDATA[<p>Si :<br />RAISE NOTICE<br />ou select &#039;message&#039;;<br />ou developpement externe.</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2015-12-16T09:17:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22835#p22835</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Génération de messages personnalisés]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22834#p22834"/>
+		<content type="html"><![CDATA[<p>Merci pour vos retours.</p><p>En résumé, pour répondre aux nombreuses questions que l&#039;on trouve sur les forums, il n&#039;y a pas d&#039;équivalent postgreSQL aux fonctionnalités du package DBMS_OUTPUT fourni par Oracle.</p><p>Merci de confirmer ma conclusion.</p>]]></content>
+		<author>
+			<name><![CDATA[Mlan2]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5297</uri>
+		</author>
+		<updated>2015-12-16T08:58:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22834#p22834</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Génération de messages personnalisés]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22832#p22832"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>et pourquoi pas : select &#039;mon message&#039;;</p><p>Cordialement.</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2015-12-16T08:40:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22832#p22832</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Génération de messages personnalisés]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22830#p22830"/>
+		<content type="html"><![CDATA[<p>Le seul moyen possible est de créer un outil (en perl, python, php, C, java, ce que vous voulez) qui se connecte à PostgreSQL et fait ce que la fonction SQL fait. Les messages de cet outil n&#039;auront pas les NOTICE.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2015-12-16T08:35:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22830#p22830</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Génération de messages personnalisés]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22828#p22828"/>
+		<content type="html"><![CDATA[<p>Dans ce cas, comment pourrait t&#039;on procéder pour obtenir le résultat souhaité ?</p>]]></content>
+		<author>
+			<name><![CDATA[Mlan2]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5297</uri>
+		</author>
+		<updated>2015-12-16T08:25:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22828#p22828</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Génération de messages personnalisés]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22827#p22827"/>
+		<content type="html"><![CDATA[<p>Non, ce n&#039;est pas possible en natif. C&#039;est une fonction SQL, ce n&#039;est pas prévu pour avoir une interface client (texte ou graphique).</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2015-12-16T08:15:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22827#p22827</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Génération de messages personnalisés]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22824#p22824"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je suis en quête de méthode pour restituer des messages personnalisés durant le déroulement de la fonction utilisée.</p><p>Sous Oracle existait une fonctionnalité pour le réaliser à l&#039;aide du package DBMS_OUTPUT</p><p>Il ne semble pas avoir d&#039;équivalent sous POSTGRESQL.</p><p>Pour cela, j&#039;ai cru bon d&#039;utiliser la fonction RAISE NOTICE, qui me restitue un message, qui n&#039;est pas tout à fait ce que je souhaite, car du texte indésirable &quot;NOTICE&quot; apparait dans le message, et n&#039;est pas souhaité par l&#039;utilisateur final de ces messages.</p><p>Existe t&#039;il un moyen pour obtenir son propre message uniquement ?</p><p>(Une précision : Je veux obtenir le message sur la console).</p><p>Ci-dessous, le code de la fonction que j&#039;utilise pour l&#039;essai :</p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION my_fct1()
+  RETURNS void AS
+$BODY$
+DECLARE
+
+  V_Ret             INTEGER := 0;
+  V_Message         VARCHAR (255) := NULL;
+
+BEGIN 
+  V_Message := &#039;Ceci est le message souhaité : &#039;;
+  RAISE NOTICE &#039;%&#039;, V_Message;
+END;
+$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;</code></pre></div><p>Le code pour l&#039;exécuter à partir de psql :</p><div class="codebox"><pre><code>SPIE=# select My_Fct1 ();</code></pre></div><p>Le message obtenu : </p><div class="codebox"><pre><code>NOTICE:  Ceci est le message souhaité :</code></pre></div><p>Je voudrai obtenir le message ci-dessous, sans l&#039;identifiant NOTICE :</p><div class="codebox"><pre><code>Ceci est le message souhaité :</code></pre></div><p>D&#039;avance merci de votre retour.</p>]]></content>
+		<author>
+			<name><![CDATA[Mlan2]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5297</uri>
+		</author>
+		<updated>2015-12-16T08:08:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22824#p22824</id>
+	</entry>
+</feed>

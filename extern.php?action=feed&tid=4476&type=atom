@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / calcul d'une moyenne cumulée]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4476&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4476"/>
+	<updated>2017-12-14T07:52:41Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4476</id>
+	<entry>
+		<title type="html"><![CDATA[calcul d'une moyenne cumulée]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26505#p26505"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Plutôt qu&#039;une question, ce post est un partage d&#039;expérience, la doc étant sans exemple sur ce sujet<br />En faisant des recherches sur les fonctions de fenêtrage, je suis tombé sur cet article <br /><a href="http://sqlpro.developpez.com/article/olap-clause-window/#LII-C" rel="nofollow">http://sqlpro.developpez.com/article/ol … dow/#LII-C</a></p><p>Pour un calcul de moyenne cumulée, c&#039;est parfait : </p><div class="codebox"><pre><code>select sta_id, val_date,val_esp, val_valeur,
+avg(val_valeur) over (partition by sta_id, val_esp order by val_date RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) as moy_cumulée 
+from tbl_valeur_val
+where val_date &gt; &#039;05/12/2017&#039;</code></pre></div><p>Ici je calcule pour chaque champ sta_id et val_esp la moyenne cumulée par date croissante</p><div class="codebox"><pre class="vscroll"><code>sta_id |val_date   |val_esp |val_valeur |moy_cumulée            |
+-------|-----------|--------|-----------|-----------------------|
+1      |2017-12-06 |1       |741.000    |741.0000000000000000   |
+1      |2017-12-07 |1       |671.000    |706.0000000000000000   |
+1      |2017-12-08 |1       |404.000    |605.3333333333333333   |
+1      |2017-12-09 |1       |252.000    |517.0000000000000000   |
+1      |2017-12-12 |1       |1.000      |413.8000000000000000   |
+1      |2017-12-13 |1       |7.000      |346.0000000000000000   |
+1      |2017-12-06 |2       |395.000    |395.0000000000000000   |
+1      |2017-12-07 |2       |287.000    |341.0000000000000000   |
+1      |2017-12-08 |2       |42.000     |241.3333333333333333   |
+1      |2017-12-09 |2       |89.000     |203.2500000000000000   |
+1      |2017-12-12 |2       |115.000    |185.6000000000000000   |
+1      |2017-12-13 |2       |131.000    |176.5000000000000000   |
+2      |2017-12-06 |1       |15.000     |15.0000000000000000    |
+2      |2017-12-07 |1       |20.000     |17.5000000000000000    |
+2      |2017-12-08 |1       |19.000     |18.0000000000000000    |
+2      |2017-12-09 |1       |17.000     |17.7500000000000000    |
+2      |2017-12-12 |1       |40.000     |22.2000000000000000    |
+2      |2017-12-13 |1       |158.000    |44.8333333333333333    |
+2      |2017-12-06 |2       |31.000     |31.0000000000000000    |
+2      |2017-12-07 |2       |34.000     |32.5000000000000000    |
+2      |2017-12-08 |2       |45.000     |36.6666666666666667    |
+2      |2017-12-09 |2       |38.000     |37.0000000000000000    |
+2      |2017-12-12 |2       |38.000     |37.2000000000000000    |
+2      |2017-12-13 |2       |26.000     |35.3333333333333333    |
+3      |2017-12-06 |1       |10.000     |10.0000000000000000    |
+3      |2017-12-07 |1       |10.000     |10.0000000000000000    |
+3      |2017-12-08 |1       |10.500     |10.1666666666666667    |
+3      |2017-12-09 |1       |11.000     |10.3750000000000000    |
+3      |2017-12-12 |1       |40.000     |16.3000000000000000    |
+3      |2017-12-13 |1       |16.000     |16.2500000000000000    |
+3      |2017-12-06 |2       |22.000     |22.0000000000000000    |
+3      |2017-12-07 |2       |23.000     |22.5000000000000000    |
+3      |2017-12-08 |2       |21.000     |22.0000000000000000    |
+3      |2017-12-09 |2       |28.000     |23.5000000000000000    |
+3      |2017-12-12 |2       |20.000     |22.8000000000000000    |
+3      |2017-12-13 |2       |22.000     |22.6666666666666667    |
+4      |2017-12-06 |1       |714.000    |714.0000000000000000   |
+4      |2017-12-07 |1       |633.000    |673.5000000000000000   |
+4      |2017-12-08 |1       |384.000    |577.0000000000000000   |
+4      |2017-12-09 |1       |243.000    |493.5000000000000000   |
+4      |2017-12-12 |1       |1.000      |395.0000000000000000   |
+4      |2017-12-13 |1       |6.000      |330.1666666666666667   |
+4      |2017-12-06 |2       |349.000    |349.0000000000000000   |
+4      |2017-12-07 |2       |252.000    |300.5000000000000000   |
+4      |2017-12-08 |2       |38.000     |213.0000000000000000   |
+4      |2017-12-09 |2       |71.000     |177.5000000000000000   |
+4      |2017-12-12 |2       |104.000    |162.8000000000000000   |</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[damalaan]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1000</uri>
+		</author>
+		<updated>2017-12-14T07:52:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26505#p26505</id>
+	</entry>
+</feed>

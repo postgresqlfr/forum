@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Problème de recovery en 9.6 pg_xlog/RECOVERYXLOG ?]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4386&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4386"/>
+	<updated>2017-09-21T12:58:35Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4386</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème de recovery en 9.6 pg_xlog/RECOVERYXLOG ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26101#p26101"/>
+		<content type="html"><![CDATA[<p>Bonjour Gleu, effectivement, il y avait une erreur dans la commande gunzip.<br />La bonne commande est : restore_command = &#039;gunzip &lt; /mnt/server/archivedir/%f &gt; %p&#039;</p><p>Un grand merci !</p>]]></content>
+		<author>
+			<name><![CDATA[philwood]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=584</uri>
+		</author>
+		<updated>2017-09-21T12:58:35Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26101#p26101</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème de recovery en 9.6 pg_xlog/RECOVERYXLOG ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26100#p26100"/>
+		<content type="html"><![CDATA[<p>Votre restore_command est mauvaise. Un test en ligne de commande le démontre sans problème. Il vous faut trouver la bonne syntaxe pour gunzip.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2017-09-21T12:24:35Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26100#p26100</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème de recovery en 9.6 pg_xlog/RECOVERYXLOG ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26099#p26099"/>
+		<content type="html"><![CDATA[<p>Je fais un simple tar.gz de mes datas pour mes tests entre mon pg_start_backup et pg_stop_backup.<br />En suite, je fais un tar.gz de mes logs.<br />A noter que je fais ça quand mon instance est en charge histoire de générer des logs.</p><p>Pour la restauration, je supprime mon pgdata et mon répertoire de log et je restaure mes tar.gz.</p>]]></content>
+		<author>
+			<name><![CDATA[philwood]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=584</uri>
+		</author>
+		<updated>2017-09-21T12:05:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26099#p26099</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème de recovery en 9.6 pg_xlog/RECOVERYXLOG ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26098#p26098"/>
+		<content type="html"><![CDATA[<p>Pouvez-vous détailler également les étapes de sauvegarde et restauration du pgdata ?</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2017-09-21T10:29:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26098#p26098</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Problème de recovery en 9.6 pg_xlog/RECOVERYXLOG ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26097#p26097"/>
+		<content type="html"><![CDATA[<p>Bonjour, je fais des tests de sauvegarde à chaud et restauration en 9.6 (je découvre cette version) et je rencontre un problème à la restauration.</p><p>J&#039;ai restauré mes données data (PGDATA)</p><p>Je supprimer le contenu de pg_xlog :</p><p>ROOT@sv004285:/var/lib/pgsql/data/pg_xlog# ll<br />total 212996<br />-rw-------. 1 postgres postgres 16777216 Sep 21 10:14 00000001000000020000007D<br />-rw-------. 1 postgres postgres 16777216 Sep 21 10:14 00000001000000020000007E<br />-rw-------. 1 postgres postgres 16777216 Sep 21 10:14 00000001000000020000007F<br />-rw-------. 1 postgres postgres 16777216 Sep 21 10:15 000000010000000200000080<br />-rw-------. 1 postgres postgres 16777216 Sep 21 10:15 000000010000000200000081<br />-rw-------. 1 postgres postgres 16777216 Sep 21 10:15 000000010000000200000082<br />-rw-------. 1 postgres postgres 16777216 Sep 21 10:15 000000010000000200000083<br />-rw-------. 1 postgres postgres 16777216 Sep 21 10:15 000000010000000200000084<br />-rw-------. 1 postgres postgres 16777216 Sep 21 10:15 000000010000000200000085<br />-rw-------. 1 postgres postgres 16777216 Sep 21 10:15 000000010000000200000086<br />-rw-------. 1 postgres postgres 16777216 Sep 21 10:16 000000010000000200000087<br />-rw-------. 1 postgres postgres 16777216 Sep 21 10:16 000000010000000200000088<br />-rw-------. 1 postgres postgres 16777216 Sep 21 10:16 000000010000000200000089<br />drwx------. 2 postgres postgres&#160; &#160; &#160;4096 Sep 21 10:16 archive_status<br />ROOT@sv004285:/var/lib/pgsql/data/pg_xlog# rm -Rf *<br />ROOT@sv004285:/var/lib/pgsql/data/pg_xlog# ll<br />total 0</p><p>J’ai restauré mes journaux :</p><p>ROOT@sv004285:/var/lib/pgsql/data/pg_xlog# ll ../../var/journaux/<br />total 87036<br />-rw-------. 1 postgres postgres&#160; 7810683 Sep 21 10:15 000000010000000200000081<br />-rw-------. 1 postgres postgres&#160; &#160;290153 Sep 21 10:15 000000010000000200000082<br />-rw-------. 1 postgres postgres 10025179 Sep 21 10:15 000000010000000200000083<br />-rw-------. 1 postgres postgres&#160; &#160; &#160; 209 Sep 21 10:19 000000010000000200000083.0003E5A0.backup<br />-rw-------. 1 postgres postgres 10131125 Sep 21 10:15 000000010000000200000084<br />-rw-------. 1 postgres postgres&#160; 9780943 Sep 21 10:15 000000010000000200000085<br />-rw-------. 1 postgres postgres&#160; 9155957 Sep 21 10:15 000000010000000200000086<br />-rw-------. 1 postgres postgres&#160; 7750724 Sep 21 10:16 000000010000000200000087<br />-rw-------. 1 postgres postgres&#160; 6688723 Sep 21 10:16 000000010000000200000088<br />-rw-------. 1 postgres postgres&#160; 6216454 Sep 21 10:17 000000010000000200000089<br />-rw-------. 1 postgres postgres&#160; 5947763 Sep 21 10:18 00000001000000020000008A<br />-rw-------. 1 postgres postgres&#160; 4155467 Sep 21 10:18 00000001000000020000008B<br />-rw-------. 1 postgres postgres&#160; 5542338 Sep 21 10:18 00000001000000020000008C<br />-rw-------. 1 postgres postgres&#160; 5603097 Sep 21 10:19 00000001000000020000008D</p><br /><p>La commande de restauration dans le recovery.conf :<br />restore_command = &#039;gunzip &lt; /var/lib/pgsql/var/journaux/%f &quot;%p&quot;&#039;</p><p>Je démarre l&#039;instance :<br />systemctl start postgresql.service</p><p>et c&#039;est le fail :</p><p>2017-09-21 11:51:07 CEST [26371]: [1-1] LOG:&#160; 00000: database system was interrupted; last known up at 2017-09-21 10:15:21 CEST<br />2017-09-21 11:51:07 CEST [26371]: [2-1] LOCATION:&#160; StartupXLOG, xlog.c:6025<br />2017-09-21 11:51:07 CEST [26371]: [3-1] LOG:&#160; 00000: creating missing WAL directory &quot;pg_xlog/archive_status&quot;<br />2017-09-21 11:51:07 CEST [26371]: [4-1] LOCATION:&#160; ValidateXLOGDirectoryStructure, xlog.c:3926<br />2017-09-21 11:51:07 CEST [26371]: [5-1] LOG:&#160; 00000: starting archive recovery<br />2017-09-21 11:51:07 CEST [26371]: [6-1] LOCATION:&#160; StartupXLOG, xlog.c:6098<br />gzip: pg_xlog/RECOVERYXLOG.gz: No such file or directory<br />2017-09-21 11:51:07 CEST [26371]: [7-1] LOG:&#160; 00000: invalid checkpoint record<br />2017-09-21 11:51:07 CEST [26371]: [8-1] LOCATION:&#160; ReadCheckpointRecord, xlog.c:7781<br />2017-09-21 11:51:07 CEST [26371]: [9-1] FATAL:&#160; XX000: could not locate required checkpoint record<br />2017-09-21 11:51:07 CEST [26371]: [10-1] HINT:&#160; If you are not restoring from a backup, try removing the file &quot;/var/lib/pgsql/data/backup_label&quot;.<br />2017-09-21 11:51:07 CEST [26371]: [11-1] LOCATION:&#160; StartupXLOG, xlog.c:6164<br />2017-09-21 11:51:07 CEST [26368]: [4-1] LOG:&#160; 00000: startup process (PID 26371) exited with exit code 1<br />2017-09-21 11:51:07 CEST [26368]: [5-1] LOCATION:&#160; LogChildExit, postmaster.c:3495<br />2017-09-21 11:51:07 CEST [26368]: [6-1] LOG:&#160; 00000: aborting startup due to startup process failure<br />2017-09-21 11:51:07 CEST [26368]: [7-1] LOCATION:&#160; reaper, postmaster.c:2769 </p><p>C&#039;est quoi ce fichier RECOVERYXLOG ? <br />Est ce que j&#039;ai manqué qq chose ?</p><p>Merci pour votre aide !</p>]]></content>
+		<author>
+			<name><![CDATA[philwood]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=584</uri>
+		</author>
+		<updated>2017-09-21T10:00:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26097#p26097</id>
+	</entry>
+</feed>

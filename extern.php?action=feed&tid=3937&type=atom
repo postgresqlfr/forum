@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Agent PostgreSQL collecteur de configuration]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3937&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3937"/>
+	<updated>2016-09-14T14:58:45Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3937</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Agent PostgreSQL collecteur de configuration]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23976#p23976"/>
+		<content type="html"><![CDATA[<p>Vous n&#039;avez pas d&#039;autre choix que d&#039;ouvrir une connexion spécifique sur chaque base. Si votre script est en bash, cela veut dire avec psql.</p><p>La connexion se fait ainsi :</p><div class="codebox"><pre><code>psql [options] nom_base</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2016-09-14T14:58:45Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23976#p23976</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Agent PostgreSQL collecteur de configuration]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23974#p23974"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><p>Je finis jamais de vous solliciter mes amis.</p><p>Ma requête aujourd&#039;hui est que j&#039;ai créé un curseur en plpgsql qui me récupère la liste des databases comme suit:</p><br /><p>--drop function dbCursor();<br />CREATE OR REPLACE FUNCTION dbCursor() RETURNS char AS $$<br />DECLARE<br />&#160; &#160; &#160; curseur refcursor;<br />&#160; &#160; &#160; dbname pg_database.datname%TYPE;<br />BEGIN<br />&#160; &#160; OPEN curseur FOR execute (&#039;SELECT datname FROM pg_database&#039;);<br />&#160; &#160; LOOP<br />&#160; &#160; &#160; &#160; FETCH curseur INTO dbname;</p><p>&#160; &#160; &#160; &#160; IF NOT FOUND THEN <br />&#160; &#160; &#160; &#160; &#160; &#160; EXIT;<br />&#160; &#160; &#160; &#160; END IF;<br />&#160; &#160; &#160; &#160; RAISE NOTICE &#039;Dbname: %&#039;, dbname;<br />&#160; &#160; &#160; &#160; COPY (SELECT * FROM information_schema.tables) TO &#039;/home/developer/FOFANA/Agent PostgreSQL/result/information_schema.tables.csv&#039; WITH CSV HEADER DELIMITER &#039;;&#039; NULL &#039;-&#039;;<br />&#160; &#160; &#160; &#160; <br />&#160; &#160; END LOOP;<br />&#160; &#160; CLOSE curseur;</p><p>&#160; &#160; RETURN NULL;<br />&#160; &#160; &#160;<br />END;<br />$$ LANGUAGE plpgsql;</p><p>SELECT dbCursor();</p><br /><p>Je demande maintenant comment je dois faire pour me connecter avec aucune des base et y exécuter la requête SELECT * FROM pg_tables;&#160; &#160;?</p><br /><p>Je peine avec le code depuis, je me suis rendu conte que la commande psql ne fonctionnait pas dans mon code.</p><br /><p>Si quelqu&#039;un a la solution, je lui en serai très reconnaissant.</p><br /><p>MERCI D&#039;AVANCE LES AMIS !!!</p>]]></content>
+		<author>
+			<name><![CDATA[Cheikhou Fofana]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=6787</uri>
+		</author>
+		<updated>2016-09-14T09:58:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23974#p23974</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Agent PostgreSQL collecteur de configuration]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23972#p23972"/>
+		<content type="html"><![CDATA[<p>Merci beaucoup tous les deux.</p><p>Vous êtes supers tous les deux.</p>]]></content>
+		<author>
+			<name><![CDATA[Cheikhou Fofana]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=6787</uri>
+		</author>
+		<updated>2016-09-13T15:27:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23972#p23972</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Agent PostgreSQL collecteur de configuration]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23971#p23971"/>
+		<content type="html"><![CDATA[<p>Au passage, la liste des bases de données sur lesquelles on peut se connecter peut être récupérée avec la requête suivante :</p><div class="codebox"><pre><code>SELECT datname FROM pg_database WHERE datallowconn;</code></pre></div><p>À vous de voir si vous voulez inclure les bases de template et la base postgres ou pas.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2016-09-13T09:33:06Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23971#p23971</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Agent PostgreSQL collecteur de configuration]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23970#p23970"/>
+		<content type="html"><![CDATA[<p>eh non, il faut faire les requêtes dans chaque base.<br />pg_tables et pg_class donnent des informations différentes si on est dans telle ou telle base.</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2016-09-13T09:13:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23970#p23970</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Agent PostgreSQL collecteur de configuration]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23969#p23969"/>
+		<content type="html"><![CDATA[<p>Bonjour les amis.<br />Je reviens vers vous pour exposer un autre problème.</p><br /><p>Après exécution du script que je vous avais mis en copie la semaine dernière, je n&#039;obtiens pas les tables des autres bases de données sur le serveur.<br />En effet, le script ne m&#039;affiche que les tables de la base postgres or il y a sur le serveur il y a d&#039;autres bases de données.</p><br /><p>Normalement, toutes les tables de toutes les bases de données sur le serveur doivent se trouver dans la tables pg_tables, non ?</p>]]></content>
+		<author>
+			<name><![CDATA[Cheikhou Fofana]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=6787</uri>
+		</author>
+		<updated>2016-09-13T08:59:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23969#p23969</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Agent PostgreSQL collecteur de configuration]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23929#p23929"/>
+		<content type="html"><![CDATA[<p>Bonjour les amis,</p><p>DIEU merci, j&#039;ai réussi à créer le script de l&#039;agent collecteur d&#039;informations PostgreSQL, même si il y a beaucoup à parfaire.</p><p>Je vous mets en copie mon script qui, je ne l&#039;aurai jamais imaginé, est si simple à écrire.<br />Le voici ci-dessous:</p><p>#!/bin/bash</p><p>list_of_tables=(<br />information_schema.columns<br />informations_schema.views<br />informations_schema.schemata<br />information_schema.tables<br />pg_tables<br />pg_tablespace<br />pg_database<br />pg_indexes<br />pg_views<br />)</p><p>for i in $&quot;{list_of_tables[@]}&quot;;<br />do<br />&#160; &#160; psql -c &quot;COPY SELECT * FROM $i) TO &#039;/path/$i.csv&#039; WITH CSV HEADER&quot;;</p><p>done</p><p>path = le chemin du répertoire dans lequel vous souhaitez copier les résultats de la requête SELECT</p><p>N&#039;hésitez pas à me donner des conseils pour améliorer le script.</p><p>Je sais par exemple qu&#039;il faut un utilisateur qui a les privilèges de se connecter sur le serveur PostgreSQL et le droit SELECT sur toutes les tables.<br />Si vous vous voyez d&#039;autres améliorations, vraiment n&#039;hésitez à m&#039;aider.</p><p>Merci d&#039;avance la communauté !</p>]]></content>
+		<author>
+			<name><![CDATA[Cheikhou Fofana]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=6787</uri>
+		</author>
+		<updated>2016-09-06T08:22:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23929#p23929</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Agent PostgreSQL collecteur de configuration]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23926#p23926"/>
+		<content type="html"><![CDATA[<p>Merci beaucoup M ruizsebastien pour cette réponse.</p><p>C&#039;est un peu ça effectivement sauf que je voudrais stocker les infos dans des fichiers CSV, mon plus grand problème est comment m&#039;y prendre avec le développement du script.</p><p>Quand je tape manuellement les requêtes sql, j&#039;ai les résultats mais je comprends pas comment je dois m&#039;y prendre automatiser tout ça vias un script bash.</p><p>J&#039;ai cru comprendre que dans mon script, il devra y avoir les instructions qui permettront la connexion à la base et à partir de là, avec une requête dynamique, parcourir les tables du SGBDR et retourner les résultats dans un fichier CSV sauf que si je dois écrire toutes les requêtes à la main, ça ne va pas le faire.</p><p>J&#039;ai donc pensé à créer un fichier de configuration dans lequel je vais recenser toutes les tables du SGBDR et que mon script ira cherché à la volet selon si la table est dé-commentée ou pas.</p><p>Encore une fois merci beaucoup monsieur ruizsebastien.</p>]]></content>
+		<author>
+			<name><![CDATA[Cheikhou Fofana]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=6787</uri>
+		</author>
+		<updated>2016-09-02T13:16:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23926#p23926</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Agent PostgreSQL collecteur de configuration]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23925#p23925"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Nous on fait ça pour alimenter une base de données référentielle.<br />Il faut partir d&#039;une ou plusieurs tables de paramètrage qui contient la liste des serveurs et des user/password postgres<br />et ensuite il faut coder un script shell pour aller chercher à distance les informations que vous voulez avec psql ou avec des commandes OS selon le cas.<br />Vous pouvez stocker les infos dans une base de données pour faire du reporting.</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2016-09-02T12:43:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23925#p23925</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Agent PostgreSQL collecteur de configuration]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23921#p23921"/>
+		<content type="html"><![CDATA[<p>Oui effectivement,</p><p>Mais là, je veux juste savoir comment m&#039;y prendre et le reste, je m&#039;en chargerai.</p><p>Sinon merci quand même !</p>]]></content>
+		<author>
+			<name><![CDATA[Cheikhou Fofana]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=6787</uri>
+		</author>
+		<updated>2016-09-01T14:07:38Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23921#p23921</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Agent PostgreSQL collecteur de configuration]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23920#p23920"/>
+		<content type="html"><![CDATA[<p>Pour ma part, pas plus d&#039;aide à apporter que le mois dernier quand vous avez posé exactement la même question.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2016-09-01T13:39:06Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23920#p23920</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Agent PostgreSQL collecteur de configuration]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23919#p23919"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je veux créer un agent collecteur de configuration du SGBDR PostgreSQL en bash et je ne sais comment m&#039;en tenir ?</p><p>Est-ce que quelqu&#039;un pourrait me donner une piste ?</p><p>Pour info, cet agent aura pour rôle de collecter toutes les informations du SGBDR à savoir par exemple les noms des machines sur lesquelles PostgreSQL est installé, les&#160; noms de toutes les bases de données, leurs configurations respectives, les tables, tablespaces, schémas, views et index qui leur contiennent etc.</p><p>S&#039;il y a quelqu&#039;un qui a un lien qui pourrait m&#039;aider aussi, ce sera génial.</p><p>Merci d&#039;avance la communauté !!!</p>]]></content>
+		<author>
+			<name><![CDATA[Cheikhou Fofana]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=6787</uri>
+		</author>
+		<updated>2016-09-01T12:34:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23919#p23919</id>
+	</entry>
+</feed>

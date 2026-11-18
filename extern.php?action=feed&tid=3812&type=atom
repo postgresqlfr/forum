@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Problème de streaming replication : l'esclave ne démarre pas]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3812&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3812"/>
+	<updated>2016-04-26T07:38:34Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3812</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème de streaming replication : l'esclave ne démarre pas]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23334#p23334"/>
+		<content type="html"><![CDATA[<p>Eh oui ! C&#039;était aussi simple que ça !<br />Merci beaucoup.</p>]]></content>
+		<author>
+			<name><![CDATA[ced]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=461</uri>
+		</author>
+		<updated>2016-04-26T07:38:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23334#p23334</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème de streaming replication : l'esclave ne démarre pas]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23333#p23333"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je pense que vous avez tout simplement omis d&#039;indiquer «hot_standby = on » dans le postgresql.conf du nouveau serveur secondaire.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2016-04-25T21:20:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23333#p23333</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Problème de streaming replication : l'esclave ne démarre pas]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23332#p23332"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je teste, pour le moment en local, la mise en place d&#039;une réplication par streaming.<br />Je suis sous PostgreSQL 9.5, sous Linux Mint.</p><p>Je simule le fonctionnement d&#039;un maître et d&#039;un esclave par deux instances différentes de postgresql sur deux ports différents (5432 pour le maître, 5433 pour l&#039;esclave).</p><p>J&#039;ai créé un répertoire destiné à l&#039;archivage : /var/lib/postgresql/9.5/archives<br />Pour le serveur maître, j&#039;ai placé les paramètres de réplication dans un fichier postgresql.replication.conf, appelé par le fichier postgresql.conf (comme ça, je peux contrôler à part ce qui concerne la réplication). Les paramètres de ce fichier sont les suivants :<br />wal_level = &#039;hot_standby&#039;<br />max_wal_senders = 5<br />archive_mode = on<br />archive_command = &#039;rsync %p /var/lib/postgresql/9.5/archives/%f&#039;</p><p>J&#039;ai créé un utilisateur dédié à la réplication, que j&#039;ai appelé &quot;replitest&quot;. Il se connecte sans problème, via psql, à l&#039;instance maître. J&#039;ai ajouté une ligne dans le pg_hba.conf du serveur maître comme suit :<br />host&#160; &#160; &#160;replication&#160; &#160; &#160; replitest&#160; &#160; &#160; 127.0.0.1/32&#160; &#160; &#160; md5</p><p>Le maître a redémarré sans souci et l&#039;archivage des journaux fonctionne.</p><p>J&#039;ai ensuite créé un serveur esclave à l&#039;aide de l&#039;outil pg_basebackup, comme suit :<br />sudo -u postgres pg_basebackup -D /home/CDuprez/PostgreSQL/9.5/esclave -P -h 127.0.0.1 -U replitest</p><p>J&#039;ai recopié les fichiers de configuration du maître vers l&#039;esclave, en prenant soin d&#039;enlever le pointage vers le fichier postgresql.replication.conf...<br />J&#039;ai mis à jour le postgresql.conf de l&#039;esclave comme suit :<br />data_directory = &#039;/home/CDuprez/PostgreSQL/9.5/esclave&#039;<br />hba_file = &#039;/etc/postgresql/9.5/esclave/pg_hba.conf&#039;<br />ident_file = &#039;/etc/postgresql/9.5/esclave/pg_ident.conf&#039;<br />external_pid_file = &#039;/var/run/postgresql/9.5-esclave.pid&#039;<br />port = 5433</p><p>Donc, normalement, il devrait être configuré comme il faut.<br />Ce serveur est bien détecté, en vérifiant avec pg_lsclusters.</p><p>J&#039;ai configuré, sur le serveur esclave, un fichier replication.conf avec les paramètres suivants :<br />restore_command = &#039;rsync /var/lib/postgresql/9.5/archives/%f %p&#039;<br />standby_mode = on<br />primary_conninfo = &#039;host=127.0.0.1 port=5432 user=replitest password=mon_passe&#039;<br />trigger_file = &#039;/tmp/esclave_autonome&#039;</p><p>Mais le démarrage du serveur esclave pose problème. J&#039;ai le message d&#039;erreur suivant :<br />Warning: connection to the database failed, disabling startup checks:<br />psql: FATAL:&#160; le système de bases de données se lance</p><p>Dans les logs de l&#039;esclave, voici ce qu&#039;on observe :<br />rsync: link_stat &quot;/var/lib/postgresql/9.5/archives/000000010000000400000030&quot; failed: No such file or directory (2)<br />rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1183) [sender=3.1.0]<br />2016-04-25 20:16:36 CEST [1486-1] LOG:&#160; Commence le flux des journaux depuis le principal à 4/30000000 sur la timeline 1<br />2016-04-25 20:37:02 CEST [1288-1] LOG:&#160; a reçu une demande d&#039;arrêt intelligent<br />2016-04-25 20:37:02 CEST [1486-2] FATAL:&#160; arrêt du processus walreceiver suite à la demande de l&#039;administrateur<br />2016-04-25 20:37:02 CEST [1329-1] LOG:&#160; arrêt en cours<br />2016-04-25 20:37:02 CEST [1329-2] LOG:&#160; le système de base de données est arrêté<br />2016-04-25 20:37:03 CEST [8548-1] LOG:&#160; le système de bases de données a été arrêté pendant la restauration à 2016-04-25 20:37:02 CEST<br />2016-04-25 20:37:03 CEST [8548-2] LOG:&#160; entre en mode standby<br />rsync: link_stat &quot;/var/lib/postgresql/9.5/archives/000000010000000400000030&quot; failed: No such file or directory (2)<br />rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1183) [sender=3.1.0]<br />2016-04-25 20:37:03 CEST [8548-3] LOG:&#160; état de restauration cohérent atteint à 4/30000370<br />2016-04-25 20:37:03 CEST [8548-4] LOG:&#160; la ré-exécution commence à 4/30000370<br />2016-04-25 20:37:03 CEST [8548-5] LOG:&#160; longueur invalide de l&#039;enregistrement à 4/30000450<br />2016-04-25 20:37:03 CEST [8555-1] LOG:&#160; Commence le flux des journaux depuis le principal à 4/30000000 sur la timeline 1<br />2016-04-25 20:37:04 CEST [8557-1] [inconnu]@[inconnu] LOG:&#160; paquet de démarrage incomplet<br />2016-04-25 20:37:04 CEST [8560-1] postgres@postgres FATAL:&#160; le système de bases de données se lance<br />2016-04-25 20:37:05 CEST [8563-1] postgres@postgres FATAL:&#160; le système de bases de données se lance<br />2016-04-25 20:37:05 CEST [8566-1] postgres@postgres FATAL:&#160; le système de bases de données se lance<br />2016-04-25 20:37:06 CEST [8570-1] postgres@postgres FATAL:&#160; le système de bases de données se lance<br />2016-04-25 20:37:06 CEST [8573-1] postgres@postgres FATAL:&#160; le système de bases de données se lance<br />2016-04-25 20:37:07 CEST [8576-1] postgres@postgres FATAL:&#160; le système de bases de données se lance<br />2016-04-25 20:37:07 CEST [8579-1] postgres@postgres FATAL:&#160; le système de bases de données se lance<br />2016-04-25 20:37:08 CEST [8582-1] postgres@postgres FATAL:&#160; le système de bases de données se lance<br />2016-04-25 20:37:08 CEST [8585-1] postgres@postgres FATAL:&#160; le système de bases de données se lance<br />2016-04-25 20:37:09 CEST [8598-1] postgres@postgres FATAL:&#160; le système de bases de données se lance<br />2016-04-25 20:37:09 CEST [8604-1] postgres@postgres FATAL:&#160; le système de bases de données se lance<br />2016-04-25 20:37:09 CEST [8605-1] [inconnu]@[inconnu] LOG:&#160; paquet de démarrage incomplet</p><p>Effectivement, dans le répertoire d&#039;archivage, il n&#039;y a pas de fichier 000000010000000400000030...</p><p>D&#039;où peut venir le problème ? Comment l&#039;esclave récupère-t-il le nom des journaux à rejouer ?</p><p>Merci pour votre aide,</p><p>Cédric</p>]]></content>
+		<author>
+			<name><![CDATA[ced]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=461</uri>
+		</author>
+		<updated>2016-04-25T18:42:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23332#p23332</id>
+	</entry>
+</feed>

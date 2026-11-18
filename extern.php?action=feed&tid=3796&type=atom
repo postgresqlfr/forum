@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / comparer epoch timestamp]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3796&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3796"/>
+	<updated>2016-04-07T19:51:22Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3796</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  comparer epoch timestamp]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23238#p23238"/>
+		<content type="html"><![CDATA[<p>Un grand merci julien,</p><p>en suivant vos conseils la commande suivante a parfaitement fonctionné:</p><p>UPDATE DATE<br />SET HEXA=&#039;0&#039;<br />WHERE abs(extract(&#039;epoch&#039; from now()) - (date /1000 * interval &#039;1 second&#039;))) &gt; 86400;</p><p>Zeiklt</p>]]></content>
+		<author>
+			<name><![CDATA[zeiklt]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=6261</uri>
+		</author>
+		<updated>2016-04-07T19:51:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23238#p23238</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  comparer epoch timestamp]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23237#p23237"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Voir la partie epoch dans la documentation : <a href="http://docs.postgresql.fr/9.4/functions-datetime.html" rel="nofollow">http://docs.postgresql.fr/9.4/functions-datetime.html</a></p><p>Pour vérifier le format du champ contenant un epoch :</p><div class="codebox"><pre><code>SELECT timestamp with time zone &#039;epoch&#039; + champ_epoch * interval &#039;1 second&#039;;
+SELECT timestamp with time zone &#039;epoch&#039; + champ_epoch /1000 * interval &#039;1 second&#039;;</code></pre></div><p>Puis quelque chose comme</p><div class="codebox"><pre><code>WHERE abs(extract(&#039;epoch&#039; from now()) - champ_epoch) &gt; 86400</code></pre></div><p>(à vous de voir le format de votre champ)</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2016-04-07T19:11:35Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23237#p23237</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  comparer epoch timestamp]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23236#p23236"/>
+		<content type="html"><![CDATA[<p>j&#039;ai trouvé une commande du type &quot;select to_timestamp(1455026833295);&quot;.<br />Elle affiche la date correcte si j&#039;enlève les trois derniers chiffres, qui correspondent je suppose au fuseau horaire. Ca me donne envie de récupérer uniquement les 10 premiers caractères de la colonne &quot;Date&quot;. J&#039;ai bien trouvé une commande du type substring mais je ne vois pas comment l&#039;insérer également. Me resterait encore à le comparer à la date J-1</p>]]></content>
+		<author>
+			<name><![CDATA[zeiklt]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=6261</uri>
+		</author>
+		<updated>2016-04-07T19:06:29Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23236#p23236</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[comparer epoch timestamp]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23235#p23235"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />je ne connais pas le PSQL et je m&#039;efforce de trouver une solution pour me faciliter la vie sur un autre logiciel qui récupère des informations au sein de l&#039;une de ses tables.</p><p>Dans ma table PSQL se trouve une colonne &quot;Date&quot; qui contient le timestamp au format epoch (avec fuseaux horaire me semble t&#039;il car 13 chiffres) et une autre colonne&#160; &quot;hexa&quot; comprenant une suite de caractères en héxadécimal. Je cherche à sélectionner toutes les lignes dont la colonne &quot;date&quot; daterait de plus de 24 heures, et d&#039;insérer la valeur &quot;0&quot; dans la colonne &quot;hexa&quot; pour les lignes correspondantes.</p><p>je suis donc parti sur une commande du type</p><p>UPDATE table<br />&#160; &#160; &#160; &#160; &#160; &#160;SET hexa=&#039;0&#039;<br />&#160; &#160; &#160; &#160; &#160; &#160;WHERE ???</p><p>Et pour la condition après le where je cherche toujours... si une personne a une idée et pourrait m&#039;aiguiller, je ne pourrais que lui en être reconnaissante.</p>]]></content>
+		<author>
+			<name><![CDATA[zeiklt]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=6261</uri>
+		</author>
+		<updated>2016-04-07T18:37:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23235#p23235</id>
+	</entry>
+</feed>

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / pgstatpack et pg_stat_statements]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2272&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2272"/>
+	<updated>2012-09-26T08:02:43Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2272</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pgstatpack et pg_stat_statements]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15222#p15222"/>
+		<content type="html"><![CDATA[<p>En fait il n&#039;y a pas que vers la ligne 200 à corriger :</p><p>71c71<br />&lt;&#160; &#160;coalesce(pg_relation_size(t.relid),0)+coalesce(pg_relation_size(s.relid),0) as tbl_size,<br />---<br />&gt;&#160; &#160;pg_relation_size(t.relid)+pg_relation_size(s.relid) as tbl_size,<br />203,204c203,204<br />&lt;&#160; &#160; &#160;join pgstatspack_names n1 on s.query=n1.name<br />&lt;&#160; &#160; &#160;join pgstatspack_names n2 on pg_get_userbyid(s.userid)=n2.name<br />---<br />&gt;&#160; &#160; &#160;join pgstatspack_names n1 on s.query=n.name<br />&gt;&#160; &#160; &#160;join pgstatspack_names n2 on s.pg_get_userbyid(s.userid)=n2.name</p><p>cela fonctionne maintenant , </p><p>Merci</p>]]></content>
+		<author>
+			<name><![CDATA[bcarriere]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=565</uri>
+		</author>
+		<updated>2012-09-26T08:02:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15222#p15222</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pgstatpack et pg_stat_statements]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15221#p15221"/>
+		<content type="html"><![CDATA[<p>APRES CORRECTION ET REINSTALLATION DE PGSTATSPACK J&#039;AI TOUJOURS UNE ERREUR :</p><p>[BRICE] 26/09/12 09:16:47 &gt;./remove_pgstats.sh<br />Removing Statistics Package for database template1<br />Removing Statistics Package for database demo<br />[BRICE] 26/09/12 09:16:47 &gt;./install_pgstats.sh<br />Results for database template1<br />Installing Statistics Package for database template1<br />Results for database demo<br />Installing Statistics Package for database demo<br />[BRICE] 26/09/12 09:16:47 &gt;psql -d demo<br />psql (9.1.3)<br />Saisissez Â« help Â» pour l&#039;aide.</p><p>demo=# select pgstatspack_snap(&#039;mon com&#039;);<br />ERROR:&#160; schema &quot;s&quot; does not exist<br />CONTEXTE : SQL statement &quot;INSERT INTO pgstatspack_statements<br />&#160; &#160; ( snapid, calls, total_time, &quot;rows&quot;, query_id, user_name_id)<br />&#160; &#160; SELECT<br />&#160; &#160; &#160; spid as snapid,<br />&#160; &#160; &#160; s.calls as calls,<br />&#160; &#160; &#160; s.total_time as total_time,<br />&#160; &#160; &#160; s.rows as rows,<br />&#160; &#160; &#160; n1.nameid,<br />&#160; &#160; &#160; n2.nameid<br />&#160; &#160; FROM pg_stat_statements s<br />&#160; &#160; join pgstatspack_names n1 on s.query=n1.name<br />&#160; &#160; join pgstatspack_names n2 on s.pg_get_userbyid(s.userid)=n2.name<br />&#160; &#160; WHERE dbid=(select oid from pg_database where datname=current_database())<br />&#160; &#160; ORDER BY total_time&quot;<br />PL/pgSQL function &quot;pgstatspack_snap&quot; line 186 at SQL statement</p>]]></content>
+		<author>
+			<name><![CDATA[bcarriere]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=565</uri>
+		</author>
+		<updated>2012-09-26T07:49:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15221#p15221</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pgstatpack et pg_stat_statements]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15220#p15220"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Désolé de ne pas avoir donné de nouvelles depuis. L&#039;auteur a poussé le correctif adéquat pour gérer correctement pg_stat_statements: le <a href="http://cvs.pgfoundry.org/cgi-bin/cvsweb.cgi/pgstatspack/pgstatspack/sql/pgstatspack_create_snap.sql?r1=1.7&amp;r2=1.8" rel="nofollow">patch appliqué</a>.</p><p>Vous devriez pouvoir récupérer la dernière version et faire fonctionner pgstatspack correctement dorénavant.</p>]]></content>
+		<author>
+			<name><![CDATA[frost242]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=24</uri>
+		</author>
+		<updated>2012-09-25T21:28:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15220#p15220</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pgstatpack et pg_stat_statements]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15202#p15202"/>
+		<content type="html"><![CDATA[<p>après correction j&#039;ai l&#039;erreur suivante :</p><p>demo=# select pgstatspack_snap(&#039;mon commentaire2&#039;);<br />ERROR:&#160; schema &quot;s&quot; does not exist<br />CONTEXTE : SQL statement &quot;INSERT INTO pgstatspack_statements<br />&#160; &#160; ( snapid, calls, total_time, &quot;rows&quot;, query_id, user_name_id)<br />&#160; &#160; SELECT<br />&#160; &#160; &#160; spid as snapid,<br />&#160; &#160; &#160; s.calls as calls,<br />&#160; &#160; &#160; s.total_time as total_time,<br />&#160; &#160; &#160; s.rows as rows,<br />&#160; &#160; &#160; n1.nameid,<br />&#160; &#160; &#160; n2.nameid<br />&#160; &#160; FROM pg_stat_statements s<br />&#160; &#160; join pgstatspack_names n1 on s.query=n1.name<br />&#160; &#160; join pgstatspack_names n2 on s.pg_get_userbyid(s.userid)=n2.name<br />&#160; &#160; WHERE dbid=(select oid from pg_database where datname=current_database())<br />&#160; &#160; ORDER BY total_time&quot;<br />PL/pgSQL function &quot;pgstatspack_snap&quot; line 186 at SQL statement</p>]]></content>
+		<author>
+			<name><![CDATA[bcarriere]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=565</uri>
+		</author>
+		<updated>2012-09-21T13:56:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15202#p15202</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pgstatpack et pg_stat_statements]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15193#p15193"/>
+		<content type="html"><![CDATA[<p>Uwe Bartels va réaliser le correctif. Une nouvelle version sera disponible dans quelques jours normalement.</p>]]></content>
+		<author>
+			<name><![CDATA[frost242]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=24</uri>
+		</author>
+		<updated>2012-09-21T09:51:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15193#p15193</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pgstatpack et pg_stat_statements]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15192#p15192"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Dans un premier temps, il va vous falloir modifier le script sql/pgstatspack_create_snap.sql pour corriger la condition jointure mal écrite (ligne 203 du script SQL):</p><div class="codebox"><pre><code>    join pgstatspack_names n1 on s.query=n1.name</code></pre></div><p>Une fois que c&#039;est fait, il vous faudra recréer la fonction pgstatspack_snap en exécutant le script sur la base sur laquelle vous avez rencontrez ce problème.</p><p>Je remonte le bug à l&#039;auteur.</p><p>Cordialement,<br />Thomas</p>]]></content>
+		<author>
+			<name><![CDATA[frost242]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=24</uri>
+		</author>
+		<updated>2012-09-21T08:11:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15192#p15192</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[pgstatpack et pg_stat_statements]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15191#p15191"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;ai installé pgstatpack et pris des clichés, tout se passe bien.<br />Puis je charge pg_stat_statements tout se apsse correctement pour cet outil par contre je rencontre cette installation me génère des erreurs sur pgstatpack, je n&#039;arrive plus à prendre de clichés:</p><p>demo=# SELECT pgstatspack_snap(&#039;after pg_stat_statements&#039;);<br />ERROR:&#160; missing FROM-clause entry for table &quot;n&quot;<br />LIGNE 11 :&#160; &#160; &#160;join pgstatspack_names n1 on s.query=n.name<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; ^<br />REQUÃTE : INSERT INTO pgstatspack_statements<br />&#160; &#160; ( snapid, calls, total_time, &quot;rows&quot;, query_id, user_name_id)<br />&#160; &#160; SELECT<br />&#160; &#160; &#160; spid as snapid,<br />&#160; &#160; &#160; s.calls as calls,<br />&#160; &#160; &#160; s.total_time as total_time,<br />&#160; &#160; &#160; s.rows as rows,<br />&#160; &#160; &#160; n1.nameid,<br />&#160; &#160; &#160; n2.nameid<br />&#160; &#160; FROM pg_stat_statements s<br />&#160; &#160; join pgstatspack_names n1 on s.query=n.name<br />&#160; &#160; join pgstatspack_names n2 on s.pg_get_userbyid(s.userid)=n2.name<br />&#160; &#160; WHERE dbid=(select oid from pg_database where datname=current_database())<br />&#160; &#160; ORDER BY total_time<br />CONTEXTE : PL/pgSQL function &quot;pgstatspack_snap&quot; line 186 at SQL statement</p><p>Si je redésactive pg_stat_statements je peux reprendre des clichés correctement.</p>]]></content>
+		<author>
+			<name><![CDATA[bcarriere]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=565</uri>
+		</author>
+		<updated>2012-09-21T07:35:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15191#p15191</id>
+	</entry>
+</feed>

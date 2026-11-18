@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Pb du à migration V8.3 -> V9.2.4]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2602&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2602"/>
+	<updated>2013-04-13T01:11:50Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2602</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Pb du à migration V8.3 -> V9.2.4]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17082#p17082"/>
+		<content type="html"><![CDATA[<p>Je suis très étonné que la première requête passait, quelque soit la version. Mais bon, non, vous n&#039;avez pas d&#039;autres choix que de les corriger.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2013-04-13T01:11:50Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17082#p17082</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Pb du à migration V8.3 -> V9.2.4]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17077#p17077"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />je suis un petit nouveau sur Postgresql et même en informatique tout court. Je bosse en stage sur la migration vers la V9.2.4.<br />Je suis confronté à quelques difficultés de transtypages, et autres subtilité que je découvre au fur et à mesure du debug de l&#039; application.</p><p>Voici mon pb:</p><p>j&#039;ai la requête suivante :<br />&#160; &#160;SELECT&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; <br />CASE EXTRACT(month from nomdebase.date_debut + interval &#039;3 days&#039;)&#160; &#160; &#160; &#160; &#160; <br />WHEN 1 THEN &#039;janvier&#039;&#160; &#160; &#160; &#160; &#160; <br />WHEN 2 THEN &#039;février&#039;&#160; &#160; &#160; &#160; &#160; <br />WHEN 3 THEN &#039;mars&#039;&#160; &#160; &#160; &#160; &#160; <br />WHEN 4 THEN &#039;avril&#039;&#160; &#160; &#160; &#160; &#160;<br />WHEN 5 THEN &#039;mai&#039;&#160; &#160; &#160; &#160; &#160; <br />WHEN 6 THEN &#039;juin&#039;&#160; &#160; &#160; &#160; &#160; <br />WHEN 7 THEN &#039;juillet&#039;&#160; &#160; &#160; &#160; &#160;<br />WHEN 8 THEN &#039;août&#039;&#160; &#160; &#160; &#160; &#160; <br />WHEN 9 THEN &#039;septembre&#039;&#160; &#160; &#160; &#160; &#160; <br />WHEN 10 THEN &#039;octobre&#039;&#160; &#160; &#160; &#160; &#160; <br />WHEN 11 THEN &#039;novembre&#039;&#160; &#160; &#160; &#160; &#160; <br />WHEN 12 THEN &#039;décembre&#039;&#160; &#160; <br />END <br />&#160; FROM nomdebase <br />&#160; group by EXTRACT(month from nomdebase.date_debut + interval &#039;3 days&#039;)&#160; <br />celle ci fonctionne bien sur V8.3 mais plus sur V9.2 avec ce message d&#039;erreur:</p><p>ERREUR:&#160; la colonne «&#160; nomdebase.date_debut » doit apparaître dans la clause GROUP BY ou doit être utilisé dans une fonction d&#039;agrégat<br />LINE 2: CASE EXTRACT(month from&#160; nomdebase.date_debut + interval &#039;3 days&#039;) ...<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; ^</p><p>********** Erreur **********</p><p>ERREUR: la colonne «&#160; nomdebase.date_debut » doit apparaître dans la clause GROUP BY ou doit être utilisé dans une fonction d&#039;agrégat<br />État SQL :42803<br />Caractère : 173</p><p>J &#039;ai corrigé le pb en mettant un alias sur le &quot;case&quot; et en faisant un group by &quot;mon alias&quot;, ce qui donne: </p><p>&#160; SELECT&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; <br />CASE EXTRACT(month from nomdebase.date_debut + interval &#039;3 days&#039;)&#160; &#160; &#160; &#160; &#160; <br />WHEN 1 THEN &#039;janvier&#039;&#160; &#160; &#160; &#160; &#160; <br />WHEN 2 THEN &#039;février&#039;&#160; &#160; &#160; &#160; &#160; <br />WHEN 3 THEN &#039;mars&#039;&#160; &#160; &#160; &#160; &#160; <br />WHEN 4 THEN &#039;avril&#039;&#160; &#160; &#160; &#160; &#160;<br />WHEN 5 THEN &#039;mai&#039;&#160; &#160; &#160; &#160; &#160; <br />WHEN 6 THEN &#039;juin&#039;&#160; &#160; &#160; &#160; &#160; <br />WHEN 7 THEN &#039;juillet&#039;&#160; &#160; &#160; &#160; &#160;<br />WHEN 8 THEN &#039;août&#039;&#160; &#160; &#160; &#160; &#160; <br />WHEN 9 THEN &#039;septembre&#039;&#160; &#160; &#160; &#160; &#160; <br />WHEN 10 THEN &#039;octobre&#039;&#160; &#160; &#160; &#160; &#160; <br />WHEN 11 THEN &#039;novembre&#039;&#160; &#160; &#160; &#160; &#160; <br />WHEN 12 THEN &#039;décembre&#039;&#160; &#160; <br />END as essai<br />&#160; FROM nomdebase <br />&#160; group by essai</p><p>Donc ça marche sauf que je ne peut pas me permettre de réécrire les requêtes, donc connaitriez-vous une astuce pour de nouveau pourvoir exécuter la première requête?<br />Peut être peut on assigner un alias par défaut lors d&#039;une condition case en faisant un polymorphisme de cette fonction,... ou autre je ne sais pas.<br />Merci</p><p>PS: si vous avez une expérience dans le même type de migration et que vous êtes prêt a la faire partager, n’hésitez pas à me contacter.<br />Guegs</p>]]></content>
+		<author>
+			<name><![CDATA[guegs]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2195</uri>
+		</author>
+		<updated>2013-04-12T09:22:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17077#p17077</id>
+	</entry>
+</feed>

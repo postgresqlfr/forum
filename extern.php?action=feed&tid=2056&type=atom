@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / exécution de requêtes multiples]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2056&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2056"/>
+	<updated>2012-05-20T08:00:29Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2056</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  exécution de requêtes multiples]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13842#p13842"/>
+		<content type="html"><![CDATA[<p>Merci à tous pour vos réactions. rjuju, ta commande&#160; </p><div class="codebox"><pre><code> plsql -f fichier.sql &gt; fichier.out </code></pre></div><p> marche comme du papier à musique sur l&#039;invite de commande windows, j&#039;ai ajouté au préalable le répertoire \bin de postgresql dans le path Windows.<br />Merci encore à tous</p>]]></content>
+		<author>
+			<name><![CDATA[odzoue]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1735</uri>
+		</author>
+		<updated>2012-05-20T08:00:29Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13842#p13842</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  exécution de requêtes multiples]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13841#p13841"/>
+		<content type="html"><![CDATA[<p>Je confirme que pgAdmin ne peut pas gérer ce genre de chose, tout simplement parce que pgAdmin, bien qu&#039;il puisse exécuter plusieurs requêtes à la fois, ne récupère que le dernier flux de résultats. En fait, ce n&#039;est tout simplement pas le bon outil pour ça. Le meilleur outil, comme le dit rjuju, c&#039;est psql.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-05-19T11:27:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13841#p13841</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  exécution de requêtes multiples]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13840#p13840"/>
+		<content type="html"><![CDATA[<p>J&#039;avais bien compris votre demande sur les explain mais pgAdmin ne peut pas gérer ce genre de chose à ma connaissance.<br />Vous pouvez par exemple faire un fichier explain.sql :</p><div class="codebox"><pre><code>begin;
+explain analyze select ... ;
+explain analyze select ... ;
+rollback;</code></pre></div><p>Et ensuite faire psql -f c:/.../explain.sql &gt; c:/.../explain.out<br />et vous aurez vos explain concaténés dans un seul fichier.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2012-05-19T10:33:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13840#p13840</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  exécution de requêtes multiples]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13839#p13839"/>
+		<content type="html"><![CDATA[<p>Merci pour votre réaction,<br />En fait je ne voudrais pas faire le EXPLAIN ANALYZE sur un groupe de requetes à la fois. ce que je voudrais c&#039;est exécuter successivement des EXPLAIN ANALYZE sur chacune des requêtes et récolter tous les résultats individuels dans un même fichier. par exemple:</p><p>Begin</p><p>EXPLAIN ANALYZE query1;<br />EXPLAIN ANALYZE query2;</p><p>End;</p><p>dans le fichier resultat je voudrais pouvoir recueillir les statistiques de chaque requête (query1, query2); le but n&#039;est pas vraiment d&#039;optimiser mais juste d&#039;avoir une idée des coûts mais étant donné que ces requêtes prennent trop de temps, je ne peux pas rester devant le serveur pendant toute la durée de leur exécution pour les lancer les unes à la suite des autres.</p>]]></content>
+		<author>
+			<name><![CDATA[odzoue]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1735</uri>
+		</author>
+		<updated>2012-05-19T10:04:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13839#p13839</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  exécution de requêtes multiples]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13838#p13838"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />je ne pense pas que cela soit possible avec pgAdmin. Si vous voulez faire ça je vous conseillerai plutôt de vous tourner vers un script bat utilisant l&#039;outil psql et en redirigeant la sortie standard.<br />Sinon, pourquoi faire un explain analyze sur un grand nombre de requête ? Si vous voulez optimiser une procédure stockée lançant de nombreuse requête, je vous conseille de jeter un oeil à : <a href="http://www.depesz.com/2010/03/18/profiling-stored-proceduresfunctions/" rel="nofollow">http://www.depesz.com/2010/03/18/profil … functions/</a><br />Vous pouvez également regarder le module auto_explain : <a href="http://docs.postgresqlfr.org/9.1/auto-explain.html" rel="nofollow">http://docs.postgresqlfr.org/9.1/auto-explain.html</a></p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2012-05-19T09:39:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13838#p13838</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[exécution de requêtes multiples]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13837#p13837"/>
+		<content type="html"><![CDATA[<p>Bonjour, <br />je travaille avec l&#039;outil pgAdmin 3 de PostgreSQL 9 sous windows 7. J&#039;ai un certain nombre de requêtes dont je voudrais évaluer individuellement les performances à l&#039;aide de la commande&#160; EXPLAIN ANALYZE. Je voudrais savoir comment automatiser(exécuter une seule fois) ce traitement dans une requête unique et retourner les résultats&#160; dans un seul fichier.<br />merci pour vos réactions.</p>]]></content>
+		<author>
+			<name><![CDATA[odzoue]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1735</uri>
+		</author>
+		<updated>2012-05-19T08:38:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13837#p13837</id>
+	</entry>
+</feed>

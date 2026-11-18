@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Connexion distante à PostgresSQL 9.6 sur Centos 6 (VPS Vultr)]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3977&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3977"/>
+	<updated>2016-10-17T10:06:21Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3977</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Connexion distante à PostgresSQL 9.6 sur Centos 6 (VPS Vultr)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24164#p24164"/>
+		<content type="html"><![CDATA[<p>Je confirme que cela fonctionne. <br />Ne me reste plus qu&#039;à sécuriser davantage avec un filtrage sur l&#039;adresse IP.</p>]]></content>
+		<author>
+			<name><![CDATA[hypn0s]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2049</uri>
+		</author>
+		<updated>2016-10-17T10:06:21Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24164#p24164</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Connexion distante à PostgresSQL 9.6 sur Centos 6 (VPS Vultr)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24163#p24163"/>
+		<content type="html"><![CDATA[<p>Aha !</p><p>Voici la commande magique &quot;service iptables save&quot;, qui permet alors de sauver la commande nouvellement appliquée dans le fichier /etc/sysconfig/iptables.<br />Suivie d&#039;un &quot;service iptables restart&quot;, la bouille du fichier iptables est nettement plus sympa:</p><div class="codebox"><pre><code>[root@alp01 pgsql-9.6]# iptables -L -n -v
+Chain INPUT (policy ACCEPT 0 packets, 0 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+    0     0 ACCEPT     tcp  --  *      *       0.0.0.0/0            0.0.0.0/0           tcp dpt:5432
+    0     0 ACCEPT     tcp  --  *      *       0.0.0.0/0            0.0.0.0/0           tcp dpt:80
+(...)</code></pre></div><p>@rjuju: Nos messages ce sont croisés.<br />C&#039;est le message de TrevorH de ce fil qui m&#039;a débloqué <a href="https://www.centos.org/forums/viewtopic.php?t=27145" rel="nofollow">https://www.centos.org/forums/viewtopic.php?t=27145</a><br />mais vous avez vu tout juste avec le &quot;service iptables save&quot;.<br />Encore merci !</p>]]></content>
+		<author>
+			<name><![CDATA[hypn0s]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2049</uri>
+		</author>
+		<updated>2016-10-17T10:02:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24163#p24163</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Connexion distante à PostgresSQL 9.6 sur Centos 6 (VPS Vultr)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24162#p24162"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>hypn0s a écrit&#160;:</cite><blockquote><div><div class="codebox"><pre><code>[root@serveur01 snoopy]# iptables -L -n -v                                                                                                                         Chain INPUT (policy ACCEPT 0 packets, 0 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+  454 29734 ACCEPT     tcp  --  *      *       0.0.0.0/0            0.0.0.0/0           tcp dpt:80
+ 114K   15M ACCEPT     all  --  *      *       0.0.0.0/0            0.0.0.0/0           state RELATED,ESTABLISHED
+  134  9770 ACCEPT     icmp --  *      *       0.0.0.0/0            0.0.0.0/0
+    0     0 ACCEPT     all  --  lo     *       0.0.0.0/0            0.0.0.0/0
+ 8634  518K ACCEPT     tcp  --  *      *       0.0.0.0/0            0.0.0.0/0           state NEW tcp dpt:22
+ 6259  332K REJECT     all  --  *      *       0.0.0.0/0            0.0.0.0/0           reject-with icmp-host-prohibited
+
+Chain FORWARD (policy ACCEPT 0 packets, 0 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+    0     0 REJECT     all  --  *      *       0.0.0.0/0            0.0.0.0/0           reject-with icmp-host-prohibited
+
+Chain OUTPUT (policy ACCEPT 160K packets, 27M bytes)
+ pkts bytes target     prot opt in     out     source               destination</code></pre></div></div></blockquote></div><p>ok, donc le traffic est bien bloqué en entrée.</p><div class="quotebox"><cite>hypn0s a écrit&#160;:</cite><blockquote><div><p>J&#039;ai encore tenté ceci :</p><div class="codebox"><pre><code>iptables -I INPUT 1 -p tcp --dport 5432 -j ACCEPT</code></pre></div><p>ainsi que suggéré dans la réponse plébiscitée ici : <a href="http://serverfault.com/questions/556545/centos-6-and-postgresql-cant-connect-to-port" rel="nofollow">http://serverfault.com/questions/556545 … ct-to-port</a><br />Ceci aussi bien avec iptables activé qu&#039;avec iptables désactivé par un &quot;service iptables stop&quot;.<br />Puis j&#039;ai appliqué un &quot;service iptables start/restart&quot;.<br />La règle ne semble pas être appliquée, car il n&#039;y a aucun effet sur le résultat de &quot;iptables -L -n -v&quot;.</p></div></blockquote></div><p>Je suppose que vous devez effectuer le paramétrage avec le service iptables démarré, valider avec iptables -L -n et un test de connexion distante que c&#039;est bon, puis sauvegarder la config (service iptables save je suppose), puis éventuellement redémarrer iptables pour vous assurer que ça sera repris au prochain démarrage.&#160; Si « service iptables save » ne fonctionne pas, regardez la doc du paquet sur votre distrib pour sauvegarder la configuration d&#039;iptables.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2016-10-17T09:52:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24162#p24162</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Connexion distante à PostgresSQL 9.6 sur Centos 6 (VPS Vultr)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24160#p24160"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Si une règle correspond elle est appliquée et ça s&#039;arrête là, sinon ça continue avec la règle suivante.</p></div></blockquote></div><p> Merci pour cet éclairage utile.</p><br /><div class="quotebox"><blockquote><div><p>il n&#039;y a d&#039;ailleurs aucune trace de vos règles sur le port 5432</p></div></blockquote></div><p> Effectivement. Cela m&#039;étonne ...</p><br /><div class="quotebox"><blockquote><div><p>Pouvez-vous plutôt renvoyer le résultat de la commande « iptables -L -n -v »</p></div></blockquote></div><p> Avec plaisir. Voici donc la version verbeuse :</p><div class="codebox"><pre><code>[snoopy@serveur01 ~]$ iptables -L -n -v
+iptables v1.4.7: can&#039;t initialize iptables table `filter&#039;: Permission denied (you must be root)
+Perhaps iptables or your kernel needs to be upgraded.
+sudo su
+[root@serveur01 snoopy]# iptables -L -n -v                                                                                                                         Chain INPUT (policy ACCEPT 0 packets, 0 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+  454 29734 ACCEPT     tcp  --  *      *       0.0.0.0/0            0.0.0.0/0           tcp dpt:80
+ 114K   15M ACCEPT     all  --  *      *       0.0.0.0/0            0.0.0.0/0           state RELATED,ESTABLISHED
+  134  9770 ACCEPT     icmp --  *      *       0.0.0.0/0            0.0.0.0/0
+    0     0 ACCEPT     all  --  lo     *       0.0.0.0/0            0.0.0.0/0
+ 8634  518K ACCEPT     tcp  --  *      *       0.0.0.0/0            0.0.0.0/0           state NEW tcp dpt:22
+ 6259  332K REJECT     all  --  *      *       0.0.0.0/0            0.0.0.0/0           reject-with icmp-host-prohibited
+
+Chain FORWARD (policy ACCEPT 0 packets, 0 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+    0     0 REJECT     all  --  *      *       0.0.0.0/0            0.0.0.0/0           reject-with icmp-host-prohibited
+
+Chain OUTPUT (policy ACCEPT 160K packets, 27M bytes)
+ pkts bytes target     prot opt in     out     source               destination</code></pre></div><p>Toujours pas de trace du port 5432.</p><br /><div class="quotebox"><blockquote><div><p>Vous êtes sûr que la base postgres est bien disponible si vous coupez iptables ?</p></div></blockquote></div><p>Oui, aussitôt que j&#039;entre &quot;service iptables stop&quot;, j&#039;arrive à accéder à la base &quot;pluto&quot; (pour reprendre mon exemple) ainsi qu&#039;à la base &quot;postgres&quot; via pgAdmin III.</p><p>J&#039;ai encore tenté ceci :</p><div class="codebox"><pre><code>iptables -I INPUT 1 -p tcp --dport 5432 -j ACCEPT</code></pre></div><p>ainsi que suggéré dans la réponse plébiscitée ici : <a href="http://serverfault.com/questions/556545/centos-6-and-postgresql-cant-connect-to-port" rel="nofollow">http://serverfault.com/questions/556545 … ct-to-port</a><br />Ceci aussi bien avec iptables activé qu&#039;avec iptables désactivé par un &quot;service iptables stop&quot;.<br />Puis j&#039;ai appliqué un &quot;service iptables start/restart&quot;.<br />La règle ne semble pas être appliquée, car il n&#039;y a aucun effet sur le résultat de &quot;iptables -L -n -v&quot;.</p>]]></content>
+		<author>
+			<name><![CDATA[hypn0s]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2049</uri>
+		</author>
+		<updated>2016-10-17T09:45:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24160#p24160</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Connexion distante à PostgresSQL 9.6 sur Centos 6 (VPS Vultr)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24158#p24158"/>
+		<content type="html"><![CDATA[<p>Les règles d&#039;iptables sont examinées les unes à la suite des autres. Si une règle correspond elle est appliquée et ça s&#039;arrête là, sinon ça continue avec la règle suivante.&#160; Finir par un REJECT est donc normal si on veut que sauf exception, le paquet soit rejeté.</p><br /><p>Mais de ce que je vois le firewall devrait accepter toutes les connexions entrantes (chaîne input, ACCEPT&#160; &#160; &#160;all&#160; --&#160; 0.0.0.0/0&#160; &#160; &#160; &#160; &#160; &#160; 0.0.0.0/0), et il n&#039;y a d&#039;ailleurs aucune trace de vos règles sur le port 5432. Vous êtes sur que la base postgres est bien disponible si vous coupez iptables ?</p><p>Ou alors il s&#039;agit d&#039;une règle pour une interface spécifique (lo par exemple).&#160; Pouvez-vous plutôt renvoyer le résultat de la commande « iptables -L -n -v »</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2016-10-16T20:50:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24158#p24158</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Connexion distante à PostgresSQL 9.6 sur Centos 6 (VPS Vultr)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24157#p24157"/>
+		<content type="html"><![CDATA[<div class="codebox"><pre><code>Chain INPUT (policy ACCEPT)
+target     prot opt source               destination
+ACCEPT     tcp  --  0.0.0.0/0            0.0.0.0/0           tcp dpt:80
+ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0           state RELATED,ESTABLISHED
+ACCEPT     icmp --  0.0.0.0/0            0.0.0.0/0
+ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0
+ACCEPT     tcp  --  0.0.0.0/0            0.0.0.0/0           state NEW tcp dpt:22
+REJECT     all  --  0.0.0.0/0            0.0.0.0/0           reject-with icmp-host-prohibited
+
+Chain FORWARD (policy ACCEPT)
+target     prot opt source               destination
+REJECT     all  --  0.0.0.0/0            0.0.0.0/0           reject-with icmp-host-prohibited
+
+Chain OUTPUT (policy ACCEPT)
+target     prot opt source               destination</code></pre></div><p>Bizarre cette instruction REJECT qui vient à la fin de la CHAIN INPUT ; j&#039;imagine qu&#039;il faut<br />- soit la supprimer<br />- soit inverser l&#039;ordre des instructions ACCEPT / REJECT en mettant REJECT au début puis en créant ensuite des exceptions avec ACCEPT.</p><p>C&#039;est bien cela ?<br />Merci.</p>]]></content>
+		<author>
+			<name><![CDATA[hypn0s]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2049</uri>
+		</author>
+		<updated>2016-10-16T19:13:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24157#p24157</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Connexion distante à PostgresSQL 9.6 sur Centos 6 (VPS Vultr)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24156#p24156"/>
+		<content type="html"><![CDATA[<p>que renvoie « iptables -L -n » ?</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2016-10-15T15:36:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24156#p24156</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Connexion distante à PostgresSQL 9.6 sur Centos 6 (VPS Vultr)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24155#p24155"/>
+		<content type="html"><![CDATA[<p>Merci beaucoup !</p><p>Désactiver le pare-feu rend effectivement possible l&#039;accès distant à la base de données:</p><div class="codebox"><pre><code>service iptables save
+service iptables stop</code></pre></div><p>J&#039;essaie à présent de trouver la combinaison du pare-feu qui va permettre la connexion.<br />Idéalement, j&#039;aimerais imposer une connexion SSH, mais je compte commencer par les choses &quot;simples&quot; avec une connexion classique sur le port 5432.</p><p>J&#039;ai donc essayé de rajouter cette ligne dans pg_hba.conf afin d&#039;assouplir temporairement les règles et qu&#039;il n&#039;y ait pas de filtrage sur l&#039;IP:</p><div class="codebox"><pre><code>host    all    all    0.0.0.0/0    md5</code></pre></div><p>.</p><p>Je me suis également inspiré de la section consacrée à PostgreSQL du didacticiel &quot;Iptables Essentials: Common Firewall Rules and Commands&quot; : <br /><a href="https://www.digitalocean.com/community/tutorials/iptables-essentials-common-firewall-rules-and-commands#service-postgresql" rel="nofollow">https://www.digitalocean.com/community/ … postgresql</a><br />mais en n&#039;imposant pas l&#039;interface eth1 :</p><div class="codebox"><pre><code>iptables -A INPUT -p tcp -m conntrack  --ctstate NEW,ESTABLISHED -p tcp -dport 5432 -j ACCEPT
+iptables -A OUTPUT -p tcp --sport 5432 -m conntrack --ctstate ESTABLISHED -j ACCEPT</code></pre></div><p>(Note: Je vois que cet exemple utilise conntrack et devrai éclaircir cela.)</p><p>puis j&#039;ai redémarré les services iptables et postgresql :</p><div class="codebox"><pre><code>service iptables start
+service postgresql-9.6</code></pre></div><p>Hélas pare-feu bloque toujours la connexion.</p><p>Des idées pour aller de l&#039;avant ?<br />Merci.</p>]]></content>
+		<author>
+			<name><![CDATA[hypn0s]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2049</uri>
+		</author>
+		<updated>2016-10-14T20:58:02Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24155#p24155</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Connexion distante à PostgresSQL 9.6 sur Centos 6 (VPS Vultr)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24154#p24154"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>psql n&#039;a pas pu se connecter au serveur : Connexion timed out ( blabla / blabla )<br />&#160; Le serveur est-il actif sur l&#039;hôte &lt;ici l&#039;IP de mon instance VPS chez VULTR&gt; et accepte-il les connexions TCP/IP sur le port 5432 ?</p></div></blockquote></div><p>Effectivement, le problème indique ici un problème réseau.&#160; Je pense que le paramétrage du firewall n&#039;est pas correct (state NEW n&#039;est pas suffisant), vous pouvez valider rapidement en coupant iptables.&#160; Vous pouvez vous inspirer de cet article pour la configuration : <a href="http://www.cyberciti.biz/tips/howto-iptables-postgresql-open-port.html" rel="nofollow">http://www.cyberciti.biz/tips/howto-ipt … -port.html</a></p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2016-10-14T19:21:38Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24154#p24154</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Connexion distante à PostgresSQL 9.6 sur Centos 6 (VPS Vultr)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24153#p24153"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><p>J&#039;ai pris un serveur virtuel (VPS) chez Vultr.com avec l&#039;objectif de pouvoir accéder à ma base PostgreSQL depuis mon ordinateur avec pgAdmin, car c&#039;est plus confortable qu&#039;avec phpPgAdmin.</p><br /><p>Chez Vultr, j&#039;ai donc l&#039;utilisateur &quot;root&quot; pour le serveur, auquel j&#039;accède en SSH avec Putty.<br />J&#039;ai ensuite créé un utilisateur Linux que l&#039;on appellera &quot;snoopy&quot; avec un mot de passe.<br />Cet utilisateur a été inscrit dans le groupe &quot;wheel&quot; et comme super-administrateur dans le fichier des &quot;sudoers&quot;. Il peut donc passer des commandes &quot;sudo&quot;.</p><br /><p>L&#039;installation de PostgreSQL a été réalisée autant que possible avec des commandes &quot;sudo&quot; passées par l&#039;utilisateur &quot;snoopy&quot;.<br />Via Putty, psql fonctionne et j&#039;ai pu créer un utilisateur PostgreSQL, que nous appellerons &quot;pluto&quot; une base du même nom:</p><div class="codebox"><pre><code>CREATE USER pluto;
+  ALTER USER pluto CREATEDB;
+  CREATE DATABASE &quot;pluto&quot; OWNER pluto;
+  GRANT ALL PRIVILEGES ON DATABASE &quot;pluto&quot; to pluto;</code></pre></div><br /><p>J&#039;ai également donné sur cette base tous les privilèges à l&#039;utilisateur &quot;snoopy&quot; :</p><div class="codebox"><pre><code>CREATE USER snoopy;
+  GRANT ALL PRIVILEGES ON DATABASE &quot;pluto&quot; to snoopy;</code></pre></div><br /><p>J&#039;ai donné aux utilisateurs des mots de passe chiffrés par md5 en passant par la base template1 :</p><div class="codebox"><pre><code>ALTER USER pluto with encrypted password &#039;le_mot_de_passe_de_pluto&#039;;
+ALTER USER snoopy with encrypted password &#039;le mot_de_passe_de_snoopy&#039;;</code></pre></div><br /><p>J&#039;ai édité le fichier postgresql.conf pour écouter sur toutes les adresses, devant toutefois passer par l&#039;utilisateur &quot;root&quot; pour cela:</p><div class="codebox"><pre><code>sudo su
+cd /var/lib/pgsql/9.6/data/
+nano postgresql.conf
+  listen_adresses=&#039;*&#039;;
+  port = 5432</code></pre></div><p>Ctrl+X et Yes pour sauver.</p><br /><p>et j&#039;ai édité le fichier pg_hba.conf, également avec l&#039;utilisateur &quot;root&quot; :</p><div class="codebox"><pre><code>nano pg_hba.conf
+  #IPv4 local connections:
+  host    all    all    127.0.0.1/32 md5
+  host    all    all    123.124.125.126/32  md5
+  # L&#039;adresse IP de la ligne précédente correspond à l&#039;adresse IP publique de mon ordinateur , mais l&#039;exemple est bien sûr fictif.</code></pre></div><p>Ctrl+X et Yes pour sauver.</p><br /><p>En tant que &quot;root&quot;, j&#039;ai également ouvert le port 5432 dans le pare-feu (enfin, je crois que ça le fait):</p><div class="codebox"><pre><code>sudo su
+cd /sbin
+iptables -A INPUT -p tcp -m state --state NEW -m tcp -dport 5432 -j ACCEPT</code></pre></div><br /><p>Et j&#039;ai bien sûr redémarré les services :</p><div class="codebox"><pre><code>service iptables restart
+service postgresql-9.6 restart</code></pre></div><p>(Les deux retournent &quot;OK&quot;.)</p><p>L&#039;appel de la commande &quot;hostname&quot; retourne bien le nom de mon serveur :</p><div class="codebox"><pre><code>hostname
+  chien01</code></pre></div><br /><p>Alors voilà, je caressais le rêve que le serveur PostgreSQL réponde aux commandes passées depuis mon ordinateur et j&#039;entre donc dans la ligne de commande de Window :</p><div class="codebox"><pre><code>cd &quot;C:\Program Files\PostgreSQL\9.5\bin&quot;
+psql -h 111.112.113.114 -U pluto -p 5432 -d pluto -W</code></pre></div><br /><p>J&#039;entre alors le mot de passe PostgreSQL de l&#039;utilisateur &quot;pluto&quot; et le message suivant m&#039;est retourné :</p><div class="quotebox"><blockquote><div><p>psql n&#039;a pas pu se connecter au serveur : Connexion timed out ( blabla / blabla )<br />&#160; Le serveur est-il actif sur l&#039;hôte &lt;ici l&#039;IP de mon instance VPS chez VULTR&gt; et accepte-il les connexions TCP/IP sur le port 5432 ?</p></div></blockquote></div><br /><p>Le problème ne semble donc pas au niveau des identifiants mais bien de l&#039;accès au serveur.</p><br /><p>Où le problème peut-il bien se situer ?<br />Faut-il que j&#039;ouvre des ports sur mon routeur ?</p><br /><p>J&#039;ai déjà essayé ceci sans succès:<br />- entrer dans la ligne de commande le mot de passe normal (non chiffré md5)<br />- entrer dans la ligne de commande le mot de passe chiffré md5<br />- me connecter avec l&#039;utilisateur snoopy au lieu de pluto</p><br /><p>Quelque chose m&#039;échappe, mais quoi ?</p><br /><p>Merci pour votre aide.</p>]]></content>
+		<author>
+			<name><![CDATA[hypn0s]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2049</uri>
+		</author>
+		<updated>2016-10-14T19:06:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24153#p24153</id>
+	</entry>
+</feed>

@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / modifier la valeur d'une sequence dans un trigger]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1785&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1785"/>
+	<updated>2011-12-13T15:31:25Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1785</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  modifier la valeur d'une sequence dans un trigger]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12119#p12119"/>
+		<content type="html"><![CDATA[<p>ok, merci Marc pour l&#039;info, je m&#039;inscrirer pour la prochaine conference de 2012.</p>]]></content>
+		<author>
+			<name><![CDATA[baradji]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=849</uri>
+		</author>
+		<updated>2011-12-13T15:31:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12119#p12119</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  modifier la valeur d'une sequence dans un trigger]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12118#p12118"/>
+		<content type="html"><![CDATA[<p>La «grand messe» PostgreSQL (le PGCON) a pourtant lieu tous les ans au Canada. <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-12-13T15:20:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12118#p12118</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  modifier la valeur d'une sequence dans un trigger]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12117#p12117"/>
+		<content type="html"><![CDATA[<p>GOD BLESS YOU,<br />Je n&#039;ai jamais vu de forum aussi dynamique que votre forum, je remercie tout les membres de ce forum et en particulier Marc pour leur contribution a l&#039;evolution de postgresql qui pour moi est la meilleur bd que toute entreprise qui veut etre rentable et faire des benifices devraient utiliser.<br />au canada, beaucoup d&#039;entreprise utilise slq serveur et oracle, ce qui les coute tres cher et dependant de microsoft et oracle, mais ici les gens n&#039;ont pas la mentalite des open source, jai du imposer postgresql a ma boite, et le resultat est remarcable car cette base est tres fiable et performente.</p>]]></content>
+		<author>
+			<name><![CDATA[baradji]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=849</uri>
+		</author>
+		<updated>2011-12-13T15:10:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12117#p12117</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  modifier la valeur d'une sequence dans un trigger]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12113#p12113"/>
+		<content type="html"><![CDATA[<p>Ok, vous avez donc choisi ce que proposait gleu (récupérer le nextval) plutôt que ma méthode (utiliser un default). C&#039;est ce que je n&#039;avais pas compris.</p><p>Donc effectivement, vous pouvez déclarer un trigger sur la table. Le problème, c&#039;est qu&#039;avec cette méthode, vous allez générer un incrément de séquence pour tout modification de la table, par déclenchement du trigger, même si vous êtes passé par le nextval dans le code php. Et dans ce dernier cas, vous aurez donc 2 incrémentations au lieu d&#039;une.</p><p>Il serait peut-être plus efficace de faire un trigger de ce genre:</p><p>CREATE OR REPLACE FUNCTION next_sequence()<br />&#160; RETURNS trigger AS $assordhole_trig$<br />DECLARE<br />&#160; vidseq bigint;<br />BEGIN<br />&#160; SELECT nextval(&#039;asso_orders_hole_ass_id_seq&#039;) INTO vidseq;<br />&#160; NEW.ass_hol_id:=NEW.ass_hol_id || vidseq;<br />&#160; RETURN NEW;<br />END;<br />$assordhole_trig$<br />LANGUAGE plpgsql;</p><p>Avec un trigger (non testé <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /> )de ce genre, vous pouvez effectuer<br />&quot;INSERT INTO asso_orders_hole VALUES (&#039;roul01&#039;, &#039;22_08-RN-128&#039;, 1022, &#039;ibaradji&#039;, &#039;2011-10-06 11:44:35-04&#039;,&#160; &#039;ibaradji&#039;, &#039;2011-10-06 16:00:00-04&#039;, false, 181.600006, 181.600006);&quot;</p><p>Et le champ hole_id sera enrichi directement de la valeur de la séquence, qui sera incrémentée automatiquement. Ça vous enlève aussi la manipulation sur le nextval dans le code php.</p><p>Si vous avez besoin de récupérer l&#039;id généré, vous pouvez remplacer l&#039;INSERT simple par:</p><p>&quot;INSERT INTO asso_orders_hole VALUES (&#039;roul01&#039;, &#039;22_08-RN-128&#039;, 1022, &#039;ibaradji&#039;, &#039;2011-10-06 11:44:35-04&#039;,&#160; &#039;ibaradji&#039;, &#039;2011-10-06 16:00:00-04&#039;, false, 181.600006, 181.600006) RETURNING ass_hol_id;&quot;</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-12-13T13:46:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12113#p12113</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  modifier la valeur d'une sequence dans un trigger]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12112#p12112"/>
+		<content type="html"><![CDATA[<p>dans mon code php,<br />dans le controleur, <br />$asso_order_hole_id = LIEU_DB.$this-&gt;m_hole-&gt;get_nextval(&#039;asso_orders_hole_ass_id_seq&#039;);<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; $ajout_hole_order = array(&#039;ass_id&#039; =&gt; $asso_order_hole_id,<br />&#160; &#160; &#160; &#160; &#160; &#160;&#160; &#160; &#160;&#160; &#160; &#160; &#160; &#160; &#160; &#039;ass_hol_id&#039; =&gt; $hole_id,<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#039;ass_ord_id&#039; =&gt; $id_order,<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#039;ass_hol_metrage_total&#039; =&gt; $this-&gt;input-&gt;post(&#039;hole_totaux&#039;),&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#039;ass_hol_metrage_metre&#039; =&gt; ($this-&gt;input-&gt;post(&#039;unite&#039;) ==&#039;ft&#039;) ? $this-&gt;input-&gt;post(&#039;hole_totaux&#039;)*CONVERTION_TO_METER : ($this-&gt;input-&gt;post(&#039;hole_totaux&#039;)),<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#039;ass_create_by&#039; =&gt; $this-&gt;session-&gt;userdata(&#039;login_sess&#039;),<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#039;ass_create_date&#039; =&gt; date(&quot;D M j G:i:s T Y&quot;),<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; );<br />$this-&gt;m_hole-&gt;save_hole_for_order($aHole, $ajout_hole_order, $insert_hole, $this-&gt;connected_profil);</p><p>et dans le model , j&#039;insert l&#039;objet $ajout_hole_order</p>]]></content>
+		<author>
+			<name><![CDATA[baradji]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=849</uri>
+		</author>
+		<updated>2011-12-13T13:33:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12112#p12112</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  modifier la valeur d'une sequence dans un trigger]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12111#p12111"/>
+		<content type="html"><![CDATA[<p>Dans le fonctionnement non manuel, comment est-ce que le système génèrerait le roul01341 ?</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-12-13T13:21:07Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12111#p12111</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  modifier la valeur d'une sequence dans un trigger]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12110#p12110"/>
+		<content type="html"><![CDATA[<p>Salus, merci vos efforts, mais le problemes est plus complexe que ca, dans mon insert,<br />INSERT INTO asso_orders_hole VALUES (&#039;roul01341&#039;, &#039;22_08-RN-128&#039;, 1022, &#039;ibaradji&#039;, &#039;2011-10-06 11:44:35-04&#039;,&#160; &#039;ibaradji&#039;, &#039;2011-10-06 16:00:00-04&#039;, false, 181.600006, 181.600006);</p><p>cette insert vient de la roulotte 01 d&#039;ou le &#039;roul01341&#039;,</p><p>et ausii, je pourrai avoir aussi &#039;roul02341&#039; provenant de la roulotte 02 et ainsi de suite. <br />l&#039;indice 2341 est la valeur de la sequence asso_orders_hole_ass_id_seq dans la roulotte 01.<br />quand je recoit les backup provenant des roulottes, j&#039;execute des centraines d&#039;insert, mais le probeleme est que ca ne modifie pas la valeur de la sequence asso_orders_hole_ass_id_seq dans ma bd centrale. si la valeur de cette sequnce etait chez mois a 1500 et que je fais un backup et que leur transfert, ils vont executer un script qui va supprimer, creer puis restorer leur bd a partir du backup que je leur envois. tu vois la ou est le probleme? la valeu de leur sequence va revenir a 1500 alors alors qu&#039;il devrait etre a 2342.<br />bon bref, s&#039;il n&#039;existe en postgres un moyen de faire un update sur une sequence, je pense que il est temps que cela soit revus sur les prochaines version.</p>]]></content>
+		<author>
+			<name><![CDATA[baradji]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=849</uri>
+		</author>
+		<updated>2011-12-13T13:17:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12110#p12110</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  modifier la valeur d'une sequence dans un trigger]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12106#p12106"/>
+		<content type="html"><![CDATA[<p>Je pense que c&#039;est plus un problème de syntaxe sur l&#039;insert manuel non ? Il y a deux façons pour utiliser la valeur par défaut de la colonne:<br />- Utiliser le mot clé &#039;DEFAULT&#039;: INSERT INTO ma_table (col1,col2,col3) VALUES (DEFAULT, &#039;toto&#039;, &#039;titi&#039;) . DEFAULT lui dit d&#039;utiliser la valeur par défaut de la colonne.<br />- Ne pas préciser la colonne dans la liste des colonnes de l&#039;INSERT: INSERT INTO ma_table (col2,col3) VALUES (&#039;toto&#039;, &#039;titi&#039;)</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-12-13T08:17:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12106#p12106</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  modifier la valeur d'une sequence dans un trigger]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12103#p12103"/>
+		<content type="html"><![CDATA[<p>pourquoi vous vérifiez pas le max de la sequence avant ?</p>]]></content>
+		<author>
+			<name><![CDATA[kenrio]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=964</uri>
+		</author>
+		<updated>2011-12-12T17:24:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12103#p12103</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  modifier la valeur d'une sequence dans un trigger]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12102#p12102"/>
+		<content type="html"><![CDATA[<p>Salut,<br />lors de cette discussion: <a href="http://forums.postgresql.fr/viewtopic.php?id=1747" rel="nofollow">http://forums.postgresql.fr/viewtopic.php?id=1747</a><br />tu m&#039;avais fait cette suggestion qui marche bien, mais mon probleme est que quand je fais les insert des donnees provenant des roulottes manuellement, les sequences ne s&#039;incremente pas et cela peut creer des problemes lorsque j&#039;envois un backup de la base principale dans une roulotte.<br />exemple si dans la roulotte r1 par exemple, la valeur d&#039;une sequence est a 300, et que dans la bd principale, cette valeur est a 250.<br />si j&#039;envois un backup de la bd, ils auront des erreurs lors des ajouts.</p><p>merci</p>]]></content>
+		<author>
+			<name><![CDATA[baradji]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=849</uri>
+		</author>
+		<updated>2011-12-12T16:57:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12102#p12102</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  modifier la valeur d'une sequence dans un trigger]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12101#p12101"/>
+		<content type="html"><![CDATA[<p>Ok, le but est vraiment d&#039;incrémenter la valeur, mais sans s&#039;en servir ?</p><p>Désolé, mais avant de répondre sur comment le faire, j&#039;aimerais vraiment comprendre l&#039;intérêt… (je pense que ça doit être une solution détournée à un problème, il y a peut-être une solution plus directe).</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-12-12T15:14:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12101#p12101</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  modifier la valeur d'une sequence dans un trigger]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12100#p12100"/>
+		<content type="html"><![CDATA[<p>Salut les gards,<br />pour la 1ere proposition pour Gleu,voici ce que j&#039;ai comme reponse:<br />ERROR: control reached end of trigger procedure without RETURN<br />SQL state: 2F005<br />Context: PL/pgSQL function &quot;next_sequence&quot;</p><p>Marc, en fait, je ne peux pas recuper cette valeur, je souhaite juste modifer la valeur de la sequence comme si je faisais un update dans la fonction, mais le probleme, on ne peut pas faire de update sur les sequences et ne rien retourner.</p>]]></content>
+		<author>
+			<name><![CDATA[baradji]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=849</uri>
+		</author>
+		<updated>2011-12-12T14:53:09Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12100#p12100</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  modifier la valeur d'une sequence dans un trigger]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12094#p12094"/>
+		<content type="html"><![CDATA[<p>Il faudrait surtout faire quelque chose de la valeur de la séquence récupérée. plpgsql dit qu&#039;il n&#039;y a pas de destination pour le résultat du select. Il faudrait déclarer une variable de type int ou bigint, et faire un select into pour affecter le nextval à cette variable. Et ensuite, en faire quelque chose bien entendu <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-12-12T08:00:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12094#p12094</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  modifier la valeur d'une sequence dans un trigger]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12076#p12076"/>
+		<content type="html"><![CDATA[<p>Oui, il faut faire ce qu&#039;indique le message, à savoir remplacer SELECT par PERFORM.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-12-09T21:24:54Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12076#p12076</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[modifier la valeur d'une sequence dans un trigger]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12074#p12074"/>
+		<content type="html"><![CDATA[<p>Salue, je souhaite utiliser une sequence dans un trigger.<br />voici mon code</p><p>CREATE OR REPLACE FUNCTION next_sequence()<br />&#160; RETURNS trigger AS $assordhole_trig$<br />BEGIN<br /> SELECT nextval(&#039;asso_orders_hole_ass_id_seq&#039;);<br />END;<br />$assordhole_trig$<br />LANGUAGE plpgsql;<br />&#160; <br />----------------</p><p>CREATE TRIGGER assordhole_trig AFTER INSERT ON asso_orders_hole<br />&#160; &#160; FOR EACH ROW EXECUTE PROCEDURE next_sequence();</p><p>----------<br />A l&#039;execution de ce insert,<br />INSERT INTO asso_orders_hole VALUES (&#039;22_08-RN-128&#039;, 1022,&#160; &#039;2011-10-06 16:00:00-04&#039;, false, 181.600006, 181.600006);</p><p>j&#039;ai le message d&#039;erreur suivant:</p><p>ERROR:&#160; query has no destination for result data<br />HINT:&#160; If you want to discard the results of a SELECT, use PERFORM instead.<br />CONTEXT:&#160; PL/pgSQL function &quot;next_sequence&quot; line 2 at SQL statement</p><br /><p>--</p><p>Quelq&#039;un pourra t&#039;il me dire comment modifer la valeur de la sequence et ne rien retourner comme valeur?</p><p>Merci d&#039;avance</p>]]></content>
+		<author>
+			<name><![CDATA[baradji]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=849</uri>
+		</author>
+		<updated>2011-12-09T19:48:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12074#p12074</id>
+	</entry>
+</feed>

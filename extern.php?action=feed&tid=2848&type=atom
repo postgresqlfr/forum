@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Erreur d'archivage du dernier WAL après restore]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2848&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2848"/>
+	<updated>2013-10-29T10:31:19Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2848</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Erreur d'archivage du dernier WAL après restore]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18564#p18564"/>
+		<content type="html"><![CDATA[<p>Le mieux est d&#039;archiver dans un autre répertoire. Comme ça, vous ne risquez aucun déboire.</p><p>Par contre, j&#039;avoue que je ne comprends pas pourquoi il essaie d&#039;archiver un journal de la timeline précédente. Il va falloir que je teste ça.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2013-10-29T10:31:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18564#p18564</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Erreur d'archivage du dernier WAL après restore]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18561#p18561"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Nous avons effectué des test de restore &quot;to end of log&quot; sur une instance avec archivage des WAL. <br />Le restore avec l&#039;application des WAL&#039;s archivés s&#039;est déroulé correctement et Postgres essaie ensuite de ré archiver le dernier WAL appliqué (qui était déjà archivé) durant le restore et renvoie l&#039;erreur suivante :</p><p>2013-10-25 14:38:42 CEST [847]: [1-1] LOG:&#160; database system was interrupted; last known up at 2013-10-25 14:32:41 CEST<br />2013-10-25 14:38:42 CEST [847]: [2-1] LOG:&#160; creating missing WAL directory &quot;pg_xlog/archive_status&quot;<br />2013-10-25 14:38:42 CEST [847]: [3-1] LOG:&#160; restored log file &quot;00000004.history&quot; from archive<br />2013-10-25 14:38:42 CEST [847]: [4-1] LOG:&#160; starting archive recovery<br />2013-10-25 14:38:42 CEST [847]: [5-1] LOG:&#160; restored log file &quot;000000040000000000000063&quot; from archive<br />2013-10-25 14:38:42 CEST [847]: [6-1] LOG:&#160; redo starts at 0/63000020<br />2013-10-25 14:38:42 CEST [847]: [7-1] LOG:&#160; consistent recovery state reached at 0/630000E0<br />2013-10-25 14:38:42 CEST [841]: [2-1] LOG:&#160; database system is ready to accept read only connections<br />2013-10-25 14:38:42 CEST [847]: [8-1] LOG:&#160; restored log file &quot;000000040000000000000064&quot; from archive<br />cp: cannot stat `/opt/postgres/backups/archive_logs/000000040000000000000065&#039;: No such file or directory<br />2013-10-25 14:38:42 CEST [847]: [9-1] LOG:&#160; could not open file &quot;pg_xlog/000000040000000000000065&quot; (log file 0, segment 101): No such file or directory<br />2013-10-25 14:38:42 CEST [847]: [10-1] LOG:&#160; redo done at 0/64000F98<br />2013-10-25 14:38:42 CEST [847]: [11-1] LOG:&#160; last completed transaction was at log time 2013-10-25 14:34:03.539514+02<br />2013-10-25 14:38:42 CEST [847]: [12-1] LOG:&#160; restored log file &quot;000000040000000000000064&quot; from archive<br />cp: cannot stat `/opt/postgres/backups/archive_logs/00000005.history&#039;: No such file or directory<br />2013-10-25 14:38:42 CEST [847]: [13-1] LOG:&#160; selected new timeline ID: 5<br />2013-10-25 14:38:42 CEST [847]: [14-1] LOG:&#160; restored log file &quot;00000004.history&quot; from archive<br />2013-10-25 14:38:42 CEST [847]: [15-1] LOG:&#160; archive recovery complete<br />WAL Restore terminated<br />2013-10-25 14:38:42 CEST [841]: [3-1] LOG:&#160; database system is ready to accept connections<br />2013-10-25 14:38:42 CEST [860]: [1-1] LOG:&#160; autovacuum launcher started<br />2013-10-25 14:38:42 CEST [861]: [1-1] LOG:&#160; archive command failed with exit code 1<br />2013-10-25 14:38:42 CEST [861]: [2-1] DETAIL:&#160; The failed archive command was: test ! -f /opt/postgres/backups/archive_logs/000000040000000000000064 &amp;&amp; cp pg_xlog/000000040000000000000064 /opt/postgres/backups/archive_logs/000000040000000000000064<br />2013-10-25 14:38:43 CEST [861]: [3-1] LOG:&#160; archive command failed with exit code 1<br />2013-10-25 14:38:43 CEST [861]: [4-1] DETAIL:&#160; The failed archive command was: test ! -f /opt/postgres/backups/archive_logs/000000040000000000000064 &amp;&amp; cp pg_xlog/000000040000000000000064 /opt/postgres/backups/archive_logs/000000040000000000000064<br />2013-10-25 14:38:44 CEST [861]: [5-1] LOG:&#160; archive command failed with exit code 1<br />2013-10-25 14:38:44 CEST [861]: [6-1] DETAIL:&#160; The failed archive command was: test ! -f /opt/postgres/backups/archive_logs/000000040000000000000064 &amp;&amp; cp pg_xlog/000000040000000000000064 /opt/postgres/backups/archive_logs/000000040000000000000064<br />2013-10-25 14:38:44 CEST [861]: [7-1] WARNING:&#160; transaction log file &quot;000000040000000000000064&quot; could not be archived: too many failures</p><p>Voici la comande d&#039;archivage des WAL dans le fichier Postgresql.conf :<br />archive_command = &#039;test ! -f /opt/postgres/backups/archive_logs/%f &amp;&amp; cp %p /opt/postgres/backups/archive_logs/%f&#039;</p><p>et le &quot;restore_command&quot; dans le fichier recovery.conf&#160; : <br />restore_command = &#039;cp /opt/postgres/backups/archive_logs/%f &quot;%p&quot;&#039;</p><p>Le seul moyen trouvé est de supprimer le fichier précédement archivé avec un rm mais ce n&#039;est certainement pas la bonne méthode.</p><p>Merci pour votre aide et salutations<br />Daniel</p>]]></content>
+		<author>
+			<name><![CDATA[dangil]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2443</uri>
+		</author>
+		<updated>2013-10-28T12:06:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18561#p18561</id>
+	</entry>
+</feed>

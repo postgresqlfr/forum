@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Erreurs import lors de la migration Ora2PG de OracleDB12 vers PGSQL15]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=6455&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=6455"/>
+	<updated>2023-02-03T15:05:21Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=6455</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Erreurs import lors de la migration Ora2PG de OracleDB12 vers PGSQL15]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34018#p34018"/>
+		<content type="html"><![CDATA[<p>non, je vais tenter la chose.<br />Merci.</p>]]></content>
+		<author>
+			<name><![CDATA[patgcy]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=10996</uri>
+		</author>
+		<updated>2023-02-03T15:05:21Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34018#p34018</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Erreurs import lors de la migration Ora2PG de OracleDB12 vers PGSQL15]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34017#p34017"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />avez-vous essayé d&#039;installer l&#039;extension btree_gin dans la base de données cible ?</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2023-02-03T15:03:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34017#p34017</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Erreurs import lors de la migration Ora2PG de OracleDB12 vers PGSQL15]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34015#p34015"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je tente de migrer une base de données Oracle 12 en Postgresql 15.</p><p>* L&#039;export m&#039;indique quelques objects &quot;invalid&quot; : </p><p>Object&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;&#160; &#160;&#160; Number&#160; &#160; &#160; Invalid <br />DATABASE LINK&#160; &#160; 0&#160; &#160; 0<br />FUNCTION&#160; &#160; 21&#160; &#160; 1<br />GLOBAL TEMPORARY TABLE&#160; &#160; &#160; 97&#160; &#160; 0<br />INDEX&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; 212&#160; &#160; 0<br />JOB&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; 3&#160; &#160; 0<br />MATERIALIZED VIEW&#160; &#160; &#160; &#160;&#160; &#160; 2&#160; &#160; 0<br />PACKAGE BODY&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; 8&#160; &#160; 1<br />PROCEDURE&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;&#160; &#160; 65&#160; &#160; 12<br />SEQUENCE&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; 62&#160; &#160; 0<br />SYNONYM&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;&#160; &#160; 0&#160; &#160; 0<br />TABLE&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; 201&#160; &#160; 0<br />TRIGGER&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;&#160; &#160; 151&#160; &#160; 5<br />TYPE&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;&#160; &#160; 20&#160; &#160; 0<br />VIEW&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; 89&#160; &#160; 4<br />Total&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; 931&#160; &#160; 23</p><p>* Lors de l&#039;import , j&#039;obtiens pour le moment cette erreur (dans table) :</p><p>psql:schema/tables/table.sql:867: ERREUR:  le type de données bigint n&#039;a pas de classe d&#039;opérateurs par défaut pour la méthode d&#039;accès « gin »<br />ASTUCE : Vous devez spécifier une classe d&#039;opérateur pour l&#039;index ou définir une classe d&#039;opérateur par défaut pour le type de données.<br />ERROR: an error occurs when importing file ./schema/tables/table.sql.</p><p>Sur la ligne 867 de table.sql il y a ceci : <br />CREATE INDEX idx_type_groupe ON groupes USING gin(f_type);</p><p>le f_type renvoit à ceci : <br />f_type bigint NOT NULL,</p><p>Toute ceci dans le code :</p><p>CREATE TABLE groupes (<br />        p_id bigint NOT NULL,<br />        f_type bigint NOT NULL,<br />        libelle varchar(255),<br />        nom_usage varchar(30)<br />) ;<br />CREATE INDEX idx_libelle_groupe ON groupes (libelle);<br />CREATE INDEX idx_type_groupe ON groupes USING gin(f_type);<br />ALTER TABLE groupes ADD PRIMARY KEY (p_id);  <br />ALTER TABLE groupes ALTER COLUMN P_ID SET NOT NULL;<br />ALTER TABLE groupes ALTER COLUMN F_TYPE SET NOT NULL;</p><p>Je vois bien l&#039;astuce : &quot;Vous devez spécifier une classe d&#039;opérateur pour l&#039;index ou définir une classe d&#039;opérateur par défaut pour le type de données&quot;<br />Mais je n&#039;ai aucune idée de quoi modifier et ce qu&#039;il est possible de tester / modifier pour éviter cette erreur.</p><p>Auriez vous des pistes ?</p><p>cdlt,</p>]]></content>
+		<author>
+			<name><![CDATA[patgcy]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=10996</uri>
+		</author>
+		<updated>2023-02-03T11:10:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34015#p34015</id>
+	</entry>
+</feed>

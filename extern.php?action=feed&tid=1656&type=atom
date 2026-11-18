@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Scalabilité postgres]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1656&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1656"/>
+	<updated>2011-10-11T10:14:45Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1656</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Scalabilité postgres]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11331#p11331"/>
+		<content type="html"><![CDATA[<p>C&#039;est une décision tout à fait sage et PG commence à avoir un bon mécanisme pour ce faire... mais attention en 9.1 c&#039;est encore en béta :<br />« Transaction-controlled Synchronous Commit ».</p><p>Mea culpa... La version finale 9.1 est sortit depuis le 13/9... Désolé</p><p>A +</p>]]></content>
+		<author>
+			<name><![CDATA[SQLpro]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1054</uri>
+		</author>
+		<updated>2011-10-11T10:14:45Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11331#p11331</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Scalabilité postgres]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11329#p11329"/>
+		<content type="html"><![CDATA[<p>Ok, je me rends compte que la répartition de charge pour un SGBD n&#039;est pas simple.<br />Je vais peut etre me diriger vers un serveur maitre pour les écritures et plusieurs serveurs pour les lectures.<br />Je dois pouvoir utiliser pour cela le mécanisme des warm et hot standby donnant en plus la possibilité, si j&#039;ai bien compris, qu&#039;un serveur puisse remplacer à la volée le maitre si celui ci tombe en panne.<br />Bon j&#039;ai encore du boulot.<br />A+ et encore merci de vos remarques et docs</p>]]></content>
+		<author>
+			<name><![CDATA[Gil34]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=521</uri>
+		</author>
+		<updated>2011-10-11T08:44:29Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11329#p11329</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Scalabilité postgres]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11312#p11312"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>Gil34 a écrit&#160;:</cite><blockquote><div><p>En fait je veux que la charge (cpu, memoire...) se répartisse automatiquement sur plusieurs serveurs postgres. Un peu comme ça existe pour des applis tomcats ou les requetes vont sur l&#039;un ou l&#039;autre des serveurs tomcats. <br />Je fais déjà de la réplication mais ça ne sert que pour gérer un éventuel crash serveur ou disque.<br />Maintenant je veux avoir 2 serveurs postgres qui prennent chacun des requetes afin de diminuer la charge systeme de chaque machine et de la répartir équitablement entre eux deux. Les requetes pouvant etre en lecture et en ecriture...<br />Je pense que c&#039;est ce qu&#039;on appelle de la scalabilité.<br />Est ce plus clair ?</p><p>A+<br />G.</p></div></blockquote></div><p>De manière général, les SGBDR ne peuvent en aucun cas reproduire les mécanisme de répartition de charge des serveur Web, et cela pour une raison toute simple : il faudrait que les données soient simultanément présente sur tous les serveur. Autrement dit une insertion d&#039;une ligne dans une table doit être envoyé à tous les serveurs...</p><p>Lisez l&#039;article que j&#039;ai écrit à ce sujet : <a href="http://blog.developpez.com/sqlpro/p10383/langage-sql-norme/sgbdr-et-repartion-de-charge-scalabilite/#more10383" rel="nofollow">http://blog.developpez.com/sqlpro/p1038 … #more10383</a></p><p>A +</p>]]></content>
+		<author>
+			<name><![CDATA[SQLpro]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1054</uri>
+		</author>
+		<updated>2011-10-10T16:54:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11312#p11312</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Scalabilité postgres]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11054#p11054"/>
+		<content type="html"><![CDATA[<p>Merci, je vais lire la doc que tu m&#039;indiques et reviendrais sans doute vers toi aprés ...</p><p>A+</p>]]></content>
+		<author>
+			<name><![CDATA[Gil34]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=521</uri>
+		</author>
+		<updated>2011-09-26T10:07:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11054#p11054</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Scalabilité postgres]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11052#p11052"/>
+		<content type="html"><![CDATA[<p>C&#039;est plus clair. Et le problème: Postgres est avant tout là pour garantir la cohérence des données entre toutes les tables (les contraintes d&#039;intégrité…).</p><p>On a donc plusieurs architectures possibles:<br />- Un seul maître, qui garantit la cohérence, et des esclaves, synchrones ou asynchrones, ça dépend de la techno de réplication. Celle livrée avec la 9.0 est asynchrone, en 9.1 elle est potentiellement synchrone, mais même en mode synchrone, il n&#039;y a aucune garantie qu&#039;une donnée validée sur le maître devienne visible instantanément sur l&#039;esclave. La seule garantie qu&#039;on a, c&#039;est qu&#039;elle est écrite sur le disque de l&#039;esclave, et ne sera pas perdue. Dans ce cas, il vous faut envoyer les requêtes au bon endroit, soit par pgpool, soit à la main (2 pools de connection par exemple, c&#039;est pas si dur que ça à gérer d&#039;un point de vue logiciel)<br />- Plusieurs maîtres. Dans ce cas, si on est synchrones, on peut avoir de la cohérence, comme avec Postgres-R. Mais ça se fait forcément au détriment des performances en mise à jour, puisqu&#039;on a du dialogue entre les nœuds. Si on est asynchrone, adieu la cohérence…</p><p>Il y a tout un chapitre dessus, dans la doc, pour se mettre le pied à l&#039;étrier : <a href="http://docs.postgresql.fr/9.1/high-availability.html" rel="nofollow">http://docs.postgresql.fr/9.1/high-availability.html</a></p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-09-26T09:55:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11052#p11052</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Scalabilité postgres]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11050#p11050"/>
+		<content type="html"><![CDATA[<p>En fait je veux que la charge (cpu, memoire...) se répartisse automatiquement sur plusieurs serveurs postgres. Un peu comme ça existe pour des applis tomcats ou les requetes vont sur l&#039;un ou l&#039;autre des serveurs tomcats. <br />Je fais déjà de la réplication mais ça ne sert que pour gérer un éventuel crash serveur ou disque.<br />Maintenant je veux avoir 2 serveurs postgres qui prennent chacun des requetes afin de diminuer la charge systeme de chaque machine et de la répartir équitablement entre eux deux. Les requetes pouvant etre en lecture et en ecriture...<br />Je pense que c&#039;est ce qu&#039;on appelle de la scalabilité.<br />Est ce plus clair ?</p><p>A+<br />G.</p>]]></content>
+		<author>
+			<name><![CDATA[Gil34]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=521</uri>
+		</author>
+		<updated>2011-09-26T09:39:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11050#p11050</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Scalabilité postgres]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11049#p11049"/>
+		<content type="html"><![CDATA[<p>Plusieurs serveurs pour faire de la répartition de charge, oui, mais évidemment avec des limitations.</p><p>Ça dépend de ce qu&#039;on cherche… on peut tout simplement faire une architecture avec un maître et plusieurs esclaves, et un pgpool devant qui redirige les requêtes en lecture seule qui n&#039;ont pas besoin de données extrêmement fraîches vers les esclaves. Ou le faire au niveau applicatif, avec 2 pools tomcat par exemple, suivant l&#039;application.</p><p>Il y a aussi des technos de réplication pour Postgresql multi-maitre, synchrone ou asynchrone, chacune avec évidemment ses défauts…</p><p>Bref, la question est un peu trop vague pour te donner une réponse approfondie. Décris plutôt ton besoin, si ce n&#039;est pas juste une question de curiosité…</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-09-26T09:29:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11049#p11049</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Scalabilité postgres]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11048#p11048"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Existe-t-il la possibilité d&#039;avoir plusieurs serveurs postgres pout faire de la répartition de charge. En d&#039;aitres termes postgres est -il scalable ? A priori je n&#039;ai rien trouvé sur la doc .</p><p>Merci de votre aide<br />A+<br />G.</p>]]></content>
+		<author>
+			<name><![CDATA[Gil34]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=521</uri>
+		</author>
+		<updated>2011-09-26T09:06:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11048#p11048</id>
+	</entry>
+</feed>

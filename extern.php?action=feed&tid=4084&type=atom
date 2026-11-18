@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / [Resolu] Seul Administrator peut se connecter à la DB via Excel]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4084&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4084"/>
+	<updated>2017-01-26T16:23:47Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4084</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Resolu] Seul Administrator peut se connecter à la DB via Excel]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24679#p24679"/>
+		<content type="html"><![CDATA[<p>Trouvé !!!!</p><p>Dans le source de données ODBC, je n&#039;avais pas mentionné un paramètre.<br />Onglet &quot;Source de données fichier&quot; -&gt; pointer vers le répertoire contenant les fichiers .dsn</p><p>Je le saurai pour la prochaine fois...</p>]]></content>
+		<author>
+			<name><![CDATA[Athena]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=6995</uri>
+		</author>
+		<updated>2017-01-26T16:23:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24679#p24679</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Resolu] Seul Administrator peut se connecter à la DB via Excel]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24678#p24678"/>
+		<content type="html"><![CDATA[<p>Piste de solution :</p><p>Dans la macro Excel, la connexion utilise une expression appelée &quot;conODBC&quot;.</p><p>Pour le compte &quot;Administrator&quot; : conODBC.DefaultDatabase = &quot;db_ptg&quot;&#160; (ce qui est effectivement le nom de la DB à utiliser&quot;</p><p>Pour les autres comptes : conODBC.DefaultDatabase = &lt;Operation is not allowed when the object is closed.&gt;</p><br /><p>Est-ce utilie pour débugger ??</p>]]></content>
+		<author>
+			<name><![CDATA[Athena]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=6995</uri>
+		</author>
+		<updated>2017-01-26T16:11:07Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24678#p24678</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Resolu] Seul Administrator peut se connecter à la DB via Excel]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24676#p24676"/>
+		<content type="html"><![CDATA[<p>Il y a 2 serveurs dans le même domaine :<br />- Le serveur hébergeant la DB<br />- Le serveur Remote Desktop, qui accède à la DB via un pilote ODBC</p><br /><p>L&#039;utilisation de la DB se fait via le serveur Remote Desktop (qui dans ce cas est le poste client), sur lequel tourne Excel.</p><p>J&#039;espère avoir pu clarifier.</p><p>Merci d&#039;avance pour votre suivi.</p>]]></content>
+		<author>
+			<name><![CDATA[Athena]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=6995</uri>
+		</author>
+		<updated>2017-01-26T15:49:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24676#p24676</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Resolu] Seul Administrator peut se connecter à la DB via Excel]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24675#p24675"/>
+		<content type="html"><![CDATA[<p>Je ne suis pas certain de comprendre.&#160; Postgres a été installé sur le serveur, le client ODBC et les tests excel ont été fait sur le serveur via une connexion RDS ? Ou sur un poste client ?</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2017-01-26T15:37:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24675#p24675</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[[Resolu] Seul Administrator peut se connecter à la DB via Excel]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24674#p24674"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Dans le cadre d&#039;une migration, j&#039;ai installé PostgreSQL-x64-9.6 sur un nouveau serveur 2012.<br />Les données ont été correctement importées, et la DB fonctionne.<br />Le firewall est bien ouvert pour le port 5432.<br />L&#039;installation a été faite avec le compte Administrator du domaine.</p><br /><p>A partir d&#039;un poste client (Remote Desktop Server) :<br />- J&#039;ai configuré le client ODBC Data source pour Postgre SQL 30 =&gt; Test de connectivité OK<br />- J&#039;ai configuré une application Excel pour qu&#039;elle se connecte à la DB.</p><p>Sur le poste RDS, je me connecte en Administrator : tout foncionne à merveille !</p><p>Sur ce même poste administrator, je me connecter avec un autre compte (même avec tous les droits admin sur le domaine) =&gt; pas de connexion à la DB...<br />Et pourtant, le test de connexion ODBC passe sans problème.<br />Et j&#039;ai les paramètres de sécurité Excel identiques (macros autorisées, documents sur le réseau fiables...) à ceux du compte Administrator.<br />Dans le fichier pg_hba.conf, tout le réseau local est autorisé (d&#039;ailleurs, je teste mes connexions à partir du même serveur RDS).</p><br /><p>Qu&#039;est-ce que j&#039;ai oublié ?<br />Pourquoi seul le compte ayant effectué l&#039;installation peut-il se connecter à partir d&#039;Excel ??</p><p>Merci d&#039;avance pour votre aide.</p>]]></content>
+		<author>
+			<name><![CDATA[Athena]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=6995</uri>
+		</author>
+		<updated>2017-01-26T15:28:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24674#p24674</id>
+	</entry>
+</feed>

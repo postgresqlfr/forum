@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / postgresql Utilisation des index composés et EXPLAIN]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2996&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2996"/>
+	<updated>2014-02-11T16:23:27Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2996</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  postgresql Utilisation des index composés et EXPLAIN]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19212#p19212"/>
+		<content type="html"><![CDATA[<p>merci bien gleu et arthurr c&#039;est exactement les réponses que je cherchais <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[bidouilles]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2225</uri>
+		</author>
+		<updated>2014-02-11T16:23:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19212#p19212</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  postgresql Utilisation des index composés et EXPLAIN]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19208#p19208"/>
+		<content type="html"><![CDATA[<p>En gardant votre UNIQUE index (fk1,val1) et en ajoutant une clause WHERE sur fk1 = 1 vous avez un fonctionnement assez proche :<br />Index sur val1 :</p><div class="codebox"><pre><code>explain analyse SELECT * FROM tt WHERE val1 = &#039;100&#039; ;
+                                                  QUERY PLAN                                                  
+--------------------------------------------------------------------------------------------------------------
+ Index Scan using idx_tt2 on tt  (cost=0.55..4.57 rows=1 width=109) (actual time=0.028..0.028 rows=1 loops=1)
+   Index Cond: (val1 = &#039;100&#039;::bpchar)
+ Planning time: 0.074 ms
+ Total runtime: 0.050 ms</code></pre></div><p>Index unique sur fk1 + val1 :</p><div class="codebox"><pre><code>explain analyse SELECT * FROM tt WHERE val1 = &#039;100&#039; and fk1=1;
+                                                 QUERY PLAN                                                  
+-------------------------------------------------------------------------------------------------------------
+ Index Scan using idx_tt on tt  (cost=0.55..4.57 rows=1 width=109) (actual time=0.033..0.034 rows=1 loops=1)
+   Index Cond: ((fk1 = 1) AND (val1 = &#039;100&#039;::bpchar))
+ Planning time: 0.098 ms
+ Total runtime: 0.058 ms
+(4 rows)</code></pre></div><p>Je ne dis pas que c&#039;est ce qui est le plus propre, mais ça répond à la première question (<em>1) comme l&#039;index composé n&#039;a que des 1 dans sont premier champ peut il etre utilisé ?</em>)</p>]]></content>
+		<author>
+			<name><![CDATA[arthurr]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=62</uri>
+		</author>
+		<updated>2014-02-11T11:22:07Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19208#p19208</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  postgresql Utilisation des index composés et EXPLAIN]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19206#p19206"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>à priori seul l&#039;index non composé peut être utilisé pour mon cas</p></div></blockquote></div><p>Oui, en effet.</p><div class="quotebox"><blockquote><div><p>cela semble donc en contradiction avec <a href="http://use-the-index-luke.com/fr/sql...dex-concatenes" rel="nofollow">http://use-the-index-luke.com/fr/sql...dex-concatenes</a><br />voir Figure 2.1. Index concaténé</p></div></blockquote></div><p>Non, absolument pas. La figure 2.1 montre qu&#039;il n&#039;est pas possible de ne rechercher que par le deuxième champ car les données ne sont pas triées globalement pour lui. C&#039;est d&#039;ailleurs bien expliqué dans le texte avant la figure 2.1 (&quot;Cela signifie qu’un index à deux colonnes ne permet pas une recherche sur la deuxième colonne seule.&quot;) et après (&quot;Du coup, l’arbre est inutile pour cette requête.&quot;). Le fait que vous avez toujours la même valeur pour la première colonne est quelque chose que vous savez mais pas le planificateur. Il faudrait qu&#039;il parcourt l&#039;index entier pour s&#039;en rendre compte.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-02-11T10:34:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19206#p19206</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  postgresql Utilisation des index composés et EXPLAIN]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19204#p19204"/>
+		<content type="html"><![CDATA[<div class="codebox"><pre class="vscroll"><code>CREATE TABLE tt (id int, fk1 int, val1 char(100));
+
+WITH tmp AS (SELECT generate_series(1, 1000000) AS val)
+INSERT INTO tt SELECT val, 1, val FROM tmp;
+
+analyze;
+
+EXPLAIN analyze
+SELECT *
+FROM tt WHERE val1 = &#039;100&#039;;
+
+&quot;Seq Scan on tt (cost=0.00..29742.00 rows=1 width=109) (actual time=0.144..340.945 rows=1 loops=1)&quot;
+&quot; Filter: (val1 = &#039;100&#039;::bpchar)&quot;
+&quot;Total runtime: 341.004 ms&quot;
+
+CREATE INDEX idx_tt ON tt (fk1, val1);
+
+analyze;
+
+EXPLAIN analyze
+SELECT *
+FROM tt WHERE val1 = &#039;100&#039;;
+
+&quot;Seq Scan on tt (cost=0.00..29742.00 rows=1 width=109) (actual time=0.170..260.504 rows=1 loops=1)&quot;
+&quot; Filter: (val1 = &#039;100&#039;::bpchar)&quot;
+&quot;Total runtime: 260.575 ms&quot;
+
+
+DROP INDEX idx_tt;
+
+CREATE INDEX idx_tt ON tt (val1);
+
+analyze;
+
+EXPLAIN analyze
+SELECT *
+FROM tt WHERE val1 = &#039;100&#039;;
+
+&quot;Index Scan using idx_tt on tt (cost=0.00..8.92 rows=1 width=109) (actual time=0.460..0.463 rows=1 loops=1)&quot;
+&quot; Index Cond: (val1 = &#039;100&#039;::bpchar)&quot;
+&quot;Total runtime: 0.517 ms&quot;</code></pre></div><p>à priori seul l&#039;index non composé peut être utilisé pour mon cas<br />cela semble donc en contradiction avec <a href="http://use-the-index-luke.com/fr/sql...dex-concatenes" rel="nofollow">http://use-the-index-luke.com/fr/sql...dex-concatenes</a><br />voir Figure 2.1. Index concaténé</p>]]></content>
+		<author>
+			<name><![CDATA[bidouilles]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2225</uri>
+		</author>
+		<updated>2014-02-11T09:50:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19204#p19204</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  postgresql Utilisation des index composés et EXPLAIN]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19197#p19197"/>
+		<content type="html"><![CDATA[<p>1. Non.<br />2. Oui.<br />3. Cela dépend de la requête. Pouvez-vous fournir la requête et le résultat du EXPLAIN ANALYZE ?</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-02-10T19:33:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19197#p19197</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  postgresql Utilisation des index composés et EXPLAIN]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19196#p19196"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />Pour que PostgreSQL utilise votre index sans avoir à en re-créer un, il suffit de faire un where champ3 = ?? <strong>and champ2 = 1</strong></p>]]></content>
+		<author>
+			<name><![CDATA[arthurr]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=62</uri>
+		</author>
+		<updated>2014-02-10T16:16:55Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19196#p19196</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[postgresql Utilisation des index composés et EXPLAIN]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19195#p19195"/>
+		<content type="html"><![CDATA[<p>Bonjour, j&#039;aurais une question sur l&#039;optimisation des index</p><p>j&#039;ai une table avec 3 champs</p><p>le premier est la clef primaire<br />le deuxième n&#039;a que des 1 dedans<br />le troisième à des valeurs diverses</p><p>sur cette table il y a un index unique composé sur le deuxième + troisième champs</p><p>sur cette table je fait des select where champ3 = </p><p>1) comme l&#039;index composé n&#039;a que des 1 dans sont premier champ peut il etre utilisé ?</p><p>2) l&#039;ajout d&#039;un index sur le troisième champs est il intéressant?</p><p>3) Que j&#039;ajoute ou pas le second index, un <br />EXPLAIN ANALYZE de ma requête ne donne pas d&#039;&quot;Index Scan using&quot; ni de &quot;Index Cond&quot;, comment cela se fait il ?</p><p>Merci d&#039;avance</p>]]></content>
+		<author>
+			<name><![CDATA[bidouilles]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2225</uri>
+		</author>
+		<updated>2014-02-10T15:16:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19195#p19195</id>
+	</entry>
+</feed>

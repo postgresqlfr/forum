@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Pb d'utilisation de CONVERT() sur serveur 8.3. et plus]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=583&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=583"/>
+	<updated>2010-01-20T14:12:34Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=583</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Pb d'utilisation de CONVERT() sur serveur 8.3. et plus]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=3657#p3657"/>
+		<content type="html"><![CDATA[<p>Merci Marc pour ta réponse.</p><p>Je vais essayer de modifier ma requête en prenant en compte les nouvelles fonctions et si je trouve quelque chose d&#039;intéressant je fais un retour sur ce post.</p>]]></content>
+		<author>
+			<name><![CDATA[fab2b]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=615</uri>
+		</author>
+		<updated>2010-01-20T14:12:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=3657#p3657</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Pb d'utilisation de CONVERT() sur serveur 8.3. et plus]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=3656#p3656"/>
+		<content type="html"><![CDATA[<p>ILIKE ou LOWER sont très proches en termes de performance (la différence n&#039;est pas mesurable à ma connaissance)</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-01-20T13:35:35Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=3656#p3656</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Pb d'utilisation de CONVERT() sur serveur 8.3. et plus]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=3655#p3655"/>
+		<content type="html"><![CDATA[<p>Ça fait partie des nouveautés de la 8.3. Comme dit dans la changelog de la version : <br />Adjust convert() behavior to ensure encoding validity (Andrew)</p><p>The two argument form of convert() has been removed. The three argument form now takes a bytea first argument and returns a bytea. To cover the loss of functionality, three new functions have been added:</p><p>convert_from(bytea, name) returns text -- converts the first argument from the named encoding to the database encoding</p><p>convert_to(text, name) returns bytea -- converts the first argument from the database encoding to the named encoding</p><p>length(bytea, name) returns integer -- gives the length of the first argument in characters in the named encoding</p><p>Je pense donc qu&#039;il faut convertir nompays en bytea (tableau d&#039;octets sans encodage). Il risque ensuite d&#039;y avoir le problème inverse pour TO_ASCII qui a besoin de texte et pas de bytea.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-01-20T13:34:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=3655#p3655</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Pb d'utilisation de CONVERT() sur serveur 8.3. et plus]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=3654#p3654"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;ai testé votre requête sur PostgreSQL 8.3.1 et j&#039;ai également le message &quot;ERROR:&#160; function convert(character varying, unknown, unknown) does not exist&quot;. Pas d&#039;explication ...</p><p>PS: Je rajoute une question. En terme de performance faut-il mieux faire un ILIKE ou un LOWER (ou UPPER) pour faire de la recherche en case insensitive ?</p>]]></content>
+		<author>
+			<name><![CDATA[cafu3]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=607</uri>
+		</author>
+		<updated>2010-01-20T13:32:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=3654#p3654</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Pb d'utilisation de CONVERT() sur serveur 8.3. et plus]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=3653#p3653"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous,</p><p>j&#039;utilisais jusqu&#039;à aujourd&#039;hui la formule de conversion suivante&#160; :</p><p>select LOWER(TO_ASCII(CONVERT(&#039;Azerbaïdjan&#039;, &#039;UNICODE&#039;, &#039;LATIN9&#039;), &#039;LATIN9&#039;))</p><p>select LOWER(TO_ASCII(CONVERT(&#039;Algérie&#039;, &#039;UNICODE&#039;, &#039;LATIN9&#039;), &#039;LATIN9&#039;))</p><p>qui me permet de récupérer une chaine sans caractères spéciaux afin de pouvoir effectuer ensuite une recherche ou un filtre sur une partie de la chaine. </p><p>la requête réellement passée est celle ci :<br />SELECT idpays, nompays, zonepays, devisepays FROM pays WHERE&#160; LOWER(TO_ASCII(CONVERT(nompays, &#039;UNICODE&#039;, &#039;LATIN9&#039;), &#039;LATIN9&#039;)) LIKE &#039;m%&#039;&#160; ORDER BY nompays ASC</p><p>qui me permet de récupérer tous les pays commençant par la lettre &#039;m&#039; mais pour correspondre à mes exemples ci-dessus, si je tape &#039;alge&#039; en chaine de recherche il me sort &#039;Algérie&#039; comme résultat.</p><p>Cette conversion fonctionne très bien sur le serveur que j&#039;utilisais, un &quot;PostgreSQL 8.1.3&quot;.</p><p>je suis monté en version sur un de mes serveurs de dev et cette conversion ne fonctionne plus; j&#039;ai fait le test sur un &quot;PostgreSQL 8.4.1&quot; et également sur un &quot;PostgreSQL 8.3.9&quot;; voilà l&#039;erreur que j&#039;obtiens :</p><p>ERROR:&#160; function convert(character varying, unknown, unknown) does not exist<br />LINE 1: ...epays, devisepays FROM pays WHERE&#160; LOWER(TO_ASCII(CONVERT(&quot;n...<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;^<br />HINT:&#160; No function matches the given name and argument types. You might need to add explicit type casts.</p><p>********** Erreur **********</p><p>ERROR: function convert(character varying, unknown, unknown) does not exist<br />État SQL :42883<br />Astuce : No function matches the given name and argument types. You might need to add explicit type casts.<br />Caractère : 78</p><p>Or la fonction convert() existe toujours et ca syntaxe semble la même. </p><p>Est ce quelqu&#039;un aurait une idée sur la raison de cette erreur et sur la façon de la corriger ?!</p><p>Merci d&#039;avance, Fab.</p>]]></content>
+		<author>
+			<name><![CDATA[fab2b]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=615</uri>
+		</author>
+		<updated>2010-01-20T12:46:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=3653#p3653</id>
+	</entry>
+</feed>

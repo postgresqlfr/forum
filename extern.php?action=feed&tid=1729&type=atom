@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Streaming replication à partir des wal archivés/des wals en 9.1]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1729&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1729"/>
+	<updated>2011-11-04T13:50:07Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1729</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Streaming replication à partir des wal archivés/des wals en 9.1]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11675#p11675"/>
+		<content type="html"><![CDATA[<p>Le restore_command indique ou copier les journaux de transactions sur le serveur esclave. Dés lors, l&#039;esclave va aller chercher sur le maître les infos qui sont dans PGDATA/%f&#160; et les copie dans %p. dans mon cas, il prend les pg_xlog du maître et non les xlog_archives.</p><p>Je vais donc me conformer à utiliser le répertoire xlog_archives comme source des wals pour la réplication.</p>]]></content>
+		<author>
+			<name><![CDATA[hfilliere]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=567</uri>
+		</author>
+		<updated>2011-11-04T13:50:07Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11675#p11675</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Streaming replication à partir des wal archivés/des wals en 9.1]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11673#p11673"/>
+		<content type="html"><![CDATA[<p>L&#039;anomalie se trouve dans votre configuration ou dans vos scripts. Vous dites que /u03/pgsql/9.1/data/TITI/ est votre répertoire de données. Soit. Donc votre restore_command (cp /u03/pgsql/9.1/data/TITI/%f %p) récupère les journaux à la base du répertoire des données de l&#039;esclave. Cela sous-entend que vous archivez vos journaux de transactions dans /u03/pgsql/9.1/data/TITI/.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-11-04T13:34:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11673#p11673</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Streaming replication à partir des wal archivés/des wals en 9.1]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11670#p11670"/>
+		<content type="html"><![CDATA[<p>Merci de votre réponse très pertinente.</p><p>En réponse à votre message:</p><p>TITI est le nom de mon instance de test. </p><p>je définis :<br />/u03/pgsql/9.1/data/TITI comme mon PGDATA<br />je définis : <br />u02/pgsql/admin/9.1/TITI/xlog_archives/ comme mon répertoire des wals archivés de mon instance TITI.</p><br /><p>Si PostgreSQL a un brusque saut d&#039;activité, il ne devrait pas y avoir de soucis car je suis en mode synchrone. </p><p>&gt;&gt;De toute façon, c&#039;est très clair : vous devez passer par l&#039;archivage des journaux de transactions.</p><p>et pourtant le mécanisme fonctionne à partir de pg_xlog en paramétrant restore_command = &#039;cp /u03/pgsql/9.1/data/TITI/%f %p&#039;</p><p>est-ce une anomalie postgreSQL ?</p>]]></content>
+		<author>
+			<name><![CDATA[hfilliere]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=567</uri>
+		</author>
+		<updated>2011-11-04T13:22:07Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11670#p11670</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Streaming replication à partir des wal archivés/des wals en 9.1]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11669#p11669"/>
+		<content type="html"><![CDATA[<p>Je ne sais pas à quoi correspond le répertoire TITI donc pour moi, c&#039;est une autre archive. Les journaux non archivés sont dans le répertoire pg_xlog et tout journal ailleurs que dans pg_xlog est un journal archivé.</p><p>D&#039;autre part, vous ne devez pas utiliser les fichiers qui se trouvent dans le pg_xlog du maître pour votre restore_command. Si jamais PostgreSQL a un brusque saut d&#039;activité, il pourrait recycler des journaux que vous n&#039;auriez pas intégré. De toute façon, comment pouvez vous savoir dans ce cas que le journal est prêt à être intégré ?</p><p>De toute façon, c&#039;est très clair : vous devez passer par l&#039;archivage des journaux de transactions.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-11-04T12:21:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11669#p11669</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Streaming replication à partir des wal archivés/des wals en 9.1]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11668#p11668"/>
+		<content type="html"><![CDATA[<p>Quel est l&#039;intérêt d&#039;utiliser les fichiers contenus dans les xlog_archives par rapport aux fichiers contenus dans les pg_xlog ?</p>]]></content>
+		<author>
+			<name><![CDATA[hfilliere]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=567</uri>
+		</author>
+		<updated>2011-11-04T10:45:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11668#p11668</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Streaming replication à partir des wal archivés/des wals en 9.1]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11667#p11667"/>
+		<content type="html"><![CDATA[<p>je ne suis pas d&#039;accord; </p><p>dans la restore command, pour le 2eme cas: je spécifie la restore_command = &#039;cp /u03/pgsql/9.1/data/TITI/%f %p&#039;&#160; &#160;et mes logs archivés sont localisés sur mon serveur primaire dans /u02/pgsql/admin/9.1/TITI/xlog_archives/. J&#039;en déduis que ce sont les fichiers contenus dans x_log en non ceux ds xlog_archives qui sont utilisés.</p><p>Alors que dans le 1er cas, je copie effectivement depuis le serveur primaire mes logs archivés avec rsync, et je spécifie dans le serveur esclave les les assimiler via la cmde : cp /u02/pgsql/admin/9.1/TITI/xlog_archives/%f</p><p>C plus clair; j&#039;ai peut être mal compris une notion.</p><p>Plus clair ?</p>]]></content>
+		<author>
+			<name><![CDATA[hfilliere]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=567</uri>
+		</author>
+		<updated>2011-11-04T10:32:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11667#p11667</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Streaming replication à partir des wal archivés/des wals en 9.1]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11666#p11666"/>
+		<content type="html"><![CDATA[<p>Désolé, je ne comprends toujours pas <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>Vous utilisez des WAL forcément archivés.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-11-04T10:21:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11666#p11666</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Streaming replication à partir des wal archivés/des wals en 9.1]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11665#p11665"/>
+		<content type="html"><![CDATA[<p>En fait dans la configuration de la streaming replication, il est possible de spécifier que l&#039;on utilise les wals archivés ou les wals. Je voulais connaître les avantages et les inconvénients de ces 2 méthodes ?</p>]]></content>
+		<author>
+			<name><![CDATA[hfilliere]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=567</uri>
+		</author>
+		<updated>2011-11-04T10:19:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11665#p11665</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Streaming replication à partir des wal archivés/des wals en 9.1]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11664#p11664"/>
+		<content type="html"><![CDATA[<p>Je ne comprends pas votre question. Pourriez-vous donner plus de détails ?</p><p>Si c&#039;est &quot;quelles sont les avantages/inconvénients&quot; de la streaming replication par rapport au seul archivage des journaux de transactions, l&#039;avantage est très simple : un esclave beaucoup plus fréquemment mis à jour. Mais je ne suis pas sûr que ce soit votre demande.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-11-04T09:50:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11664#p11664</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Streaming replication à partir des wal archivés/des wals en 9.1]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11663#p11663"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je voudrais connaître quelles sont les avantages et inconvénients de la réplication streaming par &quot;copie des logs archivés depuis un serveur maître via rsync puis l&#039;assimilation du serveur esclave de ces archives par la restore command&quot; et &quot;la copie des xlogs directement depuis le serveur esclave via la restore command&quot; ?</p><p>cas 1:<br />restore_command = &#039;cp /u02/pgsql/admin/9.1/TITI/xlog_archives/%f %p&#039;&#160; &#160; &#160;# e.g. &#039;cp /mnt/server/archivedir/%f %p&#039;<br />standby_mode = on<br />primary_conninfo = &#039;host=10.156.254.182 port=5433 application_name=sync_replication&#039;&#160; &#160; &#160; &#160; &#160; &#160;# e.g. &#039;host=localhost port=5432&#039;<br />trigger_file = &#039;/tmp/makeprimary.trigger&#039;</p><p>cas 2:<br />restore_command = &#039;cp /u03/pgsql/9.1/data/TITI/%f %p&#039;&#160; &#160; &#160;# e.g. &#039;cp /mnt/server/archivedir/%f %p&#039;<br />standby_mode = on<br />primary_conninfo = &#039;host=10.156.254.182 port=5433 application_name=sync_replication&#039;&#160; &#160; &#160; &#160; &#160; &#160;# e.g. &#039;host=localhost port=5432&#039;<br />trigger_file = &#039;/tmp/makeprimary.trigger&#039;</p><p>Merci pour votre éclairage.</p>]]></content>
+		<author>
+			<name><![CDATA[hfilliere]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=567</uri>
+		</author>
+		<updated>2011-11-04T09:29:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11663#p11663</id>
+	</entry>
+</feed>

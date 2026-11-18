@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / tableau php vs pgsql]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2578&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2578"/>
+	<updated>2013-03-28T12:43:22Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2578</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  tableau php vs pgsql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16976#p16976"/>
+		<content type="html"><![CDATA[<p>N&#039;étant jamais mieux servi que par soi-même, j&#039;ai trouvé une solution à mon problème :-)</p><p>Ce n&#039;est peut-être pas la plus élégante, mais elle fonctionne.<br />Si quelqu&#039;un voit plus élaguant, plus efficace ou si des fonctions existent pour faire ça, je suis preneur.<br />En attendant, cela pourra peut-être servir à quelqu&#039;un.</p><br /><p>Les tableaux associatifs n&#039;existant pas en pgsql&#160; (à ma connaissance tout du moins), je suis passé par data type hstore (attention, il s’agit d&#039;une extension qu&#039;il faut installer : CREATE EXTENSION IF NOT EXISTS hstore;)</p><br /><p>hstore permet de stocker des couples clé/valeur et de les lire comme ceci : var_hstore-&gt;clé.</p><br /><p>Une variable hstore s&#039;écrit comme ça :<br />&#160; &#160; &#160;(&#039;clé_1=&gt;valeur_1, clé_2=&gt;valeur_2, clé_3=&gt;valeur_3&#039;)::hstore</p><br /><p>Il faut donc transformer le tableau php en un tableau pgsql de variables hstore</p><br /><p>Pour ce faire, j&#039;ai écrit un petit algorithme, partant du principe que mon tableau php était le suivant&#160; :</p><br /><p>$t2 = array();<br />$t2[0] = array(&#039;cli_id&#039; =&gt;&#160; 0, &#039;cli_nom&#039; =&gt; &#039;client_0&#039;, &#039;cli_desc&#039; =&gt; &#039;desc_client_0&#039;);<br />$t2[1] = array(&#039;cli_id&#039; =&gt;&#160; 1, &#039;cli_nom&#039; =&gt; &#039;client_1&#039;, &#039;cli_desc&#039; =&gt; &#039;desc_client_1&#039;); <br />$t2[2] = array(&#039;cli_id&#039; =&gt;&#160; 3, &#039;cli_nom&#039; =&gt; &#039;client_2&#039;, &#039;cli_desc&#039; =&gt; &#039;desc_client_2&#039;);</p><br /><p>La transformation en &quot;pgsql&quot; donne ça :</p><br /><p>$i = 0;<br />$hstore_row = &quot;&quot;;<br />$hstore_array = &quot;array[&quot;;<br />for ($i=0; $i&lt;count ($t2) ; $i++) {<br />&#160; &#160; if ($hstore_array != &quot;array[&quot;) $hstore_array = $hstore_array . &quot;, &quot;;<br />&#160; &#160; $hstore_row = &quot;(&#039;&quot;;<br />&#160; &#160; foreach ($t2[$i] as $key =&gt; $value) {<br />&#160; &#160; &#160; &#160; if ($hstore_row != &quot;(&#039;&quot;) $hstore_row = $hstore_row. &quot;, &quot;;<br />&#160; &#160; &#160; &#160; $hstore_row = $hstore_row.$key.&quot;=&gt;&quot;.$value;<br />&#160; &#160; };<br />&#160; &#160; $hstore_row = $hstore_row.&quot;&#039;)::hstore&quot;;<br />&#160; &#160; $hstore_array = $hstore_array.$hstore_row;<br />}<br />$hstore_array = $hstore_array.&quot;]&quot;;</p><br /><p>On obtient ici <br />$hstore_array = array[(&#039;cli_id=&gt;0, cli_nom=&gt;client_0, cli_desc=&gt;desc_client_0&#039;)::hstore, (&#039;cli_id=&gt;1, cli_nom=&gt;client_1, cli_desc=&gt;desc_client_1&#039;)::hstore, (&#039;cli_id=&gt;3, cli_nom=&gt;client_2, cli_desc=&gt;desc_client_2&#039;)::hstore]</p><p> <br />On peut alors appeler depuis php la fonction pgsql qui va bien :</p><br /><p>$arrRetour = pgQuery($conn, &quot;select proc_test_array_hstore(&#039;test&#039;, &quot;.$hstore_array.&quot;)&quot;);</p><br /><p>Dans la procédure pgsql&#160; proc_test_array_hstore on accèdera facilement aux donnée :<br />var_in_hstore[2]-&gt;cli_nom renverra la valeur de la clé cli_nom de la deuxième variable hstore du tableau, à savoir ici client_1 </p><br /><p>Voilou...</p>]]></content>
+		<author>
+			<name><![CDATA[jollt]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2179</uri>
+		</author>
+		<updated>2013-03-28T12:43:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16976#p16976</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[tableau php vs pgsql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16975#p16975"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />ce que je recherche est certainement très simple, mais je me mélange un peu les pinceaux entre php et postgre</p><p>J&#039;ai le tableau suivant en php :</p><p>$t = array();<br />$t[0] = array(&#039;cli_id&#039; =&gt;&#160; 0, &#039;cli_nom&#039; =&gt; &#039;client_0&#039;, &#039;cli_desc&#039; =&gt; &#039;desc_client_0&#039;); <br />$t[1] = array(&#039;cli_id&#039; =&gt;&#160; 1, &#039;cli_nom&#039; =&gt; &#039;client_1&#039;, &#039;cli_desc&#039; =&gt; &#039;desc_client_1&#039;); <br />$t[2] = array(&#039;cli_id&#039; =&gt;&#160; 2, &#039;cli_nom&#039; =&gt; &#039;client_2&#039;, &#039;cli_desc&#039; =&gt; &#039;desc_client_2&#039;);</p><p>Cela me permet de récupérer les valeurs des champs :</p><p>Echo &#039;Nom 1 : &#039;.$t2[1][&#039;cli_nom&#039;] .&#039;&lt;br&gt;&#039;; // renvoye client_1<br />Echo &#039;Desc 2: &#039;.$t2[2][&#039;cli_desc&#039;] .&#039;&lt;br&gt;&#039;; // renvoye desc_client_2</p><br /><br /><p>Y a-t-il un moyen de convertir ce tableau php en tableau pgsql utilisable de la même manière et que l&#039;on puisse passer en paramètre de type anyarray à une fonction?</p><p>Si non, quelle serait la syntaxe pgsql pour obtenir un tel tableau?</p><p>Merci d&#039;avance.</p>]]></content>
+		<author>
+			<name><![CDATA[jollt]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2179</uri>
+		</author>
+		<updated>2013-03-28T08:53:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16975#p16975</id>
+	</entry>
+</feed>

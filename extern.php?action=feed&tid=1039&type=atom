@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / différence entre clustering et la replication]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1039&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1039"/>
+	<updated>2010-10-29T11:41:25Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1039</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  différence entre clustering et la replication]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6472#p6472"/>
+		<content type="html"><![CDATA[<p>En fait, c&#039;est assez simple sur le papier. C&#039;est en vrai que c&#039;est compliqué à mettre en place :<br />- La réplication, c&#039;est la capacité à recopier des données d&#039;une machine (ou d&#039;un environnement) à un autre. Elle peut être synchrone (la donnée n&#039;est considérée comme réellement écrite dans l&#039;environnement source que quand elle est écrite aussi dans l&#039;environnement cible), ou asynchrone. Elle peut utiliser énormément de technologies différentes, suivant les besoins (depuis la 9.0, il y a une réplication &#039;intégrée&#039; à PostgreSQL).<br />- Le clustering (cluster en anglais veut dire grappe), c&#039;est le fait de regrouper plusieurs machines pour avoir des capacités qu&#039;on n&#039;a pas avec une seule machine. Il y a principalement deux formes de clustering :<br />&#160; - Le HP(C): High Performance Clustering. Il s&#039;agit avec plusieurs machines d&#039;avoir plus de puissance de calcul qu&#039;avec une seule. On pense aux clusters de calcul météo, nucléaire, etc…<br />&#160; - Le HA(C): High Availability Clustering. Il s&#039;agit, avec plusieurs machines d&#039;avoir plus de disponibilité qu&#039;avec une seule. Le but est ici de pouvoir survivre à la perte d&#039;un disque, d&#039;une alimentation, d&#039;une machine, d&#039;un lien réseau, etc…, choses pour lesquelles habituellement on ne peut avoir de solution si on n&#039;a qu&#039;une seule machine (ce qu&#039;on appelle un Single Point Of Failure, ou SPOF).</p><p>Évidemment, la réplication est une des briques de bases utilisables pour le HA: si on perd une machine, il est évidemment plus simple de basculer les services sur une autre si celle ci a les données. Mais ce n&#039;est qu&#039;une partie de la solution. Il faut aussi être capable de basculer les ips, les services, etc… et surtout (et c&#039;est souvent le plus compliqué) détecter de façon fiable que la machine qui devrait être en production est réellement hors service. On peut très bien imaginer que toute cette partie détection puis bascule soit manuelle, cela dépend des contraintes de production de l&#039;environnement.</p><p>En espérant que ça aide à dégrossir l&#039;ensemble. Mais comme dit dans l&#039;autre post, c&#039;est un domaine assez difficile. Ce n&#039;est pas pour être vexant, c&#039;est juste que c&#039;est vraiment un domaine où on peut facilement se croire en sécurité parce qu&#039;on pense avoir monté une infrastructure hautement disponible, alors que ce n&#039;est pas le cas. Ça demande de connaître à la fois les applications à mettre en haute dispo, le réseau, le système, les outils de HA…</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-10-29T11:41:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6472#p6472</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[différence entre clustering et la replication]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6471#p6471"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />Quelqu&#039;un peut m&#039;expliquer la différence entre le clustering et la réplication des serveurs. <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /><br />J&#039;ai lu beaucoup d&#039;articles et je trouve pas de différence <img src="http://forums.postgresql.fr/img/smilies/sad.png" width="15" height="15" alt="sad" /></p>]]></content>
+		<author>
+			<name><![CDATA[dhikra86]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=945</uri>
+		</author>
+		<updated>2010-10-29T08:12:39Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6471#p6471</id>
+	</entry>
+</feed>

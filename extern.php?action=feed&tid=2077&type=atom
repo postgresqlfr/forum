@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / lc_messages à 'en_US.UTF8' mais traces du VACUUM en français ?]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2077&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2077"/>
+	<updated>2012-06-01T19:15:56Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2077</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  lc_messages à 'en_US.UTF8' mais traces du VACUUM en français ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14031#p14031"/>
+		<content type="html"><![CDATA[<p>En fait, lorsque les logs contiennent le mot &quot;DÉTAIL&quot;, pgfouine_vacuum.php ne semble pas s&#039;en sortir et les colonnes &quot;Deleted pages&quot; et &quot;Removed row versions&quot; dans le report HTML sont à zéro. Mais je n&#039;ai pas tracé l&#039;exécution du script pgfouine_vacuum.php car ces colonnes sont renseignés lorsque le mot &quot;DETAIL&quot; est bien en anglais mais je me trompe peut-être.</p>]]></content>
+		<author>
+			<name><![CDATA[roya]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=542</uri>
+		</author>
+		<updated>2012-06-01T19:15:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14031#p14031</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  lc_messages à 'en_US.UTF8' mais traces du VACUUM en français ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14030#p14030"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>roya a écrit&#160;:</cite><blockquote><div><p>Merci d&#039;avoir continué à investiguer.<br />J&#039;ai fait de même de mon côté, et j&#039;ai aussi reproduit le problème sur une seconde VM SLES avec le français en langue d&#039;installation. <br />L&#039;idée étant de pouvoir utiliser pgfouine, je vais me contenter de positionner la variable OS &quot;LC_MESSAGES&quot; au préalable.</p></div></blockquote></div><p>Mais ces termes en français sont dans les logs côté client et non serveur donc en principe pgfouine n&#039;est pas concerné.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2012-06-01T15:09:54Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14030#p14030</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  lc_messages à 'en_US.UTF8' mais traces du VACUUM en français ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14029#p14029"/>
+		<content type="html"><![CDATA[<p>Merci d&#039;avoir continué à investiguer.<br />J&#039;ai fait de même de mon côté, et j&#039;ai aussi reproduit le problème sur une seconde VM SLES avec le français en langue d&#039;installation. <br />L&#039;idée étant de pouvoir utiliser pgfouine, je vais me contenter de positionner la variable OS &quot;LC_MESSAGES&quot; au préalable.</p>]]></content>
+		<author>
+			<name><![CDATA[roya]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=542</uri>
+		</author>
+		<updated>2012-06-01T15:07:45Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14029#p14029</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  lc_messages à 'en_US.UTF8' mais traces du VACUUM en français ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14028#p14028"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>gleu a écrit&#160;:</cite><blockquote><div><p>Non, pas vraiment. La langue des traces du serveur n&#039;ont rien à voir (normalement) avec la configuration du terminal qui lance psql.</p></div></blockquote></div><p>Et pourtant c&#039;est bien reproductible. Sur un PG9.1 configuré en_US.UTF8:</p><div class="codebox"><pre><code>LC_MESSAGES=fr_FR.UTF8 psql -d test &lt;&lt; EOF
+show lc_messages;
+VACUUM verbose;
+EOF</code></pre></div><p>sort</p><div class="codebox"><pre><code> lc_messages 
+-------------
+ en_US.UTF-8</code></pre></div><p>suivi de diverses lignes de la forme:</p><div class="codebox"><pre><code>INFO:  vacuuming &quot;pg_toast.pg_toast_11523&quot;
+INFO:  index &quot;pg_toast_11523_index&quot; now contains 0 row versions in 1 pages
+DÉTAIL : 0 index row versions were removed.
+0 index pages have been deleted, 0 are currently reusable.
+CPU 0.00s/0.00u sec elapsed 0.00 sec.</code></pre></div><p>Avec tout en anglais, sauf DÉTAIL avec son accent.</p><p>Je pense que c&#039;est parce que DETAIL ne fait pas vraiment corps avec la sortie de VACUUM VERBOSE, c&#039;est un ajout du client psql sur le niveau de cricité du message (notice,info,avertissement, etc...)</p><p>PS: mais ce sont des logs côté client, donc ce n&#039;est pas supposé être analysé avec pgfouine?</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2012-06-01T14:55:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14028#p14028</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  lc_messages à 'en_US.UTF8' mais traces du VACUUM en français ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13996#p13996"/>
+		<content type="html"><![CDATA[<p>Ben oui, c&#039;est bien ce que je pensais et qui m&#039;inquiète un peu...</p>]]></content>
+		<author>
+			<name><![CDATA[roya]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=542</uri>
+		</author>
+		<updated>2012-06-01T06:59:54Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13996#p13996</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  lc_messages à 'en_US.UTF8' mais traces du VACUUM en français ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13995#p13995"/>
+		<content type="html"><![CDATA[<p>Non, pas vraiment. La langue des traces du serveur n&#039;ont rien à voir (normalement) avec la configuration du terminal qui lance psql.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-06-01T05:58:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13995#p13995</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  lc_messages à 'en_US.UTF8' mais traces du VACUUM en français ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13994#p13994"/>
+		<content type="html"><![CDATA[<p>Je viens de résoudre mon problème mais j&#039;ai dû mal à comprendre pourquoi cela fonctionne... <br />J&#039;ai vérifié les locales de mon système et voici ce que j&#039;avais :<br />postgres@PostgreSQL-2:~&gt; locale<br />LANG=fr_FR@euro<br />LC_CTYPE=&quot;fr_FR@euro&quot;<br />LC_NUMERIC=&quot;fr_FR@euro&quot;<br />LC_TIME=&quot;fr_FR@euro&quot;<br />LC_COLLATE=&quot;fr_FR@euro&quot;<br />LC_MONETARY=&quot;fr_FR@euro&quot;<br />LC_MESSAGES=&quot;fr_FR@euro&quot;<br />LC_PAPER=&quot;fr_FR@euro&quot;<br />LC_NAME=&quot;fr_FR@euro&quot;<br />LC_ADDRESS=&quot;fr_FR@euro&quot;<br />LC_TELEPHONE=&quot;fr_FR@euro&quot;<br />LC_MEASUREMENT=&quot;fr_FR@euro&quot;<br />LC_IDENTIFICATION=&quot;fr_FR@euro&quot;<br />LC_ALL=</p><p>J&#039;ai positionné ma variable LC_ALL à en_US.UTF-8 :<br />export LC_ALL=en_US.UTF-8</p><p>Puis sous psql, j&#039;ai lancé un VACUUM VERBOSE et là, plus de problème de traduction du mot clé &quot;DÉTAIL :&quot; ??!! <br />INFO:&#160; vacuuming &quot;public.item&quot;<br />INFO:&#160; index &quot;pk_item&quot; now contains 100000 row versions in 276 pages<br />DETAIL:&#160; 0 index row versions were removed.<br />0 index pages have been deleted, 0 are currently reusable.<br />CPU 0.00s/0.00u sec elapsed 0.00 sec.<br />INFO:&#160; &quot;item&quot;: found 0 removable, 0 nonremovable row versions in 0 out of 1271 pages<br />DETAIL:&#160; 0 dead row versions cannot be removed yet.<br />There were 0 unused item pointers.<br />0 pages are entirely empty.<br />CPU 0.00s/0.00u sec elapsed 0.00 sec.<br />VACUUM</p><p>Auriez-vous une idée sur la corélation entre LC_ALL et les messages sous psql ? </p><p>Par avance merci.</p>]]></content>
+		<author>
+			<name><![CDATA[roya]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=542</uri>
+		</author>
+		<updated>2012-05-31T20:23:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13994#p13994</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  lc_messages à 'en_US.UTF8' mais traces du VACUUM en français ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13993#p13993"/>
+		<content type="html"><![CDATA[<p>Oui, je parle bien des traces du serveur. <br />J&#039;ai redirigé les logs de vacuumdb dans un fichier spécifique. <br />J&#039;ai fait des essais directement sous psql, et j&#039;obtiens exactement le même résultat, à savoir &quot;DÉTAIL :&quot; en français :-(</p><p>J&#039;ai essayé de modifier sous psql les paramètres lc_* mais cela ne change rien.<br />Voici la configuration que j&#039;ai :<br />lc_messages=en_US<br />lc_collate=fr_FR.UTF-8 <br />lc_ctype=fr_FR.UTF-8&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;<br />lc_monetary=fr_FR.UTF-8 <br />lc_numeric=fr_FR.UTF-8 <br />lc_time=fr_FR.UTF-8&#160; <br />client_encoding=UTF8</p>]]></content>
+		<author>
+			<name><![CDATA[roya]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=542</uri>
+		</author>
+		<updated>2012-05-31T19:44:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13993#p13993</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  lc_messages à 'en_US.UTF8' mais traces du VACUUM en français ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13992#p13992"/>
+		<content type="html"><![CDATA[<p>On parle bien des traces du serveur ? est-ce que par hasard vous ne redirigeriez pas les traces de l&#039;outil vacuumdb au même endroit ? car vacuumdb ne tient pas compte de la configuration serveur de lc_messages.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-05-31T19:39:31Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13992#p13992</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  lc_messages à 'en_US.UTF8' mais traces du VACUUM en français ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13989#p13989"/>
+		<content type="html"><![CDATA[<p>Bonsoir, désolée de vous déranger encore une fois :-(<br />Pour vérifier la configuration, j&#039;ai été jusqu&#039;à arrêter et redémarrer le serveur PostgreSQL. <br />Je ne comprends pas que certains messages soient en anglais et d&#039;autres en français seulement dans les traces du VACUUM ?!<br />Que puis-je tester à votre avis ?<br />Merci.</p>]]></content>
+		<author>
+			<name><![CDATA[roya]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=542</uri>
+		</author>
+		<updated>2012-05-31T19:10:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13989#p13989</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  lc_messages à 'en_US.UTF8' mais traces du VACUUM en français ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13988#p13988"/>
+		<content type="html"><![CDATA[<p>Jamais eu le problème. Je trouve ça un peu louche. Vous avez demandé à PostgreSQL de relire sa configuration ? et si oui, comment ?</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-05-31T19:05:09Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13988#p13988</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[lc_messages à 'en_US.UTF8' mais traces du VACUUM en français ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13987#p13987"/>
+		<content type="html"><![CDATA[<p>Bonsoir,</p><p>J&#039;ai installé PostgreSQL 9.1.3 sur un SLES 11 SP2 qui a été installé en français.<br />Afin d&#039;avoir les messages et différentes traces de PostgreSQL en anglais, j&#039;ai positionné la variable lc_messages à en_US.UTF8&quot; et laissé les autres paramètres lc_* à &#039;fr_FR.UTF-8&#039;.<br />La plupart des traces sont en anglais SAUF celle du VACUUM ??!!</p><p>INFO:&#160; vacuuming &quot;public.my_table&quot;<br />INFO:&#160; scanned index &quot;pk_my_table&quot; to remove 384 row versions<br />DÉTAIL : CPU 0.00s/0.06u sec elapsed 0.07 sec.<br />INFO:&#160; scanned index &quot;my_table_rand_id_idx&quot; to remove 384 row versions<br />DÉTAIL : CPU 0.00s/0.07u sec elapsed 0.07 sec.</p><p>Le mot &quot;DETAIL&quot; est en français, ce qui propose par la suite à pgfouine. </p><p>Est-ce que quelqu&#039;un a déjà eu le problème et a trouvé une solution ? </p><p>Par avance merci.</p>]]></content>
+		<author>
+			<name><![CDATA[roya]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=542</uri>
+		</author>
+		<updated>2012-05-31T18:49:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13987#p13987</id>
+	</entry>
+</feed>

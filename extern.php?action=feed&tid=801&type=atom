@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Transformer en XML le contenu de OLD.* dans un trigger]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=801&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=801"/>
+	<updated>2010-05-18T12:06:59Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=801</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Transformer en XML le contenu de OLD.* dans un trigger]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5032#p5032"/>
+		<content type="html"><![CDATA[<p>C&#039;est une excellente idée. J&#039;ai finalement opté pour la solution avec table_to_xml en passant par une table temporaire.<br />Voici ce que ça donne :</p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION test.audit_update_offline () RETURNS TRIGGER AS
+$body$
+BEGIN
+
+CREATE TEMP TABLE tblchg AS SELECT OLD.*;
+
+INSERT INTO audit.data_change (tbl_id, chg_user, chg_datetime, chg_delete, chg_xml_data)
+SELECT lt.tbl_id, CURRENT_USER, CURRENT_TIMESTAMP, 0, (SELECT * FROM TABLE_TO_XML(&#039;tblchg&#039;, false, false, &#039;&#039;))
+FROM audit.liste_tables lt
+WHERE lt.tbl_schema = TG_TABLE_SCHEMA
+AND lt.tbl_name = TG_TABLE_NAME;
+
+DROP TABLE tblchg;
+
+RETURN NULL;
+
+END;
+$body$
+LANGUAGE plpgsql;</code></pre></div><p>Pour info, j&#039;ai choisi de ne pas utiliser les solutions déjà existantes parce qu&#039;elles ont le défaut de créer une table d&#039;audit par table auditée. Or, dans mon cas, je préfère une seule table d&#039;audit.</p><p>Encore merci de ton aide,</p><p>ced</p>]]></content>
+		<author>
+			<name><![CDATA[ced]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=461</uri>
+		</author>
+		<updated>2010-05-18T12:06:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5032#p5032</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Transformer en XML le contenu de OLD.* dans un trigger]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5031#p5031"/>
+		<content type="html"><![CDATA[<p>À mon avis, une solution qui pourrait fonctionner passerait par cursor_to_xml : création d&#039;un curseur sur OLD, lecture du curseur via cursor_to_xml, concaténation de la valeur de cursor_to_xml dans une variable texte, et à la fin du parcours du curseur, insertion dans la table audit de la variable texte.</p><p>Cela étant dit, pourquoi ne pas utiliser les modules d&#039;audit qui existent déjà comme tablelog ou emaj.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-05-18T10:39:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5031#p5031</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Transformer en XML le contenu de OLD.* dans un trigger]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5030#p5030"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je tente de mettre en place un système d&#039;audit des tables d&#039;une base de données, via un système de triggers en PL/pgSQL sous PostgreSQL 8.4.</p><p>J&#039;en suis à tenter d&#039;insérer les anciennes données (avant mise à jour ou suppression) dans une table d&#039;audit.<br />Pour m&#039;en sortir, j&#039;ai choisi une solution qui consiste à transformer en XML tout le contenu de la ligne avant changement, et stocker ça dans un champ de type xml.</p><p>Seulement, impossible de trouver comment transformer le contenu du record OLD en XML.</p><p>Voici ce que j&#039;essaie :</p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION test.audit_delete_offline () RETURNS TRIGGER AS
+$body$
+BEGIN
+ 
+INSERT INTO audit.data_change (tbl_id, chg_user, chg_datetime, chg_delete, chg_xml_data)
+SELECT lt.tbl_id, CURRENT_USER, CURRENT_TIMESTAMP, 1, XMLFOREST(OLD.*)
+FROM audit.liste_tables lt
+WHERE lt.tbl_schema = TG_TABLE_SCHEMA
+AND lt.tbl_name = TG_TABLE_NAME;
+RETURN NULL;
+ 
+END;
+$body$
+LANGUAGE plpgsql;</code></pre></div><p>J&#039;ai stocké dans une table (audit.liste_tables) toutes les tables sur lesquelles l&#039;enregistrement des modifications doit s&#039;enregistrer.</p><p>Je crée ensuite mon trigger sur ma table à auditer.</p><p>Quand je supprime un enregistrement, j&#039;ai l&#039;erreur suivante :</p><div class="quotebox"><blockquote><div><p>ERROR: row expansion via &quot;*&quot; is not supported here<br />LINE 1: ...d, CURRENT_USER, CURRENT_TIMESTAMP, 0, XMLFOREST( $1 .*) FRO...</p></div></blockquote></div><p>J&#039;ai tenté plusieurs choses, notamment en essayant d&#039;utiliser la fonction QUERY_TO_XML, mais rien n&#039;y fait... Je ne trouve pas de solution.</p><p>D&#039;où ma question : comment est-ce que je peux transformer en XML tout le contenu de la variable OLD dans un trigger ?</p><p>Merci d&#039;avance à ceux qui voudront bien m&#039;aider...</p><p>ced</p>]]></content>
+		<author>
+			<name><![CDATA[ced]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=461</uri>
+		</author>
+		<updated>2010-05-18T10:20:54Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5030#p5030</id>
+	</entry>
+</feed>

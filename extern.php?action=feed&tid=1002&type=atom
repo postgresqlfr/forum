@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / INSERT RETURNING renvoie une valeur mais n'insère pas les données]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1002&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1002"/>
+	<updated>2010-10-01T22:00:37Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1002</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  INSERT RETURNING renvoie une valeur mais n'insère pas les données]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6205#p6205"/>
+		<content type="html"><![CDATA[<p>Ah, voilà le point qui m&#039;avait échappé. Dans ce cas il est naturel que je mette le commit dans le code python. Merci !</p>]]></content>
+		<author>
+			<name><![CDATA[Alexandre]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=913</uri>
+		</author>
+		<updated>2010-10-01T22:00:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6205#p6205</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  INSERT RETURNING renvoie une valeur mais n'insère pas les données]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6204#p6204"/>
+		<content type="html"><![CDATA[<p>Si vous avez besoin d&#039;un COMMIT explicite, c&#039;est que psycopg2 fait un BEGIN tout aussi explicite. Donc cherchez dans la documentation de psycopg2 pour désactiver ce comportement (http://initd.org/psycopg/docs/usage.html#transactions-control semble un bon début).</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-10-01T21:48:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6204#p6204</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[INSERT RETURNING renvoie une valeur mais n'insère pas les données]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6202#p6202"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;ai fait une fonction qui renvoie l&#039;id d&#039;une ligne correspondant aux valeurs passées en argument, en créant cette ligne si besoin est.</p><div class="codebox"><pre class="vscroll"><code>create table machine (                                                                                                                                       
+id serial primary key,                                                                                                                                       
+hostname text,
+description text,
+comments text
+);
+insert into machine(hostname) values (&#039;exemple&#039;);
+
+create table boot (
+id serial primary key,
+machine_id integer references machine,
+last_boot_raw_output text,
+UNIQUE(machine_id, last_boot_raw_output)
+);
+
+create or replace function get_boot_id(varchar, varchar) returns integer as $$
+declare
+  machine_hostname alias for $1;
+  _last_boot_raw_output alias for $2;
+  _machine_id integer;
+  boot_id integer;
+begin
+  select id into _machine_id from machine where hostname = machine_hostname;
+  if not found then
+    raise exception  &#039;machine with hostname &#039;&#039;%&#039;&#039; not found&#039;, machine_hostname;
+  end if;
+  select id into boot_id from boot where machine_id = machine_id and last_boot_raw_output = _last_boot_raw_output;
+  if not found then
+    insert into boot(machine_id, last_boot_raw_output) values (_machine_id, _last_boot_raw_output) returning id into boot_id;
+  end if;
+  return boot_id;
+end;
+$$ language plpgsql;</code></pre></div><p>Tant que&#160; j&#039;appelle la fonction depuis le shell sql, tout se passe comme prévu. En revanche, lorsque j&#039;appelle la fonction depuis python avec psycopg2, le comportement est assez surprenant : ça me renvoie un id à chaque fois différent pour les mêmes arguments, et aucune ligne n&#039;est insérée dans la table. Pour que ça marche comme il faut, je dois mettre un COMMIT dans le code python :</p><div class="codebox"><pre><code>cur.execute(&#039;select get_boot_id(%s, %s);&#039;, (hostname, last_boot_raw_output));
+row = cur.fetchone()
+cur.execute(&#039;commit;&#039;)
+return row[0]</code></pre></div><p>J&#039;ai le même problème avec tous les INSERT avec psycopg2, mais là je trouve que c&#039;est vexant. Est-ce que je peux faire en sorte, dans la définition de la fonction, que cette fonction ne renvoie rien tant que les données ne sont pas effectivement insérées ?</p>]]></content>
+		<author>
+			<name><![CDATA[Alexandre]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=913</uri>
+		</author>
+		<updated>2010-10-01T21:30:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6202#p6202</id>
+	</entry>
+</feed>

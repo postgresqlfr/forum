@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Droits d'accès utilisateur]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=198&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=198"/>
+	<updated>2009-03-13T11:05:09Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=198</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Droits d'accès utilisateur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=907#p907"/>
+		<content type="html"><![CDATA[<p>Merci Guillaume. Effectivement, il y avait une option mal configurée dans phpPgAdmin dans le config.inc.php : &quot;only show owned databases&quot;. </p><p>Mais ça ne suffit pas : toto est quand même toujours envoyé sur template1 puisque c&#039;est la base définie par défaut dans ce même fichier. Et vu notre mode de fonctionnement, on ne pourra pas changer ce paramètre de manière à ce que cela marche pour tous nos utilisateurs.<br />Nous avons donc dû modifier pg_hba.conf pour donner l&#039;accès à tous à toutes les bases (donner l&#039;accès à tous à template1 ne suffisait pas non plus : la connexion se faisait bien mais toto ne pouvait pas voir le contenu de la base toto).</p><p>Ainsi, toto ne voit bien que les bases dont il est propriétaire par l&#039;intermédiaire de phpPgAdmin, même pas le nom des autres bases. <br />Par contre, en ligne de commande, il peut se connecter à toutes les bases...</p><p>Nous sommes restés sur ce paramètrage-là, ne voyant pas de solution permettant à la fois la bonne configuration de phpPgAdmin ET de la ligne de commande.</p>]]></content>
+		<author>
+			<name><![CDATA[postgresql_new]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=281</uri>
+		</author>
+		<updated>2009-03-13T11:05:09Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=907#p907</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Droits d'accès utilisateur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=904#p904"/>
+		<content type="html"><![CDATA[<p>La configuration du fichier pg_hba.conf est correcte. Pas dit que la configuration de phpPgAdmin le soit. En tout cas, le message d&#039;erreur indique bien que l&#039;utilisateur toto essaie de se connecter au serveur template1. Et la connexion est refusée. Donc le pg_hba.conf semble bien configuré.</p><p>Attention au fait que vous pouvez empêcher un utilisateur à se connecter à autre chose que sa base, par contre il pourra toujours voir le nom des autres bases.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2009-03-12T18:52:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=904#p904</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Droits d'accès utilisateur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=901#p901"/>
+		<content type="html"><![CDATA[<p>Bonjour, </p><p>Je dois mettre en place un serveur postgresql 8.1 mutualisé (un peu comme celui de free). Mon problème est que je n&#039;arrive pas à autoriser un utilisateur, par exemple toto, à ne voir que sa base de données (nommée aussi toto) dans phpPgAdmin.</p><p>Voici ce que j&#039;ai fait mais qui ne marche pas :</p><p>-bash-3.2$ createuser toto -P -D -A<br />Enter password FOR new role:<br />Enter it again:<br />Shall the new role be allowed TO CREATE more new roles? (y/n) n<br />CREATE ROLE<br />-bash-3.2$ createdb -O toto -E LATIN1 toto<br />CREATE DATABASE</p><p> et voici le contenu du fichier pg_hba.conf :</p><p># TYPE&#160; DATABASE&#160; &#160; USER&#160; &#160; &#160; &#160; CIDR-ADDRESS&#160; &#160; &#160; &#160; &#160; METHOD<br />LOCAL&#160; &#160;sameuser&#160; &#160; &#160; &#160; ALL&#160; &#160; &#160; &#160; &#160; &#160; &#160;md5<br />LOCAL&#160; &#160;ALL&#160; &#160; &#160; &#160; &#160; &#160; &#160;@admins&#160; &#160; &#160; &#160; &#160;md5<br /> L&#039;utilisateur postgres (autrement dit l&#039;administrateur) peut se logguer sans problème et voir toutes les bases de données mais lorsque j&#039;essaye de me logguer avec l&#039;utilisateur toto j&#039;obtiens le message d&#039;erreur suivant dans les logs de postgres :</p><p>FATAL:&#160; no pg_hba.conf entry FOR host &quot;[local]&quot;, user &quot;toto&quot;, DATABASE &quot;template1&quot;, SSL off</p><p> Après plusieurs tentatives de modification du fichier &quot;pg_hba.conf&quot; je n&#039;arrive pas à trouver comment on peut faire pour que l&#039;utilisateur &quot;toto&quot; puisse voir uniquement sa base de données &quot;toto&quot; comme le fait parfaitement le serveur postgresql de free...</p><p>Si vous avez une idée, je suis preneur.</p><p>Merci d&#039;avance!</p>]]></content>
+		<author>
+			<name><![CDATA[postgresql_new]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=281</uri>
+		</author>
+		<updated>2009-03-12T14:42:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=901#p901</id>
+	</entry>
+</feed>

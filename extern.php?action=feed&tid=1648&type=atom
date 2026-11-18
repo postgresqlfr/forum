@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Problème index]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1648&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1648"/>
+	<updated>2011-09-21T18:47:40Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1648</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème index]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10974#p10974"/>
+		<content type="html"><![CDATA[<p>Dans ce cas, aucun index sur y_principal ne portera ses fruits pour cette requête. Concentrez-vous plutôt sur issupprime (à condition là-aussi que la majorité de issupprime corresponde à la valeur true.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-09-21T18:47:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10974#p10974</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème index]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10973#p10973"/>
+		<content type="html"><![CDATA[<p>Oui je veux dire est utilisé et sachant que 390000 enregistrement est a null sur 410000 la majorité est donc à null...</p>]]></content>
+		<author>
+			<name><![CDATA[Julien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1385</uri>
+		</author>
+		<updated>2011-09-21T15:44:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10973#p10973</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème index]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10971#p10971"/>
+		<content type="html"><![CDATA[<p>Par &quot;fonctionne&quot;, je suppose que vous voulez dire &quot;est utilisé&quot;. Et ça peut être tout à fait normal. PostgreSQL n&#039;utilise un index que si les statistiques sur les données lui conseillent de le faire. Autrement dit, si vous avez une majorité de valeurs NULL, il n&#039;y a aucun intérêt à utiliser cet index.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-09-21T15:38:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10971#p10971</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème index]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10970#p10970"/>
+		<content type="html"><![CDATA[<p>Le deuxième index : CREATE INDEX i ON y (y_principal) WHERE issupprime=false, fonctionne si je met une valeur définie à y_principal mais pas si je met is null</p>]]></content>
+		<author>
+			<name><![CDATA[Julien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1385</uri>
+		</author>
+		<updated>2011-09-21T15:35:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10970#p10970</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème index]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10969#p10969"/>
+		<content type="html"><![CDATA[<p>En effet la majorité de la colonne y_principal est null mais par contre la majorité de la colonne issuprime est a false il faut donc utiliser uniquement la colonne y_principal dans l&#039;index ? Mon problème est en faite que la requête est longue et je pensai mettre cette index pour résoudre ce problème.</p><p>Et j&#039;ai déjà essayé d&#039;écrire les index de cette façon mais en faisant un EXPLAIN le traitement reste en séquentielle et n&#039;utilise pas l&#039;index. Désolé mais je suis en pleine galère je débute.</p>]]></content>
+		<author>
+			<name><![CDATA[Julien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1385</uri>
+		</author>
+		<updated>2011-09-21T15:12:09Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10969#p10969</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème index]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10968#p10968"/>
+		<content type="html"><![CDATA[<p>Il y a plusieurs façon de créer un tel index : un index complet et un index partiel. Le premier s&#039;écrit ainsi : CREATE INDEX i ON y (y_principal, issupprime);. Le second pourrait s&#039;écrire : CREATE INDEX i ON y (y_principal) WHERE issupprime=false;. Il pourrait s&#039;écrire de plein d&#039;autres façon. Mais de toute façon, ça n&#039;a d&#039;intérêt que si la majorité des valeurs de la colonne y_principal est NULL et que la majorité des valeurs de la colonne issuprime est true.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-09-21T15:03:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10968#p10968</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Problème index]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10965#p10965"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;ai un problème pour faire un index sur une table de ma bdd.</p><p>Structure de ma table : </p><p>table y {<br /> id bigint NOT NULL,<br /> y_principal bigint,<br /> issupprime boolean,<br /> ....<br /> CONSTRAINT y_pkey PRIMARY KEY (id)<br />}</p><p>Je voudrais faire un index regroupant les y lors que y_principal est null et issupprime est égale à false mais je n&#039;y arrive pas. Cette index servirai pour la requête :</p><p>SELECT&#160; * FROM y WHERE y_principal is not null AND issupprime = false.</p><p>Merci d&#039;avance pour votre aide.</p><p>Cordialement </p><p>Julien</p>]]></content>
+		<author>
+			<name><![CDATA[Julien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1385</uri>
+		</author>
+		<updated>2011-09-21T14:49:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10965#p10965</id>
+	</entry>
+</feed>

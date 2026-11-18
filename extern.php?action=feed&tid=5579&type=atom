@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Lancer une query a chaque INSERT/UPDATE/DELETE sur certaines tables]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5579&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5579"/>
+	<updated>2019-08-12T13:32:30Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5579</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Lancer une query a chaque INSERT/UPDATE/DELETE sur certaines tables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30101#p30101"/>
+		<content type="html"><![CDATA[<p>Vous pouvez aussi dans le code du trigger déterminer sur quelle table il est en train de s&#039;exécuter, c&#039;est un compromis entre duplication de code et simplicité des fonctions trigger</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2019-08-12T13:32:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30101#p30101</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Lancer une query a chaque INSERT/UPDATE/DELETE sur certaines tables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30100#p30100"/>
+		<content type="html"><![CDATA[<p>Merci pour vos réponses</p><p>Il y a un autre champs que je dois mettre à jour pour l&#039;UPDATE, donc je suppose que je dois effectivement faire chaque Trigger</p>]]></content>
+		<author>
+			<name><![CDATA[Firlfire]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8710</uri>
+		</author>
+		<updated>2019-08-12T13:28:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30100#p30100</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Lancer une query a chaque INSERT/UPDATE/DELETE sur certaines tables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30099#p30099"/>
+		<content type="html"><![CDATA[<p>Ça peut être un seul trigger par table : </p><div class="codebox"><pre><code>CREATE TRIGGER... BEFORE INSERT OR UPDATE OR DELETE...</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2019-08-12T13:02:33Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30099#p30099</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Lancer une query a chaque INSERT/UPDATE/DELETE sur certaines tables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30097#p30097"/>
+		<content type="html"><![CDATA[<p>Vous êtes obligé de définir les 3 triggers. Par contre rien ne vous empêche, d&#039;avoir une seule fonction que les 3 triggers appellent...</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2019-08-12T10:30:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30097#p30097</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Lancer une query a chaque INSERT/UPDATE/DELETE sur certaines tables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30096#p30096"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;ai plusieurs tables dans ma DB. L&#039;une d&#039;elle contient un champ qui doit être mis à jour chaque fois qu&#039;une query / transaction / tache est faites sur certaines tables.</p><p>Par exemple ci-dessous <em>SubOne</em> et <em>SubTwo</em> référencent <em>Main</em>.<br />Chaque fois qu&#039;une action (INSERT, UPDATE ou DELETE) est fait sur une de ces trois tables (pas sur la table <em>Other</em>) j&#039;ai besoin de lancer cette query :</p><div class="codebox"><pre><code>update Main set contactedat=CURRENT_TIMESTAMP where mainId= /* mainId des data modifiées*/</code></pre></div><p>Est-ce que je suis obligé de définir ces 3 triggers pour chaque table concernée ou y a-t-il un moyen plus simple ?</p><p>Merci d&#039;avance!</p><div class="codebox"><pre><code>CREATE TABLE Main (
+  mainId serial PRIMARY KEY NOT NULL,
+  contactedAt timestamp with time zone NOT NULL DEFAULT CURRENT_DATE,
+  name text NOT NULL
+);
+
+CREATE TABLE SubOne (
+  subOneId serial PRIMARY KEY NOT NULL,
+  mainId integer NOT NULL REFERENCES Main(mainId),
+  subOneName text DEFAULT null
+);
+
+CREATE TABLE SubTwo (
+  SubTwoId serial PRIMARY KEY NOT NULL,
+  mainId integer NOT NULL REFERENCES Main(mainId),
+  subOneName text DEFAULT null
+);
+
+CREATE TABLE Other (
+  otherId serial PRIMARY KEY NOT NULL,
+  name varchar(60) NOT NULL
+);</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[Firlfire]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8710</uri>
+		</author>
+		<updated>2019-08-12T09:32:31Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30096#p30096</id>
+	</entry>
+</feed>

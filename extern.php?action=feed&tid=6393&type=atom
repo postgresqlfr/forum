@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Replication logique : ERROR: could not open toast relation with OID 0]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=6393&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=6393"/>
+	<updated>2022-11-18T14:02:30Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=6393</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Replication logique : ERROR: could not open toast relation with OID 0]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33886#p33886"/>
+		<content type="html"><![CDATA[<p>Impossible à dire sans savoir ce que vous avez fait exactement, étant donné qu&#039;il n&#039;est normalement pas possible de changer le tablespace pour pg_largeobject.</p><br /><p>Mais à priori oui, vous êtes bon pour devoir faire un export logique et réimporter les données.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2022-11-18T14:02:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33886#p33886</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Replication logique : ERROR: could not open toast relation with OID 0]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33885#p33885"/>
+		<content type="html"><![CDATA[<p>Hello !! </p><p>Je pense avoir trouvé d&#039;ou vient le problème </p><div class="codebox"><pre><code>SELECT reltoastrelid FROM pg_class WHERE relname = &#039;pg_largeobject&#039;;
+ reltoastrelid
+---------------
+         16637</code></pre></div><p>Ceci doit s&#039;expliquer du fait d&#039;un changement de tablespace de la table pg_largeobject (vrai ou pas ?)</p><p>Avez vous une solution qui pourrait reproduire cette solution </p><div class="codebox"><pre><code>UPDATE pg_class
+  SET reltoastrelid = 0
+  WHERE relname = &#039;pg_largeobject&#039;;</code></pre></div><p>OU bien dois je restorer la base via dump ????</p><p>Merci</p>]]></content>
+		<author>
+			<name><![CDATA[Indaa]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5160</uri>
+		</author>
+		<updated>2022-11-18T10:38:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33885#p33885</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Replication logique : ERROR: could not open toast relation with OID 0]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33873#p33873"/>
+		<content type="html"><![CDATA[<p>Il n&#039;y a vraiment que 2 colonnes ?&#160; Même s&#039;il y avait un problème du côté du décodage logique, la table pg_largeobject_metadata n&#039;a pas de table TOAST non plus donc je vois mal comment le trigger pourrait être responsable.&#160; Au passage, pourquoi effectuer du DML sur pg_largeobject_metadata plutôt qu&#039;utiliser GRANT SELECT/UPDATE ON LARGE OBJECT loid TO ...?&#160; Un UPDATE n&#039;est pas officiellement supporté et peut poser des soucis.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2022-11-16T07:38:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33873#p33873</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Replication logique : ERROR: could not open toast relation with OID 0]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33872#p33872"/>
+		<content type="html"><![CDATA[<p>La fonction grant_lob_access_to_ro exécute:</p><div class="codebox"><pre><code> UPDATE pg_largeobject_metadata                                 
+ SET lomacl =&#039;{user=rw........}&#039;             
+ WHERE oid = NEW.blob;                                          
+ RETURN NEW;    </code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[Indaa]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5160</uri>
+		</author>
+		<updated>2022-11-15T16:53:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33872#p33872</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Replication logique : ERROR: could not open toast relation with OID 0]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33871#p33871"/>
+		<content type="html"><![CDATA[<p>Hello ! <br />Merci d&#039;avoir pris la peine de répondre </p><p>Voici plus de détail de la table:</p><div class="codebox"><pre><code> id 				| bigint |                 | not null  |            | plain    |                       
+ blob                         | oid    |                  | not null  |            | plain    |                       
+Index :
+    &quot;lob_pkey&quot; PRIMARY KEY, btree (id)
+Triggers :
+    lob_lo_unlink AFTER DELETE ON my_table FOR EACH ROW EXECUTE FUNCTION delete_lo()
+    lob_ro_access AFTER INSERT OR UPDATE ON my_table FOR EACH ROW EXECUTE FUNCTION grant_lob_access_to_ro()</code></pre></div><p>Merci</p>]]></content>
+		<author>
+			<name><![CDATA[Indaa]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5160</uri>
+		</author>
+		<updated>2022-11-15T16:49:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33871#p33871</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Replication logique : ERROR: could not open toast relation with OID 0]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33869#p33869"/>
+		<content type="html"><![CDATA[<p>C&#039;est étrange, cette erreur provient du décodage logique.&#160; Il semblerait que lors du décodate postgres voit une modification dans une colonne toastée mais votre table n&#039;a pas de relation toast associée, ce qui finit avec l&#039;erreur que vous rencontrez.</p><br /><p>Quelle est la définition complète de la table ?</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2022-11-15T15:14:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33869#p33869</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Replication logique : ERROR: could not open toast relation with OID 0]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33867#p33867"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous,<br />J&#039;utilise debezium et donc la replication logique et je suis récemment tombé sur cette erreur qui fait planter l&#039;utilisation de cet outil.<br />Cette erreur est intervenu à l&#039;init dans une BDD et dans une autre, elle est intervenue après 1 mois d&#039;utilisation de l&#039;outil </p><div class="codebox"><pre><code>ERROR: could not open toast relation with OID 0 (base relation &quot;my_table&quot;)</code></pre></div><p>my_table =&gt;&#160; <br /> id&#160; &#160; &#160;| bigint | not null&#160; <br /> blob&#160; &#160;| oid&#160; &#160; | not null&#160; </p><br /><p>J&#039;utilise PostgreSQL 12.12 ,&#160; des LO se trouvent dans ma BDD et la table my_table ci dessus ne fait pas partie d&#039;une publication <br />Donc debezium qui est un outil de change data capture n&#039;est pas censé obtenir ces changements.</p><br /><br /><p>Auriez-vous une idée du problème ? est il possible de le résoudre ? </p><p>Merci d&#039;avance</p>]]></content>
+		<author>
+			<name><![CDATA[Indaa]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5160</uri>
+		</author>
+		<updated>2022-11-15T10:06:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33867#p33867</id>
+	</entry>
+</feed>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Contrainte CHECK avec condition]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=6247&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=6247"/>
+	<updated>2022-03-31T03:05:09Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=6247</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Contrainte CHECK avec condition]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33350#p33350"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><p>L&#039;erreur n&#039;est pas surprenante car vous n&#039;avez pas de variable New.&#160; De plus $1 est à priori le paramètre id qui est un integer, donc les tests du type $1 LIKE &#039;...&#039; ne sont pas correct non plus.</p><br /><p>Avez-vous essayé de réutiliser le code d&#039;un trigger?&#160; Déclarez une variable et utilisez là à la place de New.$1 et $1 et cela devrait corriger le problème.&#160; Les LIKE sont également assez bizarre, mais ne sachant pas que ce &quot;id&quot; contient difficile de savoir si c&#039;est une bonne idée ou pas.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2022-03-31T03:05:09Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33350#p33350</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Contrainte CHECK avec condition]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33348#p33348"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous,<br />Je souhaite contrôler une saisie de données via une contrainte CHECK respectant des conditions. Celle doit doit débuter par transformer un nombre en charactère .</p><p>Ci-dessous le code </p><br /><p>CREATE OR REPLACE FUNCTION code_chk (id integer, cat varchar(20), code varchar(20),spletype varchar(20))<br />RETURNS BOOLEAN AS<br />$$<br />New.$1:=&#039;A&#039;||New.$1; --Ajout de la lettre A afin de transformer l&#039;ID en charactère--<br />&#160; &#160; SELECT CASE&#160; <br />&#160; &#160; --vérification enfant--<br />&#160; &#160; &#160; &#160; &#160; WHEN ($1 like &#039;%11&#039; OR $1 like &#039;%31&#039; OR $1 like &#039;%51&#039; OR $1 like &#039;%71&#039; OR $1 like &#039;%91&#039;) <br />&#160; &#160; &#160; &#160;&#160; &#160;&#160; &#160; &#160; &#160; AND (($3=&#039;2-FDDUP&#039;) AND ($4=&#039;Quarter core&#039;))<br />&#160; &#160; &#160; &#160;&#160; &#160;&#160; &#160; &#160; &#160; THEN True&#160; <br />&#160; &#160; --vérification parent-- <br />&#160; &#160; &#160; &#160;&#160; &#160;WHEN ($1 like &#039;%10&#039; OR $1 like &#039;%30&#039; OR $1 like &#039;%50&#039; OR $1 like &#039;%70&#039; OR $1 like &#039;%90&#039;) <br />&#160; &#160; &#160; &#160;&#160; &#160;&#160; &#160; &#160; &#160; AND (($3=&#039;1-Par&#039;) AND ($4=&#039;Quarter core&#039;))<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; THEN True <br />&#160; &#160; --vérification du blanc-- <br />&#160; &#160; &#160; &#160;&#160; &#160;WHEN ($1 like &#039;%09&#039; OR $1 like &#039;%29&#039; OR $1 like &#039;%49&#039; OR $1 like &#039;%69&#039; OR $1 like &#039;%89&#039;) <br />&#160; &#160; &#160; &#160;&#160; &#160;&#160; &#160; &#160; &#160; AND (($4=&#039;Blank&#039;) AND ($3 like &#039;Blk%&#039;))<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; THEN True<br />&#160; &#160; --vérification du CRM-- <br />&#160; &#160; &#160; &#160;&#160; &#160;WHEN ($1 like &#039;%19&#039; OR $1 like &#039;%39&#039; OR $1 like &#039;%59&#039; OR $1 like &#039;%79&#039; OR $1 like &#039;%99&#039;) <br />&#160; &#160; &#160; &#160;&#160; &#160;&#160; &#160; &#160; &#160; AND (($4=&#039;Standard&#039;) AND ($3 like &#039;Std%&#039;))<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; THEN True&#160; &#160; &#160; &#160;&#160; <br />&#160; &#160; &#160; &#160; &#160; ELSE False<br />&#160; &#160; END<br />FROM &quot;X&quot; WHERE ($1&gt;380000 AND $2=&#039;QAQC&#039;)&#160; --Condition pour effectuerla vérification--<br />$$ LANGUAGE &#039;sql&#039;;</p><p>ALTER TABLE &quot;X&quot;<br />ADD CONSTRAINT &quot;QC Checking&quot; <br />CHECK (code_chk(&quot;SampleID&quot;,&quot;SampleCategory&quot;,&quot;SampleCode&quot;,&quot;SampleType&quot;));</p><br /><br /><p>Voici l&#039;erreur que j&#039;obiens</p><p> erreur de syntaxe sur ou près de « $1 »<br />LINE 6:&#160; New.$1:=&#039;A&#039;||New.$1;</p><br /><p>Merci de m&#039;aider</p>]]></content>
+		<author>
+			<name><![CDATA[Lamethode]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9925</uri>
+		</author>
+		<updated>2022-03-30T23:02:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33348#p33348</id>
+	</entry>
+</feed>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / trigger et notify]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4003&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4003"/>
+	<updated>2016-11-10T22:58:17Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4003</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  trigger et notify]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24290#p24290"/>
+		<content type="html"><![CDATA[<p>Comme alternative au SQL dynamique, il est aussi possible d&#039;utiliser la fonction pg_notify().</p><p>D&#039;après la doc:</p><div class="quotebox"><blockquote><div><p>pg_notify</p><p>Pour envoyer une notification, vous pouvez aussi utiliser la fonction pg_notify(text, text). La fonction prend en premier argument le nom du canal et en second la charge. La fonction est bien plus simple à utiliser que la commande NOTIFY si vous avez besoin de travailler avec des noms de canaux et des charges non constants.</p></div></blockquote></div><p>D&#039;ailleurs pas besoin de mettre current_schema() dans une variable en plpgsql, mais en revanche il faudra utiliser PERFORM en procédural plutôt que SELECT puisque cette fonction ne renvoie rien.</p><div class="codebox"><pre><code>BEGIN
+   PERFORM pg_notify(current_schema() || &#039;_GIService&#039;, &#039;-&#039;);
+   RETURN NEW;
+END</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2016-11-10T22:58:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24290#p24290</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  trigger et notify]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24282#p24282"/>
+		<content type="html"><![CDATA[<p>Déjà, il serait sympa de donner le message d&#039;erreur, histoire qu&#039;on n&#039;ait pas à le deviner <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>Ensuite, il vous faut utiliser une requête dynamique (<a href="http://docs.postgresql.fr/9.6/plpgsql-statements.html" rel="nofollow">http://docs.postgresql.fr/9.6/plpgsql-statements.html</a>).</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2016-11-10T13:03:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24282#p24282</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[trigger et notify]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24281#p24281"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>je suis nouveau à psql.<br />Je veux créer un trigger qui envoie une notification après un insert ou un update.<br />Créer le trigger, pas de souci, il me crée une fonction.</p><p>Lorsque je veux coder en plpgsql:</p><div class="codebox"><pre><code>DECLARE 
+CURSCHEMA VARCHAR (10);
+BEGIN
+   SELECT current_schema() into CURSCHEMA;
+   NOTIFY CURSCHEMA||&#039;_GIService&#039;, &#039;-&#039;;
+   RETURN NEW;
+END</code></pre></div><p>Il me donne une erreur au ||. Quel est le souci?<br />Merci.</p>]]></content>
+		<author>
+			<name><![CDATA[albourg]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7029</uri>
+		</author>
+		<updated>2016-11-10T13:00:35Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24281#p24281</id>
+	</entry>
+</feed>

@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Ajouter une clé primaire à une vue]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1854&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1854"/>
+	<updated>2019-10-08T07:58:17Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1854</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Ajouter une clé primaire à une vue]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30258#p30258"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Bonjour, l&#039;orque vous faite votre scripte SQL il suffit d&#039;ajouter row_number() OVER () AS oid dans le select comme ci-dessous.</p></div></blockquote></div><p>Désolé pour le délai, mais UN GRAND MERCI pour ta réponse, RplnySIG : je viens seulement de tester et approuver la méthode.<br /><img src="http://forums.postgresql.fr/img/smilies/cool.png" width="15" height="15" alt="cool" /></p>]]></content>
+		<author>
+			<name><![CDATA[Sylvain M.]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5395</uri>
+		</author>
+		<updated>2019-10-08T07:58:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30258#p30258</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Ajouter une clé primaire à une vue]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28662#p28662"/>
+		<content type="html"><![CDATA[<p>Bonjour, l&#039;orque vous faite votre scripte SQL il suffit d&#039;ajouter <strong> row_number() OVER () AS oid </strong>dans le select comme ci-dessous.</p><div class="codebox"><pre><code> CREATE OR REPLACE VIEW amenagement.v_conseil_dep_jeunes_communes AS 
+ SELECT row_number() OVER () AS oid,
+    jeunes.id_membre,
+    jeunes.nom,
+    jeunes.prenom,
+    jeunes.age,
+    jeunes.cp,
+    jeunes.insee,
+    jeunes.ville,
+    jeunes.membre_du_ca,
+    jeunes.date_d,
+    jeunes.date_f,
+    jeunes.date_m,
+    st_multi(st_union(com.geom))::geometry(MultiPolygon,2154) AS geom
+   FROM conseil_dep_jeunes_2018 jeunes
+     JOIN architecture.v_communes_topo com ON jeunes.insee = com.code::bpchar
+  GROUP BY jeunes.id_membre, jeunes.nom, jeunes.prenom, jeunes.age, jeunes.cp, jeunes.insee, jeunes.ville, jeunes.membre_du_ca, jeunes.date_d, jeunes.date_f, jeunes.date_m, com.geom; </code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[RplnySIG]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8387</uri>
+		</author>
+		<updated>2018-11-29T12:07:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28662#p28662</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Ajouter une clé primaire à une vue]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24737#p24737"/>
+		<content type="html"><![CDATA[<p>Bonjour à vous,<br />Je relance ce sujet car j&#039;ai à peu près la même question.<br />Lorsque l&#039;on affiche une table ou une vue PostGreSQL dans le logiciel QGis, ce dernier nécessite que la table/vue ait une clé primaire. Il est possible de la définir manuellement, mais ce serait plus simple si cela pouvait être pré-défini par la requête de création de la vue.<br />De mon côté, ce sont plus précisément des &quot;Vue matérialisées&quot; (<a href="http://docs.postgresqlfr.org/9.4/rules-materializedviews.html" rel="nofollow">http://docs.postgresqlfr.org/9.4/rules- … views.html</a>).<br />Sauriez vous comment faire en sorte que la clé prémiaire soit prédéfinie en SQL ?<br />Merci à vous.</p><p>Sylvain M.</p>]]></content>
+		<author>
+			<name><![CDATA[Sylvain M.]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5395</uri>
+		</author>
+		<updated>2017-01-31T16:11:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24737#p24737</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Ajouter une clé primaire à une vue]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12532#p12532"/>
+		<content type="html"><![CDATA[<p>Une vue n&#039;est pas une table. Ajouter une clé primaire à une vue n&#039;a pas de sens en soi. À la rigueur, vous pouvez certainement utiliser generate_series pour avoir un numéro autoincrémenté de chaque ligne, mais vous ne serez jamais sûr qu&#039;un numéro correspond toujours à la même ligne de la vue.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-01-24T13:02:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12532#p12532</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Ajouter une clé primaire à une vue]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12531#p12531"/>
+		<content type="html"><![CDATA[<p>en fait j&#039;ai fait une intersection entre 2 polygones j&#039;ai eu le résultat sous forme de vue, cette vue ne contient pas une clé primaire dans sa table et moi je dois l&#039;ajouter afin de la visualiser sous QGIS.</p>]]></content>
+		<author>
+			<name><![CDATA[simolay]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1520</uri>
+		</author>
+		<updated>2012-01-24T12:36:06Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12531#p12531</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Ajouter une clé primaire à une vue]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12529#p12529"/>
+		<content type="html"><![CDATA[<p>Qu&#039;est-ce que vous voulez obtenir exactement ? j&#039;avoue que je ne vois pas bien. Comment est défini votre vue ?</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-01-24T12:17:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12529#p12529</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Ajouter une clé primaire à une vue]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12527#p12527"/>
+		<content type="html"><![CDATA[<p>Bonjour, <br />je veux ajouter une clé primaire à une vue afin de l’afficher sur QGIS mais j&#039;arrive pas est ce que vous pouvez m&#039;aider.<br />merci</p>]]></content>
+		<author>
+			<name><![CDATA[simolay]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1520</uri>
+		</author>
+		<updated>2012-01-24T12:05:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12527#p12527</id>
+	</entry>
+</feed>

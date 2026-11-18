@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / CTE dans un select query_to_xml()]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3701&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3701"/>
+	<updated>2015-11-25T16:00:00Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3701</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  CTE dans un select query_to_xml()]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22729#p22729"/>
+		<content type="html"><![CDATA[<p>Merci, ça marche.</p>]]></content>
+		<author>
+			<name><![CDATA[Jason Chambers]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3255</uri>
+		</author>
+		<updated>2015-11-25T16:00:00Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22729#p22729</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  CTE dans un select query_to_xml()]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22728#p22728"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><p>oui j&#039;imagine qu&#039;il faut plutôt le formuler comme cela (à tester):</p><div class="codebox"><pre><code>select query_to_xml(
+$$WITH myselect AS
+(select client_id
+  from client
+  where client_id = &#039;1649&#039;
+)
+SELECT  * from  myselect$$ , TRUE, TRUE, &#039;&#039;
+)
+;</code></pre></div><p>Le texte de la requête, argument de la fonction query_to_xml, doit être complet. La fonction ne connaît que ce qu&#039;on lui passe.</p>]]></content>
+		<author>
+			<name><![CDATA[edlm]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1635</uri>
+		</author>
+		<updated>2015-11-25T13:16:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22728#p22728</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[CTE dans un select query_to_xml()]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22727#p22727"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;ai un problème avec un CTE quand je veux l&#039;utilser dans query_to_xml().</p><p>Etant donné la table suivante :<br />--------------------------------------------------------------<br />CREATE TABLE client (client_id TEXT&#160; ) ;<br />INSERT INTO&#160; client VALUES(&#039;1649&#039;) ;<br />--------------------------------------------------------------<br />Ceci fonctionne correctement :<br />WITH myselect&#160; &#160;AS <br />(select&#160; &#160; &#160; &#160; &#160;client_id <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; from client<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; where client_id = &#039;1649&#039;<br /> )<br />SELECT&#160; * from&#160; myselect <br />;<br />---------------------------------------------------------------------<br /> Mais ceci ne fonctionne pas :<br />WITH myselect&#160; &#160;AS <br />(select&#160; &#160; &#160; &#160; &#160;client_id <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; from client<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; where client_id = &#039;1649&#039;<br /> )<br />&#160; &#160; &#160; &#160; &#160;<br />select query_to_xml(<br />&#039;SELECT&#160; * from&#160; myselect&#039; , TRUE, TRUE, &#039;&#039;<br />)<br />;</p><p>Normal ou pas ? <br />Ou une faute de frappe quelque part ?</p><p>Merci,<br />jason</p>]]></content>
+		<author>
+			<name><![CDATA[Jason Chambers]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3255</uri>
+		</author>
+		<updated>2015-11-25T12:56:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22727#p22727</id>
+	</entry>
+</feed>

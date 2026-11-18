@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Problème d'insertion d'un enreg avec l'auto-increment]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=950&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=950"/>
+	<updated>2010-08-20T12:33:39Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=950</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème d'insertion d'un enreg avec l'auto-increment]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5894#p5894"/>
+		<content type="html"><![CDATA[<p>Lorsque vous créez une colonne de type serial, cela crée en fait une colonne de type integer qui a comme valeur par défaut la prochaine valeur d&#039;une séquence, qui est créée implicitement. La valeur qui va être utilisée dépend de cette séquence. Il faudrait donc connaître la valeur de cette séquence et les valeurs de la table pour vous répondre.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-08-20T12:33:39Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5894#p5894</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème d'insertion d'un enreg avec l'auto-increment]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5893#p5893"/>
+		<content type="html"><![CDATA[<p>je me réponds à moi-même :</p><p>En fait j&#039;ai vidé les 9 enregs que j&#039;avais créé à la main dans la base, et j&#039;ai ré-essayé et ça marche maintenant. Ce qui veut dire que l&#039;auto_increment n&#039;est actif/possible/compris que si la requête est passée en sql ????</p><br /><p>si vous avez une idée du pourquoi du comment, ça m&#039;intéresse...</p>]]></content>
+		<author>
+			<name><![CDATA[IchabOd]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=867</uri>
+		</author>
+		<updated>2010-08-20T10:34:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5893#p5893</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Problème d'insertion d'un enreg avec l'auto-increment]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5892#p5892"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;essaye d&#039;exécuter une requête pour insérer un enreg dans une table de 4 colonnes, dont la première colonne est un id serial auto_increment.</p><p>Dont je ne la spécifie pas dans l&#039;insert into :</p><div class="codebox"><pre><code>state.executeUpdate(&quot;INSERT INTO poules (poul_tnmt_id, poul_nom, poul_nbteams) VALUES (&#039;&quot;+idtournoi+&quot;&#039;, &#039;&quot;+libellepoule+&quot;&#039;, &#039;8&#039;)&quot;);</code></pre></div><p>ma table :</p><div class="codebox"><pre><code>-- Table: poules
+
+-- DROP TABLE poules;
+
+CREATE TABLE poules
+(
+  poul_id serial NOT NULL,
+  poul_tnmt_id integer,
+  poul_nom character varying(64) NOT NULL,
+  poul_nbteams integer,
+  CONSTRAINT poules_pkey PRIMARY KEY (poul_id)
+)
+WITH (
+  OIDS=FALSE
+);</code></pre></div><p>le souci est la réponse de l&#039;insert :</p><div class="quotebox"><blockquote><div><p>ERREUR: la valeur d&#039;une clé dupliquée rompt la contrainte unique « poules_pkey »</p></div></blockquote></div><p>savez-vous pourquoi ?</p><p>J&#039;ai fait un vaccuum mais ça n&#039;a rien changé, et d&#039;ailleurs je n&#039;ai actuellement que 9 enregs et je n&#039;ai fait aucun delete ou update précédemment.</p><p>J&#039;ai également une autre table à côté, avec quasiment la même requête insert into, et elle marche très bien, elle. J&#039;ai comparé les deux tables =&gt; aucune différence de paramétrage....</p><p>J&#039;ai bien fait une recherche et notamment je suis tombé sur ce post là : <br /><a href="http://forums.postgresql.fr/viewtopic.php?id=637" rel="nofollow">http://forums.postgresql.fr/viewtopic.php?id=637</a></p><p>Mais bon, question performance et simplicité, je me vois mal aller chercher le max d&#039;une table, je vois pas à quoi sert l&#039;auto-increment dans ce cas, et en plus ça marche normalement bien....</p><br /><p>Merci de votre aide si vous avez la soluce... </p><br /><p>edit ****<br />/bug forum dsl, y&#039;a un doublon et si je veux supprimer le deuxième message il va tout me supprimer.....</p>]]></content>
+		<author>
+			<name><![CDATA[IchabOd]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=867</uri>
+		</author>
+		<updated>2010-08-20T10:26:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5892#p5892</id>
+	</entry>
+</feed>

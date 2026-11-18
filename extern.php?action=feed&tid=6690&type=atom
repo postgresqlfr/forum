@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Problème autovacuum ne marche pas]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=6690&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=6690"/>
+	<updated>2023-11-16T11:25:49Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=6690</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème autovacuum ne marche pas]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34665#p34665"/>
+		<content type="html"><![CDATA[<p>Le contenu de la colonne JSON de grande taille est déjà compressé. La taille décompressée s&#039;obtiendrait avec cette requête: </p><div class="codebox"><pre><code>SELECT octet_length(nom_colonne::text)  FROM table WHERE ...</code></pre></div><p>Vous pouvez exporter juste cette ligne/colonne dans un fichier texte pour la regarder en détail dans un éditeur, via ce genre de commande, sous psql:</p><div class="codebox"><pre><code>\pset format unaligned
+\pset tuples_only on
+select nomdelacolonne FROM nomdelatable WHERE ... \g fichier-de-sortie.json</code></pre></div><p>(ne pas terminer la requête par un point-virgule, c&#039;est le \g qui termine la requête)</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2023-11-16T11:25:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34665#p34665</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème autovacuum ne marche pas]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34664#p34664"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>dverite a écrit&#160;:</cite><blockquote><div><p>Une ligne peut être de grande taille, sachant que la limite théorique d&#039;une colonne de type text/json/jsonb/bytea etc.. est de 1 Go.</p><p>L&#039;explication la plus simple au fait que la table croisse d&#039;1,2 Mo par update est simplement que la ligne changée pèse 1,2 Mo.</p><p>On peut utiliser la fonction </p><div class="codebox"><pre><code>SELECT pg_column_size(nom_colonne) FROM table WHERE ...</code></pre></div><p> pour voir les tailles réellement stockées par colonne (ça prend en compte la compression)</p></div></blockquote></div><p>Bonjour Dverite,</p><br /><p>En faisant ça j&#039;ai vu qu&#039;il y a une ligne problemátique, qui pese plus 1,1 MB, les autre deux lignes sont petites. Il existe une manière gèrer l&#039;espace d&#039;une seule ligne? Sachant que je ne peux pas modifier le JSON (peut-être je peux le comprimer)?</p>]]></content>
+		<author>
+			<name><![CDATA[Artye]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=11787</uri>
+		</author>
+		<updated>2023-11-16T10:08:29Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34664#p34664</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème autovacuum ne marche pas]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34662#p34662"/>
+		<content type="html"><![CDATA[<p>Une ligne peut être de grande taille, sachant que la limite théorique d&#039;une colonne de type text/json/jsonb/bytea etc.. est de 1 Go.</p><p>L&#039;explication la plus simple au fait que la table croisse d&#039;1,2 Mo par update est simplement que la ligne changée pèse 1,2 Mo.</p><p>On peut utiliser la fonction </p><div class="codebox"><pre><code>SELECT pg_column_size(nom_colonne) FROM table WHERE ...</code></pre></div><p> pour voir les tailles réellement stockées par colonne (ça prend en compte la compression)</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2023-11-15T13:09:33Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34662#p34662</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème autovacuum ne marche pas]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34661#p34661"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>rjuju a écrit&#160;:</cite><blockquote><div><p>Faites le calcul de combien d&#039;espace vous pouvez vous permettre pour la fragmentation, et configurez l&#039;autovacuum sur la table pour se déclencher après le nombre moyen et/ou ratio moyen de mise à jour faites pour atteindre cette volumétrie.</p><br /><p>Vous ne pourrez jamais avoir une absence totale de fragmentation, et essayer d&#039;avoir l&#039;autovacuum qui se déclenche en permanence sur ces tables gacherait vos ressources pour un gain assez faible en espace disque.</p></div></blockquote></div><p>Bonsoir Julien,</p><p>Merci pour toute les messages. J&#039;ai été capable de reduire les update inutiles et configurer les autovacuum correctement. Après tout, la table &quot;listaTFT_datoscompetitivo&quot; et ses trois lignes si que mettent a jour chaque minute c&#039;est mon seul problème. Je ne sait pas pourquoi mais elles grandissent 1.2 MB chaque update, et je ne sais pas si c&#039;est un problème avec la table TOAST ou quoi. De toute façon c&#039;est plus géable, donc je peut essayer de le résoudre tranquilement. Encore une fois, merci beaucoup!</p>]]></content>
+		<author>
+			<name><![CDATA[Artye]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=11787</uri>
+		</author>
+		<updated>2023-11-14T18:13:00Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34661#p34661</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème autovacuum ne marche pas]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34657#p34657"/>
+		<content type="html"><![CDATA[<p>Faites le calcul de combien d&#039;espace vous pouvez vous permettre pour la fragmentation, et configurez l&#039;autovacuum sur la table pour se déclencher après le nombre moyen et/ou ratio moyen de mise à jour faites pour atteindre cette volumétrie.</p><br /><p>Vous ne pourrez jamais avoir une absence totale de fragmentation, et essayer d&#039;avoir l&#039;autovacuum qui se déclenche en permanence sur ces tables gacherait vos ressources pour un gain assez faible en espace disque.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2023-11-10T03:05:07Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34657#p34657</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème autovacuum ne marche pas]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34656#p34656"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>rjuju a écrit&#160;:</cite><blockquote><div><p>Au bout de combien de temps la table grossit-elle de 200 or 400MB, j&#039;imagine que ce n&#039;est pas en 1 minute ?&#160; La volumétrie est-elle dans la table elle même ou la table TOAST associée ?</p></div></blockquote></div><p>C&#039;est pas immédiat, elle grossit en 2-3 heures comme ça. Et la majorité de la volumétrie est dans la table TOAST.</p>]]></content>
+		<author>
+			<name><![CDATA[Artye]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=11787</uri>
+		</author>
+		<updated>2023-11-09T14:25:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34656#p34656</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème autovacuum ne marche pas]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34655#p34655"/>
+		<content type="html"><![CDATA[<p>Au bout de combien de temps la table grossit-elle de 200 or 400MB, j&#039;imagine que ce n&#039;est pas en 1 minute ?&#160; La volumétrie est-elle dans la table elle même ou la table TOAST associée ?</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2023-11-09T13:15:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34655#p34655</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème autovacuum ne marche pas]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34654#p34654"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>rjuju a écrit&#160;:</cite><blockquote><div><p>Un VACUUM FULL nécessite un verrou exclusif sur la table, et bloque bien toute opération concurrente dessus.</p><br /><br /><p>Concernant autovacuum, en supposant qu&#039;il n&#039;est pas désactivé de manière globale, il devrait se déclancher après la modification d&#039;un nombre de ligne égal à 20% du nombre de ligne total dans la table (le autovacuum_vacuum_scale_factor à 0.2) + 1 (le autovacuum_vacuum_threshold).&#160; Vous êtes le seul à avoir accès à vos données et à la charge en modification, à vous de modifier ces paramètres pour faire en sorte qu&#039;autovacuum se déclenche à une fréquence suffisante pour éviter que la fragmentation n&#039;explose (sans faire en sorte qu&#039;il se déclenche après chaque modification, avoir un peu de bloat est normal et peut même être utile car cela permet de bénéficier des mise à jour HOT).</p></div></blockquote></div><p>Merci beaucoup, je pense que je n&#039;ai pas bien modifié la valeur du scale factor (j&#039;ai jamais mis moins de 0.1 et je crois que c&#039;est trop grand pour mes tables) et ça peux m&#039;aider. Comme dernière question, dans la table &quot;listaTFT_datoscompetitivo&quot; il y a seulement 3 de 100 lignes qui se modifient chaque minute, mais le reste ne change pas. Pourtant si je fait un Vacuum Full de cette table, je récupere 200-400 MB d&#039;espace. C&#039;est un comportement normal? Peut_être je dois faire une autovacuum toutes les minutes là parce que c&#039;est problématique?</p>]]></content>
+		<author>
+			<name><![CDATA[Artye]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=11787</uri>
+		</author>
+		<updated>2023-11-09T11:52:03Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34654#p34654</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème autovacuum ne marche pas]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34651#p34651"/>
+		<content type="html"><![CDATA[<p>Un VACUUM FULL nécessite un verrou exclusif sur la table, et bloque bien toute opération concurrente dessus.</p><br /><br /><p>Concernant autovacuum, en supposant qu&#039;il n&#039;est pas désactivé de manière globale, il devrait se déclancher après la modification d&#039;un nombre de ligne égal à 20% du nombre de ligne total dans la table (le autovacuum_vacuum_scale_factor à 0.2) + 1 (le autovacuum_vacuum_threshold).&#160; Vous êtes le seul à avoir accès à vos données et à la charge en modification, à vous de modifier ces paramètres pour faire en sorte qu&#039;autovacuum se déclenche à une fréquence suffisante pour éviter que la fragmentation n&#039;explose (sans faire en sorte qu&#039;il se déclenche après chaque modification, avoir un peu de bloat est normal et peut même être utile car cela permet de bénéficier des mise à jour HOT).</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2023-11-09T00:58:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34651#p34651</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème autovacuum ne marche pas]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34649#p34649"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>rjuju a écrit&#160;:</cite><blockquote><div><p>Dans le cas où (auto)vacuum n&#039;est pas effectué assez régulièrement la meilleure solution pour récupérer de l&#039;espace est effectivement bien souvent vacuum full.</p><br /><p>Un vacuum effectué de manière régulière permet bien de résoudre le problème, dans le sens où le bloat reste fixe plutôt que croitre continuellement, et la table à donc une volumétrie fixe (sauf évidemment s&#039;il y a plus d&#039;insertion que de suppression) ce qui semble être le problème ici.</p></div></blockquote></div><br /><p>Bonjour Rjuju, merci pour ta réponse.</p><p>Oui, en fait la majorité des operations sont des updates des lignes qui existent déjà (c&#039;est en fait des joueurs sur une liste, et sa position change tout le temps).</p><br /><p> Mai bon, je n&#039;ai pas spécifie que pour les tables &quot;listaTFT_datoscompetitivo&quot; et &quot;listaTFT_studydatajugadorestft&quot; les données qui changent sont sauvegardés en format JSON. Je sais que ce n&#039;est pas très bien de faire ça, mais je reçois des longues listes en format JSON et je ne savais pas une autre manière de les sauvegarder. Peut-être c&#039;est la raison que j&#039;ai plusieurs KB de enregistrement.<br />parce<br />De toute façon, la majorité d&#039;operations c&#039;est des updates, donc je en comprend pas pourquoi les tables grandissent comme ça. J&#039;ai peur de faire plus vacuum full, parce que j&#039;ai lu que ça &quot;bloque&quot; les opérations, donc je le fait seulement une fois chaque nuit, et aussi je pense que ce n&#039;est pas la bonne solution.</p>]]></content>
+		<author>
+			<name><![CDATA[Artye]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=11787</uri>
+		</author>
+		<updated>2023-11-08T10:36:45Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34649#p34649</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème autovacuum ne marche pas]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34648#p34648"/>
+		<content type="html"><![CDATA[<p>Dans le cas où (auto)vacuum n&#039;est pas effectué assez régulièrement la meilleure solution pour récupérer de l&#039;espace est effectivement bien souvent vacuum full.</p><br /><p>Un vacuum effectué de manière régulière permet bien de résoudre le problème, dans le sens où le bloat reste fixe plutôt que croitre continuellement, et la table à donc une volumétrie fixe (sauf évidemment s&#039;il y a plus d&#039;insertion que de suppression) ce qui semble être le problème ici.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2023-11-08T01:58:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34648#p34648</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème autovacuum ne marche pas]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34647#p34647"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>L&#039;autovacuum et le vacuum full sont 2 opérations différentes.<br />La vacuum full va réorganiser tous les blocs des tables, rendant l&#039;espace disque, un peu comme si vous faisiez un export/import. Ce qui explique que la table passe de 3GB à 20MB.<br />L&#039;autovacuum ne fait pas ça, à la place il va &quot;flaguer&quot; les lignes mortes pour qu&#039;elles puissent être réutilisées par de nouvelles lignes. Donc dans ce cas la table ne devient pas plus petite, l&#039;espace n&#039;est pas rendu. Au mieux la table ne grossit pas ou moins vite que sans l&#039;autovacuum.<br />Vous pouvez checker les actions autovacuum et autoanalyze dans cette vue : pg_stat_all_tables.</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2023-11-07T13:38:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34647#p34647</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème autovacuum ne marche pas]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34646#p34646"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><br /><p>Les 3GB - 20 MB viennent-ils vraiment des modifications de quelques lignes chaque minute sur 3 tables ?&#160; Si oui cela voudrait dire une taille de plusieurs KB par enregistrement.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2023-11-07T13:25:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34646#p34646</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Problème autovacuum ne marche pas]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34644#p34644"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;ai un problème avec le autovacuum dans ma base de données. J&#039;ai quelque tables qui modifient 2 o 3 rows chaque minute, mais le auovacuum avec les paramètres standard ne marchait pas, et j&#039;ai essayé de diminuer les threshold, mais j&#039;ai eu aucun résultat. Je suis forcé a faire un Vacuum Full tous les nuits pour nettoyer la base de données, parce que 20 MB se transforment en 3 GB dans un jour. J&#039;utilise PhpPgAdmin sur l&#039;interface web, je vous laisse ici les paramètres des autovacuums des tables problematiques (c&#039;est tout standard sauf le threshold):</p><p>Schema&#160; &#160; Table&#160; &#160;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Enabled&#160; &#160; Vacuum Base Threshold&#160; &#160; Vacuum Scale Factor&#160; &#160; Analyze Base Threshold&#160; &#160; Analyze Scale Factor&#160; &#160; Vacuum Cost Delay&#160; &#160; Vacuum Cost Limit<br />public&#160; &#160; listaTFT_datoscompetitivo&#160; &#160;&#160; &#160; &#160; &#160; &#160;on&#160; &#160;&#160; &#160; &#160; &#160; &#160; &#160; &#160; 1&#160; &#160;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; 0.2&#160; &#160;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;50&#160; &#160;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; 0.1&#160; &#160;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; 2ms&#160; &#160;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; -1<br />public&#160; &#160; listaTFT_jugadortft&#160; &#160;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;on&#160; &#160;&#160; &#160; &#160; &#160; &#160; &#160; &#160; 1&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; 0.2&#160; &#160;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; 50&#160; &#160;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; 0.1&#160; &#160;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; 2ms&#160; &#160;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; -1<br />public&#160; &#160; listaTFT_studydatajugadorestft&#160; &#160; on&#160; &#160;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;1&#160; &#160;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; 0.2&#160; &#160;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;50&#160; &#160;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; 0.1&#160; &#160;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;2ms&#160; &#160;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; -1</p><p>Si quelqu&#039;un sait quel peut être le problème, il m&#039;aiderai beaucoup. La version de PostgreSQL est 12.16</p>]]></content>
+		<author>
+			<name><![CDATA[Artye]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=11787</uri>
+		</author>
+		<updated>2023-11-07T12:03:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34644#p34644</id>
+	</entry>
+</feed>

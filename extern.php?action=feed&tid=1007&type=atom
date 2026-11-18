@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Besoin d'éclaircissement sur plan d'analyse]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1007&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1007"/>
+	<updated>2010-10-08T07:11:34Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1007</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Besoin d'éclaircissement sur plan d'analyse]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6293#p6293"/>
+		<content type="html"><![CDATA[<p>Si l&#039;estimation est bonne, le moteur a fait le bon choix: il est plus rapide de lire séquentiellement toute une table quand une grande partie de celle-ci est retournée par une requête, que de la lire en passant par un index. Il est très improbable que vous puissiez récupérer 22 millions d&#039;enregistrements par un scan d&#039;index en 3 minutes (comptez plutôt 3 heures).</p><p>L&#039;insert lui même était probablement très lent si la table de destination (ma_table) a beaucoup d&#039;index.</p><p>Pour le Out of memory error, c&#039;est normal: par défaut, psql récupère l&#039;ensemble des enregistrements en mémoire avant de les afficher. C&#039;est psql (l&#039;application cliente) qui faisait un out of memory (22 millions d&#039;enregistrements à stocker en mémoire), pas postgresql lui même.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-10-08T07:11:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6293#p6293</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Besoin d'éclaircissement sur plan d'analyse]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6292#p6292"/>
+		<content type="html"><![CDATA[<p>L&#039;estimation du nombre d&#039;enregistrements retournés était bonne.<br />Ma question est plutôt, pourquoi il n&#039;utilise pas l&#039;index car, ici, cette requête mettait plus de 3 minutes pour s&#039;exécuter (serveur bi quad-xeon avec 32Go de RAM)<br />(évidemment, je ne tiens pas compte ensuite du temps de lecture du recordset...)</p><p>De plus, la &quot;vraie&quot; requête était du style</p><p>insert into ma_table SELECT * FROM indexation.lot_index WHERE id_lot IN (167582,167586)</p><p>Je l&#039;ai interrompue après plus de 2 heures d&#039;exécution !</p><p>Remarque complémentaire, probablement liée; en exécutant le &quot;SELECT * FROM indexation.lot_index WHERE id_lot IN (167582,167586)&quot;, parfois, j&#039;obtenais un résultat, parfois un &quot;Out of memory error&quot; ?!?</p><p>Pour être tout-à-fait complet, j&#039;ai modifié mon traitement, et je n&#039;ai plus besoin des requêtes évoquées ici, mais je suis tout de même intrigué !</p>]]></content>
+		<author>
+			<name><![CDATA[jhashe]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=379</uri>
+		</author>
+		<updated>2010-10-08T07:02:52Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6292#p6292</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Besoin d'éclaircissement sur plan d'analyse]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6269#p6269"/>
+		<content type="html"><![CDATA[<p>Et il y a combien de lignes dans cette table ?</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-10-07T10:03:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6269#p6269</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Besoin d'éclaircissement sur plan d'analyse]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6267#p6267"/>
+		<content type="html"><![CDATA[<p>Il estime que id_lot IN (167582,167586) va ramener 22064588 enregistrements.</p><p>Il a faux ?</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-10-07T10:00:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6267#p6267</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Besoin d'éclaircissement sur plan d'analyse]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6264#p6264"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je rencontre une situation que je ne comprends pas:</p><p>Je veux exécuter la requête suivante:<br />SELECT * FROM indexation.lot_index WHERE id_lot IN (167582,167586)</p><p>La table en question possède un index sur id_lot <br />CREATE INDEX idx_lot_lot_index<br />&#160; ON indexation.lot_index<br />&#160; USING btree<br />&#160; (id_lot);</p><p>Or, le plan d&#039;exécution de cette requête est:<br />&quot;Seq Scan on lot_index&#160; (cost=0.00..397340.40 rows=22064588 width=536)&quot;<br />&quot;&#160; Filter: (id_lot = ANY (&#039;{167582,167586}&#039;::integer[]))&quot;</p><p>Résultat, l&#039;exécution de cette requête pourtant simple demande plusieurs dizaines de minutes.</p><p>Bien entendu, j&#039;ai relancé un ANALYZE sur la table en question, sans succès.</p><br /><p>Il y&#160; a sûrement une subtilité qui m&#039;échappe, mais... laquelle ?</p>]]></content>
+		<author>
+			<name><![CDATA[jhashe]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=379</uri>
+		</author>
+		<updated>2010-10-07T09:21:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6264#p6264</id>
+	</entry>
+</feed>

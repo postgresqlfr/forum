@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / pl/sql]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=490&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=490"/>
+	<updated>2009-11-21T13:48:56Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=490</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pl/sql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2999#p2999"/>
+		<content type="html"><![CDATA[<p>Il faut utiliser l&#039;ordre SQL EXECUTE. Quelque chose du genre :</p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION f1(nom_table text)
+RETURNS int4
+LANGUAGE plpgsql
+AS $$
+DECLARE
+  requete text;
+BEGIN
+  requete := &#039;SELECT .... FROM &#039; || nom_table | &#039;...&#039;;
+  EXECUTE requete;
+  RETURN 1;
+END;
+$$;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2009-11-21T13:48:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2999#p2999</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pl/sql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2998#p2998"/>
+		<content type="html"><![CDATA[<p>bonjour <br />merci gleu pour me repondre mais si tu peut me dire comment</p>]]></content>
+		<author>
+			<name><![CDATA[imenisg]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=557</uri>
+		</author>
+		<updated>2009-11-21T12:24:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2998#p2998</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pl/sql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2995#p2995"/>
+		<content type="html"><![CDATA[<p>Oui, c&#039;est possible.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2009-11-20T21:39:06Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2995#p2995</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pl/sql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2994#p2994"/>
+		<content type="html"><![CDATA[<p>salut </p><p>je veux s&#039;avoir si je peut introduire dans une fonction le nom de la table comme paramètre<br />puis faire des operations sur cette table</p>]]></content>
+		<author>
+			<name><![CDATA[imenisg]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=557</uri>
+		</author>
+		<updated>2009-11-20T20:35:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2994#p2994</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pl/sql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2986#p2986"/>
+		<content type="html"><![CDATA[<p>Ce qui est derrière le EXECUTE ne génèrera pas de SQL valide. Il faut que l&#039;ensemble des champs concaténés soit une requête.</p><p>Pour commencer il manque un certain nombre de ||.</p><p>Ensuite &#039;FROM f_table_name = &#039; n&#039;est pas du SQL standard non plus (pas de = dans la clause FROM).</p><p>rec ne devrait pas aller dans la clause SELECT mais dans une clause INTO.</p><p>Et pour finir, la requête a l&#039;air statique. Aucun intérêt donc à faire un EXECUTE dans le code au lieu de mettre directement la requête…</p><p>Que voulez vous faire exactement ? Avez vous déjà recherché des exemples de code similaire à ce que vous voulez faire ?</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2009-11-20T14:37:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2986#p2986</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[pl/sql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2984#p2984"/>
+		<content type="html"><![CDATA[<p>salut ,<br />je definie cette fonction je donne le nom de tableau comme paramétre : </p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION nomm(character varying, integer)
+  RETURNS character varying AS
+$BODY$
+DECLARE
+rec  RECORD ;
+col text;
+table_name alias for $1 ;
+BEGIN
+col = &#039;id&#039;;
+  EXECUTE&#039;SELECT rec FROM f_table_name = &#039; ||
+    quote_literal(table_name) &#039;WHERE f_table_column = &#039;|| quote_literal(col) and  table_name.col= $2;
+
+    
+     RETURN rec.road_name;
+END;
+$BODY$
+  LANGUAGE &#039;plpgsql&#039; VOLATILE
+  COST 100;</code></pre></div><p>et j ai la&#160; resultat suivante :<br />ERROR:&#160; type &quot;quote_literal&quot; does not exist<br />merci d&#039;avance <br />imen</p>]]></content>
+		<author>
+			<name><![CDATA[imenisg]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=557</uri>
+		</author>
+		<updated>2009-11-20T14:21:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2984#p2984</id>
+	</entry>
+</feed>

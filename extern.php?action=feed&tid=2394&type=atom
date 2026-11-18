@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Cohérence des backups]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2394&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2394"/>
+	<updated>2012-11-29T14:17:59Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2394</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Cohérence des backups]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15946#p15946"/>
+		<content type="html"><![CDATA[<p>Super clair.<br />Merci à tous, je cours faire des backups !</p>]]></content>
+		<author>
+			<name><![CDATA[Yo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2041</uri>
+		</author>
+		<updated>2012-11-29T14:17:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15946#p15946</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Cohérence des backups]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15944#p15944"/>
+		<content type="html"><![CDATA[<p>En gros, oui, il vaut mieux utiliser pg_dump.</p><p>Mais ce que fait pg_dump est facilement imitable. Il suffit d&#039;ouvrir une transaction en mode &quot;repeatable read&quot;, de placer un verrou sur chaque table (style access share), et re faire des COPY TO. Ceci que pour les données. Reste évidemment ensuite les déclarations d&#039;objets. Donc faisable, mais pas simple. Beaucoup plus facile (et sûr) de passer par pg_dump <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-11-29T13:44:06Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15944#p15944</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Cohérence des backups]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15943#p15943"/>
+		<content type="html"><![CDATA[<p>Plus précisément, pg_dump déclenche un snapshot de la base, tout simplement en commençant son travail par un ordre «begin transaction isolation level repeatable read» (je crois que c&#039;était serializable qu&#039;il utilisait dans les versions précédentes». On a donc des données cohérentes sur l&#039;ensemble du dump. On peut même pousser le vice dans les versions récentes (9.1 et +) à lui passer l&#039;option «--serializable-deferrable», afin qu&#039;il réalise le dump en «serializable», ce qui permet d&#039;avoir non seulement un export cohérent au sens auquel vous l&#039;entendez, mais aussi avec la notion de transactions sérialisables. <a href="http://wiki.postgresql.org/wiki/SSI/fr" rel="nofollow">http://wiki.postgresql.org/wiki/SSI/fr</a></p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2012-11-29T13:42:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15943#p15943</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Cohérence des backups]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15942#p15942"/>
+		<content type="html"><![CDATA[<p>Juste pour enfoncer le clou. <br />Donc&#160; pg_dump se base en gros sur un numéro de transaction en début d&#039;exécution et s&#039;y tient pour la lecture et donc la sauvegarde des lignes.<br />Ceci implique qu&#039; il vaut mieux utiliser ces outils plutôt qu&#039;une succession de select basiques redirigés dans un fichier texte (ou programme maison) qui ne tiendraient pas compte de cette information cruciale. <br />Merci Guillaume.</p>]]></content>
+		<author>
+			<name><![CDATA[Yo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2041</uri>
+		</author>
+		<updated>2012-11-29T12:11:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15942#p15942</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Cohérence des backups]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15939#p15939"/>
+		<content type="html"><![CDATA[<p>PostgreSQL utilise MVCC, comme de nombreux autres SGBD. L&#039;implémentation est un peu différente de celles des autres SGBD mais cela ne change pas le but de MVCC, à savoir permette aux écrivains et aux lecteurs de travailler en même temps, sans se gêner. En fait, PostgreSQL peut avoir deux versions simultanées de la même ligne, ce qui fait que la transaction qui a fait une modification voit la ligne modifiée alors que les autres voient l&#039;ancienne ligne tant que la transaction n&#039;a pas été commitée.</p><p>Donc pour résumer :<br /> * pg_dump et pg_dumpall font des sauvegardes cohérentes à chaud ;<br /> * sans bloquer les utilisateurs ;<br /> * sauf si ces derniers cherchent à supprimer les tables (DROP TABLE) ou à les redéfinir (style ALTER TABLE pour ajouter une colonne).</p><p>Si la sauvegarde dure 5 heures, le fichier résultant contiendra le contenu de la base 5h avant.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-11-29T11:21:21Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15939#p15939</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Cohérence des backups]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15935#p15935"/>
+		<content type="html"><![CDATA[<p>Que font ces utilitaires pour assurer cette cohérence, notamment lors de backup de gros volumes.<br />Je m&#039;explique par exemple avec 2 tables de données, T1 table de métadonnées, T2 table de données, très volumineuse et qui possède une contrainte étrangère sur T1.<br />Je lance pg_dump, qui commence par sauvegarder T2.<br />Presque en fin de backup de T2, une ligne de T1 référencée par des données de T2 est supprimée.<br />Que se passe-t-il au niveau du fichier résultat et de la cohérence des données ?<br />Postgres assure-t-il la cohérence en bloquant temporairement&#160; les transactions ?</p><p>Merci</p>]]></content>
+		<author>
+			<name><![CDATA[Yo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2041</uri>
+		</author>
+		<updated>2012-11-29T10:10:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15935#p15935</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Cohérence des backups]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15934#p15934"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Cohérence : oui sans problème pour les deux.<br />pg_dump =&gt; backup d&#039;une base d&#039;un cluster<br />pg_dumpall =&gt; backup de toutes les bases d&#039;un cluster</p>]]></content>
+		<author>
+			<name><![CDATA[arthurr]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=62</uri>
+		</author>
+		<updated>2012-11-29T08:46:35Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15934#p15934</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Cohérence des backups]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15933#p15933"/>
+		<content type="html"><![CDATA[<p>Bonjour, <br />je débute sous Postgres et je me pose des questions sur le backup de bases de prod.<br />J&#039;ai noté que Postgres propose 2 utilitaires pour réaliser des sauvegardes : pg_dump et pg_dumpall<br />Existe-t-il un moyen de réaliser avec ces outils des backups cohérents sans interrompre les alimentations ?<br />Merci.</p>]]></content>
+		<author>
+			<name><![CDATA[Yo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2041</uri>
+		</author>
+		<updated>2012-11-29T08:42:29Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15933#p15933</id>
+	</entry>
+</feed>

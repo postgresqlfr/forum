@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Bug pg_repack]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5930&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5930"/>
+	<updated>2021-02-03T11:27:20Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5930</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Bug pg_repack]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31968#p31968"/>
+		<content type="html"><![CDATA[<p>Je ne suis pas certain que vous attaquiez le problème sous le bon angle.&#160; Tout d&#039;abord, avoir du bloat est inévitable et est même recommandé.&#160; Cet espace inutilisé permet des optimisations type HOT.</p><br /><p>Le vrai problème n&#039;est pas d&#039;avoir 1%, 5%, 10% ou n&#039;importe quel ratio de bloat, le problème est d&#039;avoir un ratio de bloat qui grandit constamment.&#160; Avec une bonne configuration d&#039;autovacuum et des appels à VACUUM dans les cas nécessaires, vous devriez avoir un ratio stable et donc pas de besoin de faire de VACUUM FULL, sauf dans les cas extrêmes ou vous réécrivez la presque totalité de la table, ce qui revient à avoir par exemple 90% de bloat, qui certes sera réutilisé à terme, mais pourrait prendre des mois ou des années.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2021-02-03T11:27:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31968#p31968</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Bug pg_repack]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31965#p31965"/>
+		<content type="html"><![CDATA[<p>Donc au final si on a besoin de regagner de l&#039;espace disque occupé par des lignes &quot;vides&quot; dans les tables, il faut faire un VACUUM FULL.</p><p>1- De ce fait, même avec un paramétrage bien fait de l&#039;autovacuum, on est obligé de faire le VACUUM FULL; même avec espacement important 1 fois par mois, trimestre...?<br />et si l&#039;autovacuum ralenti la vitesse du &quot;bloat&quot; s&#039;il est bien paramétré?<br />2- Si on se concentre sur la question de l&#039;autovacuum et le faire d&#039;une façon optimale est ce qu&#039;on aura le résultat attendu au niveau performance? (bien évidemment associé avec le tuning ressources matériel, moteur BDD, code SQL...etc.)</p>]]></content>
+		<author>
+			<name><![CDATA[lemjid]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1579</uri>
+		</author>
+		<updated>2021-02-03T09:34:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31965#p31965</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Bug pg_repack]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31959#p31959"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>@Julien, est ce que je comprend qu&#039;une bonne configuration d&#039;autuvacuum est capable de nous épargner tout ça?</p></div></blockquote></div><p>Tout dépdend ce que vous entendez par &quot;ça&quot;.&#160; L&#039;autovacuum est censé éviter un bloat excessif dans la majorité des cas, et des VACUUM manuels pour les cas où autovacuum ne peut pas fonctionner (transaction longue par exemple).&#160; Le seul cas ou un VACUUM FULL est vraiment nécessaire est la suppression ou mise à jour d&#039;une très grande partie de la table.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2021-02-02T19:50:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31959#p31959</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Bug pg_repack]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31954#p31954"/>
+		<content type="html"><![CDATA[<p>Merci Guillaume merci Julien d&#039;avoir pris le temps pour me répondre.</p><p>Par ailleurs, dans le cas d&#039;une base volumineuse ou une autre qui devra être disponible 7/24, Comment peut-on pallier aux problème de fragmentation et l&#039;organisation des lignes mortes des tables.<br />Comment prévoyez vous la récupération la récupération de l&#039;espace disque?</p><p>@Julien, est ce que je comprend qu&#039;une bonne configuration d&#039;autuvacuum est capable de nous épargner tout ça?</p><p>Par avance meci.</p>]]></content>
+		<author>
+			<name><![CDATA[lemjid]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1579</uri>
+		</author>
+		<updated>2021-02-02T17:09:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31954#p31954</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Bug pg_repack]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31947#p31947"/>
+		<content type="html"><![CDATA[<p>De plus, si vous avez besoin d&#039;effectuer régulièrement des VACUUM FULL (ou équivalent), c&#039;est dans la majorité des cas une mauvaise configuration d&#039;autovacuum ou un manque de VACUUM manuel dans certains traitements.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2021-02-02T13:43:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31947#p31947</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Bug pg_repack]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31941#p31941"/>
+		<content type="html"><![CDATA[<p>Je fais partie de Dalibo mais je vais répondre quand même. En allant simplement sur le GitHub du projet: Aucun commit depuis le 1er octobre. 61 tickets en attente. Aucune réponse depuis août 2020. Quelques tickets au titre évocateur : &quot;repack_apply() with bogus arguments causes engine crash&quot;, &quot;repack broken in the presence of an ALL TABLES publication set&quot;, &quot;query failed: server closed the connection unexpectedly&quot;. Ça donne moyennement confiance.</p><p>Pas d&#039;expérience sur l&#039;outil, donc je ne pourrais pas aller plus loin.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2021-02-02T13:20:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31941#p31941</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Bug pg_repack]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31939#p31939"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Si quelqu&#039;un pourra me dire quelque chose à ce sujet.</p><p>Par avance merci</p>]]></content>
+		<author>
+			<name><![CDATA[lemjid]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1579</uri>
+		</author>
+		<updated>2021-02-02T12:50:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31939#p31939</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Bug pg_repack]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31931#p31931"/>
+		<content type="html"><![CDATA[<p>Bonjour tout le monde,</p><p>Tout d&#039;abord vu la situation actuelle, j&#039;espère que vous allez tous bien ainsi que vos entourages respectifs.</p><p>Je suis en quête d&#039;une méthode et/ou un outil qui réorganise les relations de la base PostgreSQL et qui m&#039;épargne les désagréments de VACUUM FULL à savoir les locks avec des bases de données de plus en plus exigeants en terme de disponibilité.<br />L’extension pg_repack, est un bon compromis, mais à part l&#039;espace disque à fournir en plus pour le faire fonctionner. Ceci n&#039;est pas très grave, le support magnétique n&#039;est pas ce qui coûte le plus chère.</p><p>Le problème c&#039;est qu&#039;en cherchant, je trouve une publication de &quot;DALIBO&quot; disant ceci &quot;pg_repack étant très intrusif et ayant déjà affiché des bugs de corruption de données, nous déconseillons fortement son utilisation.&quot; Fin de Citation.<br />A savoir que pour les versions &lt;=1.1.8, il ne faut pas lancer des DDL au moment ou pg_repack fait sont travail car il y a un risque sérieux de corruption de données à défaut d&#039;un rollback.</p><p>Ma question est : La recommandation de BALIBO concerne t elle les anciennes version ou elle est toujours d&#039;actualité.</p><p>Est ce que quelqu&#039;un utilise l’outil &quot;pg_repack en production &quot;surtout pour des base à grande taille &gt;=500Go, pourra partager son/ses expérience.</p><br /><p>Par avance merci</p>]]></content>
+		<author>
+			<name><![CDATA[lemjid]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1579</uri>
+		</author>
+		<updated>2021-02-01T14:47:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31931#p31931</id>
+	</entry>
+</feed>

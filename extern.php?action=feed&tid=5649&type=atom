@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Message d'erreur à création d'index]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5649&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5649"/>
+	<updated>2019-11-27T17:23:04Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5649</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Message d'erreur à création d'index]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30443#p30443"/>
+		<content type="html"><![CDATA[<p>Effectivement si le CSV est généré sans considérer le guillemet comme un caractère spécial, ça peut produire ce genre de problème. Et c&#039;est assez plausible parce que pas mal de générateurs sont baclés en 3 lignes de code sans se soucier de cette règle ou des champs multilignes.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2019-11-27T17:23:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30443#p30443</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Message d'erreur à création d'index]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30442#p30442"/>
+		<content type="html"><![CDATA[<p>J&#039;ai trouvé l&#039;explication , en fait dans mon fichier csv j&#039;avais 8 champs texte qui commençait par un guillemet unique , quand je fais COPY lors du balayage Postgresql trouve le premier guillemet et cherche ensuite le second , une fois trouvé il met tout ça ensemble ce qui fait que à partir d&#039;un fichier csv qui a des champs avec quelque dizaines de caractères , je me retrouve avec 4 champs qui ont plusieurs millions de caractères , ce qui explique l&#039;indexation impossible et la disparition de plusieurs milliers de lignes et que quand Postgresql exporte la table en csv on retrouve le nombre de lignes car il a conservé le caractère LF .<br />En fait c&#039;est ce que j&#039;ai cru comprendre .</p>]]></content>
+		<author>
+			<name><![CDATA[Notill]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8754</uri>
+		</author>
+		<updated>2019-11-27T12:47:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30442#p30442</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Message d'erreur à création d'index]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30441#p30441"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>le fichier résultant à 2 902 297 lignes , étonnant non .</p></div></blockquote></div><p>Pas plus que ça, puisque comme l&#039;a écrit Marc plus haut, le nombre de lignes d&#039;un fichier CSV peut être supérieur au nombre d&#039;enregistrements, vu qu&#039;un enregistrement peut s&#039;étaler sur plusieurs lignes.</p><p>Le format CSV est décrit ici: <a href="https://tools.ietf.org/html/rfc4180" rel="nofollow">https://tools.ietf.org/html/rfc4180</a><br />et Postgres suit à peu près cette spécification, sauf pour le CRLF de fin de ligne qui peut être un LF seul.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2019-11-26T18:09:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30441#p30441</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Message d'erreur à création d'index]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30440#p30440"/>
+		<content type="html"><![CDATA[<p>Après quelques manipulations voila ce que je constate .<br />Comptage du nombre de lignes avec Python du fichier csv :2 902 297 <br />Insertion avec du code python du fichier csv dans une table Postgres , c&#039;est à dire balayage du fichier ligne par ligne avec requête insert à chaque ligne et comptage des enregistrements ( ça ma quand même pris plusieurs heures )<br />Python à compter 2 902 297 enregistrements , quand je fait COUNT sur la table on a 2 902 297 lignes , donc tout va bien </p><p>Quand je rentre le même fichier CSV avec une requête SQL commande COPY , j&#039;ai avec COUNT sur la table 1 554 136 lignes&#160; , mais quand j&#039;exporte ma table en fichier CSV , le fichier résultant à 2 902 297 lignes , étonnant non .</p><p>J&#039;ai fait ça pour plusieurs fichiers et à chaque fois , quand j&#039;importe avec COPY je n&#039;ai pas le même nombre de lignes dans la table et le fichier CSV .</p><p>Bon sur ce , je vais passer à autre chose .</p>]]></content>
+		<author>
+			<name><![CDATA[Notill]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8754</uri>
+		</author>
+		<updated>2019-11-26T14:57:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30440#p30440</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Message d'erreur à création d'index]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30439#p30439"/>
+		<content type="html"><![CDATA[<p>Pour le csv je regarde ça de plus près , à mon avis plus de 1 400 000 lignes qui manque cela doit se voir !!!! ou s&#039;expliquer assez simplement .<br />Malheureusement je ne peux pas l&#039;ouvrir dans un tableur , je vais regarder cela avec Python .<br />Je fais de l&#039;informatique ,de la base de données en amateur donc rien d&#039;urgent , encore merci de m&#039;avoir répondu .</p>]]></content>
+		<author>
+			<name><![CDATA[Notill]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8754</uri>
+		</author>
+		<updated>2019-11-25T11:14:31Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30439#p30439</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Message d'erreur à création d'index]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30438#p30438"/>
+		<content type="html"><![CDATA[<p>J&#039;imagine que ce n&#039;est pas 40 caractères (soit maximum 160 octets en utf8), mais une faute de frappe ?</p><p>Pour le fichier CSV, vous êtes sûr d&#039;avoir vérifié l&#039;intégralité des lignes ?<br />Les caractères non-ascii ne posent pas de problème, tant que l&#039;encodage de votre fichier est le même que celui de la session (ou que vous avez passé l&#039;encoding à COPY). Vous pouvez voir l&#039;encoding de la session avec SHOW client_encoding... aucune idée de ce que fait pgadmin4 de ce point de vue...</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2019-11-25T10:03:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30438#p30438</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Message d'erreur à création d'index]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30437#p30437"/>
+		<content type="html"><![CDATA[<p>Compris pour les index , en fait mon champ peut contenir plus 40 caractères .<br /> .<br />Pour le fichier .csv ( je suis sur Linux ) quand je l&#039;ouvre avec GEANY , normalement une ligne un enregistrement avec pour chaque ligne le champ 1 puis la virgule puis le champ 2 puis le caractère \n LF .<br />Et j&#039;ai bien 2 902 593 lignes , après dans le champ 2 j&#039;ai des caractères non ASCII cela peut&#039;il poser problème .</p>]]></content>
+		<author>
+			<name><![CDATA[Notill]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8754</uri>
+		</author>
+		<updated>2019-11-24T17:06:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30437#p30437</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Message d'erreur à création d'index]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30436#p30436"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>&quot;ERREUR: la ligne index requiert 1298240 octets, la taille maximum est 8191&quot;.</p></div></blockquote></div><p>=&gt; Vous avez des champs trop gros pour être indexés. J&#039;imagine que c&#039;est une chaîne de caractères que vous essayez d&#039;indexer ? Si oui, il y a une limite (elle est même plus basse en fait). On a quelques moyens de contournement, mais c&#039;est à voir dans un second temps.</p><div class="quotebox"><blockquote><div><p>D&#039;autre part à partir d&#039;une table vide sans index quand j&#039;ai voulu importer un fichier .csv avec 2 902 593 lignes il a été importer que 1 554 138 lignes sans message d&#039;erreur , bizarre non .</p></div></blockquote></div><p>Non, pas forcément, on peut très bien avoir des retours de chariots dans un CSV. Un enregistrement de ce genre par exemple:</p><div class="codebox"><pre><code>1;&quot;bonjour
+les copains&quot;
+2;toto</code></pre></div><p>3 lignes, 2 enregistrements.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2019-11-24T16:37:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30436#p30436</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Message d'erreur à création d'index]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30435#p30435"/>
+		<content type="html"><![CDATA[<p>Bonjour <br />Je suis tout débutant en Postgresql donc il doit avoir des choses que je n&#039;ai pas faites .<br />J&#039;ai une table avec deux champs sans aucun index avec actuellement 1 554 138&#160; lignes , quand je veux mettre un index sur un champ j&#039;ai le message d&#039;erreur suivant :<br />&quot;ERREUR: la ligne index requiert 1298240 octets, la taille maximum est 8191&quot;.</p><p>D&#039;autre part à partir d&#039;une table vide sans index quand j&#039;ai voulu importer un fichier .csv avec 2 902 593 lignes il a été importer que 1 554 138 lignes sans message d&#039;erreur , bizarre non .<br />Texte de mon SQL : COPY nom(id,nom_art) FROM &#039;/home/notill/xaa_8.csv&#039; DELIMITER &#039;,&#039; CSV ;</p><p>A la création d&#039;une table y a t&#039;il des limites à lever ?<br />J&#039;ai fait tout ça à partir de pgadmin4 , Postgresql 12.1 .<br />Merci d&#039;avance pour les réponses .</p>]]></content>
+		<author>
+			<name><![CDATA[Notill]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8754</uri>
+		</author>
+		<updated>2019-11-24T11:49:38Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30435#p30435</id>
+	</entry>
+</feed>

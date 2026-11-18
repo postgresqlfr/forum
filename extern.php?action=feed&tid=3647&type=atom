@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Chargement de données avec pgloader]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3647&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3647"/>
+	<updated>2015-10-05T16:16:25Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3647</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Chargement de données avec pgloader]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22505#p22505"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Les sources ont été modifiées par l&#039;auteur et les tests réalisés avec l&#039;exécutable construit à partir de ces sources sont positifs.</p>]]></content>
+		<author>
+			<name><![CDATA[jacques]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1066</uri>
+		</author>
+		<updated>2015-10-05T16:16:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22505#p22505</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Chargement de données avec pgloader]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22423#p22423"/>
+		<content type="html"><![CDATA[<p>Non. À voir avec l&#039;auteur de l&#039;outil pour qu&#039;il corrige ce bug.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2015-09-15T20:25:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22423#p22423</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Chargement de données avec pgloader]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22422#p22422"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><p>avec une table t créée de la sorte :<br />SQL&gt;<br />CREATE TABLE t(a integer, b timestamp without time zone, c real);</p><br /><p>un fichier de commandes pgloader_commandes.txt :<br />LOAD CSV&#160; <br />&#160; &#160; &#160; FROM &#039;./donnees_a_charger.csv&#039; (a, b, c)<br />&#160; &#160; &#160; INTO postgresql://anonymous:anonymous@mamachine:5432/mabase?t(a,b,c)<br />WITH fields terminated by &#039;;&#039;<br />;</p><br /><p>un fichier de données donnees_a_charger.csv :<br />100;2015-01-01 00:00:00;-6<br />101;2015-01-02 00:00:00;-2.1<br />102;2015-01-03 00:00:00;3.4<br />103;2015-01-04 00:00:00;4.7<br />104;2015-01-05 00:00:00;0.4</p><br /><p>Si je lance pgloader avec le fichier de commandes pgloader_commandes.txt en simple argument, il charge bien la table t :<br />pgloader ./pgloader_commandes.txt<br />2015-09-15T13:19:55.129000Z LOG Main logs in &#039;/tmp/pgloader/pgloader.log&#039;<br />2015-09-15T13:19:55.140000Z LOG Data errors in &#039;/tmp/pgloader/&#039;<br />2015-09-15T13:19:55.140000Z LOG Parsing commands from file #P&quot;/home/climsol/chaine/pgloader_commandes.txt&quot;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; table name&#160; &#160; &#160; &#160;read&#160; &#160;imported&#160; &#160; &#160;errors&#160; &#160; &#160; &#160; &#160; &#160; time<br />------------------------------&#160; ---------&#160; ---------&#160; ---------&#160; --------------<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;fetch&#160; &#160; &#160; &#160; &#160; 0&#160; &#160; &#160; &#160; &#160; 0&#160; &#160; &#160; &#160; &#160; 0&#160; &#160; &#160; &#160; &#160; 0.016s<br />------------------------------&#160; ---------&#160; ---------&#160; ---------&#160; --------------<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;u&#160; &#160; &#160; &#160; &#160; 5&#160; &#160; &#160; &#160; &#160; 5&#160; &#160; &#160; &#160; &#160; 0&#160; &#160; &#160; &#160; &#160; 0.048s<br />------------------------------&#160; ---------&#160; ---------&#160; ---------&#160; --------------<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160;Total import time&#160; &#160; &#160; &#160; &#160; 5&#160; &#160; &#160; &#160; &#160; 5&#160; &#160; &#160; &#160; &#160; 0&#160; &#160; &#160; &#160; &#160; 0.064s</p><br /><p>Par contre, si je lance pgloader avec les options en paramètres, j&#039;ai une erreur a priori sur l&#039;argument --with :<br />pgloader --type csv --field &quot;a,b,c&quot; --with &quot;fields terminated by &#039;;&#039;&quot; ./donnees_a_charger.csv postgresql://anonymous:anonymous@mamachine:5432/mabase?t</p><p>=&gt; MESSAGE D&#039;ERREUR :<br />An unhandled error condition has been signalled: At</p><p>&#160; fields terminated by &#039;;&#039;<br />&#160; ^ (Line 1, Column 0, Position 0)</p><p>Could not parse KW-NO. Expected:</p><p>&#160; &#160; &#160;the character Space<br />&#160; or the character Tab<br />&#160; or the character Newline<br />&#160; or the string &quot;--&quot;<br />&#160; or the string &quot;/*&quot;<br />&#160; or the string &quot;no&quot;, disregarding case</p><p>Reached via</p><p>&#160; &#160; &#160;KW-NO<br />&#160; -&gt; (AND IGNORE-WHITESPACE (~ &quot;no&quot;) IGNORE-WHITESPACE)<br />&#160; -&gt; &quot;no&quot;</p><p>Could not parse WHITESPACE. Expected:</p><p>&#160; &#160; &#160;the character Space<br />&#160; or the character Tab<br />&#160; or the character Newline<br />&#160; or the string &quot;--&quot;<br />&#160; or the string &quot;/*&quot;</p><p>Reached via</p><p>2015-09-15T13:32:00.063000Z LOG Main logs in &#039;/tmp/pgloader/pgloader.log&#039;<br />2015-09-15T13:32:00.069000Z LOG Data errors in &#039;/tmp/pgloader/&#039;<br />2015-09-15T13:32:00.070000Z FATAL We have a situation here.<br />&#160; &#160; &#160;WHITESPACE<br />&#160; -&gt; (+ (OR Space Tab Newline Newline COMMENTS))<br />&#160; -&gt; (OR Space Tab Newline Newline COMMENTS)<br />&#160; -&gt; COMMENTS<br />&#160; -&gt; (OR SINGLE-LINE-COMMENT MULTI-LINE-COMMENT)<br />&#160; -&gt; MULTI-LINE-COMMENT<br />&#160; -&gt; (AND &quot;/*&quot; (+ (NOT &quot;*/&quot;)) &quot;*/&quot;)<br />&#160; -&gt; &quot;/*&quot;</p><p>Could not parse COPY-OPTION. Expected:</p><p>&#160; &#160; &#160;the string &quot;truncate&quot;, disregarding case<br />&#160; or the string &quot;skip&quot;, disregarding case<br />&#160; or the character Space<br />&#160; or the character Tab<br />&#160; or the character Newline<br />&#160; or the string &quot;--&quot;<br />&#160; or the string &quot;/*&quot;<br />&#160; or the string &quot;batch&quot;, disregarding case</p><p>Reached via</p><p>&#160; &#160; &#160;COPY-OPTION<br />&#160; -&gt; (OR OPTION-BATCH-ROWS OPTION-BATCH-SIZE OPTION-BATCH-CONCURRENCY<br />&#160; &#160; &#160; &#160; &#160;OPTION-TRUNCATE OPTION-SKIP-HEADER)<br />&#160; -&gt; OPTION-SKIP-HEADER<br />&#160; -&gt; (AND KW-SKIP KW-HEADER EQUAL-SIGN (+ (DIGIT-CHAR-P CHARACTER)))<br />&#160; -&gt; KW-SKIP<br />&#160; -&gt; (AND IGNORE-WHITESPACE (~ &quot;skip&quot;) IGNORE-WHITESPACE)<br />&#160; -&gt; &quot;skip&quot;</p><br /><p>Avez-vous une explication sur l&#039;erreur ?</p>]]></content>
+		<author>
+			<name><![CDATA[jacques]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1066</uri>
+		</author>
+		<updated>2015-09-15T13:46:06Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22422#p22422</id>
+	</entry>
+</feed>

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / replication  - changements?]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=6051&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=6051"/>
+	<updated>2021-06-25T13:04:33Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=6051</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  replication  - changements?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32637#p32637"/>
+		<content type="html"><![CDATA[<p>entre-termps j&#039;ai trouvé, il faut maintenant ajouter un fichier nommé standby.signal dans le dossier de données du standby, et tout fonctionne.</p>]]></content>
+		<author>
+			<name><![CDATA[albourg]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7029</uri>
+		</author>
+		<updated>2021-06-25T13:04:33Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32637#p32637</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  replication  - changements?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32633#p32633"/>
+		<content type="html"><![CDATA[<p>De plus, si vous voyez &quot;database system is ready to accept connections&quot; dans les logs du secondaire, c&#039;est que ce n&#039;est pas un secondaire, mais un serveur autonome. Donc pas étonnant qu&#039;il ne cherche pas à sa connecter au primaire.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2021-06-25T11:42:45Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32633#p32633</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  replication  - changements?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32628#p32628"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Il y a eu des modification depuis la 10.</p><p>À minima, il vous manque de standby_mode dans votre config principale (eg. postgresql.conf). Le recovery.conf quand à lui a disparu.</p>]]></content>
+		<author>
+			<name><![CDATA[ioguix]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=43</uri>
+		</author>
+		<updated>2021-06-25T09:46:29Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32628#p32628</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[replication  - changements?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32626#p32626"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><p>J&#039;ai mis en place un standby entre deux postgres 13 (centos 7) en utilisant la même confiig qui fonctionnait parfaitement entre deux postgres 10, à savoir:<br />* sur le master:</p><div class="codebox"><pre><code>listen_addresses = &#039;*&#039;
+archive_command = &#039;test ! -f /var/lib/pgsql/13/wal/%f &amp;&amp; cp %p /var/lib/pgsql/13/wal/%f&#039;
+archive_mode=on</code></pre></div><p>+ 1 ligne dans pg_hba.conf</p><br /><p>* sur le slave:</p><div class="codebox"><pre><code>listen_addresses = &#039;*&#039;
+port=5433
+primary_conninfo = &#039;host=127.0.0.1 user=postgres&#039;
+hot_standby = on
+restore_command = &#039;cp /var/lib/pgsql/13/wal/%f %p&#039;
+archive_cleanup_command = &#039;/usr/pgsql-13/bin/pg_archivecleanup /var/lib/pgsql/13/wal %r&#039;</code></pre></div><p>Mais ca ne marche plus: le slave ne se connecte pas au master, ne copie pas les mises à jour (j&#039;ai généré 1Gb d&#039;updates) et ne donne pas d&#039;erreur:</p><div class="quotebox"><blockquote><div><p>2021-06-25 10:59:12.928 CEST [3797] LOG:&#160; database system is ready to accept connections</p></div></blockquote></div><p>Régression? Ou est-on maintenant obligé d&#039;utiliser les &quot;replication slots&quot;? J&#039;ai essayé de créer un &quot;replication user&quot;, sans changement.</p><br /><p>Merci.</p>]]></content>
+		<author>
+			<name><![CDATA[albourg]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7029</uri>
+		</author>
+		<updated>2021-06-25T09:22:45Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32626#p32626</id>
+	</entry>
+</feed>

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Utilisation de RETURNING]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2104&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2104"/>
+	<updated>2012-06-12T22:12:19Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2104</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Utilisation de RETURNING]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14207#p14207"/>
+		<content type="html"><![CDATA[<p>Corrigé merci <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[Kevfou]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1541</uri>
+		</author>
+		<updated>2012-06-12T22:12:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14207#p14207</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Utilisation de RETURNING]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14206#p14206"/>
+		<content type="html"><![CDATA[<p>Le echo $row[&#039;num_com&#039;]; mentionné par Guillaume était juste là pour vous montrer où la variable était récupérée. Dans votre code il n&#039;est pas nécessaire de le laisser.</p><br /><p>Vous devez juste faire un fetch et vous assurer qu&#039;une ligne est bien récupérée, initialiser une variable avec $row[&#039;num_com&#039;] et utiliser cette variable dans votre 2nd insert.</p><br /><p>Dans votre exemple, cela ne devrait pas marcher car vous faîtes un while($row = pg_fetch_array()), et donc la variable $row doit être vide à la fin du while.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2012-06-12T21:36:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14206#p14206</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Utilisation de RETURNING]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14205#p14205"/>
+		<content type="html"><![CDATA[<p>Donc si je fais </p><div class="quotebox"><blockquote><div><p>&lt;?php</p><p>$dbconnect=pg_connect(&quot;host=localhost dbname=Stanhome user=postgres password=ifesuh2m&quot;);</p><p> <br />&#160; &#160; $num_cli=$_POST[&#039;num_client&#039;];<br />&#160; &#160; $total=$_POST[&#039;total_ht&#039;];<br />&#160; &#160; <br />&#160; &#160; $insert_commandes=&quot;INSERT INTO commandes (num_com, total_com, num_pers) VALUES (DEFAULT,&#039;&quot;.$total.&quot;&#039;,&#039;&quot;.$num_cli.&quot;&#039;) RETURNING&#160; num_com&quot;; // ?????</p><p>&#160; &#160;&#160; $result=pg_query($dbconnect, $insert_commandes);</p><p>&#160; &#160; <strong>while ($row = pg_fetch_array($result)) {<br />&#160; &#160; echo $row[&#039;num_com&#039;];<br />&#160; &#160; &#160; &#160; }</strong></p><p> <br />&#160; &#160;&#160; &#160;<br />&#160; &#160; $insert_ok=true;<br />&#160; &#160; <br />foreach($_POST[&#039;num_produit&#039;] as $cle=&gt;$numproduit){<br />&#160; &#160;<br />&#160; &#160; &#160; &#160; $qteproduit&#160; &#160; = $_POST[&#039;qte_produit&#039;][$cle];<br />&#160; &#160; &#160; &#160; <br />&#160; &#160; &#160; &#160; $insert_composer=&quot;INSERT INTO composer VALUES (&#039;&quot;.$qteproduit.&quot;&#039;, &#039;&quot;.<strong>$row[&#039;num_com&#039;]</strong>.&quot;&#039;,&#039;&quot;.$numproduit.&quot;&#039;)&quot;;</p><p>&#160; &#160; &#160; &#160; if(!$insert_composer) {$insert_ok=false;}</p><br /><br /><p>&#160; &#160; //}<br />}<br />&#160; &#160; pg_query($dbconnect, $insert_composer);<br /> //message<br />&#160; &#160;&#160; if($insert_ok){<br />&#160; &#160; &#160; &#160; echo &quot;Commande enregistrée&quot;;<br />&#160; &#160; }else{<br />&#160; &#160; &#160; &#160; echo &quot;PB Commande non enregistrée&quot;;<br />&#160; &#160; }&#160; &#160; <br />?&gt;</p></div></blockquote></div><p>Cela fonctionne ? J&#039;ai un peu de mal à comprendre l&#039;idée là.</p>]]></content>
+		<author>
+			<name><![CDATA[Kevfou]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1541</uri>
+		</author>
+		<updated>2012-06-12T20:22:33Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14205#p14205</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Utilisation de RETURNING]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14204#p14204"/>
+		<content type="html"><![CDATA[<p>Pour être plus explicite, il faut que vous récupériez le résultat du INSERT dans une variable et que vous l&#039;utilisiez comme si vous aviez fait un bête SELECT. Tout simplement.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-06-12T20:04:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14204#p14204</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Utilisation de RETURNING]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14203#p14203"/>
+		<content type="html"><![CDATA[<p>Voici un exemple de code qui fonctionne avec un RETURNING :</p><div class="codebox"><pre><code>&lt;?php
+
+$dbconnect=pg_connect(&quot;dbname=b1&quot;);
+
+$insert_commandes=&quot;INSERT INTO t1 (id) VALUES (DEFAULT), (DEFAULT), (DEFAULT) RETURNING id&quot;;
+$rows = pg_query($dbconnect, $insert_commandes);
+
+if (!$rows) {
+      echo &quot;An error occured.\n&quot;;
+        exit;
+}
+while ($row = pg_fetch_array($rows)) {
+    echo $row[&#039;id&#039;];
+}
+
+pg_close($dbconnect);
+?&gt;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-06-12T20:03:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14203#p14203</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Utilisation de RETURNING]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14202#p14202"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;essaie, en vain, de faire une double requête d&#039;insertion avec pour la 2éme la récupération de la clé primaire créer dans la 1ere requête.</p><p>Je m&#039;explique avec un exemple:</p><div class="quotebox"><blockquote><div><p>&lt;?php</p><p>$dbconnect=pg_connect(&quot;host=localhost dbname=Stanhome user=postgres password=.....&quot;);</p><p>$num_cli=$_POST[&#039;num_client&#039;];<br />$total=$_POST[&#039;total_ht&#039;];</p><p>$insert_commandes=&quot;INSERT INTO commandes (num_com, total_com, num_pers) VALUES (DEFAULT,&#039;&quot;.$total.&quot;&#039;,&#039;&quot;.$num_cli.&quot;&#039;) RETURNING num_com&quot;; </p><p>pg_query($dbconnect, $insert_commandes);</p><p>$insert_ok=true;</p><p>foreach($_POST[&#039;num_produit&#039;] as $cle=&gt;$numproduit){</p><p>$qteproduit&#160; &#160; = $_POST[&#039;qte_produit&#039;][$cle];<br />$insert_composer=&quot;INSERT INTO composer VALUES (&#039;&quot;.$qteproduit.&quot;&#039;, num_com,&#039;&quot;.$numproduit.&quot;&#039;)&quot;;</p><p>if(!$insert_composer) {$insert_ok=false;}</p><p>}<br />pg_query($dbconnect, $insert_composer);<br />if($insert_ok){<br />echo &quot;Commande enregistrée&quot;;<br />}else{<br />echo &quot;PB Commande non enregistrée&quot;;<br />}&#160; &#160; <br />?&gt;</p></div></blockquote></div><p>Donc l&#039;idée, dans la première requête:</p><div class="quotebox"><blockquote><div><p>$insert_commandes=&quot;INSERT INTO commandes (num_com, total_com, num_pers) VALUES (DEFAULT,&#039;&quot;.$total.&quot;&#039;,&#039;&quot;.$num_cli.&quot;&#039;) RETURNING num_com&quot;;</p></div></blockquote></div><p>Je dois insérer ceci dans ma bdd et récupérer (avec RETURNING ???) la clé primaire auto-incrémenté&#039; (avec le DEFAULT) pour ensuite l&#039;insérer dans la 2éme requête:</p><p>Citation:</p><div class="quotebox"><blockquote><div><p>$insert_composer=&quot;INSERT INTO composer VALUES (&#039;&quot;.$qteproduit.&quot;&#039;,<strong><span style="color: #FF0000">ICI</span></strong>,&#039;&quot;.$numproduit.&quot;&#039;)&quot;;</p></div></blockquote></div><p>Hors comment faire cela ?<br />Merci de votre aide <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[Kevfou]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1541</uri>
+		</author>
+		<updated>2012-06-12T19:15:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14202#p14202</id>
+	</entry>
+</feed>

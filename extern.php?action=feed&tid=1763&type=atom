@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / utilisation de dblink_exec]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1763&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1763"/>
+	<updated>2011-11-30T07:36:20Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1763</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  utilisation de dblink_exec]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11969#p11969"/>
+		<content type="html"><![CDATA[<p>Merci rjuju , j&#039;ai du installer le module dblink , et maintenant ca fonctionne</p>]]></content>
+		<author>
+			<name><![CDATA[fanah]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=752</uri>
+		</author>
+		<updated>2011-11-30T07:36:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11969#p11969</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  utilisation de dblink_exec]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11928#p11928"/>
+		<content type="html"><![CDATA[<p>Bonjour.</p><p>L&#039;erreur vient de l&#039;appel à la fonction dblink_exec.<br />Vous pouvez essayer de caster le premier paramètre en text pour voir si ça résoud le problème :</p><div class="codebox"><pre><code>PERFORM dblink_exec(&#039;dbname=suivBP host=10.128.1.2&#039;::text, &#039;INSERT INTO eth0 (rx,tx,datecurrent,heurecurrent) VALUES (&#039; || eth0_row.rx || &#039;, &#039; || eth0_row.tx || &#039;, &#039; || eth0_row.datecurrent || &#039;, &#039; || eth0_row.heurecurrent || &#039;)&#039;);</code></pre></div><p>Si cela ne marche pas, c&#039;est vraisemblablement que le module dblink n&#039;est pas installé sur la base de donnée où se trouve votre fonction f_affiche.</p><p>Dans le cas d&#039;une installation windows, le module doit certainement être disponible, en attente d&#039;installation. Le script d&#039;installation sql doit se trouver dans votre répertoire d&#039;installation postgres, répertoire share/contrib.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2011-11-28T15:41:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11928#p11928</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[utilisation de dblink_exec]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11927#p11927"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>j&#039;utilise postgresql&#160; &quot;PostgreSQL 9.0.4, compiled by Visual C++ build 1500, 32-bit&quot; sous windows et je veut insérer les données de ma table t1 vers une autre table t2 dans une base postgres 8.3 &quot;PostgreSQL 8.3.11 on i486-pc-linux-gnu, compiled by GCC gcc-4.3.real (Debian 4.3.2-1.1) 4.3.2&quot; sous linux .</p><p>Pou ce faire , j&#039;ai écrit une fonction </p><p>[CODE]<br />CREATE OR REPLACE FUNCTION f_affiche ()<br />RETURNS VOID <br />AS $$<br />DECLARE<br />&#160; &#160; c1 cursor IS SELECT * FROM eth0;<br />&#160; &#160; eth0_row eth0%ROWTYPE;<br />BEGIN</p><p>&#160; &#160; FOR eth0_row IN c1<br />&#160; &#160; LOOP<br />&#160; &#160;&#160; PERFORM dblink_exec(&#039;dbname=suivBP host=10.128.1.2&#039;, &#039;INSERT INTO eth0 (rx,tx,datecurrent,heurecurrent) VALUES (&#039; || eth0_row.rx || &#039;, &#039; || eth0_row.tx || &#039;, &#039; || eth0_row.datecurrent || &#039;, &#039; || eth0_row.heurecurrent || &#039;)&#039;);<br />&#160; &#160; END LOOP;<br />&#160; &#160; RETURN;<br />END</p><p>$$ LANGUAGE PLPGSQL</p><br /><p>[CODE]</p><br /><br /><p>J&#039;ai l&#039;érreur suivant quand je lance ma fonction</p><p>ERREUR:&#160; la fonction dblink_exec(unknown, text) n&#039;existe pas<br />LINE 1: SELECT dblink_exec(&#039;dbname=suivBP host=10.128.1.2&#039;, &#039;INSERT ...<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;^<br />HINT:&#160; Aucune fonction ne correspond au nom donné et aux types d&#039;arguments.<br />Vous devez ajouter des conversions explicites de type.<br />QUERY:&#160; SELECT dblink_exec(&#039;dbname=suivBP host=10.128.1.2&#039;, &#039;INSERT INTO eth0 (rx,tx,datecurrent,heurecurrent) VALUES (&#039; || eth0_row.rx || &#039;, &#039; || eth0_row.tx || &#039;, &#039; || eth0_row.datecurrent || &#039;, &#039; || eth0_row.heurecurrent || &#039;)&#039;)<br />CONTEXT:&#160; PL/pgSQL function &quot;f_affiche&quot; line 8 at PERFORM</p><p>********** Erreur **********</p><p>ERREUR: la fonction dblink_exec(unknown, text) n&#039;existe pas<br />État SQL :42883<br />Astuce : Aucune fonction ne correspond au nom donné et aux types d&#039;arguments.<br />Vous devez ajouter des conversions explicites de type.<br />Contexte : PL/pgSQL function &quot;f_affiche&quot; line 8 at PERFORM</p><br /><br /><br /><p>Est ce que c&#039;est lier au version des deux base ?<br />Si oui, est que vous avez des idées ?</p>]]></content>
+		<author>
+			<name><![CDATA[fanah]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=752</uri>
+		</author>
+		<updated>2011-11-28T13:50:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11927#p11927</id>
+	</entry>
+</feed>

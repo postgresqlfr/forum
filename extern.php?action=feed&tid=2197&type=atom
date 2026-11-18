@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Boucle sur plusieurs vues]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2197&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2197"/>
+	<updated>2012-08-16T15:37:43Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2197</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Boucle sur plusieurs vues]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14798#p14798"/>
+		<content type="html"><![CDATA[<p>Sinon, il y a aussi l&#039;information_schema, qui est à peu près le même sur tous les SGBD qui l&#039;implémentent.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2012-08-16T15:37:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14798#p14798</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Boucle sur plusieurs vues]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14786#p14786"/>
+		<content type="html"><![CDATA[<p>Vous avez le dictionnaire système, mais si vous préférez il y a également des vues plus simples, comme pg_tables et pg_views dans votre cas.</p><br /><p>Bon courage <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2012-08-13T18:47:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14786#p14786</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Boucle sur plusieurs vues]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14785#p14785"/>
+		<content type="html"><![CDATA[<p>Ca marche super . J&#039;ai juste corrigé &quot;tbl.relname&quot; en &quot;tbl&quot; .<br />Merci, je ne connais pas encore le méta-dictionnaire et n&#039;ai pas le réflexe de l&#039;utiliser.<br />Ca viendra <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[MitsuTomoe]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1680</uri>
+		</author>
+		<updated>2012-08-13T18:28:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14785#p14785</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Boucle sur plusieurs vues]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14776#p14776"/>
+		<content type="html"><![CDATA[<p>Merci , je vais essayer .</p>]]></content>
+		<author>
+			<name><![CDATA[MitsuTomoe]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1680</uri>
+		</author>
+		<updated>2012-08-11T18:39:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14776#p14776</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Boucle sur plusieurs vues]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14775#p14775"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>vous pouvez mettre votre FOR dans un autre FOR et utiliser une requête dynamique, par exemple :</p><div class="codebox"><pre><code>FOR tbl IN SELECT relname FROM pg_class WHERE relkind = &#039;v&#039; AND RELNAME like &#039;v_mandat%&#039; LOOP
+  FOR vcurrent IN EXECUTE &#039;SELECT * FROM &#039; || tbl.relname LOOP
+    --traitement
+  END LOOP;
+END LOOP;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2012-08-11T16:53:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14775#p14775</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Boucle sur plusieurs vues]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14774#p14774"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />j&#039;ai une fonction qui doit boucler sur plusieurs vues d&#039;une même table pour insérer des alertes dans une autre table.<br />Le traitement est identique, à un libellé près.<br />Est-il possible de ne pas dupliquer le traitement en ayant la liste des vues dans un tableau, ou avec un execute ?<br />Mes recherches n&#039;ont rien donné.</p><p>Mon code actuel :</p><p>delete from agenda where typ_event = 3;<br />FOR vmandat IN SELECT * FROM v_mandat_renouv LOOP<br />... trt ...<br />&#160; vdesc :=&quot;blabla&quot;;<br />&#160; INSERT into agenda...<br />END LOOP;</p><p>FOR vmandat IN SELECT * FROM v_mandat_fin_exclu LOOP<br />... trt ...<br />&#160; vdesc := &quot;blibli&quot;;<br />&#160; INSERT into agenda...<br />END LOOP;</p><p>J&#039;ai le traitement de 3 autres vues à ajouter .<br />Merci pour vos idées</p>]]></content>
+		<author>
+			<name><![CDATA[MitsuTomoe]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1680</uri>
+		</author>
+		<updated>2012-08-11T16:11:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14774#p14774</id>
+	</entry>
+</feed>

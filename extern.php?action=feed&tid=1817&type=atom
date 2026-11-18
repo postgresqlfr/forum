@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / trigger controlant plusieurs lignes à la fois]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1817&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1817"/>
+	<updated>2012-01-23T16:54:16Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1817</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  trigger controlant plusieurs lignes à la fois]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12524#p12524"/>
+		<content type="html"><![CDATA[<p>Salut<br />Pour ceux qui sont intéresses, j&#039;ai trouvé la solution ailleurs.<br />Pour l&#039;insertion...</p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION _insert_reglement_exclusion()
+  RETURNS TRIGGER AS
+$BODY$
+declare 
+	montant integer := 0;
+	montant_init integer := 0;
+begin
+	SELECT COALESCE(sum(montantreglement), 0) INTO montant FROM reglement a WHERE a.idfacture = new.idfacture;
+	SELECT sum(prixunitaire*quantite) INTO montant_init FROM lignefacture WHERE idfacture = new.idfacture;
+	IF montant + new.montantreglement &gt; montant_init then
+		RAISE &#039;le montant des règlements dépasse le total de la facture!&#039;;
+	end IF;
+	RETURN NEW;
+end;$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+ALTER FUNCTION _insert_reglement_exclusion()
+  OWNER TO postgres;</code></pre></div><p>Pour la mise à jour...</p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION _update_reglement_exclusion()
+  RETURNS TRIGGER AS
+$BODY$
+declare 
+	montant integer := 0;
+	montant_init integer := 0;
+begin
+	SELECT COALESCE(sum(montantreglement), 0) INTO montant FROM reglement a WHERE a.idfacture = new.idfacture AND a.idfacture = OLD.idfacture;
+	SELECT sum(prixunitaire*quantite) INTO montant_init FROM lignefacture WHERE idfacture = new.idfacture AND idfacture = OLD.idfacture;
+	IF montant -old.montantreglement+ new.montantreglement &gt; montant_init then
+		RAISE &#039;le montant des règlements dépasse le total de la facture!&#039;;
+	end IF;
+	RETURN NEW;
+end;$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+ALTER FUNCTION _update_reglement_exclusion()
+  OWNER TO postgres;</code></pre></div><p>Merci beaucoup à vous gleu</p>]]></content>
+		<author>
+			<name><![CDATA[alassanediakite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1475</uri>
+		</author>
+		<updated>2012-01-23T16:54:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12524#p12524</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  trigger controlant plusieurs lignes à la fois]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12402#p12402"/>
+		<content type="html"><![CDATA[<p>Salut<br />Je vous demandais...</p><div class="codebox"><pre><code>&quot;sum(montantreglement)&quot; contient-il le montant en cours d&#039;insertion?</code></pre></div><p>vous avez répondu OUI; donc le code...</p><div class="codebox"><pre><code>insert into vreglement(idfacture, datereglement, montantreglement) values(1,&#039;12/03/2011&#039;,5000)</code></pre></div><p>devrait donner [5000, 9000] dans la table controle ce qui n&#039;est pas le cas.<br />Par ailleurs le code n&#039;est pas adaptable à la table reglement car pgAdmin me dit qu&#039;il ne peut y avoir de trigger INSETEAD OF sur une table.<br />Je m&#039;excuse de vous faire perdre du temps. Mais on peut juste répondre à la question suivante: Est il possible (par trigger de postgresql) de récupérer l&#039;ensemble de lignes en cours d&#039;insertion ou de modification, vérifier ce ensemble par agrégation, annuler ou valider selon des conditions?<br />Merci d&#039;avance.</p>]]></content>
+		<author>
+			<name><![CDATA[alassanediakite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1475</uri>
+		</author>
+		<updated>2012-01-11T09:26:35Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12402#p12402</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  trigger controlant plusieurs lignes à la fois]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12386#p12386"/>
+		<content type="html"><![CDATA[<p>Dans le cas du RETURN NEW, il faut aussi faire un INSERT dans la bonne table (à savoir reglement). Mon exemple de fonction trigger fonctionne bien pour une table mais pas complètement pour une vue.</p><p>Cela étant dit, cela n&#039;explique pas pourquoi le montant total des lignes de factures vaut 0. L&#039;exemple que vous montrez n&#039;est pas complet et donc ne permet pas de vous aider plus.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-01-10T12:50:45Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12386#p12386</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  trigger controlant plusieurs lignes à la fois]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12384#p12384"/>
+		<content type="html"><![CDATA[<p>Salut<br />J&#039;ai créé une table...</p><div class="codebox"><pre><code>create table controle(tr int, tf int)</code></pre></div><p>pour verifier le trigger.<br />J&#039;ai alors modifier le trigger ...</p><div class="codebox"><pre><code>-- Function: verifiereginsertion()
+
+-- DROP FUNCTION verifiereginsertion();
+
+CREATE OR REPLACE FUNCTION verifiereginsertion()
+  RETURNS trigger AS
+$BODY$
+DECLARE
+  totalfacture integer;
+  totalreglement integer;
+BEGIN
+SELECT INTO totalfacture sum(lignefacture.quantite*lignefacture.prixunitaire) FROM lignefacture WHERE idfacture=NEW.idfacture;
+SELECT INTO totalreglement coalesce(sum(montantreglement),0) FROM reglement WHERE idfacture=NEW.idfacture;
+insert into controle(tr,tf) values(totalreglement, totalfacture);
+IF totalreglement&gt;totalfacture THEN
+RAISE &#039;le montant des règlements depasse le total de la facture!&#039;;
+  RETURN NULL;
+END IF;
+RETURN NEW;
+END;
+$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+ALTER FUNCTION verifiereginsertion()
+  OWNER TO postgres;</code></pre></div><p>Le trigger est mis sur INSTEAD OF INSERT OR UPDATE de vregelement qui est une vue sur la table reglement.<br />Avec...</p><div class="codebox"><pre><code>insert into vreglement(idfacture, datereglement, montantreglement) values(1,&#039;12/03/2011&#039;,5000)</code></pre></div><p>La table reglement reste vide et la table controle contient [0, 9000] (9000 représente en faite le total de la facture 1)<br />A présent il y des problèmes.</p>]]></content>
+		<author>
+			<name><![CDATA[alassanediakite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1475</uri>
+		</author>
+		<updated>2012-01-10T12:00:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12384#p12384</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  trigger controlant plusieurs lignes à la fois]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12367#p12367"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>&quot;sum(montantreglement)&quot; contient-il le montant en cours d&#039;insertion?</p></div></blockquote></div><p>Oui.</p><div class="quotebox"><blockquote><div><p>comment utiliser le retour? (ou encore comment utiliser la sortie du trigger?)</p></div></blockquote></div><p>Qu&#039;est-ce que vous voulez en faire ? ce n&#039;est pas à l&#039;utilisateur d&#039;utiliser le retour. Sur une fonction trigger qui renvoit NEW sur un trigger AFTER, la ligne est insérée. Alors que sur une fonction trigger qui renvoit NULL sur un trigger AFTER, l&#039;insertion de la ligne est annulée.</p><div class="quotebox"><blockquote><div><p>PS: Je vous ai envoyé l&#039;email sur la doc.</p></div></blockquote></div><p>Je l&#039;ai bien reçu, je vous en remercie. Je m&#039;en occupe ce soir. N&#039;hésitez pas à me faire parvenir toute autre trouvaille de ce genre.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-01-09T16:21:03Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12367#p12367</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  trigger controlant plusieurs lignes à la fois]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12366#p12366"/>
+		<content type="html"><![CDATA[<p>salut<br />Dans ce code ...</p><div class="codebox"><pre><code>SELECT INTO totalreglement sum(montantreglement) FROM reglement WHERE idfacture=NEW.idfacture;</code></pre></div><p>&quot;sum(montantreglement)&quot; contient-il le montant en cours d&#039;insertion?<br />Et...</p><div class="codebox"><pre><code>RETURN NEW;</code></pre></div><p>comment utiliser le retour? (ou encore comment utiliser la sortie du trigger?)<br />Merci d&#039;avance<br />PS: Je vous ai envoyé l&#039;email sur la doc.</p>]]></content>
+		<author>
+			<name><![CDATA[alassanediakite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1475</uri>
+		</author>
+		<updated>2012-01-09T15:33:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12366#p12366</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  trigger controlant plusieurs lignes à la fois]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12365#p12365"/>
+		<content type="html"><![CDATA[<p>OK, je n&#039;avais pas pigé le schéma. Donc, dans ce cas, la contrainte CHECK est à abandonner et le trigger doit être mis sur la table reglement. Le trigger calcule dans un premier temps le montant total de la facture avec un SUM sur lignefacture, puis il fait la même chose avec les montantreglement de la table reglement et enfin il compare les deux résultats. Si le montant réglé est inférieur ou égale au montant de la facture, il renvoie NEW. S&#039;il est supérieur, il renvoie NULL. Quelque chose de ce genre :</p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION maj_montantreglement() RETURNS trigger AS
+$BODY$
+DECLARE
+  totalfacture integer;
+  totalreglement integer;
+BEGIN
+SELECT INTO totalfacture sum(lignefacture.quantite*lignefacture.prixunitaire) FROM lignefacture WHERE idfacture=NEW.idfacture;
+SELECT INTO totalreglement sum(montantreglement) FROM reglement WHERE idfacture=NEW.idfacture;
+IF totalreglement&gt;totalfacture THEN
+  RETURN NULL;
+END IF;
+RETURN NEW;
+END;
+$BODY$
+LANGUAGE plpgsql;</code></pre></div><p>Je n&#039;ai pas testé mais ça doit ressembler à ça.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-01-09T15:22:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12365#p12365</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  trigger controlant plusieurs lignes à la fois]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12364#p12364"/>
+		<content type="html"><![CDATA[<p>Salut<br />Il ne s’agit pas de contrôler les insertions ou modifications de la table lignefacture !!! Mais plutôt la table règlement.<br />La facture est créer avec ses détails (lignefacture) et le client est livré (ou nous recevons les produits) et cette facture est ses détails ne sont plus modifiés. A chaque fois que le client se présente pour payer (ou que nous payons chez le fournisseur) une partie de (ou toute) la facture alors la table règlement est mouvementée. Il s’agit alors de faire en sorte que le client ne paye pas plus que ce qu’il nous doit (ou que nous ne payons pas plus que ce qu&#039;on doit au fournisseur). On peut l’assimiler aussi à un prêt bancaire. Il ne faut pas que les remboursements dépassent le capital + l’interêt.<br />Exemple<br />Facture<br />idfacture&#160; &#160; datefacture&#160; &#160; typefacture<br />&#160; &#160; 1&#160; &#160;&#160; &#160; &#160; &#160; &#160;02/01/2012&#160; &#160;&#160; vente</p><p>lignefacture (ou détail facture)<br />idfacture&#160; &#160; produit&#160; &#160; quantite&#160; &#160; prixunitaire<br />&#160; &#160;1&#160; &#160;&#160; &#160; &#160; &#160; &#160;CPUI4&#160; &#160;&#160; &#160; &#160;4&#160; &#160;&#160; &#160; &#160; &#160; &#160; &#160; &#160; 30<br />&#160; &#160;1&#160; &#160;&#160; &#160; &#160; &#160; EHP1755&#160; &#160;&#160; &#160; 2&#160; &#160;&#160; &#160; &#160; &#160; &#160; &#160; &#160;45</p><p>reglement<br />idfacture&#160; &#160; idreglement&#160; &#160; datereglement&#160; &#160; montantreglement<br />&#160; &#160;1&#160; &#160;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; 1&#160; &#160;&#160; &#160; &#160; &#160; &#160; &#160;02/01/2012&#160; &#160;&#160; &#160; &#160; &#160;90<br />&#160; &#160;1&#160; &#160;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; 2&#160; &#160;&#160; &#160; &#160; &#160; &#160; &#160;10/01/2012&#160; &#160;&#160; &#160; &#160; &#160;70</p><p>Nous voyons que la facture N° 1 fait un total de (4*30)+(2*45)=210. Il ne faut pas alors que le total des différents règlements sur&#160; cette facture dépasse 210.</p>]]></content>
+		<author>
+			<name><![CDATA[alassanediakite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1475</uri>
+		</author>
+		<updated>2012-01-09T14:59:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12364#p12364</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  trigger controlant plusieurs lignes à la fois]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12352#p12352"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Je pense que les contenus de mes tables ne sont pas bien compris ou j&#039;ai pas compris votre méthode.</p></div></blockquote></div><p>Je pense que j&#039;ai bien compris le but des différentes tables. Vous pouvez procéder autrement pour vérifier les modifications de la table règlement. Notamment, vous pouvez poser une contrainte CHECK pour s&#039;assurer que le montant total du règlement ne soit jamais inférieur à 0. C&#039;est ce que fait la contrainte CHECK montantreglement&gt;=0. Si jamais on essaie de mettre à jour cette colonne, de façon manuelle ou automatique, avec une valeur inférieure à 0, PostgreSQL retourne une erreur. Le trigger placé dans mon exemple s&#039;occupe simplement de mettre à jour la colonne montantreglement, sans vérifier si la valeur est valide ou pas, car c&#039;est la contrainte CHECK qui le fera. Si la contrainte CHECK empêche la modification de la colonne montantreglement, le trigger sort en erreur et la ligne insérée dans lignefacture est annulée.</p><p>Avez-vous essayé cette méthode ?</p><div class="quotebox"><blockquote><div><p>PS: comment peut on signaler des erreurs dans la doc française? Par exemple sur la &quot;mise à jour des vues&quot; il y a une phrase non traduite.</p></div></blockquote></div><p>Il suffit de m&#039;envoyer un mail (guillaume at lelarge.info). Merci.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-01-08T15:47:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12352#p12352</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  trigger controlant plusieurs lignes à la fois]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12349#p12349"/>
+		<content type="html"><![CDATA[<p>Salut gleu<br />Je pense que les contenus de mes tables ne sont pas bien compris ou j&#039;ai pas compris votre méthode.<br />En fait, la table lignefacture enregistre les détails de factures (les produits contenu dans la facture) et la table règlement enregistre les différents règlements (payements) de facture que le client effectue. Le montant total de la facture est calculé par SUM(quantite*prixunitaire) par idfacture. Pour chaque règlement on vérifie que le client ne dépasse pas le montant réel de sa facture. Le trigger doit donc vérifier les entrées ou modifications de la table règlement!!!<br />Merci de l&#039;accompagnement.<br />PS: comment peut on signaler des erreurs dans la doc française? Par exemple sur la &quot;mise à jour des vues&quot; il y a une phrase non traduite.</p>]]></content>
+		<author>
+			<name><![CDATA[alassanediakite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1475</uri>
+		</author>
+		<updated>2012-01-08T12:57:00Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12349#p12349</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  trigger controlant plusieurs lignes à la fois]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12348#p12348"/>
+		<content type="html"><![CDATA[<p>Je pense que je ferais simple. J&#039;ajouterais un trigger sur toute opération dans la table lignefacture, qui se déclenche pour chaque ligne. À chaque exécution, le trigger recalcule la valeur du montantreglement et la met à jour. Et j&#039;ajouterai une contrainte &quot;&gt;0&quot; à la colonne montantreglement de la table reglement. Ainsi, qu&#039;on essaie de mettre à jour directement la colonne montantreglement avec une valeur negative ou automatiquement suite à l&#039;exécution du trigger, la colonne est protégée.</p><p>Voici un pseudo code rapide (pratiquement sûr qu&#039;il ne soit pas exact) :</p><div class="codebox"><pre><code>alter table reglement add constraint reg_positif check (montantreglement&gt;0);</code></pre></div><p>pour ajouter la contrainte positive sur la colonne montantreglement</p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION maj_montantreglement() RETURNS trigger AS
+$BODY$
+DECLARE
+  total integer;
+BEGIN
+SELECT INTO total sum(lignefacture.quantite*lignefacture.prixunitaire) FROM lignefacture WHERE idfacture=NEW.idfacture;
+UPDATE reglement SET montantreglement=total WHERE idfacture=NEW.idfacture;
+RETURN NEW;
+END;
+$BODY$
+LANGUAGE plpgsql;</code></pre></div><p>pour créer la fonction trigger, et enfin pour ajouter le trigger :</p><div class="codebox"><pre><code>create trigger tr_montantreglement after insert on lignefacture for each row execute procedure maj_montantreglement();</code></pre></div><p>En fait, ce n&#039;est pas du pseudo-code. C&#039;est testé et approuvé. Voici l&#039;erreur que vous aurez si le montant est négatif :</p><div class="codebox"><pre><code>alassanediakite=# insert into lignefacture values (1, 3, 3, -10);
+ERROR:  new row for relation &quot;reglement&quot; violates check constraint &quot;reg_positif&quot;
+CONTEXT:  SQL statement &quot;UPDATE reglement SET montantreglement=total WHERE idfacture=NEW.idfacture&quot;
+PL/pgSQL function &quot;maj_montantreglement&quot; line 8 at SQL statement</code></pre></div><p>Et dans ce cas, la nouvelle ligne n&#039;apparaît pas, et le montant n&#039;est pas mis à jour.</p><p>Cela ne fonctionne que pour l&#039;INSERT. Je vous laisse, pour exercice, de modifier le trigger et la fonction trigger pour prendre en compte la modification et la suppression d&#039;une ligne.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-01-08T08:54:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12348#p12348</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  trigger controlant plusieurs lignes à la fois]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12346#p12346"/>
+		<content type="html"><![CDATA[<p>salut<br />Je retourne vers vous avec maintes chemins essayés. Le dernier est INSTEAD OF avec une vue...</p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION verifiereginsertion()
+  RETURNS trigger AS
+$BODY$begin
+IF ((select COALESCE(sum(lignefacture.quantite*lignefacture.prixunitaire),0)- COALESCE(sum(reglement.montantreglement),0)- sum(NEW.montantreglement) 
+from lignefacture
+left join reglement on lignefacture.idfacture=reglement.idfacture)&lt;0) then
+RAISE &#039;le montant des règlements depasse le total de la facture!&#039;;
+else
+RETURN NEW;
+end if;
+end;$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;</code></pre></div><p>... je ne sais pas comment capter le </p><div class="codebox"><pre><code>RETURN NEW</code></pre></div><p>.<br />Je reformule la question alors.<br />J&#039;ai quatre tables</p><div class="codebox"><pre class="vscroll"><code>--table facture
+facture
+(
+  idfacture serial NOT NULL,
+  datefacture date NOT NULL DEFAULT (&#039;now&#039;::text)::date,
+  typefacture smallint NOT NULL,
+  CONSTRAINT facture_pkey PRIMARY KEY (idfacture ),
+  CONSTRAINT facture_typefacture_check CHECK (typefacture = ANY (ARRAY[1, 2]))
+)
+
+--table produit
+produit
+(
+  idproduit serial NOT NULL,
+  refproduit character varying(10) NOT NULL,
+  libelleproduit character varying(75) NOT NULL,
+  CONSTRAINT produit_pkey PRIMARY KEY (idproduit )
+)
+
+--table lignefacture
+lignefacture
+(
+  idfacture integer NOT NULL,
+  produit integer NOT NULL,
+  quantite smallint NOT NULL,
+  prixunitaire integer NOT NULL,
+  CONSTRAINT pklignefacture PRIMARY KEY (idfacture , produit ),
+  CONSTRAINT lignefacture_idfacture_fkey FOREIGN KEY (idfacture)
+      REFERENCES facture (idfacture) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE CASCADE,
+  CONSTRAINT lignefacture_produit_fkey FOREIGN KEY (produit)
+      REFERENCES produit (idproduit) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE CASCADE
+)
+
+--table reglement
+reglement
+(
+  idfacture integer,
+  idreglement serial NOT NULL,
+  datereglement date NOT NULL,
+  montantreglement integer NOT NULL,
+  CONSTRAINT reglement_pkey PRIMARY KEY (idreglement ),
+  CONSTRAINT reglement_idfacture_fkey FOREIGN KEY (idfacture)
+      REFERENCES facture (idfacture) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE CASCADE
+)</code></pre></div><p>Comment faire (avec trigger) que l&#039;ensemble des règlements d&#039;une facture ne dépassent pas le montant total de la dite facture? Que l&#039;INSERTION ou la MODIFICATION concerne une ligne ou plusieurs.<br />Merci d&#039;avance</p>]]></content>
+		<author>
+			<name><![CDATA[alassanediakite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1475</uri>
+		</author>
+		<updated>2012-01-07T23:34:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12346#p12346</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  trigger controlant plusieurs lignes à la fois]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12294#p12294"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Avec BEFOR et OLD j&#039;ai le même message &quot;L&#039;enregistrement OLD n&#039;est pas encore affectée...&quot;.</p></div></blockquote></div><p>En effet, je me suis trompé. Il faut utiliser un trigger AFTER. Les triggers BEFORE sont déclenchés avant la requête, ni OLD ni NEW ne sont renseignés.</p><div class="quotebox"><blockquote><div><p>je suis confronté au fait que les vues de pgsql sont en lecture seule et cela m&#039;a amener vers les SYSTEMES DE REGLES de pgsql</p></div></blockquote></div><p>Vous pouvez aussi utiliser les triggers INSTEAD OF sur les vues à partir de la version 9.1.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-01-02T20:22:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12294#p12294</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  trigger controlant plusieurs lignes à la fois]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12293#p12293"/>
+		<content type="html"><![CDATA[<p>Avec BEFOR et OLD j&#039;ai le même message &quot;L&#039;enregistrement OLD n&#039;est pas encore affectée...&quot;.<br />Par ailleur je suis confronté au fait que les vues de pgsql sont en lecture seule et cela m&#039;a amener vers les SYSTEMES DE REGLES de pgsql que je découvre pour la premiere fois comme notion en bases de données. Encore du chemin à faire...<br />Merci d&#039;avance</p>]]></content>
+		<author>
+			<name><![CDATA[alassanediakite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1475</uri>
+		</author>
+		<updated>2012-01-02T19:54:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12293#p12293</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  trigger controlant plusieurs lignes à la fois]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12292#p12292"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Le code m&#039;envoie &quot;L&#039;enregistrement NEW n&#039;est pas encore affectée...&quot;. Je pense que cela est due au fait que j&#039;ai utilisé BEFORE</p></div></blockquote></div><p>Oui, c&#039;est bien ça.</p><div class="quotebox"><blockquote><div><p>Mais j&#039;ai aussi le message &quot;Les tables ne peuvent pas avoir de triggers INSTEAD OF.&quot; quand j&#039;essaye INSTEAD OF.</p></div></blockquote></div><p>INSTEAD OF n&#039;est disponible que pour les vues.</p><div class="quotebox"><blockquote><div><p>Alors où est le problème avec NEW?</p></div></blockquote></div><p>Si vous utilisez un trigger BEFORE, il vous faut utiliser OLD et non pas NEW.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-01-02T18:56:29Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12292#p12292</id>
+	</entry>
+</feed>

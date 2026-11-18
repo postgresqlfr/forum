@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Impact du nombre de tables sur les performances globales]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5475&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5475"/>
+	<updated>2019-04-26T13:04:32Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5475</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Impact du nombre de tables sur les performances globales]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29768#p29768"/>
+		<content type="html"><![CDATA[<p>Oui, enfin on parle quand même d&#039;un délai de l&#039;ordre de quelques dizaines ou centaines de millisecondes.</p><br /><p>En cas de problème, tout ne se retrouve pas par terre.&#160; Il suffit d&#039;annuler la requête (et la transaction), et tout reprend comme avant.</p><br /><br /><p>On ne peut pas backuper la table pg_class, elle n&#039;est que la représentation des objets créés.&#160; Elle est donc mise à jour avec chaque commande DDL effectuée.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2019-04-26T13:04:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29768#p29768</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Impact du nombre de tables sur les performances globales]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29763#p29763"/>
+		<content type="html"><![CDATA[<p>Le blocage de nouvelles connexions, c&#039;est quand même assez pénalisant....</p><p>Est ce que si je laisse en l&#039;état, je fonce droit vers des ennuis ? Je ne vous cache pas que faire une action comme cela sur des tables systèmes ne m&#039;enchante guère....c&#039;est pas que je n&#039;ai pas confiance en PG, mais s&#039;il y a un problème, c&#039;est toute la base qui risque de se trouver par terre...</p><p>Du coup, une nouvelle question m&#039;est venue: est ce qu&#039;il est possible de backuper et surtout restaurer la table pg_class ?</p>]]></content>
+		<author>
+			<name><![CDATA[pitpoule]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=636</uri>
+		</author>
+		<updated>2019-04-26T07:57:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29763#p29763</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Impact du nombre de tables sur les performances globales]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29748#p29748"/>
+		<content type="html"><![CDATA[<p>Tout dépend de la table système et de l&#039;activité.&#160; Pour pg_class et pg_attribute, comme cela empêchera l&#039;accès à ces tables durant le temps du VACUUM FULL, cela empêchera au minimum :</p><br /><p>- toute nouvelle connexion<br />- toute requête accédant à une table n&#039;ayant pas été accédée auparavant au sein de la même sessions (car il n&#039;y a pas d&#039;entrée en cache pour cette table)</p><br /><p>Cela dit, même avec plusieurs dizaine de milliers de tables, le VACUUM FULL de pg_class et pg_attribute devrait quand même être très rapide.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2019-04-24T10:54:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29748#p29748</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Impact du nombre de tables sur les performances globales]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29747#p29747"/>
+		<content type="html"><![CDATA[<p>Quel est l&#039;impact d&#039;un vacuum full sur une table système ? Est ce que ça va bloquer toute l&#039;activité de la base ?</p>]]></content>
+		<author>
+			<name><![CDATA[pitpoule]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=636</uri>
+		</author>
+		<updated>2019-04-24T10:02:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29747#p29747</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Impact du nombre de tables sur les performances globales]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29746#p29746"/>
+		<content type="html"><![CDATA[<p>Pour expliquer, la création de la table temporaire crée une ligne dans pg_class, autant de lignes dans pg_attribute que de colonnes dans la table temporaire, et potentiellement d&#039;autres catalogues systèmes. Et dès la destruction de cette table, ces lignes sont supprimées. Donc si vous utilisez beaucoup les tables temporaires, il y a de forte chance que cela fragmente beaucoup les catalogues systèmes.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2019-04-24T08:35:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29746#p29746</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Impact du nombre de tables sur les performances globales]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29745#p29745"/>
+		<content type="html"><![CDATA[<p>Alors oui, un vacuum full des tables systèmes s&#039;impose, et des vacuum très réguliers pour éviter que la situation ne se reproduise.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2019-04-24T08:13:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29745#p29745</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Impact du nombre de tables sur les performances globales]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29744#p29744"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>gleu a écrit&#160;:</cite><blockquote><div><p>Vous utilisez beaucoup de tables temporaires ?</p></div></blockquote></div><p>Oui... à haute dose.</p>]]></content>
+		<author>
+			<name><![CDATA[pitpoule]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=636</uri>
+		</author>
+		<updated>2019-04-24T06:51:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29744#p29744</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Impact du nombre de tables sur les performances globales]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29743#p29743"/>
+		<content type="html"><![CDATA[<p>Vous utilisez beaucoup de tables temporaires ?</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2019-04-23T13:15:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29743#p29743</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Impact du nombre de tables sur les performances globales]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29742#p29742"/>
+		<content type="html"><![CDATA[<p>En effet, ça devrait être envisageable....</p><p>toto=# SELECT * FROM pgstattuple(&#039;pg_catalog.pg_class&#039;);<br /> table_len | tuple_count | tuple_len | tuple_percent | dead_tuple_count | dead_tuple_len | dead_tuple_percent | free_space | free_percent <br />-----------+-------------+-----------+---------------+------------------+----------------+--------------------+------------+--------------<br /> 799973376 |&#160; &#160; &#160; &#160;91327 |&#160; 16253259 |&#160; &#160; &#160; &#160; &#160; 2.03 |&#160; &#160; &#160; &#160; &#160; &#160;197115 |&#160; &#160; &#160; &#160;33824913 |&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;4.23 |&#160; 724299904 |&#160; &#160; &#160; &#160; 90.54</p>]]></content>
+		<author>
+			<name><![CDATA[pitpoule]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=636</uri>
+		</author>
+		<updated>2019-04-23T10:08:02Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29742#p29742</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Impact du nombre de tables sur les performances globales]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29741#p29741"/>
+		<content type="html"><![CDATA[<p>Aujourd&#039;hui, la table pg_class fait presque 800M. </p><p>Faut&#039;il envisager des reindexations/vacuum fulls des tables systèmes ?</p>]]></content>
+		<author>
+			<name><![CDATA[pitpoule]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=636</uri>
+		</author>
+		<updated>2019-04-23T10:05:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29741#p29741</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Impact du nombre de tables sur les performances globales]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29738#p29738"/>
+		<content type="html"><![CDATA[<p>Oui, c&#039;est à peu près cela, on est dans un contexte multi tenant, on a des centaines de clients, des tables de travails,..... et on ne supprime jamais les données des clients mêmes s&#039;ils ne sont plus chez nous. La modélisation est correcte de mon point de vue mais la question du sharding se pose sérieusement en interne si vous voulez tout savoir <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[pitpoule]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=636</uri>
+		</author>
+		<updated>2019-04-23T07:33:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29738#p29738</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Impact du nombre de tables sur les performances globales]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29711#p29711"/>
+		<content type="html"><![CDATA[<p>C&#039;est possible, mais pas systématique.&#160; Cela peut être un système multi-tenant ave un découpage par schéma par exemple, et/ou une ou plusieurs tables partitionnées avec beaucoup de partitions.&#160; Le fait est que postgres 12 aura énormément d&#039;optimisations afin de conserver des performances raisonnables avec un très grand nombre de partititions, justement parce que ce besoin est fréquent.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2019-04-19T17:56:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29711#p29711</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Impact du nombre de tables sur les performances globales]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29708#p29708"/>
+		<content type="html"><![CDATA[<p>Plusieurs dizaines de milliers de tables...c&#039;est énorme.</p><p>Je suis curieux de savoir...il y a quoi dans la base ?</p><p>Il n&#039;y aurait pas un soucis de modélisation/analyse...</p>]]></content>
+		<author>
+			<name><![CDATA[genamiga]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=255</uri>
+		</author>
+		<updated>2019-04-19T15:10:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29708#p29708</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Impact du nombre de tables sur les performances globales]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29697#p29697"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>rjuju a écrit&#160;:</cite><blockquote><div><p>Bonjour,</p><br /><br /><p>Cela peut impacter les performances effectivement.&#160; Le premier problème qui risque d&#039;arriver est une consommation de mémoire excessive si vous utilisez un pooler de connexion (ou des connexion persistentes), du fait que chaque connexion finira par avoir un cache de toutes les tables de la base;</p></div></blockquote></div><p>C&#039;est intéressant... parce qu&#039;effectivement, on utilise un pooler de connexion (pgbouncer)</p>]]></content>
+		<author>
+			<name><![CDATA[pitpoule]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=636</uri>
+		</author>
+		<updated>2019-04-18T09:48:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29697#p29697</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Impact du nombre de tables sur les performances globales]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29693#p29693"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><br /><p>Cela peut impacter les performances effectivement.&#160; Le premier problème qui risque d&#039;arriver est une consommation de mémoire excessive si vous utilisez un pooler de connexion (ou des connexion persistentes), du fait que chaque connexion finira par avoir un cache de toutes les tables de la base;</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2019-04-18T08:29:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29693#p29693</id>
+	</entry>
+</feed>

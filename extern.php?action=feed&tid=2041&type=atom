@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / bulk collect]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2041&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2041"/>
+	<updated>2012-05-14T15:33:48Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2041</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  bulk collect]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13784#p13784"/>
+		<content type="html"><![CDATA[<p>ben le rowid correspond exactement au ctid dont je parle au dessus. À la différence que sous PostgreSQL un update peut modifier un ctid, alors que le rowid est conservé sous Oracle.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2012-05-14T15:33:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13784#p13784</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  bulk collect]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13782#p13782"/>
+		<content type="html"><![CDATA[<p>C&#039;est exactement la même table , et il y a un oid , ou plutôt un rowid , d&#039;où le WHERE OID = ROWIDS; car à la base c&#039;était WHERE ROWID = ROWIDS; enfin bref. Je testerai demain si possible avec le contenu total de la base oracle , soit des millions de lignes et je verrais le résultat. En tout cas merci beaucoup pour votre patiente et votre aide.<br />PS: 72000 insert en 591445ms ( soit 9,8min ) au lieu de ~27min <img src="http://forums.postgresql.fr/img/smilies/wink.png" width="15" height="15" alt="wink" /></p>]]></content>
+		<author>
+			<name><![CDATA[karthus]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1703</uri>
+		</author>
+		<updated>2012-05-14T15:23:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13782#p13782</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  bulk collect]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13781#p13781"/>
+		<content type="html"><![CDATA[<p>Sur le script oracle, il ne pouvait pas y être, il n&#039;y a pas d&#039;oid. Je ne sais pas comment fonctionnait le script oracle, mais je présume que ça devait être similaire, il devait y avoir une clé quelconque sur la table pour retrouver l&#039;enregistrement.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2012-05-14T15:17:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13781#p13781</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  bulk collect]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13780#p13780"/>
+		<content type="html"><![CDATA[<p>Pourquoi n&#039;y était-il pas de base sur le script oracle alors? Il n&#039;y en a pas besoin?<br />Désolé mais bon je débute , et même après avoir lu la doc sur l&#039;index j&#039;ai un peu de mal à accrocher.</p>]]></content>
+		<author>
+			<name><![CDATA[karthus]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1703</uri>
+		</author>
+		<updated>2012-05-14T15:10:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13780#p13780</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  bulk collect]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13778#p13778"/>
+		<content type="html"><![CDATA[<p>Évidemment, dans ce cas, l&#039;update devient </p><div class="codebox"><pre><code>     UPDATE TMP_ENTCDECLI
+        SET   ETAT_INT = 3
+        WHERE ctid = mon_ctid_que_j_ai_recupere_dans_mon_fetch</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2012-05-14T14:58:54Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13778#p13778</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  bulk collect]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13777#p13777"/>
+		<content type="html"><![CDATA[<p>Vous pouvez essayer encore plus agressif, puisque je présume que vous n&#039;aurez qu&#039;un seul de ces traitements à la fois:</p><p>rajoutez TMP_ENTCDECLI.ctid dans votre curseur, et utilisez ce champ pour la mise à jour. C&#039;est l&#039;adresse physique de l&#039;enregistrement. Évidemment, après avoir fait l&#039;update l&#039;adresse de l&#039;enregistrement risque de changer, mais vu l&#039;exemple, ça ne devrait pas poser problème.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2012-05-14T14:57:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13777#p13777</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  bulk collect]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13775#p13775"/>
+		<content type="html"><![CDATA[<p>Justement c&#039;est là où c&#039;est drôle , car il n&#039;y en a pas. Aucune clé primaire , aucune contrainte d&#039;unicité , les tables temporaires sont juste des colonnes qu&#039;on insérera dans la table principale en ajoutant une colonne qui contiendra la clé primaire , donc inutile pour moi à ce stade.<br />Pour l&#039;index j&#039;ai mis CREATE INDEX I_TMP_ENTCDECLI on TMP_ENTCDECLI(NUM_ETT, NUM_BU, NUM_TYPETT, NUM_CDECLI, DAT_CREPROD,OID).<br />La fonction vient juste de finir , cela m&#039;a pris 9,5min , sa moins de la moitié du temps initial. <img src="http://forums.postgresql.fr/img/smilies/big_smile.png" width="15" height="15" alt="big_smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[karthus]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1703</uri>
+		</author>
+		<updated>2012-05-14T14:44:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13775#p13775</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  bulk collect]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13773#p13773"/>
+		<content type="html"><![CDATA[<p>Il faudrait utiliser la clé primaire de la table pour effectuer l&#039;update, ou ajouter un index à l&#039;oid.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2012-05-14T14:37:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13773#p13773</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  bulk collect]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13772#p13772"/>
+		<content type="html"><![CDATA[<p>Le problème vient du WHERE OID = ROWIDS; mais comment faire autrement? Je dois bien faire un update ligne par ligne , et sur les bonnes tant qu&#039;à faire.</p>]]></content>
+		<author>
+			<name><![CDATA[karthus]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1703</uri>
+		</author>
+		<updated>2012-05-14T14:05:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13772#p13772</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  bulk collect]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13771#p13771"/>
+		<content type="html"><![CDATA[<p>Effectivement le problème vient de l&#039;update , j&#039;ai exécuté ma fonction sans , le résultat est de 1 sec.<br />Le seul index que j&#039;ai est celui de la fonction qui crée au début et supprimé à la fin. <br />Pour l&#039;oid il y était de base donc je préfère le laisser au moins pour l&#039;instant , s&#039;il faut faire sans je verrai plus tard si je peux l&#039;enlever.<br />Et pour le explain j&#039;obtiens:<br />Merge Join&#160; (cost=44791.38..47440.74 rows=119009 width=139)<br />&#160; &#160;Merge Cond: ((t_ref_ett.cod_typett = tmp_entcdecli.num_typett) AND (t_ref_ett.num_bu = tmp_entcdecli.num_bu) AND (t_ref_ett.num_ett = tmp_entcdecli.num_ett))<br />&#160; &#160;-&gt;&#160; Sort&#160; (cost=17.26..17.74 rows=193 width=39)<br />&#160; &#160; &#160; &#160; &#160;Sort Key: t_ref_ett.cod_typett, t_ref_ett.num_bu, t_ref_ett.num_ett<br />&#160; &#160; &#160; &#160; &#160;-&gt;&#160; Seq Scan on t_ref_ett&#160; (cost=0.00..9.93 rows=193 width=39)<br />&#160; &#160;-&gt;&#160; Sort&#160; (cost=44774.13..45138.59 rows=145787 width=160)<br />&#160; &#160; &#160; &#160; &#160;Sort Key: tmp_entcdecli.num_typett, tmp_entcdecli.num_bu, tmp_entcdecli.num_ett<br />&#160; &#160; &#160; &#160; &#160;-&gt;&#160; Seq Scan on tmp_entcdecli&#160; (cost=0.00..8351.34 rows=145787 width=160)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Filter: (etat_int &lt;&gt; 1::numeric)</p>]]></content>
+		<author>
+			<name><![CDATA[karthus]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1703</uri>
+		</author>
+		<updated>2012-05-14T13:57:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13771#p13771</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  bulk collect]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13770#p13770"/>
+		<content type="html"><![CDATA[<p>Sur l&#039;update, je vois déjà 2 problèmes possibles «évidents»:<br />- Les OID ne sont pas indexés par défaut. Votre where oid=rowids fait un seqscan, à moins que vous n&#039;ayez mis un index ? (vu que vous créez un autre index plus haut pour cette table, et qu&#039;elle a tmp_ dans le nom, je préfère poser la question)<br />- Les OID ne doivent plus être utilisés dans des tables utilisateur (c&#039;est déconseillé).</p><p>Sinon, avez vous regardé le temps d&#039;exécution, et le plan, du select utilisé par le curseur ? Si oui, vous pouvez le poster aussi.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2012-05-14T13:45:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13770#p13770</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  bulk collect]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13769#p13769"/>
+		<content type="html"><![CDATA[<p>Voici mon code très barbare , la fonction met 26min pour s&#039;executer , suite à cela dans ma table temporaire les colonnes concerné auront comme etat_int la valeur 3 , je fais donc un copy ... to , puis en copy ... from (3sec au total pour 72000 , les 2 copy au total ) mais le curseur est beaucoup trop long. Si vous avez besoin d&#039;autres infos...Par contre je ne pense pas que je laisserai le code longtemps sur le forum.</p><p>/* delete */</p>]]></content>
+		<author>
+			<name><![CDATA[karthus]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1703</uri>
+		</author>
+		<updated>2012-05-14T13:37:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13769#p13769</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  bulk collect]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13768#p13768"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;ai du mal à comprendre: c&#039;est le select générant le curseur qui met 20 minutes pour se créer ? Que voulez-vous dire par là ?</p><p>Sinon, vu qu&#039;on n&#039;a qu&#039;un exemple assez vague de ce que vous faites réellement, le bout de code qui fait les mises à jour de la table ne serait pas dans un sous-bloc begin/end (ou une fonction distincte?) avec un bloc d&#039;exception ?</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2012-05-14T13:26:02Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13768#p13768</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  bulk collect]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13767#p13767"/>
+		<content type="html"><![CDATA[<p>En essayant une autre méthode j&#039;ai remarqué que mon cursor met 20min au moins les 25 pour se créer , et le lire ligne par ligne puis de faire un update à chaque ligne d&#039;une colonne état qui par la suite servira à savoir s&#039;il faut faire un traitement sur cette ligne. Est-ce normal que ce soit aussi long?</p>]]></content>
+		<author>
+			<name><![CDATA[karthus]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1703</uri>
+		</author>
+		<updated>2012-05-14T13:04:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13767#p13767</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  bulk collect]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13762#p13762"/>
+		<content type="html"><![CDATA[<p>La table sur laquelle je travaille utilise cette table de référence t_ref_ett , tout bêtement , j&#039;ai donc fait un kill car apparemment il y avait une procédure stockée qui ne s&#039;était pas arrété.</p>]]></content>
+		<author>
+			<name><![CDATA[karthus]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1703</uri>
+		</author>
+		<updated>2012-05-14T08:48:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13762#p13762</id>
+	</entry>
+</feed>

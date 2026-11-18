@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / suppression doublons]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=6259&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=6259"/>
+	<updated>2022-04-27T13:51:58Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=6259</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  suppression doublons]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33394#p33394"/>
+		<content type="html"><![CDATA[<p>Trop cool, ça fonctionne.</p><p>Grand merci.</p>]]></content>
+		<author>
+			<name><![CDATA[genamiga]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=255</uri>
+		</author>
+		<updated>2022-04-27T13:51:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33394#p33394</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  suppression doublons]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33393#p33393"/>
+		<content type="html"><![CDATA[<p>OK. C&#039;est mal ! <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>Plus sérieusement, sans PK, on peut accéder les enregistrements par leur CTID…</p><div class="codebox"><pre><code>WITH candidates AS (SELECT ctid, art_id, 
+           prix, 
+           maj, 
+           ROW_NUMBER() OVER(PARTITION BY art_id,
+                                          maj
+           ORDER BY maj,prix DESC) AS DuplicateCount
+    FROM historique_prix WHERE art_id = 6739),
+         to_delete AS (SELECT ctid FROM candidates WHERE DuplicateCount &gt; 1)
+DELETE FROM historique_prix WHERE ctid IN (SELECT ctid FROM to_delete)</code></pre></div><p>Le problème, c&#039;est qu&#039;un update d&#039;un enregistrement peut changer son CTID (c&#039;est leur adresse physique dans la table). Donc cet ordre SQL pourrait ne pas marcher si il y a des mises à jour concurrentes des enregistrement qu&#039;on veut nettoyer</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2022-04-27T13:31:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33393#p33393</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  suppression doublons]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33392#p33392"/>
+		<content type="html"><![CDATA[<p>Pas de PK...</p>]]></content>
+		<author>
+			<name><![CDATA[genamiga]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=255</uri>
+		</author>
+		<updated>2022-04-27T13:29:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33392#p33392</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  suppression doublons]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33391#p33391"/>
+		<content type="html"><![CDATA[<p>Bonjour, pas moyen de retrouver les enregistrements comme ça. Il y a une PK à la table ?<br />Parce que si oui, vous pouvez certainement réécrire ça de la sorte:</p><div class="codebox"><pre><code>WITH candidates AS (SELECT ma_pk, art_id, 
+           prix, 
+           maj, 
+           ROW_NUMBER() OVER(PARTITION BY art_id,
+                                          maj
+           ORDER BY maj,prix DESC) AS DuplicateCount
+    FROM historique_prix WHERE art_id = 6739),
+         to_delete AS (SELECT ma_pk FROM candidates WHERE DuplicateCount &gt; 1)
+DELETE FROM historique_prix WHERE ma_pk IN (SELECT ma_pk FROM to_delete)</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2022-04-27T13:25:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33391#p33391</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[suppression doublons]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33390#p33390"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je cherche les doublons avec ce query</p><div class="codebox"><pre><code>WITH CTE AS (SELECT art_id, 
+           prix, 
+           maj, 
+           ROW_NUMBER() OVER(PARTITION BY art_id,
+                                          maj
+           ORDER BY maj,prix DESC) AS DuplicateCount
+    FROM historique_prix
+SELECT * FROM CTE WHERE DuplicateCount &gt; 1</code></pre></div><p>Et voici le résultat</p><div class="codebox"><pre class="vscroll"><code>|art_id|prix|maj|duplicatecount|
+|------|----|---|--------------|
+|6739|94.00|2021-09-01 15:54:47.000|1|
+|6739|88.00|2021-09-01 15:54:47.000|2|
+|6739|95.00|2021-09-20 22:29:47.000|1|
+|6739|96.00|2021-09-30 10:29:40.000|1|
+|6739|93.00|2021-10-04 09:26:22.000|1|
+|6739|91.00|2021-10-04 09:26:22.000|2|
+|6739|92.00|2021-10-05 17:23:03.000|1|
+|6739|93.00|2021-10-08 10:50:33.000|1|
+|6739|87.00|2021-10-11 10:27:02.000|1|
+|6739|88.00|2021-10-15 08:59:32.000|1|
+|6739|87.00|2021-10-15 10:29:06.000|1|
+|6739|84.00|2021-10-25 10:28:42.000|1|
+|6739|85.00|2021-10-26 10:28:14.000|1|
+|6739|84.00|2021-10-29 08:58:25.000|1|
+|6739|82.00|2021-11-01 09:32:21.000|1|
+|6739|83.00|2021-11-12 12:52:48.000|1|
+|6739|84.00|2021-11-17 09:49:58.000|1|
+|6739|85.00|2021-11-23 10:04:03.000|1|
+|6739|84.00|2021-11-30 11:34:21.000|1|
+|6739|85.00|2021-12-20 11:26:21.000|1|
+|6739|84.00|2021-12-24 13:42:04.000|1|
+|6739|83.00|2022-01-13 10:44:55.000|1|
+|6739|86.00|2022-01-17 11:16:58.000|1|
+|6739|89.00|2022-01-18 16:33:24.000|1|
+|6739|86.00|2022-01-18 16:33:24.000|2|
+|6739|90.00|2022-01-18 16:35:24.000|1|
+|6739|86.00|2022-01-18 16:35:24.000|2|
+|6739|91.00|2022-01-18 16:38:40.000|1|
+|6739|90.00|2022-01-18 16:38:40.000|2|
+|6739|93.00|2022-01-27 10:57:11.000|1|
+|6739|88.00|2022-01-29 14:56:44.000|1|
+|6739|87.00|2022-02-01 10:56:47.000|1|
+|6739|86.00|2022-02-04 09:49:44.000|1|
+|6739|87.00|2022-02-24 11:04:31.000|1|
+|6739|88.00|2022-02-25 12:38:54.000|1|
+|6739|89.00|2022-03-02 13:37:14.000|1|
+|6739|90.00|2022-03-07 14:02:54.000|1|
+|6739|89.00|2022-03-10 10:13:31.000|1|
+|6739|90.00|2022-03-14 09:40:04.000|1|
+|6739|89.00|2022-03-15 11:10:32.000|1|
+|6739|90.00|2022-03-28 09:49:49.000|1|
+|6739|89.00|2022-03-29 11:50:02.000|1|
+|6739|88.00|2022-03-30 11:49:29.000|1|
+|6739|89.00|2022-04-01 11:05:08.000|1|
+|6739|86.00|2022-04-04 10:58:34.000|1|
+|6739|87.00|2022-04-05 10:58:35.000|1|
+|6739|88.00|2022-04-08 09:37:39.000|1|
+|6739|87.00|2022-04-11 09:37:46.000|1|
+|6739|88.00|2022-04-13 09:37:37.000|1|
+|6739|87.00|2022-04-14 16:47:16.000|1|
+|6739|85.00|2022-04-19 10:06:22.000|1|</code></pre></div><p>Mais si j&#039;essaie de supprimer les doublons, j&#039;ai une erreur.</p><div class="codebox"><pre><code>WITH CTE AS (SELECT art_id, 
+           prix, 
+           maj, 
+           ROW_NUMBER() OVER(PARTITION BY art_id,
+                                          maj
+           ORDER BY maj,prix DESC) AS DuplicateCount
+    FROM historique_prix WHERE art_id = 6739)
+DELETE FROM CTE WHERE DuplicateCount &gt; 1</code></pre></div><p>Et voici l&#039;erreur.</p><div class="codebox"><pre><code>SQL Error [42P01]: ERREUR: la relation « cte » n&#039;existe pas
+  Position : 300
+
+
+Error position: line: 9 pos: 299</code></pre></div><p>Je ne comprends pas...</p><p>A l&#039;aide svp.<br />Merci d&#039;avance.</p>]]></content>
+		<author>
+			<name><![CDATA[genamiga]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=255</uri>
+		</author>
+		<updated>2022-04-27T12:22:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33390#p33390</id>
+	</entry>
+</feed>

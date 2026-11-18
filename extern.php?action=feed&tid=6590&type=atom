@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / PostgreSQL 15 - impossible de modifier adresse et port écouté]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=6590&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=6590"/>
+	<updated>2023-08-07T16:33:39Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=6590</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  PostgreSQL 15 - impossible de modifier adresse et port écouté]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34435#p34435"/>
+		<content type="html"><![CDATA[<p>Première chose qui me chagrine : vous indiqué que le paramètre port est configuré à 5552, et lsof parle d&#039;un port 5432 pour PostgreSQL. Ce n&#039;est pas cohérent.</p><p>De plus, je ne vois pas comment ceci pourrait fonctionner :</p><div class="codebox"><pre><code>host    all             all             0.0.0.0/0               reject
+hostssl all             all             0.0.0.0/0               md5</code></pre></div><p>Vous rejetez forcément toutes les connexions extérieures provenant d&#039;adresses IPv4. Si les deux lignes étaient inversées, là, ça fonctionnerait uniquement en SSL.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2023-08-07T16:33:39Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34435#p34435</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  PostgreSQL 15 - impossible de modifier adresse et port écouté]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34432#p34432"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>rjuju a écrit&#160;:</cite><blockquote><div><p>Bonjour,</p><br /><p>À priori soit vous n&#039;avez pas redémarré postgres après avoir changé le port et listen_addresses, soit le service ne démarrage pas et impossible de vous donner la raison sans les logs.</p></div></blockquote></div><p>Comme dit précédemment, je suis utilisateur de postresql depuis des années. Donc j&#039;ai fait tout ce qu&#039;il faut, redémarrage du service (plusieurs fois) vu les logs (rien à signaler). La question est : y a-t-il un changement dans le démarrage de postresql15 ? Les paramètres de config sont-ils surpassés par d&#039;autre ? Je n&#039;ai pas non plus trouvé le script de démarrage du service.<br />Oui, le service est bien actif -&gt;<br />COMMAND&#160; &#160;PID&#160; &#160; &#160;USER&#160; &#160;FD&#160; &#160;TYPE DEVICE SIZE/OFF NODE NAME<br />sshd&#160; &#160; &#160;1434&#160; &#160; &#160;root&#160; &#160; 3u&#160; IPv4&#160; 22532&#160; &#160; &#160; 0t0&#160; TCP *:222 (LISTEN)<br />sshd&#160; &#160; &#160;1434&#160; &#160; &#160;root&#160; &#160; 4u&#160; IPv6&#160; 22534&#160; &#160; &#160; 0t0&#160; TCP *:222 (LISTEN)<br />slapd&#160; &#160; 1612&#160; &#160; &#160;ldap&#160; &#160; 7u&#160; IPv4&#160; 23942&#160; &#160; &#160; 0t0&#160; TCP *:389 (LISTEN)<br />slapd&#160; &#160; 1612&#160; &#160; &#160;ldap&#160; &#160; 8u&#160; IPv6&#160; 23943&#160; &#160; &#160; 0t0&#160; TCP *:389 (LISTEN)<br />postgres 5208 postgres&#160; &#160; 6u&#160; IPv6&#160; 30069&#160; &#160; &#160; 0t0&#160; TCP [::1]:5432 (LISTEN)<br />postgres 5208 postgres&#160; &#160; 7u&#160; IPv4&#160; 30070&#160; &#160; &#160; 0t0&#160; TCP 127.0.0.1:5432 (LISTEN)</p><p>Mais pas comme configuré.</p><p>Résolu.<br />Les fichiers de config. se trouvaient à deux endroits, pgsql et pgsql/data. J&#039;ai modifié ceux de la racine et postgresql utilise ceux de data.</p>]]></content>
+		<author>
+			<name><![CDATA[edrobal]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=11497</uri>
+		</author>
+		<updated>2023-08-05T08:52:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34432#p34432</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  PostgreSQL 15 - impossible de modifier adresse et port écouté]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34431#p34431"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><p>À priori soit vous n&#039;avez pas redémarré postgres après avoir changé le port et listen_addresses, soit le service ne démarrage pas et impossible de vous donner la raison sans les logs.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2023-08-05T07:04:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34431#p34431</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[PostgreSQL 15 - impossible de modifier adresse et port écouté]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34430#p34430"/>
+		<content type="html"><![CDATA[<p>Bonjour.<br />Après des années d&#039;utilisation de PostgreSQL 9, je me suis trouvé dans l&#039;obligation de migrer mon serveur sur le cloud et de passer à PostgreSQL 15. L&#039;installation s&#039;est bien faite mais, impossible de configurer l&#039;accès depuis l&#039;extérieur. Voici l&#039;état des connexions :<br />lsof -nP -iTCP -sTCP:LISTEN<br />COMMAND&#160; &#160;PID&#160; &#160; &#160;USER&#160; &#160;FD&#160; &#160;TYPE DEVICE SIZE/OFF NODE NAME<br />sshd&#160; &#160; &#160;1434&#160; &#160; &#160;root&#160; &#160; 3u&#160; IPv4&#160; 22532&#160; &#160; &#160; 0t0&#160; TCP *:222 (LISTEN)<br />sshd&#160; &#160; &#160;1434&#160; &#160; &#160;root&#160; &#160; 4u&#160; IPv6&#160; 22534&#160; &#160; &#160; 0t0&#160; TCP *:222 (LISTEN)<br />slapd&#160; &#160; 1612&#160; &#160; &#160;ldap&#160; &#160; 7u&#160; IPv4&#160; 23942&#160; &#160; &#160; 0t0&#160; TCP *:389 (LISTEN)<br />slapd&#160; &#160; 1612&#160; &#160; &#160;ldap&#160; &#160; 8u&#160; IPv6&#160; 23943&#160; &#160; &#160; 0t0&#160; TCP *:389 (LISTEN)<br />postgres 5208 postgres&#160; &#160; 6u&#160; IPv6&#160; 30069&#160; &#160; &#160; 0t0&#160; TCP [::1]:5432 (LISTEN)<br />postgres 5208 postgres&#160; &#160; 7u&#160; IPv4&#160; 30070&#160; &#160; &#160; 0t0&#160; TCP 127.0.0.1:5432 (LISTEN)<br />Ma config :<br /># - Connection Settings -</p><p>listen_addresses = &#039;*&#039;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # what IP address(es) to listen on;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # comma-separated list of addresses;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # defaults to &#039;localhost&#039;; use &#039;*&#039; for all<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # (change requires restart)<br />port = 5552&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;# (change requires restart)</p><p># &quot;local&quot; is for Unix domain socket connections only<br />local&#160; &#160;all&#160; &#160; &#160; &#160; &#160; &#160; &#160;all&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;trust<br /># IPv4 local connections:<br />host&#160; &#160; all&#160; &#160; &#160; &#160; &#160; &#160; &#160;all&#160; &#160; &#160; &#160; &#160; &#160; &#160;127.0.0.1/32&#160; &#160; &#160; &#160; &#160; &#160; trust<br /># IPv6 local connections:<br />host&#160; &#160; all&#160; &#160; &#160; &#160; &#160; &#160; &#160;all&#160; &#160; &#160; &#160; &#160; &#160; &#160;::1/128&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;trust<br /># IPv4 remote connections:<br />host&#160; &#160; all&#160; &#160; &#160; &#160; &#160; &#160; &#160;all&#160; &#160; &#160; &#160; &#160; &#160; &#160;0.0.0.0/0&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;reject<br />hostssl all&#160; &#160; &#160; &#160; &#160; &#160; &#160;all&#160; &#160; &#160; &#160; &#160; &#160; &#160;0.0.0.0/0&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;md5</p><p>Où est le problème ???</p>]]></content>
+		<author>
+			<name><![CDATA[edrobal]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=11497</uri>
+		</author>
+		<updated>2023-08-04T17:43:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34430#p34430</id>
+	</entry>
+</feed>

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / différent méthode de creation database]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=6053&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=6053"/>
+	<updated>2021-07-08T01:18:07Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=6053</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  différent méthode de creation database]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32666#p32666"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>alassanediakite a écrit&#160;:</cite><blockquote><div><p>Windows est en UNICODE par défaut. Pour les tris et le jeux de caractères c&#039;est la région géographique par défaut mais (pour une colonnes) il est possible de choisir dans ICU (je ne vous apprends rien <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" />).<br />@+</p></div></blockquote></div><br /><p>Je parlais surtout pour l&#039;utilisation de psql, car la console est je crois toujours en CP1252 ou quelque chose du genre.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2021-07-08T01:18:07Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32666#p32666</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  différent méthode de creation database]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32665#p32665"/>
+		<content type="html"><![CDATA[<p>Salut et merci des éclaircissements</p><div class="quotebox"><cite>rjuju a écrit&#160;:</cite><blockquote><div><p>Pour le &quot;surtout sur windows&quot;, je vois énormément de personnes ayant des problèmes d&#039;encodage (à priori à cause de l&#039;encodage natif win1252 de windows, contre utf8 pour le reste du monde)...</p></div></blockquote></div><p>Windows est en UNICODE par défaut. Pour les tris et le jeux de caractères c&#039;est la région géographique par défaut mais (pour une colonnes) il est possible de choisir dans ICU (je ne vous apprends rien <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" />).<br />@+</p>]]></content>
+		<author>
+			<name><![CDATA[alassanediakite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1475</uri>
+		</author>
+		<updated>2021-07-07T19:49:45Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32665#p32665</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  différent méthode de creation database]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32664#p32664"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>alassanediakite a écrit&#160;:</cite><blockquote><div><p>Salut</p><div class="quotebox"><cite>rjuju a écrit&#160;:</cite><blockquote><div><p>Vous pouvez évidemment le faire mais vous risquez des surprises , surtout sur windows.</p></div></blockquote></div><p>Pouvez-vous être plus précis. Cela aide vraiment la communauté autour de PostgreSQL.<br />Certains raccourcis donnent une multitude d’interprétations qui souvent font que certaines solutions sont rejeté juste par &quot;on dit...&quot;.<br />@+</p></div></blockquote></div><p>Effectivement, plus de détails serait utile ici.</p><br /><p>Je ne suis pas certain de me rappeler, ni connaître, tout ce qui pourrait poser problème, mais au minimum (et en plus de la précision de Guillaume) cela peut poser des soucis dans les logs.&#160; En effet, si vous avez des bases avec des encodages différents, vous risquez d&#039;avoir différents messages dans des encodages différents, et ce dans un même fichier.&#160; Il est techniquement possible d&#039;extraire les différentes traces dans différents fichiers pour pouvoir les traiter, mais vous aurez à faire ce traitement manuellement (je ne connais pas d&#039;outil pour faire ça).&#160; Si vous avez quelques giga de logs, je vous laisse imaginer le temps pour traiter le fichier.</p><br /><p>Pour le &quot;surtout sur windows&quot;, je vois énormément de personnes ayant des problèmes d&#039;encodage (à priori à cause de l&#039;encodage natif win1252 de windows, contre utf8 pour le reste du monde).&#160; Ajouter un mix d&#039;encodage dans ce problème ne risque pas de simplifier les choses.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2021-07-06T14:01:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32664#p32664</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  différent méthode de creation database]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32663#p32663"/>
+		<content type="html"><![CDATA[<p>Quand PostgreSQL crée une base, il copie les fichiers du template vers la nouvelle base. Il ne fait aucune interprétation, aucun traitement, juste de la copie pure. Donc si vous avez des données texte dans un certain encodage dans votre base template, et que vous demandez la création d&#039;une base dans un autre encodage, vous vous trouverez avec les données initiales du template dans l&#039;ancien encodage et les nouvelles données dans le nouvel encodage. Bref, un beau bazar. Ça ne peut pas arriver avec template0 vu qu&#039;il est impossible (par défaut) de s&#039;y connecter et encore plus d&#039;y ajouter des données.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2021-07-06T07:54:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32663#p32663</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  différent méthode de creation database]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32655#p32655"/>
+		<content type="html"><![CDATA[<p>Salut</p><div class="quotebox"><cite>rjuju a écrit&#160;:</cite><blockquote><div><p>Vous pouvez évidemment le faire mais vous risquez des surprises , surtout sur windows.</p></div></blockquote></div><p>Pouvez-vous être plus précis. Cela aide vraiment la communauté autour de PostgreSQL.<br />Certains raccourcis donnent une multitude d’interprétations qui souvent font que certaines solutions sont rejeté juste par &quot;on dit...&quot;.<br />@+</p>]]></content>
+		<author>
+			<name><![CDATA[alassanediakite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1475</uri>
+		</author>
+		<updated>2021-07-03T14:00:29Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32655#p32655</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  différent méthode de creation database]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32641#p32641"/>
+		<content type="html"><![CDATA[<p>Plus précisément utiliser template0 est la seule possibilité si vous voulez créer une base avec un encodage différent de celui définit lors de l&#039;utilisation du cluster.&#160; Vous pouvez évidemment le faire mais vous risquez des surprises , surtout sur windows.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2021-06-27T13:39:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32641#p32641</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  différent méthode de creation database]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32640#p32640"/>
+		<content type="html"><![CDATA[<p>bonjour,<br />la différence c&#039;est que si vous ne spécifiez pas les paramètres de type &quot;encoding, lc_collate&quot; avec l&#039;une ou l&#039;autre des 2 commandes, la valeur prise sera celle de la base par défaut : template1.<br />Sinon, aucune différence.</p><p>Dans votre cas avec vos exemples :<br />- la commande creatdb va créer une base avec comme modèle template1 (identique à celle-ci)<br />- la commande create database va créer une database avec comme modèle template0 et des encoding, locales spécifique (puisque vous lui demandez).</p><p><a href="https://docs.postgresql.fr/11/sql-createdatabase.html" rel="nofollow">https://docs.postgresql.fr/11/sql-createdatabase.html</a></p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2021-06-27T10:33:50Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32640#p32640</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[différent méthode de creation database]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32639#p32639"/>
+		<content type="html"><![CDATA[<p>hello , </p><p>y&#039;a t&#039;il un grand difference si je crée ma base de donnée de cette façon </p><div class="codebox"><pre><code>createdb -h HOST -U postgres -W Base_dev</code></pre></div><p>ou </p><div class="codebox"><pre><code>CREATE DATABASE &quot;Base_dev&quot; WITH TEMPLATE = template0 ENCODING = &#039;UTF8&#039; LC_COLLATE = &#039;French_France.1252&#039; LC_CTYPE = &#039;French_France.1252&#039;;</code></pre></div><p>Est ce que avec le premier syntaxe j&#039;aurai les mémes paramètres de collation et encodage </p><p>merci pour vos retour d&#039;experience</p>]]></content>
+		<author>
+			<name><![CDATA[sihem_info]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7344</uri>
+		</author>
+		<updated>2021-06-27T08:43:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32639#p32639</id>
+	</entry>
+</feed>

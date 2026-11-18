@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / fonction avec récupération current_user et current timestamp]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5676&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5676"/>
+	<updated>2020-01-24T15:33:55Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5676</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  fonction avec récupération current_user et current timestamp]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30606#p30606"/>
+		<content type="html"><![CDATA[<p>**Je crois que j&#039;ai trouvé**<br />J&#039;ai supprimé le &quot;SET search_path=pg_catalog, s_environnement&quot; qui se trouvait dans ma fonction (cf mon tout premier post).<br />A priori, ça fonctionne.<br />Bon, j&#039;ai d&#039;autres erreurs qui apparaissent mais celle-là, elle est réglée...</p>]]></content>
+		<author>
+			<name><![CDATA[tony emery]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8788</uri>
+		</author>
+		<updated>2020-01-24T15:33:55Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30606#p30606</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  fonction avec récupération current_user et current timestamp]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30605#p30605"/>
+		<content type="html"><![CDATA[<p>Le public ici correspond à priori au schéma d&#039;installation de l&#039;extension postgis.&#160; Le message que vous indiquez ici est liée à une autre erreur ?&#160; Il serait beaucoup plus simple si vous pouviez fournir la totalité des messages d&#039;erreurs, requêtes, fonctions etc (idéalement un moyen de reproduire l&#039;erreur en partant de zéro).</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2020-01-24T15:26:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30605#p30605</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  fonction avec récupération current_user et current timestamp]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30604#p30604"/>
+		<content type="html"><![CDATA[<p>Ah, effectivement, la piste du schéma peut être bonne car, dans le message d&#039;erreur, j&#039;ai : &quot;Erreur PostGIS lors de la modification de géométrie : ERREUR:&#160; la fonction st_x(<strong>public</strong>.geometry) n&#039;existe pas&quot;.<br />Or, ma table &quot;env_colonnes&quot; se trouve dans le schema &quot;s_environnement&quot;. Ma colonne de géométrie s&#039;appelle bien &quot;geom&quot; et les champs des coordonnées &quot;coord_x&quot; et &quot;coord_y&quot; sans majuscule...</p><p>En testant votre solution, ça fonctionne aussi de mon côté. La seule différence est que, dans votre exemple, la table se trouve dans le schéma &quot;public&quot;.<br />Ensuite, les champs sont légèrement différents :<br />- mon champ &quot;geom&quot; est en &quot;geometry(Geometry,2154)&quot; alors que le vôtre est en &quot;geometry&quot; ;<br />- mes champs &quot;coord_x&quot; et &quot;coord_y&quot; sont en &quot;real&quot; alors que les vôtres sont en &quot;double precision&quot; ;</p>]]></content>
+		<author>
+			<name><![CDATA[tony emery]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8788</uri>
+		</author>
+		<updated>2020-01-24T14:41:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30604#p30604</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  fonction avec récupération current_user et current timestamp]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30601#p30601"/>
+		<content type="html"><![CDATA[<p>Aucun problème de mon coté :</p><br /><div class="codebox"><pre class="vscroll"><code>=# create table test(geom geometry, date_valid timestamptz, modified_by text, coord_x double precision, coord_y double precision);
+CREATE TABLE
+
+=# create function horo() returns trigger as
+$$
+DECLARE
+        BEGIN
+        NEW.date_valid := current_timestamp;
+        NEW.modified_by := session_user;
+        NEW.coord_x := ST_X(NEW.geom);
+        NEW.coord_y := ST_Y(NEW.geom);
+                RETURN NEW;
+        END;
+$$ language plpgsql;
+CREATE FUNCTION
+
+# CREATE TRIGGER trigger_horodatage
+    BEFORE INSERT OR UPDATE
+    ON test           
+    FOR EACH ROW
+    EXECUTE PROCEDURE horo();
+CREATE TRIGGER
+
+=# insert into test (geom) select &#039;POINT(0 0 0 0)&#039;::geometry;
+INSERT 0 1
+
+=# table test;
+                                    geom                                    |          date_valid           | modified_by | coord_x | coord_y 
+----------------------------------------------------------------------------+-------------------------------+-------------+---------+---------
+ 01010000C00000000000000000000000000000000000000000000000000000000000000000 | 2020-01-24 15:14:13.440822+01 | rjuju       |       0 |       0
+(1 row)</code></pre></div><p>Sans plus de détails, difficile de dire ce qui bloque chez vous.&#160; J&#039;imagine un mauvais schéma ou un nom de colonne en majuscule ?</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2020-01-24T14:14:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30601#p30601</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  fonction avec récupération current_user et current timestamp]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30599#p30599"/>
+		<content type="html"><![CDATA[<p>J&#039;ai pu faire mon deuxième trigger qui est, du reste, beaucoup plus simple que les 2 premiers.<br />J&#039;ai donc mon trigger :</p><div class="codebox"><pre><code>CREATE TRIGGER trigger_horodatage
+    BEFORE INSERT OR UPDATE 
+    ON s_environnement.env_colonnes
+    FOR EACH ROW
+    EXECUTE PROCEDURE s_environnement.fonction_horodatage();</code></pre></div><p>et ma fonction :</p><div class="codebox"><pre><code>DECLARE
+	BEGIN
+        NEW.date_valid := current_timestamp;
+        NEW.modified_by := session_user;
+        NEW.coord_x := ST_X(NEW.geom);
+        NEW.coord_y := ST_Y(NEW.geom);
+		RETURN NEW;
+	END;</code></pre></div><p>La partie current_timestamp et session_user fonctionne bien (pour le moment), mais la partie où je récupère les coordonnées x et y dans ma table me renvoi l&#039;erreur suivante :</p><div class="codebox"><pre><code>Impossible de valider les changements pour la couche env_colonnes
+Erreurs : ERREUR : 1 géométrie non modifiée.
+Erreur du fournisseur de données :
+      Erreur PostGIS lors de la modification de géométrie : ERREUR:  l&#039;enregistrement « new » n&#039;a pas de champs « geom »
+    CONTEXT:  instruction SQL « SELECT st_x(NEW.geom) »
+    fonction PL/pgSQL fonction_horodatage(), ligne 5 à affectation</code></pre></div><p>Pourtant, j&#039;ai regardé sur Internet et la fonction est bien écrite comme ça. De plus, ma colonne géométrique s&#039;appelle bien geom.</p>]]></content>
+		<author>
+			<name><![CDATA[tony emery]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8788</uri>
+		</author>
+		<updated>2020-01-24T13:36:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30599#p30599</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  fonction avec récupération current_user et current timestamp]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30597#p30597"/>
+		<content type="html"><![CDATA[<p>Merci pour la documentation.<br />Et je confirme que ce n&#039;est pas simple : j&#039;ai vidé ma tablette de Paracétamol...</p>]]></content>
+		<author>
+			<name><![CDATA[tony emery]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8788</uri>
+		</author>
+		<updated>2020-01-24T08:51:21Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30597#p30597</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  fonction avec récupération current_user et current timestamp]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30596#p30596"/>
+		<content type="html"><![CDATA[<p>Il faut deux fonctions, appelées par deux triggers différents.</p><p>La doc est là : <a href="https://www.postgresql.org/docs/10/trigger-definition.html" rel="nofollow">https://www.postgresql.org/docs/10/trig … ition.html</a> . Ce n&#039;est pas extrêmement synthétique, mais ce n&#039;est pas un sujet très simple non plus <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2020-01-24T08:35:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30596#p30596</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  fonction avec récupération current_user et current timestamp]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30595#p30595"/>
+		<content type="html"><![CDATA[<p>Merci pour l&#039;information.<br />Du coup, dois-je faire 2 fonctions (une BEFORE et une AFTER) ou puis-je mettre ces 2 actions dans la même fonction ?<br />Existe-t-il une documentation synthétique sur le rôle BEFORE et AFTER pour savoir ce que l&#039;on peut faire (et ne pas faire) ?</p>]]></content>
+		<author>
+			<name><![CDATA[tony emery]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8788</uri>
+		</author>
+		<updated>2020-01-24T08:29:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30595#p30595</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  fonction avec récupération current_user et current timestamp]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30594#p30594"/>
+		<content type="html"><![CDATA[<p>L&#039;explication la plus simple que je vois: vous avez déclaré le trigger comme &quot;AFTER&quot;. Si ce n&#039;était pas le cas vous auriez des erreurs sur les INSERT. Par contre, pour pouvoir modifier NEW, il faut un trigger BEFORE. Donc je pense que vu ce que vous voulez faire, c&#039;est un trigger BEFORE qui modifie NEW, et un trigger AFTER qui fait les insert.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2020-01-23T17:05:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30594#p30594</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[fonction avec récupération current_user et current timestamp]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30593#p30593"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous,</p><p>J&#039;utilise postgresql depuis quelques mois dans le cadre de mon travail (collectivité territoriale). Je vous explique le contexte.<br />J&#039;ai une table contenant des colonnes de collecte de déchets dans laquelle se trouvent des informations sur l&#039;emplacement, la gestion, le type et le remplissage de la colonne.<br />Cette table est diffusée via un websig aux agents de la collectivité qui sont amenés à en modifier les informations.</p><p>Je souhaite suivre les modifications de cette table et, pour cela, j&#039;ai créé deux fonctions :<br />- une dans le cas où l&#039;agent met à jour le taux de remplissage de la colonne =&gt; les informations modifiées sont copiées dans une nouvelle table de suivi ;<br />- une dans le cas où l&#039;agent modifie l&#039;emplacement ou la nature de la colonne (remplacement ou nouvelle implantation par exemple) =&gt; la synthèse de la modification est copiée dans une nouvelle table des mises à jour.</p><p>Ces 2 fonctions fonctionnent bien et les tables se remplissent correctement.<br />Cependant, je voudrais que, dans la table des colonnes, certains champs se mettent à jour de manière automatique.<br />J&#039;ai commencé par 2 informations que je pensais facile à récupérer : le nom de l&#039;agent qui a fait la modification (current_user) et la date de la modification (current_timestamp).</p><p>L&#039;une des fonctions est la suivante (la deuxième étant presque identique, je vous fais grâce d&#039;un peu de lecture) :</p><div class="codebox"><pre class="vscroll"><code>CREATE FUNCTION s_environnement.fonction_maj_colonnes()
+    RETURNS trigger
+    LANGUAGE &#039;plpgsql&#039;
+    COST 100
+    VOLATILE NOT LEAKPROOF SECURITY DEFINER
+    SET search_path=pg_catalog, s_environnement
+AS $BODY$DECLARE
+variable_ancienne_valeur TEXT;
+variable_nouvelle_valeur TEXT;
+identifiant INTEGER;
+	BEGIN
+		IF (TG_OP = &#039;UPDATE&#039;) THEN
+			variable_ancienne_valeur := ROW(OLD.*);
+			variable_nouvelle_valeur := ROW(NEW.*);
+			identifiant := OLD.id_serial;
+			INSERT INTO s_environnement.suivi (schema, nomtable, utilisateur, dateheure, action, dataorigine, datanouvelle, detailmaj, idobjet)
+			VALUES (TG_TABLE_SCHEMA::TEXT, TG_TABLE_NAME::TEXT, session_user, current_timestamp, substring(TG_OP,1,1), variable_ancienne_valeur, variable_nouvelle_valeur, current_query(), identifiant);
+        	NEW.date_valid := current_timestamp;
+        	NEW.modified_by := current_user;
+			RETURN NEW;
+		ELSIF (TG_OP = &#039;DELETE&#039;) THEN
+			variable_ancienne_valeur := ROW(OLD.*);
+			identifiant := OLD.id_serial;
+			INSERT INTO s_environnement.suivi (schema, nomtable, utilisateur, dateheure, action, dataorigine, detailmaj, idobjet)
+			VALUES (TG_TABLE_SCHEMA::TEXT, TG_TABLE_NAME::TEXT, session_user, current_timestamp, substring(TG_OP,1,1), variable_ancienne_valeur, current_query(), identifiant);
+			RETURN OLD;
+		ELSIF (TG_OP = &#039;INSERT&#039;) THEN
+			variable_nouvelle_valeur := ROW(NEW.*);
+			identifiant := NEW.id_serial;
+			INSERT INTO s_environnement.suivi (schema, nomtable, utilisateur, dateheure, action, datanouvelle, detailmaj, idobjet)
+			VALUES (TG_TABLE_SCHEMA::TEXT, TG_TABLE_NAME::TEXT, session_user, current_timestamp, substring(TG_OP,1,1), variable_nouvelle_valeur, current_query(), identifiant);
+        	NEW.date_valid := current_timestamp;       -- &lt;---- C&#039;EST LA QUE J&#039;AI UN PROBLEME
+        	NEW.modified_by := current_user;       -- &lt;---- C&#039;EST LA QUE J&#039;AI UN PROBLEME
+			RETURN NEW;
+		ELSE
+			RAISE WARNING &#039;[s_environnement.fonction_suivi_maj] - Other action occurred: %, at %&#039;, TG_OP,now();
+			RETURN NULL;
+		END IF;
+	END;
+$BODY$;</code></pre></div><p>Bizarrement, toute la partie où j&#039;écris les modifications dans la nouvelle table fonctionne (INSERT INTO ...). Par contre, les 2 lignes suivantes me posent problème :<br /> - NEW.date_valid := current_timestamp;<br /> - NEW.modified_by := current_user;<br />Ces deux lignes sont censées écrire dans la table d&#039;origine (celle des colonnes) mais, en fait, il ne se passe rien. Je n&#039;ai même pas de message d&#039;erreur.</p><p>Voilà, si l&#039;un de vous a une piste de réflexion, ça fait quelques jours que je m&#039;arrache les cheveux pour savoir d&#039;où vient le problème.</p><p>Merci d&#039;avance,</p>]]></content>
+		<author>
+			<name><![CDATA[tony emery]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8788</uri>
+		</author>
+		<updated>2020-01-23T16:47:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30593#p30593</id>
+	</entry>
+</feed>

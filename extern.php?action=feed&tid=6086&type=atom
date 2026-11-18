@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / probléme minscul majscul create database]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=6086&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=6086"/>
+	<updated>2021-07-30T11:20:07Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=6086</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  probléme minscul majscul create database]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32715#p32715"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>psql:c:/dump/base-dev.sql:23: ERREUR:&#160; option Â« locale Â» non reconnu<br />LIGNE 1 : ..._dev&quot; WITH TEMPLATE = template0 ENCODING = &#039;UTF8&#039; LOCALE = &#039;...</p></div></blockquote></div><p>L&#039;option LOCALE=... de CREATE DATABASE n&#039;existe qu&#039;à partir de PostgreSQL 13. Pour les versions d&#039;avant il faut forcément détailler LC_COLLATE et LC_CTYPE séparement.</p><br /><p>Ici l&#039;option n&#039;est pas reconnue parce que c&#039;est un dump qui a été généré pour PostgreSQL 13 ou supérieur (donc par un pg_dump récent) mais&#160; qui est joué sur PostgreSQL 12 ou inférieur.</p><br /><p>Donc la création de la base échoue, et le \connect qui suit échoue aussi. C&#039;est complètement indépendant du fait qu&#039;il faut mettre les noms entre guillemets si vous voulez conserver les majuscules comme indiqué par Jean-Marie dans la réponse #2. Votre script c:\dump\base-dev.sql, lui, a bien les noms entre guillemets d&#039;après ce qu&#039;on peut voir des messages d&#039;erreur.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2021-07-30T11:20:07Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32715#p32715</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  probléme minscul majscul create database]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32714#p32714"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>PostgreSQL convertit tous les noms d&#039;objets en minuscules à moins que ceux-ci ne soient entourés de guillemets doubles (&quot;) à leur création.</p><p>Pour de bonnes pratiques en la matière, je vous conseille de suivre les recommandations publiées par Dalibo : (<a href="https://public.dalibo.com/exports/marketing/livres_blancs/dlb04-modeliser_avec_postgresql/DLB04_Modeliser_avec_PostgreSQL.pdf" rel="nofollow">https://public.dalibo.com/exports/marke … greSQL.pdf</a>) qu&#039;il faut encore remercier pour toutes leurs contributions et publications</p>]]></content>
+		<author>
+			<name><![CDATA[jmarsac]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7302</uri>
+		</author>
+		<updated>2021-07-30T11:02:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32714#p32714</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[probléme minscul majscul create database]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32713#p32713"/>
+		<content type="html"><![CDATA[<p>hello , </p><p>j&#039;ai un problème que j&#039;ai passer des jours pour le comprendre mais sans résultat </p><p>en faite moi j&#039;ai crée ma base de donnée avec un lettre B en majiscule </p><div class="codebox"><pre><code>postgres=# create database Base_dev ;
+CREATE DATABASE</code></pre></div><p>mais si j&#039;affiche les liste de mes bases j&#039;ai ma&#160; base de donnée mais avec une lettre miniscul </p><div class="codebox"><pre><code>postgres=# \l
+                                      Liste des bases de donnÚes
+    Nom    | PropriÚtaire | Encodage |  Collationnement   |    Type caract.    |    Droits d&#039;accÞs
+-----------+--------------+----------+--------------------+--------------------+-----------------------
+ base_dev  | postgres     | UTF8     | French_France.1252 | French_France.1252 |
+ postgres  | postgres     | UTF8     | French_France.1252 | French_France.1252 |
+ template0 | postgres     | UTF8     | French_France.1252 | French_France.1252 | =c/postgres          +
+           |              |          |                    |                    | postgres=CTc/postgres
+ template1 | postgres     | UTF8     | French_France.1252 | French_France.1252 | =c/postgres          +
+           |              |          |                    |                    | postgres=CTc/postgres
+ test      | postgres     | UTF8     | French_France.1252 | French_France.1252 |
+(5 lignes)</code></pre></div><p>ceci rendre l&#039;option du mon restore impossible vu qu&#039;il ne trouve plus la base en question </p><div class="codebox"><pre><code>&gt;psql -U postgres -p5433 -d postgres -f  c:\dump\base-dev.sql
+Mot de passe pour l&#039;utilisateur postgres :
+SET
+SET
+SET
+SET
+SET
+ set_config
+------------
+
+(1 ligne)
+
+
+SET
+SET
+SET
+SET
+psql:c:/dump/base-dev.sql:23: ERREUR:  option Â« locale Â» non reconnu
+LIGNE 1 : ..._dev&quot; WITH TEMPLATE = template0 ENCODING = &#039;UTF8&#039; LOCALE = &#039;...
+                                                               ^
+psql:c:/dump/base-dev.sql:26: ERREUR:  la base de donnÃ©es Â« Base_dev Â» n&#039;existe pas
+psql:c:/dump/base-dev.sql:28: erreur : \connect : FATAL:  la base de données « Base_dev » n&#039;existe pas</code></pre></div><p>merci pour vos retour d&#039;experience</p>]]></content>
+		<author>
+			<name><![CDATA[samirca007]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7707</uri>
+		</author>
+		<updated>2021-07-30T10:11:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32713#p32713</id>
+	</entry>
+</feed>

@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / [résolu] ora2pg : export d'une table incomplet]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5963&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5963"/>
+	<updated>2021-03-05T13:16:45Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5963</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [résolu] ora2pg : export d'une table incomplet]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32185#p32185"/>
+		<content type="html"><![CDATA[<p>Merci pour le retour, j&#039;essayerai de reproduire ce cas pour corriger le problème dans Ora2Pg.</p>]]></content>
+		<author>
+			<name><![CDATA[gilles]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=921</uri>
+		</author>
+		<updated>2021-03-05T13:16:45Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32185#p32185</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [résolu] ora2pg : export d'une table incomplet]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32184#p32184"/>
+		<content type="html"><![CDATA[<p>Rebonjour,</p><p>J&#039;ai résolu mon problème. C&#039;était bien le type TYPE_ENTRY_TRANSLATION_TABLE qui posait problème : l&#039;export plantait lorsque cette colonne était non nulle, mais sans donnée dans le tableau. J&#039;ai corrigé mes données avec cette requête :</p><div class="codebox"><pre><code>update ARTICLEFOURNISSEURS SET AF_TRANSLATION_01=null WHERE ID_ARTICLEFOURNISSEUR IN (
+SELECT ID_ARTICLEFOURNISSEUR FROM ARTICLEFOURNISSEURS,TABLE (AF_TRANSLATION_01)(+) WHERE AF_TRANSLATION_01 IS NOT NULL AND LANG IS NULL
+)</code></pre></div><p>Comme ça plantait toujours au même endroit, je me suis dit que le problème venait peut-être d&#039;une donnée en particulier. J&#039;ai donc exporté par lot de 10 avant de trouver le lot qui n&#039;était pas exporté et j&#039;ai vu cette donnée étrange. Ce qui est curieux, c&#039;est que la ligne est bien exportée en mettant DATA_LIMIT à 1 (j&#039;avais alors&#160; utilisé le paramètre REPLACE_QUERY pour ne sélectionner que les 10 lignes en question.</p>]]></content>
+		<author>
+			<name><![CDATA[Hakkai94]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9343</uri>
+		</author>
+		<updated>2021-03-05T10:17:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32184#p32184</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [résolu] ora2pg : export d'une table incomplet]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32183#p32183"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />Ce type est utilisé dans plein d&#039;autres tables, ça n&#039;a posé aucun problème, j&#039;ai un traitement qui va ensuite les traiter. On peut voir dans le début du fichier généré que des lignes ayant ce type non null ont été correctement exportées :</p><div class="codebox"><pre><code>COPY articlefournisseurs (id_article,id_articlefournisseur,id_fourn,ref_fourn,designation,delai_livr_moyen,qte_achat,prix_achat_base,pourc_rem,id_devise,id_division,af_chk_default,af_chk_update_article,af_defaultcopyforpk,af_id_warranty_uw,af_translation_01,af_qty_available,af_availability,af_availability_date) FROM STDIN;
+886353	903725	814	2000100203811	2000100203811	6	1	635.59	0	2	2	\N	0	903725	2	\N	\N	\N	\N
+886354	903726	2262	2000100203835	2000100203835	6	1	42.52	0	2	2	on	1	\N	2	\N	\N	\N	\N
+886355	903727	2262	2000100203842	2000100203842	6	1	6.8	0	2	2	on	1	\N	2	\N	\N	\N	\N
+886356	903728	2246	2000100203866	2000100203866	6	1	440.58	0	2	2	on	1	\N	2	\N	\N	\N	\N
+886357	903729	2123	2000100203873	2000100203873	6	1	9.4	0	2	2	on	1	\N	2	\N	\N	\N	\N
+886358	903730	703	2000100203941	2000100203941	6	1	394.73	0	2	2	on	1	\N	2	(&quot;(fr,2000100203941)&quot;)	\N	\N	\N
+886359	903731	814	2000100203958	2000100203958	6	1	390.29	0	2	2	on	1	\N	2	\N	\N	\N	\N
+886360	903732	814	2000100204030	2000100204030	6	1	412.72	0	2	2	\N	1	903732	2	\N	\N	\N	\N
+886361	903733	2123	2000100204177	2000100204177	6	1	7.34	0	2	2	on	1	\N	2	\N	\N	\N	\N</code></pre></div><p>J&#039;utilise la valeur DATA_LIMIT à 100000 pour les grosses tables (&gt;1Go) qui ont été exportées sans problème. Je viens de relancer l&#039;export avec 15000, et ça plante à nouveau au delà de 300000 lignes :</p><div class="codebox"><pre><code>[2021-03-05 09:18:11] DEBUG: Creating output for 15000 tuples
+[2021-03-05 09:18:11] Dumping data from ARTICLEFOURNISSEURS to file: tmp_ARTICLEFOURNISSEURS_copy_spe.sql
+[2021-03-05 09:18:11] Extracted records from table ARTICLEFOURNISSEURS: total_records = 285019 (avg: 10962 recs/sec)
+[2021-03-05 09:18:12] DEBUG: Formatting bulk of 15000 data (real: 15001 rows) for PostgreSQL.
+[2021-03-05 09:18:13] DEBUG: Creating output for 15000 tuples
+[2021-03-05 09:18:13] Dumping data from ARTICLEFOURNISSEURS to file: tmp_ARTICLEFOURNISSEURS_copy_spe.sql
+[2021-03-05 09:18:13] Extracted records from table ARTICLEFOURNISSEURS: total_records = 300020 (avg: 10715 recs/sec)
+[2021-03-05 09:18:14] ORACLE_HOME = /u01/app/oracle/product/11.2.0/db_1
+[2021-03-05 09:18:14] NLS_LANG = american_AMERICA.UTF8
+[2021-03-05 09:18:14] NLS_NCHAR = AL32UTF8</code></pre></div><p>Ce n&#039;est pas non plus un problème d&#039;espace disque, la partition de 500Go n&#039;est remplie qu&#039;à 34%.</p>]]></content>
+		<author>
+			<name><![CDATA[Hakkai94]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9343</uri>
+		</author>
+		<updated>2021-03-05T08:29:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32183#p32183</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [résolu] ora2pg : export d'une table incomplet]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32182#p32182"/>
+		<content type="html"><![CDATA[<p>Si ce n&#039;est pas un probleme d&#039;espace disque qui empêcherai l&#039;extraction complète des données de la table ou un coup de l&#039;OOM killer parce que le DATA_LIMIT est trop haut, c&#039;est possiblement parce qu&#039;il il a un problème de reconnaissance d&#039;un type personnalisé:</p><div class="codebox"><pre><code>[2021-03-04 13:05:28]   Found Type: TYPE_ENTRY_TRANSLATION
+[2021-03-04 13:05:28]   Can not found subtype for TYPE_ENTRY_TRANSLATION_TABLE into code: TYPE TYPE_ENTRY_TRANSLATION_TABLE IS TABLE OF TYPE_ENTRY_TRANSLATION;</code></pre></div><p>Pour ce cas malheureusement il y a un patch a faire dans Ora2Pgg.</p><p>Pour ce qui est de la valeur de DATA_LIMIT, 100000 est beaucoup trop élevé au vue de la vitesse moyenne d&#039;export: Speed average: avg: 11111 recs/sec<br />Une valeur de 15000 serait plus adaptée. Toute excèdent se retrouve occuper de la mémoire pour rien. Pour aller plus vite pour l&#039;extractionn d&#039;une table il faut à minima -j 2 et -J N en fonction du nombre de cpu disponible (-j x -J). N= 2 par exemple si il y a 4 cpu. Mais dans ce cas DATA_LIMIT reste toujours à 10 ou 15000.</p>]]></content>
+		<author>
+			<name><![CDATA[gilles]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=921</uri>
+		</author>
+		<updated>2021-03-05T07:11:55Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32182#p32182</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[[résolu] ora2pg : export d'une table incomplet]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32180#p32180"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;utilise ora2pg pour exporter les données de ma base Oracle (11.2) vers ma base PG (13) en mode &quot;TYPE COPY&quot;. L&#039;outil génère les données de toutes les tables (plus de 1600) dont la plus volumineuse génère un fichier de 25Go.<br />Par contre il y a une table dont le fichier est incomplet, l&#039;export s&#039;arrête toujours au même endroit, environ 300.000 lignes sont présentes dans le fichier généré (25Mo) sur les plus de 600.000 que comporte la table. J&#039;ai essayé plusieurs combinaisons de configuration pour relancer l&#039;export de cette table uniquement (qui ne comporte aucune spécificité supplémentaire par rapport aux autres), et j&#039;ai systématiquement le même résultat. Lorsque j&#039;exporte le contenu de la table avec un client Oracle (toad ou datagrip), la table est alors bien complète. </p><p>Voici le log d&#039;exécution :</p><div class="codebox"><pre class="vscroll"><code>[2021-03-04 13:05:28] [1] Scanning table ARTICLEFOURNISSEURS (604380 rows)...
+[2021-03-04 13:05:28] ORACLE_HOME = /u01/app/oracle/product/11.2.0/db_1
+[2021-03-04 13:05:28] NLS_LANG = american_AMERICA.UTF8
+[2021-03-04 13:05:28] NLS_NCHAR = AL32UTF8
+[2021-03-04 13:05:28] Trying to connect to database: dbi:Oracle:host=localhost;sid=DEVARI
+[2021-03-04 13:05:28] Isolation level: SET TRANSACTION ISOLATION LEVEL SERIALIZABLE
+[2021-03-04 13:05:28] Creating new connection to Oracle database to export table ARTICLEFOURNISSEURS...
+[2021-03-04 13:05:28] Looking how to retrieve data from ARTICLEFOURNISSEURS...
+[2021-03-04 13:05:28] DEGUG: Query sent to Oracle: SELECT &quot;ID_ARTICLE&quot;,&quot;ID_ARTICLEFOURNISSEUR&quot;,&quot;ID_FOURN&quot;,&quot;REF_FOURN&quot;,&quot;DESIGNATION&quot;,&quot;DELAI_LIVR_MOYEN&quot;,&quot;QTE_ACHAT&quot;,&quot;PRIX_ACHAT_BASE&quot;,&quot;POURC_REM&quot;,&quot;ID_DEVISE&quot;,&quot;ID_DIVISION&quot;,&quot;AF_CHK_DEFAULT&quot;,&quot;AF_CHK_UPDATE_ARTICLE&quot;,&quot;AF_DEFAULTCOPYFORPK&quot;,&quot;AF_ID_WARRANTY_UW&quot;,&quot;AF_TRANSLATION_01&quot;,&quot;AF_QTY_AVAILABLE&quot;,&quot;AF_AVAILABILITY&quot;,&quot;AF_AVAILABILITY_DATE&quot; FROM &quot;TESTUSER&quot;.&quot;ARTICLEFOURNISSEURS&quot; a
+[2021-03-04 13:05:28] Data type TYPE_ENTRY_TRANSLATION_TABLE is not native, searching on custom types.
+[2021-03-04 13:05:28] ORACLE_HOME = /u01/app/oracle/product/11.2.0/db_1
+[2021-03-04 13:05:28] NLS_LANG = american_AMERICA.UTF8
+[2021-03-04 13:05:28] NLS_NCHAR = AL32UTF8
+[2021-03-04 13:05:28] Trying to connect to database: dbi:Oracle:host=localhost;sid=DEVARI
+[2021-03-04 13:05:28] Isolation level: SET TRANSACTION ISOLATION LEVEL SERIALIZABLE
+[2021-03-04 13:05:28]   Found Type: TYPE_ENTRY_TRANSLATION_TABLE
+[2021-03-04 13:05:28]   Looking inside custom type TYPE_ENTRY_TRANSLATION_TABLE to extract values...
+[2021-03-04 13:05:28] ORACLE_HOME = /u01/app/oracle/product/11.2.0/db_1
+[2021-03-04 13:05:28] NLS_LANG = american_AMERICA.UTF8
+[2021-03-04 13:05:28] NLS_NCHAR = AL32UTF8
+[2021-03-04 13:05:28] Trying to connect to database: dbi:Oracle:host=localhost;sid=DEVARI
+[2021-03-04 13:05:28] Isolation level: SET TRANSACTION ISOLATION LEVEL SERIALIZABLE
+[2021-03-04 13:05:28]   Found Type: TYPE_ENTRY_TRANSLATION
+[2021-03-04 13:05:28]   Can not found subtype for TYPE_ENTRY_TRANSLATION_TABLE into code: TYPE TYPE_ENTRY_TRANSLATION_TABLE IS TABLE OF TYPE_ENTRY_TRANSLATION;
+[2021-03-04 13:05:28] DEBUG: cloning Oracle database connection.
+[2021-03-04 13:05:28] Fetching all data from ARTICLEFOURNISSEURS tuples...
+[2021-03-04 13:05:31] DEBUG: Formatting bulk of 100000 data (real: 100001 rows) for PostgreSQL.
+[2021-03-04 13:05:37] DEBUG: Creating output for 100000 tuples
+[2021-03-04 13:05:37] Dumping data from ARTICLEFOURNISSEURS to file: tmp_ARTICLEFOURNISSEURS_copy_spe.sql
+[2021-03-04 13:05:37] Extracted records from table ARTICLEFOURNISSEURS: total_records = 100001 (avg: 11111 recs/sec)
+[2021-03-04 13:05:40] DEBUG: Formatting bulk of 100000 data (real: 100001 rows) for PostgreSQL.
+[2021-03-04 13:05:46] DEBUG: Creating output for 100000 tuples
+[2021-03-04 13:05:46] Dumping data from ARTICLEFOURNISSEURS to file: tmp_ARTICLEFOURNISSEURS_copy_spe.sql
+[2021-03-04 13:05:46] Extracted records from table ARTICLEFOURNISSEURS: total_records = 200002 (avg: 11111 recs/sec)
+[2021-03-04 13:05:49] DEBUG: Formatting bulk of 100000 data (real: 100001 rows) for PostgreSQL.
+[2021-03-04 13:05:55] DEBUG: Creating output for 100000 tuples
+[2021-03-04 13:05:56] Dumping data from ARTICLEFOURNISSEURS to file: tmp_ARTICLEFOURNISSEURS_copy_spe.sql
+[2021-03-04 13:05:56] Extracted records from table ARTICLEFOURNISSEURS: total_records = 300003 (avg: 10714 recs/sec)
+[2021-03-04 13:05:58] ORACLE_HOME = /u01/app/oracle/product/11.2.0/db_1
+[2021-03-04 13:05:58] NLS_LANG = american_AMERICA.UTF8
+[2021-03-04 13:05:58] NLS_NCHAR = AL32UTF8
+[2021-03-04 13:05:58] Trying to connect to database: dbi:Oracle:host=localhost;sid=DEVARI
+[2021-03-04 13:05:58] Isolation level: SET TRANSACTION ISOLATION LEVEL SERIALIZABLE
+... (séquences)
+[2021-03-04 13:06:03] Total time to export data from 1 tables (0 partitions, 0 sub-partitions) and 604380 total rows: 35 wallclock secs ( 0.05 usr  0.14 sys + 27.75 cusr  0.55 csys = 28.49 CPU)
+[2021-03-04 13:06:03] Speed average: 17268.00 rows/sec</code></pre></div><p>Une idée sur ce qui peut causer ce problème ?</p><p>Merci</p>]]></content>
+		<author>
+			<name><![CDATA[Hakkai94]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9343</uri>
+		</author>
+		<updated>2021-03-04T13:15:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32180#p32180</id>
+	</entry>
+</feed>

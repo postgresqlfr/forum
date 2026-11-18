@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / [RESOLU] - SELECT avec un total général, par staff_id et par mois]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2920&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2920"/>
+	<updated>2014-01-02T10:15:47Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2920</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] - SELECT avec un total général, par staff_id et par mois]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18863#p18863"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>gleu a écrit&#160;:</cite><blockquote><div><p>Ça devrait ressembler à ceci :</p><div class="codebox"><pre><code>SELECT DISTINCT ON (staff_id, extract(month FROM payment_date))
+  staff_id, extract(month FROM payment_date),
+  count(*) over (PARTITION BY staff_id, extract(month FROM payment_date)) AS TotMois,
+  count(*) over (PARTITION BY staff_id) AS Total,
+  count(*) over () AS TotGeneral
+FROM payment;</code></pre></div></div></blockquote></div><p>Génial !!! Plus que ressembler, c&#039;est EXACTEMENT ça... et dire que j&#039;ai cherché pendant des heures, merci !!!!</p>]]></content>
+		<author>
+			<name><![CDATA[CHR]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3017</uri>
+		</author>
+		<updated>2014-01-02T10:15:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18863#p18863</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] - SELECT avec un total général, par staff_id et par mois]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18862#p18862"/>
+		<content type="html"><![CDATA[<p>Ça devrait ressembler à ceci :</p><div class="codebox"><pre><code>SELECT DISTINCT ON (staff_id, extract(month FROM payment_date))
+  staff_id, extract(month FROM payment_date),
+  count(*) over (PARTITION BY staff_id, extract(month FROM payment_date)) AS TotMois,
+  count(*) over (PARTITION BY staff_id) AS Total,
+  count(*) over () AS TotGeneral
+FROM payment;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-01-02T10:06:35Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18862#p18862</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] - SELECT avec un total général, par staff_id et par mois]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18861#p18861"/>
+		<content type="html"><![CDATA[<p>Merci !<br />J&#039;ai utilisé la BD pagila et la table payment, seule différence c&#039;est que j&#039;ai utilisé EXTRACT(month from payment_date) pour obtenir le mois et que j&#039;ai le chiffre et non l&#039;abréviation du mois. Mais je prépare une table pour le post.</p>]]></content>
+		<author>
+			<name><![CDATA[CHR]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3017</uri>
+		</author>
+		<updated>2014-01-02T09:46:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18861#p18861</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] - SELECT avec un total général, par staff_id et par mois]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18860#p18860"/>
+		<content type="html"><![CDATA[<p>Sans avoir les données en entrée, je ne vois pas comment on va pouvoir vous aider. La base d&#039;exemple dont vous parlez (pagila) ne contient que les staff_id 1 et 2, du coup votre exemple est étonnant avec un stff_id à 3. Bref, détaillez si vous voulez qu&#039;on puisse vous aider.</p><p>La seule chose que je peux dire actuellement, c&#039;est qu&#039;il faut certainement utiliser les requêtes de fenêtrage.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-01-02T09:42:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18860#p18860</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[[RESOLU] - SELECT avec un total général, par staff_id et par mois]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18859#p18859"/>
+		<content type="html"><![CDATA[<p>Bonjour fully newbie dans le monde de Postgresql j&#039;essaie d&#039;obtenir le résultat suivant:</p><p>Staff_ID&#160; &#160; &#160;Mois&#160; &#160; TotMois&#160; &#160; &#160;Total&#160; &#160; &#160; &#160;TotGeneral<br />1&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Jan&#160; &#160; &#160; &#160; &#160;3&#160; &#160; &#160; &#160; &#160; &#160; 10&#160; &#160; &#160; &#160; &#160; &#160; &#160; 41<br />2&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Jan&#160; &#160; &#160; &#160; &#160;4&#160; &#160; &#160; &#160; &#160; &#160; 10&#160; &#160; &#160; &#160; &#160; &#160; &#160; 41<br />3&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Jan&#160; &#160; &#160; &#160; &#160;3&#160; &#160; &#160; &#160; &#160; &#160; 10&#160; &#160; &#160; &#160; &#160; &#160; &#160; 41<br />1&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Fev&#160; &#160; &#160; &#160; &#160;9&#160; &#160; &#160; &#160; &#160; &#160; 19&#160; &#160; &#160; &#160; &#160; &#160; &#160; 41<br />2&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Fev&#160; &#160; &#160; &#160; &#160;9&#160; &#160; &#160; &#160; &#160; &#160; 19&#160; &#160; &#160; &#160; &#160; &#160; &#160; 41<br />3&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Fev&#160; &#160; &#160; &#160; &#160;1&#160; &#160; &#160; &#160; &#160; &#160; 19&#160; &#160; &#160; &#160; &#160; &#160; &#160; 41<br />1&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Mar&#160; &#160; &#160; &#160; &#160;6&#160; &#160; &#160; &#160; &#160; &#160; 12&#160; &#160; &#160; &#160; &#160; &#160; &#160; 41<br />2&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Mar&#160; &#160; &#160; &#160; &#160;5&#160; &#160; &#160; &#160; &#160; &#160; 12&#160; &#160; &#160; &#160; &#160; &#160; &#160; 41<br />3&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Mar&#160; &#160; &#160; &#160; &#160;1&#160; &#160; &#160; &#160; &#160; &#160; 12&#160; &#160; &#160; &#160; &#160; &#160; &#160; 41</p><p>J&#039;ai utilisé la BD d&#039;exemple pagila (tutosql), la table ici comporterait 41 lignes, le but étant d&#039;obtenir des sous-totaux (ici un count) dissociés en fonction de groupements ou de criètres à choix, ici Staff ID et Mois.</p><p>J&#039;ai essayé les subquery (select dans un select) mais le hic est que la colonne Total renvoie toujours plusieurs lignes (évidement une par mois) et que donc la sous-requête me ramène une erreur...<br />Merci d&#039;avance pour votre aide et bonne année !<br />chr</p>]]></content>
+		<author>
+			<name><![CDATA[CHR]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3017</uri>
+		</author>
+		<updated>2014-01-02T09:36:55Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18859#p18859</id>
+	</entry>
+</feed>

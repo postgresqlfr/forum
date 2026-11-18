@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Problème avec une requete plpgsql]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3093&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3093"/>
+	<updated>2014-04-14T20:31:54Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3093</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème avec une requete plpgsql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19661#p19661"/>
+		<content type="html"><![CDATA[<p>Dans ce cas, mieux vaut passer par la variable qui contient le résultat à envoyer.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-04-14T20:31:54Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19661#p19661</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème avec une requete plpgsql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19656#p19656"/>
+		<content type="html"><![CDATA[<p>essaye ça :<br />CREATE or replace FUNCTION nb_mission() RETURNS setof bigint AS<br />$$<br />BEGIN<br />RETURN QUERY SELECT COUNT(*) FROM mission;<br />END;<br />$$<br />LANGUAGE plpgsql;</p><br /><p>Pour executer :<br />select * from nb_mission();</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2014-04-14T14:58:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19656#p19656</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème avec une requete plpgsql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19654#p19654"/>
+		<content type="html"><![CDATA[<p>Merci pour ta disponibilité,</p><p>* soit on retourne le résultat d&#039;une requête<br />ce second cas renvoie l’erreur suivant:</p><p>ERREUR:&#160; ne peut pas utiliser RETURN QUERY dans une fonction non SETOF<br />LINE 6: RETURN QUERY SELECT COUNT(*) FROM mission;;<br />&#160; &#160; &#160; &#160; ^</p><p>********** Erreur **********</p><p>ERREUR: ne peut pas utiliser RETURN QUERY dans une fonction non SETOF<br />État SQL :42804<br />Caractère : 81</p>]]></content>
+		<author>
+			<name><![CDATA[pljavabruno]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1963</uri>
+		</author>
+		<updated>2014-04-14T14:19:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19654#p19654</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème avec une requete plpgsql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19651#p19651"/>
+		<content type="html"><![CDATA[<p>trop rapide Guillaume...<br />désolé pour le doublon.</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2014-04-14T14:12:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19651#p19651</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème avec une requete plpgsql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19650#p19650"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>essayez ça :<br />CREATE OR REPLACE FUNCTION nb_mission() RETURNS integer AS<br />$$<br />DECLARE<br />&#160; count_total integer;<br />BEGIN<br />SELECT COUNT(*) FROM mission into count_total;<br />return count_total;<br />END;<br />$$<br />LANGUAGE plpgsql;</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2014-04-14T14:11:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19650#p19650</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème avec une requete plpgsql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19649#p19649"/>
+		<content type="html"><![CDATA[<p>Comme indiqué dans la documentation (<a href="http://docs.postgresql.fr/9.3/plpgsql-control-structures.html" rel="nofollow">http://docs.postgresql.fr/9.3/plpgsql-c … tures.html</a>) :</p><p>* soit on renvoie une expression</p><div class="codebox"><pre><code>CREATE FUNCTION nb_mission() RETURNS integer AS
+$$
+DECLARE
+total integer;
+BEGIN
+SELECT INTO total COUNT(*) FROM mission;
+RETURN total;
+END;
+$$
+LANGUAGE plpgsql;</code></pre></div><p>* soit on retourne le résultat d&#039;une requête</p><div class="codebox"><pre><code>CREATE FUNCTION nb_mission() RETURNS integer AS
+$$
+DECLARE
+total integer;
+BEGIN
+RETURN QUERY SELECT COUNT(*) FROM mission;;
+END;
+$$
+LANGUAGE plpgsql;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-04-14T14:04:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19649#p19649</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Problème avec une requete plpgsql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19648#p19648"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous et à toutes,<br />je débute dans le développement des procédures plpgsql et j&#039;aimerais savoir ce qui ne va pas sur ma petite requête suivante.</p><p>CREATE FUNCTION nb_mission() RETURNS integer AS<br />$$<br /> BEGIN<br /> RETURN SELECT COUNT(*) FROM mission;<br /> END;<br />$$<br />LANGUAGE plpgsql;</p><p>j&#039;aimerais retourner le nombre de ligne totale de ma table.</p><br /><p>Merci pour votre contribution.</p>]]></content>
+		<author>
+			<name><![CDATA[pljavabruno]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1963</uri>
+		</author>
+		<updated>2014-04-14T13:50:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19648#p19648</id>
+	</entry>
+</feed>

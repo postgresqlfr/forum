@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / somme de valeurs précédentes et courantes]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2046&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2046"/>
+	<updated>2012-05-14T15:34:25Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2046</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  somme de valeurs précédentes et courantes]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13785#p13785"/>
+		<content type="html"><![CDATA[<p>merci <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[yoruichiy]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1721</uri>
+		</author>
+		<updated>2012-05-14T15:34:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13785#p13785</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  somme de valeurs précédentes et courantes]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13783#p13783"/>
+		<content type="html"><![CDATA[<p>Si vous êtes en version 8.4 ou supérieure, vous pouvez utiliser les CTE et le fonctions window pour cela.<br />Une requête de ce genre devrait marcher :</p><div class="codebox"><pre><code>WITH dte_max AS (SELECT min(devicedate) as dte
+FROM tds_archivedtemporaryparamvalue_ddo
+WHERE value = 0)
+
+SELECT sum(dte-lag) FROM (
+SELECT devicedate,lag(dte) over()
+FROM tds_archivedtemporaryparamvalue_ddo
+WHERE devicedate &lt; (SELECT dte FROM dte_max)
+)src</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2012-05-14T15:26:38Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13783#p13783</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  somme de valeurs précédentes et courantes]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13779#p13779"/>
+		<content type="html"><![CDATA[<p>en fait g une table avec des dates, une valeur égale à 0 ou 1, les dates sont triées par ordre croissant</p><p>je dois faire : somme(date_courante - date_précedente) tant que valeur_courante =1</p><p>mais je c pas du tout comment le faire en sql</p>]]></content>
+		<author>
+			<name><![CDATA[yoruichiy]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1721</uri>
+		</author>
+		<updated>2012-05-14T15:04:29Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13779#p13779</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  somme de valeurs précédentes et courantes]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13776#p13776"/>
+		<content type="html"><![CDATA[<p>Bonjour.<br />Je ne comprend pas du tout votre question sur la somme de différences. Que voulez-vous faire exactement ?</p><p>Sinon, vous ne faites que des instructions sql et non pas une procédure stockée pl/pgsql.<br />Pour la base des procédures stockées, je vous conseillerai de regarder cette documentation : <a href="http://docs.postgresqlfr.org/9.1/plpgsql.html" rel="nofollow">http://docs.postgresqlfr.org/9.1/plpgsql.html</a></p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2012-05-14T14:57:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13776#p13776</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[somme de valeurs précédentes et courantes]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13774#p13774"/>
+		<content type="html"><![CDATA[<p>bonjour,</p><p>je débute en sql, </p><p>je dois faire la somme de différences de dates en minutes entre la date n-1 et la date n jusqu&#039;à ce que le champ valeur soit égal à 0 .</p><br /><p>on m&#039;a conseillé d&#039;utiliser les curseurs, je ne sais pas les utiliser, g laborieusement créer cette requête qui ne renvoie pas d&#039;erreur:<br />je ne peux pas créer d&#039;autres variables dans le déclare sans avoir d&#039;erreurs pourquoi? </p><br /><br /><p>BEGIN WORK;</p><p>DECLARE</p><p>&#160; &#160; value CURSOR FOR SELECT * FROM tds_archivedtemporaryparamvalue_ddo<br />&#160; &#160; order by devicedate;&#160; &#160; </p><p>FETCH FORWARD 5 IN value;<br />CLOSE value;<br />--COMMIT WORK;<br />END WORK;</p><br /><p>la tentative de déclaration de variable seule ne marche pas je ne trouve pas pourquoi sur aucune source internet:<br />BEGIN WORK;</p><p>DECLARE<br />&#160; &#160; firstvalue timestamp;<br />&#160; &#160; --firstValue&#160; :=select min(devicedate) from tds_archivedtemporaryparamvalue_ddo where value=1;</p><br /><p>--COMMIT WORK;<br />END WORK;</p><br /><p>ERREUR: erreur de syntaxe sur ou près de « timestamp »<br />État SQL :42601<br />Caractère : 34</p><br /><p>merci par avance</p>]]></content>
+		<author>
+			<name><![CDATA[yoruichiy]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1721</uri>
+		</author>
+		<updated>2012-05-14T14:40:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13774#p13774</id>
+	</entry>
+</feed>

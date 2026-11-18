@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Recuperation nom d'une table à partir de TG_TABLE_NAME]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4459&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4459"/>
+	<updated>2018-04-29T06:58:55Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4459</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Recuperation nom d'une table à partir de TG_TABLE_NAME]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27412#p27412"/>
+		<content type="html"><![CDATA[<p>Vous ne pouvez pas utiliser la variable TG_TABLE_NAME (et toute autre variable) pour donner le nom d&#039;un objet dans une requête. Il faut passer par une requête dynamique. Voir <a href="https://docs.postgresql.fr/10/plpgsql-statements.html#plpgsql-statements-executing-dyn" rel="nofollow">https://docs.postgresql.fr/10/plpgsql-s … cuting-dyn</a> pour plus de détails.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2018-04-29T06:58:55Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27412#p27412</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Recuperation nom d'une table à partir de TG_TABLE_NAME]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27410#p27410"/>
+		<content type="html"><![CDATA[<p>Bonjour, j&#039;ai le même problème ou presque.<br />La fonction doit permettre après chaque insertion, de donner à la sequence, la valeur du&#160; dernier identifiant de la table .<br />Dans la fonction je fait reference à la table qui est à la source du trigger (table cercle dans ce exemple) à travers TG_TABLE_NAME<br />Le trigger appel cette fonction avec en paramettre le nom de la sequence de la table cercle<br />La fonction et le trigger sont crées correctement.<br />Mais lors d&#039;une insertion dans la table cercle, j&#039;ai message d&#039;erreur, indiquant que TG_TABLE_NAME n&#039;existe pas ou...........<br />Mais lorsque je remplace TG_TABLE_NAME par le nom de la table &#039;cercle&#039;, tout marche correctement</p><p>Voici mon code:</p><p>---2------creation de la table<br />CREATE TABLE public.cercle<br />(<br />&#160; id integer NOT NULL,<br />&#160; idregion integer,<br />&#160; code character varying(255) DEFAULT NULL::character varying,<br />&#160; )<br />WITH (<br />&#160; OIDS=FALSE<br />);<br />ALTER TABLE public.cercle<br />&#160; OWNER TO postgres;</p><p>--2-------creation de la fonction<br />CREATE OR REPLACE FUNCTION trigfunc() <br />RETURNS TRIGGER AS $$<br />DECLARE<br />&#160; &#160; arg_seq text;<br />&#160; &#160; arg_tab text;&#160; &#160;<br />&#160; &#160; i integer :=0;<br />BEGIN<br />--&#160; &#160; arg_seq := TG_ARGV[0];<br />--&#160; &#160; arg_tab := TG_ARGV[1];</p><p>&#160; &#160;<br />&#160; SELECT INTO i max(id) from TG_TABLE_NAME;<br />&#160; <br />&#160; PERFORM setval(TG_ARGV[0], i);<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; <br />RETURN NEW;<br />END;<br />$$ LANGUAGE plpgsql;</p><p>--2-------creation du trigger<br />CREATE&#160; TRIGGER tg_get_last_cercle_id_seq <br />AFTER INSERT ON&#160; &#160; cercle&#160; &#160; </p><p>FOR EACH ROW EXECUTE PROCEDURE trigfunc(&#039;cercle_id_seq&#039;);</p><p>--message&#160; après l&#039;execution d&#039;une requete insert sur la table cercle<br />ERREUR:&#160; la relation « tg_table_name » n&#039;existe pas<br />LINE 1: SELECT&#160; &#160; &#160; &#160; max(id) from TG_TABLE_NAME<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;^<br />QUERY:&#160; SELECT&#160; &#160; &#160; &#160; max(id) from TG_TABLE_NAME<br />CONTEXT:&#160; fonction PL/pgsql trigfunc(), ligne 11 à instruction SQL</p><p>********** Erreur **********</p><p>ERREUR: la relation « tg_table_name » n&#039;existe pas<br />État SQL :42P01<br />Contexte : fonction PL/pgsql trigfunc(), ligne 11 à instruction SQL</p><p>Dans l&#039;attente de vos réponse!!! Merci d&#039;avance!</p>]]></content>
+		<author>
+			<name><![CDATA[dksoft]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8071</uri>
+		</author>
+		<updated>2018-04-29T01:09:21Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27410#p27410</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Recuperation nom d'une table à partir de TG_TABLE_NAME]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26441#p26441"/>
+		<content type="html"><![CDATA[<p>Vous vous rendez compte quand même que vous n&#039;avez répondu à pratiquement aucune de mes questions ? pourrait-on avoir au moins le schéma de la table historique.historique_points et de la table sur laquelle se trouve le trigger et du trigger lui-même ? c&#039;est le minimum pour qu&#039;on puisse tester.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2017-12-02T07:26:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26441#p26441</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Recuperation nom d'une table à partir de TG_TABLE_NAME]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26432#p26432"/>
+		<content type="html"><![CDATA[<p>Je voudrais récupérez le nom de schéma et nom de la table sur laquelle la modification est survenue</p><br /><br /><p>C&#039;est à dire que à partir de ---&gt;&#160; TG_TABLE_SCHEMA||&#039;.&#039;||TG_TABLE_NAME&#160; je voulais avoir ce nom.</p><p>Cette fonction sera appelée lors de chaque modification des tables pour créer une table historique.</p><p>1- Mon objectif c&#039;est de créer un enregistrement pour chaque modification pour n&#039;importe quelle table</p><p>2- Comme j&#039;ai 50 tables (qui ont des attributs spatials), j&#039;ai créé 3 tables historiques pour chaque type de géométrie (ponctuel, zonal et linéaire)</p><p>3- A chaque modification ou suppression je déclenche ce fonction et maintenant pour que l&#039;insertion dans la table historique passe, je veux le nom de la table sur laquelle la modification est survenue.</p><p>4- Jusqu&#039;à présent ,je n&#039;ai rien inséré dans ma table historique, et il semblait que la récupération du nom de table ne marche pas.</p><p>Je vous remercie .</p>]]></content>
+		<author>
+			<name><![CDATA[Baovola]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7838</uri>
+		</author>
+		<updated>2017-11-29T22:35:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26432#p26432</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Recuperation nom d'une table à partir de TG_TABLE_NAME]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26431#p26431"/>
+		<content type="html"><![CDATA[<p>Vous entendez quoi par &quot;ça ne marche pas&quot; ? il y a une erreur à la création de la fonction ? si oui, laquelle ? il y a une erreur à l&#039;exécution de la fonction ? si oui, laquelle ? le résultat obtenu n&#039;est pas celui que vous attendiez ? si oui, quel résultat obtenez-vous et qu&#039;attendiez vous comme résultat ? toujours dans ce cas, peut-on avoir un exemple complet ?</p><p>Tout ça, on ne peut pas le deviner. Il faut présenter complètement le problème que vous avez.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2017-11-29T21:46:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26431#p26431</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Recuperation nom d'une table à partir de TG_TABLE_NAME]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26430#p26430"/>
+		<content type="html"><![CDATA[<p>Ok vous avez raison, mais au fait j&#039;aimerais seulement récuperer le nom d&#039;une table juste après sa modification:</p><p>CREATE OR REPLACE FUNCTION schema1.generer_historique_ponctuel()<br />&#160; RETURNS trigger AS<br />$BODY$</p><p>DECLARE</p><p>&#160; &#160; rec RECORD;<br />&#160; &#160; oldValue TEXT;<br />&#160; &#160; newValue TEXT;<br />BEGIN&#160; &#160; </p><p>IF (TG_OP = &#039;UPDATE&#039;) THEN<br />&#160; &#160; <br />&#160; &#160; &#160; &#160; FOR rec IN<br />&#160; &#160; &#160; &#160; &#160; &#160; SELECT column_name, data_type<br />&#160; &#160; &#160; &#160; &#160; &#160; FROM information_schema.columns<br />&#160; &#160; &#160; &#160; &#160; &#160; WHERE<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; information_schema.columns.table_schema = TG_TABLE_SCHEMA<br />&#160; &#160; &#160; &#160; &#160; &#160; AND information_schema.columns.table_name = TG_TABLE_NAME<br />&#160; &#160; &#160; &#160; &#160; <br />&#160; &#160; &#160; &#160; LOOP<br />&#160; &#160; <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160;EXECUTE &#039;SELECT ($1).&#039; || rec.column_name || &#039;::text&#039; INTO newValue USING NEW;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160;EXECUTE &#039;SELECT ($1).&#039; || rec.column_name || &#039;::text&#039; INTO oldValue USING OLD;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; <br />&#160; &#160; &#160; &#160; &#160; &#160; IF oldValue &lt;&gt; newValue THEN<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; INSERT INTO historique.historique_points (&quot;id_objet&quot;, &quot;date_modif&quot;,&quot;user_modif&quot;,&quot;attr_modif&quot;, &quot;anc_val&quot;,&quot;geom&quot;, &quot;operation_&quot;)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; SELECT t.&quot;gid&quot;, now(), &quot;current_user&quot;(),&#160; rec.column_name, oldValue,&quot;geom&quot;,TG_OP FROM TG_TABLE_SCHEMA||&#039;.&#039;||TG_TABLE_NAME AS t WHERE NEW.&quot;gid&quot; = t.&quot;gid&quot;;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; END IF;<br />&#160; &#160; &#160; &#160; END LOOP;&#160; <br />&#160; &#160; &#160; &#160; RETURN NEW;<br />&#160; &#160; &#160; <br />END IF;</p><p>END;</p><p>$BODY$<br />&#160; LANGUAGE plpgsql VOLATILE</p><p>Je vous remercie.</p>]]></content>
+		<author>
+			<name><![CDATA[Baovola]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7838</uri>
+		</author>
+		<updated>2017-11-29T21:31:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26430#p26430</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Recuperation nom d'une table à partir de TG_TABLE_NAME]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26427#p26427"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />Difficile de vous aider sans plus de précisions.<br />Vous devriez poster le code de votre fonction.</p>]]></content>
+		<author>
+			<name><![CDATA[jmarsac]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7302</uri>
+		</author>
+		<updated>2017-11-29T12:49:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26427#p26427</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Recuperation nom d'une table à partir de TG_TABLE_NAME]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26426#p26426"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;aimerais récupérer dynamiquement le nom d&#039;une table sur laquelle une modification est survenue (sur trigger bien sur) pour faire une historique.</p><p>J&#039;ai utilisé le TG_TABLE_NAME mais ca ne marche pas, j&#039;utilise la version 9.5. </p><p>Je vous remercie.</p>]]></content>
+		<author>
+			<name><![CDATA[Baovola]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7838</uri>
+		</author>
+		<updated>2017-11-29T11:28:54Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26426#p26426</id>
+	</entry>
+</feed>

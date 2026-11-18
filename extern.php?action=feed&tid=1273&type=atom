@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / droit sur colonne]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1273&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1273"/>
+	<updated>2011-03-09T08:52:27Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1273</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  droit sur colonne]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8351#p8351"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>Marc Cousin a écrit&#160;:</cite><blockquote><div><p>...Utiliser des vues, c&#039;est quand même plutôt une méthode détournée, comme faire des liens sur un binaire dans un système de fichiers ne possédant pas d&#039;ACL. Du moins à mon avis.</p></div></blockquote></div><p>Sauf que vous oubliez que la conception des bases de données relationelle repose justement sur la notion de vues !<br />Les 4 étages de la modélisation sont :<br />1) le MCD (modèle ceonceptuel de données) : entité + association, avec la notation que vous voulez : Merise, UML, ER...<br />2) le MLD (modèle logique de données), c&#039;est à dire les relations au sens mathématique<br />3) le MPD (modèle physique de données) c&#039;est à dire les tables, index, contraintes...<br />4) le MED ou modèle externe de donné, grand oublié, c&#039;est à dire les vues. En fait c&#039;est à partir des vues que toute application devrait être écrite !</p><p>Sur l&#039;importance des vues, je vous invite à relire les 12 règles de Codd, père fondateur des SGBDR... Vous serez étonné de voir que sur 12 règles, au moins 4 parlent des vues. <a href="http://sqlpro.developpez.com/SGBDR/ReglesCodd/" rel="nofollow">http://sqlpro.developpez.com/SGBDR/ReglesCodd/</a><br />Dommage que PG soit en retard par rapport aux grand SGBDR comme Oracle, SQL Server, IBM Db2 ou Sybase sur ce sujet, notamment sur la misajourabilité des vues !</p><p>A +</p>]]></content>
+		<author>
+			<name><![CDATA[SQLpro]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1054</uri>
+		</author>
+		<updated>2011-03-09T08:52:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8351#p8351</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  droit sur colonne]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8341#p8341"/>
+		<content type="html"><![CDATA[<p>Bon, par contre, il y a quelques points qu&#039;il me semble utiles de préciser:</p><p>- La méthode avec la vue ne marche que si on n&#039;a pas trop de profils de droits d&#039;accès à la table, mais seulement un ou deux: on peut imaginer créer et maintenir 2 vues pour gérer les droits. Si il y a une dizaine de types d&#039;accès, on ne va pas maintenir la combinaison de toutes les vues possibles pour tous les types d&#039;accès. C&#039;est bien plus simple de définir des rôles, et de faire des grants de colonnes à ces rôles. On est d&#039;accord, ça n&#039;arrive pas souvent.<br />- La méthode avec les vues impose de reconstruire les vues à chaque modification de la table de base, pour que les nouvelles colonnes apparaissent.&#160; Utiliser des vues, c&#039;est quand même plutôt une méthode détournée, comme faire des liens sur un binaire dans un système de fichiers ne possédant pas d&#039;ACL. Du moins à mon avis.<br />- Les vues ne sont pas modifiables sous Postgres. À moins d&#039;écrire des rules pour le moment (c&#039;est très sujet à erreur, sauf dans les cas simples, et déconseillé même par les développeurs de PostgreSQL), ou des triggers seront possibles en 9.1… ce qui ouvre la voie à des vues modifiables proprement dans un futur proche. Puis certainement à une implémentation automatique dans le moteur.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-03-08T05:10:02Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8341#p8341</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  droit sur colonne]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8340#p8340"/>
+		<content type="html"><![CDATA[<p>Ah oui, en effet, me suis planté là-dessus. Désolé.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-03-07T17:39:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8340#p8340</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  droit sur colonne]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8338#p8338"/>
+		<content type="html"><![CDATA[<p>Hé bien si c&#039;était le cas c&#039;est une aberration de PG ! En effet, sur une vue vous ne pouvez manipuler aucune des colonnes auquel la vue ne fait pas référence explicitement.</p><p>Voici un exemple et ce à quoi il devrait conduire :</p><p>CREATE TABLE T(C1 INT, C2 INT);</p><p>INSERT INTO T VALUES (1, 1);<br />INSERT INTO T VALUES (2, 2);</p><p>CREATE VIEW V<br />AS<br />SELECT C1 FROM T;</p><p>SELECT *<br />FROM&#160; &#160;V<br />WHERE&#160; C2 = 1.</p><p>Ceci devrait causer une erreur du genre : &quot;Nom de colonne non valide : &#039;C2&#039;.&quot;</p><p>C&#039;est d&#039;ailleurs bien le cas dans la version 8.4 !</p><p>ERREUR:&#160; la colonne « c2 » n&#039;existe pas<br />LINE 3: WHERE&#160; C2 = 1<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;^</p><p>********** Erreur **********</p><p>ERREUR: la colonne « c2 » n&#039;existe pas<br />État SQL :42703<br />Caractère : 26</p><p>A +</p>]]></content>
+		<author>
+			<name><![CDATA[SQLpro]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1054</uri>
+		</author>
+		<updated>2011-03-07T15:05:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8338#p8338</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  droit sur colonne]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8334#p8334"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Si vous n&#039;avez pas le privilège de SELECT sur la colonne C2 alors le WHERE C2 = 5 devrait conduire à une erreur !</p></div></blockquote></div><p>C&#039;est bien le cas. Ce n&#039;est pas ce que je dis. Ce que je dis, c&#039;est que dans le cas d&#039;une vue, c&#039;est possible de faire le test sur une colonne qui n&#039;est pas récupéré par la vue. Donc il vaut mieux se baser sur les droits sur les colonnes pour une vraie protection.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-03-07T08:56:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8334#p8334</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  droit sur colonne]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8333#p8333"/>
+		<content type="html"><![CDATA[<p>Si vous n&#039;avez pas le privilège de SELECT sur la colonne C2 alors le WHERE C2 = 5 devrait conduire à une erreur ! En effet par ce biais vous pourriez donc connaître les valeurs des lignes pour lesquelles C2=5, alors qu&#039;on en interdirait la lecture, ce qui est donc parfaitement absurde !!! Je n&#039;ai pas fait l&#039;essai, mi si c&#039;est le cas dans PG, alors c&#039;est un bug de sécurité très important !<br />A +</p>]]></content>
+		<author>
+			<name><![CDATA[SQLpro]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1054</uri>
+		</author>
+		<updated>2011-03-07T08:32:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8333#p8333</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  droit sur colonne]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8332#p8332"/>
+		<content type="html"><![CDATA[<p>Le droit sur les colonnes est plus intéressant que les vues qui cache des colonnes. Le premier ne souffre pas de la limitation du second qui est qu&#039;il est toujours possible de voir les valeurs d&#039;une colonne non affichée en faisant un filtre sur celle-ci. Par exemple, si la vue v1 affiche toute la table t1 sous la colonne c2, je peux quand même connaître les lignes pour lesquelles la colonne c2 a la valeur 5 (par exemple) : SELECT * FROM v1 WHERE c2=5. Ce ne serait pas le cas avec des vues matérialisées mais comme les vues sous PostgreSQL ne peuvent pas être matérialisées (sauf astuce), on ne peut pas à coup sûr empêcher de visualiser le contenu d&#039;une colonne avec une vue. D&#039;où les droits sur les colonnes.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-03-07T07:35:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8332#p8332</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  droit sur colonne]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8331#p8331"/>
+		<content type="html"><![CDATA[<p>Il suffit d&#039;utiliser une vue ! Une vue c&#039;est une requête SELECT sur une table (ou plusieurs) et les vues peuvent être mise à jour (INSERT, UPDATE, DELETE).<br />C&#039;est du SQL de base.<br />Pour apprendre le SQL, mon site web, comme mon bouquin, peuvent vous être utile.</p><p>A +</p>]]></content>
+		<author>
+			<name><![CDATA[SQLpro]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1054</uri>
+		</author>
+		<updated>2011-03-06T16:41:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8331#p8331</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  droit sur colonne]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8325#p8325"/>
+		<content type="html"><![CDATA[<p>bon j&#039;ai fait une proc en pg/sql si ca interesse?</p>]]></content>
+		<author>
+			<name><![CDATA[mich30]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=523</uri>
+		</author>
+		<updated>2011-03-04T14:36:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8325#p8325</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[droit sur colonne]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8313#p8313"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />je cherche a cacher 2 colonnes :<br />supposons que j&#039;ai 100 colonnes de a1 à a100 et je ne veux cacher que a2 et a3 </p><p>quelle est l&#039;ecriture du GRANT select ?</p><p>merci</p>]]></content>
+		<author>
+			<name><![CDATA[mich30]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=523</uri>
+		</author>
+		<updated>2011-03-04T09:30:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8313#p8313</id>
+	</entry>
+</feed>

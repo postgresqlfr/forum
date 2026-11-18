@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Requête anormalement longue]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1216&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1216"/>
+	<updated>2011-02-25T09:28:56Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1216</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête anormalement longue]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8235#p8235"/>
+		<content type="html"><![CDATA[<p>J&#039;ai max_fsm_pages = 1000000<br />et max_fsm_relations = 2000</p><p>J&#039;ai environ 1200 objets dans ma base.<br />J&#039;avais positionné ces valeurs avec Guillaume l&#039;année dernière.</p>]]></content>
+		<author>
+			<name><![CDATA[Redge]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=749</uri>
+		</author>
+		<updated>2011-02-25T09:28:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8235#p8235</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête anormalement longue]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8234#p8234"/>
+		<content type="html"><![CDATA[<p>Oui, peut-être que vacuum aura quelque chose à nous dire. Au passage, vous êtes en 8.2. Êtes vous sûr que votre max_fsm_pages soit suffisamment grand ?</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-02-25T09:24:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8234#p8234</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête anormalement longue]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8233#p8233"/>
+		<content type="html"><![CDATA[<p>Ok merci.<br />Bah ce que je vais faire, c&#039;est repartir sur une base vide avec cette nouvelle politique de delete/vacuum/analyse et voir si je reproduit le problème.</p><p>Sinon il est peut être possible que je mette le vacuum sur la table en question en &quot;verbose&quot; et analyser ce qu&#039;il dit ? Ca donnera peut être des pistes.</p>]]></content>
+		<author>
+			<name><![CDATA[Redge]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=749</uri>
+		</author>
+		<updated>2011-02-25T09:19:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8233#p8233</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête anormalement longue]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8232#p8232"/>
+		<content type="html"><![CDATA[<p>Je pense qu&#039;après le delete massif et vacuum analyze, il y a un problème de données en cache ou quelque chose de ce genre (je ne vois pas d&#039;autre explication logique):</p><p>Subquery Scan &quot;*SELECT*&quot;&#160; (cost=7200.00..7690.00 rows=4000 width=400) (actual time=294.598..714.618 rows=40000 loops=1)<br />&#160; -&gt;&#160; HashAggregate&#160; (cost=7200.00..7640.00 rows=4000 width=392) (actual time=294.586..592.264 rows=40000 loops=1)<br />&#160; &#160; &#160; &#160; -&gt;&#160; Seq Scan on table_minute_1102221935&#160; (cost=0.00..2400.00 rows=40000 width=392) (actual time=0.014..22.726 rows=40000 loops=1)<br />Total runtime: 267104.377 ms</p><p>Ne colle pas. Le plan d&#039;exécution dit que l&#039;opération de SELECT dure 714ms. Si on met réellement 267s, c&#039;est qu&#039;il faut 266 secondes pour l&#039;insertion de 40000 enregistrements, ce qui est un chiffre démentiel, même si les données ne sont pas en cache.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-02-25T07:03:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8232#p8232</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête anormalement longue]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8231#p8231"/>
+		<content type="html"><![CDATA[<p>La seule raison que je vois est que le INSERT de 18 secondes se fait de façon séquentielle en bout de fichier et que celui de 267 secondes se fait de façon aléatoire à cause des multiples trous dans la table. Cela étant dit, cette &quot;raison&quot; ne me plait pas du tout.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-02-24T22:30:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8231#p8231</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête anormalement longue]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8223#p8223"/>
+		<content type="html"><![CDATA[<p>Oui c&#039;est sur 2 raids différents.<br />Ma question c&#039;était pourquoi les performances de mon INSERT chute juste après que la table a eu un DELETE puis VACUUM/ANALYSE</p>]]></content>
+		<author>
+			<name><![CDATA[Redge]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=749</uri>
+		</author>
+		<updated>2011-02-24T11:01:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8223#p8223</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête anormalement longue]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8221#p8221"/>
+		<content type="html"><![CDATA[<p>Une idée pour ?</p><p>Il est évident que deux opérations qui touchent le disque en même temps seront plus lentes qu&#039;une seule <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>Si la question porte sur le moyen d&#039;accélérer les opérations, ça manque singulièrement d&#039;informations. Par exemple, les journaux de transactions sont-ils sur le même disque que les fichiers de données ?</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-02-24T10:49:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8221#p8221</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête anormalement longue]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8198#p8198"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je relance un peu mon post <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>Ca marche un peu près bien le fait d&#039;insérer 40 000 enregistrements toutes les 5 minutes et faire aussitôt après un ANALYSE sur la table <br />(A condition d&#039;avoir default_statistics_target à 10 sinon l&#039;ANALYSE est trop long).<br />Ma purge est 1 fois par heure: DELETE de 480 000 enregistrements suivit d&#039;un VACUUM mais pas besoin d&#039;ANALYSE puisqu&#039;il est fait toutes les 5 minutes.</p><p>Mais maintenant je suis confronté à un nouveau problème: pendant un DELETE ou un VACUUM, je peux très bien être en train de faire un ANALYSE vu qu&#039;il a lieu toutes les 5 minutes.<br />Ce qui me donne des temps de traitement loin d&#039;être constant et je ne maitrise pas la non parallélisation de ces commandes.</p><p>Du coup j&#039;ai changé de technique:</p><p>J&#039;insère 40 000 enregistrements toutes les 5 minutes et aussitôt après un ANALYSE, donc comme avant.<br />Par contre, Une fois tous les douze cycles, aussitot après l&#039;insert et avant l&#039;analyse, je fais un DELETE des 480 000 enregistrements les plus anciens puis VACUUM sur la table.<br />Comme ca, je suis sur que le DELETE ou VACUUM n&#039;a pas lieu pendant l&#039;INSERT ou l&#039;ANALYSE.</p><p>Ca a l&#039;air de marcher pas trop mal mais je suis confronté à un nouveau problème.</p><p>L&#039;insert de 40 000 enregistrements dure 18s en général dans ma table de 20 millions.<br />Quand a lieu le DELETE puis VACUUM et enfin ANALYSE, l&#039;insert du cycle d&#039;apres dure 267s <img src="http://forums.postgresql.fr/img/smilies/sad.png" width="15" height="15" alt="sad" /><br />et le cycle suivant, l&#039;insert revient à 18s.</p><p>J&#039;ai mit un EXPLAIN ANALYSE sur la requete en question car c&#039;est un INSERT d&#039;un SELECT mais le résultat est le même que ce soit pour la requete de 18s<br />ou celle de 267s.</p><p><strong>Requete de 18s</strong><br />Subquery Scan &quot;*SELECT*&quot;&#160; (cost=7200.00..7690.00 rows=4000 width=400) (actual time=320.344..692.228 rows=40000 loops=1)<br />&#160; -&gt;&#160; HashAggregate&#160; (cost=7200.00..7640.00 rows=4000 width=392) (actual time=320.332..596.716 rows=40000 loops=1)<br />&#160; &#160; &#160; &#160; -&gt;&#160; Seq Scan on table_minute_1102221930&#160; (cost=0.00..2400.00 rows=40000 width=392) (actual time=0.014..24.270 rows=40000 loops=1)<br />Total runtime: 17921.476 ms</p><p><strong>Requete de 267s</strong><br />Subquery Scan &quot;*SELECT*&quot;&#160; (cost=7200.00..7690.00 rows=4000 width=400) (actual time=294.598..714.618 rows=40000 loops=1)<br />&#160; -&gt;&#160; HashAggregate&#160; (cost=7200.00..7640.00 rows=4000 width=392) (actual time=294.586..592.264 rows=40000 loops=1)<br />&#160; &#160; &#160; &#160; -&gt;&#160; Seq Scan on table_minute_1102221935&#160; (cost=0.00..2400.00 rows=40000 width=392) (actual time=0.014..22.726 rows=40000 loops=1)<br />Total runtime: 267104.377 ms<br />Delete result:<br />Insert result: 0<br />Execution time: 267</p><br /><p>Donc j&#039;imagine que c&#039;est l&#039;INSERT qui pose problème.</p><p>Une idée ?</p>]]></content>
+		<author>
+			<name><![CDATA[Redge]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=749</uri>
+		</author>
+		<updated>2011-02-23T10:13:00Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8198#p8198</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête anormalement longue]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8049#p8049"/>
+		<content type="html"><![CDATA[<p>J&#039;ai extrait le temps que prend l&#039;analyse toutes les 5 minutes depuis hier.</p><p><span class="postimg"><img src="https://lh5.googleusercontent.com/_jKsz353mXtk/TVPGTEXFb5I/AAAAAAAAEFM/aqJlnpLrRDk/s640/analyse.png" alt="analyse.png" /></span></p><p>On voit bien que l&#039;analyse se stabilise mais il se stabilisait à un timing un peu trop élévé à mon gout.</p><p>Quand la courbe chute et revient à un temps raisonnable c&#039;est parce que j&#039;ai passé default_statistics_target de 100 à 10 <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>A voir les impacts sur mes requetes mais pour l&#039;instant, tout va bien.</p>]]></content>
+		<author>
+			<name><![CDATA[Redge]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=749</uri>
+		</author>
+		<updated>2011-02-10T11:09:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8049#p8049</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête anormalement longue]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8041#p8041"/>
+		<content type="html"><![CDATA[<p>L&#039;analyse va se stabiliser : il fait un échantillonnage. Avec un default_statistics_target à 100, il va prendre 30 000 enregistrements d&#039;échantillons environ.</p><p>Sinon, tu peux diminuer le default_statistics_target, ça va accélérer les choses. Il faut juste que l&#039;échantillon reste suffisant pour que tes performances ne se dégradent pas.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-02-10T10:29:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8041#p8041</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête anormalement longue]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8040#p8040"/>
+		<content type="html"><![CDATA[<p>Ah bah ca, je voudrais bien être en 9.0 mais le soft a plein de limitations qui font qu&#039;on est bloqué en 8.2, bref, c&#039;est une autre histoire.</p><p>Donc la je suis presque à 1 journée de traitement, mes tables de données sont à 10 760 000.<br />Et l&#039;analyse prend de plus en plus de temps: 38s pour analyser une table toutes les 5 minutes, ca commence à devenir critique.<br />Je vais jamais réussir à tenir 2 jours d&#039;historique (30 000 000 d&#039;enregistrements dans mes tables)</p><p>Il y a pas une technique pour booster un peu l&#039;analyse ou lui dire d&#039;analyser que les enregistrements les plus récents.<br />ou alors je diminue le default_statistics_target ? mais je sais pas si le gain sera significatif ?</p><p>Le choix de refaire le schéma de base avec du partitionnement devient de plus en plus évident mais pour l&#039;instant je suis bloqué avec le schéma actuel <img src="http://forums.postgresql.fr/img/smilies/sad.png" width="15" height="15" alt="sad" /></p>]]></content>
+		<author>
+			<name><![CDATA[Redge]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=749</uri>
+		</author>
+		<updated>2011-02-10T10:20:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8040#p8040</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête anormalement longue]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8034#p8034"/>
+		<content type="html"><![CDATA[<p>Oui, c&#039;est tout à fait normal comme comportement. C&#039;est une limitation connue de l&#039;optimiseur. En 9.0, il utiliserait l&#039;index pour &#039;extrapoler&#039; les statistiques, voyant que la requête recherche des données en dehors des zones couvertes par les histogrammes. Ça n&#039;est toujours pas parfait, mais le plan reste logique au lieu d&#039;être totalement absurde comme ce que vous avez vu…</p><p>Donc oui, ça va tenir, si vous faites un analyze avant chaque requête.</p><p>Mais si vous avez la possibilité, mettez une 9.0 c&#039;est encore plus simple <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-02-09T16:18:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8034#p8034</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête anormalement longue]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8033#p8033"/>
+		<content type="html"><![CDATA[<p>Toutes les 5 minutes, je parse des fichiers, j&#039;en extrait des données et j&#039;insère ca dans PostgreSQL. Ca représente 40 000 lignes environ des mes tables. <br />C&#039;est une sorte d&#039;application &quot;temps réel&quot; à 5mn (:lol:) avec un historique de 2 jours.<br />Une fois 2 jours passés, pour que la base arrête de grossir, je supprime toutes les heures les anciennes données (donc un delete de 40 000 x 12)</p><p>Voila pour le fonctionnement grossomodo.</p><p>J&#039;avais déja fait appel à vos services il y a maintenant presque 1 an pour m&#039;aider à mettre en place une bonne politique de VACUUM, ANALYSE<br /><a href="http://forums.postgresql.fr/viewtopic.php?id=758" rel="nofollow">http://forums.postgresql.fr/viewtopic.php?id=758</a></p><p>Ensuite sur ces données acquises, je fais claquer des alarmes si des valeurs dépassent des seuils (c&#039;est la requête en question)</p><p>Donc en effet, la plupart du temps, ma requête travaille sur des données qui étaient non présentes quand l&#039;ANALYSE a été effectué.</p><p>Maintenant que j&#039;ai mit l&#039;ANALYSE juste après l&#039;insertion des 40 000 lignes, ca va beaucoup mieux !<br />Ca va faire maintenant 4 heures que tourne mon application et les temps de traitement sont très bons.<br />A voir dans 2 jours quand mes tables de données seront a 30 000 000 d&#039;enregistrements...</p><p>Si ca se dégrade pas, je crois que vous avez mérité tous les deux une bouteille de vin <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[Redge]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=749</uri>
+		</author>
+		<updated>2011-02-09T16:14:21Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8033#p8033</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête anormalement longue]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8028#p8028"/>
+		<content type="html"><![CDATA[<p>Je crois que j&#039;ai compris ce qui te fait mal…</p><p>C&#039;est une table du genre table de log sur laquelle tu insères des nouvelles données en permanence, et tu récupères en permanence les données les plus récentes de la table ? Des données qui n&#039;étaient vraisemblablement pas là au moment où les stats ont été passées ?</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-02-09T13:56:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8028#p8028</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête anormalement longue]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8027#p8027"/>
+		<content type="html"><![CDATA[<p>Alors mon paramètre default_statistics_target est déja à 100.<br />Pour l&#039;index composé, je peux pas car je n&#039;ai pas seulement subtotal comme colonne sur laquelle je peux faire des filtres mais plein d&#039;autres.</p><p>Donc la j&#039;ai relancé mon application. Et au lieu de faire un ANALYSE sur toute la base une fois par heure.<br />Je fais un ANALYSE sur mes tables table1 et table2 juste après l&#039;insertion des 40 000 lignes qui a lieu toutes les 5 minutes.</p><p>Et pour l&#039;instant, ca a l&#039;air de plutôt pas mal fonctionner <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[Redge]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=749</uri>
+		</author>
+		<updated>2011-02-09T13:49:31Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8027#p8027</id>
+	</entry>
+</feed>

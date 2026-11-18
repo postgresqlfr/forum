@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Comment rendre une condition WHERE dynamique?]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3843&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3843"/>
+	<updated>2016-06-07T09:10:36Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3843</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Comment rendre une condition WHERE dynamique?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23528#p23528"/>
+		<content type="html"><![CDATA[<p>Slt,</p><br /><p>Juste une réflexion et j&#039;ai pu écrit ces petites fonctions qui solutionnent mon problème.</p><div class="quotebox"><blockquote><div><p>CREATE OR REPLACE FUNCTION FirstDayOfCurrentYear (year integer) RETURNS date as<br /> $$<br />&#160; &#160; SELECT ($1::integer||&#039;-&#039;||&#039;01&#039;||&#039;-01&#039;)::date;<br /> $$ <br />LANGUAGE&#039;sql&#039;;</p></div></blockquote></div><div class="quotebox"><blockquote><div><p>CREATE OR REPLACE FUNCTION FirstDayOfPrecedentYear (year integer) RETURNS date as<br /> $$<br />&#160; &#160; SELECT ($1::integer - 1||&#039;-&#039;||&#039;01&#039;||&#039;-01&#039;)::date;<br /> $$ <br />LANGUAGE&#039;sql&#039;;</p></div></blockquote></div><div class="quotebox"><blockquote><div><p>CREATE OR REPLACE FUNCTION CurrentDate_Of_CurrentYear (year integer) RETURNS date as<br /> $$<br />&#160; &#160; <br />&#160; &#160; SELECT ($1::integer||&#039;-&#039;||EXTRACT(MONTH FROM current_date)||&#039;-&#039;||EXTRACT(DAY FROM current_date))::date;<br /> $$ <br />LANGUAGE&#039;sql&#039;;</p></div></blockquote></div><p>Etc.</p><p>Merci pour le temps mis à vouloir m&#039;aider.</p><p><img src="http://forums.postgresql.fr/img/smilies/lol.png" width="15" height="15" alt="lol" /> <img src="http://forums.postgresql.fr/img/smilies/lol.png" width="15" height="15" alt="lol" /></p>]]></content>
+		<author>
+			<name><![CDATA[Douk V5]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=6110</uri>
+		</author>
+		<updated>2016-06-07T09:10:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23528#p23528</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Comment rendre une condition WHERE dynamique?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23523#p23523"/>
+		<content type="html"><![CDATA[<p>Quel problème rencontrez-vous pour son écriture ?</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2016-06-02T19:45:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23523#p23523</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Comment rendre une condition WHERE dynamique?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23521#p23521"/>
+		<content type="html"><![CDATA[<p>Merci pour le lien.</p><br /><p>j&#039;ai pu faire la fonction qui me renvoie le premier jour du mois et l&#039;autre le premier jour de l&#039;année avec une <strong>date </strong>comme paramètre.</p><br /><div class="quotebox"><blockquote><div><p>CREATE&#160; FUNCTION FirstDayOfMonth (date) RETURNS date as<br /> $$<br />&#160; &#160; SELECT (EXTRACT(YEAR FROM $1::date)||&#039;-&#039;||EXTRACT(MONTH FROM $1::date)||&#039;-01&#039;)::date;<br /> $$ <br />LANGUAGE &#039;sql&#039;;</p></div></blockquote></div><div class="quotebox"><blockquote><div><p>CREATE FUNCTION FirstDayOfYear(date) RETURNS date as<br /> $$<br />&#160; &#160; SELECT (EXTRACT(YEAR FROM $1::date)||&#039;-&#039;||&#039;01&#039;||&#039;-01&#039;)::date;<br /> $$ <br />LANGUAGE &#039;sql&#039;;</p></div></blockquote></div><br /><br /><br /><p>Je veux obtenir le même résultat, cette fois si plutôt&#160; avec une <strong>année</strong> comme paramètre. </p><br /><p>Quelqu&#039;un pour m&#039;aider svp ????</p>]]></content>
+		<author>
+			<name><![CDATA[Douk V5]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=6110</uri>
+		</author>
+		<updated>2016-06-02T16:15:35Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23521#p23521</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Comment rendre une condition WHERE dynamique?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23506#p23506"/>
+		<content type="html"><![CDATA[<p>Tout est expliqué sur <a href="http://docs.postgresql.fr/9.5/plpgsql.html" rel="nofollow">http://docs.postgresql.fr/9.5/plpgsql.html</a></p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2016-05-29T20:46:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23506#p23506</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Comment rendre une condition WHERE dynamique?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23504#p23504"/>
+		<content type="html"><![CDATA[<p>En fait j&#039;ai juste pensé que je pouvais solutionner mon problème en passant par l&#039;écriture d&#039;une fonction, mais je ne sait pas comment m&#039;y prendre. c&#039;est ce pourquoi je demande de l&#039;aide.</p><p>Les fonctions je ne m&#039;y connaît pas dutout.</p><br /><p>Merci.</p>]]></content>
+		<author>
+			<name><![CDATA[Douk V5]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=6110</uri>
+		</author>
+		<updated>2016-05-28T07:54:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23504#p23504</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Comment rendre une condition WHERE dynamique?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23502#p23502"/>
+		<content type="html"><![CDATA[<p>Quel est votre problème lors de l&#039;écriture de cette fonction ?</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2016-05-27T21:44:45Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23502#p23502</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Comment rendre une condition WHERE dynamique?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23501#p23501"/>
+		<content type="html"><![CDATA[<p>slt à tous, </p><p>j&#039;ai un soucis actuellement. </p><p>la requête ci-dessous, je l&#039;utilise dans pour Rapport conçu sur Pentaho Reporting Designer donc l&#039;année est mon paramètre.</p><p>En SQL j&#039;ai ceci:</p><div class="quotebox"><blockquote><div><p>SELECT T.annee as annee, T.ca as ca<br />FROM<br />(&#160; <br />&#160; &#160; &#160;SELECT&#160; extract(year from ma_date) as annee, SUM (PrixVte) as ca <br />&#160; &#160; &#160;From ma_table<br />&#160; &#160; &#160;WHERE ma_date BETWEEN (SELECT&#160; date_trunc(&#039;year&#039;,current_date)) and (SELECT current_date) <br />&#160; &#160; &#160;GROUP BY annee<br />&#160; &#160; UNION<br />&#160; &#160; SELECT&#160; extract(year from ma_date) as annee, SUM (PrixVte) as ca <br />&#160; &#160; From ma_table<br />&#160; &#160; WHERE ma_date BETWEEN (SELECT date_trunc(&#039;year&#039;,current_date -interval &#039;1 year&#039;)) and (SELECT current_date -interval &#039;1 year&#039;)<br />&#160; &#160; GROUP BY annee<br />&#160; &#160;<br />)T<br />GROUP BY annee<br />ORDER BY annee desc</p></div></blockquote></div><br /><p>Ceci fonctionne uniquement quand je sélectionne 2016 et les autres non! Et je comprend pourquoi: Les WHEREs ne sont pas dynamique!!!</p><br /><p>Mais mon problème c&#039;est que je veux rendre les différent WHERE de mon SQL dynamique. De telle manière qu&#039;en sélectionnant l&#039;année 2016 par exemple j&#039;ai ceci:</p><br /><p>Résultat:<br />----------------------------------<br />Annee&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;ca</p><p>2016&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;200000&#160; &#160; &#160; &#160; &#160; &#160; &#160;------------&gt; entre &#039;2016-05-01&#039; au &#039;2016-05-27&#039;</p><p>2015&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;145000&#160; &#160; &#160; &#160; &#160; &#160; &#160; ------------&gt; entre &#039;2015-05-01&#039; au &#039;2015-05-27&#039;</p><br /><p>ou bien 2015</p><br /><p>Résultat:<br />----------------------------------<br />Annee&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;ca</p><p>2015&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; 450000&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;----------&gt;&#160; entre &#039;2015-05-01&#039; au &#039;2014-05-27&#039;<br />2014&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; 355000&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;----------&gt;&#160; entre &#039;2014-05-01&#039; au &#039;2014-05-27&#039;</p><br /><p>Du coût j&#039;ai pensé à écrire une fonction qui prend l&#039;année choisie comme paramètre d&#039;entré et me retourne le premier jour du mois en cours et la date du jour pour l&#039;année en entré. Ainsi que la correspondance pour l&#039;année précédente.</p><br /><p>Donc: Entre le&#160; <strong>2016-05-01 </strong> au <strong>2016-05-27</strong>&#160; pour le premier WHERE et entre le&#160; <strong>2015-05-01</strong> au <strong>2015-05-27</strong>&#160; pour le deuxième WHERE par exemple si 2016 est le paramètre. </p><br /><p>Et faire appel à la fonction dans mes différents WHERE.</p><br /><p>svp quelqu&#039;un peut-il m&#039;aider pr la fonction?? ou bien y&#039;a t-il une autre alternative pour mon probleme?? </p><br /><p>Merci de me venir en aide!&#160; <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" />&#160; <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[Douk V5]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=6110</uri>
+		</author>
+		<updated>2016-05-27T17:06:29Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23501#p23501</id>
+	</entry>
+</feed>

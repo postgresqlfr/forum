@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / caractères d'échappement \n \f \r retour chariot ou à la ligne]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1177&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1177"/>
+	<updated>2011-01-21T08:35:02Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1177</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  caractères d'échappement \n \f \r retour chariot ou à la ligne]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7622#p7622"/>
+		<content type="html"><![CDATA[<p>Je note bien que le client PostgreSQL, &quot; psql est avant tout un outil d&#039;administration. Son but n&#039;est pas d&#039;interpréter ce qui se trouve dans les champs.&quot;</p><p>Ceci dit, psql est aussi (je pense, communément) utilisé dans des shell car il s&#039;agit d&#039;un outil simple, léger, robuste et facile à mettre en place.<br />cf. précédemment :<br />$ psql -h la_machine_hote -d bdd -p 5433 -U le_user -o toooo -c &quot; SELECT E&#039;ceci est un test \n avec antislash n&#039;&quot;<br />...</p><p>En utilisant psql, je me suis alors interrogé sur le fait que la séquence d&#039;échappement \n ou encore \t était interprétée mais pas \f par exemple.<br />Mais, je comprends, comme le précise Guillaume, que &quot; La façon dont sont gérés les séquences d&#039;échappement dépend principalement des décisions prises &quot;.</p>]]></content>
+		<author>
+			<name><![CDATA[jacques]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1066</uri>
+		</author>
+		<updated>2011-01-21T08:35:02Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7622#p7622</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  caractères d'échappement \n \f \r retour chariot ou à la ligne]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7617#p7617"/>
+		<content type="html"><![CDATA[<p>Oui. psql est avant tout un outil d&#039;administration. Son but n&#039;est pas d&#039;interpréter ce qui se trouve dans les champs. C&#039;est de vous les afficher d&#039;une façon qui vous permette de comprendre ce qu&#039;ils contiennent.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-01-20T19:22:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7617#p7617</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  caractères d'échappement \n \f \r retour chariot ou à la ligne]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7616#p7616"/>
+		<content type="html"><![CDATA[<p>Effectivement, l&#039;accès par driver JDBC (postgresql-9.0-801.jdbc4.jar) ne s&#039;appuie pas sur psql et n&#039;applique pas les mêmes règles d&#039;interprétation des séquences d&#039;échappement.</p><p>J&#039;ai fait un test sur une base postgreSQL 8.3.13,<br />en interrogeant une table toto :<br />Bienvenue dans psql 8.3.13, l&#039;interface interactive de PostgreSQL.<br />toto=# select * from toto;<br /> pk |&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;a&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;<br />----+-----------------------------------------------<br />&#160; 1 | ceci est un test \x0C avec antislash f<br />&#160; 2 | ceci est un test <br />&#160; &#160; :&#160; avec antislash n<br />&#160; 3 | ceci est un test \r avec antislash r<br />&#160; 4 | ceci est un test \r\x0C avec antislash r et f<br />(4 lignes)</p><br /><p>L&#039;accès à l&#039;aide du driver postgresql-9.0-801.jdbc4.jar donne en affichant (en java : System.out.println(rs.getInt(&quot;pk&quot;)+&quot; &quot;+rs.getString(&quot;a&quot;));) la valeur de la première colonne suivie d&#039;un espace puis la valeur de la 2ème colonne :<br />Début du test :<br />1&#160; ceci est un test <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;avec antislash f<br />2&#160; ceci est un test <br /> avec antislash n<br /> avec antislash rst <br />4&#160; ceci est un test <br /> avec antislash r et f</p><p>Merci encore</p>]]></content>
+		<author>
+			<name><![CDATA[jacques]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1066</uri>
+		</author>
+		<updated>2011-01-20T18:53:29Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7616#p7616</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  caractères d'échappement \n \f \r retour chariot ou à la ligne]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7607#p7607"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Peut-être une proposition à faire pour une version ultérieure ?</p></div></blockquote></div><p>Le meilleur moyen pour cela est que vous proposiez un patch aux développeurs.</p><div class="quotebox"><blockquote><div><p>Pour répondre à Gilles, dans le cas qui m&#039;intéresse, l&#039;interrogation de la bdd a pour but de réaliser un produit (basé sur une application Java) avec une zone texte et une mise en page adéquate s&#039;appuyant sur le contenu d&#039;une colonne de type VARCHAR.</p></div></blockquote></div><p>Dans ce cas, vous ne passez pas par psql, ce qui fait que l&#039;affichage de psql n&#039;a aucune importance. L&#039;affichage des données sera du fait de votre programme.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-01-20T15:28:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7607#p7607</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  caractères d'échappement \n \f \r retour chariot ou à la ligne]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7601#p7601"/>
+		<content type="html"><![CDATA[<p>Tout d&#039;abord, je vous remercie de vous intéresser, en apportant des réponses, à cette discussion.</p><p>L&#039;interprétation des séquences d&#039;échappement a effectivement changé entre la version 8.1 et 8.4 ou plus précisément 8.2 d&#039;après Gilles.<br />J&#039;ai bien lu les réponses de Guillaume et Gilles, à savoir qu&#039;il s&#039;agit de &quot; décisions prises pour un meilleur affichage sur des écrans de taille différente &quot; et de la volonté d&#039;&quot; améliorer la lisibilité des données &quot; et je comprends bien que cela résulte d&#039;efforts de la part de l&#039;équipe des programmeurs.<br />Guillaume répond à ma dernière question en indiquant qu&#039; &quot; il n&#039;y a aucun moyen de changer ce comportement &quot;.<br />Je pense toutefois qu&#039;il serait intéressant d&#039;avoir la possibilité de choisir de récupérer, soit la séquence d&#039;échappement (par exemple \f), soit le code d&#039;échappement.<br />Peut-être une proposition à faire pour une version ultérieure ?</p><p>Pour répondre à Gilles, dans le cas qui m&#039;intéresse, l&#039;interrogation de la bdd a pour but de réaliser un produit (basé sur une application Java) avec une zone texte et une mise en page adéquate s&#039;appuyant sur le contenu d&#039;une colonne de type VARCHAR.<br />Quant à la différence entre une séquence d&#039;échappement ou une autre à l&#039;affichage, cela n&#039;a pas d&#039;importance pour moi, ce qui m&#039;intéresse, c&#039;est d&#039;avoir l&#039;affichage souhaité par les séquences que j&#039;ai indiquées et de ne pas les &quot; neutraliser &quot;.<br />Par ailleurs, à l&#039;affichage, il y a une différence entre \n\t et \f ; mais pas entre \f\r et \n.<br />Mais, si je veux le code pour faire la différence, j&#039;écris, comme indiqué précédemment, par exemple,<br />en client 8.1 :<br />postgres=# SELECT E&#039;ceci est un test pour Gilles \f\r avec antislash f et r&#039;::bytea;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; bytea&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; <br />-------------------------------------------------------------<br /> ceci est un test pour Gilles \014\015 avec antislash f et r<br />(1 ligne)<br />car effectivement, l&#039;affichage avec une requête sans ::bytea ne donne pas de différence entre \f\r et \n :<br />&#160; &#160; &#160; &#160; 1 | ceci est un test pour Gilles <br /> avec antislash f et r |&#160; &#160; &#160; 111<br />(1 ligne)<br />ou bien :<br />postgres=# SELECT 1, E&#039;ceci est un test pour Gilles \n avec antislash n&#039;, 111;<br /> ?column? |&#160; &#160; &#160; &#160; &#160; &#160;?column?&#160; &#160; &#160; &#160; &#160; &#160; | ?column? <br />----------+-------------------------------+----------<br />&#160; &#160; &#160; &#160; 1 | ceci est un test pour Gilles <br /> avec antislash n |&#160; &#160; &#160; 111</p><br /><br /><br /><p>Juste pour information, sous Oracle 9.2 ou 11.2, le résultat se présente de la sorte :<br />SQL*Plus: Release 11.2.0.2.0<br />SQL&gt; select 111, &#039;ceci est un test &#039;||chr(12)||&#039; avec antislash f&#039;, &#039;Troisième colonne&#039; from dual;</p><p>&#160; &#160; &#160; &#160;111 &#039;CECIESTUNTEST&#039;||CHR(12)||&#039;AVECANTISLASHF&#039;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#039;TROISIÈMECOLONNE&#039;<br />---------- --------------------------------------------------------------------------------------------------------- ---------------------------------------------------<br />&#160; &#160; &#160; &#160;111 ceci est un test <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;avec antislash f&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Troisième colonne</p><p>SQL&gt; select 222, &#039;ceci est un test &#039;||chr(10)||&#039; avec antislash n&#039;, &#039;Troisième colonne&#039; from dual;</p><p>&#160; &#160; &#160; &#160;222 &#039;CECIESTUNTEST&#039;||CHR(10)||&#039;AVECANTISLASHN&#039;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#039;TROISIÈMECOLONNE&#039;<br />---------- --------------------------------------------------------------------------------------------------------- ---------------------------------------------------<br />&#160; &#160; &#160; &#160;222 ceci est un test&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Troisième colonne<br />&#160; &#160; &#160; &#160; &#160; &#160; avec antislash n</p><br /><p>SQL&gt; select 333, &#039;ceci est un test &#039;||chr(13)||&#039; avec antislash r&#039;, &#039;Troisième colonne&#039; from dual;</p><p>&#160; &#160; &#160; &#160;333 &#039;CECIESTUNTEST&#039;||CHR(13)||&#039;AVECANTISLASHR&#039;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#039;TROISIÈMECOLONNE&#039;<br />---------- --------------------------------------------------------------------------------------------------------- ---------------------------------------------------<br /> avec antislash r&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Troisième colonne</p><br /><p>Assez logiquement, sous client psql 8.4.5 :<br />$ psql -h la_machine_hote -d bdd -p 5433 -U le_user -o toooo -c &quot; SELECT E&#039;ceci est un test \f avec antislash f&#039;&quot;<br />$ more toooo<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; ?column?&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; <br />----------------------------------------<br /> ceci est un test \x0C avec antislash f<br />(1 row)</p><p>$ psql -h la_machine_hote -d bdd -p 5433 -U le_user -o toooo -c &quot; SELECT E&#039;ceci est un test \n avec antislash n&#039;&quot;<br />$ more toooo<br />&#160; &#160; &#160;?column?&#160; &#160; &#160; <br />-------------------<br /> ceci est un test <br />&#160; avec antislash n<br />(1 row)</p><br /><p>Sous client postgreSQL psql 8.4.5, on peut toutefois écrire :<br />bdd=&gt; COPY (SELECT 111, &#039;ceci est un test &#039;||chr(12)||&#039; avec antislash f&#039;, &#039;Troisième colonne&#039;) to stdout with csv;<br />111,ceci est un test <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; avec antislash f,Troisième colonne<br />bdd=&gt; COPY (SELECT 222, &#039;ceci est un test &#039;||chr(10)||&#039; avec antislash n&#039;, &#039;Troisième colonne&#039;) to stdout with csv;<br />222,&quot;ceci est un test <br /> avec antislash n&quot;,Troisième colonne<br />bdd=&gt; COPY (SELECT 333, &#039;ceci est un test &#039;||chr(13)||&#039; avec antislash r&#039;, &#039;Troisième colonne&#039;) to stdout with csv;<br /> avec antislash r&quot;,Troisième colonne</p><p>L&#039;interprétation des séquences d&#039;échappement se fait grâce au COPY (non standard SQL) et non au SELECT.</p><p>Encore une fois, je vous (les remerciements s&#039;adressent aussi à un collègue) remercie sincèrement et, bien sûr, si vous avez des éléments nouveaux, je suis preneur.</p>]]></content>
+		<author>
+			<name><![CDATA[jacques]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1066</uri>
+		</author>
+		<updated>2011-01-20T14:15:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7601#p7601</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  caractères d'échappement \n \f \r retour chariot ou à la ligne]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7594#p7594"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>A partir de la version 8.2 des efforts ont été réalisés dans le code de psql pour limiter l&#039;impact des caractères spéciaux dans l&#039;affichage ceci en vu d&#039;améliorer la lisibilité des données. Il n&#039;existe pas d&#039;option à psql permettant de ne pas interpréter les caractères spéciaux à ma connaissance.</p><p>Je ne comprends pas trop ou vous voulez en venir; en 8.1 saviez vous faire la différence entre un \n\t et un \f à l&#039;affichage ? Avec les nouvelles versions vous avez directement l&#039;information. Ou alors peut-être cherchez vous à récupérer la sortie du psql pour son utilisation dans un script dans ce cas effectivement cela peut être gênant.</p>]]></content>
+		<author>
+			<name><![CDATA[gilles]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=921</uri>
+		</author>
+		<updated>2011-01-20T11:50:39Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7594#p7594</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  caractères d'échappement \n \f \r retour chariot ou à la ligne]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7593#p7593"/>
+		<content type="html"><![CDATA[<p>La façon dont sont gérés les séquences d&#039;échappement dépend principalement des décisions prises pour un meilleur affichage sur des écrans de taille différente. Il y a eu beaucoup de modifications à ce niveau-là, ainsi que pour les séparateurs suivant la raison du retour à la ligne. Et il n&#039;y a aucun moyen de changer ce comportement.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-01-20T11:44:55Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7593#p7593</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  caractères d'échappement \n \f \r retour chariot ou à la ligne]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7591#p7591"/>
+		<content type="html"><![CDATA[<p>Des tests ont montré que la non-interprétation des séquences d&#039;échappement \f et \r provient du client posgreSQL et non du serveur ; par ailleurs, une version psql cliente 8.1 interprète bien les séquences d&#039;échappement alors qu&#039;une version 8.4 ne les interprète pas.</p><p>-bash-3.2$ psql -h la_machnie_hote -d bdd -p 5433 -U le_user<br />Password for user le_user: <br />Welcome to psql 8.1.22 (server 8.4.5), the PostgreSQL interactive terminal.</p><p>Type:&#160; \copyright for distribution terms<br />&#160; &#160; &#160; &#160;\h for help with SQL commands<br />&#160; &#160; &#160; &#160;\? for help with psql commands<br />&#160; &#160; &#160; &#160;\g or terminate with semicolon to execute query<br />&#160; &#160; &#160; &#160;\q to quit</p><p>WARNING:&#160; You are connected to a server with major version 8.4,<br />but your psql client is major version 8.1.&#160; Some backslash commands,<br />such as \d, might not work properly.</p><p>bdd=&gt; SELECT E&#039;ceci est un test \f avec antislash f&#039;;<br />&#160; &#160; &#160;?column?&#160; &#160; &#160; <br />-------------------<br /> ceci est un test <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;avec antislash f<br />(1 row)</p><br /><p>Avez-vous des éléments qui expliquent cette analyse (différences entre 8,1 et 8,4...) et comment peut-on configurer le client pour forcer l&#039;interprétation ?</p>]]></content>
+		<author>
+			<name><![CDATA[jacques]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1066</uri>
+		</author>
+		<updated>2011-01-20T10:41:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7591#p7591</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  caractères d'échappement \n \f \r retour chariot ou à la ligne]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7578#p7578"/>
+		<content type="html"><![CDATA[<p>Si l&#039;on demande à la commande echo de ne pas interpréter les séquences d&#039;échappement (valeur par défaut), elle ne les interprète pas :</p><p>Par exemple, sur le serveur avec bdd :<br />$ echo -E &quot;ceci est un test \f avec antislash f&quot;</p><p>ceci est un test \f avec antislash f</p><p>$ echo -E &quot;ceci est un test \n avec antislash n&quot;</p><p>ceci est un test \n avec antislash n</p><p>$ echo -E &quot;ceci est un test \r avec antislash r&quot;</p><p>ceci est un test \r avec antislash r</p><br /><p>De même, pour PostgreSQL, comme vous me l&#039;avez montré, il semble que l&#039;on peut voir le contenu binaire codé en décimal (stockage interne) des séquences d&#039;échappement par :<br />bdd=&gt; SELECT E&#039;ceci est un test \f\r avec antislash f et r&#039;::bytea;</p><p>&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; bytea&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; </p><p>-------------------------------------------------</p><p> ceci est un test \014\015 avec antislash f et r</p><p>(1 row)</p><br /><br /><p>Sur mon PC Linux, j&#039;ai installé un serveur PostgreSQL&#160; 8.1 :<br />-bash-3.2$ psql </p><p>Bienvenue dans psql 8.1.22, l&#039;interface interactive de PostgreSQL.</p><br /><br /><p>postgres=# SELECT E&#039;ceci est un test \f\r avec antislash f et r&#039;::bytea;</p><p>&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; bytea&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; </p><p>-------------------------------------------------</p><p> ceci est un test \014\015 avec antislash f et r</p><p>(1 ligne)</p><br /><br /><p>=&gt; même résultat que sur le serveur.</p><p>Par contre, sur mon PC, j&#039;obtiens bien l&#039;interprétation des séquences d&#039;échappement :<br />postgres=# SELECT E&#039;ceci est un test \f avec antislash f qui donne bien le form feed&#039;;</p><p>&#160; &#160; &#160;?column?&#160; &#160; &#160; </p><p>-------------------</p><p> ceci est un test </p><p>&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;avec antislash f qui donne bien le form feed</p><p>(1 ligne)</p><br /><br /><p>postgres=# </p><p>postgres=# SELECT E&#039;ceci est un test \r avec antislash r qui donne bien le carriage return&#039;;</p><p>&#160; &#160; &#160;?column?&#160; &#160; &#160; </p><p>-------------------</p><p> avec antislash r qui donne bien le carriage return</p><p>(1 ligne)</p><br /><br /><p>Il doit donc probablement s&#039;agir d&#039;une configuration, environnement PostgreSQL ou système à mettre en place.</p>]]></content>
+		<author>
+			<name><![CDATA[jacques]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1066</uri>
+		</author>
+		<updated>2011-01-19T13:42:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7578#p7578</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  caractères d'échappement \n \f \r retour chariot ou à la ligne]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7577#p7577"/>
+		<content type="html"><![CDATA[<p>Ok, je comprends mieux votre problème.</p><p>Le problème est, si vous affichez &#039;correctement&#039;&#160; \r par exemple, que vous ne verrez pas toute la donnée du champ. Ce qui est le but de psql (et de postgres dans son ensemble).</p><p>Vous n&#039;avez pas la possibilité, avec vos echo, de savoir exactement ce qui se trouvait dans le champ original. </p><p>PostgreSQL doit vous le permettre… ce qu&#039;on veut, c&#039;est moins un affichage &#039;correct&#039; au point de vue de l&#039;écran qu&#039;un affichage &#039;correct&#039; comme &#039;affichant toutes les données, dans la mesure du possible&#039;. Si vous voulez ensuite un bel affichage effectuant vos \f, \r, à vous de le faire, dans une application cliente. Le but de psql est de vous retransmettre la chaîne telle quelle, d&#039;une façon non ambiguë.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-01-19T09:31:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7577#p7577</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  caractères d'échappement \n \f \r retour chariot ou à la ligne]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7575#p7575"/>
+		<content type="html"><![CDATA[<p>Effectivement (sous PostgreSQL comme sous Linux) :<br />\f Form feed (ASCII 12)<br />\n Newline (ASCII 10)<br />\r Carriage return (ASCII 13)<br />Cela provient vraisemblablement des premières machines à écrire (avec ruban).</p><p>Sur mon PC ou sur le serveur Linux qui héberge la base bdd, voilà l&#039;affichage &quot; correct &quot; :<br />$ echo -e &quot;ceci est un test \f avec antislash f&quot;<br />ceci est un test <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; avec antislash f<br />$ echo -e &quot;ceci est un test \n avec antislash n&quot;<br />ceci est un test <br /> avec antislash n<br />$ echo -e &quot;ceci est un test \r avec antislash r&quot;<br /> avec antislash r</p><p>\f produit, à l&#039;affichage, un saut de ligne sans retour en début de ligne,<br />\n un saut de ligne avec retour en début de ligne,<br />\r un retour en début de ligne.</p>]]></content>
+		<author>
+			<name><![CDATA[jacques]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1066</uri>
+		</author>
+		<updated>2011-01-19T08:47:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7575#p7575</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  caractères d'échappement \n \f \r retour chariot ou à la ligne]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7574#p7574"/>
+		<content type="html"><![CDATA[<p>\f c&#039;est form feed. C&#039;est une commande d&#039;imprimante (matricielle à l&#039;époque) il me semble. Comment voudriez vous qu&#039;il vous l&#039;affiche correctement à l&#039;écran ?</p><p>\r n&#039;a pas vraiment de sens non plus, sous Unix en tout cas.</p><p>En fait, ce que vous demandez, c&#039;est d&#039;afficher des caractères non imprimables. Je pense que vous allez devoir définir &#039;correct&#039; de votre point de vue, avant que je puisse vous donner une réponse.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-01-19T08:19:09Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7574#p7574</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  caractères d'échappement \n \f \r retour chariot ou à la ligne]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7572#p7572"/>
+		<content type="html"><![CDATA[<p>A priori, oui,<br />Mais quel paramétrage, configuration, environnement adopter pour obtenir un affichage correct pour les différentes séquences d&#039;échappement ?<br />Alors que \n s&#039;affiche correctement, il est surtout surprenant que \f et \r ne s&#039;affichent pas de la même manière (valeur hexadécimale pour l&#039;un et séquence d&#039;échappement pour l&#039;autre) :</p><p>bdd=&gt; SELECT E&#039;ceci est un test \f avec antislash f qui donne la valeur hexadécimale&#039;;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; ?column?&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;<br />-------------------------------------------------------------------------<br /> ceci est un test \x0C avec antislash f qui donne la valeur hexadécimale<br />(1 row)</p><p>bdd=&gt; SELECT E&#039;ceci est un test \r avec antislash r qui donne la séquence d&#039;&#039;échappement&#039;;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;?column?&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;<br />--------------------------------------------------------------------------<br /> ceci est un test \r avec antislash r qui donne la séquence d&#039;échappement<br />(1 row)</p>]]></content>
+		<author>
+			<name><![CDATA[jacques]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1066</uri>
+		</author>
+		<updated>2011-01-19T07:18:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7572#p7572</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  caractères d'échappement \n \f \r retour chariot ou à la ligne]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7571#p7571"/>
+		<content type="html"><![CDATA[<p>Je penche plus pour un problème d&#039;affichage qu&#039;un problème de données:</p><p>SELECT E&#039;ceci est un test \f\r avec antislash f et r&#039;::bytea;</p><br /><p>&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; bytea&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; <br />-------------------------------------------------<br /> ceci est un test \014\015 avec antislash f et r</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-01-18T16:50:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7571#p7571</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[caractères d'échappement \n \f \r retour chariot ou à la ligne]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7567#p7567"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je cherche à comprendre pourquoi les caractères d&#039;échappement \f et \r ne sont pas interprétés correctement sur ma machine avec base PostgreSQL 8.4.</p><p>Tout d&#039;abord, depuis mon PC Linux, je me connecte avec &quot; ssh -X -l mon_user le_serveur &quot; sur le serveur qui héberge la base bdd.</p><p>$ locale<br />LANG=C<br />LC_CTYPE=&quot;C&quot;<br />LC_NUMERIC=&quot;C&quot;<br />LC_TIME=&quot;C&quot;<br />LC_COLLATE=&quot;C&quot;<br />LC_MONETARY=&quot;C&quot;<br />LC_MESSAGES=&quot;C&quot;<br />LC_PAPER=&quot;C&quot;<br />LC_NAME=&quot;C&quot;<br />LC_ADDRESS=&quot;C&quot;<br />LC_TELEPHONE=&quot;C&quot;<br />LC_MEASUREMENT=&quot;C&quot;<br />LC_IDENTIFICATION=&quot;C&quot;<br />LC_ALL=</p><p>$ export LANG=fr_FR.UTF-8</p><p>$ psql -d bdd<br />psql (8.4.5)<br />Saisissez « help » pour l&#039;aide.</p><p>bdd=&gt; show client_encoding;<br /> client_encoding <br />-----------------<br /> UTF8<br />(1 ligne)</p><p>bdd=&gt; show server_encoding;<br /> server_encoding <br />-----------------<br /> UTF8<br />(1 ligne)</p><p>bdd=&gt; create table table_test(<br />bdd(&gt; pk numeric(2),<br />bdd(&gt; a text,<br />bdd(&gt; constraint pk_table_test primary key(pk)<br />bdd(&gt; );<br />NOTICE:&#160; CREATE TABLE / PRIMARY KEY will create implicit index &quot;pk_table_test&quot; for table &quot;table_test&quot;<br />CREATE TABLE<br />bdd=&gt;<br />bdd=&gt; INSERT INTO table_test VALUES (1,&#039;ceci est un test \f avec antislash f&#039;);<br />WARNING:&#160; nonstandard use of escape in a string literal<br />LIGNE 1 : INSERT INTO table_test VALUES (1,&#039;ceci est un test \f avec a...<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;^<br />ASTUCE : Use the escape string syntax for escapes, e.g., E&#039;\r\n&#039;.<br />INSERT 0 1<br />bdd=&gt; INSERT INTO table_test VALUES (2,E&#039;ceci est un test \f avec antislash f&#039;);<br />INSERT 0 1<br />bdd=&gt; INSERT INTO table_test VALUES (3,E&#039;ceci est un test \n avec antislash n&#039;);<br />INSERT 0 1<br />bdd=&gt; INSERT INTO table_test VALUES (4,E&#039;ceci est un test \r avec antislash r&#039;);<br />INSERT 0 1<br />bdd=&gt; INSERT INTO table_test VALUES (5,E&#039;ceci est un test \f\r avec antislash f et r&#039;);<br />INSERT 0 1<br />bdd=&gt; <br />bdd=&gt; select * from table_test;<br /> pk |&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;a&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;<br />----+-----------------------------------------------<br />&#160; 1 | ceci est un test \x0C avec antislash f<br />&#160; 2 | ceci est un test \x0C avec antislash f<br />&#160; 3 | ceci est un test <br />&#160; &#160; :&#160; avec antislash n<br />&#160; 4 | ceci est un test \r avec antislash r<br />&#160; 5 | ceci est un test \x0C\r avec antislash f et r<br />(5 lignes)</p><br /><p>Sur cette machine et avec ma configuration, le caractère \n est bien visible mais \r ou \f ne sont pas interprétés comme on peut le souhaiter.</p><p>Avez-vous une explication ?<br />Bien cordialement</p>]]></content>
+		<author>
+			<name><![CDATA[jacques]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1066</uri>
+		</author>
+		<updated>2011-01-18T14:49:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7567#p7567</id>
+	</entry>
+</feed>

@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Baisse de performance sur table enfant en utilisant ORDER BY et LIMIT]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=423&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=423"/>
+	<updated>2009-10-09T13:23:06Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=423</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Baisse de performance sur table enfant en utilisant ORDER BY et LIMIT]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2493#p2493"/>
+		<content type="html"><![CDATA[<p>La FSM a l&#039;air bonne pour une base. Il faut avoir le résultat pour chacune des bases, les additionner, pour savoir si la taille est bonne pour le cluster.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2009-10-09T13:23:06Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2493#p2493</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Baisse de performance sur table enfant en utilisant ORDER BY et LIMIT]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2490#p2490"/>
+		<content type="html"><![CDATA[<p>La FSM a l&#039;air bonne, pas de problème.<br />Le vacuum et vacuum analyze sont les mêmes dans autovacuum.<br />Très mauvaises requêtes, c&#039;est des requêtes comme faire un update de 100% de la table en une seule transaction, voire pire (le faire plusieurs fois dans une seule)<br />Supprimer 10% d&#039;enregistrements n&#039;est pas un problème, même si vacuum risque d&#039;être un peu lent à faire le ménage sur une grosse table derrière.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2009-10-09T10:01:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2490#p2490</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Baisse de performance sur table enfant en utilisant ORDER BY et LIMIT]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2489#p2489"/>
+		<content type="html"><![CDATA[<p>- Ce qui me chiffonne c&#039;est que les VACUUM ANALYSE sont effectués régulièrement sur mes tables par l&#039;autovacuum.<br />Question bête : les VACUUM ANALYSE lancés par l&#039;autovacuum sont-ils moins &quot;performants&quot; ? Comprendre : agissent-ils différent que ceux lancés manuellement ?</p><p>- J&#039;ai l&#039;impression que ma structure FSM est adaptée à mes besoins :<br />max_fsm_pages = 800000<br />max_fsm_relations = 1000</p><p>Résultat final d&#039;un VACUUM ANALYSE sur l&#039;ensemble de mes données :</p><div class="codebox"><pre><code>INFO:  la structure FSM contient 54193 pages dans 89 relations
+DETAIL:  Un total de 55248 emplacements de pages est utilisé (ceci incluant la
+surcharge).
+55248 emplacements de pages sont requis pour tracer tout l&#039;espace libre.
+Les limites actuelles sont : 800000 emplacements de pages, 1000 relations,
+utilisant 4752 Ko.
+VACUUM</code></pre></div><p>- Pour en revenir au VACUUM FULL, quelles sont ces &quot;très mauvaises requêtes&quot; qui mettraient en défaut une maintenance bien faite ?<br />La suppression de 10% d&#039;enregistrements sur une table de plus d&#039;un million par exemple ?</p>]]></content>
+		<author>
+			<name><![CDATA[paftek]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=28</uri>
+		</author>
+		<updated>2009-10-09T09:56:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2489#p2489</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Baisse de performance sur table enfant en utilisant ORDER BY et LIMIT]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2484#p2484"/>
+		<content type="html"><![CDATA[<p>T&#039;es injuste… on peut très bien avoir du bloat sur une table en faisant des très mauvaises requêtes, même si la maintenance est bien faite <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2009-10-08T19:21:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2484#p2484</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Baisse de performance sur table enfant en utilisant ORDER BY et LIMIT]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2483#p2483"/>
+		<content type="html"><![CDATA[<p>Si un VACUUM FULL est nécessaire, c&#039;est que la maintenance de la base n&#039;est pas faite : soit pas suffisamment de VACUUM, soit une structure FSM pas suffisamment grosse (voir les paramètres max_fsm_pages et max_fsm_relations).</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2009-10-08T19:13:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2483#p2483</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Baisse de performance sur table enfant en utilisant ORDER BY et LIMIT]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2481#p2481"/>
+		<content type="html"><![CDATA[<p>- l&#039;index ne dessert pas vraiment. mais dans le cas de la requête, le moteur n&#039;a pas de vraiment bon choix à faire, et doit donc choisir un &#039;moins pire&#039;. Peut être qu&#039;avec des stats encore plus fines, ça finirait par aller, il aurait fallu voir les estimations du moteur</p><p>- le vacuum full ne sert presque plus jamais. sauf dans des cas très particuliers. le passer systèmatique n&#039;est pas une bonne pratique, dans la mesure du possible il vaut mieux essayer de trouver le coupable des modifications entrainant un besoin de vacuum full (l&#039;update de tous les enregistrements d&#039;une table dans une seule transaction par exemple)</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2009-10-08T18:13:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2481#p2481</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Baisse de performance sur table enfant en utilisant ORDER BY et LIMIT]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2480#p2480"/>
+		<content type="html"><![CDATA[<p>Merci Marc pour ces propositions.</p><p>Monter default_statistics_target à 100 ne change rien à mon problème.<br />Par contre, l&#039;index composé (account_id, state) le résoud (j&#039;ai laissé default_statistics_target à 100, je peux éventuellement essayer de le repasser à 10).</p><p>En parallèle, j&#039;ai effectué un VACUUM FULL (hier je me suis contenté d&#039;un ANALYZE) sur ma seconde machine sans ajouter l&#039;index composé et j&#039;obtiens également des performances satisfaisantes.</p><p>2 questions me viennent à l&#039;esprit :</p><p>- Si je comprends bien l&#039;index sur state me dessert plus qu&#039;autre chose dans ce cas précis, car comme vous le dites PostgreSQL fait le mauvais paris. Simple curiosité, existe-t&#039;il d&#039;autre moyens que l&#039;index composé pour &quot;forcer&quot; l&#039;utilisation d&#039;un index plutôt qu&#039;un autre ? Parce que je m&#039;attendais naturellement à ce qu&#039;il utilise l&#039;index sur account_id, puis state...</p><p>- Le démon autovacuum passe régulièrement sur toutes mes tables, je pensais ne plus avoir besoin de VACUUM FULL... Est-ce qu&#039;effectuer régulièrement un VACUUM FULL est une bonne pratique ? Ou alors cela résulte d&#039;une mauvaise configuration ?</p>]]></content>
+		<author>
+			<name><![CDATA[paftek]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=28</uri>
+		</author>
+		<updated>2009-10-08T14:25:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2480#p2480</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Baisse de performance sur table enfant en utilisant ORDER BY et LIMIT]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2466#p2466"/>
+		<content type="html"><![CDATA[<p>Le problème, c&#039;est que postgres fait le &quot;pari&quot; qu&#039;en prenant par l&#039;index sur state, il va rapidement trouver quelques entrées correspondant à l&#039;account_id demandé, plutôt que de prendre tous les enregistrements sur l&#039;account_id, puis les trier tous par state, et ensuite jeter tout sauf 50.</p><p>Deux choses sont à essayer à mon avis :<br />- D&#039;abord augmenter la précision des statistiques: il y a vraisemblablement une très grosse erreur d&#039;estimation sur la probabilité de trouver des enregistrements ayant account_id =1699. Ça peut se faire globalement en modifiant default_statistics_target, ou localement à une colonne avec un alter table xxx alter column yyy set statistics zzz<br />Si la valeur est de 10, on peut déjà la monter à 100 pour voir si c&#039;est suffisant. Il faut repasser les statistiques avec un analyze sur la table<br />- Sinon, donner au moteur un index lui permettant directement d&#039;aller chercher les bonnes données (index composé sur account_id,state). Mais un index supplémentaire a un coût à l&#039;insertion</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2009-10-07T16:44:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2466#p2466</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Baisse de performance sur table enfant en utilisant ORDER BY et LIMIT]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2464#p2464"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je n&#039;arrive pas à expliquer une importante différence de performance sur une requête simple, en fonction de l&#039;évolution du seul paramètre &quot;account_id&quot; :</p><div class="codebox"><pre><code>SELECT * FROM listings_5
+WHERE account_id = 981
+ORDER BY state ASC
+LIMIT 50 OFFSET 0</code></pre></div><p>&quot;listings_5&quot; est une table enfant de &quot;listings&quot;. Le découpage est effectuée en fonction de la valeur d&#039;un champ &quot;store_id&quot;.<br />Les colonnes &quot;account_id&quot;, &quot;state&quot; et &quot;store_id&quot; sont indexées.</p><p>Lorsque je lance la requête ci-dessus directement sur la table &quot;listings_5&quot; pour account_id = 981, j&#039;obtiens ceci :<br /><em>(la table contient 154 461 enregistrements pour le compte 981)</em></p><div class="codebox"><pre><code>Limit  (cost=0.00..684.02 rows=50 width=1452) (actual time=238.055..2027.142 rows=50 loops=1)
+  -&gt;  Index Scan using listings_5_state_idx on listings_5  (cost=0.00..1960460.66 rows=143305 width=1452) (actual time=238.053..2027.093 rows=50 loops=1)
+        Filter: (account_id = 981)
+Total runtime: 2027.265 ms</code></pre></div><p>Pour account_id = 1699 :<br /><em>(alors que la table ne contient <span class="bbu">aucun</span> enregistrement pour le compte 1699)</em></p><div class="codebox"><pre><code>Limit  (cost=0.00..17029.71 rows=50 width=1452) (actual time=95497.761..95497.761 rows=0 loops=1)
+  -&gt;  Index Scan using listings_5_state_idx on listings_5  (cost=0.00..1960460.66 rows=5756 width=1452) (actual time=95497.759..95497.759 rows=0 loops=1)
+        Filter: (account_id = 1699)
+Total runtime: 95497.856 ms</code></pre></div><p>En exécutant ces requêtes l&#039;une après l&#039;autre à plusieurs reprises, j&#039;obtiens à peu près le même résultat.</p><p>J&#039;ai effectué un VACUUM ANALYSE sur toutes les tables, j&#039;ai redémarré la base, j&#039;ai réindexé les tables listings, sans succès.<br />De plus je ne constate pas cette différence sur ma seconde machine de test, même matériel, même config, mais qui contient une version plus récente de ma base de prod (donc plus lourde).</p><p>Autres précisions :<br />- Si j&#039;effectue la même requête sur la table mère, en précisant store_id = 5, la tendance s&#039;inverse... (instantané pour 1699, quelques secondes pour 981)<br />- Si je supprime le critère de tri, le temps de réponse est &quot;normal&quot;...<br />- Si j&#039;ajoute un critère de tri final (listing_id, la clé primaire), le temps de réponse est &quot;normal&quot; également... (instantané pour 1699, quelques secondes pour 981) :</p><div class="codebox"><pre><code>SELECT * FROM listings_5
+WHERE account_id = 1699
+ORDER BY state ASC, listing_id
+LIMIT 50 OFFSET 0
+
+-------
+
+Limit  (cost=19855.16..19855.28 rows=50 width=1468) (actual time=0.015..0.015 rows=0 loops=1)
+  -&gt;  Sort  (cost=19855.16..19869.84 rows=5872 width=1468) (actual time=0.014..0.014 rows=0 loops=1)
+        Sort Key: state, listing_id
+        Sort Method:  quicksort  Memory: 17kB
+        -&gt;  Index Scan using listings_ebay_account_idx on listings_ebay  (cost=0.00..19660.09 rows=5872 width=1468) (actual time=0.008..0.008 rows=0 loops=1)
+              Index Cond: (account_id = 1699)
+Total runtime: 0.149 ms</code></pre></div><p>Bref, je vous avoue que je suis un peu perdu. Je ne sais pas quelle démarche effectuer pour traquer le problème.<br />C&#039;est pourquoi je fais appel à vous...</p><p>Merci pour tout élément de réponse !</p>]]></content>
+		<author>
+			<name><![CDATA[paftek]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=28</uri>
+		</author>
+		<updated>2009-10-07T16:03:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2464#p2464</id>
+	</entry>
+</feed>

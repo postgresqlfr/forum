@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Traduction de auto_increment]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2269&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2269"/>
+	<updated>2012-09-22T02:52:27Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2269</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Traduction de auto_increment]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15206#p15206"/>
+		<content type="html"><![CDATA[<p>Je présume que certains le font.</p><p>Et pour ceux qui ne le font pas, je vois bien deux explications:</p><p>- La méthode au dessus marche bien.<br />- Les séquences sous PostgreSQL permettent beaucoup plus que les autoincréments sous MySQL. C&#039;est d&#039;ailleurs pour cela aussi que c&#039;est plus compliqué à manipuler, du moins si ça n&#039;a pas été fait dès le départ (si on démarre directement avec une base vide, on a le pseudo-type serial qui crée la colonne en type integer, la séquence associée, les lie, et met la valeur par défaut de la colonne à nextval de la séquence)</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2012-09-22T02:52:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15206#p15206</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Traduction de auto_increment]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15203#p15203"/>
+		<content type="html"><![CDATA[<p>Merci mais ça à l&#039;air d&#039;être bien compliqué ...<br />Pourquoi les outils de migration ne font pas ça !</p>]]></content>
+		<author>
+			<name><![CDATA[phicarre]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1943</uri>
+		</author>
+		<updated>2012-09-21T15:26:09Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15203#p15203</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Traduction de auto_increment]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15188#p15188"/>
+		<content type="html"><![CDATA[<p>Une séquence est associée au champ, et pg a des fonctions pour manipuler les séquences.<br />Exemple : <br />Création de la table :</p><div class="codebox"><pre><code>CREATE TABLE sspact (
+    id_sspact integer NOT NULL,
+ ...</code></pre></div><p>Création de la séquence :</p><div class="codebox"><pre><code>CREATE SEQUENCE sspact_id_sspact_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;</code></pre></div><p>Modifier le prochain numéro&#160; :</p><div class="codebox"><pre><code>SELECT setval(&#039;sspact_id_sspact_seq&#039;, 399, true); -- true signifie que le prochain numéro donné sera 400 , false ==&gt; 399</code></pre></div><p>Association champ/séquence :</p><div class="codebox"><pre><code>ALTER TABLE ONLY sspact ALTER COLUMN id_sspact SET DEFAULT nextval(&#039;sspact_id_sspact_seq&#039;::regclass);</code></pre></div><p>Toutes les autres fonctions sont là :&#160; <a href="http://docs.postgresqlfr.org/9.2/functions-sequence.html" rel="nofollow">Doc fonctions de séquence</a></p><br /><p>Alex</p>]]></content>
+		<author>
+			<name><![CDATA[MitsuTomoe]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1680</uri>
+		</author>
+		<updated>2012-09-20T23:36:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15188#p15188</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Traduction de auto_increment]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15187#p15187"/>
+		<content type="html"><![CDATA[<p>Dans mysql j&#039;ai:</p><p>CREATE TABLE `membres` (<br />`Id_Membre` int(10) NOT NULL AUTO_INCREMENT,<br />...<br />PRIMARY KEY (`Id_Membre`)<br />) ENGINE=InnoDB AUTO_INCREMENT=191 DEFAULT CHARSET=latin1 ROW_FORMAT=FIXED;</p><p>Que je traduis par:</p><p>CREATE TABLE membres<br />(<br />&#160; id_membre serial not null,<br />...<br />primary key( id_membre)<br />)</p><p>Après la migration, comment indiquer qu&#039;id_membre devra prendre la valeur 191 lors d&#039;une insertion ?</p>]]></content>
+		<author>
+			<name><![CDATA[phicarre]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1943</uri>
+		</author>
+		<updated>2012-09-20T22:10:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15187#p15187</id>
+	</entry>
+</feed>

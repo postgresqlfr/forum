@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Fonctionnement des timestamp et fuseaus horaires]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3068&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3068"/>
+	<updated>2014-04-04T14:24:37Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3068</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Fonctionnement des timestamp et fuseaus horaires]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19541#p19541"/>
+		<content type="html"><![CDATA[<p>Il y a ça aussi que je trouve mieux :</p><div class="codebox"><pre><code>select (&#039;2014-04-01 12:30&#039; at time zone &#039;Indian/Reunion&#039;) at time zone &#039;Europe/London&#039;;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[Xav1er]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2945</uri>
+		</author>
+		<updated>2014-04-04T14:24:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19541#p19541</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Fonctionnement des timestamp et fuseaus horaires]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19540#p19540"/>
+		<content type="html"><![CDATA[<p>Ca y est, j&#039;ai trouvé ;-)</p><div class="codebox"><pre><code>select &#039;2014-04-01 12:30 Europe/London&#039;::timestamptz at time zone &#039;Indian/Reunion&#039;;</code></pre></div><p>Et je vais pouvoir remplacer les zones en dur par des données provenant de champs de mes tables <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[Xav1er]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2945</uri>
+		</author>
+		<updated>2014-04-04T13:29:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19540#p19540</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Fonctionnement des timestamp et fuseaus horaires]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19536#p19536"/>
+		<content type="html"><![CDATA[<p>Il n&#039;y a pas moyen de faire tout dans la même requête ?<br />Je trouve ça très contraignant de changer ce paramètre par ce que c&#039;est une requête qui est dans une boucle.</p><p>set timezone to &#039;xxxxx/xxxxx&#039;;<br />traitement<br />set timezone to &#039;Europe/Paris&#039;;</p><p>En plus, dans un select, je ne peux pas sélectionner des occurences qui ont une heure locale entre 12h et 14h, par exemple. J&#039;ai un champ avec un timestamp without timezone, avec heure convertie à l&#039;heure de Paris, et un champ avec le fuseau horaire d&#039;origine.</p>]]></content>
+		<author>
+			<name><![CDATA[Xav1er]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2945</uri>
+		</author>
+		<updated>2014-04-04T11:58:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19536#p19536</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Fonctionnement des timestamp et fuseaus horaires]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19526#p19526"/>
+		<content type="html"><![CDATA[<p>Il faut configurer le paramètre timezone :</p><div class="codebox"><pre><code>postgres=# set timezone to &#039;Indian/Reunion&#039;;
+SET
+postgres=# select &#039;2014-04-01 12:30 Europe/London&#039;::timestamptz;
+      timestamptz       
+------------------------
+ 2014-04-01 15:30:00+04
+(1 row)</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-04-03T20:20:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19526#p19526</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Fonctionnement des timestamp et fuseaus horaires]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19520#p19520"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;ai du mal à comprendre le fonctionnement des timestamps.</p><p>Par exemple, comment faire pour savoir quelle heure il est à la Réunion quand il est 12h30 à Londres ?<br />Les requêtes que j&#039;ai essayées ne donnent pas le bon résultat.</p><p>Sous Oracle, je pouvais faire :</p><div class="codebox"><pre><code>select 
+to_char (CAST(FROM_TZ(CAST(to_date (&#039;20140102123000&#039;,&#039;YYYYMMDDHH24MISS&#039;) AS TIMESTAMP), &#039;Europe/London&#039;) 
+AT TIME ZONE &#039;Indian/Reunion&#039; AS DATE),&#039;YYYYMMDD HH24MISS&#039;) from dual;</code></pre></div><p>Qui donne bien 16h30 en hiver. Je ne parviens pas à faire l&#039;équivalent en pgsql ...</p>]]></content>
+		<author>
+			<name><![CDATA[Xav1er]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2945</uri>
+		</author>
+		<updated>2014-04-03T13:21:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19520#p19520</id>
+	</entry>
+</feed>

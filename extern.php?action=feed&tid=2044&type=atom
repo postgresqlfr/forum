@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / yakekchoz que je ne saisis pas (inserion d'un row)]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2044&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2044"/>
+	<updated>2012-05-14T11:59:49Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2044</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  yakekchoz que je ne saisis pas (inserion d'un row)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13766#p13766"/>
+		<content type="html"><![CDATA[<p>Effectivement, en contrôlant le domain, il-y-a un gros PB:</p><div class="codebox"><pre><code>SELECT D.typname as domname, format_type(b.oid,NULL) as dombasetype,
+    D.typlen, D.typtypmod, D.typnotnull, D.typdefault, D.typndims, D.typdelim, C.consrc
+    FROM pg_type D
+    JOIN pg_type B ON B.oid = CASE WHEN B.typndims &gt; 0 then D.typelem ELSE D.typbasetype END
+    JOIN pg_namespace N ON N.oid = B.typnamespace
+    JOIN pg_constraint C ON (D.typname || &#039;_check&#039;) = C.conname
+    WHERE D.typtype = &#039;d&#039; AND D.typnamespace = 2200::oid
+    ORDER BY D.typname;
+
+da_label_s   | character varying |   -1 |     20 | t       |                 |        0 | ,      | (char_length((VALUE)::text) &gt; 1)</code></pre></div><p>Alors que ça devrait être &gt;0.</p><p>Etant donné que justement le source est dans un tableur pour éviter toute redondance, après grattage j&#039;ai droit au tirage: un typo a fait que 3 lignes plus bas le domain DA_LABEL_M se nomme aussi DA_LABEL_S (et lui, il compare &gt;1).</p><p>Désolé pour le bruit et merci.</p>]]></content>
+		<author>
+			<name><![CDATA[Jiff]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=434</uri>
+		</author>
+		<updated>2012-05-14T11:59:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13766#p13766</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  yakekchoz que je ne saisis pas (inserion d'un row)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13760#p13760"/>
+		<content type="html"><![CDATA[<p>Bonjour.<br />Je viens de tester vos requêtes sur un postgres 9.1.3 et cela fonctionne. La contrainte sur DA_LABEL_S a peut-être été changée entre temps.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2012-05-14T07:41:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13760#p13760</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[yakekchoz que je ne saisis pas (inserion d'un row)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13759#p13759"/>
+		<content type="html"><![CDATA[<p>Debian sid<br />Pg 9.1+129<br />=========</p><p>Salut forumers,</p><p>je ne saisis pas ce qui se passe, d&#039;autant que ça fonctionnait correctement en début d&#039;année (9.0?).</p><p>J&#039;ai une table:</p><div class="codebox"><pre><code>CREATE TABLE	common.civility (			
+	id	SERIAL		PRIMARY KEY,
+	label	DA_LABEL,
+	shortcut	DA_LABEL_S,
+	front	BOOLEAN	NOT NULL	DEFAULT TRUE
+) WITHOUT OIDS;</code></pre></div><p>Le domaine DA_LABEL_S se présente comme suit:<br />(DA_LABEL d° mais longueur supérieure)</p><div class="codebox"><pre><code>CREATE DOMAIN	DA_LABEL_S AS VARCHAR(6)
+	NOT NULL		
+	CHECK(char_length(VALUE) &gt; 0);		</code></pre></div><p>Mais lorsque je veux insérer un row n&#039;ayant qu&#039;une seule lettre pour la colonne &#039;shorcut&#039;, je reçois cette erreur:</p><div class="codebox"><pre><code>INSERT INTO common.civility  VALUES (default, &#039;Monsieur&#039;, &#039;M&#039;, TRUE);
+ERROR:  value for domain da_label_s violates check constraint &quot;da_label_s_check&quot;</code></pre></div><p>apatoukompri, parce que normalement &#039;M&#039; a une longueur de 1 qui est donc &gt; 0 (à moins qu&#039;un casting automatique ne transforme &#039;M&#039; en &quot;char&quot; au lieu de varchar?)</p><p>Je suppose que l&#039;interface chaise/clavier est en cause, mais elle a du mal là.</p>]]></content>
+		<author>
+			<name><![CDATA[Jiff]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=434</uri>
+		</author>
+		<updated>2012-05-13T23:58:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13759#p13759</id>
+	</entry>
+</feed>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Question sur les order by]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=674&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=674"/>
+	<updated>2010-03-11T13:48:56Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=674</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Question sur les order by]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4228#p4228"/>
+		<content type="html"><![CDATA[<p>Mauvaise idée.</p><p>Les données dans les bases de données relationnelles n&#039;ont de garantie d&#039;ordre que si l&#039;ordre SQL le précise explicitement. Il n&#039;est de toutes façons même pas garanti avec PostgreSQL qu&#039;il lise les données à partir du début physique de la table (regarder les synchronized scans dans la doc si vous voulez savoir pourquoi).</p><p>Ce que vous pouvez faire, c&#039;est réordonner régulièrement votre table par rapport à un de ses index. C&#039;est ce que permet la commande cluster. Mais il faut que vous gardiez l&#039;order by.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-03-11T13:48:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4228#p4228</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Question sur les order by]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4226#p4226"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Comment fonctionne les order by ?</p></div></blockquote></div><p>Je ne comprends pas vraiment la question. Un ORDER BY se fait soit par un tri en mémoire (ce qui peut se révéler lent si la mémoire que doit utiliser le ORDER BY dépasse la valeur du work_mem (car des écritures disque seront effectuées dans ce cas), soit par l&#039;utilisation de l&#039;index. Dans le cas où la table est ordonnée grâce à CLUSTER, la mémoire demandée pour le tri est bien moindre, d&#039;où de meilleures performances.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-03-11T13:45:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4226#p4226</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Question sur les order by]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4223#p4223"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />Comment fonctionne les order by ?<br />J&#039;ai fait le test suivant :<br />J&#039;ai créé une table ordonné avec un start_time par ordre décroissant.<br />Cette table est non indexée.</p><p>Si je prend les 2 premières lignes sans order by j&#039;obtiens le résultat suivant<br />&#160; &#160; &#160; &#160; &#160; Day</p><p>------------------------</p><p> 2010-03-10 15:08:48+01</p><p> 2010-03-10 15:08:30+01</p><p>et si je fait la même requete avec order by<br />&#160; &#160; &#160; &#160; &#160; Day</p><p>------------------------</p><p> 2010-03-10 23:59:59+01</p><p> 2010-03-10 23:59:59+01</p><p>Mon but est de préordonner ma table en fonction de start_time pour suprrimer le order by dans les requetes.<br />Les temps de réponse avec ou sans sont en effet très différents.</p><p>Mais ce n&#039;est peut-être pas possible de cette façon là ...<br />Je me suis inspiré d&#039;un autre billet qui conseillais de préordonner les tables notamment par la commander cluster order by pour gagner en perf</p>]]></content>
+		<author>
+			<name><![CDATA[Mekhanik]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=667</uri>
+		</author>
+		<updated>2010-03-11T09:49:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4223#p4223</id>
+	</entry>
+</feed>

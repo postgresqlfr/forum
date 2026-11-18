@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Nom de fonction comme paramètre d'une fonction]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4087&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4087"/>
+	<updated>2017-01-31T13:54:13Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4087</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Nom de fonction comme paramètre d'une fonction]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24734#p24734"/>
+		<content type="html"><![CDATA[<p>Merci</p>]]></content>
+		<author>
+			<name><![CDATA[Michel Depiesse]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5329</uri>
+		</author>
+		<updated>2017-01-31T13:54:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24734#p24734</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Nom de fonction comme paramètre d'une fonction]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24716#p24716"/>
+		<content type="html"><![CDATA[<p>Vous pouvez utiliser une variable pour construire votre requête et gérer ça avec un simple IF ... ELSE, ou forcer un cast dans la chaîne construite :</p><div class="codebox"><pre><code>SELECT &#039;1&#039;::integer;
+SELECT &#039;toto&#039;::varchar;</code></pre></div><p>Sinon, je vous conseille d&#039;utiliser la fonction quote_literal() pour éviter toute surprise avec le contenu entrée.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2017-01-30T09:18:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24716#p24716</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Nom de fonction comme paramètre d'une fonction]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24708#p24708"/>
+		<content type="html"><![CDATA[<p>Merci ! Ca marche</p><div class="codebox"><pre class="vscroll"><code>drop table if exists wrk_simil_compare_methods;
+
+create table wrk_simil_compare_methods(
+        value1          varchar
+        ,value2         varchar
+        ,method         varchar
+        ,simil_value    double precision
+);
+
+
+create or replace function generic_simil(
+                        field_name      varchar
+                        ,value2cmp      varchar
+                        ,typeofvalue    varchar
+                        ,algorithm      varchar
+                        ,threshold      decimal
+                        ) returns void as $$
+begin
+        execute
+                &#039;insert into wrk_simil_compare_methods select &#039;
+                || &#039;&#039;&#039;&#039; || field_name || &#039;&#039;&#039;,&#039;
+                || &#039;&#039;&#039;&#039; || value2cmp || &#039;&#039;&#039;,&#039;
+                || &#039;&#039;&#039;&#039; || algorithm || &#039;&#039;&#039;,&#039;
+                || algorithm || &#039;(&#039;
+                || &#039;&quot;&#039; || field_name || &#039;&quot;,&#039;
+                || &#039;&#039;&#039;&#039; || value2cmp || &#039;&#039;&#039;&#039; || &#039;)&#039;
+                || &#039; from &quot;tblContacts&quot; where &#039;
+                || algorithm || &#039;(&#039;
+                || &#039;&quot;&#039; || field_name || &#039;&quot;,&#039;
+                || &#039;&#039;&#039;&#039; || value2cmp || &#039;&#039;&#039;&#039; || &#039;)&#039;
+                || &#039; &gt; &#039; || threshold;
+
+end; $$ language &#039;plpgsql&#039;;
+
+select generic_simil(&#039;Company&#039;, &#039;Dalibo&#039;, &#039;varchar&#039;, &#039;lev&#039;, 0.40);
+select generic_simil(&#039;Company&#039;, &#039;Diolabo&#039;, &#039;varchar&#039;, &#039;lev&#039;, 0.40);
+select generic_simil(&#039;Company&#039;, &#039;Libido&#039;, &#039;varchar&#039;, &#039;cosine&#039;, 0.40);
+select generic_simil(&#039;Company&#039;, &#039;Oracle&#039;, &#039;varchar&#039;, &#039;cosine&#039;, 0.40);
+
+select * from wrk_simil_compare_methods;</code></pre></div><p>encore une petite question : le value2cmp pourrait être un nombre. Dans ce cas, il ne faudrait pas le mettre entre &#039;. Comment faire que le script détecte le type de value2cmp et décide de mettre les &#039; ou non ?</p><p>Merci.</p>]]></content>
+		<author>
+			<name><![CDATA[Michel Depiesse]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5329</uri>
+		</author>
+		<updated>2017-01-29T12:59:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24708#p24708</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Nom de fonction comme paramètre d'une fonction]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24688#p24688"/>
+		<content type="html"><![CDATA[<p>Oui, regardez du côté d&#039;EXECUTE (http://docs.postgresql.fr/9.6/plpgsql-statements.html §41.5.4).</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2017-01-27T13:47:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24688#p24688</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Nom de fonction comme paramètre d'une fonction]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24687#p24687"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Dans le but de comparer plusieurs algorithmes de pg_similarity, j&#039;ai besoin d&#039;envoyer comme paramètre le nom de la fonction</p><p>J&#039;aimerais mettre le sql suivant dans une fonction où jaro pourrait être remplacé par lev ou cosine, etc...</p><div class="codebox"><pre><code>                insert into
+                        wrk_simil_compare_methods
+                select
+                         user_name
+                        ,&#039;Company&#039;
+                        ,&quot;ContactID&quot;
+                        ,jaro(&quot;Company&quot;, company2cmp)
+                        ,&#039;jaro&#039;
+                from
+                        &quot;tblContacts&quot;
+                where
+                        jaro(&quot;Company&quot;, company2cmp) &gt; 0.75;</code></pre></div><p>Est-ce possible en PL/pgSQL ?</p><p>Merci pour votre attention,<br />Mchl</p>]]></content>
+		<author>
+			<name><![CDATA[Michel Depiesse]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5329</uri>
+		</author>
+		<updated>2017-01-27T13:38:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24687#p24687</id>
+	</entry>
+</feed>

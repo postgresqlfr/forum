@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Optimisation requête (encore)]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2503&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2503"/>
+	<updated>2013-03-12T21:19:58Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2503</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Optimisation requête (encore)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16808#p16808"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>mentat a écrit&#160;:</cite><blockquote><div><p>Bonjour.</p><p>J&#039;ai trois tables pour mes tarifs :<br />Table: prix_nets_sap (+7 millions de lignes) </p><p>[...]</p><p>Et comme à chaque fois que je regarde un explain query, c&#039;est une tannée à comprendre ce qu&#039;il faut faire pour améliorer les choses.<br />Je vois un Seq scan sur la plus grosse table, alors que j&#039;ai deux index (integer) sur les articles et les clients.</p></div></blockquote></div><p>Votre table est obèse et reflète une mauvaise modélisation. En effet, les colonnes se terminant par 1 ou 2 portant le même nom, indique que vous avez dédoublé le nombre de colonne, donc multiplié le volume de données à lire par 2 !<br />Il aurait fallu simplement rajouter une seule colonne avec la valeur 1 ou 2 pour obtenir le même effet avec des lignes deux fois moins longues, donc un scan déjà deux fois plus rapide. Et si en plus certaines colonnes sont NULL, vous auriez évité de stocker du NULL (le NULL coute cher à stocker !).<br />En sus il est beaucoup plus facile d&#039;indexer une table avec peu de colonne, qu&#039;une table obèse puisque le nombre d&#039;index potentiel est une factorielle du nombre de colonnes !<br />À me lire : <a href="http://blog.developpez.com/sqlpro/p10070/langage-sql-norme/base_de_donnees_et_performances_petites" rel="nofollow">http://blog.developpez.com/sqlpro/p1007 … es_petites</a><br />En sus, avez-vous besoin de toutes les colonnes de P, comme l&#039;indique le p.* du SELECT ?</p><p>A +</p>]]></content>
+		<author>
+			<name><![CDATA[SQLpro]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1054</uri>
+		</author>
+		<updated>2013-03-12T21:19:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16808#p16808</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Optimisation requête (encore)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16806#p16806"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>mentat a écrit&#160;:</cite><blockquote><div><p>&gt; Elle fait quelle taille ? (je dirais entre 1,5 et 2Go vu le plan...<br />2,4 GO<br />&gt; Et ça tourne sur quel genre de machine ?<br />Windows 2003, un serveur de 5 ans d&#039;age. Processeurs Xeon E5420 à 2,5GHz (8 coeurs) et 16 GO de ram. Avec autant de mémoire, la meilleure optimisation des paramètres du serveur serait quoi ?</p></div></blockquote></div><p>32 ou 64 bits ?</p><p>Si c&#039;est du 32 :<br />1) vous ne pouvez pas utiliser plus de 4 Go donc 2 sont automatiquement affectés à l&#039;OS.<br />2) il est possible de faire de la pagination en mémoire haute pour utiliser les 14 Go supplamentaire, mais je ne crois pas que PostGreSQL le supporte (AWE).</p><p>A +</p>]]></content>
+		<author>
+			<name><![CDATA[SQLpro]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1054</uri>
+		</author>
+		<updated>2013-03-12T21:07:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16806#p16806</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Optimisation requête (encore)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16535#p16535"/>
+		<content type="html"><![CDATA[<p>C&#039;est vrai. Mais un scan séquentiel d&#039;une table de 2,5Go qui dure 300 secondes (même s&#039;il y a deux hash join qui sont faits sur son résultat en même temps), grosso modo ça fait du 10Mo/s. C&#039;est vraiment faible. Ça donne l&#039;impression qu&#039;il y a un problème sur la machine.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2013-02-12T07:26:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16535#p16535</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Optimisation requête (encore)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16532#p16532"/>
+		<content type="html"><![CDATA[<p>Le problème est que vous ne pouvez pas donner beaucoup de mémoire au cache disque de PostgreSQL sous Windows. Mieux vaut passer sous Linux pour avoir des performances importantes.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2013-02-11T22:08:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16532#p16532</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Optimisation requête (encore)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16510#p16510"/>
+		<content type="html"><![CDATA[<p>&gt; Elle fait quelle taille ? (je dirais entre 1,5 et 2Go vu le plan...</p><br /><p>2,4 GO</p><br /><p>&gt; Et ça tourne sur quel genre de machine ?</p><br /><p>Windows 2003, un serveur de 5 ans d&#039;age. Processeurs Xeon E5420 à 2,5GHz (8 coeurs) et 16 GO de ram. Avec autant de mémoire, la meilleure optimisation des paramètres du serveur serait quoi ?</p><p>J&#039;ai aussi un autre serveur linux sur lequel Postgres 8.4 tourne bien plus vite. Mais j&#039;ai un problème d&#039;onduleur à régler avant de faire une migration.</p>]]></content>
+		<author>
+			<name><![CDATA[mentat]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=683</uri>
+		</author>
+		<updated>2013-02-07T16:00:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16510#p16510</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Optimisation requête (encore)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16509#p16509"/>
+		<content type="html"><![CDATA[<p>Ok, donc 200 000 lignes, par scan d&#039;index, ça peut être très douloureux. Par ailleurs, je ne suis pas sûr que PostgreSQL 8.4 sache faire ce que j&#039;ai fait avec la 9.2 juste au-dessus.</p><p>Autre chose qui m&#039;étonne c&#039;est le temps de scan de la table p. Elle fait quelle taille ? (je dirais entre 1,5 et 2Go vu le plan, mais on peut avoir des surprises). Et ça tourne sur quel genre de machine ?</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2013-02-07T15:01:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16509#p16509</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Optimisation requête (encore)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16508#p16508"/>
+		<content type="html"><![CDATA[<p>&gt; c&#039;est préférable d&#039;indiquer votre version précise de PostgreSQL </p><p>Oui, pardon. J&#039;y avais pensé, puis j&#039;ai oublié...<br />Postgresql 8.4 sous windows server 2003.</p><p>&gt; il y a combien de prix associés au type d&#039;article ZFER, et combien de prix associés au canal 23</p><p>Prix avec ZFER: 2,8 millions<br />Prix avec canal 23: 500000<br />Au final : 200000 lignes</p><br /><p>Et question qui n&#039;a rien à voir, on fait comment pour insérer des sauts de lignes dans le message ?<br />[Modif]: Apparemment deux sauts de lignes consécutifs...</p>]]></content>
+		<author>
+			<name><![CDATA[mentat]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=683</uri>
+		</author>
+		<updated>2013-02-07T14:55:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16508#p16508</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Optimisation requête (encore)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16507#p16507"/>
+		<content type="html"><![CDATA[<p>Pour commencer, si vous posez des questions sur un plan d&#039;exécution, c&#039;est préférable d&#039;indiquer votre version précise de PostgreSQL (l&#039;optimiseur évolue entre chaque version).</p><p>PostgreSQL estime probablement (je ne sais pas quelle est votre version) que partir de a ou de c et faire un nested loop sur p est une très mauvaise idée. Ce qui est probablement vrai… il y a combien de prix associés au type d&#039;article ZFER, et combien de prix associés au canal 23 ? Il est probable que PostgreSQL considère que passer par les index de la table de prix ne serait pas efficace.</p><p>Vous pouvez essayer de lui forcer la main en lui faisant croire que les parcours d&#039;index sont moins chers (en mettant des valeurs très faibles à random_page_cost et seq_page_cost, comme 0.01). Mais bon, ce sont évidemment des valeurs fantaisistes. Par ailleurs, si vous voulez vraiment une optimisation de type star query, on peut «forcer la main» à PostgreSQL, au moins en 9.2. Pour ça, il faut diminuer comme indiqué au dessus les random_page_cost et seq_page_cost, et réécrire de la sorte:</p><p>explain analyze select * from (dim1 cross join dim2) left join facts on (dim1.a=facts.a and dim2.b=facts.b) where …</p><p>Il faut bien sûr un index multicolonnes sur facts pour arriver à ses fins. J&#039;ai ce plan là:</p><p>---------------------------------------------------------------------------------------------------------------------------------<br /> Nested Loop Left Join&#160; (cost=0.00..79837.89 rows=249500 width=24) (actual time=0.095..441.171 rows=375492 loops=1)<br />&#160; &#160;-&gt;&#160; Nested Loop&#160; (cost=0.00..3370.90 rows=249500 width=16) (actual time=0.046..53.769 rows=248502 loops=1)<br />&#160; &#160; &#160; &#160; &#160;-&gt;&#160; Seq Scan on dim1&#160; (cost=0.00..125.45 rows=500 width=8) (actual time=0.025..1.027 rows=499 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Filter: (datadim1 &lt; 500)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Rows Removed by Filter: 9501<br />&#160; &#160; &#160; &#160; &#160;-&gt;&#160; Materialize&#160; (cost=0.00..127.95 rows=499 width=8) (actual time=0.000..0.042 rows=498 loops=499)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Seq Scan on dim2&#160; (cost=0.00..125.45 rows=499 width=8) (actual time=0.014..3.191 rows=498 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Filter: (datadim2 &lt; 500)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Rows Removed by Filter: 9502<br />&#160; &#160;-&gt;&#160; Index Only Scan using idxfactab on facts&#160; (cost=0.00..0.30 rows=1 width=8) (actual time=0.001..0.001 rows=1 loops=248502)<br />&#160; &#160; &#160; &#160; &#160;Index Cond: ((a = dim1.a) AND (b = dim2.b))<br />&#160; &#160; &#160; &#160; &#160;Heap Fetches: 127488<br /> Total runtime: 456.319 ms</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2013-02-07T13:56:07Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16507#p16507</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Optimisation requête (encore)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16506#p16506"/>
+		<content type="html"><![CDATA[<p>Bonjour.</p><p>J&#039;ai trois tables pour mes tarifs :<br />Table: prix_nets_sap (+7 millions de lignes)</p><p>CREATE TABLE prix_nets_sap<br />(<br />&#160; devise character varying(5),<br />&#160; date_prix_1 date,<br />&#160; tarif_1 double precision,<br />&#160; source_tarif_1 character varying(4),<br />&#160; condition_1 double precision,<br />&#160; type_condition_1 character varying(5),<br />&#160; prix_1 double precision,<br />&#160; date_prix_2 date,<br />&#160; tarif_2 double precision,<br />&#160; source_tarif_2 character varying(4),<br />&#160; condition_2 double precision,<br />&#160; type_condition_2 character varying(5),<br />&#160; prix_2 double precision,<br />&#160; prsu double precision,<br />&#160; qte double precision,<br />&#160; montant_1 double precision,<br />&#160; montant_2 double precision,<br />&#160; montant_prsu double precision,<br />&#160; hausse double precision,<br />&#160; marge double precision,<br />&#160; qte_groupe_clients numeric,<br />&#160; stats_debut text,<br />&#160; stats_fin text,<br />&#160; type_condition_2_libelle text,<br />&#160; type_condition_1_libelle text,<br />&#160; marge_unitaire numeric,<br />&#160; article_id integer,<br />&#160; client_id integer<br />)<br />WITH (<br />&#160; OIDS=FALSE<br />);</p><p>CREATE INDEX prix_nets_sap_idx_article_id<br />&#160; ON prix_nets_sap<br />&#160; USING btree<br />&#160; (article_id);</p><p>CREATE INDEX prix_nets_sap_idx_client_id<br />&#160; ON prix_nets_sap<br />&#160; USING btree<br />&#160; (client_id);</p><p>Table: articles_canal (+30000 lignes)<br />CREATE TABLE articles_canal<br />(<br />&#160; organisation_commerciale text NOT NULL,<br />&#160; canal text NOT NULL,<br />&#160; code text NOT NULL,<br />&#160; designation text,<br />&#160; type_articles text,<br />&#160; type_libelle text,<br />&#160; groupe_articles text,<br />&#160; groupe_articles_libelle text,<br />&#160; article_id integer,<br />&#160; CONSTRAINT articles_canal_code PRIMARY KEY (organisation_commerciale, canal, code)<br />)<br />WITH (<br />&#160; OIDS=FALSE<br />);</p><br /><p>CREATE INDEX articles_canal_idx_id<br />&#160; ON articles_canal<br />&#160; USING btree<br />&#160; (article_id);</p><p>CREATE INDEX articles_canal_idx_type_articles<br />&#160; ON articles_canal<br />&#160; USING hash<br />&#160; (type_articles);</p><br /><p>Table: clients (+10000 lignes)</p><p>CREATE TABLE clients<br />(<br />&#160; code character varying(10) NOT NULL,<br />&#160; libelle character varying(35),<br />&#160; organisation_commerciale text,<br />&#160; canal text NOT NULL,<br />&#160; societe text NOT NULL DEFAULT 2100,<br />&#160; client_id integer,<br />&#160; CONSTRAINT clients_pk PRIMARY KEY (societe, canal, code)<br />)<br />WITH (<br />&#160; OIDS=FALSE<br />);</p><p>CREATE INDEX client_idx_canal<br />&#160; ON clients<br />&#160; USING hash<br />&#160; (canal);</p><p>CREATE INDEX clients_idx_id<br />&#160; ON clients<br />&#160; USING btree<br />&#160; (client_id);</p><p>Quand je lance le query :<br /> SELECT c.canal, c.code AS client, c.libelle AS client_libelle, <br />&#160; a.code AS produit, a.designation AS produit_libelle,<br />&#160; p.*<br />&#160; &#160;FROM prix_nets_sap p, articles_canal a, clients c<br />&#160; WHERE p.article_id = a.article_id AND p.client_id = c.client_id<br />&#160; and a.type_articles=&#039;ZFER&#039; and c.canal=&#039;23&#039;</p><p>J&#039;obtiens :<br />Hash Join&#160; (cost=18138.64..449404.38 rows=1741506 width=299) (actual time=124352.620..313052.105 rows=197539 loops=1)<br />&#160; Hash Cond: (p.article_id = a.article_id)<br />&#160; -&gt;&#160; Hash Join&#160; (cost=1621.77..393703.61 rows=1741506 width=257) (actual time=124298.204..312206.315 rows=527043 loops=1)<br />&#160; &#160; &#160; &#160; Hash Cond: (p.client_id = c.client_id)<br />&#160; &#160; &#160; &#160; -&gt;&#160; Seq Scan on prix_nets_sap p&#160; (cost=0.00..345768.39 rows=7706239 width=226) (actual time=0.011..309203.834 rows=7706239 loops=1)<br />&#160; &#160; &#160; &#160; -&gt;&#160; Hash&#160; (cost=1614.68..1614.68 rows=567 width=35) (actual time=1.691..1.691 rows=567 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; -&gt;&#160; Bitmap Heap Scan on clients c&#160; (cost=72.66..1614.68 rows=567 width=35) (actual time=0.210..1.377 rows=567 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Recheck Cond: (canal = &#039;23&#039;::text)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; -&gt;&#160; Bitmap Index Scan on clients_idx_code&#160; (cost=0.00..72.52 rows=567 width=0) (actual time=0.171..0.171 rows=567 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Index Cond: (canal = &#039;23&#039;::text)<br />&#160; -&gt;&#160; Hash&#160; (cost=16414.95..16414.95 rows=8154 width=46) (actual time=54.365..54.365 rows=8108 loops=1)<br />&#160; &#160; &#160; &#160; -&gt;&#160; Bitmap Heap Scan on articles_canal a&#160; (cost=1551.51..16414.95 rows=8154 width=46) (actual time=2.269..49.253 rows=8108 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; Recheck Cond: (type_articles = &#039;ZFER&#039;::text)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; -&gt;&#160; Bitmap Index Scan on articles_canal_idx_type_articles&#160; (cost=0.00..1549.47 rows=8154 width=0) (actual time=1.596..1.596 rows=8108 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Index Cond: (type_articles = &#039;ZFER&#039;::text)<br />Total runtime: 313101.246 ms</p><p>Et comme à chaque fois que je regarde un explain query, c&#039;est une tannée à comprendre ce qu&#039;il faut faire pour améliorer les choses.<br />Je vois un Seq scan sur la plus grosse table, alors que j&#039;ai deux index (integer) sur les articles et les clients.</p><p>Bref, si quelqu&#039;un peut m&#039;aider à traduire le klingon...<br />Merci d&#039;avance</p>]]></content>
+		<author>
+			<name><![CDATA[mentat]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=683</uri>
+		</author>
+		<updated>2013-02-07T12:46:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16506#p16506</id>
+	</entry>
+</feed>

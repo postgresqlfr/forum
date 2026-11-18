@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / patroni quorum bascule]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=6729&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=6729"/>
+	<updated>2024-01-05T08:28:13Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=6729</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  patroni quorum bascule]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34770#p34770"/>
+		<content type="html"><![CDATA[<p>Merci pour votre réponse,<br />Nous allons étudier l&#039;Algorithme raft voir s&#039;il peut maintenir la primaire en RW dans la zone A dans le cas où la zone B tombe.</p>]]></content>
+		<author>
+			<name><![CDATA[bcarriere]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=565</uri>
+		</author>
+		<updated>2024-01-05T08:28:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34770#p34770</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  patroni quorum bascule]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34769#p34769"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>«<strong> combien de etcd je dois mettre ?</strong> »</p><p>Le nombre minimal de serveur etcd à installer est de 3, 7 au maximum d&#039;après les recommandation du projet.</p><p>«<strong> si je met 1 etcd dans la zone A du primaire et 2 etcd dans la zone B du replicat. si la zone B tombe je me retrouve avec 1 seul etcd dans la zone A du primaire. </strong>»</p><p>Oui.</p><p>«<strong> Dans ce cas est-ce que fait patroni ? est-ce que le primaire continue de tourner ? </strong>»</p><p>Oui et Non. </p><p>Le cluster etcd ayant perdu le quorum dans la zone A, l&#039;instance etcd passera en lecture seule, Patroni ne pourra plus y maintenir son leader lock, Patroni finira par exécuter un &quot;demote&quot; de votre primaire en secondaire.</p><p>Coté zone B, les instances etcd ayant toujours le quorum se débrouilleront si nécessaire entre elles et finiront par accepter les écritures, pour peu que le primaire etcd ne soit pas déjà dans cette zone B dès le départ. Quoiqu&#039;il en soit, Patroni effectuera donc une bascule sur l&#039;une des instances de la zone B.</p><p>Si vous souhaitez déployer un cluster étendu sur plusieurs zones, il vous faut 3 zones minimum afin d&#039;établir en quorum entre ces zones.</p>]]></content>
+		<author>
+			<name><![CDATA[ioguix]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=43</uri>
+		</author>
+		<updated>2024-01-04T16:33:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34769#p34769</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[patroni quorum bascule]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34768#p34768"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />nous avons une architecture un peu particulière :</p><p>dans les cas d&#039;une replication patroni sur des serveurs répartis sur 2 Zones de disponibilités différentes A et B. <br />combien de etcd je dois mettre ? <br />et <br />où dois-je les répartir ?</p><p>si je met 1 etcd dans la zone A du primaire et 2 etcd dans la zone B du replicat. si la zone B tombe je me retrouve avec 1 seul etcd dans la zone A du primaire.<br />Dans ce cas est-ce que fait patroni ? est-ce que le primaire continue de tourner ?</p>]]></content>
+		<author>
+			<name><![CDATA[bcarriere]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=565</uri>
+		</author>
+		<updated>2024-01-03T17:14:06Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34768#p34768</id>
+	</entry>
+</feed>

@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / [RESOLU] Faire une sauvegarde avec pg_dump et php]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2225&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2225"/>
+	<updated>2012-09-03T08:47:59Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2225</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] Faire une sauvegarde avec pg_dump et php]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15012#p15012"/>
+		<content type="html"><![CDATA[<p>oups mauvais topic</p>]]></content>
+		<author>
+			<name><![CDATA[kenrio]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=964</uri>
+		</author>
+		<updated>2012-09-03T08:47:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15012#p15012</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] Faire une sauvegarde avec pg_dump et php]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14969#p14969"/>
+		<content type="html"><![CDATA[<p>C&#039;EST BON !!!!!!!!!!!!!!!!!!</p><p>Je met le code :</p><div class="codebox"><pre><code>//Database Backup
+putenv(&#039;PGHOST=localhost&#039;);
+putenv(&#039;PGPORT=5432&#039;);
+putenv(&#039;PGDATABASE=postgres&#039;);
+putenv(&#039;PGUSER=postgres&#039;);
+putenv(&#039;PGPASSWORD=*********&#039;);
+$pg_dumpPath = &#039;C:\\Progra~1\\PostgreSQL\\9.1\\bin\\pg_dump.exe&#039;;
+$exe = escapeShellCmd($pg_dumpPath);
+		 
+// Obtain the pg_dump version number and check if the path is good
+$version = array();
+preg_match(&quot;/(\d+(?:\.\d+)?)(?:\.\d+)?.*$/&quot;, exec($exe . &quot; --version&quot;), $version);
+		 
+if (empty($version)) {
+	printf(&#039;The path to the database dump utility specified is wrong! (%s)&#039;, $pg_dumpPath);
+	exit;
+}
+
+$filename = &#039;backup_&#039;.date(&#039;Y.m.d&#039;).&#039;.sql&#039;;
+		 
+// Build command for executing pg_dump.  &#039;-i&#039; means ignore version differences.
+$cmd = $exe . &quot; -i&quot;;
+$cmd .= &#039; --inserts&#039;;
+$sqlPath = escapeShellCmd(&#039;C:\\wamp\\www\\DEVELOPPEMENT\\gestion_prix_0.1_beta\\app\\webroot\backups\\&#039;.$filename);
+$cmd .= &#039; &gt; &#039;.$sqlPath;
+passthru($cmd);</code></pre></div><p>En effet cela venait du nom du répertoire Program Files qui en français est nommé Programme et qui pour les commandes doit avoir cette écriture Progra~1 (plus d&#039;explication ici <a href="http://en.wikipedia.org/wiki/Program_Files" rel="nofollow">http://en.wikipedia.org/wiki/Program_Files</a>).</p><p>Merci encor pour votre aide rjuju.</p>]]></content>
+		<author>
+			<name><![CDATA[bobjo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1866</uri>
+		</author>
+		<updated>2012-08-31T13:28:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14969#p14969</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] Faire une sauvegarde avec pg_dump et php]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14966#p14966"/>
+		<content type="html"><![CDATA[<p>Quelle est votre version de windows ? Depuis vista ou 7, je crois que le nom du répertoire affiché dans l&#039;explorateur ne correspond plus au &quot;vrai&quot; répertoire tel qu&#039;on doit l&#039;utiliser en ligne de commande.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2012-08-31T12:56:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14966#p14966</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] Faire une sauvegarde avec pg_dump et php]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14965#p14965"/>
+		<content type="html"><![CDATA[<p>Salut je continu à parcourir internet et j&#039;ai trouvé un script tiré de phpPgAdmin.</p><div class="codebox"><pre class="vscroll"><code>putenv(&#039;PGHOST=localhost&#039;);
+putenv(&#039;PGPORT=5432&#039;);
+putenv(&#039;PGDATABASE=postgres&#039;);
+putenv(&#039;PGUSER=postgres&#039;);
+putenv(&#039;PGPASSWORD=***************&#039;);
+$pg_dumpPath = &#039;C:\\Program Files\\PostgreSQL\\9.1\\bin\\pg_dump.exe&#039;;
+$exe = escapeShellCmd($pg_dumpPath);
+		 
+// Obtain the pg_dump version number and check if the path is good
+$version = array();
+preg_match(&quot;/(\d+(?:\.\d+)?)(?:\.\d+)?.*$/&quot;, exec($exe . &quot; --version&quot;), $version);
+		 
+if (empty($version)) {
+	printf(&#039;The path to the database dump utility specified is wrong! (%s)&#039;, $pg_dumpPath);
+	exit;
+}
+		 
+$ctype=&quot;application/force-download&quot;;
+header(&quot;Pragma: public&quot;);
+header(&quot;Expires: 0&quot;);
+header(&quot;Cache-Control: must-revalidate, post-check=0, pre-check=0&quot;);
+header(&quot;Cache-Control: public&quot;);
+header(&quot;Content-Description: File Transfer&quot;);
+header(&quot;Content-Type: $ctype&quot;);
+$filename = &#039;backup_&#039;.date(&#039;Y.m.d&#039;).&#039;.sql&#039;;
+$header=&quot;Content-Disposition: attachment; filename=&quot;.$filename.&quot;;&quot;;
+header($header);
+header(&quot;Content-Transfer-Encoding: binary&quot;);
+		 
+// Build command for executing pg_dump.  &#039;-i&#039; means ignore version differences.
+$cmd = $exe . &quot; -i&quot;;
+$cmd .= &#039; --inserts&#039;;
+// Execute command and return the output to the screen
+passthru($cmd);</code></pre></div><p>J&#039;étais allé voir leur code aussi mais n&#039;avais pas pu l&#039;adapté pour mon cas.</p><p>Enfin, ce code me renvoi l&#039;erreur contenu dans la condition du contrôle de version et de chemin :<br /><em>The path to the database dump utility specified is wrong! (C:\Program Files\PostgreSQL\9.1\bin\pg_dump.exe)</em><br />Hors le fichier pg_dump.exe se trouve bien à cet endroit ???</p><p>Franchement je comprend plus...</p><p>Cordialement</p>]]></content>
+		<author>
+			<name><![CDATA[bobjo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1866</uri>
+		</author>
+		<updated>2012-08-31T11:59:02Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14965#p14965</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] Faire une sauvegarde avec pg_dump et php]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14964#p14964"/>
+		<content type="html"><![CDATA[<p>Je viens d&#039;essayé en remplaçant les \ par des / mais cela fait la même chose... Même en utilisant en la fonction escapeshellarg.</p><p>Je remet mon script :(je traville sous le framwork cakephp)</p><div class="codebox"><pre><code>chdir(&quot;C:\Program files\PostgreSQL\9.1\bin&quot;);
+$message = system(&#039;pg_dump postgres -h localhost -U postgres &gt; C:/wamp/www/DEVELOPPEMENT/gestion_prix_0.1_beta/app/webroot/backups/test.sql&#039;, $retour);
+$my_file = &#039;C:/wamp/www/DEVELOPPEMENT/gestion_prix_0.1_beta/app/webroot/backups/fichier_message.txt&#039;;
+$fp = fopen($my_file, &quot;r+&quot;);
+fputs($fp, $message);
+fclose($fp);
+if(!$retour){
+    $this-&gt;Session-&gt;setFlash(&quot;Execution backup échouée.&quot;, &#039;notif&#039;, array(&#039;type&#039;=&gt;&#039;error&#039;));
+    $this-&gt;redirect(&#039;/backups/listeDump&#039;);
+}else{
+    $this-&gt;Session-&gt;setFlash(&quot;Execution backup ok.&quot;, &#039;notif&#039;);
+    $this-&gt;redirect(&#039;/backups/listeDump&#039;);
+}</code></pre></div><p>Ce qui est étrange c&#039;est que le 2em paramètre de system renvoi toujours 1 et me dit que la backup est ok ???</p>]]></content>
+		<author>
+			<name><![CDATA[bobjo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1866</uri>
+		</author>
+		<updated>2012-08-31T09:41:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14964#p14964</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] Faire une sauvegarde avec pg_dump et php]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14960#p14960"/>
+		<content type="html"><![CDATA[<p>Je crois que php sous windows a des problèmes avec l&#039;échappement des arguments.</p><p>Vous pouvez essayer de remplacer les \ par des / pour le fichier de destination.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2012-08-31T08:52:03Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14960#p14960</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] Faire une sauvegarde avec pg_dump et php]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14959#p14959"/>
+		<content type="html"><![CDATA[<p>Bonjour et merci rjuju de me répondre !</p><p>Malgré avoir passé la méthode en trust cela me crée toujours un fichier vide.<br />J&#039;ai essayé ma commande dans la console et cela ma renvoyé :<br /><em>Commande \wamp invalide. Essayez \? pour l&#039;aide-mémoire.</em><br />Mon problème pourrait-il venir du chemin que je lui indique ? Pourtant j&#039;ai testé avec la fonction php escapeshellarg mais cela n&#039;a rien changé.</p><p>Dans mon script, j&#039;utilise la fonction system qui devrait stocker la valeur retourné dans une variable $message. Mais cette variable semble inexistante ou très particulière à lire. Mais elle semble également très intéressante. Auriez vous un moyen d&#039;y accédé ?</p><p>Encore une fois merci de votre intérêt pour mon problème.</p>]]></content>
+		<author>
+			<name><![CDATA[bobjo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1866</uri>
+		</author>
+		<updated>2012-08-31T07:59:45Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14959#p14959</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] Faire une sauvegarde avec pg_dump et php]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14951#p14951"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>mettre l&#039;authentification à trust dans le pg_hba permet de se connecter à postgresql sans mot de passe mais sous certaines conditions. Vous pouvez le restreindre à un utilisateur postgres et/ou une ou plusieurs adresse(s) ip. Dans votre cas, il s&#039;agirait donc de n&#039;autoriser que l&#039;ip locale.</p><br /><p>En cas de problème d&#039;authentification, il est possible de rester en md5 et d&#039;utiliser un fichier .pgpass contenant les informations de connexion voulue, mais il faut que ce fichier soit dans le répertoire&#160; %APPDATA%\postgresql de l&#039;utilisateur faisant tourner le service (voir <a href="http://docs.postgresqlfr.org/9.1/libpq-pgpass.html)" rel="nofollow">http://docs.postgresqlfr.org/9.1/libpq-pgpass.html)</a>. Il faut donc le configurer selon votre configuration du service windows wamp.</p><br /><p>Je vous conseillerai de d&#039;abord passer la connexion locale en trust pour vérifier que vous pouvez bien sauvegarder votre base ou corriger plus facilement les problèmes existant, et ensuite de repasser en md5 si vous voulez une meilleure sécurité.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2012-08-30T14:52:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14951#p14951</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] Faire une sauvegarde avec pg_dump et php]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14949#p14949"/>
+		<content type="html"><![CDATA[<p>Alors ça avance un peu sur un internet j&#039;ai trouvé :</p><div class="codebox"><pre><code>$message = system(&#039;pg_dump postgres --host localhost --port 5432 -U postgres &gt; C:\wamp\www\DEVELOPPEMENT\gestion_prix_0.1_beta\app\webroot\backups\test.sql&#039;, $retour);</code></pre></div><p>La différence est que je ne met plus l&#039;option -f ou --file mais &gt; à la place.<br />Cela crée bien le fichier au bon endroit mais le fichier est vide.</p><p>La personne qui poster sur le forum ou j&#039;ai trouvé ce début de solution avait le même problème et pour solution à du modifier le fichier pg_hba.conf.<br />Il a passé la méthode de md5 à trust et cela lui a posé des problème avec l&#039;ipv6. De plus cette méthode trust semble donner un accés total à n’importe qui (si j&#039;ai bien comprise la doc) !</p><p>Le problème ne viendrait-il pas du fait que je sois connecté sur mon ordi avec un autre utilisateur que celui que postgres utilise ?</p>]]></content>
+		<author>
+			<name><![CDATA[bobjo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1866</uri>
+		</author>
+		<updated>2012-08-30T13:46:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14949#p14949</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[[RESOLU] Faire une sauvegarde avec pg_dump et php]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14948#p14948"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;ai besoin de pouvoir faire des sauvegardes de ma base de données à partir de script php.<br />Après avoir parcouru le forum, la méthode la plus conseillé est pg_dump avec la fonction systeme de php.</p><p>J&#039;ai donc testé plusieurs syntaxes mais aucunes ne fonctionnent.</p><p>Voila ou j&#039;en suis :</p><div class="codebox"><pre><code>function exportData(){
+		chdir(&quot;C:\Program files\PostgreSQL\9.1\bin&quot;);
+		$message = system(&#039;pg_dump postgres --host localhost --port 5432 -U postgres -f C:\wamp\www\DEVELOPPEMENT\gestion_prix_0.1_beta\app\webroot\backups\test.sql&#039;, $retour);
+		$my_file = &#039;C:\wamp\www\DEVELOPPEMENT\gestion_prix_0.1_beta\app\webroot\backups\fichier_message.txt&#039;;
+		$fp = fopen($my_file, &quot;w&quot;);
+		fwrite($fp, $message);
+		if(!$retour){
+			$this-&gt;Session-&gt;setFlash(&quot;Execution backup échouée.&quot;.debug($message), &#039;notif&#039;, array(&#039;type&#039;=&gt;&#039;error&#039;));
+            $this-&gt;redirect(&#039;/backups/listeDump&#039;);
+		}else{
+			$this-&gt;Session-&gt;setFlash(&quot;Execution backup ok.&quot;.debug($message), &#039;notif&#039;);
+            $this-&gt;redirect(&#039;/backups/listeDump&#039;);
+		}
+	}</code></pre></div><p>J&#039;ai testé avec les abréviations (exemple : --file et -f) j&#039;ai ajouté le mot de passe et tout un tas d&#039;autre essai. Mais rien n&#039;y fait.<br />La variable $retour renvoi toujours 1 et $message, j&#039;arrive pas à l&#039;afficher ou à l&#039;écrire dans un fichier.</p><p>Si quelqu&#039;un à une solution !</p><p>Merci d&#039;avance.</p>]]></content>
+		<author>
+			<name><![CDATA[bobjo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1866</uri>
+		</author>
+		<updated>2012-08-30T13:00:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14948#p14948</id>
+	</entry>
+</feed>

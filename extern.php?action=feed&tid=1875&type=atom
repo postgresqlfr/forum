@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Supression de tables]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1875&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1875"/>
+	<updated>2012-02-06T20:55:19Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1875</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Supression de tables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12726#p12726"/>
+		<content type="html"><![CDATA[<p>Déjà, ce n&#039;est pas pl/sql, mais pl/pgsql.</p><p>Si le préfixe est connu, il suffit de faire ça :</p><div class="codebox"><pre><code>DO LANGUAGE plpgsql
+DECLARE
+  s text;
+  t text;
+BEGIN
+  FOR s, t IN SELECT schemaname, relname FROM pg_class WHERE relname IN &#039;prefixe_ici%&#039;
+  LOOP
+    PERFORM &#039;DROP TABLE &#039;||quote_ident(s)||&#039;.&#039;||quote_ident(t);
+  END LOOP;
+END;</code></pre></div><p>Pas testé, juste une aide de départ. À vous de tester derrière (sur une base de TESTS) pour vérifier que tout va bien. Et essayer de comprendre le code avant de l&#039;exécuter pour savoir quoi modifier (le préfixe). Et le corriger le cas échéant.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-02-06T20:55:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12726#p12726</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Supression de tables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12706#p12706"/>
+		<content type="html"><![CDATA[<p>Hélas je n&#039;ai encore rien fait, je ne comprends <span class="bbu">vraiment rien</span> à pl/sql ! <img src="http://forums.postgresql.fr/img/smilies/sad.png" width="15" height="15" alt="sad" /><br />Je suppose juste que la commande que je veux réaliser passe par une fonction (ou peut être par un trigger).<br />Je m&#039;explique : j&#039;ai créé des tables à la volée à l&#039;aide d&#039;un ETL, mais j&#039;ai fait une erreur de configuration... et 400 tables ont été intégrées d&#039;un seul coup dans ma base. Ces tables ayant le même préfixe, j&#039;aimerai pouvoir les supprimer toutes en même temps. Si cela est possible.</p>]]></content>
+		<author>
+			<name><![CDATA[marc.stx]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=503</uri>
+		</author>
+		<updated>2012-02-03T17:40:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12706#p12706</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Supression de tables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12698#p12698"/>
+		<content type="html"><![CDATA[<p>Que vous ayez du mal à comprendre le PL/pgsql, je peux le comprendre mais je suppose que vous avez commencé à écrire la procédure stockée et que ce que vous avez écrit ne fonctionne pas. Donc commencez par montrer ce que vous avez fait. Et on continuera à partir de ça.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-02-03T06:49:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12698#p12698</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Supression de tables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12692#p12692"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Ayant du mal à comprendre le pl/pgsql, je fais appel à votre aide.</p><p>Comment faire pour supprimer dans une base toutes les tables qui commencent par une lettre donnée ?</p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION drop_table...</code></pre></div><p>En vous remerciant !</p><p>Marc</p><p>PS &gt; modérateur : je me suis trompé de forum à placer dans pl/pgsql</p>]]></content>
+		<author>
+			<name><![CDATA[marc.stx]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=503</uri>
+		</author>
+		<updated>2012-02-02T14:20:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12692#p12692</id>
+	</entry>
+</feed>

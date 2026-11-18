@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / UPDATE dans la sélection d'une sélection avec curseur]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2205&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2205"/>
+	<updated>2012-08-24T06:06:19Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2205</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  UPDATE dans la sélection d'une sélection avec curseur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14918#p14918"/>
+		<content type="html"><![CDATA[<p>Oui Gleu vous avez tout à fait raison.</p><p>Je vous avais donné une mauvaise information avant que ne me donniez la fameuse requête :</p><div class="codebox"><pre><code> SELECT version() </code></pre></div><p>qui elle me répond :</p><p>&quot;PostgreSQL 8.3.10, compiled by Visual C++ build 1400&quot;</p><p>Pour info, vos réponses à ce sujet m&#039;ont permis d&#039;effectuer un certains nombres de manipulations de données supplémentaires.</p><p>Donc encore merci.</p><p>Geo-x</p>]]></content>
+		<author>
+			<name><![CDATA[Geo-x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1346</uri>
+		</author>
+		<updated>2012-08-24T06:06:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14918#p14918</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  UPDATE dans la sélection d'une sélection avec curseur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14917#p14917"/>
+		<content type="html"><![CDATA[<p>Pour informations, la version 1.8.3 n&#039;a jamais existé (voir <a href="ftp://ftp-archives.postgresql.org/pub/source/)" rel="nofollow">ftp://ftp-archives.postgresql.org/pub/source/)</a>.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-08-23T18:20:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14917#p14917</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  UPDATE dans la sélection d'une sélection avec curseur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14868#p14868"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>tout d&#039;abord, je ne connaissais pas la requête :</p><div class="codebox"><pre><code>select version()</code></pre></div><p>Donc merci, il s&#039;agit d&#039;une version en 1.8.3.</p><p>Ensuite, il est vrai que si j&#039;enlève le curseur ça fonctionne à merveille ! Un grand merci à vous deux pour votre rapidité et disponibilité (comme à chaque fois et ce n&#039;est pas sur tous les forums pareils).</p><p>Très bonne journée à vous, pour moi, elle commence pas mal ;-)</p><p>Geo-x</p>]]></content>
+		<author>
+			<name><![CDATA[Geo-x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1346</uri>
+		</author>
+		<updated>2012-08-21T08:32:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14868#p14868</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  UPDATE dans la sélection d'une sélection avec curseur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14857#p14857"/>
+		<content type="html"><![CDATA[<p>Pour obtenir votre version de postgres, il faut faire un &quot;select version();&quot;.</p><p>Le message n&#039;a pas l&#039;air cohérent par rapport à votre code, passez vous le nom de la table en paramètre ?<br />Je viens de tester en local avec cette fonction et cela marche très bien:</p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION test()
+  RETURNS integer AS
+$BODY$
+DECLARE
+    curseur CURSOR FOR SELECT DISTINCT A,B,C FROM windowtable;
+    matable record;
+    matable2 record;
+    compteur integer;
+BEGIN 
+    FOR matable IN curseur
+    LOOP
+        compteur=1;
+	FOR matable2 IN SELECT pk,windowtable.A,windowtable.B,windowtable.C FROM windowtable WHERE windowtable.A=matable.A AND windowtable.B=matable.B AND windowtable.C=matable.C
+	LOOP
+		UPDATE windowtable SET D=compteur where pk=matable2.pk;
+		compteur=compteur+1;
+        END LOOP;
+    END LOOP;
+        
+    return 1;
+END;
+$BODY$
+language plpgsql;</code></pre></div><p>Edit: Effectivement, cela ne marche qu&#039;à partir de la 8.4. Pour les&#160; version 8.3 et inférieures, il faut remplacer le </p><div class="codebox"><pre><code>FOR matable IN curseur</code></pre></div><p>par</p><div class="codebox"><pre><code>FOR matable IN SELECT DISTINCT a,b,c FROM matable</code></pre></div><p>(et évidemment enlever la déclaration du cursor) et cela devrait fonctionner.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2012-08-20T15:29:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14857#p14857</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  UPDATE dans la sélection d'une sélection avec curseur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14855#p14855"/>
+		<content type="html"><![CDATA[<p>Je vous remercie à tous les deux pour votre aide toujours aussi rapide et efficace.</p><p>Malheureusement il semblerait que ma version de postgres (1.8.4 pourtant...) ne permette pas d&#039;utiliser ce genre de requête :</p><div class="codebox"><pre><code>ERROR:  syntax error at or near &quot;OVER&quot;
+LIGNE 2 : ...LECT a,b,c, row_number() OVER (PART...
+
+********** Erreur **********
+
+ERROR: syntax error at or near &quot;OVER&quot;
+État SQL :42601
+Caractère : 111</code></pre></div><p>Et là j&#039;avoue que n&#039;utilisant pas ce genre de requête, je vous fais à 100% confiance, mais je ne comprend plus vraiment ce que je fais puisque je ne connais pas la &quot;window function&quot;.</p><p>Par ailleurs en essayant à nouveau la requête suivante avec mes paramètres :</p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION test()
+  RETURNS integer AS
+$BODY$
+DECLARE
+    curseur CURSOR FOR SELECT DISTINCT A,B,C FROM table_a_modif;
+    matable record;
+    matable2 record;
+    compteur integer;
+BEGIN 
+    FOR matable IN curseur
+    LOOP
+        compteur=1;
+	FOR matable2 IN SELECT cle_primaire,table_a_modif.A,table_a_modif.B,table_a_modif.C FROM table_a_modif WHERE table_a_modif.matable.A=A AND table_a_modif.B=matable.B AND table_a_modif.C=matable.C
+	LOOP
+		UPDATE table_a_modif SET D=compteur WHERE cle_primaire = matable2.cle_primaire;
+		compteur=compteur+1;
+        END LOOP;
+    END LOOP;
+        
+    return 1;
+END;
+$BODY$
+language plpgsql;</code></pre></div><p>J&#039;ai toujours le message :</p><div class="codebox"><pre><code>ERROR:  syntax error at or near &quot;$1&quot;
+LIGNE 1 :   $1 
+            ^
+REQUÊTE :   $1 
+CONTEXTE : SQL statement in PL/PgSQL function &quot;test2&quot; near line 7
+
+
+********** Erreur **********
+
+ERROR: syntax error at or near &quot;$1&quot;
+État SQL :42601
+Contexte : SQL statement in PL/PgSQL function &quot;test2&quot; near line 7</code></pre></div><p>Alors j&#039;ai bien quelques &#039;&#039; dans ma requête qui suit le &#039;curseur CURSOR FOR SELECT (...)&#039; mais même si j&#039;enlève tout ça ne focntionne toujours pas. J&#039;ai également essayé de changer tous les noms de variable, rien n&#039;y fait.</p><p>J&#039;ai juste l&#039;impression que la requête de ma focntion </p><div class="codebox"><pre><code>FOR matable IN curseur</code></pre></div><p>n&#039;est pas accepté par postgres...</p>]]></content>
+		<author>
+			<name><![CDATA[Geo-x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1346</uri>
+		</author>
+		<updated>2012-08-20T15:20:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14855#p14855</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  UPDATE dans la sélection d'une sélection avec curseur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14852#p14852"/>
+		<content type="html"><![CDATA[<p>exact, comme dit Marc les window function sont plus utiles pour ça, si vous êtes au moins en 8.4.<br />Cette requête devrait marcher :</p><div class="codebox"><pre><code>UPDATE table_a_modif tbl SET tbl.d = sql.d
+FROM (SELECT cle_primaire, row_number() OVER (PARTITION BY a,b,c) d FROM table_a_modif) sql
+WHERE tbl.cle_primaire = sql.cle_primaire</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2012-08-20T14:51:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14852#p14852</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  UPDATE dans la sélection d'une sélection avec curseur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14850#p14850"/>
+		<content type="html"><![CDATA[<p>Avec une window function, ça ne serait pas plus simple ?</p><div class="codebox"><pre><code>SELECT *,row_number() over (partition by a,b,c) from test ;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2012-08-20T14:42:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14850#p14850</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  UPDATE dans la sélection d'une sélection avec curseur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14847#p14847"/>
+		<content type="html"><![CDATA[<p>Si votre table a une clé primaire, il faut l&#039;utiliser dans le WHERE de l&#039;UPDATE pour que seule cette ligne soit mise à jour.<br />Vous êtes déjà dans un for, il n&#039;est pas nécessaire de faire un FETCH. FETCH récupère un enregistrement alors que MOVE psse à l&#039;enregistrement suivant.</p><p>table est un mot réservé, il faut donc utiliser un autre nom pour votre curseur.</p><p>Essayer plutôt comme ça (non testé il y a peut-être encore des erreurs)</p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION test()
+  RETURNS integer AS
+$BODY$
+DECLARE
+    curseur CURSOR FOR SELECT DISTINCT A,B,C FROM table_a_modif;
+    matable record;
+    matable2 record;
+    compteur integer;
+BEGIN 
+    FOR matable IN curseur
+    LOOP
+        compteur=1;
+	FOR matable2 IN SELECT cle_primaire,table_a_modif.A,table_a_modif.B,table_a_modif.C FROM table_a_modif WHERE table_a_modif.matable.A=A AND table_a_modif.B=matable.B AND table_a_modif.C=matable.C
+	LOOP
+		UPDATE table_a_modif SET D=compteur WHERE cle_primaire = matable2.cle_primaire;
+		compteur=compteur+1;
+        END LOOP;
+    END LOOP;
+        
+    return 1;
+END;
+$BODY$
+language plpgsql;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2012-08-20T14:09:55Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14847#p14847</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  UPDATE dans la sélection d'une sélection avec curseur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14844#p14844"/>
+		<content type="html"><![CDATA[<p>Bonjour Rjuju,</p><p>Merci pour votre réponse, j&#039;ai corrigé le compteur=1 mais je ne vois pas trop pourquoi il faudrait mettre un UPDATE dans ma requête ?</p><p>Ma table a une clé primaire et des clés étrangéres oui.</p><p>Avec le code que je vous ai fourni j&#039;ai le message suivant de postgres :</p><div class="codebox"><pre><code>ERROR:  syntax error at or near &quot;$1&quot;
+LIGNE 1 :   $1 
+            ^
+REQUÊTE :   $1 
+CONTEXTE : SQL statement in PL/PgSQL function &quot;test2&quot; near line 9
+
+
+********** Erreur **********
+
+ERROR: syntax error at or near &quot;$1&quot;
+État SQL :42601
+Contexte : SQL statement in PL/PgSQL function &quot;test2&quot; near line 9</code></pre></div><p>Il semblerait que cela vienne de</p><div class="codebox"><pre><code>FOR table IN curseur</code></pre></div><p>Du coup j&#039;ai testé avec :</p><div class="codebox"><pre><code>OPEN curseur;
+FOR table IN curseur</code></pre></div><p>avec un </p><div class="codebox"><pre><code>END LOOP;
+CLOSE curseur;</code></pre></div><p>Mais c&#039;est pas mieux...</p><p>Par ailleurs pourriez-vous me donner la différence entre un FETCH NEXT FROM curseur et un MOVE NEXT FROM curseur ?</p><p>Merci de votre aide.</p>]]></content>
+		<author>
+			<name><![CDATA[Geo-x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1346</uri>
+		</author>
+		<updated>2012-08-20T12:20:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14844#p14844</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  UPDATE dans la sélection d'une sélection avec curseur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14834#p14834"/>
+		<content type="html"><![CDATA[<p>Le curseur est une solution. Attention, votre initialisation compteur=1; devrait se trouver après le premier loop, et il manque un where dans la requête UPDATE.</p><br /><p>La table a-t-elle une clé primaire ? S&#039;il n&#039;y a pas de clé étrangère, vous pouvez dupliquer la table avec le bon champ D, ensuite supprimer l&#039;ancienne table et renommer la nouvelle, avec une requête du genre</p><div class="codebox"><pre><code>CREATE TABLE table_temp AS SELECT a,b,c,row_number() OVER (PARTITION BY a,b,c) d
+FROM table_a_modif</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2012-08-20T10:47:54Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14834#p14834</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[UPDATE dans la sélection d'une sélection avec curseur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14832#p14832"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous,</p><p>je sollicite à nouveau vos connaissances pour le problème suivant :</p><p>J&#039;ai des colonnes A/B/C/D dans une table.</p><p>Dans cette table les données ressemblent à celles-là :</p><p>a/b/c/-<br />a/b/c/-<br />a/b/c/-<br />d/f/g/-<br />d/f/g/-<br />d/f/g/-</p><p>Ce que je souhaiterais faire c&#039;est :</p><p>1-Je sélectionne distinctement mes différents cas possibles :</p><p>a/b/c/-<br />d/f/g/-</p><p>2-Pour chacun de ces cas, je sélectionne toutes les lignes dans la table source, exemple cas1 :</p><p>a/b/c/-<br />a/b/c/-<br />a/b/c/-</p><p>3-Et pour ces lignes sélectionnées, je met dans une colonne D un compteur :</p><p>a/b/c/1<br />a/b/c/2<br />a/b/c/3</p><p>Qui recommence à 0 dans chaque cas:</p><p>d/f/g/1<br />d/f/g/2<br />d/f/g/3</p><p>Pour ce faire, j&#039;ai créé une fonction sous postgres :</p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION test()
+  RETURNS integer AS
+$BODY$
+DECLARE
+    curseur CURSOR FOR SELECT DISTINCT A,B,C FROM table_a_modif;
+    table record;
+    table2 record;
+    compteur integer;
+BEGIN 
+    compteur=1;
+
+    FOR table IN curseur
+    LOOP
+	FOR table2 IN SELECT table_a_modif.A,table_a_modif.B,table_a_modif.C FROM table_a_modif,table WHERE table_a_modif.A=table.A,table_a_modif.B=table.B,table_a_modif.C=table.C
+	LOOP
+		UPDATE table_a_modif SET D=compteur;
+		compteur=compteur+1;
+        END LOOP
+    FETCH NEXT FROM curseur
+    END LOOP;
+        
+    return 1;
+END</code></pre></div><p>Mais vu que je ne suis pas familier du curseur (d&#039;ailleurs je ne sais pas s&#039;il est vraiment indispensable de l&#039;utiliser dans ce cas précis) je ne sais pas vraiment comment m&#039;y prendre.</p><p>Si vous auriez quelques pistes à me donner sur la direction à prendre, je vous en serais reconnaissant.</p>]]></content>
+		<author>
+			<name><![CDATA[Geo-x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1346</uri>
+		</author>
+		<updated>2012-08-20T08:56:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14832#p14832</id>
+	</entry>
+</feed>

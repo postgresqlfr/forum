@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Compilation de Slony 2.0 sous Aix.]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=728&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=728"/>
+	<updated>2010-04-15T07:13:50Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=728</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Compilation de Slony 2.0 sous Aix.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4551#p4551"/>
+		<content type="html"><![CDATA[<p>Saisi...</p><p>J&#039;ai recompilé une nouvelle distrib.</p><p>J&#039;ai relancé le configure depuis le source Slony, en pointant sur le bon pg_config.</p><p>ça avance un peu, jusqu&#039;à un fatidique </p><div class="codebox"><pre><code>gcc -g -O2 -Wall -Wmissing-prototypes -Wmissing-declarations -D_THREAD_SAFE  -I../..  -I/opt/postgres/include/ -I/opt/postgres/include/server/  -c -o slony1_funcs.o slony1_funcs.c
+slony1_funcs.c: In function &#039;slon_quote_literal&#039;:
+slony1_funcs.c:1029: warning: pointer targets in passing argument 1 of &#039;pg_mblen&#039; differ in signedness
+../../makefiles/mkldexport.sh slony1_funcs.o &gt; slony1_funcs.exp
+/bin/sh: ../../makefiles/mkldexport.sh: 0403-006 Execute permission denied.
+gmake[2]: *** [slony1_funcs.exp] Error 126
+rm slony1_funcs.exp
+gmake[2]: Leaving directory `/home/postgres/slony1-2.0.2/src/backend&#039;
+gmake[1]: *** [install] Error 2
+gmake[1]: Leaving directory `/home/postgres/slony1-2.0.2/src&#039;
+gmake: *** [install] Error 2</code></pre></div><p>Dans le Makefile.aix, je trouve bien un </p><div class="codebox"><pre><code>MKLDEXPORT=$(slony_top_builddir)/makefiles/mkldexport.sh</code></pre></div><p>... mais celui-ci n&#039;a pas les bons droits. Je modifie donc et renvoie</p><div class="codebox"><pre><code>ls -l mkldexport.sh
+-rw-r--r--    1 postgres postgres       1404 Aug 19 2004  mkldexport.sh
+chmod 744 mkldexport.sh
+ls -l mkldexport.sh
+xrw-r--r--    1 postgres postgres       1404 Aug 19 2004  mkldexport.sh
+cd ..
+gmake clean
+gmake install</code></pre></div><p>Là, ça avance un bout, puis ça plante sur </p><div class="codebox"><pre><code>...
+gmake[2]: Entering directory `/home/postgres/slony1-2.0.2/src/slony_logshipper&#039;
+gcc -g -O2 -Wall -Wmissing-prototypes -Wmissing-declarations -D_THREAD_SAFE  -D_LARGE_FILES -I../.. -DPGSHARE=&quot;\&quot;/opt/postgres/share/\&quot;&quot;  -I/opt/postgres/include/ -I/opt/postgres/include/server/  -c -o slony_logshipper.o slony_logshipper.c
+slony_logshipper.c: In function &#039;main&#039;:
+slony_logshipper.c:476: warning: &#039;destfname.data&#039; may be used uninitialized in this function
+slony_logshipper.c:476: note: &#039;destfname.data&#039; was declared here
+gcc -g -O2 -Wall -Wmissing-prototypes -Wmissing-declarations -D_THREAD_SAFE  -D_LARGE_FILES -I../.. -DPGSHARE=&quot;\&quot;/opt/postgres/share/\&quot;&quot;  -I/opt/postgres/include/ -I/opt/postgres/include/server/  -c -o dbutil.o dbutil.c
+gcc -g -O2 -Wall -Wmissing-prototypes -Wmissing-declarations -D_THREAD_SAFE  -D_LARGE_FILES -I../.. -DPGSHARE=&quot;\&quot;/opt/postgres/share/\&quot;&quot;  -I/opt/postgres/include/ -I/opt/postgres/include/server/  -c -o ipcutil.o ipcutil.c
+bison -y -d  parser.y
+gmake[2]: *** [parser.c] Broken pipe
+gmake[2]: Leaving directory `/home/postgres/slony1-2.0.2/src/slony_logshipper&#039;
+gmake[1]: *** [install] Error 2
+gmake[1]: Leaving directory `/home/postgres/slony1-2.0.2/src&#039;
+gmake: *** [install] Error 2</code></pre></div><p>Une idée ? ça ressemble un peu à <a href="http://forums.postgresql.fr/viewtopic.php?pid=4552#p4552" rel="nofollow">http://forums.postgresql.fr/viewtopic.p … 4552#p4552</a> , non ?</p><p>Fadace</p>]]></content>
+		<author>
+			<name><![CDATA[fadace]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=722</uri>
+		</author>
+		<updated>2010-04-15T07:13:50Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4551#p4551</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Compilation de Slony 2.0 sous Aix.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4534#p4534"/>
+		<content type="html"><![CDATA[<p>configure: error: PostgreSQL needs to be compiled with --enable-thread-safety on aix5.3.0.0</p><p>PostgreSQL needs to be compiled ? donc PostgreSQL. C&#039;est bien slony qui sort l&#039;erreur, mais pour vous signaler que vous n&#039;avez pas compilé PostgreSQL comme il faut.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-04-13T14:42:38Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4534#p4534</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Compilation de Slony 2.0 sous Aix.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4533#p4533"/>
+		<content type="html"><![CDATA[<p>C&#039;est pourtant dans le INSTALL de Slony que je le découvre</p><div class="codebox"><pre class="vscroll"><code>[postgres@test01] &gt; pwd
+/home/postgres/slony1-2.0.2
+
+[postgres@test01] &gt; ./configure  --with-pgconfigdir=/usr/local/pgsql/bin  --enable-thread-safety
+configure: WARNING: unrecognized options: --enable-thread-safety
+checking build system type... powerpc-ibm-aix5.3.0.0
+checking host system type... powerpc-ibm-aix5.3.0.0
+checking which template to use... aix
+configure: using CFLAGS=
+checking for gcc... gcc
+checking for C compiler default output file name... a.out
+checking whether the C compiler works... yes
+checking whether we are cross compiling... no
+checking for suffix of executables...
+checking for suffix of object files... o
+checking whether we are using the GNU C compiler... yes
+checking whether gcc accepts -g... yes
+checking for gcc option to accept ISO C89... none needed
+checking for ld used by GCC... /usr/bin/ld
+checking if the linker (/usr/bin/ld) is GNU ld... no
+checking for perl... /usr/bin/perl
+checking for tar... /usr/bin/tar
+checking for flex... no
+checking for ,... no
+checking for lex... lex
+checking for bison... bison -y
+checking for sed... sed
+checking for the pthreads library -lpthreads... yes
+checking for joinable pthread attribute... PTHREAD_CREATE_JOINABLE
+checking if more special flags are required for pthreads... -D_THREAD_SAFE
+checking for cc_r... gcc
+checking how to run the C preprocessor... gcc -E
+checking for grep that handles long lines and -e... /usr/bin/grep
+checking for egrep... /usr/bin/grep -E
+checking for ANSI C header files... yes
+checking for sys/types.h... yes
+checking for sys/stat.h... yes
+checking for stdlib.h... yes
+checking for string.h... yes
+checking for memory.h... yes
+checking for strings.h... yes
+checking for inttypes.h... yes
+checking for stdint.h... yes
+checking for unistd.h... yes
+checking fcntl.h usability... yes
+checking fcntl.h presence... yes
+checking for fcntl.h... yes
+checking limits.h usability... yes
+checking limits.h presence... yes
+checking for limits.h... yes
+checking stddef.h usability... yes
+checking stddef.h presence... yes
+checking for stddef.h... yes
+checking sys/socket.h usability... yes
+checking sys/socket.h presence... yes
+checking for sys/socket.h... yes
+checking sys/time.h usability... yes
+checking sys/time.h presence... yes
+checking for sys/time.h... yes
+checking for inttypes.h... (cached) yes
+checking for gettimeofday... yes
+checking for dup2... yes
+checking for alarm... yes
+checking for memset... yes
+checking for select... yes
+checking for strdup... yes
+checking for strerror... yes
+checking for strtol... yes
+checking for strtoul... yes
+checking for int32_t... yes
+checking for uint32_t... yes
+checking for u_int32_t... yes
+checking for int64_t... yes
+checking for uint64_t... yes
+checking for u_int64_t... yes
+checking for ssize_t... yes
+checking for POSIX signal interface... yes
+checking if you have requested slony1-engine building... yes
+checking for pg_config... /usr/local/pgsql/bin/pg_config
+pg_config says pg_bindir is /usr/local/pgsql/bin/
+pg_config says pg_libdir is /usr/local/pgsql/lib/
+pg_config says pg_includedir is /usr/local/pgsql/include/
+pg_config says pg_pkglibdir is /usr/local/pgsql/lib/
+pg_config says pg_includeserverdir is /usr/local/pgsql/include/server/
+checking for correct version of PostgreSQL... 8.4
+8.4
+pg_config says pg_sharedir is /usr/local/pgsql/share/
+checking PostgreSQL for enable-thread-safety as required on aix5.3.0.0... no
+configure: error: PostgreSQL needs to be compiled with --enable-thread-safety on aix5.3.0.0</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[fadace]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=722</uri>
+		</author>
+		<updated>2010-04-13T13:56:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4533#p4533</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Compilation de Slony 2.0 sous Aix.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4531#p4531"/>
+		<content type="html"><![CDATA[<p>De mémoire, enable-thread-safety est une option de compil de postgresql, pas de slony</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-04-13T13:05:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4531#p4531</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Compilation de Slony 2.0 sous Aix.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4530#p4530"/>
+		<content type="html"><![CDATA[<p>Bonjour, </p><p>Il est spécifié dans INSTALL, que sous Aix et Sun Solaris, l&#039;option&#160; --enable-thread-safety doit être settée.</p><p>Je tente une compilationd e Slony 2 sur un Postgres 8.4. J&#039;ai bien pris note que seuls la 8.3 est supportée, mais le temps manque et je dois aller de l&#039;avant, donc je tente le coup.</p><p>J&#039;exécute donc </p><div class="codebox"><pre><code>./configure  --with-pgconfigdir=/usr/local/pgsql/bin  --enable-thread-safety</code></pre></div><p>En début d&#039;output, je reçois un superbe</p><div class="codebox"><pre><code>configure: WARNING: unrecognized options: --enable-thread-safety</code></pre></div><p>... et en fin de script, un non moins superbe</p><div class="codebox"><pre><code>checking PostgreSQL for enable-thread-safety as required on aix5.3.0.0... no
+configure: error: PostgreSQL needs to be compiled with --enable-thread-safety on aix5.3.0.0</code></pre></div><p>Que fais-je donc de faux ?</p><p>m.s.<br />fadace</p>]]></content>
+		<author>
+			<name><![CDATA[fadace]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=722</uri>
+		</author>
+		<updated>2010-04-13T12:43:03Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4530#p4530</id>
+	</entry>
+</feed>

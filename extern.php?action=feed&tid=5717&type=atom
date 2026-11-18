@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Comparaison serveur physique / serveur virtuel]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5717&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5717"/>
+	<updated>2020-03-17T18:53:49Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5717</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Comparaison serveur physique / serveur virtuel]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30886#p30886"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>ced a écrit&#160;:</cite><blockquote><div><p>Oui, la machine physique a des disques locaux et la machine virtuelle des disques sur un SAN.</p></div></blockquote></div><p>Pas la peine d&#039;aller plus loin, vous ne pouvez pas comparer ces deux environnements.</p><br /><div class="quotebox"><blockquote><div><p>Pour l&#039;overcommit, voici les paramètres appliqués :<br />vm.swappiness = 1<br />vm.overcommit_memory = 2<br />vm.overcommit_ratio = 99</p></div></blockquote></div><br /><p>Je voulais parler d&#039;overcommit des ressources sur l&#039;hypverviseur.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2020-03-17T18:53:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30886#p30886</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Comparaison serveur physique / serveur virtuel]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30884#p30884"/>
+		<content type="html"><![CDATA[<p>Oui, la machine physique a des disques locaux et la machine virtuelle des disques sur un SAN.<br />Pour l&#039;overcommit, voici les paramètres appliqués :<br />vm.swappiness = 1<br />vm.overcommit_memory = 2<br />vm.overcommit_ratio = 99</p>]]></content>
+		<author>
+			<name><![CDATA[ced]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=461</uri>
+		</author>
+		<updated>2020-03-17T17:09:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30884#p30884</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Comparaison serveur physique / serveur virtuel]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30883#p30883"/>
+		<content type="html"><![CDATA[<p>À moins de créer des tables temporaires ou non journalisées, tout écriture finira sur disque deux fois: une fois dans les WAL et une fois dans les fichiers de données, généralement lors du checkpoint.&#160; Il faut donc prendre en compte cela dans les tests afin de pouvoir avoir quelquechose de reproductible.&#160; Il faut donc au minimum faire tourner le test suffisamment longtemps pour que de nombreux checkpoints s&#039;effectue et avoir un résultat stable.</p><br /><p>Concernant vos résultats, difficile de se prononcer sans plus de détails.&#160; Comparez-vous une machine physique avec disques locaux contre une machine virtuelle avec disques sur un SAN par exemple, y a-t-il de l&#039;overcommit, etc.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2020-03-17T17:03:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30883#p30883</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Comparaison serveur physique / serveur virtuel]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30875#p30875"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je mène actuellement une série de tests visant à comparer le plus objectivement possible les différences de performances de PostgreSQL entre un serveur physique et un serveur virtuel dimensionné de manière identique (même nombre de CPU , même quantité de RAM). L&#039;objectif est d&#039;évaluer s&#039;il y a des écarts forts entre les deux types de serveurs (comme ce que certains utilisateurs le pressentent) ou pas.<br />J&#039;ai installé PostgreSQL v11 sur les deux machines et je les ai paramétrées de la même façon (paramètres identiques du fichier postgresql.conf).<br />J&#039;ai ensuite fait tourner plusieurs benchmarks avec pgbench, ou plus précisément avec pgbench-tools.<br />J&#039;ai commencé par une série de tests avec des facteurs d&#039;échelle de 1, 10, 100 et 1000 (la base est celle initialisée par défaut dans pgbench). En termes de résultats (TPS et latence), je n&#039;observe aucune différence entre les deux serveurs. Le serveur virtuel serait même un peu plus performant...<br />J&#039;ai ensuite relancé les tests avec les facteurs 100, 1000 et 10000, histoire de travailler avec une taille de base de données qui ne tienne pas en mémoire (32 GB). Là encore, les résultats des tests (TPS et latence) sont très proches, toutefois le serveur virtuel a mis 2h de plus que le serveur physique pour boucler les tests... Et quand j&#039;analyse les logs avec PgBadger, je vois que les requêtes de type COPY et VACUUM sont plus lentes sur le serveur virtuel.</p><p>Mon interprétation est que ce qui ralentit le serveur virtuel, ce sont les écritures de données sur disque. En effet, quand je teste les temps d&#039;écriture / lecture avec l&#039;outil dd, les résultats sont meilleurs sur le serveur physique (180 MB/s vs 120 MB/s). Est-ce que ça vous semble être la bonne analyse ?<br />Je pense que pgbench ne fait qu&#039;évaluer des performances en mémoire pure (vue que toutes les opérations sont effectuées en mémoire), sans prendre en compte des opérations d&#039;écriture sur les disques (comme les COPY et les VACUUM). C&#039;est bien ça ?</p><p>Merci d&#039;avance pour votre aide dans ma compréhension des résultats.</p><p>Cédric</p>]]></content>
+		<author>
+			<name><![CDATA[ced]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=461</uri>
+		</author>
+		<updated>2020-03-17T16:16:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30875#p30875</id>
+	</entry>
+</feed>

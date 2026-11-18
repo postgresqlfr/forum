@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / signification du  "pipe awk -F"]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4433&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4433"/>
+	<updated>2017-10-26T16:38:46Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4433</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  signification du  "pipe awk -F"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26304#p26304"/>
+		<content type="html"><![CDATA[<p>Le -F permet de spécifier le délimiteur de champ.</p><br /><p>Vous pourriez réécrire le tout avec quelquechose du genre :</p><div class="codebox"><pre><code>for d in $(psql -AXtc &quot;SELECT datname FROM pg_database WHERE datname NOT like &#039;%template%&#039;&quot; -U postgres); do
+    echo &quot;pg_dump of database $d...&quot;
+    pg_dump -c --port=5432 -U postgres $d &gt; ...
+done</code></pre></div><p>Quelques petites remarques cependant :</p><br /><p>- il serait plus intéressant de filtrer sur &quot;WHERE NOT datistemplate&quot; que sur &quot;le nom de la base contient template&quot;, voire encore mieux &quot;WHERE datallowconn&quot; pour sauvegarder toutes les bases sur lesquelles on peut se connecter<br />- vous ne sauvegardez pas les objets globaux, ce qui est problématique (regardez pg_dumpall -g)<br />- vous ne testez à priori aucun code retour<br />- vous pourriez utiliser --no-password par sécurité<br />- les options de connexion ne sont pas cohérentes entre les deux appels (le port&#160; est spécifié d&#039;un coté et pas de l&#039;autre)</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2017-10-26T16:38:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26304#p26304</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[signification du  "pipe awk -F"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26303#p26303"/>
+		<content type="html"><![CDATA[<p>bonjour a tous </p><p>je débute en postgres et dans notre société on utilise ce petit script Shell pour faire l&#039;opération du sauvegarde </p><div class="codebox"><pre><code>psql -A -U postgres -t -c &quot;\l&quot;  |grep -v template |awk -F&#039;|&#039; &#039;{print &quot;pg_dump -c --port=5432 --username=postgres &quot;$Ft&quot;  &gt; </code></pre></div><p>ce que j&#039;arrive pas&#160; a comprendre c&#039;est la partie &quot;pipe awk -F&quot;</p><p>Qui a une idée a quoi sert ces options </p><p>merci</p>]]></content>
+		<author>
+			<name><![CDATA[samirca007]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7707</uri>
+		</author>
+		<updated>2017-10-26T16:26:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26303#p26303</id>
+	</entry>
+</feed>

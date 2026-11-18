@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Compilation PostgreSQL 8.3.8 sous AIX : erreur sur lseek64]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=470&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=470"/>
+	<updated>2009-11-10T12:40:35Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=470</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Compilation PostgreSQL 8.3.8 sous AIX : erreur sur lseek64]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2897#p2897"/>
+		<content type="html"><![CDATA[<p>le &#039;largefile&#039;, c&#039;est un artifice dans la librairie C qui permet d&#039;accéder au contenu de fichiers longs (plus de 2 ou 4Go je ne me rappelle plus) sur des plateformes 32 bits. Le problème venant évidemment du fait que sur 32 bits on ne peut coder que 2^32 (ou 31 si l&#039;entier est signé) posititions, soit l&#039;équivalent de 4Go (ou 2). C&#039;est donc nécessaire pour tout programme 32 bits voulant manipuler des fichiers de plus de 2 ou 4Go.</p><p>Ce n&#039;est pas le cas de postgres, qui split les fichiers à 1Go. On peut donc désactiver le support du largefile. Par contre je ne sais pas en quoi l&#039;avoir activé pourrait poser problème sur AIX, mais on revient toujours au problème de compétence sur cette plateforme.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2009-11-10T12:40:35Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2897#p2897</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Compilation PostgreSQL 8.3.8 sous AIX : erreur sur lseek64]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2896#p2896"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;ai suivi la doc 8.4 concernant les spécificités de AIX (<a href="http://docs.postgresql.fr/8.4/installation-platform-notes.html" rel="nofollow">http://docs.postgresql.fr/8.4/installat … notes.html</a>) et voici un retour de ce que j&#039;ai fait :</p><p>1. Compilation 64-bit de PostgreSQL 8.3.8 sous AIX 5.3 TL9 OK en utilisant la suite de commande suivante :<br />&#160; &#160;# export OBJECT_MODE=&quot;64&quot;<br />&#160; &#160;# export CFLAGS=&quot;-maix64&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;<br />&#160; &#160;# export LDFLAGS=&quot;-maix64 -Wl,-bbigtoc&quot;<br />&#160; &#160;# ./configure</p><p>&#160; &#160;# gmake 2&gt;&amp;1 | tee gmake_PGS_8.3.8_v5.log</p><p>&#160; &#160;# gmake install 2&gt;&amp;1 | tee gmake_install_PGS_8.3.8.log</p><p>Les tests de regression ont été passés avec succés.<br />La compilation se fait avec succès.</p><br /><p>2. Compilation 32-bit de PostgreSQL 8.3.8 sous AIX 5.3 TL9<br />&#160; &#160;Si je tente de compiler en définissant uniquement<br />&#160; &#160;# export OBJECT_MODE=&quot;32&quot;<br />&#160; &#160;# ./configure<br />&#160; &#160;# gmake<br />&#160; &#160;la compilation échoue toujours sur :</p><p>&#160; &#160;In file included from psqlscan.c:2385:<br />&#160; &#160;/usr/include/unistd.h:171: error: conflicting types for &#039;lseek64&#039;<br />&#160; &#160;/usr/include/unistd.h:169: error: previous declaration of &#039;lseek64&#039;<br />&#160; &#160;was here<br />&#160; &#160;In file included from /usr/include/unistd.h:744,<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; from psqlscan.c:2385:<br />&#160; &#160;/usr/include/sys/lockf.h:64: error: conflicting types for &#039;lockf64&#039;<br />&#160; &#160;/usr/include/sys/lockf.h:62: error: previous declaration of<br />&#160; &#160;&#039;lockf64&#039; was here</p><p>Si je suis le post du forum <a href="http://www.developpez.net/forums/d816717/bases-donnees/postgresql/installation/probleme-compilation-postgres-8-4-1-sous-unix-aix/" rel="nofollow">http://www.developpez.net/forums/d81671 … -unix-aix/</a><br />et que je spécifie :<br /># export OBJECT_MODE=&quot;32&quot;<br />et l&#039;option &quot;-disable-largefiles&quot; à &quot;configure&quot;, la compilation réussit :<br />&#160; &#160; &#160; &#160;All of PostgreSQL successfully made. Ready to install.</p><p>J&#039;ai l&#039;impression que définir OBJECT_MODE à 32 bits n&#039;est pas suffisant pour une compilation 32-bits mais je n&#039;ai pas la réponse exacte...<br />Avez-vous plus d&#039;infos sur l&#039;option &quot;-disable-largefiles&quot; ?</p><p>Merci pour votre retour,<br />Cordialement,<br />Alexandra</p>]]></content>
+		<author>
+			<name><![CDATA[roya]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=542</uri>
+		</author>
+		<updated>2009-11-10T11:08:38Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2896#p2896</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Compilation PostgreSQL 8.3.8 sous AIX : erreur sur lseek64]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2888#p2888"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>As tu essayé d&#039;appliquer ce qui est écrit ici (c&#039;est nouveau dans la doc de la 8.4, mais est applicable à la 8.3)<br /><a href="http://docs.postgresql.fr/8.4/installation-platform-notes.html" rel="nofollow">http://docs.postgresql.fr/8.4/installat … notes.html</a></p><p>Je ne peux pas t&#039;aider davantage, je n&#039;ai pas d&#039;AIX sous la main pour tester, comme la plupart des gens ici je pense.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2009-11-09T08:43:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2888#p2888</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Compilation PostgreSQL 8.3.8 sous AIX : erreur sur lseek64]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2887#p2887"/>
+		<content type="html"><![CDATA[<p>Personne n&#039;a eu à compiler PostgreSQL 8.3.8 sous AIX 5.3 ?</p>]]></content>
+		<author>
+			<name><![CDATA[roya]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=542</uri>
+		</author>
+		<updated>2009-11-09T08:22:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2887#p2887</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Compilation PostgreSQL 8.3.8 sous AIX : erreur sur lseek64]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2875#p2875"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;essaye de compiler PostgreSQL 8.3.8 sous AIX 5.3 TL9 (64 bits).<br />L&#039;exécution du script &quot;.configure&quot; s&#039;est finie sans erreur ni warning mais le &quot;gmake&quot; échoue. <br />Voici les erreurs que j&#039;ai : </p><p>In file included from psqlscan.c:2385:<br />/usr/include/unistd.h:171: error: conflicting types for &#039;lseek64&#039;<br />/usr/include/unistd.h:169: error: previous declaration of &#039;lseek64&#039; was here<br />In file included from /usr/include/unistd.h:744,<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;from psqlscan.c:2385:<br />/usr/include/sys/lockf.h:64: error: conflicting types for &#039;lockf64&#039;<br />/usr/include/sys/lockf.h:62: error: previous declaration of &#039;lockf64&#039; was here<br />In file included from psqlscan.c:2385:<br />/usr/include/unistd.h:807: error: conflicting types for &#039;ftruncate64&#039;<br />/usr/include/unistd.h:805: error: previous declaration of &#039;ftruncate64&#039; was here<br />/usr/include/unistd.h:843: error: conflicting types for &#039;truncate64&#039;<br />/usr/include/unistd.h:841: error: previous declaration of &#039;truncate64&#039; was here<br />/usr/include/unistd.h:860: error: conflicting types for &#039;pread64&#039;<br />/usr/include/unistd.h:857: error: previous declaration of &#039;pread64&#039; was here<br />/usr/include/unistd.h:861: error: conflicting types for &#039;pwrite64&#039;<br />/usr/include/unistd.h:858: error: previous declaration of &#039;pwrite64&#039; was here<br />/usr/include/unistd.h:928: error: conflicting types for &#039;fclear64&#039;<br />/usr/include/unistd.h:925: error: previous declaration of &#039;fclear64&#039; was here<br />/usr/include/unistd.h:929: error: conflicting types for &#039;fsync_range64&#039;<br />/usr/include/unistd.h:926: error: previous declaration of &#039;fsync_range64&#039; was here<br />gmake[3]: *** [psqlscan.o] Error 1<br />gmake[3]: Leaving directory `/home/PostgreSQL_8.3.8/sources/postgresql-8.3.8/src/bin/psql&#039;<br />gmake[2]: *** [all] Error 2<br />gmake[2]: Leaving directory `/home/PostgreSQL_8.3.8/sources/postgresql-8.3.8/src/bin&#039;<br />gmake[1]: *** [all] Error 2<br />gmake[1]: Leaving directory `/home/PostgreSQL_8.3.8/sources/postgresql-8.3.8/src&#039;<br />gmake: *** [all] Error 2</p><br /><p>En cherchant sur les forums PostgreSQL, je suis tombée sur ce post :<br /><a href="http://forums.postgresql.fr/viewtopic.php?id=421" rel="nofollow">http://forums.postgresql.fr/viewtopic.php?id=421</a><br />dans lequel le contournement trouvé consiste à utiliser l&#039;option &quot;-disable-largefile&quot;.<br />L&#039;explication donnée est la suivante : <br />&#160; &#160; Il s&#039;agit du support d&#039;adressage de fichiers 64 bits si c&#039;est disponible sur votre système. <br />&#160; &#160; Ainsi PostgreSQL pourrait lire et écrire des fichiers de plus de 2 Go. <br />&#160; &#160; Aucun intérêt à priori, sauf pour les fichiers de traces. Autrement dit, vraiment aucun intérêt.</p><p>Pouvez-vous svp me donner plus d&#039;explications sur cette erreur ? <br />Je ne comprends pas pourquoi PostgreSQL essayerait de compiler la partie concernant le support d&#039;adressage de fichiers 64 bits si au final il ne l&#039;utilise pas.</p><p>Merci pour votre aide.<br />Cordialement,<br />Alexandra</p>]]></content>
+		<author>
+			<name><![CDATA[roya]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=542</uri>
+		</author>
+		<updated>2009-11-05T16:24:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2875#p2875</id>
+	</entry>
+</feed>

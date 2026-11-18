@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Grant to @localhost (résolu)]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4454&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4454"/>
+	<updated>2017-11-24T16:42:25Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4454</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Grant to @localhost (résolu)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26412#p26412"/>
+		<content type="html"><![CDATA[<p>Le GRANT mysql a cet effet implicite, oui.<br />C&#039;est une spécificité de mysql de faire un combo avec [attribution de droits d&#039;accès + création simultanée d&#039;utilisateur] liés à l&#039;endroit d&#039;où il se connecte (ici localhost). Dans les autres SGBDs ces deux notions sont généralement bien séparées.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2017-11-24T16:42:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26412#p26412</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Grant to @localhost (résolu)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26409#p26409"/>
+		<content type="html"><![CDATA[<p>OK merci.<br />Donc il n&#039;y a rien à faire ou bien il faut faire (après un dropdb icingaweb2):<br />createuser icingaweb2 <br />createdb -O icingaweb2 icingaweb2 #crée la base icingaweb2 et l&#039;affecte à l&#039;utilisateur icingaweb2</p><p>(qui m&#039;a été conseillé par un gentil mastonaute framasoftien)?<br />On note bien que la doc demande de créer la base icingaweb2 mais ne parle pas de créer l&#039;utilisateur icingaweb2 (à part si le GRANT a cet effet implicite); cependant la commande createuser icingaweb2 donne bien comme résultat &quot;Saisir le mot de passe pour le nouveau rôle&quot;.</p><p>edit: les deux commandes mastono-framasoftiennes ont réglées le problème. Merci encore.</p>]]></content>
+		<author>
+			<name><![CDATA[LienRag]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7826</uri>
+		</author>
+		<updated>2017-11-24T14:55:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26409#p26409</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Grant to @localhost (résolu)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26408#p26408"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>GRANT ALL ON icingaweb2.* TO icingaweb2@localhost IDENTIFIED BY &#039;CHANGEME&#039;;</p></div></blockquote></div><p>Cette ligne suppose qu&#039;il y a une base existante appelée icingaweb2.<br />Admettons que cette base appartienne à un utilisateur icinga et que les objets contenus appartiennent aussi à un utilisateur icinga.<br />Cet utilisateur aura été créé par CREATE USER.</p><p>Si le web est configuré pour se connecter avec l&#039;utilisateur icinga à cette base via localhost et avec le mot de passe choisi à la création de l&#039;utilisateur, le GRANT ci-dessus n&#039;a pas besoin d&#039;équivalent, parce que: </p><p>- l&#039;utilisateur existe déjà<br />- il a déjà tous les droits sur tous les objets de sa propre base.<br />- un pg_hba.conf normal donne déjà le droit de se connecter avec un mot de passe via localhost.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2017-11-24T13:13:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26408#p26408</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Grant to @localhost (résolu)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26396#p26396"/>
+		<content type="html"><![CDATA[<p>En fait, la syntaxe de grant de mysql/mariadb ne ressemble à celle d&#039;aucun autre sgbd… </p><p>Je vous conseille <a href="https://www.postgresql.fr/guidedemarragerapide" rel="nofollow">https://www.postgresql.fr/guidedemarragerapide</a> pour vous mettre le pied à l&#039;étrier (histoire de ne pas attribuer de droits sans en mesurer les conséquences).</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2017-11-23T18:03:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26396#p26396</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Grant to @localhost (résolu)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26395#p26395"/>
+		<content type="html"><![CDATA[<p>Bonjour.</p><p>J&#039;essaye d&#039;installer Icinga2 et IcingaWeb2 sur Debian, et la documentation explique que c&#039;est utilisable soit avec MariaDB/Mysql soit avec PostgreSQL.<br />Bien que ne connaissant pas beaucoup ce dernier (et ayant eu une formation de deux jours sur MariaDB) j&#039;ai choisi PostgreSQL puisque sa réputation est excellente.</p><p>Par contre dans la doc IcingaWeb2, il y a une commande en fin d&#039;installation qui n&#039;est donnée que pour MariaDB: <br />GRANT ALL ON icingaweb2.* TO icingaweb2@localhost IDENTIFIED BY &#039;CHANGEME&#039;;<br />J&#039;ai regardé la syntaxe PostgreSQL et apparemment c&#039;est la même pour GRANT.<br />Mais quand, après avoir créé la base icingaweb2 sans problème en utilisant le code donné pour MariaDB, je tape la ligne ci-dessus, j&#039;obtiens une erreur de syntaxe &quot;sur ou près de TO&quot;, et si je vire le .* pour tester, une erreur de syntaxe &quot;sur ou près de @&quot;.</p><p>J&#039;ai fait une bête faute de SQL que je n&#039;arrive pas à voir malgré 15 relectures ou il y a quelque chose que PostgreSQL ne gère pas comme MariaDB?<br />Il y a une solution?</p>]]></content>
+		<author>
+			<name><![CDATA[LienRag]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7826</uri>
+		</author>
+		<updated>2017-11-23T17:32:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26395#p26395</id>
+	</entry>
+</feed>

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Fonction déclencheur et utilisation de TG_TABLE_XXXX]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=6365&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=6365"/>
+	<updated>2022-10-07T15:09:50Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=6365</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Fonction déclencheur et utilisation de TG_TABLE_XXXX]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33779#p33779"/>
+		<content type="html"><![CDATA[<p>Très bonne nouvelle, bon weekend également <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2022-10-07T15:09:50Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33779#p33779</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Fonction déclencheur et utilisation de TG_TABLE_XXXX]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33778#p33778"/>
+		<content type="html"><![CDATA[<p>Super, ca fonctionne parfaitement ! Merci beaucoup (je vous dois une fière chandelle). <img src="http://forums.postgresql.fr/img/smilies/wink.png" width="15" height="15" alt="wink" /><br />Je vais enfin pouvoir créer des fonctions plus intelligentes et optimisées !<br />Bon week-end à vous</p>]]></content>
+		<author>
+			<name><![CDATA[SebCham]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=10633</uri>
+		</author>
+		<updated>2022-10-07T13:57:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33778#p33778</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Fonction déclencheur et utilisation de TG_TABLE_XXXX]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33777#p33777"/>
+		<content type="html"><![CDATA[<p>Vous devez fournir les valeurs NEW.id et autre explicitement :</p><div class="codebox"><pre><code>EXECUTE format(&#039;SELECT count(*) FROM %I.%I WHERE ST_Intersects... AND x.id != $1 AND ...&#039;, TG_TABLE_SCHEMA, TG_TABLE_NAME) USING NEW.id INTO c; </code></pre></div><p>(idem pour geom, et tout autre valeur de NEW)</p><p>Voir <a href="https://www.postgresql.org/docs/current/plpgsql-statements.html#PLPGSQL-STATEMENTS-EXECUTING-DYN" rel="nofollow">https://www.postgresql.org/docs/current … CUTING-DYN</a> pour plus de détails.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2022-10-07T13:09:09Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33777#p33777</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Fonction déclencheur et utilisation de TG_TABLE_XXXX]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33776#p33776"/>
+		<content type="html"><![CDATA[<p>Merci beaucoup pour votre aide <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /><br />Je ne maîtrise pas du tout les requêtes dynamiques, désolé.</p><p>J&#039;ai modifié ma requête ainsi :</p><p>(...)<br />EXECUTE format(&#039;SELECT count(*) FROM %I.%I as x<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; WHERE ST_Intersects(x.geom, NEW.geom)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;&#160; &#160; &#160; &#160; AND x.id != NEW.id AND ST_overlaps(x.geom, NEW.geom)&#039;,&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; TG_TABLE_SCHEMA, TG_TABLE_NAME) INTO c;&#160; &#160; <br />(...)</p><br /><p>et j&#039;obtiens ce message d&#039;erreur dans QGIS :<br />&quot; ERREUR:&#160; entrée manquante de la clause FROM pour la table « new » &quot;</p><p>Je suppose qu&#039;il ne reconnait plus cette syntaxe à l&#039;intérieur de la requête dynamique mais je ne sais pas comment désigner autrement la géométrie et l&#039;id du dernier objet saisi...<br />Auriez-vous une idée ?</p><p>Merci d&#039;avance pour votre aide.</p>]]></content>
+		<author>
+			<name><![CDATA[SebCham]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=10633</uri>
+		</author>
+		<updated>2022-10-07T12:33:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33776#p33776</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Fonction déclencheur et utilisation de TG_TABLE_XXXX]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33775#p33775"/>
+		<content type="html"><![CDATA[<p>Vous ne pouvez pas utiliser une chaine de texte pour remplacer un identifiant de table (ou autre), vous devez utiliser une requête dynamique pour ça.</p><p>Quelquechose comme </p><br /><div class="codebox"><pre><code>EXECUTE format(&#039;SELECT count(*) FROM %I.%I WHERE ST_Intersects...&#039;, TG_TABLE_SCHEMA, TG_TABLE_NAME) INTO c;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2022-10-07T10:59:07Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33775#p33775</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Fonction déclencheur et utilisation de TG_TABLE_XXXX]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33774#p33774"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous et tous,</p><p>J&#039;essaie sous Postgresql de créer une contrainte de vérification de la topologie d&#039;objets insérés sur une table test.topo1 (pour empêcher la saisie sous QGIS d&#039;objets se chevauchant).<br />Pour faire cela, j&#039;ajoute un trigger sur cette table et je créé une fonction déclencheur. Ce qui donne ceci :</p><p>CREATE OR REPLACE FUNCTION admingeo.overlapping_parcel_trigger()<br />&#160; RETURNS trigger AS<br />&#160; $$<br />&#160; &#160; DECLARE<br />&#160; &#160; &#160; c bigint;<br />&#160; &#160; BEGIN</p><p>&#160; &#160; &#160; SELECT count(*)<br />&#160; &#160; &#160; INTO c<br />&#160; &#160; &#160; FROM test.topo1 t1<br />&#160; &#160; &#160; WHERE ST_Intersects(t1.geom, NEW.geom)<br />&#160; &#160; &#160; AND t1.id != NEW.id<br />&#160; &#160; &#160; AND ST_Relate(t1.geom, NEW.geom, &#039;2********&#039;);</p><p>&#160; &#160; &#160; IF c &gt; 0 THEN<br />&#160; &#160; &#160; &#160; RAISE EXCEPTION &#039;l&#039;&#039;objet % empiète sur un autre objet&#039;, NEW.id;<br />&#160; &#160; &#160; END IF;</p><p>&#160; &#160; RETURN NEW;<br />&#160; &#160; END;<br />&#160; $$<br />&#160; LANGUAGE &#039;plpgsql&#039;;</p><br /><p>CREATE CONSTRAINT TRIGGER verif_topo<br />&#160; &#160; AFTER INSERT OR UPDATE ON test.topo1<br />&#160; &#160; FOR EACH ROW EXECUTE FUNCTION admingeo.overlapping_parcel_trigger();</p><br /><p>Cette procédure fonctionne parfaitement mais je dois rentrer en dur le nom de la table sur lequel est posé mon trigger, ce qui n&#039;est pas du tout optimal.<br />J&#039;ai donc essayé d&#039;introduire TG_TABLE_SCHEMA et TG_TABLE_NAME mais sans aucun succès après des dizaines de tentatives.<br />L&#039;un de vous aurait-il une solution à mon problème svp ? <br />Merci d&#039;avance pour votre aide.</p><br /><p>Voici le code de ma dernière tentative :</p><p>CREATE or replace FUNCTION admingeo.overlapping_parcel_trigger()<br />&#160; &#160; RETURNS trigger<br />&#160; &#160; LANGUAGE &#039;plpgsql&#039;<br />&#160; &#160; COST 100<br />&#160; &#160; VOLATILE NOT LEAKPROOF <br />AS $BODY$<br />&#160; &#160; DECLARE<br />&#160; &#160; &#160; c bigint;&#160; &#160; <br />&#160; &#160;&#160; &#160;t1 text;<br />&#160; &#160;&#160; &#160;<br />&#160; &#160; BEGIN<br />&#160; &#160;&#160; &#160; &#160; &#160;&#160; &#160; &#160; &#160;&#160; &#160;<br />&#160; &#160; EXECUTE format(&#039;select (schemaname::text||&#039;&#039;.&#039;&#039;||tablename::text)::regclass t from pg_tables where schemaname=%I and tablename=%I&#039;,TG_TABLE_SCHEMA,TG_TABLE_NAME) INTO t1;&#160; &#160;&#160; &#160;<br />&#160; &#160;&#160; <br />&#160; &#160; &#160; &#160;&#160; &#160;<br />&#160; &#160;&#160; &#160;SELECT Count(*)<br />&#160; &#160; &#160; INTO c<br />&#160; &#160;&#160; &#160;<br />&#160; &#160; &#160; FROM t1<br />&#160; &#160;&#160; &#160;&#160; &#160;&#160; &#160;<br />&#160; &#160; &#160; WHERE ST_Intersects(t1.geom, NEW.geom)<br />&#160; &#160; &#160; AND t1.id != NEW.id<br />&#160; &#160; &#160; AND ST_overlaps(t1.geom, NEW.geom);</p><p>&#160; &#160; &#160; IF c &gt; 0 THEN<br />&#160; &#160; &#160; &#160; RAISE EXCEPTION &#039;l&#039;&#039;objet % empiète sur un autre objet&#039;, NEW.id;<br />&#160; &#160; &#160; END IF;</p><p>&#160; &#160; &#160; RETURN NEW;<br />&#160; &#160; END;<br />&#160; $BODY$;</p><br /><p>Merci.</p>]]></content>
+		<author>
+			<name><![CDATA[SebCham]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=10633</uri>
+		</author>
+		<updated>2022-10-07T09:33:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33774#p33774</id>
+	</entry>
+</feed>

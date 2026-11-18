@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Répartition de charge sur standby physique]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5566&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5566"/>
+	<updated>2019-07-26T05:37:18Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5566</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Répartition de charge sur standby physique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30039#p30039"/>
+		<content type="html"><![CDATA[<p>Plus qu&#039;une réplication synchrone, il faut également positionner la réplication en remote_apply pour attendre l&#039;acquittement du rejeu sur le standby.</p><p>Un autre problème est que chaque requête sera également parsée 2 fois (une fois par pgpool pour savoir où l&#039;envoyer et une fois par postgres).&#160; Ce simple fait rend la balance de charge via un outil externe (quel qu&#039;il soit) plus couteuse que tout envoyer sur un seul serveur avec de l&#039;oltp et des requêtes très rapides.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2019-07-26T05:37:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30039#p30039</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Répartition de charge sur standby physique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30038#p30038"/>
+		<content type="html"><![CDATA[<p>pgpool le fait. Cependant, vous pouvez aussi avoir le cas &quot;SELECT fonction_qui_fait_des_ecritures()&quot; et vous retrouvez avec des SELECT envoyés sur le secondaire qui vont de ce fait échoués. Pgpool propose une parade à ça qui est de lui indiquer toutes les fonctions en lecture seule ou toutes les fonctions en écriture.</p><p>Un autre problème est que toutes les requêtes doivent passer par pgpool pour que cela fonctionne bien. pgpool devient donc votre SPOF. (pgpool ou tout autre outil du même acabit).</p><p>Un autre problème est que vous devez avoir une réplication synchrone entre vos serveurs. Sinon vous n&#039;avez aucune garantie qu&#039;une écriture faite sur le primaire sera immédiatement visible sur le secondaire.</p><p>Autant vous dire tout de suite que cela ne va pas être simple...</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2019-07-25T16:26:35Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30038#p30038</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Répartition de charge sur standby physique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30037#p30037"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />Je cherche la meilleure solution pour répartir la charge des requêtes sur&#160; un serveur postgres maitre et son standby physique.<br />J&#039;aimerai que les transactions en lecture seule aillent sur le slave (ou master si slave indispo ) pour alléger la charge.Mais l&#039;ideal serait qu&#039;un outil tiers le fasse sans qu&#039;on soit obligé de retoucher le code applicatif et gérer cela<br />avec 2 connectiions JDBC&#160; . Existe-t-il un outil ou une stack qui permettre de faire le tri des transactions entrantes pour les rediriger ensuite vers la bonne connexion ? la base étant en autocommit cet outil devrait être capable de dire sur un SELECT &quot;j&#039;envoi cette transaction &quot; vers le seveur standby . A l&#039;opposé si la transaction commence par un BEGIN ou est un ordre DML différent de SELECT alors la transaction sera dirigée vers le master .&#160; <br />Merci</p>]]></content>
+		<author>
+			<name><![CDATA[lajoumard]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7086</uri>
+		</author>
+		<updated>2019-07-25T14:12:35Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30037#p30037</id>
+	</entry>
+</feed>

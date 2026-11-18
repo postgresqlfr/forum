@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Donner accès à pg_read_file à un simple utilisateur]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1400&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1400"/>
+	<updated>2011-05-10T17:31:38Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1400</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Donner accès à pg_read_file à un simple utilisateur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9277#p9277"/>
+		<content type="html"><![CDATA[<p>Il vous suffit de créer une fonction de type security definer qui fait appel à cette fonction. La nouvelle fonction doit évidemment être créé par un superutilisateur. Par exemple :</p><div class="codebox"><pre><code>mortimer=# create function su_read_file(text, bigint, bigint) returns text language sql security definer as $$
+mortimer$# select pg_read_file($1, $2, $3);
+mortimer$# $$;
+CREATE FUNCTION
+mortimer=# \q
+guillaume@laptop:~$ psql -U a mortimer
+psql (9.0.4)
+Type &quot;help&quot; for help.
+
+mortimer=&gt; select pg_read_file(&#039;postgresql.conf&#039;,1,200);
+ERROR:  must be superuser to read files
+mortimer=&gt; select su_read_file(&#039;postgresql.conf&#039;,1,200);
+                su_read_file                
+--------------------------------------------
+  -----------------------------            +
+ # PostgreSQL configuration file           +
+ # -----------------------------           +
+ #                                         +
+ # This file consists of lines of the form:+
+ #                                         +
+ #   name = value                          +
+ #                                         +
+ # (The &quot;=&quot; is optional.)  Whitespace ma
+(1 row)</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-05-10T17:31:38Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9277#p9277</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Donner accès à pg_read_file à un simple utilisateur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9273#p9273"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous,</p><p>Je travaille sur des bases supérieures à 8.0 sous Red-Hat et Cent-OS.</p><p>Nous travaillons à la sécurisation de nos système.</p><p>Plusieurs de nos applicatif se connectent en super-utilisateur (postgres) et utilisent la fonction pg_read_file pour allé lire dans un fichier une valeur SITE qui indique sur quel site l&#039;outil travaille.</p><p>Nous avons créé des &quot;utilisateurs applicatifs&quot;, en restreignant les droits (delete interdit, select/insert/update uniquement sur certaines tables de certains schémas) et apparemment la fonction pg_read_file ne marche plus.</p><p>J&#039;ai lu dans la Doc que &quot;L&#039;utilisation de ces fonctions est restreinte aux superutilisateurs&quot;.</p><p>Y a t&#039;il un moyen de contourner ce problème ? ou existe t&#039;il une autre fonction utilisable par un simple utilisateur ?</p><p>Merci pour les réponses.</p>]]></content>
+		<author>
+			<name><![CDATA[mortimer.pw]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=573</uri>
+		</author>
+		<updated>2011-05-10T06:12:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9273#p9273</id>
+	</entry>
+</feed>

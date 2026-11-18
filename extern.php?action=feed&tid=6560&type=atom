@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Mauvaise configuration des log dans postgresql.conf.]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=6560&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=6560"/>
+	<updated>2023-06-14T13:03:10Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=6560</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Mauvaise configuration des log dans postgresql.conf.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34357#p34357"/>
+		<content type="html"><![CDATA[<p>Les paquets Ubuntu/Debian configurent une rotation de log via lograte avec cette configuration:</p><div class="codebox"><pre><code>$ cat /etc/logrotate.d/postgresql-common
+
+/var/log/postgresql/*.log {
+       weekly
+       rotate 10
+       copytruncate
+       delaycompress
+       compress
+       notifempty
+       missingok
+       su root root
+}</code></pre></div><p>Remplacer weekly par daily dans ce fichier est le plus simple pour avoir un fichier par jour, sauf que le changement de fichier ne se fait pas exactement à 0h.</p><p>Si on veut exactement un fichier par jour 0h-&gt;minuit, il faut changer la configuration dans postgresql.conf avec logging_collector à on, un log_filename et un log_rotation_age personnalisés.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2023-06-14T13:03:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34357#p34357</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Mauvaise configuration des log dans postgresql.conf.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34356#p34356"/>
+		<content type="html"><![CDATA[<p>Pourquoi ne pas mettre en place une rotation des fichiers ou autre ?</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2023-06-14T12:17:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34356#p34356</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Mauvaise configuration des log dans postgresql.conf.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34352#p34352"/>
+		<content type="html"><![CDATA[<p>Bonjour, <br />Je suis sur une VM avec ubuntu et PG 10.<br />Il n&#039;y qu&#039;un seul fichier de logs dans /var/log/postgresql. Peut on supprimer, dans la log en cours, les lignes dont les dates sont antérieures à celle du jour ?</p><p>Merci</p>]]></content>
+		<author>
+			<name><![CDATA[cecile]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7413</uri>
+		</author>
+		<updated>2023-06-14T09:03:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34352#p34352</id>
+	</entry>
+</feed>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Access*Lock sur table temporaire]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3886&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3886"/>
+	<updated>2016-07-26T07:39:38Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3886</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Access*Lock sur table temporaire]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23694#p23694"/>
+		<content type="html"><![CDATA[<p>Bon alors en fait après avoir commencé à récupérer les logs du client, il semble que la table temporaire bloquée n&#039;est finalement pas une table temporaire <img src="http://forums.postgresql.fr/img/smilies/big_smile.png" width="15" height="15" alt="big_smile" /></p><p>On est finalement dans un problème très classique avec des subqueries codées avec les pieds, qui prennent une plombe à s&#039;exécuter et qui verrouillent une table dont une autre session a besoin. Désolé du dérangement...</p>]]></content>
+		<author>
+			<name><![CDATA[herve.lefebvre]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=506</uri>
+		</author>
+		<updated>2016-07-26T07:39:38Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23694#p23694</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Access*Lock sur table temporaire]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23690#p23690"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Si quelqu&#039;un a une idée je suis preneur, parce que ça me laisse perplexe cette histoire.</p></div></blockquote></div><p>Vous êtes certain que le verrou soit sur la table ? pas plutôt sur la session ?</p><div class="quotebox"><blockquote><div><p>Vous pensez qu&#039;il y a un moyen que ce verrouillage provienne d&#039;un hotstandby et/ou du mécanisme de réplication ?</p></div></blockquote></div><p>Non, la table temporaire n&#039;est pas envoyée aux secondaires. Plus exactement, son contenu n&#039;est pas répliqué.</p><div class="quotebox"><blockquote><div><p>Est-ce que un curseur non fermé pourrait laisser traîner des locks et empêcher un DROP par exemple ?</p></div></blockquote></div><p>Oui, bien sûr. Un curseur, c&#039;est la lecture d&#039;un objet. Donc il y a un verrou empêchant la suppression de cet objet ou sa redéfinition.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2016-07-25T14:11:21Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23690#p23690</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Access*Lock sur table temporaire]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23680#p23680"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;ai un problème chez une gros client. </p><p>Ils ont un applicatif qui fait du CREATE TEMP TABLE XXX, et qui ensuite a un DROP TABLE XXX qui se retrouve bloqué à cause d&#039;accessexclusive/sharedlock posés sur la table.</p><p>Alors il y a forcément un truc qui m&#039;échappe, mais de base je ne vois pas comment c&#039;est possible, puisque la table n&#039;est visible qu&#039;au sein de la session qui l&#039;a créée, donc il n&#039;est théoriquement pas possible qu&#039;elle soit encore verrouillée au moment de l&#039;exécution du DROP. De plus un &quot;select locktype,database,relname,page,tuple,virtualxid,transactionid,classid,objid,objsubid,virtualtransaction,pid,mode,granted from pg_locks a, pg_class b where a.relation=b.oid and relname ilike &#039;%XXX%&#039;&quot; montre bien que c&#039;est le virtualtransaction qui effectue le DROP qui possède les locks sur la table.</p><p>Du coup évidemment, nombreuses &quot;orphan temp table&quot; etc.</p><p>Si quelqu&#039;un a une idée je suis preneur, parce que ça me laisse perplexe cette histoire.</p><p>Vous pensez qu&#039;il y a un moyen que ce verrouillage provienne d&#039;un hotstandby et/ou du mécanisme de réplication ?<br />Est-ce que un curseur non fermé pourrait laisser traîner des locks et empêcher un DROP par exemple ?</p>]]></content>
+		<author>
+			<name><![CDATA[herve.lefebvre]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=506</uri>
+		</author>
+		<updated>2016-07-25T13:13:33Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23680#p23680</id>
+	</entry>
+</feed>

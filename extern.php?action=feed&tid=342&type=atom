@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Mise à jour d'une "grosse" table]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=342&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=342"/>
+	<updated>2009-07-09T20:44:17Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=342</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Mise à jour d'une "grosse" table]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1954#p1954"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>l&#039;erreur viendrait de pgadmin qui ne supporte pas de réaliser quelques 36600 requêtes !!!</p></div></blockquote></div><p>Pas très étonnant, il n&#039;est pas vraiment fait pour ça.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2009-07-09T20:44:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1954#p1954</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Mise à jour d'une "grosse" table]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1945#p1945"/>
+		<content type="html"><![CDATA[<p>rebonjour,</p><p>l&#039;erreur viendrait de pgadmin qui ne supporte pas de réaliser quelques 36600 requêtes !!!</p><p>j&#039;ai juste effectué ces requêtes en 3 fois.</p><p>merci encore de vos aides</p><p>RB</p>]]></content>
+		<author>
+			<name><![CDATA[rbidocho]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=204</uri>
+		</author>
+		<updated>2009-07-09T08:59:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1945#p1945</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Mise à jour d'une "grosse" table]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1943#p1943"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>merci pour ces éclaircissements.</p><p>il est vrai que ma requêtes était fausse et je m&#039;en suis rendu compte.<br />de plus pour essayer d&#039;alléger le problème j&#039;ai fais la requête suivante plusieurs milliers de fois d&#039;affiler</p><div class="codebox"><pre><code>UPDATE aaa as yy 
+SET fe=xx.ef
+FROM 
+	(SELECT  em.c, em.s, em.r, em.n, em.p, em.e, em.fe, em.e/ac.a as ef 
+	FROM bbb as ac, aaa as em 
+	WHERE ac.c = em.c AND 
+		  ac.s = em.s AND 
+		  ac.r = em.r AND 
+		  ac.n = em.n AND 
+		  ac.c=&#039;01001&#039;) as xx 
+WHERE xx.c = yy.c AND 
+	  xx.s = yy.s AND 
+	  xx.r = yy.r AND 
+	  xx.n = yy.n AND 
+	  xx.p = yy.p AND 
+	  xx.c=&#039;01001&#039;;
+COMMIT;</code></pre></div><p>en changeant à chaque fois le &#039;01001&#039; par les valeurs successives possibles (36590 valeurs possibles).</p><p>mais cela à planter quand même au bout de la 10466 ème requête avec un code d&#039;erreur :</p><div class="codebox"><pre><code>ERROR:  out of memory
+DETAIL:  Failed on request of size 1048576.</code></pre></div><p>en regardant de plus près, il est vrai que j&#039;ai des valeurs de ac.a qui sont égales à 0 mais elles n&#039;ont pas ac.c, ac.s, ac.r, ac.n en lien dans la table à mettre à jour. Donc normalement, je n&#039;ai jamais la division par 0.</p><p>le fait d&#039;avoir mis COMMIT fait que la table à été mis à jour au mois pour les 10465 premières requêtes (i.e. valeurs de em.c ou ac.c)</p><p>Si vous avez des idées sur l&#039;erreur précédemment citées !!!</p><p>Merci</p><p>RB</p>]]></content>
+		<author>
+			<name><![CDATA[rbidocho]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=204</uri>
+		</author>
+		<updated>2009-07-09T07:51:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1943#p1943</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Mise à jour d'une "grosse" table]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1941#p1941"/>
+		<content type="html"><![CDATA[<p>Et pour répondre aux autres points...</p><div class="quotebox"><blockquote><div><p>UPDATE bbb<br />INNER JOIN aaa<br />ON (bbb.n = aaa.n) <br />AND (bbb.r = aaa.r) <br />AND (bbb.s = aaa.s) <br />AND (bbb.c = aaa.c) <br />SET aaa.f = aaa.e/bbb.a;</p></div></blockquote></div><p>J&#039;ai de très gros doutes sur la bonne syntaxe de cette requête. À mon avis, elle ne passera pas à cause du INNER JOIN. De plus, vous faites un &quot;UPDATE bbb&quot; mais c&#039;est une colonne de aaa que vous mettez à jour. Bref, une construction très bizarre. J&#039;aurais tendance à réécrire votre requête ainsi :</p><div class="codebox"><pre><code>UPDATE aaa
+SET aaa.f = aaa.e/bbb.a
+FROM bbb
+WHERE (bbb.n = aaa.n) 
+AND (bbb.r = aaa.r) 
+AND (bbb.s = aaa.s) 
+AND (bbb.c = aaa.c);</code></pre></div><p>ET je suppose du coup que vous n&#039;avez aucune colonne bbb.a à 0, car sinon c&#039;est une division par zéro, donc un échec de mise à jour, donc la requête entière est annulée.</p><div class="quotebox"><blockquote><div><p>Est ce que cela ne va pas planter en plein milieu ???</p></div></blockquote></div><p>Si elle &quot;plante&quot; quelque soit la raison, cela fera un ROLLBACK des modifications déjà effectuées.</p><div class="quotebox"><blockquote><div><p>Ou peut on faire ce genre de maj par paquet ???</p></div></blockquote></div><p>Oui, c&#039;est possible, mais la façon de le faire dépend de la disponibilité d&#039;une clé primaire ou d&#039;une clé unique.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2009-07-08T18:27:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1941#p1941</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Mise à jour d'une "grosse" table]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1940#p1940"/>
+		<content type="html"><![CDATA[<p>Le out of memory for query result ne doit pas provenir de postgresql, mais du client, qui n&#039;arrive pas à stocker le résultat.</p><p>La requête en dessous n&#039;a aucune raison de planter...</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2009-07-08T14:08:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1940#p1940</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Mise à jour d'une "grosse" table]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1939#p1939"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>j&#039;ai une table aaa qui contient quelques 25 millions de lignes.<br />je voudrais faire un update de toutes les valeurs d&#039;une colonne (f) via une opération avec des valeurs qui sont issues de 2 tables dont l&#039;une est celle que je veux mettre à jour.</p><p>mais déjà quand je fais la &quot;simple&quot; requête suivante :</p><div class="codebox"><pre><code>SELECT 
+  aaa.e/bbb.a as f
+FROM 
+  public.bbb, 
+  public.aaa
+WHERE 
+  bbb.c = aaa.c AND
+  bbb.s = aaa.s AND
+  bbb.r = aaa.r AND
+  bbb.n = aaa.n;</code></pre></div><p>pgadmin me réponds :</p><div class="codebox"><pre><code>out of memory for query result
+
+********** Erreur **********</code></pre></div><p>la table aaa contient :<br />1 pk<br />2 fk<br />2 index</p><p>donc voici ce que je compte faire :</p><div class="codebox"><pre class="vscroll"><code>ALTER TABLE aaa DROP CONSTRAINT aaa_pkey;
+ALTER TABLE aaa DROP CONSTRAINT aaa_p_fkey;
+ALTER TABLE aaa DROP CONSTRAINT aaa_c_fkey;
+ALTER TABLE aaa DROP CONSTRAINT aaa_c_key;
+DROP INDEX ind_fk_bbb;
+DROP INDEX ind_fk_u_1;
+
+UPDATE bbb
+INNER JOIN aaa 
+ON (bbb.n = aaa.n) 
+AND (bbb.r = aaa.r) 
+AND (bbb.s = aaa.s) 
+AND (bbb.c = aaa.c) 
+SET aaa.f = aaa.e/bbb.a;
+
+ALTER TABLE aaa
+  ADD CONSTRAINT aaa_pkey PRIMARY KEY(c, s, r, n, p);
+ALTER TABLE aaa
+  ADD CONSTRAINT aaa_p_fkey FOREIGN KEY (p)
+      REFERENCES u (p) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION;
+ALTER TABLE aaa
+  ADD CONSTRAINT aaa_c_fkey FOREIGN KEY (c, s, r, n)
+      REFERENCES bbb (c, s, r, n) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION;
+ALTER TABLE aaa
+  ADD CONSTRAINT aaa_c_key UNIQUE(c, s, r, n, p);
+CREATE INDEX ind_fk_bbb
+  ON aaa
+  USING btree
+  (c, s, r, n);
+CREATE INDEX ind_fk_u_1
+  ON aaa
+  USING btree
+  (p);</code></pre></div><p>Est ce que cela ne va pas planter en plein milieu ???<br />Ou peut on faire ce genre de maj par paquet ???</p><p>merci de vos contributions</p><p>RB</p><p>ps : config --&gt; <br />postgresql 8.3.7 <br />windows server 2003 r2<br />dell server pe2950<br />Intel Xeon CPU E5310 @ 1.60GHz<br />8 Go de Ram</p>]]></content>
+		<author>
+			<name><![CDATA[rbidocho]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=204</uri>
+		</author>
+		<updated>2009-07-08T09:46:38Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1939#p1939</id>
+	</entry>
+</feed>

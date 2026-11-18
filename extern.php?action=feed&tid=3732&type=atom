@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Soucis utilisation de PGAdmin avec PGPool II]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3732&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3732"/>
+	<updated>2016-01-05T15:15:25Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3732</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Soucis utilisation de PGAdmin avec PGPool II]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22896#p22896"/>
+		<content type="html"><![CDATA[<p>Il faut distinguer la balance de charge de la haute disponibilité, ce sont vraiment deux sujets bien distincts.</p><br /><p>Haproxy ne gère que la balance de charge. Il faut donc y faire passer uniquement les requête en lecture seule et qui peuvent voir des données &quot;en retard&quot; (avec un serveur secondaire, les données ne seront jamais aussi à jour sur sur un serveur primaire). Tout le reste doit passer en direct sur le serveur primaire (ou un pooler de connexion au besoin).</p><br /><p>Pour gérer le serveur primaire, avec notamment des bascule automatiques, vous avez pacemaker avec notamment le resource agent fourni plus haut, ainsi que le resource agent ipAddr2 standard qui permet d&#039;attacher une vIP sur le serveur primaire. Le sujet de la haute disponibilité est suffisamment complexe et sensible pour qu&#039;il mérite que vous y le temps nécessaire à&#160; comprendre toutes les problématiques etc. Une solution de haute disponibilité mal maîtrisée est <strong>toujours</strong> pire que pas de solution de haute disponibilité.</p><p>Si votre besoin se limite à deux nœuds, vous pouvez également regarder du côté de <a href="http://www.repmgr.org/" rel="nofollow">http://www.repmgr.org/</a> .</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2016-01-05T15:15:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22896#p22896</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Soucis utilisation de PGAdmin avec PGPool II]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22895#p22895"/>
+		<content type="html"><![CDATA[<p>Merci pour votre réponse.</p><p>Du coup j&#039;ai repris de zero ma configuration, j&#039;ai donc installé 2VMs HA Proxy pour éviter d&#039;avoir un Single Point Of Failure, avec heartbeat d&#039;installé dessus afin d&#039;avoir une IP virtuelle, puis j&#039;ai ensuite installé 2 VMs PostgreSQL. <br />Mon HA Proxy les vois bien comme en témoigne l&#039;écran ci-dessous : </p><p><span class="postimg"><img src="http://i.imgur.com/Hx0wo0g.png" alt="ha" /></span></p><p>Maintenant là où je coince un peu c&#039;est pour la réplication, ce que j&#039;aimerais c&#039;est pouvoir faire de la réplication Master/Master et pouvoir me connecter via PGadmin à PostgreSQL en passant par mon IP Virtuelle, je me connecte donc sur un des serveurs aléatoirement et si une modification est faite sur l&#039;un (imaginons création d&#039;une base de donnée), elle est automatiquement répliqué sur le second comme ça si un serveur tombe le second prend le relais...<br />Mais d&#039;après ce que j&#039;ai pu lire c&#039;est impossible nativement avec PostgreSQL donc je suis un peu perdu...</p><p>Je suis tombé sur ce tuto :<br /><a href="http://www.y-note.cm/postgresql-replication-masterslave-en-mode-asynchrone/" rel="nofollow">http://www.y-note.cm/postgresql-replica … synchrone/</a></p><p>Il m&#039;a l&#039;air intéressant pour faire de la réplication mais j&#039;ai pas l&#039;impression que c&#039;est compatible avec mon HA Proxy qui redirigera les requêtes en Roundrobin sur les serveurs, si le second est en lecture seule et qu&#039;une requête d&#039;écriture est envoyé sur celui ci, ça ne fonctionnera pas ! Puis si le Master tombe, il faudra intervenir manuellement pour passer le Slave en Master, j&#039;aimerais bien que cela devienne automatique...</p><p>Si vous avez des conseils ou si je suis complètement à coté de la plaque n&#039;hésitez pas à me le dire... Merci <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[Perfect-Dash]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5509</uri>
+		</author>
+		<updated>2016-01-05T12:08:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22895#p22895</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Soucis utilisation de PGAdmin avec PGPool II]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22893#p22893"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><p>Il semblerait que cet article préconise la mise en place d&#039;une réplication <strong>par rejeu des ordres SQL</strong>. C&#039;est bien évidemment une très mauvaise idée, car dans ce cas la réplication a toutes les chances de ne pas être cohérentes, aucun moyen de resynchroniser les données tout en étant extrêmement lent.</p><br /><p>Si vous souhaitez mettre en place de la haute disponibilité, je vous conseille de regarder du côté de pacemaker et des resource agent associés (https://github.com/dalibo/pgsql-resource-agent par exemple). Pour la répartition de charge, il n&#039;y a pas non plus de solution magique. Si vous voulez vraiment gagner en performance, gérez 2 connexions dans votre appli (requêtes en écriture + requêtes en lecture seules ne pouvant pas voir des données en retard, et tout le reste), et utilisez un outil comme haproxy par dessus.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2016-01-04T16:53:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22893#p22893</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Soucis utilisation de PGAdmin avec PGPool II]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22892#p22892"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous,</p><p>J&#039;ai installé PGPool II afin de faire de la HA, Répartition de charges et de la réplication en suivant ce tuto : <a href="http://www.synbioz.com/blog/postgresql_replication_pgpool2" rel="nofollow">http://www.synbioz.com/blog/postgresql_ … on_pgpool2</a></p><p>Et au final cela à l&#039;air de fonctionné, même si je n&#039;ai toujours pas compris comment ça se passe si mon node 2 tombe et que des modifications continue de s&#039;effectué sur le node 1, une fois mon node 2 réparer comment re synchroniser les données ?</p><p>Mais mon autre problème c&#039;est que je me suis connecté avec PGAdmin, j&#039;arrive à créer des bases de données mais lorsque je veux supprimer la base, impossible !! Il me dit qu&#039;une connexion est déjà en cours sur la base... Ce qui est vrai&#160; car en regardant dans les connexions active dans les processus j&#039;ai bien cela : pgpool: postgres bddtest 10.1.10.12(60746) idle. Le truc c&#039;est dans PGAdmin pour supprimer une base, il faut cliquez sur la base, mais si l&#039;on clique on est connecté à la base donc il ne veut pas supprimé !</p><p>Le seul moyen que j&#039;ai trouver c&#039;est de faire un clic droit sur la base -&gt; se déconnecter de la base (Croix rouge sur la base) puis de lancer la console et executé la commande : &quot;drop database bddtest;&quot;</p><p>Mais comment cela ce fait il ? Y a t-il un paramètre à modifier dans PGPool pour que cela soit possible ? Car je n&#039;ai pas l&#039;impression que lorsque je suis connecté en direct sur les nodes, cela le fait...</p><p>Merci d&#039;avance pour votre réponse.</p>]]></content>
+		<author>
+			<name><![CDATA[Perfect-Dash]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5509</uri>
+		</author>
+		<updated>2016-01-04T16:04:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22892#p22892</id>
+	</entry>
+</feed>

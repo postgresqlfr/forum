@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / buffers_clean de bgwriter]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3122&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3122"/>
+	<updated>2014-05-01T18:55:00Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3122</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  buffers_clean de bgwriter]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19816#p19816"/>
+		<content type="html"><![CDATA[<p>Alors merci bien pour tes informations sur ce sujet.</p><p>Cdlt</p>]]></content>
+		<author>
+			<name><![CDATA[Philippe PAVY]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1382</uri>
+		</author>
+		<updated>2014-05-01T18:55:00Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19816#p19816</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  buffers_clean de bgwriter]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19809#p19809"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Etes vous d&#039;accord avec ces explications ?</p></div></blockquote></div><p>Oui.</p><div class="quotebox"><blockquote><div><p>Avez-vous d&#039;autres points à ajouter concernant le fonctionnement ou le paramétrage ?</p></div></blockquote></div><p>Non, pas spécialement <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-05-01T15:32:02Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19809#p19809</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  buffers_clean de bgwriter]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19808#p19808"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><p>Merci &#039;Gleu&#039; pour cet éclaircissement.</p><br /><p>Donc si j&#039;ai bien compris:<br />&#160; &#160; &#160;_ bgwriter est un processus qui tourne en tâche de fond et qui est lancé au lancement de l&#039;instance,<br />&#160; &#160; &#160;_ Ce processus traite de manière régulière les Checkpoints<br />&#160; &#160; &#160; &#160; &#160; Paramètres: checkpoint_segments, checkpoint_timeout et checkpoint_completion_target,<br />&#160; &#160; &#160;_ En plus des checkpoints, bgwriter assure en boucle la descente sur disque de buffers au besoin. Le fait t&#039;il aussi pendant la phase de checkpoint: Je regarderai cela.<br />&#160; &#160; &#160; &#160; &#160; Paramètres: bgwriter_delay, bgwriter_lru_maxpages et bgwriter_lru_multiplier</p><br /><p>Optimisations et règles de fonctionnements<br />&#160; &#160; &#160;_ Eviter au mieux les écritures de buffers par les backends. Les écritures doivent être prises en charge par le bgwriter, soit en phase de checkpoint soit directement à l&#039;initiative de bgwriter.<br />&#160; &#160; &#160;_ Empêcher le déclenchement des checkpoints par dépassement du checkpoint_segments. Le déclenchement doit se faire par checkpoint_timeout.<br />&#160; &#160; &#160;_ Il peut être nécessaire d&#039;augmenter le shared_buffers si bgwriter ne suit pas la charge de modifications en base.<br />&#160; &#160; &#160;_ Lisser le taux de descentes des buffers sur disque en ajustant les paramètres checkpoint_completion_target et bgwriter*</p><br /><p>Etes vous d&#039;accord avec ces explications ?<br />Avez-vous d&#039;autres points à ajouter concernant le fonctionnement ou le paramétrage ?</p><br /><p>Merci à vous<br />Cdlt</p>]]></content>
+		<author>
+			<name><![CDATA[Philippe PAVY]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1382</uri>
+		</author>
+		<updated>2014-05-01T14:36:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19808#p19808</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  buffers_clean de bgwriter]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19804#p19804"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Comment doit être ce compteur par rapport à buffers_checkpoint ?</p></div></blockquote></div><p>En fait, peu importe que les buffers soient écrits par le checkpointer ou par le writer process. L&#039;important, c&#039;est, comme vous le dites, qu&#039;ils ne soient pas écrits par les backends.</p><div class="quotebox"><blockquote><div><p>Pourquoi et à quel moment bgwriter doit-il ou décide t&#039;il d&#039;écrire lui même des buffers ?</p></div></blockquote></div><p>Par défaut, toutes les 200ms, le writer process va prendre en considération un certain nombre de buffers dans le cache et écrire sur disque ceux qui sont modifiés. La configuration se fait via les paramètres bgwriter_* : bgwriter_delay, bgwriter_lru_maxpages et bgwriter_lru_multiplier.</p><p>Quand un CHECKPOINT se déclenche, le writer process (et maintenant le checkpointer) va récupérer tous les blocs modifiés et les écrire tous sur disque.</p><p>Donc le writer process a deux comportements, suivant qu&#039;il exécute un CHECKPOINT ou qu&#039;il n&#039;en exécute pas (auquel cas il fait quand même des écritures partielles de nettoyage très fréquemment).</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-04-30T19:40:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19804#p19804</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[buffers_clean de bgwriter]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19803#p19803"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Dans la table &#039;pg_stat_bgwriter&#039; on trouve les informations sur les processus qui ont du assurer l&#039;écriture des buffers modifiés: <br />&#160; &#160; &#160;buffers_checkpoint lorsque c&#039;est le checkpoint qui a fait le travail,<br />&#160; &#160; &#160;buffers_clean pour bgwriter,<br />&#160; &#160; &#160;buffers_backend lorsque c&#039;est un processus client.</p><p>buffers_checkpoint, facile à comprendre et c&#039;est lui qui doit assurer le maximum.<br />buffers_backend, tout aussi facile, mais là le compteur doit être faible pour que les backends fassent ce pour quoi ils sont fait: Répondre aux clients rapidement.</p><p>Par contre j&#039;ai un plus de mal avec &#039;buffers_clean&#039;. Comment doit être ce compteur par rapport à buffers_checkpoint ? Pourquoi et à quel moment bgwriter doit-il ou décide t&#039;il d&#039;écrire lui même des buffers ?<br />Ce que j&#039;ai aussi un peu de mal à comprendre, c&#039;est cette différence faite entre &#039;checkpoint&#039; et &#039;bgwriter&#039; !!! Il me semblait que les &#039;checkpoint&#039; déclenchaient le travail du bgwriter qui lui était tout le temps lancé.... Le principe de fonctionnement de cet ensemble bgwriter et checkpoint n&#039;est pas très clair.</p><p>Pouvez-vous m&#039;apporter quelques explications sur le sujet, dans le but de pouvoir plus facilement configurer l&#039;ensemble des paramètres bgwriter et checkpoint du postgresql.conf ?</p><p>Merci d&#039;avance.<br />Cdlt</p>]]></content>
+		<author>
+			<name><![CDATA[Philippe PAVY]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1382</uri>
+		</author>
+		<updated>2014-04-30T16:09:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19803#p19803</id>
+	</entry>
+</feed>

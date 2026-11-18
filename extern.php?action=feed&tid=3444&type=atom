@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Héritage entre tables]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3444&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3444"/>
+	<updated>2015-02-18T15:15:49Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3444</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Héritage entre tables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21550#p21550"/>
+		<content type="html"><![CDATA[<p>Merci beaucoup dverite. Je passais également par la table mère et je ne comprenais pas d&#039;où venait le problème.</p>]]></content>
+		<author>
+			<name><![CDATA[CedL]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=4731</uri>
+		</author>
+		<updated>2015-02-18T15:15:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21550#p21550</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Héritage entre tables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21452#p21452"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>J&#039;ai fait l&#039;erreur de charger en commençant par les tables filles</p></div></blockquote></div><p>Ce n&#039;est pas une erreur, c&#039;est comme ça qu&#039;il faut faire.</p><br /><p>L&#039;héritage dans PostgreSQL concerne la structure des tables uniquement. Le fait d&#039;insérer dans une table fille ne propage pas les<br />données dans la table mère et l&#039;inverse non plus.</p><p>Une erreur classique quand on débute avec l&#039;héritage est de croire qu&#039;on accède aux données de la table mère en faisant:<br /> SELECT * FROM table_mere;</p><br /><p>En réalité ce SELECT renvoie bien les lignes de la table mère s&#039;il y en a, mais aussi celles de toutes les <br />tables filles pour la partie des colonnes héritant de la table mère.</p><br /><p>Il faut faire:<br /> SELECT * FROM ONLY table_mere;</p><p>pour avoir les lignes de la table parent sans celles des tables héritées. Dans le cas typique où cette table parente sert uniquement à définir une structure héritable, elle ne contiendra aucune ligne.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2015-02-09T13:35:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21452#p21452</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Héritage entre tables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21437#p21437"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />PostgreSQL 9.4 sur Thinkpad W500 Vista&#160; build 6002</p><p>J&#039;ai introduit de l&#039;héritage dans mon modèle de la façon suivante:<br />Table entreprise = table mère.<br />Tables bureau d&#039;étude, maitre d&#039;oeuvre, fabricant, gestionnaire. Ces 4 tables héritent de la table entreprise.<br />J&#039;ai commencé à charge la base en utilisant pdAdminIII/afficher les données/visualiser les 100 premières lignes.</p><p>J&#039;ai fait l&#039;erreur de charger en commençant par les tables filles. Celles-ci ont été définies avec 6 colonnes présentent dans la table mère et 4 colonnes propres à la table fille. J&#039;ai saisi l&#039;entreprise correspondant à chaque fille dans la grille de la table fille. </p><p>Résultat: la table entreprise a été mis à jour automatiquement avec des lignes dont la clé est dupliquée. Par ex. si dans la table bureau d&#039;étude j&#039;ai entré 4 bureaux d&#039;étude avec le même code entreprise, je retrouve 4 lignes ayant le même code entreprise dans la table entreprise.</p><p>Comment faire pour revenir à une ligne dans la table mère ? (postgreSQL refuse la suppression de 3 lignes sur 4).</p><p>La doc dit: &quot;si villes.nom est déclarée UNIQUE ou clé primaire (PRIMARY KEY), cela n&#039;empêche pas la table capitales de posséder des<br />lignes avec des noms dupliqués dans villes. Et ces lignes dupliquées s&#039;affichent par défaut dans les requêtes sur villes. En fait,<br />par défaut, capitales n&#039;a pas de contrainte d&#039;unicité du tout et, du coup, peut contenir plusieurs lignes avec le même nom. Une<br />contrainte d&#039;unicité peut être ajoutée à capitales mais cela n&#039;empêche pas la duplication avec villes ;&quot;</p><p>Je ne sais pas si cela s&#039;applique vraiement au pb que j&#039;ai décrit.<br />Pour résoudre ce problème, je pense défaire ce que j&#039;ai saisi dans la base (table mère et filles) mais comme il y a beaucoup de clés étrangères c&#039;est un long labeur!!!</p><p>Je vous remercie de vos suggestions.</p>]]></content>
+		<author>
+			<name><![CDATA[pjmric]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=4216</uri>
+		</author>
+		<updated>2015-02-06T15:53:54Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21437#p21437</id>
+	</entry>
+</feed>

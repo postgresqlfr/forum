@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / delete in select]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2302&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2302"/>
+	<updated>2012-10-10T19:14:01Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2302</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  delete in select]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15394#p15394"/>
+		<content type="html"><![CDATA[<p>oui, c&#039;est ce qu&#039;il m&#039;a été répondu par Frédéric BROUARD sur fr.comp.applications.sgbd :<br />Message-ID: &lt;5075abb8$0$1720$426a74cc@news.free.fr&gt;<br />uuid a deux algo possible md5 et sha1.<br />clairement l&#039;uuid/md5 par ex est tout simplement le md5 tronçonné.<br />voire : <a href="http://phpdevblog.free.fr/?p=12" rel="nofollow">http://phpdevblog.free.fr/?p=12</a><br />donc, du seul point de vue de mon utilisation c&#039;est kifkif.<br />je concatène mon objet en string et j&#039;en prend le sha1, plus long que le md5 me semble t&#039;il pour la même chaine.<br />cerise sur le gateau les algos php et ruby donnent le même résultat, je viens juste de tester &quot;à la main&quot;.<br />yapuka )))</p><p>non, ce n&#039;est pas évident de synchroniser deux bases : trouver les insertions, c&#039;est fastoche, trouver les modifs aussi MAIS à condition qu&#039;il n&#039;y en ait que sur un seul ordi, sinon ce n&#039;est pas possible.<br />DONC, ça implique une discipline : n&#039;utiliser qu&#039;un ordi à la fois et synchroniser dès que la connection est possible...<br />pour les suppressions, c&#039;est autre chose, il faut que mon code enregistre dans une base à part les suppressions sinon à la synchro suivante le code recréerait de l&#039;autre côté...</p>]]></content>
+		<author>
+			<name><![CDATA[unbewusst]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1641</uri>
+		</author>
+		<updated>2012-10-10T19:14:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15394#p15394</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  delete in select]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15393#p15393"/>
+		<content type="html"><![CDATA[<p>Ça m&#039;a l&#039;air bien compliqué mais ce que vous essayez de faire est intrinsèquement compliqué. Pour infos, le type uuid peut vous aider à avoir un identifiant &quot;universel&quot;.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-10-10T18:04:07Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15393#p15393</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  delete in select]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15380#p15380"/>
+		<content type="html"><![CDATA[<p>Merci bien pour cette précision, je vais donc devoir lire la doc sur ctid.<br />M&#039;enfin là c&#039;était juste pour un dépannage suite à fausse manip.<br />Donc, si je comprends bien il vaut mieux ajouter un rowid ou quelque chose dans le genre.<br />Justement, je profite de ce fil pour avoir des tuyaux concernant les clés sur une base.<br />En fait ce que je cherche à faire c&#039;est à synchroniser deux bases sur deux ordis différents.<br />Je trouve que ce n&#039;est pas facile.<br />Par exemple le rowid d&#039;une base n&#039;est pas vraiment utile pour la synchro.<br />Ce que j&#039;ai imaginé :<br />- créer, à l&#039;insertion d&#039;une nouvelle entrée, une clé qui serait le md5 de la concatenation de tous les champs, appelons-la &quot;cle_insert&quot; , elle sera la clé primaire pour repérer les objets ;<br />- enregistrer le datetime à la création soit la colonne &quot;dt_insert&quot; ;<br />- créer à chaque modif d&#039;une ligne une clé, au départ de valeur identique à &quot;cle_insert&quot; et qui serait elle le md5 de la concatenation de la ligne modifiée, appellons-la &quot;cle_modif&quot;, bien sûr &quot;cle_insert&quot; ne change jamais.<br />- enregistrement le datetime à la modif soit la colonne &quot;dt_modif&quot; ;</p><p>donc avec ces deux cles je peux repérer très facilement :<br />- les insertions, &quot;cle_insert&quot; existe d&#039;un côte mais pas de l&#039;autre ;<br />- les modifications simples càd celles où un objet n&#039;a été changé que d&#039;un côté, les dt_modif seront différents, les cle_modif aussi et ce pour la meme cle -invariable- cle_insert ;<br />- vient le problème plus délicat où une ligne de même cle_insert a été changée des deux côtés &quot;en même temps&quot; du point de vue de la synchronisation. car la synchro ne pourra se faire que lorsque les deux ordis seront connectés au net, ce qui n&#039;est pas toujours le cas, l&#039;un des deux étant un portable.<br />dans ce cas, je ne vois pas trop comment faire mis à part avoir une sorte de cache enregistrant l&#039;état de la base à chaque synchro.<br />aussi je ne vois pas trop comment régler le problème des suppressions de ligne sinon qu&#039;il faut enregistrer qu&#039;une ligne a été supprimée pour que ce soit su au moment de la synchro.</p><p>bon tout cela est un peu en vrac...</p>]]></content>
+		<author>
+			<name><![CDATA[unbewusst]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1641</uri>
+		</author>
+		<updated>2012-10-10T07:26:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15380#p15380</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  delete in select]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15379#p15379"/>
+		<content type="html"><![CDATA[<p>Oulala, attention en manipulant les CTID. Au premier UPDATE, ils changent. Donc vous pourriez très bien mettre à jour ou supprimer une ligne qui ne correspond pas à celle que vous voulez.</p><p>Dans le cas en question, ça peut être un moyen mais mieux vaut regarder la définition de la table. Si elle contient une contrainte unique ou une clé primaire, il est clairement préférable de passer par ça.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-10-09T20:20:54Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15379#p15379</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  delete in select]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15372#p15372"/>
+		<content type="html"><![CDATA[<p>Exactement, </p><p>ctid&#160; est un identifiant unique pour chaque ligne, et ça permet de faire la différence entre les lignes.</p>]]></content>
+		<author>
+			<name><![CDATA[youssef]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=259</uri>
+		</author>
+		<updated>2012-10-09T09:24:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15372#p15372</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  delete in select]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15371#p15371"/>
+		<content type="html"><![CDATA[<p>Bon, j&#039;ai trouvé une solution élégante sur le net <a href="http://www.postgresonline.com/journal/archives/22-Deleting-Duplicate-Records-in-a-Table.html" rel="nofollow">http://www.postgresonline.com/journal/a … Table.html</a> &quot;DELETING DUPLICATE RECORDS IN A TABLE&quot; :</p><div class="codebox"><pre><code>yt_tests=# select ctid, * from cities where cities.name like &#039;Merr%&#039; ;
+ ctid  |  name  | location 
+-------+--------+----------
+ (0,2) | Merris | (0.5,49)
+ (0,4) | Merris | (0.5,49)
+(2 rows)
+
+yt_tests=# select max(ctid) from cities where cities.name like &#039;Merr%&#039; ;
+  max  
+-------
+ (0,4)
+(1 row)
+
+yt_tests=# delete from cities where ctid not in (select max(ctid) from cities where cities.name like &#039;Merr%&#039;);
+DELETE 1
+
+yt_tests=# select ctid, * from cities where cities.name like &#039;Merr%&#039; ;
+ ctid  |  name  | location 
+-------+--------+----------
+ (0,4) | Merris | (0.5,49)
+(1 row)</code></pre></div><p>Toute l&#039;astuce est de prendre le max de ctid...</p>]]></content>
+		<author>
+			<name><![CDATA[unbewusst]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1641</uri>
+		</author>
+		<updated>2012-10-09T09:06:02Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15371#p15371</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  delete in select]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15370#p15370"/>
+		<content type="html"><![CDATA[<p>Je me gouratte, c&#039;est bien &quot;ctid&quot; et non &quot;cityid&quot; comme je l&#039;ai écrit précédemment.<br />ça retourne d&#039;ailleurs un couple de valeurs :</p><div class="codebox"><pre><code>yt_tests=# select ctid, * from cities where cities.name like &#039;Merr%&#039; ;
+ ctid  |  name  | location 
+-------+--------+----------
+ (0,2) | Merris | (0.5,49)
+ (0,4) | Merris | (0.5,49)
+(2 rows)</code></pre></div><p>je dois regarder la doc pour savoir comment faire un delete sur un des couples ctid retournés.</p>]]></content>
+		<author>
+			<name><![CDATA[unbewusst]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1641</uri>
+		</author>
+		<updated>2012-10-09T08:52:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15370#p15370</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  delete in select]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15369#p15369"/>
+		<content type="html"><![CDATA[<p>Ah d&#039;accord, merci beaucoup, je ne savais pas du tout que le limit n&#039;était que pour la présentation du résultat.<br />Dans ma base de test, il n&#039;y a pas de cityid, c&#039;est créé tout seul ?<br />Je veux dire c&#039;est interne à postgres ?</p>]]></content>
+		<author>
+			<name><![CDATA[unbewusst]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1641</uri>
+		</author>
+		<updated>2012-10-09T08:47:00Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15369#p15369</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  delete in select]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15367#p15367"/>
+		<content type="html"><![CDATA[<p>Limit c&#039;est juste pour limiter le résultat qui sera affiché, </p><p>pour supprimer les doublons tu peux utiliser la colonne ctid</p><div class="codebox"><pre><code>select ctid, * from cities where cities.name like &#039;Merr%&#039; ; </code></pre></div><p>puis&#160; faire un </p><div class="codebox"><pre><code>delete from cities where ctid = .... </code></pre></div><p>une des deux valeurs récupérée dans la première requête.</p>]]></content>
+		<author>
+			<name><![CDATA[youssef]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=259</uri>
+		</author>
+		<updated>2012-10-09T07:36:38Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15367#p15367</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[delete in select]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15365#p15365"/>
+		<content type="html"><![CDATA[<p>c&#039;est juste un petit test que je viens de faire.<br />j&#039;ai une table cities qui a des doublons, en fait toutes les entrées sont en double suite à une fausse manip de ma part...</p><p>bon si je fais un :</p><div class="codebox"><pre><code>select cities.name from cities where cities.name like &#039;Merr%&#039; limit 1;</code></pre></div><p>j&#039;ai un résultat unique (limit 1) :</p><div class="codebox"><pre><code>  name  
+--------
+ Merris
+(1 row)</code></pre></div><p>normal, MAIS ce qui ne &quot;me&quot; semble pas normal c&#039;est que si je fais un delete in avec le précédent select, ça m&#039;endelete 2 :</p><div class="codebox"><pre><code>delete from cities where cities.name in (select cities.name from cities where cities.name like &#039;San%&#039; limit 1);
+DELETE 2</code></pre></div><p>j&#039;sais bien, c&#039;est forcément SQL qui a raison...</p>]]></content>
+		<author>
+			<name><![CDATA[unbewusst]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1641</uri>
+		</author>
+		<updated>2012-10-09T06:58:38Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15365#p15365</id>
+	</entry>
+</feed>

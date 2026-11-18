@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / format date sortie]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1050&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1050"/>
+	<updated>2010-11-08T13:31:39Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1050</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  format date sortie]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6562#p6562"/>
+		<content type="html"><![CDATA[<p>to_char(2001-12-03, &#039;dd/mm/yyyy&#039;) ne peut pas marcher.<br />to_char(&#039;2001-12-03&#039;, &#039;dd/mm/yyyy&#039;) pourrait. Malgré tout, c&#039;est assez inintéressant de le faire: &#039;2001-12-03&#039; est une chaîne de caractère, pas une date.<br />Écrire to_char(&#039;2001-12-03&#039;, &#039;dd/mm/yyyy&#039;), c&#039;est espérer que le moteur reconnaisse &#039;2001-12-03&#039; comme une date, ce qui n&#039;est évidemment pas parfaitement garanti. Ici, ça marchera, parce que vous avez fourni la date au format ISO.</p><p>Une façon explicite de le faire serait d&#039;écrire :</p><p>to_char(to_date(&#039;2001-12-03&#039;,&#039;yyyy-mm-dd&#039;),&#039;dd/mm/yyyy&#039;)</p><p>Là, tous les types des paramètres des fonctions sont bons: on passe à to_date une chaîne de caractères, et à to_char une date?</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-11-08T13:31:39Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6562#p6562</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  format date sortie]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6560#p6560"/>
+		<content type="html"><![CDATA[<p>Disons que j&#039;essaie juste de me familiariser avec postgres et c&#039;est simplement une curiosité que j&#039;avais. J&#039;essaie de comprendre les différentes possibilités sur les différents types et leur format.</p><p>Dans la documentation de postgres j&#039;ai lu que l&#039;on pouvait modifier l&#039;affichage des dates avec datestyle, mais quand j&#039;ai fait la modification cela n&#039;a pas foctionné. Donc je me suis demandé s&#039;il y avait une autre possibilité.</p>]]></content>
+		<author>
+			<name><![CDATA[tomlaurent]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=956</uri>
+		</author>
+		<updated>2010-11-08T13:18:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6560#p6560</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  format date sortie]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6558#p6558"/>
+		<content type="html"><![CDATA[<p>Avant de chercher une solution, pouvez-vous nous expliquer votre problème ? pourquoi voulez-vous que la date d&#039;une donnée affichée par PostgreSQL soit affichée dans le format DD/MM/YYY ? c&#039;est normalement quelque chose que fait une application cliente, pas PostgreSQL.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-11-08T12:11:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6558#p6558</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  format date sortie]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6556#p6556"/>
+		<content type="html"><![CDATA[<p>Bonjour</p><p>Donc j&#039;ai regardé plusieurs tutorial sur le language sql.</p><p>Si je comprends bien, je ne peux pas avoir comme affichage dans ma clonne de type &quot;date&quot; dd/mm/yyyy</p><p>Par contre je peux avoir dans ma colonne de type char dd/mm/yyyy.</p><p>J&#039;ai également essayé de créer un nouveau type avec la fonction to_char pour mettre la date au format dd/mm/yyyy mais je n&#039;ai pas réussi. J&#039;ai l&#039;impression que &quot;date&quot; n&#039;est pas reconnu comme donnée. Sur plusieurs site, il y a comme exemple to_char(2001-12-03, &#039;dd/mm/yyyy&#039;) où il y a vraiement une donnée concrète. Mais ne peut-on pas le généraliser ?</p><p>Voici le code que j&#039;ai voulu faire pour créer mon type:</p><p>CREATE TYPE &quot;non_type&quot;(<br />to_char(date, &#039;dd/mm/yyyy&#039;)<br />);</p><p>Sinon pour créer un type au format dd/mm/yyyy, j&#039;ai également essayé de faire:</p><p>CREATE TYPE &quot;nom_type&quot; (<br />dd integer,<br />/,<br />mm integer,<br />/,<br />yyyy integer);</p><p>Mais les &quot;/&quot; bloquent la création. Si quelqu&#039;un à la moindre idée...</p><p>Autre piste pour essayer d&#039;afficher le format date en dd/mm/yyyy, j&#039;ai essayé de regarder les fichiers de configuration pour voir si l&#039;affichage par défaut était en iso, mais je n&#039;ai rien trouvé. Savez-vous si c&#039;est possible en modifiant certains fichiers ou pas?</p><p>Merci encore</p><p>tomlaurent</p>]]></content>
+		<author>
+			<name><![CDATA[tomlaurent]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=956</uri>
+		</author>
+		<updated>2010-11-08T11:08:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6556#p6556</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  format date sortie]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6542#p6542"/>
+		<content type="html"><![CDATA[<p>Bonjour :</p><p>1: c&#039;est normal, puisque to_char génère une chaine de caractère à partir d&#039;une date. Si vous voulez l&#039;inverse (une date à partir d&#039;une chaine, c&#039;est to_date)</p><p>2: vous confondez date et format de date: dans une colonne date, vous stockez une date, pas sa représentation textuelle. C&#039;est à vous de lui demander explicitement un format d&#039;affichage (donc une conversion en chaine de caractère, ce qu&#039;on vous affiche, c&#039;est une chaine).</p><p>3: Recherchez des choses avec comme mot clé &#039;tutorial SQL&#039;, il y en a un certain nombre.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-11-06T19:05:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6542#p6542</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  format date sortie]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6540#p6540"/>
+		<content type="html"><![CDATA[<p>Alors j&#039;ai essayé d&#039;utiliser la fonction to_char, mais j&#039;ai quelques petits problèmes:</p><p>1- le résultat que j&#039;obtiens est de type char et non de type date;</p><p>2- si je veux changer mes données de ma colonne de type date dont le format ne me plaît pas et est sous la forme yyyy-mm-dd, j&#039;ai essayé de créer une autre colonne de type char pour lui injecter les données de type date en utilisant la fonction to_char, mais cela ne fonctionne pas;</p><p>3- J&#039;aurai également voulu savoir si quelqu&#039;un connaît un site internet pour apprendre les bases du SQL et de postgres avec des exemples.</p><p>Merci encore</p>]]></content>
+		<author>
+			<name><![CDATA[tomlaurent]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=956</uri>
+		</author>
+		<updated>2010-11-06T10:55:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6540#p6540</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  format date sortie]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6539#p6539"/>
+		<content type="html"><![CDATA[<p><strong>Guillaume</strong> tu est plus rapide <img src="http://forums.postgresql.fr/img/smilies/tongue.png" width="15" height="15" alt="tongue" /></p><p>salut à tous au passage.</p>]]></content>
+		<author>
+			<name><![CDATA[NOURI]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=644</uri>
+		</author>
+		<updated>2010-11-05T22:47:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6539#p6539</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  format date sortie]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6538#p6538"/>
+		<content type="html"><![CDATA[<p>La fonction to_char devrait vous permettre de le faire.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-11-05T22:43:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6538#p6538</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[format date sortie]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6537#p6537"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;ai un problème sur un type date d&#039;une de mes colonnes. En effet je voudrais avoir comme type de date le format européen: dd/mm/yyyy</p><p>Or pour cela j&#039;ai lu qu&#039;il fallait lancer comme requête:</p><p>ALTER DATABASE &quot;mabase&quot; SET datestyle=sql, dmy;</p><p>Or cela ne me permet que de pouvoir ajouter des données sous la forme dd/mm/yyyy mais dans l&#039;affichage, j&#039;ai uniquement yyyy-mm-dd, ce qui est le type date par défaut dans postgres.</p><p>Je précise que je débute avec postgres, j&#039;ai la version 9.</p><p>pour le datestyle, le format est bien pris en compte dans la base de données. J&#039;ai également essayer de mettre European, ce qui ne change rien.</p><p>Si quelqu&#039;un a une idée de comment s&#039;y prendre.</p><p>Par avance, merci</p>]]></content>
+		<author>
+			<name><![CDATA[tomlaurent]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=956</uri>
+		</author>
+		<updated>2010-11-05T22:08:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6537#p6537</id>
+	</entry>
+</feed>

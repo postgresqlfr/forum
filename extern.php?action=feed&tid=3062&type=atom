@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / impossible de tuer une requête]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3062&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3062"/>
+	<updated>2014-04-07T12:18:18Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3062</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  impossible de tuer une requête]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19570#p19570"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>est-ce qu&#039;un statement_timeout pourrait m&#039;aider (j&#039;en doute vu que mon kill -15 ne marche pas) ?</p></div></blockquote></div><p>Toujours possible d&#039;essayer mais j&#039;avoue que je doute que cela fonctionne mieux que le kill -15.</p><div class="quotebox"><blockquote><div><p>y-a-t-il un moyen de positionner un timeout sur le read et sur le write du socket côté postgres (l&#039;équivalent du setsockopt). Je n&#039;ai rien trouvé dans ce sens dans postgresql.conf ?</p></div></blockquote></div><p>Ailleurs, je ne sais pas. Mais pas dans le postgresql.conf.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-04-07T12:18:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19570#p19570</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  impossible de tuer une requête]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19568#p19568"/>
+		<content type="html"><![CDATA[<p>Bonjour.<br />Quelques investigations supplémentaires m&#039;ont mené à constater les choses suivantes :<br />- le process est en état S <br />- un kill -15 n&#039;y fait rien<br />- le process est bloqué dans l&#039;appel system : sendto</p><p>Je pense que le client (jdbc) a initié une requête et qu&#039;il ne lit pas les résultats, ou que le close n&#039;est pas fait sur le résultset. La requête ramenant suffisamment de données, postgres écrit dans le socket et fini par remplir les buffer TCP qui ne sont pas vidés par le client , d&#039;où le blocage. En tuant le process java côté client, cela décoince bien le process côté postgres. <br />Questions :<br />&#160; - est-ce qu&#039;un statement_timeout pourrait m&#039;aider (j&#039;en doute vu que mon kill -15 ne marche pas) ?<br />&#160; - y-a-t-il un moyen de positionner un timeout sur le read et sur le write du socket côté postgres (l&#039;équivalent du setsockopt). Je n&#039;ai rien trouvé dans ce sens dans postgresql.conf ?</p>]]></content>
+		<author>
+			<name><![CDATA[kiki]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3273</uri>
+		</author>
+		<updated>2014-04-07T11:59:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19568#p19568</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  impossible de tuer une requête]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19504#p19504"/>
+		<content type="html"><![CDATA[<p>Bonjour.<br />Il est possible effectivement que les données soient déjà dans le cache. Il faudrait que je re-teste cela sur de la la recette.<br />Par contre en ré-examinant les logs (on ne regarde jamais assez les logs :-( ) j&#039;ai trouvé un message d&#039;erreur très interessant : <br />&quot;stack depth limit exceeded&quot; sur un process dont la requête durait depuis des heures. Après vérification du status de ce process (ps -efl) ce dernier était en S (Interruptible sleep). J&#039;ai donc modifié max_stack_depth. Je me pose toutefois la question : ok, la requête a fait exploser la pile, postgres le détecte bien (puisqu&#039;il l&#039;indique dans ses logs), mais pourquoi le process reste-t-il ? Même en état S, à priori les verrous sont toujours là ce qui est bloquant pour les autres requêtes. dans tous les cas j&#039;attends que cela se reproduise pour aller un peu plus loin dans l&#039;analyse.</p>]]></content>
+		<author>
+			<name><![CDATA[kiki]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3273</uri>
+		</author>
+		<updated>2014-03-28T10:46:38Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19504#p19504</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  impossible de tuer une requête]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19503#p19503"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>quand tu relance ta requête, est-ce-que tu es sur que les données n&#039;étaient&#160; pas dans le cache système?</p>]]></content>
+		<author>
+			<name><![CDATA[Postgres.0]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1310</uri>
+		</author>
+		<updated>2014-03-28T09:36:31Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19503#p19503</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  impossible de tuer une requête]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19496#p19496"/>
+		<content type="html"><![CDATA[<p>Bonjour.<br />ok. Je vérifierai cela la prochaine fois.<br />Merci</p>]]></content>
+		<author>
+			<name><![CDATA[kiki]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3273</uri>
+		</author>
+		<updated>2014-03-26T08:05:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19496#p19496</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  impossible de tuer une requête]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19494#p19494"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>ce n&#039;est pas normal. La seule explication qui me vient en tête serait du fait que le processus soit en sommeil ininterruptible (dans ps, colonne STAT à D). Vous devriez récupérer le PID du backend et regarder son état au niveau du système d&#039;exploitation la prochaine fois que cela arrive.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2014-03-25T15:19:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19494#p19494</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[impossible de tuer une requête]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19492#p19492"/>
+		<content type="html"><![CDATA[<p>Bonjour.<br />Régulièrement, j&#039;ai des requêtes que je suis dans l&#039;impossibilité de tuer. elles consomment de la CPU, et peuvent durer jusqu&#039;à plusieurs jours.<br />un kill -INT ou un kill -15 ou un pg_cancel_backend ou un pg_terminate_backend n&#039;y font rien. Les seules solutions que j&#039;ai pu trouver c&#039;est soit un kill -9 en espèrant que postgres sorte du recovery mode ou un stop/start. A noter quand je fais un stop/start, posgres inscrit dans les logs la requête toute entière : ce qui me permet de la rejouer dans pg_admin ou psql sans problème dans la majorité des cas.<br />Mon environnement : <br />Postgres 9.1.4 RHEL 5 64 bits.</p><p>J&#039;ai épluché les releases notes de la 9.1 sans trouver quelque chose (mais je suis peut-être passé à côté).<br />Voici un exemple de requête que j&#039;ai dû arrêter par start/stop postgres (elle tournait depuis 2h48&#039;, alors que dans pgadmin elle met 4 secondes) :<br />Par ailleurs il semble que ce soit lié à l&#039;opérateur IN (tout du moins à chaque fois que j&#039;ai le problème, la requête utilise IN)</p><p>SELECT B.MBUL , B.MMODEL , B.PVER , B.DFIN , R.* FROM RBULLETIN B , RRUB R WHERE B.MBUL IN ( &#039;AVIS_25264_2012-07_4&#039; , &#039;AVIS_25209_2013-01_2&#039; , &#039;AVIS_21904_2012-08_1&#039; , &#039;AVIS_26036_2013-03_6&#039; , &#039;AVIS_25795_2012-08_13&#039; , &#039;AVIS_24101_2012-09_2&#039; , &#039;AVIS_26043_2012-11_1&#039; , &#039;AVIS_26578_2012-07_17&#039; , &#039;AVIS_26849_2013-01_2&#039; , &#039;AVIS_26564_2012-07_3&#039; , &#039;AVIS_24985_2013-05_5&#039; , &#039;AVIS_24767_2012-10_2&#039; , &#039;AVIS_26827_2012-10_8&#039; , &#039;AVIS_25017_2012-06_1&#039; , &#039;AVIS_25017_2012-07_1&#039; , &#039;AVIS_25017_2012-08_1&#039; , &#039;AVIS_25017_2012-09_1&#039; , &#039;AVIS_25017_2012-10_1&#039; , &#039;AVIS_25017_2012-11_1&#039; , &#039;AVIS_25017_2012-12_1&#039; , &#039;AVIS_25017_2013-01_1&#039; , &#039;AVIS_25017_2013-02_1&#039; , &#039;AVIS_25017_2013-03_1&#039; , &#039;AVIS_25017_2013-04_1&#039; , &#039;AVIS_25017_2013-05_1&#039; , &#039;AVIS_25793_2012-09_3&#039; , &#039;AVIS_26140_2012-10_3&#039; , &#039;AVIS_25942_2012-10_1&#039; , &#039;AVIS_21739_2012-08_1&#039; , &#039;AVIS_25160_2012-06_1&#039; , &#039;AVIS_25160_2012-07_1&#039; , &#039;AVIS_25160_2012-08_1&#039; , &#039;AVIS_25160_2012-09_1&#039; , &#039;AVIS_25160_2012-10_1&#039; , &#039;AVIS_25160_2012-11_1&#039; , &#039;AVIS_25160_2012-12_1&#039; , &#039;AVIS_25160_2013-01_1&#039; , &#039;AVIS_25160_2013-02_1&#039; , &#039;AVIS_25160_2013-03_1&#039; , &#039;AVIS_25160_2013-04_1&#039; , &#039;AVIS_25160_2013-05_1&#039; , &#039;AVIS_26681_2012-08_2&#039; , &#039;AVIS_26673_2012-07_6&#039; , &#039;AVIS_26517_2012-08_2&#039; , &#039;AVIS_26972_2013-04_2&#039; , &#039;AVIS_24821_2012-08_14&#039; , &#039;AVIS_24862_2012-11_9&#039; , &#039;AVIS_25300_2012-06_1&#039; , &#039;AVIS_25300_2012-07_1&#039; , &#039;AVIS_25300_2012-08_1&#039; , &#039;AVIS_25300_2012-09_1&#039; , &#039;AVIS_25300_2012-10_1&#039; , &#039;AVIS_25300_2012-11_1&#039; , &#039;AVIS_25300_2012-12_1&#039; , &#039;AVIS_25300_2013-01_1&#039; , &#039;AVIS_25300_2013-02_1&#039; , &#039;AVIS_25300_2013-03_1&#039; , &#039;AVIS_25300_2013-04_1&#039; , &#039;AVIS_25300_2013-05_1&#039; , &#039;AVIS_25488_2012-07_2&#039; , &#039;AVIS_24101_2012-12_6&#039; , &#039;AVIS_26589_2012-10_1&#039; , &#039;AVIS_26742_2012-08_1&#039; , &#039;AVIS_25232_2012-12_6&#039; , &#039;AVIS_26217_2012-06_1&#039; , &#039;AVIS_26217_2012-07_1&#039; , &#039;AVIS_26217_2012-08_1&#039; , &#039;AVIS_26217_2012-09_1&#039; , &#039;AVIS_26217_2012-10_1&#039; , &#039;AVIS_26217_2012-11_1&#039; , &#039;AVIS_26217_2012-12_1&#039; , &#039;AVIS_26217_2013-01_1&#039; , &#039;AVIS_26217_2013-02_1&#039; , &#039;AVIS_26217_2013-03_1&#039; , &#039;AVIS_26217_2013-04_1&#039; , &#039;AVIS_26217_2013-05_1&#039; , &#039;AVIS_21573_2012-08_7&#039; , &#039;AVIS_25598_2012-12_3&#039; , &#039;AVIS_24812_2012-07_10&#039; , &#039;AVIS_26761_2013-05_12&#039; , &#039;AVIS_19059_2012-08_8&#039; , &#039;AVIS_25917_2012-10_9&#039; , &#039;AVIS_19007_2012-11_1&#039; , &#039;AVIS_25694_2012-07_6&#039; , &#039;AVIS_26822_2012-11_18&#039; , &#039;AVIS_25562_2013-04_9&#039; , &#039;AVIS_26702_2012-12_8&#039; , &#039;AVIS_24020_2012-11_7&#039; , &#039;AVIS_23746_2012-10_4&#039; , &#039;AVIS_24812_2012-10_2&#039; , &#039;AVIS_26704_2012-09_2&#039; , &#039;AVIS_25443_2013-03_3&#039; , &#039;AVIS_26254_2013-02_7&#039; , &#039;AVIS_25922_2012-10_9&#039; , &#039;AVIS_23219_2012-08_7&#039; , &#039;AVIS_27011_2013-05_3&#039; , &#039;AVIS_26254_2012-10_5&#039; , &#039;AVIS_26760_2012-11_1&#039; , &#039;AVIS_23639_2012-06_1&#039; , &#039;AVIS_23639_2012-07_1&#039; ) AND R.MBUL = B.MBUL AND R.RUNID = B.RUNID;</p><p>Si quelqu&#039;un avait une idée ou un lien qui expliquerait ce problème peut-être connu .....<br />Merci</p>]]></content>
+		<author>
+			<name><![CDATA[kiki]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3273</uri>
+		</author>
+		<updated>2014-03-25T15:14:35Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19492#p19492</id>
+	</entry>
+</feed>

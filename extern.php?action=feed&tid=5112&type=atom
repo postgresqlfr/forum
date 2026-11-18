@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Update de ligne avec champs de type jsonb]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5112&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5112"/>
+	<updated>2019-02-11T09:52:42Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5112</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Update de ligne avec champs de type jsonb]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29152#p29152"/>
+		<content type="html"><![CDATA[<p>Bonjour Julien, </p><br /><p>Merci pour le retour, </p><br /><p>En effet, j&#039;ai positionné d&#039;autre colonnes (date de création --&gt; timestamp, ID --&gt; PK) pour ne pas tout mettre dans la colonne JSONB.</p><br /><p>Ce qui se passe est que cette application sera utilisée par différents clients avec des besoins (codes différents) donc il fallait un modèle qui puisse être transposable à chacun sans avoir a redévelopper à chaque fois.</p><br /><br /><p>Peut être que cette démarche est contre productive...</p><br /><br /><p>Mais c&#039;est vrai que mettre des colonnes fixes pour des codes communs aux différents clients serait à étudier.</p><br /><br /><p><img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[coucou78187]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8481</uri>
+		</author>
+		<updated>2019-02-11T09:52:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29152#p29152</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Update de ligne avec champs de type jsonb]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29150#p29150"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>il sera stocké des codes [...]&#160; très aléatoires (IP, MAC et autres différents) donc pas trop de contraintes fortes.</p></div></blockquote></div><br /><p>Quid des contraintes sur les données ?&#160; Utiliser de vrais types vous permet de garantir que les données sont saines, et donc éviter de nombreux problèmes lors de l&#039;exploitation de ces données.</p><br /><p>Il n&#039;est pas spécialement recommandé d&#039;avoir des tables avec des milliers de colonnes, mais vous avez des alternatives possibles en fonctions de vos besoins.&#160; Par exemple une partie en colonnes fixes, et un champ jsonb pour les données vraiment variables, ou une seconde tables pour stocker des données moins fréquemment accédées par exemple.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2019-02-09T21:40:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29150#p29150</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Update de ligne avec champs de type jsonb]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29106#p29106"/>
+		<content type="html"><![CDATA[<p>Bonjour rjuju,</p><br /><p>Merci pour la réponse et la syntaxe de mise à jour qui a fonctionné pour une ligne <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>En fait pour être plus précis, il sera stocké des codes (entre 30 et 50 par matricule et de tailles variables)&#160; très aléatoires (IP, MAC et autres différents) donc pas trop de contraintes fortes.</p><p>Concernant le varchar pour la colonne faisant office de PK, je l&#039;ai utilisé car le modèle est le suivant AAAAAANNNNNNNNNNNN où &quot;A&quot; = caractère alphabétique (A-Z) et N = caractère numérique (0-9), peut-être est-ce une mauvaise idée ?...</p><p>C&#039;est surtout le fait d&#039;avoir des codes très nombreux par matricule qui m&#039;ont fait pensé au stockage JSON pour ne pas avoir des colonnes très nombreuses&#160; et se retrouver face à une table dite &quot;obèse&quot;.</p><p>Comme il s&#039;agit d&#039;une phase de test de perf, c&#039;est pour cela que je posais la question de savoir s&#039;il existait un moyen de peupler en masse un champs jsonb avec des documents json aléatoires selon des valeurs (generate_series par exemple) pour pouvoir réaliser des tests sur postgreSQL pour voir si les performances étaient assurées</p><p>J&#039;espère que ces infos apportent des indications utiles </p><p>Merci beaucoup rjuju!</p>]]></content>
+		<author>
+			<name><![CDATA[coucou78187]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8481</uri>
+		</author>
+		<updated>2019-02-04T15:14:07Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29106#p29106</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Update de ligne avec champs de type jsonb]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29066#p29066"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><p>jsonb_set sur un NULL renverra NULL.&#160; Vous pouvez utiliser jsonb_set(COALESCE(valeur, &#039;{}&#039;), &#039;{nationalité}&#039;,&#160; &#039;&quot;française&quot;&#039;, TRUE) par exemple.</p><br /><br /><p>Pour les autres questions, à votre place je créeerai des colonnes pour les champs nécessitant une contrainte &quot;forte&quot; (je suppose que vous ne pouvez pas avoir de données pour une personne n&#039;ayant pas de nationalité ou de nom par exemple) que vous pourrez alors garantir au niveau du modèle de données.&#160; Aussi, pourquoi utiliser un varchar pour stocker un identifiant numérique ?</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2019-02-02T10:09:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29066#p29066</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Update de ligne avec champs de type jsonb]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29064#p29064"/>
+		<content type="html"><![CDATA[<p>Bonjour à toutes et à tous,</p><p>je me penche actuellement sur le stockage au format JSON dont voici la table appellée referencement :</p><p>il s&#039;agit de la version 11.1 de PostgreSQL</p><p>CHAMPS&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; TYPE&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; <br />num_matricule&#160; &#160; &#160; &#160; &#160; &#160; &#160; varchar(18)&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; not null&#160; <br />valeur&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; jsonb&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; <br />timestamp&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; timestamp with time zone&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;default_value:now()</p><p>PK: num_matricule</p><br /><p>Je cherche à stocker un grand nombre de valeur (nom, poids, couleurs des cheveux, couleurs des yeux, age, nationalité, habitude alimentaire (vegan)...)<br />en gros à peu près 50 paramètres qui peuvent varier d&#039;un individu à l&#039;autre.</p><p>En tout et à terme, il y aurait environ 100 millions de lignes (num_matricule) avec son format json respectifs contenant toutes les caractéristiques.<br />Aussi, comme je trouve l&#039;idée de mettre 50 colonnes sur une table (obèse) pas très correcte et que les caractéristiques sont très hétérogènes pour créer des tables relationnelles (PK, FK),<br />je me tourne vers le JSON, d&#039;ailleurs j&#039;aimerais si possible vous poser le question pour savoir si c&#039;est une bonne idée de vouloir procéder ainsi?</p><p>déroulement des étapes: </p><p>- création de la table<br />- injection de 100 millions de lignes dans la colonnes num_matricule (1,2,3,4,5,6,7,8,9,..10000000) respectant le format varchar(18)</p><p>et là l&#039;étape bloquante lorsque j&#039;essaie d&#039;UPDATER une ligne en lui ajoutant un document json comme suit avec jsonb_set :</p><p>UPDATE referencement<br />SET valeur = jsonb_set(valeur, &#039;{nationalité}&#039;,&#160; &#039;&quot;française&quot;&#039;, TRUE)<br />WHERE num_matricule = &#039;154698754522365412&#039;;<br />UPDATE</p><p>on dirait qu&#039;il n&#039;y a pas d&#039;erreur de syntaxe mais lorsque je fait :</p><p>select * from referencement where num_matricule = &#039;154698754522365412&#039;;&#160; ==&gt; aucune donnée dans la colonne &quot;valeur&quot;</p><p>Je me permets de vous solliciter pour connaitre le moyen d&#039;updater une ligne en lui ajoutant un document json dans son champs jsonb sachant que la colonne jsonb était vide avant.</p><p>Je ne sais pas si je suis assez claire.</p><p>Aussi je voulais savoir s&#039;il existait un moyen de peupler en masse un champs jsonb avec des document json aléatoires selon des valeurs?</p><p>je récapitule les points : </p><p>- j&#039;aimerais si possible vous poser le question pour savoir si c&#039;est une bonne idée de vouloir procéder ainsi?<br />- le moyen d&#039;updater une ligne en lui ajoutant un document json dans son champs jsonb sachant que la colonne jsonb était vide avant?<br />- je voulais savoir s&#039;il existait un moyen de peupler en masse un champs jsonb avec des document json aléatoires selon des valeurs?</p><br /><p>Merci beaucoup pour votre aide et échanges</p><p>Cordialement,</p>]]></content>
+		<author>
+			<name><![CDATA[coucou78187]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8481</uri>
+		</author>
+		<updated>2019-02-01T16:13:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29064#p29064</id>
+	</entry>
+</feed>

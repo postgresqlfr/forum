@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Requete devenue soudainement extremement lente]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=6038&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=6038"/>
+	<updated>2022-05-07T07:47:56Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=6038</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requete devenue soudainement extremement lente]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33432#p33432"/>
+		<content type="html"><![CDATA[<p>1. Non, ce n&#039;est pas ici. Vous auriez dû créer un nouveau thread plutôt que d&#039;utiliser un autre thread qui n&#039;a rien à voir.</p><p>2. J&#039;ai essayé de reproduire votre exemple mais sans succès : verchar au lieu de varchar, datetime qui n&#039;existe pas avec postgres, begin sans point-virgule, insert sans clause values, et surtout ce qui a fait déborder le vase, deux chaînes de caractères dans l&#039;INSERT de LIFACT alors qu&#039;il n&#039;y a qu&#039;un seul varchar dans la déclaration de la table. Bref. Commencez par proposer un exemple réellement valide syntaxiquement et montrant votre problème si vous espérez obtenir une réponse intéressante.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2022-05-07T07:47:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33432#p33432</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requete devenue soudainement extremement lente]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33426#p33426"/>
+		<content type="html"><![CDATA[<p>Bonjour je ne sais pas si c&#039;est ici que je dois poser ma préoccupation<br />j&#039;ai un problème et je souhaite une assiste<br />j&#039;ai deux tables par exemple:</p><p>Facture(code verchar(8),date datetime,montant real)&#160; avec le champ code qui est une clef unique<br />ensuite la table</p><p>Lifact(code varchar(8), codart int, qte real) avec les champs (code,codart) qui reprensentent une clef unique</p><p>Le champ code du fichier Lifact fait reference à la table Facture....</p><p>Lorsque j&#039;exécute ceci dans une seule transaction:</p><p>BEGIN TRANSACTION<br />INSERT INTO FACTURE (&#039;NB0014&#039;,NOW(),5000);<br />INSERT INTO LIFACT (&#039;NB0014&#039;,&#039;BAR0005&#039;,10);<br />END;<br />j&#039;ai le message d&#039;erreur suivant: une instruction insert viole la contrainte de clef étrangère, le clef&#160; &quot;code=(&#039;NB0014&#039;) n&#039;est pas présente dans la table FACTURE</p><p>l&#039;erreur est à quel niveau? devais je d&#039;abord enregistrer complètement la première ligne avant de procéder à l&#039;enregistrement de la seconde ligne? et si c&#039;est le cas&#160; je cours le risque d&#039;avoir des informations dans le Fichier FACTURE SANS CORRESPONDANCE DANS LE FICHIER LIFACT.</p><p>S.O.S</p>]]></content>
+		<author>
+			<name><![CDATA[tchazou]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9312</uri>
+		</author>
+		<updated>2022-05-05T14:48:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33426#p33426</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requete devenue soudainement extremement lente]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32561#p32561"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />Merci pour la réponse. Je ferai des tests pour voir si effectivement cela corrige le problème.</p>]]></content>
+		<author>
+			<name><![CDATA[dev.isc84]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8334</uri>
+		</author>
+		<updated>2021-06-08T07:20:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32561#p32561</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requete devenue soudainement extremement lente]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32550#p32550"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>peut-être tout simplement un problème de statistiques pas à jour qui tromperait le planificateur ?.<br />Le mieux serait de comparer les plans d&#039;exécution avant et après la création de cette nouvelle table et ensuite de recalculer les stats de la base entière pour voir s&#039;il y a du mieux.</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2021-06-07T14:41:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32550#p32550</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requete devenue soudainement extremement lente]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32544#p32544"/>
+		<content type="html"><![CDATA[<p>J&#039;apporte une précision, je viens de découvrir que le blocage est lié à une table qui vient d&#039;être créée, et qui est vide. C&#039;est une table qui hérite d&#039;une autre table utilisée dans la vue B.<br />En supprimant cette nouvelle table tout se débloque.<br />Je ne comprends pas comment la simple création d&#039;une table peut bloquer.</p>]]></content>
+		<author>
+			<name><![CDATA[dev.isc84]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8334</uri>
+		</author>
+		<updated>2021-06-07T10:31:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32544#p32544</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Requete devenue soudainement extremement lente]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32543#p32543"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />J&#039;aurais besoin d&#039;aide svp pour un problème de requête qui est devenue très lente du jour au lendemain, sans que les données dans les tables n&#039;aient explosées entre temps.</p><p>Sur un serveur postgres 11 (debian) de 80Go avec environ 400 utiilisateurs, une des requêtes est devenue soudainement très lente: elle s&#039;exécutait en quelques millièmes de secondes et prends maintenant plus de 2 minutes.<br />Cette requête contient une vue A qui elle même utilise une autre vue B.</p><p>Si je place le code sql de la vue A directement dans ma requête, en en faisant une sous requête, là le résultat est instantané.</p><p>Auriez vous svp une idée de ce qui peut se passer?</p><p>Merci pour votre aide</p>]]></content>
+		<author>
+			<name><![CDATA[dev.isc84]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8334</uri>
+		</author>
+		<updated>2021-06-07T09:50:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32543#p32543</id>
+	</entry>
+</feed>

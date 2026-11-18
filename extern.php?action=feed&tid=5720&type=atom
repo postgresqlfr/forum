@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Agrégat sur des intervals]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5720&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5720"/>
+	<updated>2020-03-24T07:25:10Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5720</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Agrégat sur des intervals]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30945#p30945"/>
+		<content type="html"><![CDATA[<p>Il faut ajouter HH24 sinon...&#160; pour une durée de 00:21:07<br /> - avec HH&#160; on obtient&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;0 mois 00 jours 12 heures 21 min 07 sec<br /> - avec HH24 on obtient la bonne transcription :&#160; &#160; &#160; 0 mois 00 jours 00 heures 21 min 07 sec</p><p>Encore merci pour vos retours <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[Olivier MAMDY]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8835</uri>
+		</author>
+		<updated>2020-03-24T07:25:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30945#p30945</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Agrégat sur des intervals]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30942#p30942"/>
+		<content type="html"><![CDATA[<p>Pas mieux:</p><div class="codebox"><pre class="vscroll"><code>set datestyle=&#039;dmy&#039;;
+SET
+with cte as
+( 
+ select justify_interval((&#039;23-03-2020 16:00&#039;::timestamp - &#039;19-01-2020 06:30&#039;::timestamp) 
+                       + (&#039;19-03-2020 06:30&#039;::timestamp - &#039;15-01-2020 06:30&#039;::timestamp))
+ as intervalle 
+)
+select 
+extract(year from intervalle)      || &#039; an(s) &#039;    ||
+extract(month from intervalle)     || &#039; mois(s) &#039;  || 
+extract(days from intervalle)      || &#039; jours(s) &#039; || 
+extract(hours from intervalle)	   || &#039;:&#039;          || 
+extract(minutes from intervalle) as durée
+from cte;
+               durée               
+-----------------------------------
+ 0 an(s) 4 mois(s) 8 jours(s) 9:30
+(1 ligne)
+
+select 
+to_char(justify_interval( (&#039;23-03-2020 16:00&#039;::timestamp - &#039;19-01-2020 06:30&#039;::timestamp)
++                         (&#039;19-03-2020 06:29&#039;::timestamp - &#039;15-01-2020 06:30&#039;::timestamp)),
+&#039;y &quot;ans&quot; mm &quot;mois&quot; DD &quot;jour(s)&quot; HH &quot;heure(s)&quot; MI &quot;min&quot;&#039; ) as durée;
+                    durée                    
+---------------------------------------------
+ 0 ans 04 mois 08 jour(s) 09 heure(s) 29 min
+(1 ligne)</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[pifor]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8375</uri>
+		</author>
+		<updated>2020-03-23T16:39:33Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30942#p30942</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Agrégat sur des intervals]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30941#p30941"/>
+		<content type="html"><![CDATA[<p>je me réponds ... <br />Pour avoir les mois , j&#039;ai remplacé Justify_hours par justify_interval&#160; et j&#039;ai rajouté un to_char pour avoir ma durée en mois, jours etc ... <br />Qu&#039;en pensez vous ? </p><div class="codebox"><pre><code>select to_char(justify_interval( (&#039;23-03-2020 16:00&#039;::timestamp - &#039;19-01-2020 06:30&#039;::timestamp) +
+ (&#039;19-03-2020 06:29&#039;::timestamp - &#039;15-01-2020 06:30&#039;::timestamp)),&#039;mm &quot;mois&quot; DD &quot;jour(s)&quot; HH &quot;heure(s)&quot; MI &quot;min&quot;&#039; );</code></pre></div><p>Ca à l&#039;air d&#039;être correct <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /> et en plus j&#039;ai ma durée en français ! <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[Olivier MAMDY]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8835</uri>
+		</author>
+		<updated>2020-03-23T16:16:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30941#p30941</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Agrégat sur des intervals]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30939#p30939"/>
+		<content type="html"><![CDATA[<p>Encore un petite question est ce qu&#039;on peut avoir la durée sous forme de d&#039;année, mois , jour heure minute ? <br />exemple 0 year 3 month 12 days 02:30:10</p>]]></content>
+		<author>
+			<name><![CDATA[Olivier MAMDY]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8835</uri>
+		</author>
+		<updated>2020-03-23T15:50:33Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30939#p30939</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Agrégat sur des intervals]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30938#p30938"/>
+		<content type="html"><![CDATA[<p>Super ! merci beaucoup ! Ca fait depuis ce matin que je cherche ! <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /> <br />Portez vous bien !</p>]]></content>
+		<author>
+			<name><![CDATA[Olivier MAMDY]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8835</uri>
+		</author>
+		<updated>2020-03-23T15:45:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30938#p30938</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Agrégat sur des intervals]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30937#p30937"/>
+		<content type="html"><![CDATA[<p>Bien vu pour le justify_hours <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2020-03-23T15:41:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30937#p30937</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Agrégat sur des intervals]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30936#p30936"/>
+		<content type="html"><![CDATA[<p>Le fait qu&#039;il n&#039;y ait pas d&#039;agrégat ne change rien en soi. En en ajoutant un, le résultat est le même :</p><div class="codebox"><pre><code>postgres=# select sum(&#039;2020-3-23 16:00&#039;::timestamp - &#039;2020-03-15 06:30&#039;::timestamp);
+┌─────────────────┐
+│       sum       │
+├─────────────────┤
+│ 8 days 09:30:00 │
+└─────────────────┘
+(1 row)</code></pre></div><p>Concernant l&#039;affichage en anglais, il n&#039;est pas possible de le changer. À ma connaissance, un type interval sera toujours affiché en anglais.</p><p>Pour en revenir à votre premier problème, êtes vous capable de fournir un exemple complet montrant le problème ?</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2020-03-23T15:39:39Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30936#p30936</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Agrégat sur des intervals]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30935#p30935"/>
+		<content type="html"><![CDATA[<p>Essayez avec JUSTIFY_HOURS:</p><div class="codebox"><pre><code>postgres=# select (&#039;23-03-2020 16:00&#039;::timestamp - &#039;19-03-2020 06:30&#039;::timestamp) +
+postgres-# (&#039;19-03-2020 06:29&#039;::timestamp - &#039;15-03-2020 06:30&#039;::timestamp);
+    ?column?     
+-----------------
+ 7 days 33:29:00
+(1 ligne)
+postgres=# select justify_hours((&#039;23-03-2020 16:00&#039;::timestamp - &#039;19-03-2020 06:30&#039;::timestamp) +
+(&#039;19-03-2020 06:29&#039;::timestamp - &#039;15-03-2020 06:30&#039;::timestamp));
+  justify_hours  
+-----------------
+ 8 days 09:29:00
+(1 ligne)
+
+postgres=# </code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[pifor]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8375</uri>
+		</author>
+		<updated>2020-03-23T15:38:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30935#p30935</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Agrégat sur des intervals]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30934#p30934"/>
+		<content type="html"><![CDATA[<p>Bonjour et merci pour votre réponse rapide&#160; <img src="http://forums.postgresql.fr/img/smilies/wink.png" width="15" height="15" alt="wink" /><br />la requête fonctionne bien, mais ce n&#039;est pas une requête avec un agrégat (sum) , comme dans mon exemple ...</p>]]></content>
+		<author>
+			<name><![CDATA[Olivier MAMDY]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8835</uri>
+		</author>
+		<updated>2020-03-23T15:34:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30934#p30934</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Agrégat sur des intervals]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30933#p30933"/>
+		<content type="html"><![CDATA[<p>Je n&#039;arrive pas à reproduire le résultat ni avec PG 12.2 ni avec PG 9.4.26:</p><div class="codebox"><pre><code>postgres=# select &#039;23-03-2020 16:00&#039;::timestamp - &#039;15-03-2020 06:30&#039;::timestamp;
+    ?column?     
+-----------------
+ 8 days 09:30:00
+(1 ligne)</code></pre></div><p>Que donne le résultat de ma requête dans votre environnement ?<br />Quelle est votre version ?</p><br /><p>Je n&#039;arrive pas non plus à passer en français même avec le paramétrage suivant:</p><div class="codebox"><pre><code>postgres=# set datestyle to &#039;DMY&#039;;
+SET
+postgres=# set lc_messages=&#039;fr_FR.UTF-8&#039;;
+SET
+postgres=# set lc_time=&#039;fr_FR.UTF-8&#039;;
+SET
+postgres=# select &#039;23-03-2020 16:00&#039;::timestamp - &#039;15-03-2020 06:30&#039;::timestamp;
+    ?column?     
+-----------------
+ 8 days 09:30:00
+(1 ligne)
+
+postgres=# </code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[pifor]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8375</uri>
+		</author>
+		<updated>2020-03-23T15:30:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30933#p30933</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Agrégat sur des intervals]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30931#p30931"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous <br />Je cherche à calculer sur une période, le temps d’indisponibilité d&#039;engins, en faisant la somme des durées d&#039;indisponibilité (agrégat);<br />La durée d&#039;indisponibilité est calculée avec avec&#160; la date de fin arret -&#160; la date de début d&#039;arret&#160; (les 2 champs sont au format timestamp)<br />voici mon code sql </p><div class="codebox"><pre><code> SELECT arret.id_bacs, 
+	EXTRACT(YEAR FROM arret.date_debut_arret) AS Année, 
+	EXTRACT(MONTH FROM arret.date_debut_arret) AS Mois,
+    count(arret.id_arret) AS nbreArret, 
+    sum(arret.date_fin_arret -  arret.date_debut_arret) as Duree,
+    ta.arret_cause
+   FROM arret, type_arret ta
+  WHERE arret.id_type_arret = ta.id_type_arret and arret.id_bacs = 2
+  GROUP BY arret.id_bacs, année,mois,ta.arret_cause
+  ORDER BY arret.id_bacs,année desc;</code></pre></div><p>la requête fonctionne, mais j&#039;ai certains résultats pour ma durée qui apparaissent comme ceci:&#160; 7 days 33:30:10 ... la somme s&#039;effectue bien , mais on constate que les heures n&#039;ont pas été transformées en&#160; jours ... le bon résultats aurait dû être : 8 days 09:30:10 Non ? </p><p>PS ... Peut-on transformer le résultat en français ? 7 jours 09:30:10</p>]]></content>
+		<author>
+			<name><![CDATA[Olivier MAMDY]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8835</uri>
+		</author>
+		<updated>2020-03-23T14:54:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30931#p30931</id>
+	</entry>
+</feed>

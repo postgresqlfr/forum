@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / ORDER BY sur colonne de type text]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2467&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2467"/>
+	<updated>2013-01-24T22:03:48Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2467</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ORDER BY sur colonne de type text]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16413#p16413"/>
+		<content type="html"><![CDATA[<p>Aucune idée pour la locale à sélectionner... s&#039;il en existe une qui fasse ce que vous voulez.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2013-01-24T22:03:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16413#p16413</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ORDER BY sur colonne de type text]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16404#p16404"/>
+		<content type="html"><![CDATA[<p>Quelle locale (française) faut-il choisir pour que le tri prenne en compte les espaces (pour une base encodée en UTF8) ?</p><p>select collcollate from pg_collation where collcollate like &#039;fr_%&#039;;</p><p>&quot;fr_BE.utf8&quot;<br />&quot;fr_BE&quot;<br />&quot;fr_BE.iso88591&quot;<br />&quot;fr_BE.iso885915@euro&quot;<br />&quot;fr_BE.utf8&quot;<br />&quot;fr_BE@euro&quot;<br />&quot;fr_CA.utf8&quot;<br />&quot;fr_CA&quot;<br />&quot;fr_CA.iso88591&quot;<br />&quot;fr_CA.utf8&quot;<br />&quot;fr_CH.utf8&quot;<br />&quot;fr_CH&quot;<br />&quot;fr_CH.iso88591&quot;<br />&quot;fr_CH.utf8&quot;<br />&quot;fr_FR.utf8&quot;<br />&quot;fr_FR&quot;<br />&quot;fr_FR.iso88591&quot;<br />&quot;fr_FR.iso885915@euro&quot;<br />&quot;fr_FR.utf8&quot;<br />&quot;fr_FR@euro&quot;<br />&quot;fr_LU.utf8&quot;<br />&quot;fr_LU&quot;<br />&quot;fr_LU.iso88591&quot;<br />&quot;fr_LU.iso885915@euro&quot;<br />&quot;fr_LU.utf8&quot;<br />&quot;fr_LU@euro&quot;<br />&quot;french&quot;</p><p>Les locales que j&#039;ai testé génère cette erreur :<br />createdb: database creation failed: ERROR:&#160; encoding UTF8 does not match locale fr_FR.iso885915@euro<br />DETAIL:&#160; The chosen LC_CTYPE setting requires encoding LATIN9.</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2013-01-23T14:07:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16404#p16404</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ORDER BY sur colonne de type text]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16399#p16399"/>
+		<content type="html"><![CDATA[<p>PostgreSQL ne trie pas directement les données. Il fait appel à une fonction système qui les trie suivant la collation indiquée. Donc si problème il y a, c&#039;est au niveau du système d&#039;exploitation.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2013-01-23T09:02:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16399#p16399</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ORDER BY sur colonne de type text]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16394#p16394"/>
+		<content type="html"><![CDATA[<p>Le problème vient de la collation (fr_FR.utf8) : dans ce cas postgresql ignore les espaces dans les tris. Ce n&#039;est pas terrible comme façon de trier... est-ce normal ?<br />Et puis choisir une autre collation pourrait avoir des effets de bords sur le tri des mots accentués par exemple...</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2013-01-23T08:24:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16394#p16394</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ORDER BY sur colonne de type text]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16318#p16318"/>
+		<content type="html"><![CDATA[<p>A priori, ça devrait être bon comme ça :<br />(prise en compte des espaces et des apostrophes dans le tri en ne prenant en compte que le texte à partir de &quot; - &quot;)</p><p>select title FROM AssetEntry <br />WHERE (visible = true) AND ( AssetEntry.classTypeId = 11577) <br />AND (AssetEntry.groupId = 11070 OR AssetEntry.groupId = 11070 ) <br />AND (AssetEntry.classNameId = 10108)<br />ORDER BY substring(translate(title, &#039; &#039;&#039;&#039;, &#039;11&#039;) from length(split_part(title,&#039; - &#039;,1))+1) ASC;</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2013-01-14T14:50:09Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16318#p16318</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ORDER BY sur colonne de type text]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16317#p16317"/>
+		<content type="html"><![CDATA[<p>Avec cette requête j’obtiens presque le bon tri :</p><p>select title FROM test.AssetEntry <br />WHERE (visible = true) AND ( AssetEntry.classTypeId = 11577) <br />AND (AssetEntry.groupId = 11070 OR AssetEntry.groupId = 11070 ) <br />AND (AssetEntry.classNameId = 10108)<br />ORDER BY substring(title from 126) ASC;&#160; -- j’ignore les 126 premiers caractères.</p><br /><br /><p>Et pourtant, non.... on voit bien que les sections ne sont pas bien triées :</p><p>&quot;&lt;?xml version=&#039;1.0&#039; encoding=&#039;UTF-8&#039;?&gt;&lt;root available-locales=&quot;fr_FR&quot; default-locale=&quot;fr_FR&quot;&gt;&lt;Title language-id=&quot;fr_FR&quot;&gt;SD93 - Section de Seine Saint-Denis Ã&#160; Bondy&lt;/Title&gt;&lt;/root&gt;&quot;<br />&quot;&lt;?xml version=&#039;1.0&#039; encoding=&#039;UTF-8&#039;?&gt;&lt;root available-locales=&quot;fr_FR&quot; default-locale=&quot;fr_FR&quot;&gt;&lt;Title language-id=&quot;fr_FR&quot;&gt;SD05 - Section des Hautes-Alpes Ã&#160; Gap&lt;/Title&gt;&lt;/root&gt;&quot;<br />&quot;&lt;?xml version=&#039;1.0&#039; encoding=&#039;UTF-8&#039;?&gt;&lt;root available-locales=&quot;fr_FR&quot; default-locale=&quot;fr_FR&quot;&gt;&lt;Title language-id=&quot;fr_FR&quot;&gt;SD65 - Section des Hautes-PyrÃ©nÃ©es Ã&#160; Tarbes&lt;/Title&gt;&lt;/root&gt;&quot;<br />&quot;&lt;?xml version=&#039;1.0&#039; encoding=&#039;UTF-8&#039;?&gt;&lt;root available-locales=&quot;fr_FR&quot; default-locale=&quot;fr_FR&quot;&gt;&lt;Title language-id=&quot;fr_FR&quot;&gt;SD92 - Section des Hauts de Seine Ã&#160; Boulogne-Billancourt&lt;/Title&gt;&lt;/root&gt;&quot;<br />&quot;&lt;?xml version=&#039;1.0&#039; encoding=&#039;UTF-8&#039;?&gt;&lt;root available-locales=&quot;fr_FR&quot; default-locale=&quot;fr_FR&quot;&gt;&lt;Title language-id=&quot;fr_FR&quot;&gt;SD40 - Section des Landes Ã&#160; Mont-de-Marsan&lt;/Title&gt;&lt;/root&gt;&quot;<br />&quot;&lt;?xml version=&#039;1.0&#039; encoding=&#039;UTF-8&#039;?&gt;&lt;root available-locales=&quot;fr_FR&quot; default-locale=&quot;fr_FR&quot;&gt;&lt;Title language-id=&quot;fr_FR&quot;&gt;SD64 - Section des PyrÃ©nÃ©es-Atlantiques Ã&#160; Biarritz&lt;/Title&gt;&lt;/root&gt;&quot;<br />&quot;&lt;?xml version=&#039;1.0&#039; encoding=&#039;UTF-8&#039;?&gt;&lt;root available-locales=&quot;fr_FR&quot; default-locale=&quot;fr_FR&quot;&gt;&lt;Title language-id=&quot;fr_FR&quot;&gt;SD66 - Section des PyrÃ©nÃ©es-Orientales Ã&#160; Perpignan&lt;/Title&gt;&lt;/root&gt;&quot;<br />&quot;&lt;?xml version=&#039;1.0&#039; encoding=&#039;UTF-8&#039;?&gt;&lt;root available-locales=&quot;fr_FR&quot; default-locale=&quot;fr_FR&quot;&gt;&lt;Title language-id=&quot;fr_FR&quot;&gt;SD88 - Section des Vosges Ã&#160; Ã‰pinal&lt;/Title&gt;&lt;/root&gt;&quot;<br />&quot;&lt;?xml version=&#039;1.0&#039; encoding=&#039;UTF-8&#039;?&gt;&lt;root available-locales=&quot;fr_FR&quot; default-locale=&quot;fr_FR&quot;&gt;&lt;Title language-id=&quot;fr_FR&quot;&gt;SD78 - Section des Yvelines Ã&#160; Montigny le Bretonneux&lt;/Title&gt;&lt;/root&gt;&quot;<br />&quot;&lt;?xml version=&#039;1.0&#039; encoding=&#039;UTF-8&#039;?&gt;&lt;root available-locales=&quot;fr_FR&quot; default-locale=&quot;fr_FR&quot;&gt;&lt;Title language-id=&quot;fr_FR&quot;&gt;SD84 - Section de Vaucluse Ã&#160; Avignon&lt;/Title&gt;&lt;/root&gt;&quot;<br />&quot;&lt;?xml version=&#039;1.0&#039; encoding=&#039;UTF-8&#039;?&gt;&lt;root available-locales=&quot;fr_FR&quot; default-locale=&quot;fr_FR&quot;&gt;&lt;Title language-id=&quot;fr_FR&quot;&gt;SD85 - Section de VendÃ©e Ã&#160; La Roche-sur-Yon&lt;/Title&gt;&lt;/root&gt;&quot;<br />&quot;&lt;?xml version=&#039;1.0&#039; encoding=&#039;UTF-8&#039;?&gt;&lt;root available-locales=&quot;fr_FR&quot; default-locale=&quot;fr_FR&quot;&gt;&lt;Title language-id=&quot;fr_FR&quot;&gt;SD35 - Section d&#039;Ille et Vilaine Ã&#160; Rennes&lt;/Title&gt;&lt;/root&gt;&quot;<br />&quot;&lt;?xml version=&#039;1.0&#039; encoding=&#039;UTF-8&#039;?&gt;&lt;root available-locales=&quot;fr_FR&quot; default-locale=&quot;fr_FR&quot;&gt;&lt;Title language-id=&quot;fr_FR&quot;&gt;SD37 - Section d&#039;Indre et Loire Ã&#160; Tours&lt;/Title&gt;&lt;/root&gt;&quot;<br />&quot;&lt;?xml version=&#039;1.0&#039; encoding=&#039;UTF-8&#039;?&gt;&lt;root available-locales=&quot;fr_FR&quot; default-locale=&quot;fr_FR&quot;&gt;&lt;Title language-id=&quot;fr_FR&quot;&gt;SD67 - Section du Bas-Rhin Ã&#160; Strasbourg&lt;/Title&gt;&lt;/root&gt;&quot;<br />&quot;&lt;?xml version=&#039;1.0&#039; encoding=&#039;UTF-8&#039;?&gt;&lt;root available-locales=&quot;fr_FR&quot; default-locale=&quot;fr_FR&quot;&gt;&lt;Title language-id=&quot;fr_FR&quot;&gt;SD14 - Section du Calvados Ã&#160; Herouville-Saint-Clair&lt;/Title&gt;&lt;/root&gt;&quot;</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2013-01-14T13:53:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16317#p16317</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ORDER BY sur colonne de type text]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16315#p16315"/>
+		<content type="html"><![CDATA[<p>Enlever les X premiers caractères avec substr ? si c&#039;est plus complexe, utiliser une expression rationnelle pour ne récupérer que la partie qui vous intéresse ?</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2013-01-14T11:01:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16315#p16315</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[ORDER BY sur colonne de type text]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16312#p16312"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;ai une table avec un champ de type text (pas xml) qui contient des données du style :<br />&lt;?xml version=&#039;1.0&#039; encoding=&#039;UTF-8&#039;?&gt;&lt;root available-locales=&quot;fr_FR&quot; default-locale=&quot;fr_FR&quot;&gt;&lt;Title language-id=&quot;fr_FR&quot;&gt;CA942 - Centre d&#039;appels de Paris&lt;/Title&gt;&lt;/root&gt;</p><p>Je voudrais faire un order by sur ce champ mais je voudrais qu&#039;il ne trie qu&#039;à partir de &quot; - Centre d&#039;appels....&quot; et qu&#039;il ignore le début.</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2013-01-14T09:47:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16312#p16312</id>
+	</entry>
+</feed>

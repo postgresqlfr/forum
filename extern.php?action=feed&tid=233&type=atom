@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Prè-requis PG_FOUINE]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=233&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=233"/>
+	<updated>2011-05-30T08:40:20Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=233</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Prè-requis PG_FOUINE]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9543#p9543"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Quelqu&#039;un à le nouveau lien de pgfouine pour windows, l&#039;ancien : <br /> <a href="http://pgfoundry.org/frs/download.php/1" rel="nofollow">http://pgfoundry.org/frs/download.php/1</a> … 1.0.tar.gz&#160; na plus l&#039;air valide</p><p>Merci.</p>]]></content>
+		<author>
+			<name><![CDATA[Gil34]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=521</uri>
+		</author>
+		<updated>2011-05-30T08:40:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9543#p9543</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Prè-requis PG_FOUINE]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1224#p1224"/>
+		<content type="html"><![CDATA[<p>Merci beaucoup de vos réponse !!!</p>]]></content>
+		<author>
+			<name><![CDATA[bil69]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=310</uri>
+		</author>
+		<updated>2009-04-17T08:10:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1224#p1224</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Prè-requis PG_FOUINE]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1220#p1220"/>
+		<content type="html"><![CDATA[<p>En fait, il est préférable d&#039;utiliser syslog (meilleure gestion des traces sur plusieurs lignes, notamment quand on a des requêtes longues). Mais il peut être plus simple d&#039;utiliser stderr, ce qui nécessite tout de même un paramétrage supplémentaire du log_line_prefix.</p><p>Attention à ne pas avoir un fichier qui n&#039;est pas correctement formaté ou à moitié correctement formaté car pgfouine n&#039;en voudra pas (et affichera le message d&#039;erreur que vous avez).</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2009-04-16T21:17:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1220#p1220</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Prè-requis PG_FOUINE]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1217#p1217"/>
+		<content type="html"><![CDATA[<p>Pour syslog, c&#039;est apparement dans /var/log.pgsql que les logs partent, vu sa configuration, non?<br />Il y a cette ligne dans le fichier syslog.conf :</p><p>local0.*&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; -/var/log/pgsql</p><p>Pourquoi utiliser pgfouine sur le fichier /PGSQL/PGTEST01/pg_log/postgresql-2009-04-15_102210.log dans ce cas? <br />/PGSQL/PGTEST01/pg_log/postgresql-2009-04-15_102210.log</p><br /><p>Au fond, si j&#039;ai bien compris, il y a 2 solutions :</p><p>Soit laisser log_destination à syslog, et lire le fichier écrit par syslog. Dans ce cas pour pgfouine il faut : fournir l&#039;option &quot;-logtype stderr&quot; . Déjà, est-ce que le fichier existe? est-ce que syslog a été redémarré? Mais il faudrait trouver comment éviter de créer des fichiers inutiles?</p><p>Soit modifier postgresql.conf (remodifier log_destination pour qu&#039;elle valle stderr).</p><p>(je ne peux pas tester ici, c&#039;est par contre ce que je testerais si j&#039;étais bil69)</p><p>NB : pour l&#039;option l&#039;option &quot;-logtype stderr&quot;, ce ne serait pas lié au paramètre log_line_prefix = &#039;%t [%p]: [%l-1] &#039;&#160; &#160;?</p>]]></content>
+		<author>
+			<name><![CDATA[flo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=216</uri>
+		</author>
+		<updated>2009-04-16T16:11:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1217#p1217</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Prè-requis PG_FOUINE]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1208#p1208"/>
+		<content type="html"><![CDATA[<p>Pour commencer, si log_destination vaut syslog, c&#039;est normal que le fichier de log soit vide, puisque maintenant toutes les logs partent vers le démon syslog (donc probablement /var/log/messages ou un autre fichier piloté par syslog).<br />Ce n&#039;est pas à ma connaissance le paramétrage par défaut, il vaudrait mieux le remettre à stderr (par ailleurs, c&#039;est comme cela qu&#039;il doit être paramétré dans la distribution, puisque des fichiers sont créés tout de même).</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2009-04-16T12:27:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1208#p1208</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Prè-requis PG_FOUINE]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1207#p1207"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>bil69 a écrit&#160;:</cite><blockquote><div><p>@gleu</p><div class="quotebox"><blockquote><div><p>En ce qui concerne pgfouine, vous devriez lui fournir l&#039;option &quot;-logtype stderr&quot; (car à priori, c&#039;est ce que vous utilisez)</p></div></blockquote></div><p>je ne vois pas pourquoi vous dites ça alors que dans mon fichier de conf il y a ça <span style="color: #FF0000">log_destination = ’syslog’</span></p><p>sinon en ce qui concerne le faite que mes fichiers de log vide je soupçonne ce param, pourtant d&#039;après plusieurs tuto on doit desactiver ce param pour une analyse des log </p><p># This is used when logging to stderr:<br />logging_collector = off&#160; &#160; &#160; &#160; # Enable capturing of stderr and csvlog<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # into log files. Required to be on for<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # csvlogs.<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # (change requires restart)</p><br /><p> pgfouine.php -file /PGSQL/PGTEST01/pg_log/postgresql-2009-04-15_102210.log -logtype syslog -format html &gt; /PGSQL/backups/pgfouine.html<br />pgFouine did not find any valid PostgreSQL log line in your log file:<br />* check that PostgreSQL uses an english locale for logging (lc_messages in your postgresql.conf),<br />* check that you use the -logtype option (syslog, stderr) according to your log file,<br />* if you use syslog and log_line_prefix, check that your log_line_prefix has a trailing space,<br />* if you use stderr, check that your log_line_prefix is of the form &#039;%t [%p]: [%l-1] &#039;.<br />If you think your log file and your options are correct, please contact the author (gsmet on #postgresql@freenode or guillaume-pg at smet dot org).</p><p>merci d&#039;avance</p></div></blockquote></div><p>pas de réponse...</p><p>Quelqu&#039;un peut m&#039;aider ???</p>]]></content>
+		<author>
+			<name><![CDATA[bil69]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=310</uri>
+		</author>
+		<updated>2009-04-16T09:37:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1207#p1207</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Prè-requis PG_FOUINE]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1202#p1202"/>
+		<content type="html"><![CDATA[<p>@gleu</p><div class="quotebox"><blockquote><div><p>En ce qui concerne pgfouine, vous devriez lui fournir l&#039;option &quot;-logtype stderr&quot; (car à priori, c&#039;est ce que vous utilisez)</p></div></blockquote></div><p>je ne vois pas pourquoi vous dites ça alors que dans mon fichier de conf il y a ça <span style="color: #FF0000">log_destination = ’syslog’</span></p><p>sinon en ce qui concerne le faite que mes fichiers de log vide je soupçonne ce param, pourtant d&#039;après plusieurs tuto on doit desactiver ce param pour une analyse des log </p><p># This is used when logging to stderr:<br />logging_collector = off&#160; &#160; &#160; &#160; # Enable capturing of stderr and csvlog<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # into log files. Required to be on for<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # csvlogs.<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # (change requires restart)</p><br /><p> pgfouine.php -file /PGSQL/PGTEST01/pg_log/postgresql-2009-04-15_102210.log -logtype syslog -format html &gt; /PGSQL/backups/pgfouine.html<br />pgFouine did not find any valid PostgreSQL log line in your log file:<br />* check that PostgreSQL uses an english locale for logging (lc_messages in your postgresql.conf),<br />* check that you use the -logtype option (syslog, stderr) according to your log file,<br />* if you use syslog and log_line_prefix, check that your log_line_prefix has a trailing space,<br />* if you use stderr, check that your log_line_prefix is of the form &#039;%t [%p]: [%l-1] &#039;.<br />If you think your log file and your options are correct, please contact the author (gsmet on #postgresql@freenode or guillaume-pg at smet dot org).</p><p>merci d&#039;avance</p>]]></content>
+		<author>
+			<name><![CDATA[bil69]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=310</uri>
+		</author>
+		<updated>2009-04-15T13:37:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1202#p1202</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Prè-requis PG_FOUINE]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1200#p1200"/>
+		<content type="html"><![CDATA[<p>Voici ma le paramétrage de ma conf :</p><p>#------------------------------------------------------------------------------<br /># ERROR REPORTING AND LOGGING<br />#------------------------------------------------------------------------------</p><p># - Where to Log -</p><p>log_destination = &#039;syslog&#039;&#160; &#160; &#160; &#160;</p><p># This is used when logging to stderr:<br />logging_collector = off&#160; &#160; &#160; &#160;</p><p># These are only used if logging_collector is on:<br />log_directory = &#039;pg_log&#039;&#160; &#160; &#160; &#160; # directory where log files are written,<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # can be absolute or relative to PGDATA<br />#log_filename = &#039;postgresql-%Y-%m-%d_%H%M%S.log&#039;&#160; &#160;</p><p>log_truncate_on_rotation = on </p><p>log_rotation_age = 1d&#160; &#160; &#160; &#160; &#160; &#160; # Automatic rotation of logfiles will<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # happen after that time.&#160; 0 to disable.<br />log_rotation_size = 0&#160; &#160; &#160; &#160; &#160; &#160; # Automatic rotation of logfiles will<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # happen after that much log output.<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # 0 to disable.</p><p># These are relevant when logging to syslog:<br />#syslog_facility = &#039;LOCAL0&#039;<br />#syslog_ident = &#039;postgres&#039;</p><br /><p># - When to Log -</p><p>#client_min_messages = notice&#160; &#160;</p><p>#log_min_messages = notice&#160; &#160; &#160; &#160;</p><p>#log_error_verbosity = default&#160; &#160; &#160; &#160;</p><p>#log_min_error_statement = error&#160; &#160;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;<br />log_min_duration_statement = 0&#160; &#160; &#160;</p><p>silent_mode = on&#160; &#160; &#160; &#160; &#160; &#160; &#160;</p><p># - What to Log -</p><p>#debug_print_parse = off<br />#debug_print_rewritten = off<br />#debug_print_plan = off<br />#debug_pretty_print = off<br />#log_checkpoints = off<br />#log_connections = off<br />#log_disconnections = off<br />log_duration = off<br />#log_hostname = off<br />log_line_prefix = &#039;%t [%p]: [%l-1] &#039;&#160; &#160; &#160;# special values:<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;<br />#log_lock_waits = off&#160; &#160; &#160; &#160; &#160; &#160; # log lock waits &gt;= deadlock_timeout<br />log_statement = &#039;none&#039;&#160; &#160; &#160; &#160; &#160; &#160; # none, ddl, mod, all<br />#log_temp_files = -1&#160; &#160; &#160; &#160; &#160; &#160; # log temporary files equal or larger<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # than specified size;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # -1 disables, 0 logs all temp files<br />#log_timezone = unknown&#160; &#160; &#160; &#160; &#160; &#160; # actually, defaults to TZ environment<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # setting</p><p>lc_messages = &#039;en_US.UTF-8&#039;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # locale for system error message</p><p>sinon ds syslog.conf</p><p>#pgsql</p><p>local0.*&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; -/var/log/pgsql</p><p>*.info;mail.none;news.none;authpriv.none;local0.none&#160; &#160; -/var/log/messages</p>]]></content>
+		<author>
+			<name><![CDATA[bil69]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=310</uri>
+		</author>
+		<updated>2009-04-15T09:41:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1200#p1200</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Prè-requis PG_FOUINE]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1199#p1199"/>
+		<content type="html"><![CDATA[<p>log_destination vaut toujours syslog ? Vu les noms de fichiers il devait valoir initialement stderr non ? (Je ne suis pas trop habitué à PostgreSQL sous Red Hat...)<br />Si c&#039;est bien le cas, essayez de le remettre à stderr</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2009-04-15T08:45:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1199#p1199</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Prè-requis PG_FOUINE]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1198#p1198"/>
+		<content type="html"><![CDATA[<p>pas de réponse...</p><p>une piste svp</p>]]></content>
+		<author>
+			<name><![CDATA[bil69]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=310</uri>
+		</author>
+		<updated>2009-04-15T08:38:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1198#p1198</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Prè-requis PG_FOUINE]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1193#p1193"/>
+		<content type="html"><![CDATA[<p>Grâce à ton aide, ça fonctionne !!!!</p><p>Mais dans tous ce bazar j&#039;ai du changer un paramètre qui empêche d&#039;écrire les traces. les fichiers sont vides... </p><p>-rw-------&#160; 1 pgsql pgsql&#160; &#160;322 Apr&#160; 6 16:51 postgresql-2009-04-06_165134.log<br />-rw-------&#160; 1 pgsql pgsql&#160; 8542 Apr&#160; 6 17:05 postgresql-2009-04-06_165151.log<br />-rw-------&#160; 1 pgsql pgsql&#160; 2288 Apr&#160; 6 17:10 postgresql-2009-04-06_170541.log<br />-rw-------&#160; 1 pgsql pgsql&#160; 7995 Apr&#160; 6 17:16 postgresql-2009-04-06_171005.log<br />-rw-------&#160; 1 pgsql pgsql&#160; 8388 Apr&#160; 6 17:27 postgresql-2009-04-06_171626.log<br />-rw-------&#160; 1 pgsql pgsql&#160; 8391 Apr&#160; 7 08:59 postgresql-2009-04-07_000000.log<br />-rw-------&#160; 1 pgsql pgsql 12556 Apr&#160; 7 09:23 postgresql-2009-04-07_085912.log<br />-rw-------&#160; 1 pgsql pgsql&#160; 4445 Apr&#160; 7 09:27 postgresql-2009-04-07_092304.log<br />-rw-------&#160; 1 pgsql pgsql&#160; &#160;527 Apr&#160; 8 14:30 postgresql-2009-04-08_000000.log<br />-rw-------&#160; 1 pgsql pgsql&#160; &#160;181 Apr&#160; 9 14:28 postgresql-2009-04-09_000000.log<br />-rw-------&#160; 1 pgsql pgsql&#160; &#160;133 Apr 10 14:44 postgresql-2009-04-10_000000.log<br />-rw-------&#160; 1 pgsql pgsql&#160; &#160; &#160;0 Apr 10 14:53 postgresql-2009-04-10_145330.log<br />-rw-------&#160; 1 pgsql pgsql&#160; &#160; &#160;0 Apr 10 14:53 postgresql-2009-04-10_145357.log<br />-rw-------&#160; 1 pgsql pgsql&#160; &#160; &#160;0 Apr 11 00:00 postgresql-2009-04-11_000000.log<br />-rw-------&#160; 1 pgsql pgsql&#160; &#160; &#160;0 Apr 12 00:00 postgresql-2009-04-12_000000.log<br />-rw-------&#160; 1 pgsql pgsql&#160; &#160; &#160;0 Apr 13 00:00 postgresql-2009-04-13_000000.log<br />-rw-------&#160; 1 pgsql pgsql&#160; &#160; &#160;0 Apr 14 00:00 postgresql-2009-04-14_000000.log<br />-rw-------&#160; 1 pgsql pgsql&#160; &#160; &#160;0 Apr 14 13:47 postgresql-2009-04-14_134757.log<br />-rw-------&#160; 1 pgsql pgsql&#160; &#160; &#160;0 Apr 14 13:48 postgresql-2009-04-14_134805.log</p><p>merci...</p>]]></content>
+		<author>
+			<name><![CDATA[bil69]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=310</uri>
+		</author>
+		<updated>2009-04-14T13:56:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1193#p1193</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Prè-requis PG_FOUINE]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1191#p1191"/>
+		<content type="html"><![CDATA[<p>L&#039;option redirect_stderr n&#039;est pas disponible pour toutes les versions de PostgreSQL. Par exemple, en 8.3, il a été renommé logging_collector.</p><p>En ce qui concerne pgfouine, vous devriez lui fournir l&#039;option &quot;-logtype stderr&quot; (car à priori, c&#039;est ce que vous utilisez).</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2009-04-14T12:47:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1191#p1191</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Prè-requis PG_FOUINE]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1189#p1189"/>
+		<content type="html"><![CDATA[<p>Merci pour ces réponses... ça commence à marcher j&#039;ai au moins la création d&#039;un rapport... VIDE</p><p>voici l&#039;erreur :</p><div class="codebox"><pre><code>D:\Documents and Settings\Bureau&gt;php-5.2.9-2-Win32\php.exe pgfouine-1.0\
+pgfouine-1.0\pgfouine.php -file pg_log\postgresql-2009-04-06_165151.log &gt; report.html
+pgFouine did not find any valid PostgreSQL log line in your log file:
+* check that PostgreSQL uses an english locale for logging (lc_messages in your
+postgresql.conf),
+* check that you use the -logtype option (syslog, stderr) according to your log
+file,
+* if you use syslog and log_line_prefix, check that your log_line_prefix has a t
+railing space,
+* if you use stderr, check that your log_line_prefix is of the form &#039;%t [%p]: [%
+l-1] &#039;.
+If you think your log file and your options are correct, please contact the auth
+or (gsmet on #postgresql@freenode or guillaume-pg at smet dot org).</code></pre></div><p>Donc dans mon fichier postgresql.conf :</p><p>log_destination = ’syslog’<br />silent_mode = on<br />log_min_duration_statement = 0<br />log_duration = off<br />log_statement = ’none’<br />log_line_prefix = ’user=%u,db=%d’</p><p># These settings are initialized by initdb, but they can be changed.<br />lc_messages = &#039;C&#039;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;# locale for system error message<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # strings<br />lc_monetary = &#039;en_US.UTF-8&#039;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;# locale for monetary formatting<br />lc_numeric = &#039;en_US.UTF-8&#039;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # locale for number formatting<br />lc_time = &#039;en_US.UTF-8&#039;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;# locale for time formatting</p><p>Par contre quand je rajoute redirect_stderr= off ds le fichier de conf au démarrage j&#039;ai :</p><p>pg_ctl -D /PGSQL/PGTEST01/ restart<br />waiting for server to shut down.... done<br />server stopped<br />server starting<br />FATAL:&#160; unrecognized configuration parameter &quot;redirect_stderr&quot;</p><p>merci d&#039;avance,</p>]]></content>
+		<author>
+			<name><![CDATA[bil69]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=310</uri>
+		</author>
+		<updated>2009-04-14T09:59:06Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1189#p1189</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Prè-requis PG_FOUINE]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1155#p1155"/>
+		<content type="html"><![CDATA[<p>En fait, il faut utiliser l&#039;outil php en ligne de commande. Donc quelque chose du style :</p><div class="codebox"><pre><code>php pgfouine.php ...</code></pre></div><p>Le ... est à remplacer par les options de pgfouine comme indiqué sur son site (<a href="http://pgfouine.projects.postgresql.org/tutorial.html" rel="nofollow">http://pgfouine.projects.postgresql.org/tutorial.html</a>).</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2009-04-09T20:10:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1155#p1155</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Prè-requis PG_FOUINE]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1150#p1150"/>
+		<content type="html"><![CDATA[<p>Merci de ta réponse,</p><p>Quand j&#039;ouvre le dossier pgfouine sur mon bureau il y a un tas de fichiers je vois pas comment exécuter pgfouine en lui fournissant les fichiers de logs</p><p>Je sais c&#039;est bête mais voila...</p><p>merci d&#039;avance,</p>]]></content>
+		<author>
+			<name><![CDATA[bil69]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=310</uri>
+		</author>
+		<updated>2009-04-09T12:08:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1150#p1150</id>
+	</entry>
+</feed>

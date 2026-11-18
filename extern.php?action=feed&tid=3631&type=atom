@@ -1,0 +1,493 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Plantage process serveur lors de l'appel de unaccent]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3631&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3631"/>
+	<updated>2015-08-28T13:12:45Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3631</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Plantage process serveur lors de l'appel de unaccent]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22390#p22390"/>
+		<content type="html"><![CDATA[<p>Ouais, c&#039;est un choix discutable. L&#039;idée était de garder la même longueur de chaîne, j&#039;imagine, au moment du développement, en se débarrassant de tous les caractères «à la con» (définition très scientifique <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /> )</p><p>Mais c&#039;est vrai que ça semble plus logique de convertir œ en oe.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2015-08-28T13:12:45Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22390#p22390</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Plantage process serveur lors de l'appel de unaccent]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22389#p22389"/>
+		<content type="html"><![CDATA[<p>En-dehors de la rapidité, il y a la question du bon fonctionnement.<br />La question des ligatures n&#039;est pas simple mais pour ma part je trouve que remplacer <em>œil</em> par <em>eil</em> n&#039;a aucun sens, dans aucun contexte, et pourtant c&#039;est ce que fait actuellement le unaccent() de contrib.</p><p>Il n&#039;est pas dit qu&#039;il fera toujours ça, il y a un patch en cours là-dessus qui transforme les ligatures en plusieurs lettres<br /><a href="https://commitfest.postgresql.org/6/301/" rel="nofollow">https://commitfest.postgresql.org/6/301/</a><br />en rapport avec: BUG #13440: unaccent does not remove all diacritics</p><p>...et la discussion associée montre que le comportement attendu de cette fonction ne tombe pas sous le sens.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2015-08-28T13:09:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22389#p22389</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Plantage process serveur lors de l'appel de unaccent]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22388#p22388"/>
+		<content type="html"><![CDATA[<p>Ça semble assez réaliste. Juste un petit détail… j&#039;aurais évité de mettre toutes les constantes dans $_{SHARED}, je pense que ça serait préférable de le mettre dans $_{SHARED}-&gt;{UNACCENTHASH} ou un truc du genre… juste au cas ou quelqu&#039;un d&#039;autre voudrait utiliser $_{SHARED}</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2015-08-28T12:14:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22388#p22388</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Plantage process serveur lors de l'appel de unaccent]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22387#p22387"/>
+		<content type="html"><![CDATA[<p>J&#039;ai retesté tout ça car avant, comme je passais la même chaine, le &quot;cache&quot; immutable de pg faussait les tests!<br />Désormais je suffixe la chaine avec un séquencier pour forcer l&#039;écecution...<br />J&#039;ai rajouté le gros tableau en &quot;SHARED&quot; (en espérant l&#039;avoir bien fait...) et le test avec Unicode::Normalize</p><div class="codebox"><pre class="vscroll"><code>set client_min_messages=&#039;WARNING&#039;;
+
+drop database if exists test_pg_perl;
+create database test_pg_perl;
+\c test_pg_perl
+
+create extension unaccent;
+create extension plperl;
+create extension plperlu;
+
+
+create or replace function perl_unaccent(param_charset text, param_string text) returns text as $$
+        use Text::Unaccent;
+        return unac_string($_[0],$_[1]);
+$$ language plperlu immutable strict;
+
+
+create or replace function perl_unaccent_with_bigmap(param_string text) returns text as $$
+# Based on:
+# http://cpansearch.perl.org/src/PJACKLAM/Text-Unaccent-PurePerl-0.05/lib/Text/Unaccent/PurePerl.pm
+# Author:      Peter John Acklam
+# Time-stamp:  2013-03-02 12:38:55 +00:00
+# E-mail:      pjacklam@online.no
+# URL:         http://home.online.no/~pjacklam
+if (!defined $_SHARED) {
+$_SHARED={
+ # 00A0 NO-BREAK SPACE
+ # -&gt;   0020 SPACE
+ &quot;\xA0&quot; =&gt; &quot; &quot;,
+--------------------(CUT)--------------------
+ # FFEE HALFWIDTH WHITE CIRCLE
+ # -&gt;   25CB WHITE CIRCLE
+ &quot;\x{FFEE}&quot; =&gt; &quot;\x{25CB}&quot;
+}
+};
+my $str_in=$_[0];
+my $str_out=&#039;&#039;;
+my $offset_max=length($str_in)-1;
+for my $offset (0..$offset_max) {
+  my $chr=substr($str_in,$offset,1);
+  $str_out.=exists $_SHARED-&gt;{$chr} ? $_SHARED-&gt;{$chr} : $chr;
+};
+return $str_out;
+$$ language plperl immutable strict;
+
+
+create or replace function perl_unicode_normalize(param_string text) returns text as $$
+        use Unicode::Normalize;
+        my $w=NFD($_[0]);
+        $w =~ s/\pM//g;  # strip combining characters
+        return $w;
+$$ language plperlu immutable strict;
+
+
+\set str2unacc &#039;&#039;&#039;Ça va, lʼœil de Владимир a été passé au Kärcher !&#039;&#039;&#039;
+\echo Test sur la chaine: :str2unacc
+select unaccent(:str2unacc);
+select perl_unaccent(&#039;utf-8&#039;,:str2unacc);
+select perl_unaccent_with_bigmap(:str2unacc);
+select perl_unicode_normalize(:str2unacc);
+
+\set loops 5000
+\echo Test sur :loops appels:
+explain analyze select unaccent(:str2unacc||seq)                  from generate_series(1,:loops) as tbl(seq);
+explain analyze select perl_unaccent(&#039;utf-8&#039;,:str2unacc||seq)     from generate_series(1,:loops) as tbl(seq);
+explain analyze select perl_unaccent_with_bigmap(:str2unacc||seq) from generate_series(1,:loops) as tbl(seq);
+explain analyze select perl_unicode_normalize(:str2unacc||seq)    from generate_series(1,:loops) as tbl(seq);</code></pre></div><p>Ce qui donne:</p><div class="codebox"><pre class="vscroll"><code>Test sur la chaine: &#039;Ça va, lʼœil de Владимир a été passé au Kärcher !&#039;
+                     unaccent                      
+---------------------------------------------------
+ Ca va, lʼeil de Владимир a ete passe au Karcher !
+
+                               perl_unaccent                                
+----------------------------------------------------------------------------
+ Ca va, lÊ¼Å\u0093il de Ð\u0092Ð»Ð°Ð´Ð¸Ð¼Ð¸Ñ\u0080 a ete passe au Karcher !
+
+             perl_unaccent_with_bigmap             
+---------------------------------------------------
+ Ca va, lʼœil de Владимир a ete passe au Karcher !
+
+              perl_unicode_normalize               
+---------------------------------------------------
+ Ca va, lʼœil de Владимир a ete passe au Karcher !
+(1 ligne)
+
+Test sur 5000 appels:
+                                                        QUERY PLAN                                                        
+--------------------------------------------------------------------------------------------------------------------------
+ Function Scan on generate_series tbl  (cost=0.00..20.00 rows=1000 width=4) (actual time=0.528..11.804 rows=5000 loops=1)
+ Total runtime: 12.073 ms
+
+                                                        QUERY PLAN                                                         
+---------------------------------------------------------------------------------------------------------------------------
+ Function Scan on generate_series tbl  (cost=0.00..267.50 rows=1000 width=4) (actual time=0.509..55.731 rows=5000 loops=1)
+ Total runtime: 56.385 ms
+
+                                                         QUERY PLAN                                                         
+----------------------------------------------------------------------------------------------------------------------------
+ Function Scan on generate_series tbl  (cost=0.00..267.50 rows=1000 width=4) (actual time=0.469..164.947 rows=5000 loops=1)
+ Total runtime: 165.531 ms
+
+                                                        QUERY PLAN                                                         
+---------------------------------------------------------------------------------------------------------------------------
+ Function Scan on generate_series tbl  (cost=0.00..267.50 rows=1000 width=4) (actual time=0.455..92.159 rows=5000 loops=1)
+ Total runtime: 92.847 ms</code></pre></div><p>Si je commente le test &quot;defined&quot; (donc en réaffectant le tableau SHARED à chaque fois, ça repasse de 165 à ~6500ms !</p>]]></content>
+		<author>
+			<name><![CDATA[mgmpg]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=337</uri>
+		</author>
+		<updated>2015-08-28T11:45:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22387#p22387</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Plantage process serveur lors de l'appel de unaccent]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22382#p22382"/>
+		<content type="html"><![CDATA[<p>Une autre méthode envisageable serait d&#039;utiliser Unicode::Normalize qui a l&#039;avantage d&#039;être un module de base dans Perl.</p><div class="codebox"><pre><code>use Unicode::Normalize;
+my $w=NFD($_[0]);
+$w =~ s/\pM//g;  # strip combining characters
+return $w;</code></pre></div><p>A confirmer par vos propres tests, mais ça me semble aussi deux fois plus rapide que unac_string()&#160; de Text::Unaccent::PurePerl</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2015-08-26T13:53:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22382#p22382</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Plantage process serveur lors de l'appel de unaccent]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22374#p22374"/>
+		<content type="html"><![CDATA[<p>Oui, probablement, en $_SHARED, ça accélérerait les choses</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2015-08-25T13:39:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22374#p22374</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Plantage process serveur lors de l'appel de unaccent]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22373#p22373"/>
+		<content type="html"><![CDATA[<p>Pour la version pure perl, le tableau associatif prend plus de 17000 lignes de code.<br />Il faudrait le sortir de la fonction pour avoir un temps acceptable, sinon le CPU doit passer son temps à réaffecter cette table géante à chaque fois.</p><p>Via &quot;use Text::Unaccent::PurePerl&quot; (plperlU) il serait initialisé une seule fois.</p><p>Pour rester en plperl (trusted), j&#039;imagine qu&#039;il faudrait le mettre dans $_SHARED dans une étape à part appelée une seule fois.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2015-08-25T13:38:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22373#p22373</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Plantage process serveur lors de l'appel de unaccent]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22369#p22369"/>
+		<content type="html"><![CDATA[<p>En 9.4 j&#039;ai 8.655ms, 1.119ms et 7834ms donc quasi kif-kif...</p>]]></content>
+		<author>
+			<name><![CDATA[mgmpg]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=337</uri>
+		</author>
+		<updated>2015-08-25T08:56:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22369#p22369</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Plantage process serveur lors de l'appel de unaccent]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22368#p22368"/>
+		<content type="html"><![CDATA[<p>C&#039;est assez surprenant que la version perl_unaccent soit la plus rapide. J&#039;aurais parié sur unaccent… intéressant.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2015-08-25T08:56:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22368#p22368</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Plantage process serveur lors de l'appel de unaccent]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22367#p22367"/>
+		<content type="html"><![CDATA[<p>Merci pour vos analyses !</p><p>En attendant, j&#039;ai un peu benchmarké ce qui était dispo (à savoir l&#039;extension unaccent, la lib perl unaccent et le source perl unaccent_pureperl, en pg9.1.16 sur une debian wheezy):</p><div class="codebox"><pre class="vscroll"><code>drop database if exists test_pg_perl;
+create database test_pg_perl;
+\c test_pg_perl
+
+create extension unaccent;
+create extension plperl;
+create extension plperlu;
+
+create or replace function perl_unaccent(param_charset text, param_string text) returns text as $$
+        use Text::Unaccent;
+        return unac_string($_[0],$_[1]);
+$$ language plperlu immutable strict;
+
+create or replace function perl_unaccent_pure(param_string text) returns text as $$
+# http://cpansearch.perl.org/src/PJACKLAM/Text-Unaccent-PurePerl-0.05/lib/Text/Unaccent/PurePerl.pm
+# Author:      Peter John Acklam
+# Time-stamp:  2013-03-02 12:38:55 +00:00
+# E-mail:      pjacklam@online.no
+# URL:         http://home.online.no/~pjacklam
+my $map = {
+ # 00A0 NO-BREAK SPACE
+ # -&gt;   0020 SPACE
+ &quot;\xA0&quot; =&gt; &quot; &quot;,
+...
+########################### bon là, j&#039;ai viré tout le tableau associatif pour le paste...
+...
+ # FFEE HALFWIDTH WHITE CIRCLE
+ # -&gt;   25CB WHITE CIRCLE
+ &quot;\x{FFEE}&quot; =&gt; &quot;\x{25CB}&quot;
+};
+my $str_in=$_[0];
+# Iterate over each character in the input string. If the character exists
+# in the map, replace the current character according to the map, otherwise
+# keep the character as it is.
+my $str_out = &#039;&#039;;
+my $offset_max = length($str_in) - 1;
+for my $offset (0 .. $offset_max) {
+  my $chr = substr($str_in, $offset, 1);
+  $str_out .= exists $map-&gt;{$chr} ? $map-&gt;{$chr} : $chr;
+};
+return $str_out;
+$$ language plperl;
+
+\set str2unacc &#039;&#039;&#039;Mon œil à été passé au Kärcher&#039;&#039;&#039;
+\set loops 5000
+explain analyze select unaccent(:str2unacc) from generate_series(1,:loops);
+explain analyze select perl_unaccent(&#039;utf-8&#039;,:str2unacc) from generate_series(1,:loops);
+explain analyze select perl_unaccent_pure(:str2unacc) from generate_series(1,:loops);</code></pre></div><p>Voici les résultats:</p><div class="codebox"><pre><code>                                                     QUERY PLAN                                                      
+---------------------------------------------------------------------------------------------------------------------
+ Function Scan on generate_series  (cost=0.00..12.50 rows=1000 width=0) (actual time=0.579..7.934 rows=5000 loops=1)
+ Total runtime: 8.207 ms
+
+                                                     QUERY PLAN                                                      
+---------------------------------------------------------------------------------------------------------------------
+ Function Scan on generate_series  (cost=0.00..10.00 rows=1000 width=0) (actual time=0.406..0.840 rows=5000 loops=1)
+ Total runtime: 1.078 ms
+
+                                                       QUERY PLAN                                                        
+-------------------------------------------------------------------------------------------------------------------------
+ Function Scan on generate_series  (cost=0.00..260.00 rows=1000 width=0) (actual time=2.207..7790.519 rows=5000 loops=1)
+ Total runtime: 7791.658 ms</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[mgmpg]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=337</uri>
+		</author>
+		<updated>2015-08-25T08:53:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22367#p22367</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Plantage process serveur lors de l'appel de unaccent]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22354#p22354"/>
+		<content type="html"><![CDATA[<p>Text::Unaccent a un méchant bug d&#039;écrasement de données dans la pile qui se produit en 64 bits. C&#039;est dû à une confusion entre size_t (8 octets) et int (4 octets) qui d&#039;ailleurs est signalée à la compilation.</p><p>Le problème a été vu dès 2006<br /><a href="https://rt.cpan.org/Public/Bug/Display.html?id=21177" rel="nofollow">https://rt.cpan.org/Public/Bug/Display.html?id=21177</a><br />mais l&#039;auteur de Text::Unaccent avait apparemment déjà abandonné son package et ce rapport de bugs (et d&#039;autres d&#039;ailleurs) sont restés lettre morte.</p><br /><p>Au vu de la backtrace, je pense que c&#039;est que ça qui plante et que ça n&#039;a rien à voir avec postgres ou plperl. Il se peut qu&#039;avec la debian d&#039;avant ça passait à travers le bug mais il y a un caractère aléatoire, tout dépend de ce qui se trouve en pile à cet endroit là. S&#039;il y a une variable qui ne sert plus, ça passe. S&#039;il y a un pointeur passé à free(), ça segfault. Or le compilateur met les variables en pile dans l&#039;ordre qu&#039;il veut.</p><p>Idéalement sur CPAN il faudrait qu&#039;un autre mainteneur prenne la main et applique les patches, mais je ne crois pas que CPAN ait une politique de récupération des modules à l&#039;abandon. Peut-être qu&#039;au niveau de Debian?</p><p>Tu peux régler le problème au niveau de ton installation en compilant toi-même, ou sinon utiliser autre chose. Vu comment est fait Unaccent, je soupçonne que des puristes d&#039;Unicode diraient que c&#039;est n&#039;importe quoi de toute manière.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2015-08-24T13:11:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22354#p22354</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Plantage process serveur lors de l'appel de unaccent]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22340#p22340"/>
+		<content type="html"><![CDATA[<p>Bref, il fait un free quand il sort de la librairie unaccent et explose. Il doit y avoir un truc louche.</p><p>Éventuellement, il y a une librairie unaccent en pure-perl… ça a même l&#039;avantage de pouvoir copier-coller tout le code dans la procédure (avec le map) et d&#039;en faire du plperl au lieu de plperlu.</p><p><a href="http://cpansearch.perl.org/src/PJACKLAM/Text-Unaccent-PurePerl-0.05/lib/Text/Unaccent/PurePerl.pm" rel="nofollow">http://cpansearch.perl.org/src/PJACKLAM … urePerl.pm</a> ?</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2015-08-21T15:09:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22340#p22340</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Plantage process serveur lors de l'appel de unaccent]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22339#p22339"/>
+		<content type="html"><![CDATA[<p>Je le reproduis effectivement avec une jessie et le package standard debian. Voila le bt full:</p><div class="codebox"><pre class="vscroll"><code>#0  __GI___libc_free (mem=0x7fda00000000) at malloc.c:2929
+2929    malloc.c: No such file or directory.
+(gdb) bt full
+#0  __GI___libc_free (mem=0x7fda00000000) at malloc.c:2929
+        ar_ptr = &lt;optimized out&gt;
+        p = &lt;optimized out&gt;
+        hook = 0x0
+#1  0x00007fda3da30ff4 in unac_string () from /usr/lib/x86_64-linux-gnu/perl5/5.20/auto/Text/Unaccent/Unaccent.so
+No symbol table info available.
+#2  0x00007fda3da3027e in ?? () from /usr/lib/x86_64-linux-gnu/perl5/5.20/auto/Text/Unaccent/Unaccent.so
+No symbol table info available.
+#3  0x00007fda3df3da0b in Perl_pp_entersub () from /usr/lib/x86_64-linux-gnu/libperl.so.5.20
+No symbol table info available.
+#4  0x00007fda3df36276 in Perl_runops_standard () from /usr/lib/x86_64-linux-gnu/libperl.so.5.20
+No symbol table info available.
+#5  0x00007fda3debf455 in Perl_call_sv () from /usr/lib/x86_64-linux-gnu/libperl.so.5.20
+No symbol table info available.
+#6  0x00007fda3e2394ef in plperl_call_perl_func (desc=desc@entry=0x7fda4de0a540, fcinfo=fcinfo@entry=0x7fda4dd4ade0)
+    at /tmp/buildd/postgresql-9.4-9.4.3/build/../src/pl/plperl/plperl.c:2120
+        sp = &lt;optimized out&gt;
+        retval = &lt;optimized out&gt;
+        i = &lt;optimized out&gt;
+        count = &lt;optimized out&gt;
+        __func__ = &quot;plperl_call_perl_func&quot;
+#7  0x00007fda3e23e09f in plperl_func_handler (fcinfo=0x7fda4dd4ade0) at /tmp/buildd/postgresql-9.4-9.4.3/build/../src/pl/plperl/plperl.c:2310
+        retval = 0
+        prodesc = 0x7fda4de0a540
+        perlret = &lt;optimized out&gt;
+        rsi = 0x0
+        pl_error_context = {previous = 0x0, callback = 0x7fda3e233c60 &lt;plperl_exec_callback&gt;, arg = 0x7fda4dde2bc0}
+#8  plperl_call_handler (fcinfo=0x7fda4dd4ade0) at /tmp/buildd/postgresql-9.4-9.4.3/build/../src/pl/plperl/plperl.c:1757
+        save_exception_stack = 0x7ffda8a45690
+        save_context_stack = 0x0
+        local_sigjmp_buf = {{__jmpbuf = {140575585381856, 1075903644315876123, 140727432795168, 140575585381248, 140575585381744, 140575585381904, 1075903644504619803, 
+              1054209159195589403}, __mask_was_saved = 0, __saved_mask = {__val = {16384, 1, 0, 140575585349048, 0, 140727432795088, 140575557409410, 2, 0, 140575584584928, 
+                13924289827103274240, 25, 13924289827103274240, 16389, 13924289827103274240, 140575584823600}}}}
+        retval = &lt;optimized out&gt;
+        save_call_data = 0x0
+        oldinterp = 0x0
+        this_call_data = {prodesc = 0x7fda4de0a540, fcinfo = 0x7fda4dd4ade0, tuple_store = 0x0, ret_tdesc = 0x0, tmp_cxt = 0x0}
+#9  0x00007fda4c353743 in ExecMakeFunctionResultNoSets (fcache=0x7fda4dd4ad70, econtext=0x7fda4dd4ab80, isNull=0x7fda4dd4b7c8 &quot;&quot;, isDone=&lt;optimized out&gt;)
+    at /tmp/buildd/postgresql-9.4-9.4.3/build/../src/backend/executor/execQual.c:2026
+        arg = &lt;optimized out&gt;
+        result = &lt;optimized out&gt;
+        fcinfo = 0x7fda4dd4ade0
+        fcusage = {fs = 0x0, save_f_total_time = {tv_sec = 140575585381744, tv_usec = 140575584823712}, save_total = {tv_sec = 140575585381248, tv_usec = 140575585384392}, f_start = {
+            tv_sec = 140575585384672, tv_usec = 140727432795280}}
+        i = &lt;optimized out&gt;
+#10 0x00007fda4c3597ad in ExecTargetList (isDone=0x7ffda8a45524, itemIsDone=0x7fda4dd4b8e0, isnull=0x7fda4dd4b7c8 &quot;&quot;, values=0x7fda4dd4b7b0, econtext=0x7fda4dd4ab80, 
+    targetlist=0x7fda4dd4b8b0) at /tmp/buildd/postgresql-9.4-9.4.3/build/../src/backend/executor/execQual.c:5307
+        gstate = &lt;optimized out&gt;
+        tle = &lt;optimized out&gt;
+        resind = &lt;optimized out&gt;
+---Type &lt;return&gt; to continue, or q &lt;return&gt; to quit---
+        tl = 0x7fda4dd4b890
+        haveDoneSets = 0 &#039;\000&#039;
+#11 ExecProject (projInfo=&lt;optimized out&gt;, isDone=isDone@entry=0x7ffda8a45524) at /tmp/buildd/postgresql-9.4-9.4.3/build/../src/backend/executor/execQual.c:5522
+        slot = 0x7fda4dd4ac60
+        econtext = 0x7fda4dd4ab80
+        numSimpleVars = &lt;optimized out&gt;
+#12 0x00007fda4c36bdf8 in ExecResult (node=node@entry=0x7fda4dd4aa70) at /tmp/buildd/postgresql-9.4-9.4.3/build/../src/backend/executor/nodeResult.c:155
+        outerTupleSlot = &lt;optimized out&gt;
+        resultSlot = &lt;optimized out&gt;
+        outerPlan = &lt;optimized out&gt;
+        econtext = 0x7fda4dd4ab80
+        isDone = ExprSingleResult
+#13 0x00007fda4c3525f8 in ExecProcNode (node=node@entry=0x7fda4dd4aa70) at /tmp/buildd/postgresql-9.4-9.4.3/build/../src/backend/executor/execProcnode.c:373
+        result = &lt;optimized out&gt;
+        __func__ = &quot;ExecProcNode&quot;
+#14 0x00007fda4c34f80e in ExecutePlan (dest=0x7fda4dd0bee0, direction=&lt;optimized out&gt;, numberTuples=0, sendTuples=&lt;optimized out&gt;, operation=CMD_SELECT, planstate=0x7fda4dd4aa70, 
+    estate=0x7fda4dd4a960) at /tmp/buildd/postgresql-9.4-9.4.3/build/../src/backend/executor/execMain.c:1490
+        slot = &lt;optimized out&gt;
+        current_tuple_count = 0
+#15 standard_ExecutorRun (queryDesc=0x7fda4dd4a550, direction=&lt;optimized out&gt;, count=0) at /tmp/buildd/postgresql-9.4-9.4.3/build/../src/backend/executor/execMain.c:319
+        estate = 0x7fda4dd4a960
+        operation = CMD_SELECT
+        dest = 0x7fda4dd0bee0
+        sendTuples = &lt;optimized out&gt;
+#16 0x00007fda4c44b23f in PortalRunSelect (portal=portal@entry=0x7fda4dd48540, forward=forward@entry=1 &#039;\001&#039;, count=0, count@entry=9223372036854775807, dest=dest@entry=0x7fda4dd0bee0)
+    at /tmp/buildd/postgresql-9.4-9.4.3/build/../src/backend/tcop/pquery.c:946
+        queryDesc = 0x7fda4dd4a550
+        direction = &lt;optimized out&gt;
+        nprocessed = &lt;optimized out&gt;
+        __func__ = &quot;PortalRunSelect&quot;
+#17 0x00007fda4c44c8b0 in PortalRun (portal=portal@entry=0x7fda4dd48540, count=count@entry=9223372036854775807, isTopLevel=isTopLevel@entry=1 &#039;\001&#039;, dest=dest@entry=0x7fda4dd0bee0, 
+    altdest=altdest@entry=0x7fda4dd0bee0, completionTag=completionTag@entry=0x7ffda8a45ac0 &quot;&quot;) at /tmp/buildd/postgresql-9.4-9.4.3/build/../src/backend/tcop/pquery.c:790
+        save_exception_stack = 0x7ffda8a45970
+        save_context_stack = 0x0
+        local_sigjmp_buf = {{__jmpbuf = {140575585122216, 1075903644334750491, 140575585371456, 140575585124064, 140575585122488, 2, 1075903644378790683, 1054310065454381851}, 
+            __mask_was_saved = 0, __saved_mask = {__val = {140727432795975, 7124309760, 140575560164752, 140575561544582, 64, 140727432795952, 88, 140575585371456, 140575561268835, 
+                140575585122488, 2, 140727432795984, 140575560255786, 2, 140575585371456, 140727432796016}}}}
+        result = &lt;optimized out&gt;
+        nprocessed = &lt;optimized out&gt;
+        saveTopTransactionResourceOwner = 0x7fda4dcfef50
+        saveTopTransactionContext = 0x7fda4dcfee40
+        saveActivePortal = 0x0
+        saveResourceOwner = 0x7fda4dcfef50
+        savePortalContext = 0x0
+        saveMemoryContext = 0x7fda4dcfee40
+        __func__ = &quot;PortalRun&quot;
+#18 0x00007fda4c449f8b in exec_simple_query (query_string=0x7fda4dd0ab40 &quot;SELECT unaccent(&#039;utf-8&#039;,&#039;héhé&#039;);&quot;) at /tmp/buildd/postgresql-9.4-9.4.3/build/../src/backend/tcop/postgres.c:1072
+        parsetree = 0x7fda4dd0b7a8
+        portal = 0x7fda4dd48540
+        snapshot_set = &lt;optimized out&gt;
+---Type &lt;return&gt; to continue, or q &lt;return&gt; to quit---
+        commandTag = &lt;optimized out&gt;
+        completionTag = &quot;\000%\312M\332\177\000\000\240w\310M\332\177\000\000Hx\310M\332\177\000\000P\000\000\000\000\000\000\000\250%\312M\332\177\000\000\342%\312M\332\177\000\000\020[\244\250\375\177\000\000\374\251\070L\332\177\000&quot;
+        querytree_list = &lt;optimized out&gt;
+        plantree_list = 0x7fda4dcc2c10
+        receiver = 0x7fda4dd0bee0
+        format = 0
+        dest = DestRemote
+        parsetree_list = 0x7fda4dd0b8d8
+        save_log_statement_stats = 0 &#039;\000&#039;
+        was_logged = 0 &#039;\000&#039;
+        msec_str = &quot;\200[\244\250\375\177\000\000\&quot;\001\000\000\000\000\000\000(g\244\250\375\177\000\000\300f\314M\332\177\000&quot;
+        parsetree_item = 0x7fda4dd0b8b8
+        isTopLevel = 1 &#039;\001&#039;
+#19 PostgresMain (argc=&lt;optimized out&gt;, argv=argv@entry=0x7fda4dc87880, dbname=0x7fda4dc87730 &quot;postgres&quot;, username=&lt;optimized out&gt;)
+    at /tmp/buildd/postgresql-9.4-9.4.3/build/../src/backend/tcop/postgres.c:4074
+        query_string = 0x7fda4dd0ab40 &quot;SELECT unaccent(&#039;utf-8&#039;,&#039;héhé&#039;);&quot;
+        firstchar = 1305773376
+        input_message = {data = 0x7fda4dd0ab40 &quot;SELECT unaccent(&#039;utf-8&#039;,&#039;héhé&#039;);&quot;, len = 35, maxlen = 1024, cursor = 35}
+        local_sigjmp_buf = {{__jmpbuf = {140727432796432, 1075903644735306523, 1, 140575584581392, 140575584839360, 140575564674304, 1075903644332653339, 1054310067531086619}, 
+            __mask_was_saved = 1, __saved_mask = {__val = {0, 4294967295, 140575529333856, 0, 140575529333856, 0, 140727432796672, 18446744073709551615, 0, 4294967295, 0, 140578574565375, 
+                140575564145920, 0, 140575529333856, 0}}}}
+        send_ready_for_query = 0 &#039;\000&#039;
+        __func__ = &quot;PostgresMain&quot;
+#20 0x00007fda4c211829 in BackendRun (port=0x7fda4dcc66c0) at /tmp/buildd/postgresql-9.4-9.4.3/build/../src/backend/postmaster/postmaster.c:4164
+        ac = 1
+        secs = 493483548
+        usecs = 296945
+        i = 1
+        av = 0x7fda4dc87880
+        maxac = &lt;optimized out&gt;
+#21 BackendStartup (port=0x7fda4dcc66c0) at /tmp/buildd/postgresql-9.4-9.4.3/build/../src/backend/postmaster/postmaster.c:3829
+        bn = &lt;optimized out&gt;
+        pid = &lt;optimized out&gt;
+#22 ServerLoop () at /tmp/buildd/postgresql-9.4-9.4.3/build/../src/backend/postmaster/postmaster.c:1597
+        rmask = {fds_bits = {256, 0 &lt;repeats 15 times&gt;}}
+        selres = &lt;optimized out&gt;
+        readmask = {fds_bits = {448, 0 &lt;repeats 15 times&gt;}}
+        now = &lt;optimized out&gt;
+        last_touch_time = 1440168308
+        __func__ = &quot;ServerLoop&quot;
+#23 0x00007fda4c3f38ae in PostmasterMain (argc=5, argv=&lt;optimized out&gt;) at /tmp/buildd/postgresql-9.4-9.4.3/build/../src/backend/postmaster/postmaster.c:1244
+        opt = &lt;optimized out&gt;
+        status = &lt;optimized out&gt;
+        userDoption = &lt;optimized out&gt;
+        listen_addr_saved = 1 &#039;\001&#039;
+        i = &lt;optimized out&gt;
+        output_config_variable = &lt;optimized out&gt;
+        __func__ = &quot;PostmasterMain&quot;
+#24 0x00007fda4c212998 in main (argc=5, argv=0x7fda4dc86540) at /tmp/buildd/postgresql-9.4-9.4.3/build/../src/backend/main/main.c:228</code></pre></div><p>Détail amusant, il ne semble pas y avoir malloc.c dans les libs de debug debian.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2015-08-21T14:58:03Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22339#p22339</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Plantage process serveur lors de l'appel de unaccent]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22333#p22333"/>
+		<content type="html"><![CDATA[<p>Peut être que la stacktrace pourrait aider. cf <a href="https://wiki.postgresql.org/wiki/Getting_a_stack_trace_of_a_running_PostgreSQL_backend_on_Linux/BSD" rel="nofollow">https://wiki.postgresql.org/wiki/Gettin … _Linux/BSD</a></p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2015-08-21T09:40:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22333#p22333</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Plantage process serveur lors de l'appel de unaccent]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22332#p22332"/>
+		<content type="html"><![CDATA[<p>Je reproduis le bug sur une install from scratch de debian/jessie (autre serveur de test/dev installé fin avril).<br />Ca semble donc déja exclure un bug de migration de distrib wheezy-&gt;jessie...<br />Y&#039;a-t-il un moyen de débugger ça plus en profondeur ?</p>]]></content>
+		<author>
+			<name><![CDATA[mgmpg]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=337</uri>
+		</author>
+		<updated>2015-08-21T09:35:06Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22332#p22332</id>
+	</entry>
+</feed>

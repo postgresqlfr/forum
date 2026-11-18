@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Opérations sur variable de type timestamp]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4824&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4824"/>
+	<updated>2018-07-03T15:55:31Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4824</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Opérations sur variable de type timestamp]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27934#p27934"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>La soustraction entre 2 timestamp n&#039;est pas un timestamp mais un interval.&#160; Si vous voulez savoir le type retourné par une opération, vous pouvez utiliser la fonction pg_typeof.&#160; Par exemple :</p><div class="codebox"><pre><code># select pg_typeof(now() - now());
+ pg_typeof 
+-----------
+ interval
+(1 row)</code></pre></div><br /><p>Il vous suffit donc de modifier HREQ pour être de type interval.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2018-07-03T15:55:31Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27934#p27934</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Opérations sur variable de type timestamp]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27933#p27933"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous,</p><br /><p>Je désespère de ne trouver aucun exemple simple à mon problème tout aussi simple.</p><p>Je voudrai connaître le temps de l&#039;ordre du milliseconde entre 2 variables de type timestamp.</p><p>Ci-dessous, le code en exemple que j&#039;utilise :</p><br /><div class="codebox"><pre><code>DO
+$$
+DECLARE
+
+  HDEB     TIMESTAMP;
+  HFIN     TIMESTAMP;
+  HREQ     TIMESTAMP;
+
+BEGIN
+
+  HDEB := TO_TIMESTAMP (&#039;2018-07-02 10:11:09.758&#039;, &#039;YYYY-MM-DD HH24:MI:SS.MS&#039;);
+  HFIN := TO_TIMESTAMP (&#039;2018-07-02 10:11:17.309&#039;, &#039;YYYY-MM-DD HH24:MI:SS.MS&#039;);
+
+  HREQ := HFIN - HDEB;
+
+END
+$$;</code></pre></div><p>L&#039;erreur se trouve à la ligne d&#039;instruction : HREQ := HFIN - HDEB;</p><div class="codebox"><pre><code>ERREUR:  syntaxe en entrée invalide pour le type timestamp : « 00:00:07.551 »
+CONTEXT:  fonction PL/pgsql inline_code_block, ligne 13 à affectation
+********** Erreur **********
+
+ERREUR: syntaxe en entrée invalide pour le type timestamp : « 00:00:07.551 »
+État SQL :22007
+Contexte : fonction PL/pgsql inline_code_block, ligne 13 à affectation</code></pre></div><p>D&#039;avance merci pour votre aide.</p>]]></content>
+		<author>
+			<name><![CDATA[Mlan2]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5297</uri>
+		</author>
+		<updated>2018-07-03T14:30:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27933#p27933</id>
+	</entry>
+</feed>

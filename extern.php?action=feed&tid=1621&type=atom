@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Pb : disque plein !]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1621&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1621"/>
+	<updated>2011-09-02T16:07:13Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1621</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Pb : disque plein !]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10807#p10807"/>
+		<content type="html"><![CDATA[<p>Si le VACUUM n&#039;est fait que sur la table et si l&#039;autovacuum est désactivé, en effet, l&#039;index peut grossir assez rapidement. Un REINDEX peut améliorer les choses. Attention que tout accès en écriture sur la table est refusé pendant le REINDEX.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-09-02T16:07:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10807#p10807</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Pb : disque plein !]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10806#p10806"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Non, il n&#039;y a aucune transaction longue !</p><p>Est-ce qu&#039;il faut faire un :<br />REINDEX INDEX dataflow_pkey<br />après le VACUUM ANALYZE ??</p><p>Merci.<br />T.</p>]]></content>
+		<author>
+			<name><![CDATA[titi38]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1372</uri>
+		</author>
+		<updated>2011-09-02T16:02:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10806#p10806</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Pb : disque plein !]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10803#p10803"/>
+		<content type="html"><![CDATA[<p>Un DELETE ne supprime pas réellement la ligne. Il ne fait que la flagguer comme supprimé. De même, le VACUUM ANALYZE ne la supprime pas non plus physiquement. Il la flaggue comme étant réutilisable... à condition qu&#039;il n&#039;y a pas une transaction qui l&#039;en empêche. Mon impression est que vous avez des transactions longues qui empêchent le VACUUM ANALYZE de fonctionner avec une efficacité complète.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-09-02T15:31:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10803#p10803</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Pb : disque plein !]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10802#p10802"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;ai écris un bout de logiciel pour insérer des lignes dans une table (j&#039;utilise la commande &quot;copy from stdin&quot;). La table est définie comme ci dessous:</p><p>CREATE TABLE dataflow<br />(<br />num_id_cycle int4,<br />ipproto int2,<br />ipLocal inet NOT NULL,<br />direction char,<br />ipExtern inet NOT NULL,<br />portLocal int4,<br />portExtern int4,<br />tcpFlags smallint,<br />incTraffic int8,<br />outTraffic int8,<br />incPkts int8,<br />outPkts int8,<br />firstTimestamp TIMESTAMP WITHOUT TIME ZONE,<br />lastTimestamp TIMESTAMP WITHOUT TIME ZONE,<br />ipoutsideCountryId int2,</p><p>PRIMARY KEY (num_id_cycle,ipLocal,ipExtern,ipproto,portLocal,portExtern),<br />constraint fk_num_cycle FOREIGN KEY (num_id_cycle) REFERENCES collect_cycle (num_id_cycle)<br />);</p><p>Mon programme insère plusieurs milliers de ligne chaque 1/4 d&#039;heure; et toutes les 24 heures, il fait le ménage:</p><p>DELETE FROM dataflow WHERE num_id_cycle &lt; xy;<br />-- where xy is the num_id_cycle of 24hours old data;</p><p>VACUUM ANALYZE dataflow</p><p>Ainsi, il y a toujours moins de 24heures de données dans la base de données.<br />Cependant, le disque se remplit, et régulièrement, au bout de 2 ou 3 mois, le serveur postgresql se plante car le disque est plein !</p><p>Pourquoi est-ce que le taille sur le disque augmente (alors que le nombre d&#039;entrée dans la table n&#039;augmente pas) ?</p><p>Merci d&#039;avance pour votre aide et vos conseils. Amicalement<br />Thierry</p>]]></content>
+		<author>
+			<name><![CDATA[titi38]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1372</uri>
+		</author>
+		<updated>2011-09-02T14:12:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10802#p10802</id>
+	</entry>
+</feed>

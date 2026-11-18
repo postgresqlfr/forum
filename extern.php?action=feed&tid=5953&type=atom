@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Création d'une fonction de tri]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5953&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5953"/>
+	<updated>2021-02-21T14:06:25Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5953</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Création d'une fonction de tri]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32126#p32126"/>
+		<content type="html"><![CDATA[<p>Merci. Ce lien m&#039;a échappé mais j&#039;avais trouvé de l&#039;info ici avec pas mal de codes d&#039;options : <a href="http://unicode.org/reports/tr35/tr35-collation.html#Setting_Options" rel="nofollow">http://unicode.org/reports/tr35/tr35-co … ng_Options</a> (au cas où ça intéresserait qqn)</p>]]></content>
+		<author>
+			<name><![CDATA[Jean-Marc68]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8715</uri>
+		</author>
+		<updated>2021-02-21T14:06:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32126#p32126</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Création d'une fonction de tri]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32124#p32124"/>
+		<content type="html"><![CDATA[<p>le &quot;-u-&quot; n&#039;est qu&#039;un séparateur.&#160; La documentation postgres pointe vers des liens de la documentation d&#039;ICU qui documentent un peu les conventions de nommage, qui sont effectivement un peu cryptique.&#160; Vous pouvez sinon consulter <a href="https://www.cybertec-postgresql.com/en/icu-collations-against-glibc-2-28-data-corruption/" rel="nofollow">https://www.cybertec-postgresql.com/en/ … orruption/</a></p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2021-02-21T05:40:06Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32124#p32124</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Création d'une fonction de tri]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32123#p32123"/>
+		<content type="html"><![CDATA[<p>Ça y est.<br />J&#039;ai trouvé un collate numeric dans la doc</p><div class="codebox"><pre><code>CREATE COLLATION numeric (provider = icu, locale = &#039;en-u-kn-true&#039;);</code></pre></div><p>Selon ce que j&#039;ai trouvé, je crois avoir compris que les nombres sont triés comme des nombres et pas comme de l&#039;alphanumérique par l&#039;option kn à true. Mais j&#039;admets ne pas avoir encore compris le en-u. Le en serait l&#039;anglais (pour le point comme séparateur décimal et la virgule comme séparateur de milliers je suppose), mais le u, je ne comprend pas.<br />En tout cas ça fonctionne.<br />Merci beaucoup de votre aide.</p>]]></content>
+		<author>
+			<name><![CDATA[Jean-Marc68]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8715</uri>
+		</author>
+		<updated>2021-02-21T04:19:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32123#p32123</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Création d'une fonction de tri]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32121#p32121"/>
+		<content type="html"><![CDATA[<p>Merci de votre réponse.<br />Mais quand j&#039;essaye </p><div class="codebox"><pre><code>select * from _test ORDER BY regexp_replace(val, &#039;-([a-zA-Z])&#039;, &#039;\1&#039;) COLLATE numeric;</code></pre></div><p> dans ma bdd, j&#039;obtiens l&#039;erreur </p><div class="quotebox"><blockquote><div><p>ERROR: ERREUR:&#160; le collationnement « numeric » pour l&#039;encodage « UTF8 » n&#039;existe pas<br />LINE 2: ORDER by regexp_replace(val, &#039;-([a-zA-Z])&#039;, &#039;\1&#039;) COLLATE nu...<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; ^</p><br /><p>SQL state: 42704<br />Character: 71</p></div></blockquote></div><p>(Ma base de donnée est en UTF-8 French_Canada.1252, et le postgresql.conf contient lc_numeric = &#039;French_Canada.1252&#039;)<br />Et sans le COLLATE numeric, je n&#039;ai pas le bon résultat, ce qui est logique puisqu&#039;il trie les nombres en alphanumérique (remarquez le 256-1-1) :</p><div class="quotebox"><blockquote><div><p>1-1-1<br />1A-2-2<br />1-A-2-3<br />256-1-1<br />50-1<br />50A-1-2<br />50-A-3-4<br />BL-1<br />BL1-1</p></div></blockquote></div><p>Je crois comme vous que si je pouvais avoir un collate qui me permettre de trier en numérique ça règlerait mon problème.</p>]]></content>
+		<author>
+			<name><![CDATA[Jean-Marc68]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8715</uri>
+		</author>
+		<updated>2021-02-20T22:02:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32121#p32121</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Création d'une fonction de tri]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32120#p32120"/>
+		<content type="html"><![CDATA[<p>J&#039;avais bien compris le but final, mais je ne comprends toujours pas le but exact de votre regexp_matches.</p><br /><p>Cela étant dit, je viens de prendre le temps de tester l&#039;exemple donné dans la documentation que j&#039;ai pointé juste avant, et sauf erreur de ma part la regexp plus une cause COLLATE avec une collation qui va bien, comme indiqué dans mon premier message, règle le problème ?</p><div class="codebox"><pre><code>SELECT val FROM t_sort ORDER BY regexp_replace(val, &#039;-([a-zA-Z])&#039;, &#039;\1&#039;) COLLATE numeric;
+   val    
+----------
+ 1-84
+ 1-84-1
+ 1-84-2
+ 1-85
+ 1A-4
+ 1A-30-2
+ 1-F-2-3
+ 1-F-12
+ 1-F-13-1
+(9 rows)</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2021-02-20T20:52:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32120#p32120</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Création d'une fonction de tri]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32119#p32119"/>
+		<content type="html"><![CDATA[<p>rjuju, sans doute me suis-je mal exprimé. Néanmoins, merci de vous attarder sur ma difficulté.<br />Je vais tenter de réexpliquer pour être plus clair.<br />Dans une colonne, j&#039;ai des données qui sont exactes. Il est en effet possible d&#039;avoir BL1, BL1-1, 50-1, 50A-1-2 et 50-A-3-4, 256-1-1. <br />Toutefois, lors d&#039;un tri classique, il sortira dans l&#039;ordre : <br />256-1-1<br />50-1<br />50-A-3-4<br />50A-1-2<br />BL1<br />BL1-1</p><p>Or il devrait sortir<br />50-1<br />50A-1-2<br />50-A-3-4<br />256-1-1<br />BL1<br />BL1-1</p><p>En fait ce sont des lots de terrains. Prenons le 256-1-1 en exemple. 256 est le lot de départ. Il a été divisé au min en 2 (256-1-1 et 256-1-2), puis la première partie a été divisée (admettons en 3 pour former 256-1-1, 256-1-2 et 256-1-1-3).<br />Jusque là la fonction naturalsort(text) que j&#039;ai trouvée et donnée plus haut fonctionne bien. Même avec du 50-1-1 et du 50A-1-1 (50 et 50A ne sont pas le même lot. 50 et 50A ont été divisés tous les 2. C&#039;est pour ça qu&#039;on trouve 50-1-1 et 50A-1-2)<br />Malheureusement au cours des années certains ont écrit 50A et d&#039;autres 50-A et le gouvernement les a acceptés comme tel. Il n&#039;aurait pas fallu, mais je dois vivre avec. Je dois donc traiter 50A-1-2 et 50-A-3-4 qui sont en fait tous les 2 à considérer comme du 50A, mais pour le tri uniquement. Le lot dans la table doit impérativement rester avec son tiret.<br />Donc en fait, puisqu&#039;il n&#039;y a des lettres qu&#039;au niveau supérieur, pour le tri on peut retirer le tiret qui précède une lettre (comme vous l&#039;aviez suggéré). Puis trier par niveau.<br />Enfin, je voudrais pouvoir indexer la table sur ce champs et dans cet ordre. Parce que c&#039;est la clé de recherche la plus souvent utilisée.</p><p>J&#039;espère avoir été plus clair. <br />Et encore merci de votre aide qui m&#039;es précieuse.</p>]]></content>
+		<author>
+			<name><![CDATA[Jean-Marc68]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8715</uri>
+		</author>
+		<updated>2021-02-20T14:02:38Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32119#p32119</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Création d'une fonction de tri]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32117#p32117"/>
+		<content type="html"><![CDATA[<p>Je ne comprends pas ce que vous cherchez à obtenir.&#160; Le besoin que vous avez décrit et de supprimer un tiret avant une lettre, ce qui est le comportement de la regexp initiale.&#160; Votre regexp_matches va renvoyer un ensemble de tableaux et j&#039;ai du mal à imaginer que cela soit raisonnable dans le cade d&#039;un tri.</p><br /><p>La clause COLLATE permet de spécifier la manière de trier du texte.&#160; Avez-vous regardé <a href="https://www.postgresql.org/docs/current/collation.html#COLLATION-MANAGING" rel="nofollow">https://www.postgresql.org/docs/current … N-MANAGING</a> notamment le paragraphe 23.2.2.3.2. ICU Collations ?</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2021-02-20T05:36:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32117#p32117</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Création d'une fonction de tri]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32114#p32114"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>rjuju a écrit&#160;:</cite><blockquote><div><p>Il n&#039;est pas compliqué de supprimer le tiret s&#039;il est suivi d&#039;une lettre dans le tri, il suffit d&#039;utiliser une clause telle que :</p><div class="codebox"><pre><code>SELECT ...
+FROM ...
+ORDER BY regexp_replace(lacolonne, &#039;-([a-zA-Z])&#039;, &#039;\1&#039;)</code></pre></div><p>et dans votre cas j&#039;imagine en ajoutant une clause COLLATE pour prendre en compte un tri différent.</p></div></blockquote></div><p>Merci de ton aide.<br />N&#039;arrivant pas à modifier directement le regex pour tenir compte de ton conseil, J&#039;ai modifié le regexp_matches comme ceci :</p><div class="codebox"><pre><code>regexp_matches(regexp_replace($1, &#039;-([a-zA-Z])&#039;, &#039;\1&#039;), &#039;0*([0-9]+)|([^0-9]+)&#039;, &#039;g&#039;)</code></pre></div><p>Bon, d&#039;accord, je pense que ce n&#039;est pas le regex le plus propre qui soit. Et sans doute est-ce plus lent qu&#039;un regex correctement écrit parce qu&#039;il me semble que que comme je j&#039;ai écrit il y a une &quot;couche&quot; en plus (Il fait un regex de remplacement puis le regex de sélection au lieu de tout faire en une fois dans le regex). <br />Je crois qu&#039;il doit y avoir moyen de &quot;supprimer&quot; le tiret qui est avant la lettre directement dans le regex (pas dans la première partie du match, comme je l&#039;ai fait), mais je ne trouve pas la solution. <br />En tout cas il me semble qu&#039;il fonctionne comme je l&#039;ai écrit (du moins il fonctionne avec les tests que j&#039;ai faits).<br />Quant au COLLATE, je ne connaissais pas, mais si j&#039;ai bien compris ce que j&#039;ai lu, ce serait pour la gestion des caractères accentués (UTF-8 p.ex). Or dans mon cas je n&#039;en ai pas besoin. Ce sont (normalement) seulement des lettres majuscules de A à F (mais je garde quand-même le [a-zA-Z] au cas où une ligne aurait été mal encodée (il faut vivre avec l&#039;existant).</p>]]></content>
+		<author>
+			<name><![CDATA[Jean-Marc68]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8715</uri>
+		</author>
+		<updated>2021-02-19T19:22:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32114#p32114</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Création d'une fonction de tri]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32113#p32113"/>
+		<content type="html"><![CDATA[<p>Merci de ton aide rjuju.<br />C&#039;est vrai que c&#039;est une bonne idée.<br />Par contre je ne peux pas indexer avec ça, or j&#039;ai quand-même pas mal de lignes et le tri ne se fait que sur cette mode, donc je pensais l&#039;indexer comme ça.</p><p>J&#039;avais trouvé cette fonction qui me permet d&#039;indexer ma table en tri naturel, et j&#039;espérais pouvoir modifier le regex pour qu&#039;il ne tienne pas compte du tiret précédent une lettre, mais mes connaissances sont trop limitées et dans mes essais je bousille le regex au lien de l&#039;améliorer pour mon besoin.</p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION public.naturalsort(text)
+    RETURNS bytea
+    LANGUAGE &#039;sql&#039;
+    COST 100
+    IMMUTABLE STRICT PARALLEL UNSAFE
+AS $BODY$
+select string_agg(
+		convert_to(
+			coalesce(
+				r[2],
+				length(length(r[1])::text) || length(r[1])::text || r[1])
+			,&#039;SQL_ASCII&#039;)
+		,&#039;\x00&#039;)
+    from regexp_matches($1, &#039;0*([0-9]+)|([^0-9]+)&#039;, &#039;g&#039;) r;
+$BODY$;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[Jean-Marc68]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8715</uri>
+		</author>
+		<updated>2021-02-19T16:59:38Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32113#p32113</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Création d'une fonction de tri]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32112#p32112"/>
+		<content type="html"><![CDATA[<p>Il n&#039;est pas compliqué de supprimer le tiret s&#039;il est suivi d&#039;une lettre dans le tri, il suffit d&#039;utiliser une clause telle que :</p><div class="codebox"><pre><code>SELECT ...
+FROM ...
+ORDER BY regexp_replace(lacolonne, &#039;-([a-zA-Z])&#039;, &#039;\1&#039;)</code></pre></div><p>et dans votre cas j&#039;imagine en ajoutant une clause COLLATE pour prendre en compte un tri différent.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2021-02-19T15:40:38Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32112#p32112</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Création d'une fonction de tri]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32110#p32110"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />Je ne suis pas un grand habitué des regex, aussi je fais appel à vos connaissances.<br />J&#039;ai trouvé la fonction naturalsort qui permet le tri naturel.<br />Mais j&#039;ai besoin d&#039;un tri un peu différent.</p><p>Résultat recherché :<br />1-84<br />1-84-1<br />1-84-2<br />1-85<br />1A-4<br />1A-30-2<br />1-F-2-3<br />1-F-12<br />1-F-13-1</p><p>Logique : les tirets représentent des &quot;étages&quot;. Donc le 1 contient le 1-1, le 1-2, qui lui contient le 1-2-1, le 1-2-2, ...<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; Là où se trouve ma difficulté c&#039;est qu&#039;au premier niveau il y a parfois des lettres. Exemple 1A, 2C, ... mais aussi des lettres avec des tirets devant (et on ne peut pas les changer. C&#039;est effectivement comme ça et je dois vivre avec).<br />Donc quand un tiret précède une lettre, il ne faut pas en tenir compte dans le tri. Pour le tri, 12-F devrait être considéré comme 12F, mais pour le tri uniquement. Remarque : les lettres existent seulement au 1er supérieur.<br />J&#039;ai vraiment besoin d&#039;aide pour ce tri parce que j&#039;ai beau essayer, je ne m&#039;en sors pas.</p><p>Merci de vos z&#039;avis z&#039;avisés.</p>]]></content>
+		<author>
+			<name><![CDATA[Jean-Marc68]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8715</uri>
+		</author>
+		<updated>2021-02-19T14:19:52Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32110#p32110</id>
+	</entry>
+</feed>

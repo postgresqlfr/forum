@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Meilleur façon de gérer NULL divisé par NULL]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3598&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3598"/>
+	<updated>2015-07-20T17:46:42Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3598</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Meilleur façon de gérer NULL divisé par NULL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22211#p22211"/>
+		<content type="html"><![CDATA[<p>Il n&#039;est calculé qu&#039;une fois.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2015-07-20T17:46:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22211#p22211</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Meilleur façon de gérer NULL divisé par NULL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22210#p22210"/>
+		<content type="html"><![CDATA[<p>D&#039;accord,</p><br /><p>Une version plus courte serait plus maintenable alors : SELECT field, sum(a) / NULLIF(sum(b),&#160; 0) FROM ma_table GROUP BY field;<br />Et sinon pour la question 2 des idées ?</p><br /><p>Cordialement,</p>]]></content>
+		<author>
+			<name><![CDATA[guk92]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1398</uri>
+		</author>
+		<updated>2015-07-20T14:49:38Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22210#p22210</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Meilleur façon de gérer NULL divisé par NULL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22174#p22174"/>
+		<content type="html"><![CDATA[<p>C&#039;était une réponse à la question 1. Le comportement par défaut fait exactement ce que fait votre requête en exemple, à l&#039;exception du cas de la division par 0. Donc, je pense que cette requête devrait suffire :</p><br /><p>SELECT field, sum(a) / CASE WHEN sum(b) = 0 THEN NULL ELSE sum(b) END FROM ma_table GROUP BY field;</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2015-07-15T07:08:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22174#p22174</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Meilleur façon de gérer NULL divisé par NULL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22171#p22171"/>
+		<content type="html"><![CDATA[<p>Merci pour ton retour Julien,</p><p>Je n&#039;ai pas compris cette phrase : &quot;La seule raison de faire un cas spécifique c&#039;est si vous voulez autre chose que le comportement standard, par exemple diviser par 1 plutôt que renvoyer NULL.&quot;. Est-ce que c&#039;était une réponse pour question 2. ?</p>]]></content>
+		<author>
+			<name><![CDATA[guk92]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1398</uri>
+		</author>
+		<updated>2015-07-10T17:00:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22171#p22171</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Meilleur façon de gérer NULL divisé par NULL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22167#p22167"/>
+		<content type="html"><![CDATA[<p>Cela ne renvoie cette erreur que si les champs NULL sont de type inconnus.</p><br /><div class="codebox"><pre><code># SELECT NULL::bigint / NULL::bigint;
+ ?column? 
+----------
+   &lt;NULL&gt;</code></pre></div><p>Si vous utilisez les champs de votre table, cela ne devrait pas poser de soucis. La seule raison de faire un cas spécifique c&#039;est si vous voulez autre chose que le comportement standard, par exemple diviser par 1 plutôt que renvoyer NULL.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2015-07-10T12:44:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22167#p22167</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Meilleur façon de gérer NULL divisé par NULL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22165#p22165"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><br /><p>Lorsqu&#039;on effectue une opération entre 2 NULL comme ici :</p><div class="codebox"><pre><code>SELECT NULL / NULL;</code></pre></div><p> ou </p><div class="codebox"><pre><code>SELECT NULL + NULL;</code></pre></div><p>... cela lance une exception de type 42725 ambiguous_function.</p><br /><p>Selon vous, quelle est le meilleur moyen de gérer une division entre deux champs a et b, sachant que a et b peuvent être NULL, et b peut valoir 0 (donc 22012 division_by_zero).</p><p>J&#039;ai pensé à ceci :</p><div class="codebox"><pre><code>SELECT 
+    field,
+    CASE WHEN SUM(b) IS NULL OR SUM(b) = 0 THEN NULL ELSE SUM(a) / SUM(b) END 
+FROM ma_table
+GROUP BY field;</code></pre></div><p>1. Qu&#039;en pensez-vous ?<br />2. Est-ce que le fait d&#039;utiliser SUM(b) 3 fois dans cette requête fait que le SGBD calcul 3 fois ce champs, ou est-t-il suffisamment &quot;intelligent&quot; pour ne le calculer qu&#039;une seule fois ?</p><br /><br /><p>Merci, cordialement,</p>]]></content>
+		<author>
+			<name><![CDATA[guk92]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1398</uri>
+		</author>
+		<updated>2015-07-10T12:11:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22165#p22165</id>
+	</entry>
+</feed>

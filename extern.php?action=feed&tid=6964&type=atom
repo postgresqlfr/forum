@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / connexion distante impossible hors ssh]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=6964&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=6964"/>
+	<updated>2024-08-26T15:12:46Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=6964</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  connexion distante impossible hors ssh]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=35207#p35207"/>
+		<content type="html"><![CDATA[<p>Bon, j&#039;ai un peu honte mais j&#039;ai trouvé la cause de tous mes souci. Ce qui m&#039;a mis la puce à l&#039;oreille est que les connexions distantes ne fonctionnaient que depuis des serveurs ovh. Et là je me suis rappelé !!!! quand j&#039;avais installé mon vps je m&#039;était dis que le Edge Network Firewall était une bonne idée et comme à l&#039;époque je ne voulais pas qu&#039;on puisse se connecter de l&#039;extérieur je n&#039;avais bien sur pas ouvert l&#039;accès au port 5432. Ce pare-feu ne s&#039;appliquant qu&#039;aux portes d&#039;OVH, ceci explique cela <img src="http://forums.postgresql.fr/img/smilies/wink.png" width="15" height="15" alt="wink" /> La sécurité c&#039;est bien aussi faut-il bien tout consigner !!! <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[dba-sig-sfepm]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=13066</uri>
+		</author>
+		<updated>2024-08-26T15:12:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=35207#p35207</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  connexion distante impossible hors ssh]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=35206#p35206"/>
+		<content type="html"><![CDATA[<p>L&#039;étau se resserre un petit peu : un telnet sur le port 5432 permet la connexion depuis d&#039;autre vps mais pas depuis chez moi (ni depuis windows, ni depuis linux, que ce soit en passant par la box ou par la 4g). Avec nmap je détecte bien les port 80 et 22 mais le 5432 reste invisible et inaccessible. Bon je crois que l&#039;on sort de l&#039;objet de ce forum là, postgresql n&#039;est plus en cause je pense. Je vais continué à investiguer... Merci pour votre aide.</p>]]></content>
+		<author>
+			<name><![CDATA[dba-sig-sfepm]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=13066</uri>
+		</author>
+		<updated>2024-08-26T14:40:35Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=35206#p35206</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  connexion distante impossible hors ssh]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=35204#p35204"/>
+		<content type="html"><![CDATA[<p>Merci pour les pistes. En effet le pb ne vient pas de postgres : j&#039;ai testé la connexion via psql depuis d&#039;autres serveurs (psql -h ip_de_l&#039;hôte -p 5432 -d ma_base -U user -W) et la connexion se fait très bien. C&#039;est vrai j&#039;aurais du commencer par là... mais j&#039;étais focalisé sur les outils. Par contre toujours impossible de connecter un pgAdmin ou un dbeawer, la seule erreur que j&#039;obtient est un timeout expired et rien dans le log de postgres.</p>]]></content>
+		<author>
+			<name><![CDATA[dba-sig-sfepm]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=13066</uri>
+		</author>
+		<updated>2024-08-26T11:02:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=35204#p35204</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  connexion distante impossible hors ssh]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=35203#p35203"/>
+		<content type="html"><![CDATA[<p>Le message d&#039;erreur cote client devrait donner un indice sur le type d&#039;erreur (port non joignable vs pb d&#039;authentification / role non trouve), il serait d&#039;ailleurs bon de preciser egalement la commande utilisee.&#160; Pareil, les logs du serveur devrait indiquer si une connexion a ete recue ou non.</p><br /><br /><p>Vous pouvez egalement essayer a coup de wireshark ou remplacer postgres par un daemon quelconque ecoutant sur le meme port, et/ou remplacer psql par n&#039;importe quel outil ouvrant une connexion tcp sur le meme port pour vous assurer que le probleme vient de postgres plut[ot que du reseau.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2024-08-26T09:12:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=35203#p35203</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  connexion distante impossible hors ssh]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=35202#p35202"/>
+		<content type="html"><![CDATA[<p>Je pensais avoir trouvé la solution en constatant mon erreur dans la config hba (inversion base / utilisateur), il fallait mettre :<br />&#160; &#160; &#160;host&#160; &#160; ma_base&#160; &#160; &#160; &#160; &#160; &#160; all&#160; &#160; &#160; &#160;0.0.0.0/0&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;scram-sha-256 <br />Mais non, le problème est toujours là <img src="http://forums.postgresql.fr/img/smilies/sad.png" width="15" height="15" alt="sad" /> . En attendant j&#039;ai mis all / all&#160; pour être sûr)</p>]]></content>
+		<author>
+			<name><![CDATA[dba-sig-sfepm]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=13066</uri>
+		</author>
+		<updated>2024-08-26T07:40:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=35202#p35202</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  connexion distante impossible hors ssh]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=35201#p35201"/>
+		<content type="html"><![CDATA[<p>Bonjour, <br />merci de votre réponse ! Alors sous psql la commande &quot;SHOW listen_addresses;&quot; me renvoie bien * <br />et &quot;netstat -nlt | grep 5432&quot; me donne bien :<br />&#160; &#160; tcp&#160; &#160; &#160; &#160; 0&#160; &#160; &#160; 0 0.0.0.0:5432&#160; &#160; &#160; &#160; &#160; &#160; 0.0.0.0:*&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;LISTEN&#160; &#160; &#160;<br />&#160; &#160; tcp6&#160; &#160; &#160; 0&#160; &#160; &#160; 0 :::5432&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; :::*&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; LISTEN<br />Donc de ce coté, pas de soucis.</p>]]></content>
+		<author>
+			<name><![CDATA[dba-sig-sfepm]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=13066</uri>
+		</author>
+		<updated>2024-08-26T06:52:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=35201#p35201</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  connexion distante impossible hors ssh]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=35200#p35200"/>
+		<content type="html"><![CDATA[<p>Avez-vous verefie que &quot;SHOW listen_adresses;&quot; renvoie bien * apres le redemarrage de postgres ?</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2024-08-24T14:52:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=35200#p35200</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[connexion distante impossible hors ssh]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=35199#p35199"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />voici ma config : pg 15.8 sur debian 12<br />Jusqu&#039;à présent toutes les connexions se faisaient en local soit par les appli installées sur le serveur soit via un tunnel SSH. Mes connexions sur dbeawer se font parfaitement avec le tunnel.<br />J&#039;ai besoin maintenant d&#039;ouvrir une base de donnée à des connexions distantes. J&#039;ai donc effectué les modifs suivantes :</p><p>- dans postgresql.conf : listen_addresses = &#039;*&#039;<br />- dans pg_hba.conf : <br />host&#160; &#160; all&#160; &#160; &#160; &#160; &#160; &#160; ma_base&#160; &#160; &#160; &#160;0.0.0.0/0&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;scram-sha-256</p><p>D&#039;ailleurs voici le fichier complet :<br />local&#160; &#160;all&#160; &#160; &#160; &#160; &#160; &#160; &#160;postgres&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; peer<br />local&#160; &#160;all&#160; &#160; &#160; &#160; &#160; &#160; &#160;all&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;peer<br />host&#160; &#160; all&#160; &#160; &#160; &#160; &#160; &#160; &#160;all&#160; &#160; &#160; &#160; &#160; &#160; &#160;127.0.0.1/32&#160; &#160; &#160; &#160; &#160;scram-sha-256<br />host&#160; &#160; all&#160; &#160; &#160; &#160; &#160; &#160; &#160;all&#160; &#160; &#160; &#160; &#160; &#160; &#160;::1/128&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;scram-sha-256<br />host&#160; &#160; all&#160; &#160; &#160; &#160; &#160; &#160; &#160;ma_base&#160; &#160; 0.0.0.0/0&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;scram-sha-256<br />local&#160; &#160;replication&#160; &#160; &#160;all&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;peer<br />host&#160; &#160;replication&#160; &#160; &#160;all&#160; &#160; &#160; &#160; &#160; &#160; &#160;127.0.0.1/32&#160; &#160; &#160; scram-sha-256<br />host&#160; &#160;replication&#160; &#160; &#160;all&#160; &#160; &#160; &#160; &#160; &#160; &#160;::1/128&#160; &#160; &#160; &#160; &#160; &#160; &#160; scram-sha-256</p><p>- J&#039;ai ouvert le port dans iptables (iptables -A INPUT -p tcp --dport 5432 -j ACCEPT)<br />résultat: <br />Chain INPUT (policy ACCEPT 0 packets, 0 bytes)<br /> pkts bytes target&#160; &#160; &#160;prot opt in&#160; &#160; &#160;out&#160; &#160; &#160;source&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;destination&#160; &#160; &#160; &#160; &#160;<br />&#160; &#160; 0&#160; &#160; &#160;0&#160; &#160; ACCEPT&#160; &#160; &#160;6&#160; &#160; --&#160; *&#160; &#160; &#160; *&#160; &#160; &#160; &#160;0.0.0.0/0&#160; &#160; &#160; &#160; &#160; &#160; 0.0.0.0/0&#160; &#160; &#160; &#160; &#160; &#160; tcp dpt:5432</p><p>- J&#039;ai vérifié qu&#039;il n&#039;y ait pas d&#039;autre pare-feu actif</p><p>- J&#039;ai bien sûr redémarrer le service postgresql (systemctl restart postgresql)</p><p>J&#039;essaye de me connecter via différents outils en direct à l&#039;ip de mon serveur (port 5432) sur ma_base mais sans succès. La même connexion en localhost via le tunnel ssh se fait sans problème. C&#039;est donc bien ma connexion tcp qui bloque quelque part. <br />Je veux bien des pistes pour identifier le souci <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /> Merci d&#039;avance</p>]]></content>
+		<author>
+			<name><![CDATA[dba-sig-sfepm]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=13066</uri>
+		</author>
+		<updated>2024-08-23T15:15:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=35199#p35199</id>
+	</entry>
+</feed>

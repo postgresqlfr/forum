@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Commande "COPY FROM PROGRAM"]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3460&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3460"/>
+	<updated>2015-02-26T12:39:12Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3460</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Commande "COPY FROM PROGRAM"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21565#p21565"/>
+		<content type="html"><![CDATA[<p>bonjour,</p><p>C&#039;est à cause de l&#039;espace dans le chemin que vous indiquez (...\test ogr\....) :<br />&quot;C:\Users\admin&gt;d:\Program Files\PostgreSQL\9.3\bin\ogr_fdw_info.exe&quot; -s c:\temp\test ogr\test_xls97_20003.xls : ERROR 1: Could not conect to source &#039;c:\temp\test&#039;</p><p>en mettant les doubles cotes vous forcez l&#039;interpréteur à prendre le chemin complet.<br />Sans les doubles cotes l&#039;interpréteur s&#039;arrête à c:\temp\test</p><p>Cordialement,</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2015-02-26T12:39:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21565#p21565</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Commande "COPY FROM PROGRAM"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21564#p21564"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />Postgresql version 9.03.04 64 bits pour Windows</p><p>J&#039;essaye d&#039;utiliser cette fonction (<a href="http://www.postgresonline.com/article_pfriendly/345.html" rel="nofollow">http://www.postgresonline.com/article_p … y/345.html</a>) qui exécute un programme (ogr_fdw_info.exe) dont le résultat est stocké dans la table ogr_fdw_out.</p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION ogr_fdw_sql_table(
+    data_source text,
+    layer text DEFAULT &#039;&#039;::text)
+  RETURNS text AS
+$$
+BEGIN
+    DROP TABLE IF EXISTS ogr_fdw_out;
+    CREATE TEMP TABLE ogr_fdw_out(out text);
+    IF layer &gt; &#039;&#039; THEN 
+            EXECUTE &#039;COPY ogr_fdw_out FROM PROGRAM &#039;&#039;&quot;D:/Program Files/PostgreSQL/9.3/bin/ogr_fdw_info&quot; -s &quot;&#039; || data_source || &#039;&quot; -l &quot;&#039; || layer || &#039;&quot;&#039;&#039;&#039;;
+    ELSE
+            EXECUTE &#039;COPY ogr_fdw_out FROM PROGRAM &#039;&#039;&quot;C:/Program Files/PostgreSQL/9.4/bin/ogr_fdw_info&quot; -s &quot;&#039; || data_source || &#039;&quot;&#039;&#039; &#039;;
+    END IF;
+    /** postgresql converts each output to a row, but we want as a single string back **/
+    RETURN (SELECT string_agg(out,E&#039;\n&#039;) from ogr_fdw_out);
+END;
+
+$$
+  LANGUAGE plpgsql VOLATILE SECURITY DEFINER;</code></pre></div><p>- Si j&#039;exécute tel quel ce code avec comme paramètre : D:\temp\ogr\test_xls97_20003.xls et j&#039;ai le message d&#039;erreur : <br />ERREUR:&#160; le programme « &quot;D:/Program Files/PostgreSQL/9.3/bin/ogr_fdw_info&quot; -s &quot;D:\temp\ogr\test_xls97_20003.xls&quot; » a échoué<br />DETAIL:&#160; le processus fils a quitté avec le code de sortie 1<br />CONTEXT:&#160; instruction SQL « COPY ogr_fdw_out FROM PROGRAM &#039;&quot;D:/Program Files/PostgreSQL/9.3/bin/ogr_fdw_info&quot; -s &quot;D:\temp\ogr\test_xls97_20003.xls&quot;&#039;&#160; »<br />fonction PL/pgsql ogr_fdw_sql_table(text,text), ligne 9 à instruction EXECUTE</p><p>Je supprime les doubles quottes entourant le paramètre data_source </p><div class="codebox"><pre><code>            EXECUTE &#039;COPY ogr_fdw_out FROM PROGRAM &#039;&#039;&quot;C:/Program Files/PostgreSQL/9.4/bin/ogr_fdw_info&quot; -s &#039; || data_source || &#039;&#039;&#039; &#039;;</code></pre></div><p>- Si j&#039;exécute avec le paramètre : D:\temp\ogr\test_xls97_20003.xls j&#039;ai le résultat dans ma table<br />- Si j&#039;exécute avec le paramètre : C:\Temp\test ogr\test_xls97_20003.xls je n&#039;ai pas d&#039;erreur mais pas de résultat dans ma table mais c&#039;est normal vu que le chemin comporte un espace, donc je suppose qu&#039;il ne trouve pas le fichier.</p><p>- Vérification directe avec les requêtes :</p><div class="codebox"><pre><code>COPY ogr_fdw_out FROM PROGRAM &#039;&quot;D:/Program Files/PostgreSQL/9.3/bin/ogr_fdw_info.exe&quot; -s d:\temp\ogr\test_xls97_20003.xls&#039;</code></pre></div><p>Fonctionne et j&#039;ai le bon résultat dans la table ogr_fdw_out</p><div class="codebox"><pre><code>COPY ogr_fdw_out FROM PROGRAM &#039;&quot;D:/Program Files/PostgreSQL/9.3/bin/ogr_fdw_info.exe&quot; -s c:\temp\test ogr\test_xls97_20003.xls&#039;</code></pre></div><p>Pas d&#039;erreur mais pas de résultat vu qu&#039;il ne trouve pas le fichier</p><div class="codebox"><pre><code>COPY ogr_fdw_out FROM PROGRAM &#039;&quot;D:/Program Files/PostgreSQL/9.3/bin/ogr_fdw_info.exe&quot; -s &quot;c:\temp\test ogr\test_xls97_20003.xls&quot;&#039;</code></pre></div><p>ERREUR:&#160; le programme « &quot;D:/Program Files/PostgreSQL/9.3/bin/ogr_fdw_info.exe&quot; -s &quot;c:\temp\test ogr\test_xls97_20003.xls&quot; » a échoué<br />DETAIL:&#160; le processus fils a quitté avec le code de sortie 1</p><p>- Vérification dans une fenêtre MsDos :<br />&quot;C:\Users\admin&gt;d:\Program Files\PostgreSQL\9.3\bin\ogr_fdw_info.exe&quot; -s d:\Temp\ogr\test_xls97_20003.xls : fonctionne et j&#039;ai le bon affichage<br />&quot;C:\Users\admin&gt;d:\Program Files\PostgreSQL\9.3\bin\ogr_fdw_info.exe&quot; -s c:\temp\test ogr\test_xls97_20003.xls : ERROR 1: Could not conect to source &#039;c:\temp\test&#039;<br />&quot;C:\Users\admin&gt;d:\Program Files\PostgreSQL\9.3\bin\ogr_fdw_info.exe&quot; -s &quot;c:\temp\test ogr\test_xls97_20003.xls&quot; : fonctionne et j&#039;ai le bon affichage</p><p>Je n&#039;arrive pas à comprendre ce qui génère l&#039;erreur...</p>]]></content>
+		<author>
+			<name><![CDATA[Pasquali.Philippe]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3634</uri>
+		</author>
+		<updated>2015-02-26T10:34:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21564#p21564</id>
+	</entry>
+</feed>

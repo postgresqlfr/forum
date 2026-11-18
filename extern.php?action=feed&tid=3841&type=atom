@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Recherche fulltext : quel lexeme a été trouvé?]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3841&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3841"/>
+	<updated>2016-05-27T11:29:37Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3841</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Recherche fulltext : quel lexeme a été trouvé?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23500#p23500"/>
+		<content type="html"><![CDATA[<p>J&#039;avais regardé aussi du côté de ts_debug, mais ça ne convient pas, cette fonction me donne les infos de dictionnaire, mais ne me dira pas si mon document a été trouvé grâce à &quot;restaurant&quot; ou &quot;chinois&quot;.<br />Merci tout de même!</p>]]></content>
+		<author>
+			<name><![CDATA[thomasp]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2145</uri>
+		</author>
+		<updated>2016-05-27T11:29:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23500#p23500</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Recherche fulltext : quel lexeme a été trouvé?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23496#p23496"/>
+		<content type="html"><![CDATA[<p>Vous pouvez sinon utiliser ts_debug que vous pouvez comparer à votre tsvector :</p><div class="codebox"><pre><code>select * from ts_debug(&#039;restaurant|chinois&#039;);
+   alias   │   description   │   token    │  dictionaries  │  dictionary  │  lexemes  
+═══════════╪═════════════════╪════════════╪════════════════╪══════════════╪═══════════
+ asciiword │ Word, all ASCII │ restaurant │ {english_stem} │ english_stem │ {restaur}
+ blank     │ Space symbols   │ |          │ {}             │ &lt;NULL&gt;       │ &lt;NULL&gt;
+ asciiword │ Word, all ASCII │ chinois    │ {english_stem} │ english_stem │ {chinoi}
+(3 rows)</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2016-05-27T10:41:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23496#p23496</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Recherche fulltext : quel lexeme a été trouvé?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23492#p23492"/>
+		<content type="html"><![CDATA[<p>C&#039;est en effet la solution de remplacement que j&#039;ai trouvée, je fait une boucle sur tous les mots de ma phrase pour voir lequel correspond, mais c&#039;est dommage, ça fait faire autant de recherches qu&#039;il n&#039;y a de mot dans ma phrase au lieu de n&#039;en faire qu&#039;une comme indiqué dans le premier post</p>]]></content>
+		<author>
+			<name><![CDATA[thomasp]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2145</uri>
+		</author>
+		<updated>2016-05-27T09:37:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23492#p23492</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Recherche fulltext : quel lexeme a été trouvé?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23487#p23487"/>
+		<content type="html"><![CDATA[<div class="codebox"><pre><code>postgres=# select to_tsvector(&#039;restauration&#039;);
+ to_tsvector 
+-------------
+ &#039;restaur&#039;:1
+(1 row)
+
+postgres=# select to_tsvector(&#039;restaurant&#039;);
+ to_tsvector 
+-------------
+ &#039;restaur&#039;:1
+(1 row)
+
+postgres=# select to_tsvector(&#039;chinois&#039;);
+ to_tsvector 
+-------------
+ &#039;chinoi&#039;:1
+(1 row)</code></pre></div><p>J&#039;aurais tendance à dire que restauration a faire une correspondance avec restaurant <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2016-05-27T07:22:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23487#p23487</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Recherche fulltext : quel lexeme a été trouvé?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23482#p23482"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous,<br />Je fais de la recherche full texte sur des chaînes de plusieurs mots, j&#039;aimerais savoir lequel des lexèmes que je recherche a matché avec le résultat qui m&#039;est renvoyé. Un exemple si ce n&#039;est pas clair:<br />J&#039;ai une table avec un champs tsvector, dans lequel je recherche la chaîne &quot;restaurant chinois&quot;:</p><div class="codebox"><pre><code>  ma_table
+|ma_colonne TEXT | mon_tsvector TSVECTOR|
+-----------------------------------------
+|restauration    | restaur              |
+-----------------------------------------
+
+select ma_colonne
+from ma_table
+where mon_tsvector @@ to_tsquery(&#039;restaurant|chinois&#039;);
+
+--résultats:
+ma_colonne
+---------------
+restauration</code></pre></div><p>J&#039;ai bien trouvé grâce à la recherche full text la ligne qui contenait &quot;restauration&quot;, mais comment savoir si &quot;restauration&quot; a matché avec &quot;restaurant&quot; ou &quot;chinois&quot;?<br />J&#039;ai cherché un peu du côté de ts_headline, mais ça ne fait pas tout à fait ce que je veux, et ça n&#039;utilise pas le tsvector donc c&#039;est beaucoup plus long!</p><p>Merci!</p>]]></content>
+		<author>
+			<name><![CDATA[thomasp]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2145</uri>
+		</author>
+		<updated>2016-05-26T09:20:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23482#p23482</id>
+	</entry>
+</feed>

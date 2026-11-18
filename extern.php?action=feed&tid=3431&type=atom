@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / PostgreSQL, LADPS et Serveur Windows]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3431&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3431"/>
+	<updated>2015-03-12T12:51:27Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3431</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  PostgreSQL, LADPS et Serveur Windows]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21669#p21669"/>
+		<content type="html"><![CDATA[<p>Bonjour.<br />Je suis toujours avec le même probléme, qui finalement n&#039;avance que peu.</p><p>Avec un logiciel de gestion LDAP «LDAP Admin» j&#039;en arrive au constat suivant : Toute les connexions sont refusée sur le port 389. J&#039;ai d&#039;autres erreurs si je spécifie le port sur 636.</p><p>J&#039;ai trouvé des options pour spécifier l&#039;usage du TLS, mais aucun pour explicitement demander l&#039;utilisation d&#039;une connexion SSL. Comment le faire ? Ceci est il simplement possible avec PostgreSQL ?</p>]]></content>
+		<author>
+			<name><![CDATA[Benoît.A]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=4315</uri>
+		</author>
+		<updated>2015-03-12T12:51:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21669#p21669</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  PostgreSQL, LADPS et Serveur Windows]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21373#p21373"/>
+		<content type="html"><![CDATA[<p>Il s&#039;agit à chaque fois des messages d&#039;erreur renvoyé par le LDAP ou la lib associée, voir <a href="http://linux.die.net/man/3/ldap_err2string" rel="nofollow">http://linux.die.net/man/3/ldap_err2string</a>. Je vous conseille de configurer des traces en anglais et de chercher la cause de cette erreur.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2015-01-21T15:41:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21373#p21373</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  PostgreSQL, LADPS et Serveur Windows]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21372#p21372"/>
+		<content type="html"><![CDATA[<p>En spécifiant le port de connexion dans pg_hba.conf pour LDAP les log changent quelque peu.</p><p>Je passe de</p><div class="codebox"><pre><code>2015-01-21 15:18:32 CET LOG:  n&#039;a pas pu démarrer la session TLS LDAP : Serveur hors service</code></pre></div><p>à</p><div class="codebox"><pre><code>2015-01-21 16:27:16 CET LOG:  n&#039;a pas pu démarrer la session TLS LDAP : Incapable d’exécuter</code></pre></div><p>A voir maintenant a quoi cela est du. J&#039;ai l&#039;impression d&#039;avancer, mais toujours dans un brouillard épais.</p>]]></content>
+		<author>
+			<name><![CDATA[Benoît.A]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=4315</uri>
+		</author>
+		<updated>2015-01-21T15:33:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21372#p21372</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  PostgreSQL, LADPS et Serveur Windows]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21371#p21371"/>
+		<content type="html"><![CDATA[<p>Ok.</p><p>Les log semblent indiquer que je fait pas complétement nimporte quoi avec pg_hba.conf , mais que ce n&#039;est pas forcément la même chose avec le LDAP</p><div class="codebox"><pre><code>2015-01-21 15:17:56 CET LOG:  n&#039;a pas pu démarrer la session TLS LDAP : Serveur hors service
+2015-01-21 15:17:56 CET FATAL:  authentification LDAP échouée pour l&#039;utilisateur « Toto »
+2015-01-21 15:17:56 CET DÉTAIL:  La connexion correspond à la ligne 88 du pg_hba.conf : « host	 est	 Toto	 10.0.0.0/8	 ldap	 ldapserver=dmztest-annuaire-ldap.entreprise.fr ldaptls=1 ldapbinddn=ID-Application ldapbindpasswd=MDP-Application ldapbasedn=&quot;uid=ID-Application,ou=Applis,dc=annuaire-ldap&quot; ldapbinddn=&quot;ou=people,dc=annuaire-ldap&quot; ldapsearchattribute=uid »</code></pre></div><p>«Toto» est le login de mon utilisateur<br />«ID-Application» est l&#039;identifiant de mon application<br />«MDP-Application» est le mot de passe de mon application<br />«dmztest-annuaire-ldap.entreprise.fr» est l&#039;adresse du serveur LDAP<br />«uid=ID-Application,ou=Applis,dc=annuaire-ldap» m&#039;est donné par mon SI comme devant être «DN»<br />«ou=people,dc=annuaire-ldap» m&#039;est donné par mon SI comme devant être «Base de recherche des utilisateurs»</p><br /><p>Il y aurrais il une erreur dans ma façon de procéder ?<br />Vu la première ligne de LOG, je me dit qu&#039;il y aurrais peu être un probléme avec le serveur LDAP, mais je ne sais pas comment le vérifier.</p>]]></content>
+		<author>
+			<name><![CDATA[Benoît.A]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=4315</uri>
+		</author>
+		<updated>2015-01-21T14:53:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21371#p21371</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  PostgreSQL, LADPS et Serveur Windows]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21365#p21365"/>
+		<content type="html"><![CDATA[<p>Le mode search + bind permet une plus grande souplesse dans la localisation des utilisateur LDAP. Si tous les utilisateurs sont au même endroit (même prefix et/ou suffix), le mode bind suffit.</p><br /><p>Sinon, ce que vous appelez authentification est simplement une connexion LDAP qui réussit, donc le comportement que vous attendez se trouve être le comportement que vous décrivez avant.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2015-01-21T12:36:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21365#p21365</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  PostgreSQL, LADPS et Serveur Windows]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21363#p21363"/>
+		<content type="html"><![CDATA[<p>Je suis (un peu) rassuré, mon installation PostgreSQL est bien compilé avec le support LDAP.</p><p>J&#039;ai effectivement déjà regardé la documentation (qui est un peu mon livre de chevet depuis que je suis sur ce projet au boulot) qui est une mine d&#039;information.<br />Et d&#039;après cette documentation, il faudrait probablement faire un «search + bind».</p><p>En tout cas on m&#039;as fournis un nom d&#039;utilisateur et un mot lié a l&#039;application pour m&#039;autentifier auprés du serveur LADPs.<br />Mais les procédures qui me sont fournies en interne sont pour une application PHP qui serais développé de 0 (ou presque) et donc ne correspondent pas vraiment a ce que demande PostgreSQL.</p><p>--</p><p>En fait j&#039;ai un peu de mal a comprendre comment il fait (et vu que j&#039;y connais rien a LDAP, ça aide pas).</p><p>De ce que je comprend, sur un «search + bind» PostgresSQL ferais ceci :</p><div class="codebox"><pre><code>CONNEXION avec l&#039;identifiant Application
+RECHERCHE de l&#039;utilisateur
+DÉCONNEXION
+
+CONNEXION avec l&#039;identifiant utilisateur
+-vois si il arrive a se connecter.
+DÉCONNEXION</code></pre></div><p>Ce qui ne serais pas tout a fait le comportement attendu, qui lui serais.</p><div class="codebox"><pre><code>CONNEXON avec l&#039;identifiant Application
+RECHERCHE de l&#039;utilisateur
+AUTENTIFICATION de l&#039;utilisateur
+DÉCONNEXION</code></pre></div><p>Je déconne complétement ou ça se passe bien comme cela ?</p>]]></content>
+		<author>
+			<name><![CDATA[Benoît.A]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=4315</uri>
+		</author>
+		<updated>2015-01-21T10:43:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21363#p21363</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  PostgreSQL, LADPS et Serveur Windows]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21362#p21362"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Normalement les paquets officiels sont compilés avec toutes les options utiles, notamment --with-ldap. Vous devriez avoir un exécutable pg_config.exe qui récapitule entre autre les options de compilation utilisées (ligne CONFIGURE = ). Sinon, avec vous regardé la documentation officielle : <a href="http://docs.postgresql.fr/9.3/auth-methods.html" rel="nofollow">http://docs.postgresql.fr/9.3/auth-methods.html</a> ?</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2015-01-21T09:49:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21362#p21362</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[PostgreSQL, LADPS et Serveur Windows]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21361#p21361"/>
+		<content type="html"><![CDATA[<p>Bonjour.<br />Je fait évoluer un petit projet autour de PostgreSQL dans mon entreprise, et alors que je suis aujourd&#039;hui sur une autentification locale, on me demande de la faire évoluer en passant par le LDAPs de l&#039;entreprise.</p><p>Voici ma configuration.<br />— Un serveur de «production» : PostgreSQL 9.3 sur un Windows serveur 2008 R2.<br />— Une machine de travail / test / bidouille : PostegreSQL 9.3 sur un Windows 7.</p><p>Pour le moment mes quelques essais n&#039;on rien donné de concluant (J&#039;ai essayé quelques modifications de configuration dans pg_hba.conf, sans être certain de mes manipulations)<br />C&#039;est la première fois que je travaille avec du LDAP et je suis autodidacte sur du PostgreSQL</p><p>J&#039;ai cru comprendre que le support LDAP n&#039;était qu&#039;en option au moment de la compilation. N&#039;ayant fait que installer les package du site officiel, comment savoir si la version de PostgreSQL que j&#039;utilise as bien le support LDAP actif ?</p><p>Plus globalement, comment pouvoir configurer PostgreSQL pour qu&#039;il authentifie mes utilisateurs via le LDAP.</p><p>J&#039;ai lu pas mal de bout de documentation, mais je suis bloqué pour le moment.</p><p>Merci d&#039;avance de votre aide.</p><p>Cordialement</p><p>B.A.</p>]]></content>
+		<author>
+			<name><![CDATA[Benoît.A]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=4315</uri>
+		</author>
+		<updated>2015-01-21T08:21:55Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21361#p21361</id>
+	</entry>
+</feed>

@@ -1,0 +1,468 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr" lang="fr" dir="ltr">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Curseur : Eviter de boucler 2x une même requête / curseurs imbriqués / PL/pgSQL / Forums PostgreSQL.fr</title>
+<link rel="stylesheet" type="text/css" href="style/Postgresql.css" />
+<link rel="canonical" href="viewtopic.php%3Fid=1452.html" title="Page 1" />
+<link rel="alternate" type="application/atom+xml" href="extern.php%3Faction=feed&amp;tid=1452&amp;type=atom" title="Flux Atom de la discussion" />
+</head>
+
+<body>
+
+<div id="top">
+  <div id="pgHeader">
+    <span id="pgHeaderLogoLeft">
+      <a href="index.html" title="PostgreSQL"><img src="https://www.postgresql.fr/lib/tpl/tortoise/images/hdr_left.png" width="230" height="80" alt="PostgreSQL" /></a>
+    </span>
+    <span id="pgHeaderLogoRight">
+      <a href="index.html" title="La base de donnees la plus sophistiquee au monde."><img src="https://www.postgresql.fr/lib/tpl/tortoise/images/hdr_right.png" width="210" height="80" alt="La base de donnees la plus sophistiquee au monde." /></a>
+    </span>
+  </div>
+</div>
+
+<div class="pgTopNav">
+  <div class="pgTopNavLeft"> 
+    <img src="https://www.postgresql.fr/lib/tpl/tortoise/images/nav_lft.png" width="7" height="23" alt="" />
+  </div>
+  <div class="pgTopNavRight">
+    <img src="https://www.postgresql.fr/lib/tpl/tortoise/images/nav_rgt.png" width="7" height="23" alt="" />
+  </div>
+  <ul class="pgTopNavList">
+    <li><a href="https://www.postgresql.fr/" title="Accueil">Accueil</a></li>
+    <li><a href="https://blog.postgresql.fr/" title="Lire les actualités">Actualit&eacute;s</a></li>
+    <li><a href="https://docs.postgresql.fr/" title="Lire la documentation officielle">Documentation</a></li>
+    <li><a href="https://forums.postgresql.fr/" title="Pour poser des questions">Forums</a></li>
+    <li><a href="https://www.postgresql.fr/asso/" title="La vie de l'association">Association</a></li>
+    <li><a href="https://www.postgresql.fr/entreprises:accueil" title="Groupe de Travail PostgreSQL Entreprises">Entreprises</a></li>
+    <li><a href="https://www.postgresql.fr/devel:accueil" title="Informations pour les d&eacute;veloppeurs/traducteurs">D&eacute;veloppeurs</a></li>
+    <li><a href="https://planete.postgresql.fr" title="La plan&egrave;te francophone sur PostgreSQL">Plan&egrave;te</a></li>
+    <li><a href="https://www.postgresql.fr/support/" title="Support sur PostgreSQL">Support</a></li>
+  </ul>
+
+
+</div>
+<div id="punviewtopic" class="pun">
+<div class="top-box"><div><!-- Top Corners --></div></div>
+<div class="punwrap">
+
+<div id="brdheader" class="block">
+	<div class="box">
+		<div id="brdtitle" class="inbox">
+			<h1><a href="index.php.html">Forums PostgreSQL.fr</a></h1>
+			<div id="brddesc">Le forum officiel de la communauté francophone de PostgreSQL</div>
+		</div>
+		<div id="brdmenu" class="inbox">
+			<ul>
+				<li id="navindex" class="isactive"><a href="index.php.html">Accueil</a></li>
+				<li id="navuserlist"><a href="userlist.php.html">Liste des membres</a></li>
+				<li id="navsearch"><a href="search.php.html">Recherche</a></li>
+				<li id="navregister"><a href="register.php.html">Inscription</a></li>
+				<li id="navlogin"><a href="login.php.html">Identification</a></li>
+			</ul>
+		</div>
+		<div id="brdwelcome" class="inbox">
+			<p class="conl">Vous n'êtes pas identifié(e).</p>
+			<ul class="conr">
+				<li><span>Contributions&#160;: <a href="search.php%3Faction=show_recent.html" title="Trouver les discussions comportant des messages récents.">Récentes</a> | <a href="search.php%3Faction=show_unanswered.html" title="Trouver les discussions sans réponse.">Sans réponse</a></span></li>
+			</ul>
+			<div class="clearer"></div>
+		</div>
+	</div>
+</div>
+
+
+
+<div id="brdmain">
+<div class="linkst">
+	<div class="inbox crumbsplus">
+		<ul class="crumbs">
+			<li><a href="index.php.html">Accueil</a></li>
+			<li><span>»&#160;</span><a href="viewforum.php%3Fid=20.html">PL/pgSQL</a></li>
+			<li><span>»&#160;</span><strong><a href="viewtopic.php%3Fid=1452.html">Curseur : Eviter de boucler 2x une même requête / curseurs imbriqués</a></strong></li>
+		</ul>
+		<div class="pagepost">
+			<p class="pagelink conl"><span class="pages-label">Pages&#160;: </span><strong class="item1">1</strong></p>
+		</div>
+		<div class="clearer"></div>
+	</div>
+</div>
+
+<div id="p9717" class="blockpost rowodd firstpost blockpost1">
+	<h2><span><span class="conr">#1</span> <a href="viewtopic.php%3Fpid=9717.html#p9717">07/06/2011 18:12:06</a></span></h2>
+	<div class="box">
+		<div class="inbox">
+			<div class="postbody">
+				<div class="postleft">
+					<dl>
+						<dt><strong><a href="profile.php%3Fid=1272.html">mougoye</a></strong></dt>
+						<dd class="usertitle"><strong>Membre</strong></dd>
+					</dl>
+				</div>
+				<div class="postright">
+					<h3>Curseur : Eviter de boucler 2x une même requête / curseurs imbriqués</h3>
+					<div class="postmsg">
+						<p>Bonjour,</p><p>Désolé d&#039;avance si le post n&#039;est pas clair car j&#039;ai encore un peu de mal avec les termes débutant dans ce langage.<br />J&#039;ai une fonction aaa_test qui permet d&#039;écrire dans une table.<br />Dans cette fonction se trouve 3 curseurs imbriqués (2 dans 1) : sql_cursor_2 et sql_cursor_3 imbriqués dans sql_cursor.<br />Première question : est-il possible d&#039;imbriqué plusieurs curseurs sans utilisé FOR .... IN EXECUTE ..... pour les curseurs suivants du style: </p><div class="codebox"><pre><code>OPEN sql_cursor;
+ 
+LOOP
+ 
+	FETCH sql_cursor INTO sPol, sPlante;
+ 
+	EXIT WHEN NOT FOUND;
+ 
+	RAISE NOTICE &#039;ANALYSE % (%) &#039;, sPol, sPlante;
+
+		OPEN sql_cursor_2;
+	 
+		LOOP
+			FETCH sql_cursor_2 INTO sPintersect, sArea;
+             
+                        EXIT WHEN NOT FOUND;
+
+			RAISE NOTICE &#039;polygone : % surface : % &#039;, sPintersect, sArea;
+			
+		END LOOP;
+
+END LOOP;</code></pre></div><p>Le souci c&#039;est que le EXIT WHEN NOT FOUND nous faire sortir de tous les curseurs</p><p>Pour contourner ce problème, j&#039;ai donc insérer deux curseurs sql_cursor_2 et sql_cursor_3<br />Cependant,<br />Deuxième question : les curseurs sql_cursor_2 et sql_cursor_3 effectuent sensiblement la même chose mise à part que le select s&#039;effectue sur un champ différent. N&#039;y a-t-il pas moyen d&#039;éviter ce double &quot;balayement&quot; en récupérant directement les valeurs des deux champs et en les stockant dans des variables ?</p><p><strong><span class="bbu">Fonction entière : </span></strong></p><div class="codebox"><pre class="vscroll"><code>-- Function: aaa_test(numeric, numeric)
+
+-- DROP FUNCTION aaa_test(numeric, numeric);
+
+CREATE OR REPLACE FUNCTION aaa_test(ibord numeric, iprecision numeric)
+  RETURNS void AS
+$BODY$
+ 
+DECLARE 
+        bVal BOOLEAN;
+	sPol text;
+	sPintersect text;
+        sArea text;
+	sPlante text;
+	sSchema text;
+	sTable text;
+	sChamp text;
+	sSrid text;
+        sql_cursor cursor FOR SELECT DISTINCT(bord_carto_id),nom FROM conso_geographique, entite_carto, conso_element WHERE r_bord = iBord AND conso_geographique.rc_code = &#039;UTM_2-1&#039; AND conso_geographique.ent_id = entite_carto.ent_id AND id_element = id_element_observe ORDER BY nom;
+	sql_cursor_2 refcursor;
+	sql_cursor_3 refcursor;
+        nb_ligne integer;
+ 
+BEGIN
+ 
+EXECUTE &#039;DELETE FROM aaa_cas_test;&#039;;
+ 
+OPEN sql_cursor;
+ 
+LOOP
+ 
+	FETCH sql_cursor INTO sPol, sPlante;
+ 
+	EXIT WHEN NOT FOUND;
+ 
+	RAISE NOTICE &#039;ANALYSE % (%) &#039;, sPol, sPlante;
+
+		FOR sql_cursor_2 IN EXECUTE 
+
+			&#039;SELECT ent_libelle
+			FROM (SELECT max(
+				area2d(
+					intersection(
+						ST_SnapToGrid(
+							(SELECT bd.geometry FROM bord_carto AS bd WHERE bord_id = &#039; || sPol || &#039;),&#039; || iPrecision || &#039;) , ST_SnapToGrid(geometry,&#039; || iPrecision || &#039;))
+			)
+			) AS area , 
+			ent_libelle 
+			FROM entite_carto AS ent 
+			JOIN ref_carto AS ref ON ref.rc_id = ent.rc_id WHERE ref.rc_code =&#039;&#039;UTM_2-1&#039;&#039; 
+			AND INTERSECTS((SELECT bd.geometry FROM bord_carto AS bd WHERE bord_id = &#039; || sPol || &#039;), geometry) 
+			GROUP BY ent_id, ent_libelle ORDER BY area DESC) as rqt
+			WHERE area &gt; 0;&#039;
+	 
+		LOOP
+	 
+			sPintersect := sql_cursor_2;
+
+		END LOOP;	
+
+		FOR sql_cursor_3 IN EXECUTE 
+
+			&#039;SELECT area 
+			FROM (SELECT max(
+				area2d(
+					intersection(
+						ST_SnapToGrid(
+							(SELECT bd.geometry FROM bord_carto AS bd WHERE bord_id = &#039; || sPol || &#039;),&#039; || iPrecision || &#039;) , ST_SnapToGrid(geometry,&#039; || iPrecision || &#039;))
+			)
+			) AS area , 
+			ent_libelle 
+			FROM entite_carto AS ent 
+			JOIN ref_carto AS ref ON ref.rc_id = ent.rc_id WHERE ref.rc_code =&#039;&#039;UTM_2-1&#039;&#039; 
+			AND INTERSECTS((SELECT bd.geometry FROM bord_carto AS bd WHERE bord_id = &#039; || sPol || &#039;), geometry) 
+			GROUP BY ent_id, ent_libelle ORDER BY area DESC) as rqt
+			WHERE area &gt; 0;&#039;
+	 
+		LOOP
+			sArea := sql_cursor_3;
+		END LOOP;
+
+		RAISE NOTICE &#039;polygone : % surface : % &#039;, sPintersect, sArea;
+
+		EXECUTE &#039;INSERT INTO aaa_cas_test VALUES (&#039;&#039;&#039; || sPol || &#039;&#039;&#039;,&#039;&#039;&#039; || sPlante || &#039;&#039;&#039;, &#039;&#039;&#039; || sPintersect || &#039;&#039;&#039;,&#039;&#039;&#039; || sArea || &#039;&#039;&#039;);&#039;;
+ 
+	 	
+END LOOP;
+ 
+CLOSE sql_cursor;
+RETURN;
+END;</code></pre></div><p>Merci par avance pour vos réponses</p>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="inbox">
+			<div class="postfoot clearb">
+				<div class="postfootleft"><p><span>Hors ligne</span></p></div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="p9718" class="blockpost roweven">
+	<h2><span><span class="conr">#2</span> <a href="viewtopic.php%3Fpid=9718.html#p9718">07/06/2011 18:24:45</a></span></h2>
+	<div class="box">
+		<div class="inbox">
+			<div class="postbody">
+				<div class="postleft">
+					<dl>
+						<dt><strong><a href="profile.php%3Fid=312.html">Marc Cousin</a></strong></dt>
+						<dd class="usertitle"><strong>Membre</strong></dd>
+					</dl>
+				</div>
+				<div class="postright">
+					<h3>Re&#160;: Curseur : Eviter de boucler 2x une même requête / curseurs imbriqués</h3>
+					<div class="postmsg">
+						<p>Pour la première question: rien ne vous oblige à faire EXIT WHEN NOT FOUND simple.</p><p>Voici un exemple tiré de la doc:</p><p>&lt;&lt;ablock&gt;&gt;<br />BEGIN<br />&#160; &#160; -- some computations<br />&#160; &#160; IF stocks &gt; 100000 THEN<br />&#160; &#160; &#160; &#160; EXIT ablock;&#160; -- causes exit from the BEGIN block<br />&#160; &#160; END IF;<br />&#160; &#160; -- computations here will be skipped when stocks &gt; 100000<br />END;</p><p>Rien ne vous empêche donc de mettre des labels à chacune de vos boucles, et de faire un <br />EXIT&#160; mon_label WHEN NOT FOUND;</p><p>Pour le second point, bien sûr, vous pouvez récupérer plusieurs valeurs dans un enregistrement en même temps. Tout est documenté ici: <a href="http://doc.postgresql.fr/9.0/plpgsql-cursors.html" rel="nofollow">http://doc.postgresql.fr/9.0/plpgsql-cursors.html</a><br />Pour résumer, lors du fetch, donnez lui la liste des variables à affecter séparées par des virgules, au lieu d&#039;une seule variable.</p>
+					</div>
+					<div class="postsignature postmsg"><hr /><p>Marc.</p></div>
+				</div>
+			</div>
+		</div>
+		<div class="inbox">
+			<div class="postfoot clearb">
+				<div class="postfootleft"><p><span>Hors ligne</span></p></div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="p9731" class="blockpost rowodd">
+	<h2><span><span class="conr">#3</span> <a href="viewtopic.php%3Fpid=9731.html#p9731">08/06/2011 09:16:51</a></span></h2>
+	<div class="box">
+		<div class="inbox">
+			<div class="postbody">
+				<div class="postleft">
+					<dl>
+						<dt><strong><a href="profile.php%3Fid=1272.html">mougoye</a></strong></dt>
+						<dd class="usertitle"><strong>Membre</strong></dd>
+					</dl>
+				</div>
+				<div class="postright">
+					<h3>Re&#160;: Curseur : Eviter de boucler 2x une même requête / curseurs imbriqués</h3>
+					<div class="postmsg">
+						<p>Merci pour votre réponse <br />Je vais tester cela</p>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="inbox">
+			<div class="postfoot clearb">
+				<div class="postfootleft"><p><span>Hors ligne</span></p></div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="p9739" class="blockpost roweven">
+	<h2><span><span class="conr">#4</span> <a href="viewtopic.php%3Fpid=9739.html#p9739">08/06/2011 11:25:43</a></span></h2>
+	<div class="box">
+		<div class="inbox">
+			<div class="postbody">
+				<div class="postleft">
+					<dl>
+						<dt><strong><a href="profile.php%3Fid=1272.html">mougoye</a></strong></dt>
+						<dd class="usertitle"><strong>Membre</strong></dd>
+					</dl>
+				</div>
+				<div class="postright">
+					<h3>Re&#160;: Curseur : Eviter de boucler 2x une même requête / curseurs imbriqués</h3>
+					<div class="postmsg">
+						<p>Merci Marc, j&#039;ai trouvé la solution grâce à votre post.<br />Ci-dessous la solution :</p><div class="codebox"><pre class="vscroll"><code>CREATE OR REPLACE FUNCTION bbb_test(ibord numeric, iprecision numeric)
+  RETURNS void AS
+$BODY$
+ 
+DECLARE 
+        bVal BOOLEAN;
+	sPol bigint;
+	sPintersect text;
+        sArea double precision;
+	sPlante text;
+	sSchema text;
+	sTable text;
+	sChamp text;
+	sSrid text;
+        sql_cursor cursor FOR SELECT DISTINCT(bord_carto_id),nom FROM conso_geographique, entite_carto, conso_element WHERE r_bord = iBord AND conso_geographique.rc_code = &#039;UTM_2-1&#039; AND conso_geographique.ent_id = entite_carto.ent_id AND id_element = id_element_observe ORDER BY nom;
+	sql_cursor_2 cursor FOR SELECT ent_libelle, area
+			FROM (SELECT max(
+				area2d(
+					intersection(
+						ST_SnapToGrid(
+							(SELECT bd.geometry FROM bord_carto AS bd WHERE bord_id = sPol ), iPrecision ) , ST_SnapToGrid(geometry, iPrecision ))
+			)
+			) AS area , 
+			ent_libelle 
+			FROM entite_carto AS ent 
+			JOIN ref_carto AS ref ON ref.rc_id = ent.rc_id WHERE ref.rc_code =&#039;UTM_2-1&#039; 
+			AND INTERSECTS((SELECT bd.geometry FROM bord_carto AS bd WHERE bord_id = sPol ), geometry) 
+			GROUP BY ent_id, ent_libelle ORDER BY area DESC) AS rqt
+			WHERE area &gt; 0;
+	--sql_cursor_3 refcursor;
+        nb_ligne integer;
+ 
+BEGIN
+ 
+EXECUTE &#039;DELETE FROM aaa_cas_test;&#039;;
+ 
+OPEN sql_cursor;
+ 
+&lt;&lt;label1&gt;&gt;
+ 
+LOOP
+ 
+	FETCH sql_cursor INTO sPol, sPlante;
+ 
+	EXIT label1 WHEN NOT FOUND;
+ 
+	RAISE NOTICE &#039;ANALYSE % (%) &#039;, sPol, sPlante;
+ 
+ 
+		OPEN sql_cursor_2;
+ 
+		&lt;&lt;label2&gt;&gt;
+ 
+		LOOP
+			FETCH sql_cursor_2 INTO sPintersect, sArea;
+ 
+			EXIT label2 WHEN NOT FOUND;
+ 
+			RAISE NOTICE &#039;polygone : % surface : % &#039;, sPintersect, sArea;
+ 
+			EXECUTE &#039;INSERT INTO aaa_cas_test VALUES (&#039;&#039;&#039; || sPol || &#039;&#039;&#039;,&#039;&#039;&#039; || sPlante || &#039;&#039;&#039;, &#039;&#039;&#039; || sPintersect || &#039;&#039;&#039;,&#039;&#039;&#039; || sArea || &#039;&#039;&#039;);&#039;;
+ 
+		END LOOP;
+ 
+		CLOSE sql_cursor_2;
+ 
+ 
+END LOOP;
+ 
+CLOSE sql_cursor;
+RETURN;
+END;
+$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+ALTER FUNCTION bbb_test(numeric, numeric) OWNER TO postgres;</code></pre></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="inbox">
+			<div class="postfoot clearb">
+				<div class="postfootleft"><p><span>Hors ligne</span></p></div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="postlinksb">
+	<div class="inbox crumbsplus">
+		<div class="pagepost">
+			<p class="pagelink conl"><span class="pages-label">Pages&#160;: </span><strong class="item1">1</strong></p>
+		</div>
+		<ul class="crumbs">
+			<li><a href="index.php.html">Accueil</a></li>
+			<li><span>»&#160;</span><a href="viewforum.php%3Fid=20.html">PL/pgSQL</a></li>
+			<li><span>»&#160;</span><strong><a href="viewtopic.php%3Fid=1452.html">Curseur : Eviter de boucler 2x une même requête / curseurs imbriqués</a></strong></li>
+		</ul>
+		<div class="clearer"></div>
+	</div>
+</div>
+</div>
+
+<div id="brdfooter" class="block">
+	<h2><span>Pied de page des forums</span></h2>
+	<div class="box">
+		<div id="brdfooternav" class="inbox">
+			<div class="conl">
+				<form id="qjump" method="get" action="http://forum.postgresql.fr/viewforum.php">
+					<div><label><span>Atteindre<br /></span>
+					<select name="id" onchange="window.location=('viewforum.php?id='+this.options[this.selectedIndex].value)">
+						<optgroup label="PostgreSQL.fr">
+							<option value="2">Site PostgreSQL.fr</option>
+							<option value="3">Association PostgreSQLfr</option>
+							<option value="18">Événements</option>
+							<option value="17">Publications</option>
+						</optgroup>
+						<optgroup label="Technique">
+							<option value="6">Général</option>
+							<option value="7">Installation</option>
+							<option value="26">Migration</option>
+							<option value="8">Optimisation</option>
+							<option value="9">Sécurité</option>
+							<option value="19">Réplication</option>
+						</optgroup>
+						<optgroup label="Logiciels">
+							<option value="30">pgAdmin4</option>
+							<option value="27">PgAdmin3</option>
+							<option value="29">phpPgAdmin</option>
+							<option value="28">PSQL</option>
+						</optgroup>
+						<optgroup label="Langages procéduraux">
+							<option value="20" selected="selected">PL/pgSQL</option>
+							<option value="22">PL/Tcl</option>
+							<option value="23">PL/Perl</option>
+							<option value="24">PL/Python</option>
+							<option value="25">Autres langages</option>
+						</optgroup>
+						<optgroup label="Interfaces">
+							<option value="10">PHP</option>
+							<option value="11">Perl</option>
+							<option value="12">Python</option>
+							<option value="13">C et C++</option>
+							<option value="14">.NET</option>
+							<option value="15">Java</option>
+							<option value="16">ODBC</option>
+						</optgroup>
+						<optgroup label="Emploi">
+							<option value="4">Offres</option>
+							<option value="5">Demandes</option>
+						</optgroup>
+					</select></label>
+					<input type="submit" value="Aller" accesskey="g" />
+					</div>
+				</form>
+			</div>
+			<div class="conr">
+				<p id="feedlinks"><span class="atom"><a href="extern.php%3Faction=feed&amp;tid=1452&amp;type=atom">Flux Atom de la discussion</a></span></p>
+				<p id="poweredby">Propulsé par <a href="http://fluxbb.org/">FluxBB</a></p>
+			</div>
+			<div class="clearer"></div>
+		</div>
+	</div>
+</div>
+
+</div>
+<div class="end-box"><div><!-- Bottom corners --></div></div>
+</div>
+
+</body>
+</html>

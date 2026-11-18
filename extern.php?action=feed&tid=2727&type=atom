@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Condition sur la valeur par défaut d'un champ]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2727&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2727"/>
+	<updated>2013-08-12T17:49:38Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2727</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Condition sur la valeur par défaut d'un champ]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17844#p17844"/>
+		<content type="html"><![CDATA[<p>Oui, à caster explicitement.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2013-08-12T17:49:38Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17844#p17844</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Condition sur la valeur par défaut d'un champ]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17843#p17843"/>
+		<content type="html"><![CDATA[<p>Nickel! Je ne connaissais pas information_schema!</p><p>Par contre comme la colonne &quot;column_default&quot; est un VARCHAR, faut il caster la valeur avant de l&#039;assigner au champ?<br />Si oui, pas de problème avec les champs dont la valeur par défaut est littérale grâce à la colonne &quot;data_type&quot; mais pour ceux qui utilisent une séquence ou un fonction comment faire?</p><p>Ex: champ &quot;created&quot; dont la valeur par défaut est NOW() mais qui est stockée sous la forme &#039;NOW()&#039; dans information_schema</p>]]></content>
+		<author>
+			<name><![CDATA[i20]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2372</uri>
+		</author>
+		<updated>2013-08-12T11:48:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17843#p17843</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Condition sur la valeur par défaut d'un champ]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17842#p17842"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>i20 a écrit&#160;:</cite><blockquote><div><p>Bonjour à tous,</p><p>Voilà je voudrais savoir, mais je pense que ce que je vais dire peut être considéré comme stupide, s&#039;il était possible dans une clause WHERE de stipuler qu&#039;un champ devait être égal à sa valeur par défaut? Dans mes rêves les plus fous cela donnerait quelque chose comme:</p><div class="codebox"><pre><code>SELECT * FROM machin WHERE champ = DEFAULT;</code></pre></div><p>ou encore</p><div class="codebox"><pre><code>SELECT * FROM machin WHERE champ IS DEFAULT;</code></pre></div><p>...</p><p>Est-ce possible?</p></div></blockquote></div><p>Vos rêves ne sont pas fous, mais c&#039;est un petit peu plus compliqués :<br />La vue de métadonnées INFORMATION_SCHEMA.COLUMNS contient la valeur par défaut de toute colonne de toute table. Dès lors vous pouvez faire :</p><div class="codebox"><pre><code>SELECT * FROM machin WHERE champ =
+(SELECT COLUMN_DEFAULT 
+ FROM   INFORMATION_SCHEMA.COLUMNS
+ WHERE  TABLE_SCHEMA = &#039;public&#039;
+   AND  TABLE_NAME = &#039;machin&#039;
+   AND  COLUMN_NAME = &#039;champ&#039;);</code></pre></div><p>A +</p>]]></content>
+		<author>
+			<name><![CDATA[SQLpro]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1054</uri>
+		</author>
+		<updated>2013-08-12T08:48:06Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17842#p17842</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Condition sur la valeur par défaut d'un champ]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17841#p17841"/>
+		<content type="html"><![CDATA[<p>Désolé pour mon retard ^^</p><br /><p>Bon alors voilà, après m&#039;être renseigné un peu sur les triggers, je suis venu à la conclusion que ce qu&#039;il me fallait ressemblait à:</p><div class="codebox"><pre><code>CREATE LANGUAGE plpgsql;
+
+CREATE TABLE users (
+
+    id SERIAL,
+    created TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+
+    PRIMARY KEY (id)
+);
+
+CREATE FUNCTION autofields_function() RETURNS TRIGGER AS
+$$
+BEGIN
+    NEW.id := DEFAULT;
+    NEW.created := DEFAULT;
+    RETURN NEW;
+END;
+$$
+;
+
+CREATE TRIGGER autofields_trigger 
+BEFORE INSERT ON users 
+FOR EACH ROW EXECUTE PROCEDURE autofields_function();</code></pre></div><br /><p>Mais voilà, DEFAULT n&#039;existe pas pour plpgsql. Mon problème est exactement le même qu&#039;ici <a href="http://www.postgresql.org/message-id/200406152129.29351.vmudrageda@charter.net" rel="nofollow">http://www.postgresql.org/message-id/20 … harter.net</a>. <br />Comment puis-je faire? Y a t&#039;il un moyen de supprimer les valeurs de certains champs du INSERT plutôt que d&#039;essayer de leur assigner DEFAULT? <br />J&#039;aimerais éviter de devoir aller chercher moi même la valeur par défaut des colonnes tel que suggéré par rjuju si possible. <br />Et éxécuter un INSERT dans un TRIGGER INSTEAD OF pour pouvoir passer DEFAULT comme valeur va sûrement me donner une merveilleuse boucle infinie, je me trompe?</p><br /><p>Merci d&#039;avance pour votre aide</p>]]></content>
+		<author>
+			<name><![CDATA[i20]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2372</uri>
+		</author>
+		<updated>2013-08-11T19:32:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17841#p17841</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Condition sur la valeur par défaut d'un champ]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17832#p17832"/>
+		<content type="html"><![CDATA[<p>Merci pour ces réponses, je crois que c&#039;est exactement ce qu&#039;il me faut! Oui effectivement je ne sais pas pourquoi je n&#039;avais pas pensé au trigger pour réécrire tout simplement les INSERT au lieu de chercher à tester les valeurs fournies T.T Je vais sûrement tester ça ce soir et ensuite je marquerai le post comme résolu.</p><br /><p>Encore merci ^^</p>]]></content>
+		<author>
+			<name><![CDATA[i20]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2372</uri>
+		</author>
+		<updated>2013-08-08T08:46:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17832#p17832</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Condition sur la valeur par défaut d'un champ]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17831#p17831"/>
+		<content type="html"><![CDATA[<p>Vous pouvez utiliser la requête suivante pour trouver la valeur par défaut d&#039;une colonne (le type retourné est text):</p><div class="codebox"><pre><code>SELECT d.adsrc
+FROM pg_class c
+JOIN pg_namespace n ON c.relnamespace = n.oid
+JOIN pg_attribute a ON a.attrelid = c.oid
+JOIN pg_attrdef d ON d.adrelid = c.oid AND d.adnum = a.attnum
+WHERE n.nspname = &#039;nom_schema&#039; AND c.relname = &#039;nom_table&#039; AND a.attname = &#039;nom_colonne&#039;;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2013-08-07T17:21:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17831#p17831</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Condition sur la valeur par défaut d'un champ]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17830#p17830"/>
+		<content type="html"><![CDATA[<p>Vous pourriez envisager un trigger qui ne prenne pas en compte les champs interdits.</p><p>Ou plus simplement ne pas inclure les champs dans la commande d&#039;insert/update. </p><p>Vous pouvez aussi créer une table d&#039;historisation sous la forme <br />Table_origine|type_mod|date_heure<br />Machin | I | default now()<br />Machin | U | default now()</p><p>Avec des triggers sur les tables qui déclenchent les insertions dans la table d&#039;historisation.</p>]]></content>
+		<author>
+			<name><![CDATA[SAS]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=23</uri>
+		</author>
+		<updated>2013-08-07T17:17:39Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17830#p17830</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Condition sur la valeur par défaut d'un champ]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17829#p17829"/>
+		<content type="html"><![CDATA[<p>Oui c&#039;est vrai pour les UPDATE et peut s&#039;écrire avec une règle toute simple comme : </p><div class="codebox"><pre><code>CREATE RULE rule AS ON UPDATE TO machin
+WHERE NEW.created != OLD.created
+DO INSTEAD RAISE EXCEPTION &#039;Cannot update value for field &quot;created&quot;&#039;;</code></pre></div><p>Mais mon problème est au moment du INSERT, comment empêcher de fournir une valeur autre que DEFAULT à l&#039;insertion? La règle écrite dans mon précédent post serait bien évaluée avant insertion (comme un trigger before) mais ce qui ne va pas c&#039;est la condition. Je pense qu&#039;en utilisant un trigger je me heurterai au même problème ou alors je me trompe, auriez vous un exemple du trigger que vous proposez?</p><p>Merci</p>]]></content>
+		<author>
+			<name><![CDATA[i20]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2372</uri>
+		</author>
+		<updated>2013-08-07T16:43:21Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17829#p17829</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Condition sur la valeur par défaut d'un champ]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17828#p17828"/>
+		<content type="html"><![CDATA[<p>Bonsoir, </p><p>Vous pouvez envisager l&#039;écriture d&#039;un trigger *before* qui vérifie que vous ne ne modifiez pas la valeur du champ interdit. Si tel était le cas, vous sortez en erreur de la fonction appelée par le trigger.</p>]]></content>
+		<author>
+			<name><![CDATA[SAS]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=23</uri>
+		</author>
+		<updated>2013-08-06T22:10:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17828#p17828</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Condition sur la valeur par défaut d'un champ]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17827#p17827"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous,</p><p>Voilà je voudrais savoir, mais je pense que ce que je vais dire peut être considéré comme stupide, s&#039;il était possible dans une clause WHERE de stipuler qu&#039;un champ devait être égal à sa valeur par défaut? Dans mes rêves les plus fous cela donnerait quelque chose comme:</p><div class="codebox"><pre><code>SELECT * FROM machin WHERE champ = DEFAULT;</code></pre></div><p>ou encore</p><div class="codebox"><pre><code>SELECT * FROM machin WHERE champ IS DEFAULT;</code></pre></div><p>Je voudrais savoir si ça peut marcher et si non, y a t&#039;il une autre solution pour arriver à mes fins?</p><p>Le but serait d&#039;empêcher l&#039;insertion de valeurs manuelles pour certains champs lors de la création de nouvelles lignes. Par exemple j&#039;ai dans ma table &quot;machin&quot; un champ &quot;created&quot; de type TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW() et je voudrais que ce champ ne soit rempli que par sa contrainte DEFAULT et qu&#039;il ne soit pas possible de choisir une autre valeur dans la clause VALUES de INSERT INTO. Là encore dans mon rêve je pourrais écrire:</p><div class="codebox"><pre><code>CREATE RULE rule AS ON INSERT TO machin
+WHERE NEW.created IS NOT DEFAULT
+DO INSTEAD RAISE EXCEPTION &#039;Cannot insert custom value for field &quot;created&quot;&#039;;</code></pre></div><p>Est-ce possible?</p>]]></content>
+		<author>
+			<name><![CDATA[i20]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2372</uri>
+		</author>
+		<updated>2013-08-06T15:07:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17827#p17827</id>
+	</entry>
+</feed>

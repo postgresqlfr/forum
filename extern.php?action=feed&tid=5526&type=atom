@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Boucle sur un champ de table]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5526&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5526"/>
+	<updated>2019-05-27T16:18:35Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5526</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Boucle sur un champ de table]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29862#p29862"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />Merci pour vos réponses.</p><p>1) Oui, seules les lignes à 0 doivent être mises à jour. Elles correspondent en fait à une absence de données, ou le 0 permettra des calculs.<br />2) Oui, pour la maj ce sont les tronçons contigus qui seront utilisés, clairement identifiés par les champs &quot;debut&quot; et &quot;fin&quot; qui correspondent aux coordonnées des extrémités des tronçons.<br />3) &quot;debut&quot; et &quot;fin&quot; sont donc les coordonnées des extrémités des tronçons, &quot;id&quot; est bien sûr l&#039;identifiant du tronçon, &quot;nb_deb&quot; est le nombre d’occurrences, dans la table, d&#039;une coordonnée &quot;debut&quot;, &quot;nb_fin&quot; est l&#039;équivalent pour le champ &quot;fin&quot;, &quot;compt&quot; est une valeur numérique de comptages</p><p>La boucle me paraît nécessaire car la &quot;répartition&quot; des valeurs &quot;compt&quot; n&#039;est pas uniforme sur l&#039;ensemble du réseau de tronçons. On peut ainsi avoir une série de 10 tronçons où seul le 1er possède une valeur. Si on fait une maj, le tronçon immédiatement contigu pourra récupérer une valeur mais pas les suivants, d&#039;où l&#039;idée de boucler la formule. Différencier la maj selon les champs nb_deb et nb_fin permet de s&#039;assurer que les tronçons sur lesquels ont applique la formule correspondent à un ensemble cohérent. Concrètement, un nb_deb ou nb_fin à 3 signifie que nous sommes en présence d&#039;une intersection de trois tronçons. Un nb_deb ET un nb_fin à 2 signifie qu&#039;il s&#039;agit d&#039;un tronçon situé entre deux autres d&#039;une même route. On peut donc lui attribuer une valeur moyenne des deux autres tronçons.<br />J&#039;espère que mes explications sont plus claires.</p><p>J&#039;ai pensé à cette formule :</p><div class="codebox"><pre><code>for i in select from ttable where compt = 0
+	loop
+	update ttable as d
+  set compt = (p.compt + x.compt) / 2
+  from ttable as p, ttable as x
+  where
+      p.fin = d.debut and
+      d.fin = x.debut and 
+      d.nb_deb = 2 and d.nb_fin = 2 ;
+	
+	update ttable
+	set compt = t2.compt
+	from ttable as t1, ttable as t2
+	where t1.fin = t2.debut and t1.nb_deb &lt;&gt; 2 and t1.nb_fin = 2 ;
+	
+	update ttable
+	set compt = t2.compt
+	from ttable as t1, ttable as t2
+	where t1.debut = t2.fin and t1.nb_deb = 2 and t1.nb_fin &lt;&gt; 2&#039; ;
+	
+	end loop ;</code></pre></div><p>La fonction tourne depuis vendredi, ma table contenant plusieurs dizaines de milliers de tronçons....</p>]]></content>
+		<author>
+			<name><![CDATA[arn]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8670</uri>
+		</author>
+		<updated>2019-05-27T16:18:35Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29862#p29862</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Boucle sur un champ de table]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29861#p29861"/>
+		<content type="html"><![CDATA[<p>Je suis d&#039;accord avec les questions et conclusions ci-dessus.</p><p>Un exemple de requête qui permet de calculer le compteur, avec le peu que j&#039;ai compris des règles, vous devriez pouvoir vous en inspirer pour corriger les points indéfinis ou mal compris.</p><div class="codebox"><pre><code>SELECT id, nb_deb, nb_fin, debut, fin,
+CASE WHEN nb_deb = nb_fin THEN
+    CASE WHEN nb_deb = lag(nb_fin) OVER (ORDER BY id)
+        AND nb_fin = lead(nb_deb) OVER (ORDER BY id)
+        THEN (lead(compt) OVER (ORDER BY id) + lag(compt) OVER (ORDER BY id)) / 2
+    ELSE
+        compt
+    END
+ELSE
+    compt
+END AS compt
+from ttable ;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2019-05-24T21:31:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29861#p29861</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Boucle sur un champ de table]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29860#p29860"/>
+		<content type="html"><![CDATA[<p>Salut<br />A présent j&#039;ai encore des incompréhensions. Alors questions...<br />1-&gt;seules les lignes contenant 0 dans &quot;compt&quot; doivent être mise à jour? si oui, comment ces lignes se retrouvent avec 0? par insertion? mise à jour? ou import de données? ou est-ce des données ad-hoc à corriger?<br />2-&gt;pour la mise à jour on utilisera uniquement la ligne avant et la ligne suivante? si oui, comment identifie-t-on ces deux lignes sans ambiguïté?<br />3-&gt;est-il possible d&#039;avoir une explication du contenu de la table (la signification des différents champs)?<br />Par ailleurs, à priori on a pas besoin de boucle pour mettre à jour les données d&#039;une table. SQL fonctionne sur des ensembles.<br />@+</p>]]></content>
+		<author>
+			<name><![CDATA[alassanediakite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1475</uri>
+		</author>
+		<updated>2019-05-24T20:39:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29860#p29860</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Boucle sur un champ de table]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29859#p29859"/>
+		<content type="html"><![CDATA[<p>Ma table (ttable) ressemble à ceci :</p><div class="codebox"><pre><code>id      nb_deb        nb_fin        debut      fin      compt
+1          1              2            2        4        10
+2          2              2            4        6         0
+3          2              4            6        8        12</code></pre></div><p>Je voudrais arriver à ceci :</p><div class="codebox"><pre><code>id      nb_deb        nb_fin        debut      fin      compt
+1          1              2            2        4        10
+2          2              2            4        6        11
+3          2              4            6        8        12</code></pre></div><p>Si nb_deb = nb_fin, à chaque tour la valeur 0 prend la moyenne des valeurs compt des tronçons qui lui sont contigus, déterminés ainsi par les valeurs de debut et fin. Dans ce cas le debut de l&#039;id n°2 est égal à la fin de l&#039;id n°1 et la fin de l&#039;id n°2 est égale à au début de l&#039;id n°3. Dans les autres cas on prend la valeur du tronçon contigu (jonction par nb_deb ou nb_fin qui vaut 2).</p><p>J&#039;ai pensé à ce code :</p><div class="codebox"><pre><code>declare
+i record ;
+ttable alias for $1 ;
+
+begin
+
+	for i in select * from ttable where compt = 0
+	loop
+	update ttable
+	set compt = 
+	avg(m1 + m2) as 
+	(select t1.compt as m1, t3.compt as m2 
+  from ttable t1, ttable t2, ttable t3 where t1.fin = t2.debut and where t2.fin = t3.debut) 
+	where nb_deb = 2 and nb_fin = 2 ;
+	
+	update ttable
+	set compt = t2.compt
+	from ttable t1, ttable t2
+	where t1.fin = t2.debut and t1.nb_deb &lt;&gt; 2 and t1.nb_fin = 2 ;
+	
+	update ttable
+	set compt = t2.compt
+	from ttable t1, ttable t2
+	where t1.debut = t2.fin and t1.nb_deb = 2 and t1.nb_fin &lt;&gt; 2 ;
+	
+	end loop ;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[arn]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8670</uri>
+		</author>
+		<updated>2019-05-24T09:12:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29859#p29859</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Boucle sur un champ de table]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29858#p29858"/>
+		<content type="html"><![CDATA[<p>Salut<br />Pour une compréhension facile du problème, le mieux est de proposer un échantillon de données et la sortie voulue (le résultat sous forme de tableau).<br />@+</p>]]></content>
+		<author>
+			<name><![CDATA[alassanediakite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1475</uri>
+		</author>
+		<updated>2019-05-23T21:51:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29858#p29858</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Boucle sur un champ de table]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29855#p29855"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous,</p><p>Je voudrais créer une fonction pour attribuer de manière itérative des valeurs à des tronçons&#160; en fonction de certains critères. Je m&#039;explique : j&#039;ai une table qui comporte notamment ces champs :<br />nb_deb&#160; &#160;integer<br />nb_fin integer<br />compt numeric (la valeur à attribuer)</p><p>Le but est qu&#039;un tronçon sans valeur, si nb_deb ou nb_fin est égal à 2, récupère la valeur du tronçon qui lui est contigu. Comme il s&#039;agit d&#039;une valeur située dans la même table, j&#039;ai pensé à un self join, plus ou moins dans ces termes :<br />if nb_deb = 2 and nb_fin = 2 then compt :=&#160; compt from ma_table t1<br />full join ma_tablet2 on t1.nb_debut = t2.nb_fin ;</p><p>elsif nb_deb &lt;&gt; 2 and nb_fin = 2 then compt :=&#160; compt from ma_table t1<br />full join ma_table t2 on t1.nb_fin = t2.nb_debut ;</p><p>elsif nb_deb = 2 and nb_fin &lt;&gt; 2 then compt&#160; :=&#160; compt&#160; from ma_table t1<br />full join ma_table t2 on t1.nb_debut = t2.nb_fin ;</p><p>Comme à chaque fois un tronçon est susceptible de récupérer une donnée, le tronçon sans valeur qui lui est contigu pourra récupérer cette valeur au tour suivant, d&#039;où l&#039;idée d&#039;intégrer cette formule dans une boucle. Je pense à un expression du type : while compt is null mais je n&#039;arrive pas à bien positionner mes variables et mes déclarations.</p><p>Pourriez-vous me donner des conseils ? D&#039;avance merci.</p>]]></content>
+		<author>
+			<name><![CDATA[arn]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8670</uri>
+		</author>
+		<updated>2019-05-22T15:16:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29855#p29855</id>
+	</entry>
+</feed>

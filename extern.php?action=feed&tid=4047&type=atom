@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Bloquage mortel détecté]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4047&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4047"/>
+	<updated>2017-01-07T12:59:55Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4047</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Bloquage mortel détecté]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24518#p24518"/>
+		<content type="html"><![CDATA[<p>Merci pour votre réponse,<br />J&#039;ai deux scriptes qui tourne en parallèle et touchent les mêmes tables.<br />L&#039;un d&#039;eux utilise des transactions (BEGIN) et l&#039;autre n&#039;a pas.<br />Les tables touchées dans la transaction (BEGIN) sont bien présentent dans pg_locks et j&#039;essaye de les évitées par le deuxième script tant qu&#039;elles ne sont pas libres (boucle).</p><div class="quotebox"><cite>gleu a écrit&#160;:</cite><blockquote><div><p>Comment savez-vous que le processus 28786 n&#039;est pas dans une transaction ? .</p></div></blockquote></div><p>Le deuxième process 28786 ne lance que des updates simples sans ouvrir une transaction, on sait que postgres ouvre des transaction implicite pour chacune.</p>]]></content>
+		<author>
+			<name><![CDATA[abeidi]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7192</uri>
+		</author>
+		<updated>2017-01-07T12:59:55Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24518#p24518</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Bloquage mortel détecté]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24515#p24515"/>
+		<content type="html"><![CDATA[<p>Les verrous sont sur des lignes, donc vous ne pouvez pas les voir avec pg_locks.</p><p>Comment savez-vous que le processus 28786 n&#039;est pas dans une transaction ? Qu&#039;a fait le processus 32122 avant l&#039;UPDATE ?</p><p>Mon impression est que le processus 32122 a fait un UPDATE avant le processus 28786 qui a verrouillé une ligne pour laquelle j11=0, ce qui a bloqué le processus 28786 dans son attente du verrou sur la ligne. Le processus 32122 a essayé de faire une nouvelle mise à jour pour les lignes id=47241, et une de ces lignes doit avoir j11=0, ce qui a bloqué le processus 32122 en attente du résultat de la requête du processus 28786. Du coup, les deux sont en attente de la fin de l&#039;autre, situation classique du deadlock.</p><p>Quant au collecteur de statistiques, il n&#039;y est pour rien. Cela indique seulement que votre système est surchargé, notamment au niveau des IO.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2017-01-07T11:59:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24515#p24515</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Bloquage mortel détecté]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24509#p24509"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous,<br />J&#039;ai besoins de votre aide pour dépasser ce problème d&#039;interblocage des transactions qui m&#039;arrive tous les jours, malgré que j&#039;ai fait le minimum des transactions explicites (BEGIN).<br />La deuxième requête est mise dans une transaction (32122), mais la première 28786 n&#039;est pas dans une transaction, et je m&#039;assure avant de la lancer, que la tables n&#039;est bloquée par une transaction via la requête suivante :</p><p>&#160; &#160; select count(*) nbr from pg_class JOIN pg_locks on pg_class.oid = relation and relname = &#039;&quot; . $tb . &quot;&#039;</p><p>comment donc ce blocage peut il arrivé ?<br />Est ce que c&#039;est lié au problème des statistiques mentionné dans le log ?<br />Comment je peux aussi, résoudre le problème du collecteur de statistiques ?</p><br /><p>################&#160; &#160;VOICI UNE PARTIE DE NOTRE LOG&#160; &#160; #################</p><p>LOG:&#160; utilise de vieilles statistiques à la place des actuelles car le collecteur de statistiques ne répond pas<br />LOG:&#160; utilise de vieilles statistiques à la place des actuelles car le collecteur de statistiques ne répond pas</p><br /><p>ERREUR:&#160; Bloquage mortel détecté<br />DÉTAIL:&#160; Le processus 28786 attend ShareLock sur transaction 2608329 ; bloqué par le processus 32122.<br />&#160; &#160; &#160; &#160; Le processus 32122 attend ShareLock sur transaction 2608293 ; bloqué par le processus 28786.<br />&#160; &#160; &#160; &#160; Processus 28786 : UPDATE data_alltime SET j11 = 0<br />&#160; &#160; &#160; &#160; Processus 32122 : UPDATE data_alltime SET j10 = j10 + 50000, m13 = m13 + 50000, a5 = a5 + 50000 WHERE id= 4724<br />ASTUCE :&#160; Voir les journaux applicatifs du serveur pour les détails sur la requête.<br />INSTRUCTION :&#160; UPDATE data_alltime SET j11 = 0</p><br /><p>LOG:&#160; utilise de vieilles statistiques à la place des actuelles car le collecteur de statistiques ne répond pas<br />LOG:&#160; utilise de vieilles statistiques à la place des actuelles car le collecteur de statistiques ne répond pas<br />LOG:&#160; utilise de vieilles statistiques à la place des actuelles car le collecteur de statistiques ne répond pas</p><p>#####################################################################</p>]]></content>
+		<author>
+			<name><![CDATA[abeidi]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7192</uri>
+		</author>
+		<updated>2017-01-07T11:08:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24509#p24509</id>
+	</entry>
+</feed>

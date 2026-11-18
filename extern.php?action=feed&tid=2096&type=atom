@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Disque saturé en écriture avec PosgresQL 8.4 et 2PC]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2096&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2096"/>
+	<updated>2012-08-19T22:07:38Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2096</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Disque saturé en écriture avec PosgresQL 8.4 et 2PC]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14822#p14822"/>
+		<content type="html"><![CDATA[<p>mais avant l&#039;afflux de donnee puisque vous dite que cela vien d&#039;ariver vous ne rencontriez pas des ralentisement ? qui permetrez de dire que la limitation et hardware ? </p><p>le ram disque n&#039;est pas une heresie il faut simplement prendre quelque precaution comme utiliser un onduleur .. par exemple <br />pour dire de sauvegarder les donnee sans avoir de probleme </p><br /><p>avec un ram disque meme si la perte de donne ne vous inquiete pas il yora quelque précaution à prendre pour evite les bdd corompu&#160; pendant une maj foireuse genre coupure d&#039;electricite en plein millieu apres je ne connais pas le materiel d&#039;on vous disposer </p><p>qu&#039;entendez vous par gros volume de donnee ?</p>]]></content>
+		<author>
+			<name><![CDATA[aznur]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1900</uri>
+		</author>
+		<updated>2012-08-19T22:07:38Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14822#p14822</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Disque saturé en écriture avec PosgresQL 8.4 et 2PC]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14127#p14127"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Est-il possible de modifier des paramètres afin de changer la taille des écritures ?</p></div></blockquote></div><p>Non.</p><div class="quotebox"><blockquote><div><p>Cela dépend peut-être de la taille des données mises en jeu dans les transactions j&#039;imagine ?</p></div></blockquote></div><p>Oui. À ma connaissance, il n&#039;y a qu&#039;un paramètre sur le Two Phase Commit et il ne vous aidera pas dans votre problème. Et pour être franc, je n&#039;ai jamais entendu d&#039;un problème pareil avec le Two Phase Commit.</p><div class="quotebox"><blockquote><div><p>Vous parlez du répertoire pg_twophase ou bien de toutes les données ?</p></div></blockquote></div><p>Du répertoire pg_twophase. C&#039;est lui, d&#039;après ce que vous dites qui vous pose problème.</p><div class="quotebox"><blockquote><div><p>Nous avons évoqué également en interne la possibilité d&#039;utiliser un ramdisk pour les données des transactions. Nous sommes plus intéressés par la consistance des données lors de la transactions que par la possibilité de recovery des transactions en cours en cas de crash. Est-ce envisageable ou bien une hérésie ?</p></div></blockquote></div><p>En ce qui concerne le répertoire pg_twophase, c&#039;est envisageable à ma connaissance et à condition que vous ne vouliez pas récupérer les transactions 2PC en cours après un crash.</p><p>Je n&#039;ai pas entendu parler d&#039;amélioration du 2PC sur les versions récentes mais passez à une version supérieure est généralement une bonne chose pour les performances.</p><p>Je suis quand même très étonné que le 2PC soit responsable de vos lenteurs. Êtes-vous sûr que le problème vient de ce répertoire ? êtes-vous sûr de vos disques ? est-ce sur un SAN ?</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-06-08T06:28:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14127#p14127</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Disque saturé en écriture avec PosgresQL 8.4 et 2PC]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14126#p14126"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><div class="quotebox"><blockquote><div><p>Est-ce une piste ?</p></div></blockquote></div><p>Oui, c&#039;est une piste sérieuse.</p></div></blockquote></div><p>Est-il possible de modifier des paramètres afin de changer la taille des écritures ? Cela dépend peut-être de la taille des données mises en jeu dans les transactions j&#039;imagine ?</p><div class="quotebox"><blockquote><div><div class="quotebox"><blockquote><div><p>Est-il possible de déplacer ce répertoire dans une autre partition ?</p></div></blockquote></div><p>Oui. Pour cela, vous devez arrêter PostgreSQL, déplacer le répertoire, créer un lien symbolique du répertoire des données vers le nouveau emplacement, puis redémarrer PostgreSQL. Pas sûr que cela suffise à corriger vos problèmes, mais cela vaut le coup d&#039;essayer.</p></div></blockquote></div><p>Vous parlez du répertoire pg_twophase ou bien de toutes les données ? </p><p>Nous avons évoqué également en interne la possibilité d&#039;utiliser un ramdisk pour les données des transactions. Nous sommes plus intéressés par la consistance des données lors de la transactions que par la possibilité de recovery des transactions en cours en cas de crash. Est-ce envisageable ou bien une hérésie ?</p><p>Merci pour vos réponses en tout cas !</p>]]></content>
+		<author>
+			<name><![CDATA[huguespisapia]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1777</uri>
+		</author>
+		<updated>2012-06-07T23:14:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14126#p14126</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Disque saturé en écriture avec PosgresQL 8.4 et 2PC]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14120#p14120"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Est-ce une piste ?</p></div></blockquote></div><p>Oui, c&#039;est une piste sérieuse.</p><div class="quotebox"><blockquote><div><p>Est-il possible de déplacer ce répertoire dans une autre partition ?</p></div></blockquote></div><p>Oui. Pour cela, vous devez arrêter PostgreSQL, déplacer le répertoire, créer un lien symbolique du répertoire des données vers le nouveau emplacement, puis redémarrer PostgreSQL. Pas sûr que cela suffise à corriger vos problèmes, mais cela vaut le coup d&#039;essayer.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-06-07T15:01:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14120#p14120</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Disque saturé en écriture avec PosgresQL 8.4 et 2PC]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14119#p14119"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Nous rencontrons en ce moment de gros volumes en écriture sur nos disques, amenant à une quasi saturation. Nous utilisons PG 8.4 (Ubuntu 10.04). L&#039;application Java/J2E au dessus exécute des PREPARED TRANSACTIONS car elle exécute des transactions sur plusieurs bases de données en faisant des 2-phase commit. Et les écritures dans la base de données ne justifient pas les débits d&#039;écriture que nous observons.</p><p>Le profil des écritures semble assez particulier car iostat nous indique que les requêtes d&#039;écriture sont presque tout le temps de 8KB.</p><p>Nous avons désactivé le &quot;synchronous_commit&quot; dans postgresql.conf en incriminant les Write-Ahead Logs, mais cela n&#039;a pas porté ses fruits (synchronous_commit = off).</p><p>Une partie des problèmes d&#039;écriture semblait provenir de la bibliothèque que nous utilisons pour gérer les transactions (Java - Atomikos) qui écrit des fichiers. Nous l&#039;avons mise à jour et avons déplacé le répertoire sur une partition séparée.</p><p>Cependant, ce profil d&#039;écriture semble continuer sur la partition hébergeant le répertoire de PG. En regardant les écritures dans les différents répertoires, nous nous sommes aperçu que postgres écrivait régulièrement des fichiers avec une taille multiple de 8KB dans le répertoire pg_twophase. Est-ce une piste ? Est-il possible de déplacer ce répertoire dans une autre partition ?</p><p>Merci d&#039;avance pour vos conseil,<br />Hugues</p>]]></content>
+		<author>
+			<name><![CDATA[huguespisapia]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1777</uri>
+		</author>
+		<updated>2012-06-07T14:56:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14119#p14119</id>
+	</entry>
+</feed>

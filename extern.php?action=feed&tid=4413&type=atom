@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Comprendre le format pg_node_tree]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4413&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4413"/>
+	<updated>2017-10-13T13:51:58Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4413</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Comprendre le format pg_node_tree]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26210#p26210"/>
+		<content type="html"><![CDATA[<p>Oui. Donc le code de la fonction (et surtout de celles qu&#039;elle appelle). Bon appétit <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2017-10-13T13:51:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26210#p26210</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Comprendre le format pg_node_tree]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26206#p26206"/>
+		<content type="html"><![CDATA[<p>Utiliser la fonction pg_get_expr, c&#039;est justement ce que je ne veux pas faire car elle retourne le code SQL exécuté et il me faudrait alors écrire un parseur SQL pour en extraire les informations qui m&#039;intéresse (les entités SQL utilisées). D&#039;ou l&#039;idée de partir du pg_node_tree qui se rapproche d&#039;un AST.</p><p>Olivier <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[olivierauverlot]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7772</uri>
+		</author>
+		<updated>2017-10-13T13:07:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26206#p26206</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Comprendre le format pg_node_tree]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26205#p26205"/>
+		<content type="html"><![CDATA[<p>Ça n&#039;est effectivement pas documenté à l&#039;extérieur du code. Le mieux pour commencer à creuser, à mon avis, ça serait de partir du code de pg_get_expr. Ou bien utiliser la fonction directement, vu qu&#039;elle sert à convertir un adbin en contrainte SQL...</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2017-10-13T10:41:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26205#p26205</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Comprendre le format pg_node_tree]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26203#p26203"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous,</p><p>J&#039;ai besoin d&#039;analyser la structure d&#039;une valeur par défaut ou d&#039;une contrainte de type check. Je récupère leurs définitions dans les tables du catalogue.</p><p>Par exemple, pour la table ayant l&#039;OID 56233 dans ma base de test, je fais la requête suivante:</p><p>SELECT <br />&#160; &#160; adrelid as table_oid,<br />&#160; &#160; adnum as num_column,<br />&#160; &#160; adsrc as content,<br />&#160; &#160; adbin as nodes,<br />&#160; &#160; pg_get_expr(adbin,56233,false)<br />FROM pg_attrdef<br />WHERE adrelid = 56233</p><p>Ce qui m&#039;intéresse ici, c&#039;est le contenu de la colonne adbin qui contient la représentation interne de la valeur par défaut. </p><p>{FUNCEXPR :funcid 480 :funcresulttype 23 :funcretset false :funcvariadic false :funcformat 2 :funccollid 0 :inputcollid 0 :args ({FUNCEXPR :funcid 1574 :funcresulttype 20 :funcretset false :funcvariadic false :funcformat 0 :funccollid 0 :inputcollid 0 :args ({CONST :consttype 2205 :consttypmod -1 :constcollid 0 :constlen 4 :constbyval true :constisnull false :location 141 :constvalue 4 [ -89 -37 0 0 0 0 0 0 ]}) :location 133}) :location -1}</p><p>Elle est représenté au format pg_node_tree pour lequel il est possible d&#039;écrire un parseur.</p><p>Le problème, c&#039;est que je ne trouve pas les spécifications de ce format. Je n&#039;ai rien trouvé dans la doc ou sur le web. J&#039;ai commencé à faire du reverse sur le contenu de la colonne adbin en faisant varier son contenu mais c&#039;est un travail conséquent...</p><p>Quelqu&#039;un aurait il un lien vers une documentation ou des connaissances sur pg_node_tree ?</p><p>Merci d&#039;avance<br />Olivier <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[olivierauverlot]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7772</uri>
+		</author>
+		<updated>2017-10-13T09:43:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26203#p26203</id>
+	</entry>
+</feed>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Fusion de plusieurs linestring en une multilinestring]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1975&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1975"/>
+	<updated>2012-03-28T09:46:24Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1975</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Fusion de plusieurs linestring en une multilinestring]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13328#p13328"/>
+		<content type="html"><![CDATA[<p>Euh oui en effet, j&#039;avoue ne pas avoir été très clair sur ce coup là...mea culpa. Il s&#039;agit bien d&#039;un INSERT INTO table2...</p><p>Donc pour reformuler :</p><p>Initialement :</p><p>Table1 (LINESTRING)&#160; &#160;-&#160; &#160;Champ1 : a,b,c,a,a,b,c,c,c</p><p>Ce que je souhaite avoir :</p><p>Table2 (MULTILINESTRING)&#160; -&#160; Champ1 : a,b,c</p><p>Et donc le code qui ne fonctionne pas, mais que j&#039;ai écris :</p><div class="codebox"><pre><code>INSERT INTO table2 (wkb_geometry,champ1) 
+SELECT wkb_geometry,champ1 FROM table1
+WHERE table1.wkb_geometry=st_multi(st_union(&#039;SELECT table1.wkb_geometry FROM table1 GROUP BY table1.champ1&#039;));</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[Geo-x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1346</uri>
+		</author>
+		<updated>2012-03-28T09:46:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13328#p13328</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Fusion de plusieurs linestring en une multilinestring]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13327#p13327"/>
+		<content type="html"><![CDATA[<p>C&#039;est un peu difficile à suivre:</p><p>Vous dites que vous voulez regrouper dans table2 alors que vous faites un insert dans table1…</p><p>Pouvez-vous reformuler ?</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2012-03-28T09:37:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13327#p13327</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Fusion de plusieurs linestring en une multilinestring]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13325#p13325"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous,</p><p>Tout et dans le titre avec en plus, un regroupement par condition.</p><p>Donc pour résumer, </p><p>1- j&#039;ai plusieurs linestring dans une table1, avec un champ1 contenant des infos a,b,c,a,a,b,c,c,c par exemple </p><p>2- je veux regrouper en une seule multilinestring dans une table2, avec la condition de regroupement selon table1.champ1</p><p>Alors j&#039;ai pondu un truc du style :</p><div class="codebox"><pre><code>INSERT INTO table1 (wkb_geometry,champ1) 
+SELECT wkb_geometry,champ1 FROM table2
+WHERE table2.wkb_geometry=st_multi(st_union(&#039;SELECT table1.wkb_geometry FROM table1 GROUP BY table1.champ1&#039;));</code></pre></div><p>Mais l&#039;efficacité n&#039;est pas au rendez-vous :-(</p><p>Avez-vous une idée de la piste à suivre?</p>]]></content>
+		<author>
+			<name><![CDATA[Geo-x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1346</uri>
+		</author>
+		<updated>2012-03-28T09:14:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13325#p13325</id>
+	</entry>
+</feed>

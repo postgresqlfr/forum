@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Problème très étrange avec une fonction]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2070&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2070"/>
+	<updated>2012-05-30T12:58:13Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2070</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème très étrange avec une fonction]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13959#p13959"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Par contre, ces deux champs sont vides si j&#039;exécute ce select sur la fonction que j&#039;ai créée avec RETURNS SETOF bigint.</p></div></blockquote></div><p>Normal, il n&#039;existe pas d&#039;argument 2 sur cette fonction.</p><div class="quotebox"><blockquote><div><p>Ma version de pgAdmin est 1.12.2</p></div></blockquote></div><p>Mettez à jour et ça ira mieux. La dernière version stable disponible est la 1.14.2. Il est aussi possible de prendre la 1.16 beta.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-05-30T12:58:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13959#p13959</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème très étrange avec une fonction]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13958#p13958"/>
+		<content type="html"><![CDATA[<p>Bonjour, <br />J&#039;ai exécuté : </p><div class="codebox"><pre><code>select proargnames[2],proargmodes[2]
+from pg_proc
+where proname ilike &#039;mafonction&#039;</code></pre></div><br /><p>comme vous me l&#039;avez conseillé et ça fonctionne dans le cas que j&#039;ai créé ma méthode avec RETURNS TABLE() : le nom de mon paramètre ainsi que le type &#039;t&#039; s&#039;affichent sans problème !</p><p>Par contre, ces deux champs sont vides si j&#039;exécute ce select sur la fonction que j&#039;ai créée avec RETURNS SETOF bigint.</p><br /><p>Ma version de pgAdmin est 1.12.2</p><p>Merci !</p>]]></content>
+		<author>
+			<name><![CDATA[fstreboot]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1754</uri>
+		</author>
+		<updated>2012-05-30T12:41:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13958#p13958</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème très étrange avec une fonction]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13945#p13945"/>
+		<content type="html"><![CDATA[<p>Autre question : Quelle version de pgAdmin avez-vous ?</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-05-29T22:05:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13945#p13945</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème très étrange avec une fonction]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13944#p13944"/>
+		<content type="html"><![CDATA[<p>Je pense que pgAdmin génère le script de création de la fonction par rapport au catalogue système (pg_proc) et ne prend pas en compte le nom des paramètres en sortie au moins dans ce cas là.<br />Si vous faites</p><div class="codebox"><pre><code>select proargnames[2],proargmodes[2]
+from pg_proc
+where proname ilike &#039;mafonction&#039;</code></pre></div><p>avez-vous le nom de votre paramètre et le type &#039;t&#039; (pour out) ?</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2012-05-29T20:41:03Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13944#p13944</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème très étrange avec une fonction]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13943#p13943"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;ai déjà rencontré le même problème mais en utilisant une avenue différente. Je m&#039;explique : </p><p>Je désire créer une fonction qui me retourne un seul nombre, soit le nombre de participants. J&#039;ai déclaré ma fonction de la manière suivante :</p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION maFonction(intSondageid integer)
+  [b]RETURNS SETOF bigint AS [b]
+$BODY$
+                 SELECT COUNT(intId) AS nombreParticipants FROM Participant
+	WHERE intSondageId = $
+1$BODY$</code></pre></div><p>Quand j&#039;appelle ensuite ma fonction par select * from maFonction(2), il me retourne le résultat avec le nom de ma fonction, ce qu&#039;il ne faut pas...</p><p>J&#039;ai tenté de créer ma fonction avec plutôt l&#039;entête suivante : </p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION maFonction(intSondageid integer)
+  RETURNS TABLE(nombreParticipants bigint) AS</code></pre></div><p>Et quand j&#039;appelle ensuite ma fonction par select * from maFonction(2), cette fois-ci il me retourne le résultat avec le nom <strong>nombreParticipants</strong>, comme je le désire et non pas avec le nom de la fonction.</p><br /><p>Pourtant, après avoir créé la fonction, pgAdmin m&#039;affiche dans le SQL pane la fonction avec un <strong>RETURNS SETOF</strong> et ce même si je l&#039;ai créée avec l&#039;appellation <strong>RETURNS TABLE</strong></p><br /><p>Autre point, dans le cas où je la crée en écrivant <strong> RETURNS TABLE()</strong>, le SQL pane m&#039;affiche <strong>IN</strong> à gauche de mon paramètre d&#039;entrée : <br />CREATE OR REPLACE FUNCTION maFonction(<strong>IN</strong> intSondageid integer)<br />&#160; RETURNS SETOF bigint AS</p><br /><p>alors qu&#039;il ne le fait pas dans le cas où je la crée en écrivant <strong>RETURNS SETOF</strong>.</p><br /><p>Ma question est donc : est-ce un bug d&#039;interprétation de code par Postgres ou bien il y a une configuration particulière à faire dans pgAdmin ou sur le serveur pour éviter cette confusion ?</p><p>en espérant avoir été suffisamment clair.<br />Merci !</p>]]></content>
+		<author>
+			<name><![CDATA[fstreboot]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1754</uri>
+		</author>
+		<updated>2012-05-29T19:33:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13943#p13943</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème très étrange avec une fonction]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13940#p13940"/>
+		<content type="html"><![CDATA[<p>Oui, c&#039;est possible. C&#039;est ce dont rjuju parlait.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-05-29T19:10:52Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13940#p13940</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème très étrange avec une fonction]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13938#p13938"/>
+		<content type="html"><![CDATA[<p>D&#039;accord. Je croyais qu&#039;on pouvait nommer l&#039;expression de retour comme nous pouvions le faire dans MS SQL.. </p><p>Merci pour votre aide</p>]]></content>
+		<author>
+			<name><![CDATA[charleydc5]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1194</uri>
+		</author>
+		<updated>2012-05-29T18:13:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13938#p13938</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème très étrange avec une fonction]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13937#p13937"/>
+		<content type="html"><![CDATA[<p>Et ce n&#039;est pas une anomalie, c&#039;est ainsi que ça fonctionne.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-05-29T18:12:21Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13937#p13937</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème très étrange avec une fonction]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13936#p13936"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />vous pouvez nommer votre champ à l&#039;appel :<br />select mafonction(1) as le_nom</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2012-05-29T17:52:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13936#p13936</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Problème très étrange avec une fonction]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13935#p13935"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous,</p><p>J&#039;ai un problème assez étrange avec une fonction et je n&#039;arrive pas à comprendre la cause.</p><p>En bref, je j&#039;ai une fonction PL/PGSQL dans laquelle je fais un simple FOR pour construire une chaine de caractères concaténée. À la fin, je veux retourner cette chaine de caractères.</p><div class="codebox"><pre class="vscroll"><code>CREATE OR REPLACE FUNCTION mafonction(id integer) RETURNS character varying AS
+
+$BODY$
+
+DECLARE 
+	_record RECORD;
+	strnoms varchar;
+
+BEGIN
+	strnoms := &#039;&#039;;
+
+	FOR _record IN 
+
+		... mon select ...
+	
+	LOOP
+
+		IF (strnoms = &#039;&#039;) THEN
+			strnoms := strnoms || _record.strnom;
+		ELSE
+			strnoms := strnoms || &#039;, &#039; || _record.strnom;
+		END IF;
+	END LOOP;
+
+	RETURN strnoms;
+END
+
+$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;</code></pre></div><p>Pour une raison que j&#039;ignore, lorsque j&#039;exécute ma fonction avec un ID connu, elle fonctionne, mais l&#039;entête de colonne est le nom de ma fonction. </p><p>Je reçois donc le résultat suivant :</p><p>mafonction<br />character varying<br />--------------------------------------<br />nom1, nom2, nom3, nom4, nom5, etc...</p><p>Quelqu&#039;un a une idée??</p><p>Ce n&#039;est pas un problème avec pgAdmin, car quand je fais un Preview du résultat de ma requête dans mon outil de conception de rapports (JasperSoft iReport), le nom de mon champs est &quot;mafonction&quot;.</p><p>Très étrange...</p><p>Merci pour votre aide et bonne journée!</p>]]></content>
+		<author>
+			<name><![CDATA[charleydc5]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1194</uri>
+		</author>
+		<updated>2012-05-29T17:42:03Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13935#p13935</id>
+	</entry>
+</feed>

@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / PgBadger et fichiers temporaires]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2677&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2677"/>
+	<updated>2013-06-28T12:33:31Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2677</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  PgBadger et fichiers temporaires]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17633#p17633"/>
+		<content type="html"><![CDATA[<p>Bonjour Guillaume,</p><p>Ci-dessous le explain analyze avec SET enable_indexscan TO off;</p><p> Nested Loop&#160; (cost=13.23..23926.96 rows=5 width=51) (actual time=128052.082..128052.082 rows=0 loops=1)<br />&#160; &#160;Join Filter: ((ope.id_operation)::text = (ptg.id_operation)::text)<br />&#160; &#160;-&gt;&#160; Hash Join&#160; (cost=7.08..1624.76 rows=2723 width=33) (actual time=0.243..137.193 rows=20268 loops=1)<br />&#160; &#160; &#160; &#160; &#160;Hash Cond: ((act.id_operation)::text = (ope.id_operation)::text)<br />&#160; &#160; &#160; &#160; &#160;-&gt;&#160; Seq Scan on activite act&#160; (cost=0.00..1392.60 rows=52760 width=29) (actual time=0.035..52.049 rows=52739 loops=1)<br />&#160; &#160; &#160; &#160; &#160;-&gt;&#160; Hash&#160; (cost=6.88..6.88 rows=16 width=4) (actual time=0.162..0.162 rows=16 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Buckets: 1024&#160; Batches: 1&#160; Memory Usage: 1kB<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Seq Scan on operation ope&#160; (cost=0.00..6.88 rows=16 width=4) (actual time=0.034..0.143 rows=16 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Filter: ((id_type_alim)::text = &#039;2&#039;::text)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Rows Removed by Filter: 294<br />&#160; &#160;-&gt;&#160; Bitmap Heap Scan on ptg_pers ptg&#160; (cost=6.16..8.18 rows=1 width=38) (actual time=6.308..6.308 rows=0 loops=20268)<br />&#160; &#160; &#160; &#160; &#160;Recheck Cond: (((id_ligne)::text = (act.id_ligne)::text) AND ((id_plan)::text = (act.id_plan)::text) AND ((id_fonction)::text = (act.id_fonction)::text) AND ((id_type_t<br />rt_ptg)::text = &#039;EX&#039;::text))<br />&#160; &#160; &#160; &#160; &#160;Filter: ((act.id_operation)::text = (id_operation)::text)<br />&#160; &#160; &#160; &#160; &#160;-&gt;&#160; Bitmap Index Scan on ptg_pers_idx&#160; (cost=0.00..6.16 rows=1 width=0) (actual time=6.305..6.305 rows=0 loops=20268)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Index Cond: (((id_ligne)::text = (act.id_ligne)::text) AND ((id_plan)::text = (act.id_plan)::text) AND ((id_fonction)::text = (act.id_fonction)::text) AND ((id_ty<br />pe_trt_ptg)::text = &#039;EX&#039;::text))<br /> Total runtime: 128052.265 ms</p><br /><p>Pour les infos de pg_stats, la requête me retourne 25 longues lignes d&#039;informations (égal au nombre de champs de la table), du style :</p><p>geo=# SELECT * FROM pg_stats WHERE tablename=&#039;activite&#039;;<br />[ RECORD 1 ]<br />schemaname&#160; &#160; &#160; &#160; &#160; &#160; &#160;| geo<br />tablename&#160; &#160; &#160; &#160; &#160; &#160; &#160; | activite<br />attname&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; | id_ligne<br />inherited&#160; &#160; &#160; &#160; &#160; &#160; &#160; | f<br />null_frac&#160; &#160; &#160; &#160; &#160; &#160; &#160; | 0<br />avg_width&#160; &#160; &#160; &#160; &#160; &#160; &#160; | 4<br />n_distinct&#160; &#160; &#160; &#160; &#160; &#160; &#160;| 14<br />most_common_vals&#160; &#160; &#160; &#160;| {010,030,070,020,050,060,025,040,080,090,095,089,295,289}<br />most_common_freqs&#160; &#160; &#160; | {0.301133,0.209067,0.152067,0.120533,0.0855667,0.0811,0.0237,0.0107333,0.004,0.0037,0.00313333,0.0026,0.00183333,0.000833333}<br />histogram_bounds&#160; &#160; &#160; &#160;| <br />correlation&#160; &#160; &#160; &#160; &#160; &#160; | 0.153071<br />most_common_elems&#160; &#160; &#160; | <br />most_common_elem_freqs | <br />elem_count_histogram&#160; &#160;| <br />[ RECORD 2 ]<br />schemaname&#160; &#160; &#160; &#160; &#160; &#160; &#160;| geo<br />tablename&#160; &#160; &#160; &#160; &#160; &#160; &#160; | activite<br />attname&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; | id_plan<br />inherited&#160; &#160; &#160; &#160; &#160; &#160; &#160; | f<br />null_frac&#160; &#160; &#160; &#160; &#160; &#160; &#160; | 0<br />avg_width&#160; &#160; &#160; &#160; &#160; &#160; &#160; | 4<br />n_distinct&#160; &#160; &#160; &#160; &#160; &#160; &#160;| 427<br />most_common_vals&#160; &#160; &#160; &#160;| {0350,0405,0305,0460,0964,0425,0655,0360,0199,0763,0270,0362,0190,0361,0364,0465,0135,0325,0974,0367,0260,0740,0540,0695,0090,0320,0368,0371,0340,0089,0<br />091,0315,0295,0385,0570,1032}<br />most_common_freqs&#160; &#160; &#160; | {0.2314,0.0499667,0.0470333,0.0383667,0.0275667,0.0177333,0.0176333,0.0131333,0.0124333,0.0110333,0.0103667,0.0095,0.00916667,0.0079,0.00783333,0.0074,0<br />.0073,0.00693333,0.00666667,0.0063,0.00603333,0.00486667,0.00393333,0.00376667,0.0037,0.0037,0.00366667,0.00366667,0.0036,0.00343333,0.0032,0.0032,0.003,0.00296667,0.00296667,0.<br />00296667}<br />histogram_bounds&#160; &#160; &#160; &#160;| {0073,0078,0082,0095,0101,0105,0108,0112,0115,0118,0124,0127,0129,0133,0136,0138,0141,0145,0148,0151,0156,0159,0161,0164,0167,0172,0177,0182,0189,0195,0<br />200,0210,0236,0245,0257,0280,0326,0349,0365,0375,0395,0407,0419,0435,0455,0483,0500,0535,0552,0555,0563,0595,0614,0620,0630,0650,0665,0675,0690,0715,0727,0733,0738,0743,0747,075<br />0,0769,0779,0787,0792,0799,0806,0813,0818,0839,0843,0852,0857,0865,0875,0886,0895,0906,0910,0916,0922,0968,0976,0981,1002,1008,1024,1037,1065,1252,1264,1270,1278,295,360,928}<br />correlation&#160; &#160; &#160; &#160; &#160; &#160; | 0.0612787<br />most_common_elems&#160; &#160; &#160; | <br />most_common_elem_freqs | <br />elem_count_histogram&#160; &#160;| </p><p>Quelles informations sont intéressantes ?</p>]]></content>
+		<author>
+			<name><![CDATA[mortimer.pw]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=573</uri>
+		</author>
+		<updated>2013-06-28T12:33:31Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17633#p17633</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  PgBadger et fichiers temporaires]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17628#p17628"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Désactiver les parcours d&#039;index ne risque t&#039;il pas de perturber la production ?</p></div></blockquote></div><p>Il suffit de le faire juste au niveau de la session : SET enable_indexscan TO off; puis exécution de la requête.</p><div class="quotebox"><blockquote><div><p>Les infos sur la table Activite :</p></div></blockquote></div><p>Je ne parlais pas de ces statistiques mais des statistiques du planificateur : SELECT * FROM pg_stats WHERE tablename=&#039;activite&#039;; (faites un \x avant, sinon ça sera illisible).</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2013-06-27T20:45:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17628#p17628</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  PgBadger et fichiers temporaires]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17624#p17624"/>
+		<content type="html"><![CDATA[<p>Bonjour Guillaume,</p><p>La définition de l&#039;index ptg_pers_idx est la suivante :<br />&#160; &#160; &#160; &#160; &#160; CREATE INDEX ptg_pers_idx ON ptg_pers USING btree (id_ligne, id_plan, id_fonction, id_document, id_job, id_type_trt_ptg, id_type_ptg_sst);</p><p>Désactiver les parcours d&#039;index ne risque t&#039;il pas de perturber la production ?</p><br /><p>Les infos sur la table Activite :<br />&#160; &#160; &#160; &#160; &#160; select * from pg_stat_user_tables where relname=&#039;activite&#039;;<br />relid | schemaname | relname&#160; | seq_scan | seq_tup_read | idx_scan&#160; | idx_tup_fetch | n_tup_ins | n_tup_upd | n_tup_del | n_tup_hot_upd | n_live_tup | n_dead_tup | last_vacuum <br />|&#160; &#160; &#160; &#160; last_autovacuum&#160; &#160; &#160; &#160; |&#160; &#160; &#160; &#160; &#160;last_analyze&#160; &#160; &#160; &#160; &#160; |&#160; &#160; &#160; &#160;last_autoanalyze&#160; &#160; &#160; &#160; | vacuum_count | autovacuum_count | analyze_count | autoanalyze_count <br />-------+------------+----------+----------+--------------+-----------+---------------+-----------+-----------+-----------+---------------+------------+------------+-------------<br />+-------------------------------+-------------------------------+-------------------------------+--------------+------------------+---------------+-------------------<br /> 16574 | geo&#160; &#160; &#160; &#160; | activite |&#160; &#160;107051 |&#160; &#160;5466223332 | 412122902 |&#160; &#160; 1237898752 |&#160; &#160; 109097 |&#160; &#160; &#160;56139 |&#160; &#160; &#160; &#160;258 |&#160; &#160; &#160; &#160; &#160; 3545 |&#160; &#160; &#160; 52700 |&#160; &#160; &#160; &#160; &#160; 2 |&#160; &#160; &#160; &#160; &#160; &#160; &#160;<br />| 2013-05-06 12:55:51.223687+03 | 2013-06-23 03:27:49.735602+03 | 2013-05-06 12:55:53.862434+03 |&#160; &#160; &#160; &#160; &#160; &#160; 0 |&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; 1 |&#160; &#160; &#160; &#160; &#160; &#160; 14 |&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;2</p><p>select count(*) from activite;<br /> count <br />-------<br /> 52700</p><p>la requête pour trouver les operation avec type_alim=&#039;2&#039; :<br />select count(*) from activite a,operation o where a.id_operation=o.id_operation and o.id_type_alim=&#039;2&#039;;<br /> count <br />-------<br /> 20252</p>]]></content>
+		<author>
+			<name><![CDATA[mortimer.pw]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=573</uri>
+		</author>
+		<updated>2013-06-27T05:47:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17624#p17624</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  PgBadger et fichiers temporaires]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17618#p17618"/>
+		<content type="html"><![CDATA[<p>La requête passe son temps dans l&#039;index :</p><p>Index Scan using ptg_pers_idx on ptg_pers ptg&#160; (cost=0.00..7.86 rows=1 width=38) (actual time=6.121..6.121 rows=0 loops=20252)<br />&#160; &#160; &#160; &#160; &#160;Index Cond: (((id_ligne)::text = (act.id_ligne)::text) AND ((id_plan)::text = (act.id_plan)::text) AND ((id_fonction)::text = (act.id_fonction)::text) AND ((id_type_trt_ptg)::text = &#039;EX&#039;::text))<br />&#160; &#160; &#160; &#160; &#160;Filter: ((act.id_operation)::text = (id_operation)::text)</p><p>Il y a déjà une erreur au niveau des statistiques. Il pense récupérer 2720 lignes au niveau du SeqScan sur activité et en récupère réellement 20252. Juste un facteur 10. Lire 2720 lignes dans un index, ce n&#039;est pas du tout la même chose que lire 20252 lignes.</p><p>Un test intéressant à faire serait de désactiver les parcours d&#039;index (SET enable_indexscan TO off;) peut être même les parcours de bitmap, et voir ce que donne le nouveau plan de requête et sa durée d&#039;exécution.</p><p>Il serait aussi intéressant de voir les statistiques sur la table activite et savoir si elles représentent bien le contenu de la table.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2013-06-26T14:13:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17618#p17618</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  PgBadger et fichiers temporaires]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17617#p17617"/>
+		<content type="html"><![CDATA[<p>Bonjour Messieurs,<br />Désolé de revenir un peu tardivement sur ce post, et merci pour votre intérêt.<br />Pas évident de faire le explain analyze car :<br />&#160; &#160; &#160;- Il s&#039;agit d&#039;une requête intermédiaire d&#039;un traitement découpé en plusieurs étapes,<br />&#160; &#160; &#160;- Cette requête est faite sur une table temporaire créée à la volée,<br />&#160; &#160; &#160;- Sur un serveur en production et je ne dispose pas du traitement pour le rejouer sur une machine de test.<br />La vie est parfois compliquée.<br />Grossièrement, le traitement extrait de la table ptg_pers (15 millions d&#039;enregistrements), les lignes qui sont dans un certains état (champ=valeur) et les insérent dans une table temporaire pour exploitation, et après traitement change l&#039;état.<br />Ci-dessous le explain analyze de la première étape du traitement :</p><p>explain analyze SELECT PTG.id_perso AS C1_INT_VCRIT1,PTG.jour AS C2_INT_DCRIT2,PTG.id_ligne || PTG.id_plan || PTG.id_fonction || PTG.id_operation AS C3_INT_VCRIT3,PTG.id_type_trt_ptg AS C4_INT_ETAT,PTG.id AS C5_INT_VCRIT6,PTG.temps AS C6_TEMPS,ACT.code_compta AS C7_CODE_COMPTA<br />FROM geo.ptg_pers AS PTG,geo.operation AS OPE,geo.activite AS ACT<br />WHERE (1 = 1 )<br />AND (PTG.id_type_trt_ptg = &#039;EX&#039; )<br />AND (OPE.id_type_alim = &#039;2&#039; )<br />AND (PTG.id_operation = OPE.id_operation )<br />AND ((((PTG.id_ligne = ACT.id_ligne ) AND PTG.id_plan = ACT.id_plan ) AND PTG.id_fonction = ACT.id_fonction ) AND PTG.id_operation = ACT.id_operation );</p><br /><p> Nested Loop&#160; (cost=7.08..23047.03 rows=5 width=51) (actual time=124144.580..124144.580 rows=0 loops=1)<br />&#160; &#160;Join Filter: ((ope.id_operation)::text = (ptg.id_operation)::text)<br />&#160; &#160;-&gt;&#160; Hash Join&#160; (cost=7.08..1622.89 rows=2720 width=33) (actual time=0.241..134.029 rows=20252 loops=1)<br />&#160; &#160; &#160; &#160; &#160;Hash Cond: ((act.id_operation)::text = (ope.id_operation)::text)<br />&#160; &#160; &#160; &#160; &#160;-&gt;&#160; Seq Scan on activite act&#160; (cost=0.00..1390.99 rows=52699 width=29) (actual time=0.026..52.498 rows=52700 loops=1)<br />&#160; &#160; &#160; &#160; &#160;-&gt;&#160; Hash&#160; (cost=6.88..6.88 rows=16 width=4) (actual time=0.169..0.169 rows=16 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Buckets: 1024&#160; Batches: 1&#160; Memory Usage: 1kB<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;-&gt;&#160; Seq Scan on operation ope&#160; (cost=0.00..6.88 rows=16 width=4) (actual time=0.036..0.146 rows=16 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Filter: ((id_type_alim)::text = &#039;2&#039;::text)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Rows Removed by Filter: 294<br />&#160; &#160;-&gt;&#160; Index Scan using ptg_pers_idx on ptg_pers ptg&#160; (cost=0.00..7.86 rows=1 width=38) (actual time=6.121..6.121 rows=0 loops=20252)<br />&#160; &#160; &#160; &#160; &#160;Index Cond: (((id_ligne)::text = (act.id_ligne)::text) AND ((id_plan)::text = (act.id_plan)::text) AND ((id_fonction)::text = (act.id_fonction)::text) AND ((id_type_trt_p<br />tg)::text = &#039;EX&#039;::text))<br />&#160; &#160; &#160; &#160; &#160;Filter: ((act.id_operation)::text = (id_operation)::text)<br /> Total runtime: 124144.747 ms</p>]]></content>
+		<author>
+			<name><![CDATA[mortimer.pw]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=573</uri>
+		</author>
+		<updated>2013-06-26T13:50:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17617#p17617</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  PgBadger et fichiers temporaires]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17519#p17519"/>
+		<content type="html"><![CDATA[<p>Cette requête :</p><div class="codebox"><pre><code>UPDATE ONLY sas.I$AB01IN_ptg_pers 
+SET    IND_UPDATE = &#039;N&#039; 
+FROM   geo.ptg_pers  AS  T 
+WHERE  sas.I$AB01IN_ptg_pers.id     = T.id 
+  and  (    (sas.I$AB01IN_ptg_pers.id_type_trt_ptg = T.id_type_trt_ptg) 
+         or (sas.I$AB01IN_ptg_pers.id_type_trt_ptg IS NULL 
+             and T.id_type_trt_ptg IS NULL));</code></pre></div><p>&#160; &#160; &#160; &#160; &#160; &#160; &#160;<br />Fait un OR dans la clause WHERE ce qui n&#039;est pas seargable et oblige à lire toutes les données des tables et les remonte donc dans une table temporaire parce que sion en mémoire ce serait l&#039;exlosion combinatoire.</p><p>Essayez de procéder en deux temps :&#160; &#160; &#160; &#160; &#160; &#160; &#160;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160;</p><div class="codebox"><pre><code>UPDATE ONLY sas.I$AB01IN_ptg_pers 
+SET    IND_UPDATE = &#039;N&#039; 
+FROM   geo.ptg_pers  AS  T 
+WHERE  sas.I$AB01IN_ptg_pers.id     = T.id 
+  and  sas.I$AB01IN_ptg_pers.id_type_trt_ptg = T.id_type_trt_ptg;</code></pre></div><p>&#160; &#160; &#160; &#160; &#160; &#160; <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160;</p><div class="codebox"><pre><code>UPDATE ONLY sas.I$AB01IN_ptg_pers 
+SET    IND_UPDATE = &#039;N&#039; 
+FROM   geo.ptg_pers  AS  T 
+WHERE  sas.I$AB01IN_ptg_pers.id     = T.id 
+  and  sas.I$AB01IN_ptg_pers.id_type_trt_ptg IS NULL and T.id_type_trt_ptg IS NULL;</code></pre></div><p>A =</p>]]></content>
+		<author>
+			<name><![CDATA[SQLpro]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1054</uri>
+		</author>
+		<updated>2013-06-19T17:36:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17519#p17519</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  PgBadger et fichiers temporaires]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17505#p17505"/>
+		<content type="html"><![CDATA[<p>Elle met à jour ind_update sur la table sas, avec une jointure sur tpg_pers (colonnes id), et ne met à jour que ceux vérifiant : (sas.I$AB01IN_ptg_pers.id_type_trt_ptg = T.id_type_trt_ptg) or (sas.I$AB01IN_ptg_pers.id_type_trt_ptg IS NULL and T.id_type_trt_ptg IS NULL)</p><p>Bref, c&#039;est un update avec jointure.</p><p>Après, pourquoi elle consomme autant d&#039;espace temporaire, il faudrait en savoir davantage…</p><br /><p>Vous pouvez poster le résultat de :</p><p>EXPLAIN ANALYZE SELECT I$AB01IN_ptg_pers.ind_update FROM sas.I$AB01IN_ptg_pers,&#160; geo.ptg_pers<br />WHERE sas.I$AB01IN_ptg_pers.id&#160; &#160; &#160;= T.id and&#160; &#160; &#160; ((sas.I$AB01IN_ptg_pers.id_type_trt_ptg = T.id_type_trt_ptg) or (sas.I$AB01IN_ptg_pers.id_type_trt_ptg IS NULL and T.id_type_trt_ptg IS NULL))</p><p>(en espérant ne pas avoir fait d&#039;erreur… le nom de table est vraiment bizarre)</p><p>Faites-le sur un environnement où ça pose problème.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2013-06-18T13:50:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17505#p17505</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  PgBadger et fichiers temporaires]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17504#p17504"/>
+		<content type="html"><![CDATA[<p>Ok pour le problème du $.</p><p>Pour autant, je ne comprend pas la requête ? ni pourquoi elle génère des fichiers temporaires.</p>]]></content>
+		<author>
+			<name><![CDATA[mortimer.pw]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=573</uri>
+		</author>
+		<updated>2013-06-18T12:49:52Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17504#p17504</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  PgBadger et fichiers temporaires]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17503#p17503"/>
+		<content type="html"><![CDATA[<p>C&#039;est juste une erreur d&#039;interprétation de pgbadger (les $ doivent le paniquer un peu, je viens de remonter le bug à l&#039;auteur). Le $ est juste un bout du nom du champ, à priori, même si c&#039;est un peu bizarre comme règle de nommage.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2013-06-18T11:56:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17503#p17503</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  PgBadger et fichiers temporaires]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17502#p17502"/>
+		<content type="html"><![CDATA[<p>J&#039;ai trouvé la requête dans les logs :</p><p>1-17.log:2013-06-10 17:56:04 EAT [32121]: [464-1] user=postgres,db=geo 10.11.4.34 LOG:&#160; duration: 0.705 ms&#160; parse &lt;unnamed&gt;: UPDATE ONLY sas.I$AB01IN_ptg_pers SET IND_UPDATE = &#039;N&#039; FROM geo.ptg_pers&#160; AS&#160; T WHERE sas.I$AB01IN_ptg_pers.id&#160; &#160; &#160;= T.id and&#160; &#160; &#160; ((sas.I$AB01IN_ptg_pers.id_type_trt_ptg = T.id_type_trt_ptg) or (sas.I$AB01IN_ptg_pers.id_type_trt_ptg IS NULL and T.id_type_trt_ptg IS NULL))<br />1-17.log:2013-06-10 17:56:04 EAT [32121]: [465-1] user=postgres,db=geo 10.11.4.34 LOG:&#160; duration: 0.696 ms&#160; bind &lt;unnamed&gt;: UPDATE ONLY sas.I$AB01IN_ptg_pers SET IND_UPDATE = &#039;N&#039; FROM geo.ptg_pers&#160; AS&#160; T WHERE sas.I$AB01IN_ptg_pers.id&#160; &#160; &#160; = T.id and&#160; &#160; &#160; ((sas.I$AB01IN_ptg_pers.id_type_trt_ptg = T.id_type_trt_ptg) or (sas.I$AB01IN_ptg_pers.id_type_trt_ptg IS NULL and T.id_type_trt_ptg IS NULL))</p><p>Elle a peut être était mal interprété ? Les $ sont peut être mal acceptés ?<br />De plus il y a un ; après le = T.id alors que la requête n&#039;est pas terminée.</p>]]></content>
+		<author>
+			<name><![CDATA[mortimer.pw]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=573</uri>
+		</author>
+		<updated>2013-06-18T11:33:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17502#p17502</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  PgBadger et fichiers temporaires]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17500#p17500"/>
+		<content type="html"><![CDATA[<p>Moi non plus. C&#039;est juste illisible.</p><p>Vous êtes allé regarder dans la log si vous la retrouvez ?</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2013-06-18T09:18:31Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17500#p17500</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  PgBadger et fichiers temporaires]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17498#p17498"/>
+		<content type="html"><![CDATA[<p>Bonjour Marc,</p><p>Je viens d&#039;installer la version 3.3 de PgBadger, relancer l&#039;analyse des logs et j&#039;ai davantage d&#039;infos sur les fichiers temporaires.</p><p>La requête qui en génére le plus est :<br />UPDATE ONLY sas.I $ AB01IN_ptg_pers SET IND_UPDATE = &#039;U&#039; FROM geo.ptg_pers AS T WHERE sas.I $ AB01IN_ptg_pers.id = T.id;</p><p>Je sais qui l&#039;éxecute mais je ne la comprend pas. Je n&#039;ai jamais vu cette syntaxe avec des $.</p><p>Savez-vous ce que cela veut dire ?</p>]]></content>
+		<author>
+			<name><![CDATA[mortimer.pw]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=573</uri>
+		</author>
+		<updated>2013-06-18T08:37:45Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17498#p17498</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  PgBadger et fichiers temporaires]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17493#p17493"/>
+		<content type="html"><![CDATA[<p>Non, ce n&#039;est pas «normal», dans le sens «habituel». Ils sont tracés dans votre log, en même temps que les traces sur les fichiers temporaires. Cherchez «temporary file: path» dans la log, je pense que ça va vous y amener directement.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2013-06-17T14:26:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17493#p17493</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[PgBadger et fichiers temporaires]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17492#p17492"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Nous travaillons sur des bases 8.4.2 à 9.2.3 sous Cent-OS 5.4 à 5.9.</p><p>J&#039;ai exécuté PgBadger à plusieurs reprises, en prenant chaque fois les logs d&#039;une journée complète et j&#039;obtiens les informations suivantes sur les fichiers temporaires.</p><p>Heure&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Count&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Av. size<br />08&#160; &#160; &#160; &#160; 7&#160; &#160; &#160; &#160; 275,749,741.71<br />09&#160; &#160; &#160; &#160; 5&#160; &#160; &#160; &#160; 380,197,273.60<br />11&#160; &#160; &#160; &#160; 4&#160; &#160; &#160; &#160;&#160; 13,682,688.00<br />12&#160; &#160; &#160; &#160; 4&#160; &#160; &#160; &#160; 471,740,416.00<br />13&#160; &#160; &#160; &#160; 6&#160; &#160; &#160; &#160; 464,093,184.00<br />16&#160; &#160; &#160; &#160; 5&#160; &#160; &#160; &#160; 380,692,070.40<br />17&#160; &#160; &#160; &#160; 4&#160; &#160; &#160; &#160; 472,182,784.00<br />20&#160; &#160; &#160; &#160; 4&#160; &#160; &#160; &#160; 472,354,816.00</p><p>Est-ce normal d&#039;avoir des fichiers aussi volumineux ?<br />Comment identifier les requêtes qui générent ses fichiers ?</p>]]></content>
+		<author>
+			<name><![CDATA[mortimer.pw]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=573</uri>
+		</author>
+		<updated>2013-06-17T12:47:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17492#p17492</id>
+	</entry>
+</feed>

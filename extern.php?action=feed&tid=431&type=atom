@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / temps d'execution contradictoires]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=431&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=431"/>
+	<updated>2009-10-14T11:58:45Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=431</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  temps d'execution contradictoires]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2533#p2533"/>
+		<content type="html"><![CDATA[<p>C&#039;était ma question… gettimeofday est assez couteux sous Windows aux dernières nouvelles.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2009-10-14T11:58:45Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2533#p2533</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  temps d'execution contradictoires]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2532#p2532"/>
+		<content type="html"><![CDATA[<p>Merci Marc pour cette réponse qui m&#039;a permis de vérifier un certain nombre de choses.</p><p>Les tests que j&#039;ai présentés étaient réalisés sur un pc sous windows xp en local avec la v8.4 de postgresql.</p><p>Je viens de refaire ces tests sur un serveur linux fedora core 5 mais avec la v8.3 de postgresql. Et là les résultats ne sont pas contradictoires même si on a toujours la pénalité, effectivement assez forte, du explain analyse.</p><p>Je ne me souviens pas avoir constaté des résultats contradictoires entre postgresql v8.3/windows et postgresql v8.3 sous linux mais je ne suis pas sûr de ça. Il faudrait que je réinstalle pour faire les tests...</p><p>Je pense néanmoins que Windows y est pour beaucoup...</p><p>Je ne ferai donc plus de test de performance sous ce systeme.</p>]]></content>
+		<author>
+			<name><![CDATA[Bob]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=512</uri>
+		</author>
+		<updated>2009-10-14T10:42:06Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2532#p2532</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  temps d'execution contradictoires]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2531#p2531"/>
+		<content type="html"><![CDATA[<p>Tout dépend aussi de l&#039;ordre du test. Le test pgAdmin est-il exécuté avant ou après le test psql ?</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2009-10-14T09:55:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2531#p2531</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  temps d'execution contradictoires]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2530#p2530"/>
+		<content type="html"><![CDATA[<p>Il y a une pénalité, quelquefois assez forte, due à l&#039;explain analyse : postgres est obligé de relever l&#039;heure à intervalle assez fréquent. suivant la requête, le système d&#039;exploitation, le hardware, cela peut entrainer de fortes variations. C&#039;est quoi l&#039;OS du serveur ?</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2009-10-14T09:14:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2530#p2530</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[temps d'execution contradictoires]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2529#p2529"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je cherche à évaluer la performance de 2 requêtes répondant à la même question.</p><p>PgAdmin affiche le temps d&#039;exécution d&#039;une requête en ms (sans faire d&#039;EXPLAIN ANALYZE), en bas à droite de la fenêtre.<br />Et EXPLAIN ANALYSE permet d&#039;obtenir le Total rutime en ms.</p><p>Or ces 2 mesures conduisent à des résultats diamétralement opposés, le temps d&#039;exécution donné par PgAdmin semblant plus proche du temps d&#039;exécution réel :<br />Selon le temps PgAdmin, c&#039;est la requête 2 qui est meilleure.<br />Selon le total Runtime de EXPLAIN ANALYZE, la requête 1 est la meilleure (avec un écart énorme)</p><p>Comment expliquer ces résultats, sachant que la doc postgresql dit :<br />&quot;Le Total runtime (temps total d&#039;exécution) affiché par EXPLAIN ANALYZE inclut les temps de lancement et d&#039;arrêt de l&#039;exécuteur ainsi que le temps passé lors du traitement des lignes de résultat. Il n&#039;inclut pas le temps passé pour l&#039;analyse, la réécriture ou la planification.&quot;</p><p>Voici les 2 requêtes et les temps :</p><p>Requête 1 :</p><p>select productid from product p <br />where not exists (select * from salesorderdetail s where p.productid=s.productid);</p><p>Durée d&#039;exécution donné par pgAdmin : 140 ms<br />total runtime (donné par explain analyze) : 616 ms</p><p>&quot;Hash Anti Join&#160; (cost=4581.85..5109.91 rows=736 width=4) (actual time=570.071..614.628 rows=733 loops=1)&quot;<br />&quot;&#160; Hash Cond: (p.productid = s.productid)&quot;<br />&quot;&#160; -&gt;&#160; Seq Scan on product p&#160; (cost=0.00..27.99 rows=999 width=4) (actual time=0.011..2.404 rows=999 loops=1)&quot;<br />&quot;&#160; -&gt;&#160; Hash&#160; (cost=2589.71..2589.71 rows=121371 width=4) (actual time=569.436..569.436 rows=121371 loops=1)&quot;<br />&quot;&#160; &#160; &#160; &#160; -&gt;&#160; Seq Scan on salesorderdetail s&#160; (cost=0.00..2589.71 rows=121371 width=4) (actual time=0.005..290.420 rows=121371 loops=1)&quot;<br />&quot;Total runtime: 616.222 ms&quot;</p><br /><p>Requête 2 :</p><p>select productid from product <br />except<br />select productid from salesorderdetail;</p><p>Durée d&#039;exécution donné par pgAdmin : 110 ms<br />total runtime (donné par explain analyze) : 1525 ms </p><p>&quot;HashSetOp Except&#160; (cost=0.00..4147.32 rows=999 width=4) (actual time=1522.398..1523.986 rows=733 loops=1)&quot;<br />&quot;&#160; -&gt;&#160; Append&#160; (cost=0.00..3841.40 rows=122370 width=4) (actual time=0.024..1251.816 rows=122370 loops=1)&quot;<br />&quot;&#160; &#160; &#160; &#160; -&gt;&#160; Subquery Scan &quot;*SELECT* 1&quot;&#160; (cost=0.00..37.98 rows=999 width=4) (actual time=0.018..6.281 rows=999 loops=1)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; -&gt;&#160; Seq Scan on product&#160; (cost=0.00..27.99 rows=999 width=4) (actual time=0.010..2.359 rows=999 loops=1)&quot;<br />&quot;&#160; &#160; &#160; &#160; -&gt;&#160; Subquery Scan &quot;*SELECT* 2&quot;&#160; (cost=0.00..3803.42 rows=121371 width=4) (actual time=0.010..773.063 rows=121371 loops=1)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; -&gt;&#160; Seq Scan on salesorderdetail&#160; (cost=0.00..2589.71 rows=121371 width=4) (actual time=0.004..285.410 rows=121371 loops=1)&quot;<br />&quot;Total runtime: 1525.589 ms&quot;</p>]]></content>
+		<author>
+			<name><![CDATA[Bob]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=512</uri>
+		</author>
+		<updated>2009-10-14T09:07:21Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2529#p2529</id>
+	</entry>
+</feed>

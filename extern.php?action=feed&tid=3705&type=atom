@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Importer un fichier CSV dans un table Postgresql]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3705&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3705"/>
+	<updated>2015-11-30T11:41:00Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3705</id>
+	<entry>
+		<title type="html"><![CDATA[Importer un fichier CSV dans un table Postgresql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22741#p22741"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Pour ceux qui cherchent une solution facile pour importer des CSV dans pg.<br />(Ou un fichier Excel transformé en CSV.)</p><p>Voici comment je fais :</p><div class="codebox"><pre><code>DROP TABLE IF EXISTS table_x1 ;  
+
+CREATE TABLE  table_x1 (bigfield TEXT)                     -- avec TEMP si on veut
+;
+ 
+copy table_x1 FROM &#039;/home/jasonc/csv_data/data.csv&#039; 
+		WITH 
+ 		delimiter &#039;!&#039; -- ce caractère ne se trouve pas dans le fichier
+;
+				
+DROP TABLE IF EXISTS  table  x_2;  
+SELECT 
+split_part(bigfield, &#039;;&#039;,  1) 		AS id,
+split_part(bigfield, &#039;;&#039;,  2) 		AS type,
+split_part(bigfield, &#039;;&#039;,  3)::date  	AS create_date,
+split_part(bigfield, &#039;;&#039;,  4)::numeric	AS salary
+...
+into x_2
+from x_1
+; 
+DROP table x_1 -- si on veut.</code></pre></div><p>-- Avantages :<br />-- c&#039;est plus facile de balancer tous le fichier tout entier dans pg <br />-- plutôt que de gérer le feedback confusionnant retourné par la commande COPY<br />-- on peut facilement sélectionner les colonnes a envoyer dans x_2, et ignorer d&#039;autres <br />----<br />Autre variante :</p><div class="codebox"><pre><code>DROP TABLE IF EXISTS table_x1 ;  
+
+CREATE TABLE  table_x1 (bigfield TEXT)
+;
+ 
+copy table_x1 FROM &#039;/home/jasonc/csv_data/data.csv&#039;
+		WITH 
+ 		delimiter &#039;!&#039; -- ce caractère ne se trouve pas dans le fichier
+;
+				
+ALTER TABLE x_1
+ADD COLUMN id text ,
+ADD COLUMN  type text 
+;
+
+Update x_1
+set 
+id    = split_part(bigfield, &#039;;&#039;,  1) 		,
+type= split_part(bigfield, &#039;;&#039;,  2) 	
+;</code></pre></div><p>Une fois qu&#039;on est certain d&#039;avoir récupéré les colonnes utiles, on pour faire un drop sur la colonne bigfield.</p><p>Voilà. <br />Moi je fais comme ça.</p><p>Jason</p>]]></content>
+		<author>
+			<name><![CDATA[Jason Chambers]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3255</uri>
+		</author>
+		<updated>2015-11-30T11:41:00Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22741#p22741</id>
+	</entry>
+</feed>

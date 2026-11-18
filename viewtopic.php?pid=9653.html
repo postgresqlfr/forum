@@ -1,0 +1,425 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr" lang="fr" dir="ltr">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>performance entre varchar(2) ou integer sur clause WHERE / Optimisation / Forums PostgreSQL.fr</title>
+<link rel="stylesheet" type="text/css" href="style/Postgresql.css" />
+<link rel="canonical" href="viewtopic.php%3Fid=1445.html" title="Page 1" />
+<link rel="alternate" type="application/atom+xml" href="extern.php%3Faction=feed&amp;tid=1445&amp;type=atom" title="Flux Atom de la discussion" />
+</head>
+
+<body>
+
+<div id="top">
+  <div id="pgHeader">
+    <span id="pgHeaderLogoLeft">
+      <a href="index.html" title="PostgreSQL"><img src="https://www.postgresql.fr/lib/tpl/tortoise/images/hdr_left.png" width="230" height="80" alt="PostgreSQL" /></a>
+    </span>
+    <span id="pgHeaderLogoRight">
+      <a href="index.html" title="La base de donnees la plus sophistiquee au monde."><img src="https://www.postgresql.fr/lib/tpl/tortoise/images/hdr_right.png" width="210" height="80" alt="La base de donnees la plus sophistiquee au monde." /></a>
+    </span>
+  </div>
+</div>
+
+<div class="pgTopNav">
+  <div class="pgTopNavLeft"> 
+    <img src="https://www.postgresql.fr/lib/tpl/tortoise/images/nav_lft.png" width="7" height="23" alt="" />
+  </div>
+  <div class="pgTopNavRight">
+    <img src="https://www.postgresql.fr/lib/tpl/tortoise/images/nav_rgt.png" width="7" height="23" alt="" />
+  </div>
+  <ul class="pgTopNavList">
+    <li><a href="https://www.postgresql.fr/" title="Accueil">Accueil</a></li>
+    <li><a href="https://blog.postgresql.fr/" title="Lire les actualités">Actualit&eacute;s</a></li>
+    <li><a href="https://docs.postgresql.fr/" title="Lire la documentation officielle">Documentation</a></li>
+    <li><a href="https://forums.postgresql.fr/" title="Pour poser des questions">Forums</a></li>
+    <li><a href="https://www.postgresql.fr/asso/" title="La vie de l'association">Association</a></li>
+    <li><a href="https://www.postgresql.fr/entreprises:accueil" title="Groupe de Travail PostgreSQL Entreprises">Entreprises</a></li>
+    <li><a href="https://www.postgresql.fr/devel:accueil" title="Informations pour les d&eacute;veloppeurs/traducteurs">D&eacute;veloppeurs</a></li>
+    <li><a href="https://planete.postgresql.fr" title="La plan&egrave;te francophone sur PostgreSQL">Plan&egrave;te</a></li>
+    <li><a href="https://www.postgresql.fr/support/" title="Support sur PostgreSQL">Support</a></li>
+  </ul>
+
+
+</div>
+<div id="punviewtopic" class="pun">
+<div class="top-box"><div><!-- Top Corners --></div></div>
+<div class="punwrap">
+
+<div id="brdheader" class="block">
+	<div class="box">
+		<div id="brdtitle" class="inbox">
+			<h1><a href="index.php.html">Forums PostgreSQL.fr</a></h1>
+			<div id="brddesc">Le forum officiel de la communauté francophone de PostgreSQL</div>
+		</div>
+		<div id="brdmenu" class="inbox">
+			<ul>
+				<li id="navindex" class="isactive"><a href="index.php.html">Accueil</a></li>
+				<li id="navuserlist"><a href="userlist.php.html">Liste des membres</a></li>
+				<li id="navsearch"><a href="search.php.html">Recherche</a></li>
+				<li id="navregister"><a href="register.php.html">Inscription</a></li>
+				<li id="navlogin"><a href="login.php.html">Identification</a></li>
+			</ul>
+		</div>
+		<div id="brdwelcome" class="inbox">
+			<p class="conl">Vous n'êtes pas identifié(e).</p>
+			<ul class="conr">
+				<li><span>Contributions&#160;: <a href="search.php%3Faction=show_recent.html" title="Trouver les discussions comportant des messages récents.">Récentes</a> | <a href="search.php%3Faction=show_unanswered.html" title="Trouver les discussions sans réponse.">Sans réponse</a></span></li>
+			</ul>
+			<div class="clearer"></div>
+		</div>
+	</div>
+</div>
+
+
+
+<div id="brdmain">
+<div class="linkst">
+	<div class="inbox crumbsplus">
+		<ul class="crumbs">
+			<li><a href="index.php.html">Accueil</a></li>
+			<li><span>»&#160;</span><a href="viewforum.php%3Fid=8.html">Optimisation</a></li>
+			<li><span>»&#160;</span><strong><a href="viewtopic.php%3Fid=1445.html">performance entre varchar(2) ou integer sur clause WHERE</a></strong></li>
+		</ul>
+		<div class="pagepost">
+			<p class="pagelink conl"><span class="pages-label">Pages&#160;: </span><strong class="item1">1</strong></p>
+		</div>
+		<div class="clearer"></div>
+	</div>
+</div>
+
+<div id="p9653" class="blockpost rowodd firstpost blockpost1">
+	<h2><span><span class="conr">#1</span> <a href="viewtopic.php%3Fpid=9653.html#p9653">05/06/2011 16:57:25</a></span></h2>
+	<div class="box">
+		<div class="inbox">
+			<div class="postbody">
+				<div class="postleft">
+					<dl>
+						<dt><strong><a href="profile.php%3Fid=1234.html">ilrico</a></strong></dt>
+						<dd class="usertitle"><strong>Membre</strong></dd>
+					</dl>
+				</div>
+				<div class="postright">
+					<h3>performance entre varchar(2) ou integer sur clause WHERE</h3>
+					<div class="postmsg">
+						<p>Bonjour, sur une table qui contiendra quelques millions de lignes, je lancerai des requetes SELECT avec (...) WHERE type_obj = <br />ma question : si je défini type_obj comme integer (de 0 à 4) cela aura-t-il un impact significatif en performance par rapport à un type_obj en varchar(2) (AA, BB, CC, DD, EE)</p><p>meme question entre integer et char(1)</p><p>La config matérielle est plutôt light (hébergement virtualisé de base)</p><p>Merci !</p>
+						<p class="postedit"><em>Dernière modification par ilrico (05/06/2011 17:01:50)</em></p>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="inbox">
+			<div class="postfoot clearb">
+				<div class="postfootleft"><p><span>Hors ligne</span></p></div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="p9654" class="blockpost roweven">
+	<h2><span><span class="conr">#2</span> <a href="viewtopic.php%3Fpid=9654.html#p9654">05/06/2011 17:22:48</a></span></h2>
+	<div class="box">
+		<div class="inbox">
+			<div class="postbody">
+				<div class="postleft">
+					<dl>
+						<dt><strong><a href="profile.php%3Fid=312.html">Marc Cousin</a></strong></dt>
+						<dd class="usertitle"><strong>Membre</strong></dd>
+					</dl>
+				</div>
+				<div class="postright">
+					<h3>Re&#160;: performance entre varchar(2) ou integer sur clause WHERE</h3>
+					<div class="postmsg">
+						<p>Ça ne sera probablement pas mesurable. Les opérations de chaîne et sur les int sont parmi les plus rapides. Le int sera un peu plus rapide quand même, mais je doute que vous le sentiez.</p><p>Choisissez plutôt un type qui modélise ce que vous voulez faire, et qui soit facile à comprendre: si votre code sur 2 lettres est plus lisible, choisissez ça à un entier.</p>
+						<p class="postedit"><em>Dernière modification par Marc Cousin (05/06/2011 17:23:50)</em></p>
+					</div>
+					<div class="postsignature postmsg"><hr /><p>Marc.</p></div>
+				</div>
+			</div>
+		</div>
+		<div class="inbox">
+			<div class="postfoot clearb">
+				<div class="postfootleft"><p><span>Hors ligne</span></p></div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="p9658" class="blockpost rowodd">
+	<h2><span><span class="conr">#3</span> <a href="viewtopic.php%3Fpid=9658.html#p9658">05/06/2011 19:53:44</a></span></h2>
+	<div class="box">
+		<div class="inbox">
+			<div class="postbody">
+				<div class="postleft">
+					<dl>
+						<dt><strong><a href="profile.php%3Fid=1054.html">SQLpro</a></strong></dt>
+						<dd class="usertitle"><strong>Membre</strong></dd>
+					</dl>
+				</div>
+				<div class="postright">
+					<h3>Re&#160;: performance entre varchar(2) ou integer sur clause WHERE</h3>
+					<div class="postmsg">
+						<p>Les littéraux ont besoin de plus de traitement que les numériques pour toutes comparaisons du simple fait de la gestion de la collation (sensibilité à la casse, aux accents...) qui induit un extra overhead systématique lors des comparaisons.<br />En sus les données de tailles variables, comme les VARCHAR, stockent la taille réelle de la données en sus soit 2 ou 3 octets supplémentaires.<br />Donc un VARCHAR(2) fait entre 4 et 5 octets, soit plus qu&#039;un integer.<br />Enfin les VARCHAR sont plus complexes à retrouver, car étant, de par leur nature, avec une taille variable, il faut parcourir toutes les colonnes précédente de la ligne de la table pour en lire la valeur, ce qui n&#039;est pas le cas des numériques qui sont de taille fixe et regroupés au début de la ligne physique de la table (slot) et directement accessible par un offset calculé par rapport au début de la ligne. </p><p>En conclusion, les numériques sont toujours systématiquement plus rapide dans tous les cas de figure et si vous voulez les meilleures performances, alors il faut prendre un entier de la taille exacte du mot du processeurs, soit INT sur 32 bits et BIGINT sur 64 bits, car vous n&#039;aurez ni a gérer une double lecture (cas du BIGINT sur OS 32 bits =&gt; 100 % de durée supplémentaire en général) ni à vérifier les bits de poids haut pour renvoyer une erreur de dépassement de capacité (cas du INT sur OS 64 bits =&gt; de 2 à 5 % de durée supplémentaire).</p><p>A +</p>
+						<p class="postedit"><em>Dernière modification par SQLpro (05/06/2011 22:23:23)</em></p>
+					</div>
+					<div class="postsignature postmsg"><hr /><p>Frédéric Brouard, alias SQLpro,&#160; ARCHITECTE DE DONNÉES,&#160; Expert langage SQL <br />Le site sur les SGBD relationnel et langage SQL&#160; &#160;: <a href="http://sqlpro.developpez.com/" rel="nofollow">http://sqlpro.developpez.com/</a><br />Modélisation de données, conseil, expertise, audit, optimisation, tuning, formation <br />* * * * *&#160; Enseignant CNAM PACA, ISEN Toulon,&#160; CESI Aix en Provence&#160; * * * * *</p></div>
+				</div>
+			</div>
+		</div>
+		<div class="inbox">
+			<div class="postfoot clearb">
+				<div class="postfootleft"><p><span>Hors ligne</span></p></div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="p9659" class="blockpost roweven">
+	<h2><span><span class="conr">#4</span> <a href="viewtopic.php%3Fpid=9659.html#p9659">05/06/2011 20:16:06</a></span></h2>
+	<div class="box">
+		<div class="inbox">
+			<div class="postbody">
+				<div class="postleft">
+					<dl>
+						<dt><strong><a href="profile.php%3Fid=1234.html">ilrico</a></strong></dt>
+						<dd class="usertitle"><strong>Membre</strong></dd>
+					</dl>
+				</div>
+				<div class="postright">
+					<h3>Re&#160;: performance entre varchar(2) ou integer sur clause WHERE</h3>
+					<div class="postmsg">
+						<p>ok, merci à tous les deux pour votre réponse.</p>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="inbox">
+			<div class="postfoot clearb">
+				<div class="postfootleft"><p><span>Hors ligne</span></p></div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="p9662" class="blockpost rowodd">
+	<h2><span><span class="conr">#5</span> <a href="viewtopic.php%3Fpid=9662.html#p9662">05/06/2011 23:13:12</a></span></h2>
+	<div class="box">
+		<div class="inbox">
+			<div class="postbody">
+				<div class="postleft">
+					<dl>
+						<dt><strong><a href="profile.php%3Fid=3.html">gleu</a></strong></dt>
+						<dd class="usertitle"><strong>Administrateur</strong></dd>
+					</dl>
+				</div>
+				<div class="postright">
+					<h3>Re&#160;: performance entre varchar(2) ou integer sur clause WHERE</h3>
+					<div class="postmsg">
+						<div class="quotebox"><blockquote><div><p>ce qui n&#039;est pas le cas des numériques qui sont de taille fixe et regroupés au début de la ligne physique de la table (slot) et directement accessible par un offset calculé par rapport au début de la ligne</p></div></blockquote></div><p>Pas sous PostgreSQL pour le &quot;regroupage en début de ligne physique&quot;.</p>
+					</div>
+					<div class="postsignature postmsg"><hr /><p>Guillaume.</p></div>
+				</div>
+			</div>
+		</div>
+		<div class="inbox">
+			<div class="postfoot clearb">
+				<div class="postfootleft"><p><span>Hors ligne</span></p></div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="p9921" class="blockpost roweven">
+	<h2><span><span class="conr">#6</span> <a href="viewtopic.php%3Fpid=9921.html#p9921">19/06/2011 12:50:04</a></span></h2>
+	<div class="box">
+		<div class="inbox">
+			<div class="postbody">
+				<div class="postleft">
+					<dl>
+						<dt><strong><a href="profile.php%3Fid=1234.html">ilrico</a></strong></dt>
+						<dd class="usertitle"><strong>Membre</strong></dd>
+					</dl>
+				</div>
+				<div class="postright">
+					<h3>Re&#160;: performance entre varchar(2) ou integer sur clause WHERE</h3>
+					<div class="postmsg">
+						<p>Ah justement ça m&#039;évite de créer un nouveau thread ! La question que je voulais poser ce matin est la suivante :</p><p>&quot;La place des colonnes est-elle importante sous PostgreSQL ?&quot;, car en effet il me semble que vous certaines db il est fortement recommandé de placer les colonnes de type de taille fixe au début, et les type variables (text, varchar) à la fin.</p><p>Visiblement, d&#039;après ce que gleu indique, PostgreSQL ne regroupe pas automatiquement les types fixes en debut de ligne, donc j&#039;en deduis que la place des colonnes suivant leur type influe directement sur les performances. <br />Si oui, l&#039;impact est-il vraiment mesurable sur une table qui fait &lt; 1 Go ?</p>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="inbox">
+			<div class="postfoot clearb">
+				<div class="postfootleft"><p><span>Hors ligne</span></p></div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="p9923" class="blockpost rowodd">
+	<h2><span><span class="conr">#7</span> <a href="viewtopic.php%3Fpid=9923.html#p9923">19/06/2011 13:12:17</a></span></h2>
+	<div class="box">
+		<div class="inbox">
+			<div class="postbody">
+				<div class="postleft">
+					<dl>
+						<dt><strong><a href="profile.php%3Fid=312.html">Marc Cousin</a></strong></dt>
+						<dd class="usertitle"><strong>Membre</strong></dd>
+					</dl>
+				</div>
+				<div class="postright">
+					<h3>Re&#160;: performance entre varchar(2) ou integer sur clause WHERE</h3>
+					<div class="postmsg">
+						<p>Pour une petite table, c&#039;est non mesurable. Même pour une grosse table, c&#039;est très rare qu&#039;on s&#039;embête avec ce détail, sauf si vraiment on veut gratter les derniers % sur des entrées/sorties disque par exemple.</p><p>Et effectivement, les &quot;petites&quot; valeurs peuvent être regroupées si elles sont consécutives dans la table. Les infos d&#039;alignement de chaque type sont dans pg_type (colonne typalign): on a pour chaque type sa contrainte d&#039;alignement. Par exemple, un type qui a comme contrainte d&#039;alignement d (double) devra être aligné sur 8 bits…</p>
+					</div>
+					<div class="postsignature postmsg"><hr /><p>Marc.</p></div>
+				</div>
+			</div>
+		</div>
+		<div class="inbox">
+			<div class="postfoot clearb">
+				<div class="postfootleft"><p><span>Hors ligne</span></p></div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="p9935" class="blockpost roweven">
+	<h2><span><span class="conr">#8</span> <a href="viewtopic.php%3Fpid=9935.html#p9935">19/06/2011 20:36:51</a></span></h2>
+	<div class="box">
+		<div class="inbox">
+			<div class="postbody">
+				<div class="postleft">
+					<dl>
+						<dt><strong><a href="profile.php%3Fid=1054.html">SQLpro</a></strong></dt>
+						<dd class="usertitle"><strong>Membre</strong></dd>
+					</dl>
+				</div>
+				<div class="postright">
+					<h3>Re&#160;: performance entre varchar(2) ou integer sur clause WHERE</h3>
+					<div class="postmsg">
+						<div class="quotebox"><cite>ilrico a écrit&#160;:</cite><blockquote><div><p>Ah justement ça m&#039;évite de créer un nouveau thread ! La question que je voulais poser ce matin est la suivante :</p><p>&quot;La place des colonnes est-elle importante sous PostgreSQL ?&quot;, car en effet il me semble que vous certaines db il est fortement recommandé de placer les colonnes de type de taille fixe au début, et les type variables (text, varchar) à la fin.</p><p>Visiblement, d&#039;après ce que gleu indique, PostgreSQL ne regroupe pas automatiquement les types fixes en debut de ligne, donc j&#039;en deduis que la place des colonnes suivant leur type influe directement sur les performances. <br />Si oui, l&#039;impact est-il vraiment mesurable sur une table qui fait &lt; 1 Go ?</p></div></blockquote></div><p>Oui, sur des grosses tables si vous faites beaucoup d&#039;UPDATE....</p><p>A +</p>
+					</div>
+					<div class="postsignature postmsg"><hr /><p>Frédéric Brouard, alias SQLpro,&#160; ARCHITECTE DE DONNÉES,&#160; Expert langage SQL <br />Le site sur les SGBD relationnel et langage SQL&#160; &#160;: <a href="http://sqlpro.developpez.com/" rel="nofollow">http://sqlpro.developpez.com/</a><br />Modélisation de données, conseil, expertise, audit, optimisation, tuning, formation <br />* * * * *&#160; Enseignant CNAM PACA, ISEN Toulon,&#160; CESI Aix en Provence&#160; * * * * *</p></div>
+				</div>
+			</div>
+		</div>
+		<div class="inbox">
+			<div class="postfoot clearb">
+				<div class="postfootleft"><p><span>Hors ligne</span></p></div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="p9936" class="blockpost rowodd">
+	<h2><span><span class="conr">#9</span> <a href="viewtopic.php%3Fpid=9936.html#p9936">19/06/2011 20:40:59</a></span></h2>
+	<div class="box">
+		<div class="inbox">
+			<div class="postbody">
+				<div class="postleft">
+					<dl>
+						<dt><strong><a href="profile.php%3Fid=312.html">Marc Cousin</a></strong></dt>
+						<dd class="usertitle"><strong>Membre</strong></dd>
+					</dl>
+				</div>
+				<div class="postright">
+					<h3>Re&#160;: performance entre varchar(2) ou integer sur clause WHERE</h3>
+					<div class="postmsg">
+						<p>En quoi le fait qu&#039;il y ait beaucoup d&#039;update aurait davantage d&#039;impact ?</p>
+					</div>
+					<div class="postsignature postmsg"><hr /><p>Marc.</p></div>
+				</div>
+			</div>
+		</div>
+		<div class="inbox">
+			<div class="postfoot clearb">
+				<div class="postfootleft"><p><span>Hors ligne</span></p></div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="postlinksb">
+	<div class="inbox crumbsplus">
+		<div class="pagepost">
+			<p class="pagelink conl"><span class="pages-label">Pages&#160;: </span><strong class="item1">1</strong></p>
+		</div>
+		<ul class="crumbs">
+			<li><a href="index.php.html">Accueil</a></li>
+			<li><span>»&#160;</span><a href="viewforum.php%3Fid=8.html">Optimisation</a></li>
+			<li><span>»&#160;</span><strong><a href="viewtopic.php%3Fid=1445.html">performance entre varchar(2) ou integer sur clause WHERE</a></strong></li>
+		</ul>
+		<div class="clearer"></div>
+	</div>
+</div>
+</div>
+
+<div id="brdfooter" class="block">
+	<h2><span>Pied de page des forums</span></h2>
+	<div class="box">
+		<div id="brdfooternav" class="inbox">
+			<div class="conl">
+				<form id="qjump" method="get" action="http://forum.postgresql.fr/viewforum.php">
+					<div><label><span>Atteindre<br /></span>
+					<select name="id" onchange="window.location=('viewforum.php?id='+this.options[this.selectedIndex].value)">
+						<optgroup label="PostgreSQL.fr">
+							<option value="2">Site PostgreSQL.fr</option>
+							<option value="3">Association PostgreSQLfr</option>
+							<option value="18">Événements</option>
+							<option value="17">Publications</option>
+						</optgroup>
+						<optgroup label="Technique">
+							<option value="6">Général</option>
+							<option value="7">Installation</option>
+							<option value="26">Migration</option>
+							<option value="8" selected="selected">Optimisation</option>
+							<option value="9">Sécurité</option>
+							<option value="19">Réplication</option>
+						</optgroup>
+						<optgroup label="Logiciels">
+							<option value="30">pgAdmin4</option>
+							<option value="27">PgAdmin3</option>
+							<option value="29">phpPgAdmin</option>
+							<option value="28">PSQL</option>
+						</optgroup>
+						<optgroup label="Langages procéduraux">
+							<option value="20">PL/pgSQL</option>
+							<option value="22">PL/Tcl</option>
+							<option value="23">PL/Perl</option>
+							<option value="24">PL/Python</option>
+							<option value="25">Autres langages</option>
+						</optgroup>
+						<optgroup label="Interfaces">
+							<option value="10">PHP</option>
+							<option value="11">Perl</option>
+							<option value="12">Python</option>
+							<option value="13">C et C++</option>
+							<option value="14">.NET</option>
+							<option value="15">Java</option>
+							<option value="16">ODBC</option>
+						</optgroup>
+						<optgroup label="Emploi">
+							<option value="4">Offres</option>
+							<option value="5">Demandes</option>
+						</optgroup>
+					</select></label>
+					<input type="submit" value="Aller" accesskey="g" />
+					</div>
+				</form>
+			</div>
+			<div class="conr">
+				<p id="feedlinks"><span class="atom"><a href="extern.php%3Faction=feed&amp;tid=1445&amp;type=atom">Flux Atom de la discussion</a></span></p>
+				<p id="poweredby">Propulsé par <a href="http://fluxbb.org/">FluxBB</a></p>
+			</div>
+			<div class="clearer"></div>
+		</div>
+	</div>
+</div>
+
+</div>
+<div class="end-box"><div><!-- Bottom corners --></div></div>
+</div>
+
+</body>
+</html>

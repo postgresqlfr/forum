@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / RESOLU  - utilisation d'un curseur]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2534&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2534"/>
+	<updated>2013-03-10T21:58:41Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2534</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  RESOLU  - utilisation d'un curseur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16787#p16787"/>
+		<content type="html"><![CDATA[<p>Je n&#039;en connais pas. La documentation est la référence mais ne constitue pas un tutoriel. Cependant, le langage est tellement simple que je ne vois pas un grand intérêt à l&#039;écriture d&#039;un tel tutoriel.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2013-03-10T21:58:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16787#p16787</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  RESOLU  - utilisation d'un curseur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16723#p16723"/>
+		<content type="html"><![CDATA[<p>ça y est !!</p><div class="codebox"><pre class="vscroll"><code>-- Function: test()
+
+DROP FUNCTION test();
+
+CREATE OR REPLACE FUNCTION test()
+  RETURNS text AS
+$BODY$
+
+DECLARE
+	s RECORD;
+	s1 TEXT := &#039;&#039;;
+	cur CURSOR FOR SELECT ana_id FROM tbl_analyse_ana ORDER BY ana_id;
+ 
+
+BEGIN
+	OPEN cur;
+	
+	LOOP
+		FETCH NEXT FROM cur INTO s;
+		EXIT WHEN NOT FOUND;
+		s1 := s1 || &#039;;&#039; || s.ana_id ;
+	END LOOP;
+	
+	CLOSE cur;
+	RETURN s1;
+END;
+$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+ALTER FUNCTION test() OWNER TO postgres;</code></pre></div><p>La condition de sortie de la boucle était mal placé : après concaténation au lieu d&#039;avant !</p><p>Pourriez-vous m&#039;indiquer un bon tuto sur le plpgSQL (à l&#039;instar de celui ci pour plsql <a href="ftp://ftp-developpez.com/sheikyerbouti/plsql/pl_sql.pdf)" rel="nofollow">ftp://ftp-developpez.com/sheikyerbouti/ … l_sql.pdf)</a>?</p>]]></content>
+		<author>
+			<name><![CDATA[damalaan]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1000</uri>
+		</author>
+		<updated>2013-03-04T14:34:29Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16723#p16723</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  RESOLU  - utilisation d'un curseur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16713#p16713"/>
+		<content type="html"><![CDATA[<p>J&#039;ai ajouté la ligne EXIT WHEN NOT FOUND, j&#039;ai initialisé&#160; s1.... et toujours rien</p><div class="codebox"><pre class="vscroll"><code>CREATE OR REPLACE FUNCTION test()
+  RETURNS text AS
+$BODY$
+
+DECLARE
+	s RECORD;
+	s1 TEXT := &#039;&#039;;
+	cur CURSOR FOR SELECT ana_id FROM tbl_analyse_ana;
+
+BEGIN
+
+	OPEN cur;
+
+	LOOP
+	FETCH cur INTO s;
+
+	s1 := s1 || &#039;;&#039; || s.ana_id || &#039;;&#039;;
+
+	EXIT WHEN NOT FOUND;
+	END LOOP;
+
+	CLOSE cur;
+	RETURN s1;
+END;
+$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+ALTER FUNCTION test() OWNER TO postgres;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[damalaan]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1000</uri>
+		</author>
+		<updated>2013-03-04T07:47:03Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16713#p16713</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  RESOLU  - utilisation d'un curseur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16708#p16708"/>
+		<content type="html"><![CDATA[<p>s1 := &#039;&#039;; par exemple</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2013-03-03T20:26:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16708#p16708</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  RESOLU  - utilisation d'un curseur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16707#p16707"/>
+		<content type="html"><![CDATA[<p>ok pour le &quot;EXIT WHEN NOT FOUND&quot;.<br />par contre pour initialiser la variable, comment fait on?</p>]]></content>
+		<author>
+			<name><![CDATA[damalaan]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1000</uri>
+		</author>
+		<updated>2013-03-03T19:35:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16707#p16707</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  RESOLU  - utilisation d'un curseur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16691#p16691"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>tout d&#039;abord votre variable s1 n&#039;est pas initialisée. La concaténation d&#039;un NULL avec une valeur renverra NULL. Vous pouvez soit utiliser coalesce soit l&#039;initialiser avant. De plus, il n&#039;y a pas de condition de sortie de votre boucle. Il faut rajouter un &quot;EXIT WHEN NOT FOUND&quot;, ou remplacer votre curseur manuel par une boucle de type &quot;FOR s IN SELECT ana_id FROM tbl_analyse_ana LOOP .... END LOOP&quot;.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2013-03-03T10:36:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16691#p16691</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[RESOLU  - utilisation d'un curseur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16690#p16690"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Pour m&#039;apprendre à utiliser le PL/pgSQL, j&#039;ai écrit cette fonction (qui présente peu d&#039;intérêt en soi !) : le but est de parcourir la table tbl_analyse_ana et de récupérer le ana_id de chaque ligne puis de concaténer le résultat dans une variable de manière à avoir en sortie qqc du genre 1;2;3;4;5 etc.<br />Mais j&#039;ai du louper qqc car la fonction ne génère pas d&#039;erreur mais ne retourne rien</p><div class="codebox"><pre><code>-- Function: test()
+
+CREATE OR REPLACE FUNCTION test()
+  RETURNS TEXT AS
+$BODY$
+DECLARE
+s RECORD;
+s1 TEXT;
+cur CURSOR FOR SELECT ana_id FROM tbl_analyse_ana;
+BEGIN
+open cur;
+LOOP
+FETCH cur INTO s;
+s1 := s1 || &#039;;&#039; || s.ana_id || &#039;;&#039;;
+
+
+END LOOP;
+CLOSE cur;
+RETURN s1;
+END;
+$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+ALTER FUNCTION test()
+  OWNER TO postgres;</code></pre></div><p>merci de votre aide</p>]]></content>
+		<author>
+			<name><![CDATA[damalaan]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1000</uri>
+		</author>
+		<updated>2013-03-03T06:56:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16690#p16690</id>
+	</entry>
+</feed>

@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / failover]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5008&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5008"/>
+	<updated>2018-12-18T12:19:40Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5008</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  failover]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28807#p28807"/>
+		<content type="html"><![CDATA[<p>Pour infos, &quot;10000 entrées pour 16300 fichiers&quot; n&#039;est pas une information suffisante pour savoir si des fichiers ont été oubliés. Une table, c&#039;est généralement plusieurs fichiers, déjà parce que les données sont réparties sur plusieurs fichiers d&#039;1 Go maximum, mais aussi parce qu&#039;il y a au moins deux fichiers de métadonnées.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2018-12-18T12:19:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28807#p28807</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  failover]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28806#p28806"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Merci pour l&#039;explication , c&#039;est exactement ce que je me disais en parcourant la table pg_class qui montre seulement 10 000 entrées pour 16300 fichiers ....</p><p>ok pour la solution la plus sur.</p><p>Concrétement je liste dans un fichier liste tous les fichiers du répertoire je le charge en base et fait une jointure avec relfinode avec un not in je ne risque pas d&#039;en prendre un de trop en théorie.</p><p>par contre pour aller jusqu&#039;au bout de la logique mon esclave en streaming replication auras toujours 1,2 To de trop puisque cette modification physique n&#039;entrainera en rien des wal et donc une répercussion sur le serveur distant.</p><p>C&#039;est ce qui me ferait militer pour une restauration complète.</p>]]></content>
+		<author>
+			<name><![CDATA[tholot]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8409</uri>
+		</author>
+		<updated>2018-12-18T11:14:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28806#p28806</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  failover]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28805#p28805"/>
+		<content type="html"><![CDATA[<p>pgAdmin récupère la taille de la base avec un pg_database_size, et cette fonction ne fait que parcourir les objets physiques (ie, les fichiers). Elle ne récupère pas la liste des objets logiques (tables, index, etc) pour en faire la somme. Du coup, vous placez un fichier qui n&#039;a rien à avoir avec la base dans le répertoire de la base, il sera pris en compte par le pg_database_size mais pas par la requête que je vous ai donné plus haut.</p><p>Donc tout ceci laisse à penser que vous avez en effet des fichiers qui ne concernent pas vos objets logiques dans le répertoire de cette base.</p><p>Je maintiens que la solution la plus sûre (mais à coup sûr la plus lente) est un pg_dump/pg_restore. L&#039;autre solution revient à récupérer tous les relfilenode dans pg_class et de supprimer tous les fichiers qui ne font pas partie de ces relfilnode. Rapide, mais dangereux si vous supprimez un fichier de trop.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2018-12-18T10:26:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28805#p28805</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  failover]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28804#p28804"/>
+		<content type="html"><![CDATA[<p>je viens de faire la requête postgres indique 417 Gb lui aussi.</p><p>pg_admin et phppg_admin voit le 1888 Go</p><p>le du -h de la base donne 1,9 To également</p>]]></content>
+		<author>
+			<name><![CDATA[tholot]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8409</uri>
+		</author>
+		<updated>2018-12-18T10:15:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28804#p28804</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  failover]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28803#p28803"/>
+		<content type="html"><![CDATA[<p>Non, totalement inimaginable (en dehors d&#039;un bug sur lequel personne ne serait tombé).</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2018-12-18T07:58:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28803#p28803</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  failover]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28802#p28802"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Merci pour cette proposition, c&#039;était effectivement mon étape suivante chercher de la donnée en dehors des tables et schéma.</p><p>Au niveau du crash il s&#039;agit d&#039;un ubuntu 16 sur lequel postrgres a été mis à jour de la version 9.6.10 vers la 9.6.11. </p><p>Le crash a consisté par la production de fichiers par postgres de manière continue jusque saturation de la partition data (1To initialement contre 4To occupé in fine)</p><p>La mise à jour a eu lieu le mardi soir et le crash le vendredi suivant.</p><p>Est-il imaginable que cette montée en version est obligé postgres a réécrire ses données et conserver les WAL pour le faire en paralléle afin de pouvoir les fournir à l&#039;esclave l&#039;obligeant à disposer d&#039;un volume quadruple à taille des bases actuelles? </p><p>l&#039;esclave est un hot standby avec slot replication mais se trouve sur un site distant liée par une liaison ethernet.</p><p>je check la requete fourni d&#039;abord et programme un backup de base en sus car j&#039;imagine que cela va être la solution finalement.</p>]]></content>
+		<author>
+			<name><![CDATA[tholot]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8409</uri>
+		</author>
+		<updated>2018-12-18T07:04:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28802#p28802</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  failover]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28801#p28801"/>
+		<content type="html"><![CDATA[<p>Faire un VACUUM FULL n&#039;aurait rien changé à la différence de taille constatée. Il serait intéressant de savoir la taille prise par tous les objets de la base. Cette requête me semble plus intéressante pour le savoir :</p><div class="codebox"><pre><code>SELECT pg_size_pretty(sum(pg_table_size(oid))) FROM pg_class;</code></pre></div><p>Normalement, PostgreSQL ne perd pas la notion des fichiers existants. Le seul cas à ma connaissance est lors d&#039;un crash de PostgreSQL ou s&#039;il est &quot;kill-é&quot; maladroitement. Trouver les fichiers &quot;oubliés&quot; est risqué. Si vous vous trompez sur un fichier, vous êtes bon pour repartir d&#039;une sauvegarde. À mon sens, le mieux serait de sauvegarder la base actuelle avec pg_dump, de la restaurer sur une autre base (sur la même instance), et une fois que vous vous êtes assurés que cette nouvelle base est bonne, supprimez l&#039;ancienne. Ça supprimera automatiquement les fichiers &quot;en trop&quot;.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2018-12-17T17:20:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28801#p28801</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  failover]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28800#p28800"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;ai pu relancer maitre à partir de celui en standby par duplication de fichiers.</p><p>Toutefois une partie du problème demeure, en effet une base présente un volume anormale ( 1888 Go ) pour un volume de données estimée de 400 Go avant problème.</p><p>j&#039;ai fait une requete pour estimer le volume global des données + index comme suit qui confirme la présence de seulement 410 Go</p><div class="codebox"><pre><code>with decoup as
+(
+SELECT 
+pg_total_relation_size(&#039;&quot;&#039;||table_schema || &#039;&quot;.&quot;&#039; || table_name ||&#039;&quot;&#039; ) as Taille_totale
+FROM information_schema.tables WHERE table_type::text = &#039;BASE TABLE&#039;::text
+)
+select sum(taille_totale)/1024/1024/1024 from decoup</code></pre></div><p>qui confirme que le ratio/données poids des fichiers de la base est anormal.</p><p>J&#039;ai tenté de faire un vaccum full sur 100 tables mais le volume ne change pas . Par ailleurs tous les objets de la base (schéma, table ) ont une taille &quot;normal&quot;.</p><p>Y-a-t-il un moyen pour identifier ces fichiers en trop et de les enlever?</p><p>un du -h /var/lib/postgresql/9.6/main/base/ numéro de base me donne bien :</p><p>1,9To ...</p>]]></content>
+		<author>
+			<name><![CDATA[tholot]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8409</uri>
+		</author>
+		<updated>2018-12-17T15:52:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28800#p28800</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  failover]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28743#p28743"/>
+		<content type="html"><![CDATA[<p>Un hot standby peut devenir maîitre, c&#039;est même son but à terme. Il faut basculer son rôle pour cela.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2018-12-10T21:01:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28743#p28743</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  failover]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28742#p28742"/>
+		<content type="html"><![CDATA[<p>visiblement mon architecture ne rend pas l&#039;esclave maitre. c&#039;est juste un hot standby</p>]]></content>
+		<author>
+			<name><![CDATA[tholot]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8409</uri>
+		</author>
+		<updated>2018-12-10T16:54:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28742#p28742</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  failover]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28741#p28741"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Merci pour cette réponse car le maitre est 16 x plus puissant (ram et proc) que le vieux serveur de sauvegarde qui a été recyclé en secondaire.</p><p>Et surtout que le maitre est situé sur le site majeur avec 60 qgis qui lui écrivent dessus alors que l&#039;autre serveur est dans un site ou la charge est faible (et en rapport avec la machine). </p><p>Mais là je reconnais qu&#039;il fait très bien le boulot, il m&#039;évite de tout restaurer !</p><p>Je teste ca et fait un retour!</p>]]></content>
+		<author>
+			<name><![CDATA[tholot]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8409</uri>
+		</author>
+		<updated>2018-12-10T16:53:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28741#p28741</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  failover]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28740#p28740"/>
+		<content type="html"><![CDATA[<p>Pourquoi ne pas passer tout simplement l&#039;esclave en maître ?</p><p>Si vous voulez que l&#039;ancien maître reste maître, il va falloir faire un rsync des fichiers de l&#039;esclave, redémarrer le maître (qui se prendra pour un esclave du coup), et le basculer en maître.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2018-12-10T16:47:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28740#p28740</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[failover]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28739#p28739"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Suite (sans doute mais ce n&#039;est pas certain) à l&#039;application de postgresql 9.6.11 sur 2 serveurs en streaming replication&#160; maitre - esclave.</p><br /><p>Le Maître a saturé sa partition data.</p><p>Aujourd&#039;hui postgres est HS dessus et impossible de le redémarrer. Il a fallu que je libère de l&#039;espace disque sur la partition data.</p><p>Puis-je resynchrniser l&#039;exclave qui lui tourne toujours mais est en mode lecture seule?</p><p>Rsync des bases plus wal suffira - t -il ou sinon quelle est la méthode.</p><p>D&#039;avance merci de votre aide</p>]]></content>
+		<author>
+			<name><![CDATA[tholot]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8409</uri>
+		</author>
+		<updated>2018-12-10T16:25:55Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28739#p28739</id>
+	</entry>
+</feed>

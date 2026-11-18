@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / initialisation d'un tableau avec des constantes en hexadecimal]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4874&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4874"/>
+	<updated>2018-08-22T08:28:51Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4874</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  initialisation d'un tableau avec des constantes en hexadecimal]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28153#p28153"/>
+		<content type="html"><![CDATA[<p>Bonjour Marc,</p><p>avec la syntaxe<br />&#160; ctableau constant int[3]:= array[X&#039;00000001&#039;, X&#039;00000002&#039;, X&#039;0000000F&#039;]::int[];<br />tout fonctionne !</p><p>Cela m&#039;a permis de &#039;résoudre&#039; un autre &#039;bug&#039; ailleurs : si j&#039;affiche les valeurs de ctableau dans un RAISE NOTICE, j&#039;obtiens bien 1,&#160; 2 et 15. Mais si j&#039;enlève le ::int[] à la fin de la ligne, le même RAISE donne 1, 10,&#160; 1111 ce qui représente&#160; la chaine de bit mais dans un nombre entier !! Si j&#039;affiche 2 * ctableau[3], j&#039;obtiens 2222 !!!!</p><p>Merci beaucoup pour ton aide.<br />Jean à Grenoble</p>]]></content>
+		<author>
+			<name><![CDATA[trainvapeur]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8059</uri>
+		</author>
+		<updated>2018-08-22T08:28:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28153#p28153</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  initialisation d'un tableau avec des constantes en hexadecimal]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28152#p28152"/>
+		<content type="html"><![CDATA[<p>C&#039;est plus simple, je trouve, avec la syntaxe ARRAY[], dans ce cas là:</p><p>ARRAY[X&#039;00000001&#039;, X&#039;00000002&#039;, X&#039;00000004&#039;];</p><p>Sinon vous pouvez initialiser la variable avec une fonction, par exemple:</p><div class="codebox"><pre><code>create or replace function genere_array () returns int[] language plpgsql as
+$$
+declare i int;
+declare ctableau int[]:= array[]::int[];
+begin
+  for i in 0..31 loop
+          ctableau := ctableau || (1&lt;&lt;i);
+  end loop;
+  return ctableau;
+end
+$$
+;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2018-08-21T19:57:21Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28152#p28152</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[initialisation d'un tableau avec des constantes en hexadecimal]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28147#p28147"/>
+		<content type="html"><![CDATA[<p>Bonsoir,</p><p>je voudrais initialiser un tableau avec les 32 premières puissances de 2. Si je ne prend que les 3 premières, je peux écrire :</p><p>ctableau constant integer ARRAY[3] := &#039;{1, 2, 4}&#039;;</p><p>Cela fonctionne. Mais cela devient un peu compliqué avec les grandes valeurs et pour être plus lisible, je voudrais écrire les constantes en hexadécimal. Quelquechose comme :<br />ctableau constant integer ARRAY[3] := &#039;{X&#039;00000001&#039;, X&#039;00000002&#039;, X&#039;00000004&#039;}&#039;;</p><p>Je crois avoir essayé toutes les écritures possibles mais soit j&#039;ai une erreur de syntaxe soit c&#039;est à l&#039;execution que j&#039;ai une erreur.</p><p>Est-ce que vous auriez une idée ?</p><p>Par contre, la déclaration d&#039;une variable simple fonctionne : <br /> toto constant integer := X&#039;00000004&#039;;</p><p>Merci d&#039;avance !<br />Jean à Grenoble</p>]]></content>
+		<author>
+			<name><![CDATA[trainvapeur]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8059</uri>
+		</author>
+		<updated>2018-08-20T19:55:50Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28147#p28147</id>
+	</entry>
+</feed>

@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Compréhension de l'index spatial]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5110&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5110"/>
+	<updated>2019-01-31T10:51:15Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5110</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Compréhension de l'index spatial]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29060#p29060"/>
+		<content type="html"><![CDATA[<p>Je ne dis pas qu&#039;il n&#039;y a rien à faire en général dans votre cas. Mais sur les deux exemples montrés, en effet, on ne pourra rien faire.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2019-01-31T10:51:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29060#p29060</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Compréhension de l'index spatial]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29056#p29056"/>
+		<content type="html"><![CDATA[<p>En résumé, y a pas vraiment grand chose à faire pour mon cas de figure... Dommage !</p><br /><p>Quoiqu&#039;il en soit, un <strong>énorme merci</strong> pour tout tes éclairages !<br />Le lien vers le commentaire pour comprendre le choix d&#039;un plan par rapport à un autre est très intéressant.</p>]]></content>
+		<author>
+			<name><![CDATA[PleinsDeQuestions]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8480</uri>
+		</author>
+		<updated>2019-01-31T09:24:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29056#p29056</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Compréhension de l'index spatial]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29054#p29054"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Je n&#039;ai pas compris ce que tu veux dire par &quot;On peut l&#039;influencer via la commande ALTER TABLE colonne par colonne, mais pas pour un type de données.&quot;; est-ce que tu pourrais être plus précis, stp ?</p></div></blockquote></div><p>Comme tu l&#039;as indiqué dans ton premier message, le ALTER TABLE permet de changer la taille de l&#039;échantillon statistique pris, mais cela se fait pour une colonne particulière (ALTER TABLE... ALTER COLUMN... STATISTICS...). On ne peut pas changer cet échantillon statistique pour un type particulier (varchar par exemple, ou polygon). Je n&#039;ai pas de ALTER TYPE pour ça. On peut écrire un script qui va changer le STATISTICS pour chaque colonne de type X dans la base, mais on ne peut pas le faire de façon globale.</p><div class="quotebox"><blockquote><div><p>Dans ce cas-ci, tu dis que modifier les statistiques ne changeraient pas le choix du planificateur; ok, je le constate mais d&#039;une manière générale, je crois comprendre que ça pourrait être le cas, non ? Puisque le planificateur s&#039;appuie sur les statistiques.</p></div></blockquote></div><p>Oui, c&#039;est le but des statistiques. Plus les statistiques sont fines, plus le nombre de lignes estimées est précis et meilleur sera le plan. Mais cela vaut quand l&#039;erreur d&#039;estimation est importante ie (1000 lignes par rapport à 1 million par exemple).</p><div class="quotebox"><blockquote><div><p>4/ Pourquoi le planificateur a choisit l&#039;index scan lors de l&#039;exécution &quot;normale&quot; (sans modification de &quot;enable_...&quot;) avec un coût de 145.25 alors que le bitmap index scan à un coût de 144.42 donc inférieur ?</p></div></blockquote></div><p>J&#039;ai eu le même problème chez un client. En fait, lorsque l&#039;optimiseur de requêtes crée les différents plans et compare les coûts, il ne le fait pas exactement. Ce n&#039;est pas une comparaison stricte. Il s&#039;accorde un delta de +1%. L&#039;algo utilisé n&#039;est pas très complexe. Les deux plans sont considérés identiques si leur coût (initial et final) avec le delta sont identiques. Un plan est préféré à un autre si son coût initial est meilleur et que le coût final avec delta est identique. Ça correspond à ton cas. Le coût initial avec l&#039;Index Scan est de 0.42 alors qu&#039;avec le Bitmap Scan, on est sur 4.67. Quant au coût, on a 145.25 pour le premier et 144.42 pour le second. Le premier (donc l&#039;Index Scan) l&#039;emporte.</p><p>Tu trouveras plus de détails sur <a href="https://github.com/postgres/postgres/blob/master/src/backend/optimizer/util/pathnode.c#L141" rel="nofollow">https://github.com/postgres/postgres/bl … ode.c#L141</a>.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2019-01-31T08:09:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29054#p29054</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Compréhension de l'index spatial]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29052#p29052"/>
+		<content type="html"><![CDATA[<p>Merci beaucoup pour la réponse.</p><br /><p>Effectivement pour cet exemple-ci, la différence au niveau du temps d&#039;exécution est trop faible pour s&#039;en préoccuper; en fait, via cet exemple, je souhaitais juste montrer que le plan choisit n&#039;était, dans la pratique, pas le meilleur et je ne comprends pas comment modifier cela.</p><br /><p>Je n&#039;ai pas compris ce que tu veux dire par &quot;<em><strong>On peut l&#039;influencer via la commande ALTER TABLE colonne par colonne, mais pas pour un type de données.</strong></em>&quot;; est-ce que tu pourrais être plus précis, stp ?</p><br /><p>Dans ce cas-ci, tu dis que modifier les statistiques ne changeraient pas le choix du planificateur; ok, je le constate mais d&#039;une manière générale, je crois comprendre que ça pourrait être le cas, non ? Puisque le planificateur s&#039;appuie sur les statistiques.</p><br /><br /><p>Je viens de refaire vite fait un autre test sur une table contenant 10 000 000 de lignes et j&#039;ai un résultat que je ne comprends pas.</p><p>Exécution initiale :</p><div class="codebox"><pre><code>EXPLAIN (COSTS, SUMMARY, VERBOSE) SELECT * FROM tab_geom_avec_index_gist WHERE ST_Intersects(ST_GeomFromText(&#039;POLYGON((0 45, 0 47, 5 47, 5 45, 0 45))&#039;, 4326), wkb_polygon);
+                                                                                                                                   QUERY PLAN                                                                                                                                   
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Index Scan using idx_poly_gist on public.tab_geom_avec_index_gist  (cost=0.42..145.25 rows=11 width=284)
+   Output: id, wkb_point, wkb_polygon, wkt_point, wkt_polygon
+   Index Cond: (&#039;0103000020E610000001000000050000000000000000000000000000000080464000000000000000000000000000804740000000000000144000000000008047400000000000001440000000000080464000000000000000000000000000804640&#039;::geometry &amp;&amp; tab_geom_avec_index_gist.wkb_polygon)
+   Filter: _st_intersects(&#039;0103000020E610000001000000050000000000000000000000000000000080464000000000000000000000000000804740000000000000144000000000008047400000000000001440000000000080464000000000000000000000000000804640&#039;::geometry, tab_geom_avec_index_gist.wkb_polygon)
+ Planning time: 0.200 ms
+(5 rows)</code></pre></div><p>Suppression de l&#039;utilisation de l&#039;index scan puis exécution de la même requête :</p><div class="codebox"><pre><code>SET enable_indexscan TO OFF;
+EXPLAIN (COSTS, SUMMARY, VERBOSE) SELECT * FROM tab_geom_avec_index_gist WHERE ST_Intersects(ST_GeomFromText(&#039;POLYGON((0 45, 0 47, 5 47, 5 45, 0 45))&#039;, 4326), wkb_polygon);
+                                                                                                                                   QUERY PLAN                                                                                                                                   
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Bitmap Heap Scan on public.tab_geom_avec_index_gist  (cost=4.67..144.42 rows=11 width=284)
+   Output: id, wkb_point, wkb_polygon, wkt_point, wkt_polygon
+   Recheck Cond: (&#039;0103000020E610000001000000050000000000000000000000000000000080464000000000000000000000000000804740000000000000144000000000008047400000000000001440000000000080464000000000000000000000000000804640&#039;::geometry &amp;&amp; tab_geom_avec_index_gist.wkb_polygon)
+   Filter: _st_intersects(&#039;0103000020E610000001000000050000000000000000000000000000000080464000000000000000000000000000804740000000000000144000000000008047400000000000001440000000000080464000000000000000000000000000804640&#039;::geometry, tab_geom_avec_index_gist.wkb_polygon)
+   -&gt;  Bitmap Index Scan on idx_poly_gist  (cost=0.00..4.67 rows=33 width=0)
+         Index Cond: (&#039;0103000020E610000001000000050000000000000000000000000000000080464000000000000000000000000000804740000000000000144000000000008047400000000000001440000000000080464000000000000000000000000000804640&#039;::geometry &amp;&amp; tab_geom_avec_index_gist.wkb_polygon)
+ Planning time: 0.295 ms
+(7 rows)</code></pre></div><p>Suppression de l&#039;utilisation du bitmap index scan puis exécution de la même requête :</p><div class="codebox"><pre><code>SET enable_bitmapscan TO OFF;
+EXPLAIN (COSTS, SUMMARY, VERBOSE) SELECT * FROM tab_geom_avec_index_gist WHERE ST_Intersects(ST_GeomFromText(&#039;POLYGON((0 45, 0 47, 5 47, 5 45, 0 45))&#039;, 4326), wkb_polygon);
+                                                                                                                                   QUERY PLAN                                                                                                                                   
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Gather  (cost=1000.00..1489423.10 rows=11 width=284)
+   Output: id, wkb_point, wkb_polygon, wkt_point, wkt_polygon
+   Workers Planned: 2
+   -&gt;  Parallel Seq Scan on public.tab_geom_avec_index_gist  (cost=0.00..1488422.00 rows=5 width=284)
+         Output: id, wkb_point, wkb_polygon, wkt_point, wkt_polygon
+         Filter: ((&#039;0103000020E610000001000000050000000000000000000000000000000080464000000000000000000000000000804740000000000000144000000000008047400000000000001440000000000080464000000000000000000000000000804640&#039;::geometry &amp;&amp; tab_geom_avec_index_gist.wkb_polygon) AND _
+st_intersects(&#039;0103000020E610000001000000050000000000000000000000000000000080464000000000000000000000000000804740000000000000144000000000008047400000000000001440000000000080464000000000000000000000000000804640&#039;::geometry, tab_geom_avec_index_gist.wkb_polygon))
+ Planning time: 0.154 ms
+(7 rows)</code></pre></div><br /><p>Et là, la question est tout simplement :<br />4/ Pourquoi le planificateur a choisit l&#039;index scan lors de l&#039;exécution &quot;normale&quot; (sans modification de &quot;enable_...&quot;) avec un coût de <strong>145.25</strong> alors que le bitmap index scan à un coût de <strong>144.42</strong> donc inférieur ?</p><br /><p>Voilà, voilà...</p>]]></content>
+		<author>
+			<name><![CDATA[PleinsDeQuestions]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8480</uri>
+		</author>
+		<updated>2019-01-30T22:10:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29052#p29052</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Compréhension de l'index spatial]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29050#p29050"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>1/ Je crois comprendre que le planificateur a choisit le plan seq scan car le coût est de 15089.79 alors que pour le bitmap index scan, le coût est de 16811.04 et pour l&#039;index scan de 42788.73. Est-ce bien pour cela ? Sinon quels sont les critères de choix du plan ?</p></div></blockquote></div><p>C&#039;est bien ça. Le calcul du coût lui indique que le parcours séquentiel serait le moins coûteux, donc il passe par ce dernier.</p><div class="quotebox"><blockquote><div><p>En fait, je constate, sur ma base de travail, qui n&#039;est pas celle de cet exemple, que le planificateur se trompe souvent; parfois, il utilise l&#039;index scan alors que je constate que le seq scan est plus rapide néanmoins le coût est, il est vrai, plus élevé (cela va de ~5 min avec index scan à ~30s avec seq scan, la différence est donc assez importante).</p></div></blockquote></div><p>En effet. Autant la différence sur les plans montrés est très légère, autant là, de 5 minutes à 30 secondes, c&#039;est problématique.</p><div class="quotebox"><blockquote><div><p>2/ Comment influencer le planificateur quand il s&#039;agit de colonne géométrique ? (sans passer par du SET enable_... TO OFF;)<br />Pour information, j&#039;ai fait des tests en modifiant les statistiques (ALTER TABLE .... SET STATISTICS...) et cela n&#039;a pas changer le résultat (aussi bien sur cette base de tests que sur ma base de travail).</p></div></blockquote></div><p>Il n&#039;y a pas de moyen d&#039;influencer le planificateur spécifiquement pour des colonnes géométriques. On peut l&#039;influencer via la commande ALTER TABLE colonne par colonne, mais pas pour un type de données.</p><div class="quotebox"><blockquote><div><p>3/ Je constate églement que le nombre de lignes estimés est largement différent du nombre de lignes réels; est-ce important ? Comment influencer cela ?</p></div></blockquote></div><p>Je ne les trouve pas si différent que ça. En effet, cela va du simple au double, mais dans ce cas, ça veut dire une différence de 20000 sur 40000. Avoir une meilleure statistique ne changera probablement pas le plan. Encore une fois, je pense que l&#039;exemple proposé n&#039;est pas très parlant et il me semble là très difficile de l&#039;améliorer pour un gain très relatif (on parle, sur ces plans, de passer de 338ms à 208ms).</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2019-01-30T20:52:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29050#p29050</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Compréhension de l'index spatial]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29046#p29046"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><p>Je suis actuellement sur un développement cartographique, je travaille sur une base avec l&#039;extension PostGIS et je rencontre un problème avec ma compréhension des <strong>index spatiaux</strong>.<br />Pour information, je ne suis pas DBA, j&#039;ai juste quelques connaissances, aussi je pense que je passe à côté de quelque chose donc si vous pouvez m&#039;aiguiller ça m&#039;aiderait beaucoup ! <img src="http://forums.postgresql.fr/img/smilies/big_smile.png" width="15" height="15" alt="big_smile" /></p><p>Je ne peux pas mettre ma base à disposition néanmoins j&#039;ai pu reproduire le problème avec une base trouvée sur le net donc si vous voulez essayer... <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>Sur le site de <a href="https://www.naturalearthdata.com/downloads/10m-cultural-vectors/roads/" rel="nofollow">Natural Earth</a>, j&#039;ai téléchargé la base &quot;Download North Americ supplement&quot;.<br />Une fois chargée, j&#039;ai exécuté les commandes suivantes :</p><div class="codebox"><pre><code>SELECT UpdateGeometrySRID(&#039;ne_10m_roads_north_america&#039;, &#039;geom&#039;, 4326);
+
+CREATE INDEX idx_geom ON ne_10m_roads_north_america USING GIST(geom);
+
+VACUUM (FULL, FREEZE, ANALYZE, VERBOSE) ne_10m_roads_north_america;</code></pre></div><br /><p>Suit les commandes avec leurs plans d&#039;exécution.</p><p>Exécution initiale :</p><div class="codebox"><pre><code>EXPLAIN (ANALYZE, BUFFERS, COSTS, TIMING, SUMMARY, VERBOSE) SELECT * FROM ne_10m_roads_north_america WHERE ST_Intersects(ST_GeomFromText(&#039;POLYGON((-165 75, -165 10, -40 10, -40 75, -165 75))&#039;, 4326), geom);
+                                                                                                                                   QUERY PLAN                                                                                                                                    
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Gather  (cost=1000.00..15089.79 rows=16394 width=1437) (actual time=4.988..338.215 rows=49172 loops=1)
+   Output: gid, prefix, number, class, type, divided, country, state, note, scalerank, uident, length, rank, continent, geom
+   Workers Planned: 2
+   Workers Launched: 2
+   Buffers: shared hit=16277
+   -&gt;  Parallel Seq Scan on public.ne_10m_roads_north_america  (cost=0.00..12450.39 rows=6831 width=1437) (actual time=0.078..77.799 rows=16391 loops=3)
+         Output: gid, prefix, number, class, type, divided, country, state, note, scalerank, uident, length, rank, continent, geom
+         Filter: ((&#039;0103000020E610000001000000050000000000000000A064C00000000000C052400000000000A064C0000000000000244000000000000044C0000000000000244000000000000044C00000000000C052400000000000A064C00000000000C05240&#039;::geometry &amp;&amp; ne_10m_roads_north_america.geom) AND _st_intersects(&#039;0103000020E610000001000000050000000000000000A064C00000000000C052400000000000A064C0000000000000244000000000000044C0000000000000244000000000000044C00000000000C052400000000000A064C00000000000C05240&#039;::geometry, ne_10m_roads_north_america.geom))
+         Rows Removed by Filter: 4
+         Buffers: shared hit=16277
+         Worker 0: actual time=0.059..39.364 rows=9341 loops=1
+           Buffers: shared hit=3364
+         Worker 1: actual time=0.101..54.351 rows=9456 loops=1
+           Buffers: shared hit=3464
+ Planning time: 0.432 ms
+ Execution time: 340.440 ms
+(16 rows)</code></pre></div><br /><p>Suppression de l&#039;utilisation du scan séquentiel puis exécution de la même requête :</p><div class="codebox"><pre><code>SET enable_seqscan TO OFF;
+EXPLAIN (ANALYZE, BUFFERS, COSTS, TIMING, SUMMARY, VERBOSE) SELECT * FROM ne_10m_roads_north_america WHERE ST_Intersects(ST_GeomFromText(&#039;POLYGON((-165 75, -165 10, -40 10, -40 75, -165 75))&#039;, 4326), geom);
+                                                                                                                                   QUERY PLAN                                                                                                                                    
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Gather  (cost=2721.25..16811.04 rows=16394 width=1437) (actual time=22.936..354.417 rows=49172 loops=1)
+   Output: gid, prefix, number, class, type, divided, country, state, note, scalerank, uident, length, rank, continent, geom
+   Workers Planned: 2
+   Workers Launched: 2
+   Buffers: shared hit=12042
+   -&gt;  Parallel Bitmap Heap Scan on public.ne_10m_roads_north_america  (cost=1721.25..14171.64 rows=6831 width=1437) (actual time=8.743..73.247 rows=16391 loops=3)
+         Output: gid, prefix, number, class, type, divided, country, state, note, scalerank, uident, length, rank, continent, geom
+         Recheck Cond: (&#039;0103000020E610000001000000050000000000000000A064C00000000000C052400000000000A064C0000000000000244000000000000044C0000000000000244000000000000044C00000000000C052400000000000A064C00000000000C05240&#039;::geometry &amp;&amp; ne_10m_roads_north_america.geom)
+         Filter: _st_intersects(&#039;0103000020E610000001000000050000000000000000A064C00000000000C052400000000000A064C0000000000000244000000000000044C0000000000000244000000000000044C00000000000C052400000000000A064C00000000000C05240&#039;::geometry, ne_10m_roads_north_america.geom)
+         Heap Blocks: exact=3595
+         Buffers: shared hit=12042
+         Worker 0: actual time=5.048..50.006 rows=12267 loops=1
+           Buffers: shared hit=2753
+         Worker 1: actual time=3.993..50.751 rows=12197 loops=1
+           Buffers: shared hit=3077
+         -&gt;  Bitmap Index Scan on idx_geom  (cost=0.00..1717.15 rows=49183 width=0) (actual time=14.625..14.625 rows=49172 loops=1)
+               Index Cond: (&#039;0103000020E610000001000000050000000000000000A064C00000000000C052400000000000A064C0000000000000244000000000000044C0000000000000244000000000000044C00000000000C052400000000000A064C00000000000C05240&#039;::geometry &amp;&amp; ne_10m_roads_north_america.geom)
+               Buffers: shared hit=337
+ Planning time: 0.494 ms
+ Execution time: 357.957 ms
+(20 rows)</code></pre></div><p>Suppression de l&#039;utilisation du bitmap index puis exécution de la même requête :</p><div class="codebox"><pre><code>SET enable_bitmapscan TO OFF;
+EXPLAIN (ANALYZE, BUFFERS, COSTS, TIMING, SUMMARY, VERBOSE) SELECT * FROM ne_10m_roads_north_america WHERE ST_Intersects(ST_GeomFromText(&#039;POLYGON((-165 75, -165 10, -40 10, -40 75, -165 75))&#039;, 4326), geom);
+                                                                                                                                QUERY PLAN                                                                                                                                 
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Index Scan using idx_geom on public.ne_10m_roads_north_america  (cost=0.28..42788.73 rows=16394 width=1437) (actual time=0.156..208.141 rows=49172 loops=1)
+   Output: gid, prefix, number, class, type, divided, country, state, note, scalerank, uident, length, rank, continent, geom
+   Index Cond: (&#039;0103000020E610000001000000050000000000000000A064C00000000000C052400000000000A064C0000000000000244000000000000044C0000000000000244000000000000044C00000000000C052400000000000A064C00000000000C05240&#039;::geometry &amp;&amp; ne_10m_roads_north_america.geom)
+   Filter: _st_intersects(&#039;0103000020E610000001000000050000000000000000A064C00000000000C052400000000000A064C0000000000000244000000000000044C0000000000000244000000000000044C00000000000C052400000000000A064C00000000000C05240&#039;::geometry, ne_10m_roads_north_america.geom)
+   Buffers: shared hit=28859
+ Planning time: 0.296 ms
+ Execution time: 210.150 ms
+(7 rows)</code></pre></div><p>Je constate alors que l&#039;utilisation de l&#039;index serait le plus profitable en terme de temps d&#039;exécution (340.440 ms avec seq scan - 357.957 ms avec bitmap index scan - 210.150 ms avec index scan).</p><br /><p><span class="bbu">Questions :</span><br />1/ Je crois comprendre que le planificateur a choisit le plan seq scan car le coût est de 15089.79 alors que pour le bitmap index scan, le coût est de 16811.04 et pour l&#039;index scan de 42788.73. Est-ce bien pour cela ? Sinon quels sont les critères de choix du plan ?</p><br /><p>En fait, je constate, sur ma base de travail, qui n&#039;est pas celle de cet exemple, que le planificateur se trompe souvent; parfois, il utilise l&#039;index scan alors que je constate que le seq scan est plus rapide néanmoins le coût est, il est vrai, plus élevé (cela va de ~5 min avec index scan à ~30s avec seq scan, la différence est donc assez importante).<br />2/ Comment influencer le planificateur quand il s&#039;agit de colonne géométrique ? (sans passer par du SET enable_... TO OFF;)<br />Pour information, j&#039;ai fait des tests en modifiant les statistiques (ALTER TABLE .... SET STATISTICS...) et cela n&#039;a pas changer le résultat (aussi bien sur cette base de tests que sur ma base de travail).</p><br /><p>3/ Je constate églement que le nombre de lignes estimés est largement différent du nombre de lignes réels; est-ce important ? Comment influencer cela ?</p><br /><p>Bref, j&#039;ai vraiment l&#039;impression que le planificateur n&#039;est pas efficace quand il s&#039;agit d&#039;une colonne géométrique (alors que pour les colonnes &quot;classiques&quot;, je ne rencontre pas ce soucis). J&#039;aimerais comprendre ce qu&#039;il se passe <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><br /><p>Si vous avez des suggestions, je suis très preneur !! <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[PleinsDeQuestions]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8480</uri>
+		</author>
+		<updated>2019-01-30T12:59:09Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29046#p29046</id>
+	</entry>
+</feed>

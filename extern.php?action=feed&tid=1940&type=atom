@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Bitmap Heap Scan]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1940&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1940"/>
+	<updated>2012-03-09T17:11:34Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1940</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Bitmap Heap Scan]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13113#p13113"/>
+		<content type="html"><![CDATA[<p>Pour infos, les slides se trouvent sur <a href="http://sites.google.com/site/robertmhaas/presentations" rel="nofollow">http://sites.google.com/site/robertmhaas/presentations</a> (avec toutes les autres confs de Robert Haas).</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-03-09T17:11:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13113#p13113</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Bitmap Heap Scan]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13108#p13108"/>
+		<content type="html"><![CDATA[<p>Merci, beaucoup!</p>]]></content>
+		<author>
+			<name><![CDATA[Postgres.0]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1310</uri>
+		</author>
+		<updated>2012-03-09T13:26:55Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13108#p13108</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Bitmap Heap Scan]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13106#p13106"/>
+		<content type="html"><![CDATA[<p>Non, ce n&#039;est pas une «anomalie», simplement une mauvaise estimation du nombre d&#039;enregistrements retournées. Comme le plan généré n&#039;est pas absurde, ça n&#039;aura que peu d&#039;impact. À la rigueur, il pourrait choisir de ne pas faire un nested loop sur position_pkey. Mais comme vous l&#039;avez dit, la table est petite… elle sera donc très rapidement en cache, et ça sera donc le bon plan.</p><p>Le bitmap scan est le bon plan par rapport à ce que vous voulez faire. Le fait que le «filter» enlève beaucoup d&#039;enregistrements ne change rien au fait que id_a = 206, en tout cas d&#039;après l&#039;optimiseur, est une valeur assez fréquente dans la table. Et qu&#039;il est donc plus rentable pour lui de partir sur un bitmap index scan que sur un index scan classique (qui lui est bon quand très peu d&#039;enregistrements sont ramenés).</p><p>Si vous voulez comprendre ces choses, dans le contexte PostgreSQL, vous avez quelques sources valables: <a href="https://www.pgcon.org/2010/schedule/events/208.en.html" rel="nofollow">https://www.pgcon.org/2010/schedule/events/208.en.html</a> (vous avez la conf audio, et les slides qui vont avec doivent pouvoir se trouver), et sinon, vous avez le «PostgreSQL High Performance» de Greg Smith (traduit en français si vous le préférez) qui a tout un chapitre sur le sujet.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2012-03-09T13:20:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13106#p13106</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Bitmap Heap Scan]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13104#p13104"/>
+		<content type="html"><![CDATA[<p>Sinon avez vous un lien qui peut m&#039;aider à comprendre techniquement ces mots:</p><p>HashAggregate,Hash Join,Hash Cond,Append,Index Cond,Bitmap Heap Scan,Recheck Cond,Filter, Hash.</p><p>J&#039;ai vraiment en vie de comprendre comment l&#039;optimiseur fonctionne.</p>]]></content>
+		<author>
+			<name><![CDATA[Postgres.0]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1310</uri>
+		</author>
+		<updated>2012-03-09T13:05:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13104#p13104</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Bitmap Heap Scan]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13103#p13103"/>
+		<content type="html"><![CDATA[<p>vous avez parafaitement raison, ça ne changera rien.<br />L&#039;analyse que j&#039;ai faites étais sur la requete déjà dans le cache.<br />J&#039;aimerai quand même bien savoir comment je corrige cette anomalie car elle me permettera de gagner en temps d&#039;exécutiion.</p>]]></content>
+		<author>
+			<name><![CDATA[Postgres.0]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1310</uri>
+		</author>
+		<updated>2012-03-09T13:01:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13103#p13103</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Bitmap Heap Scan]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13101#p13101"/>
+		<content type="html"><![CDATA[<p>C&#039;est un des problèmes effectivement, il ne déduit pas de p.id_b=aft.id_b and aft.id_b = ANY( &#039;{1442,1436,1440,1441,1443,1452,1451,1435,1449,1450,1439,1444,1446,1438,1437,1445,1448,1447}&#039; ) que p.id_b = ANY( &#039;{1442,1436,1440,1441,1443,1452,1451,1435,1449,1450,1439,1444,1446,1438,1437,1445,1448,1447}&#039; )</p><p>PostgreSQL ne sait le faire (en tout cas pour le moment, mais je ne suis pas au courant de plans pour améliorer ça) que dans le cas où la colonne est égale à une constante (on aurait aft.id_b = 1442, il saurait déduire p.id_b = 1442)</p><p>Par contre, je ne vois pas comment ça fait disparaitre l&#039;anomalie. Être plus rapide, probablement, vu que vous lui donnez plus d&#039;informations. Vous pouvez poster le nouveau plan ?</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2012-03-09T12:25:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13101#p13101</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Bitmap Heap Scan]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13098#p13098"/>
+		<content type="html"><![CDATA[<p>la table p est beaucoup plus petite que la table aft.<br />Quand je filtre sur&#160; </p><div class="codebox"><pre><code>p.id_b = ANY( &#039;{1442,1436,1440,1441,1443,1452,1451,1435,1449,1450,1439,1444,1446,1438,1437,1445,1448,1447}&#039; ).</code></pre></div><p>l&#039;anomalie disparait, pensez vous que c&#039;est à cause de ça.</p><p>Sinon avez une proposition pour que je puisse gagner en tèrme de temps d&#039;exécution.</p>]]></content>
+		<author>
+			<name><![CDATA[Postgres.0]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1310</uri>
+		</author>
+		<updated>2012-03-09T11:14:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13098#p13098</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Bitmap Heap Scan]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13097#p13097"/>
+		<content type="html"><![CDATA[<p>Oups! j&#039;ai enlevé un commentaire de la requete, je la corrige:</p><div class="codebox"><pre><code> SELECT currency, id_a, NULL :: bigint, NULL :: character varying,  position , NULL :: integer, (SUM(number_of_one) + SUM(number_of_two) + SUM(number_of_zero) + SUM(number_of_three) + SUM(number_of_for))  AS nbr, (SUM(amount_one)    + SUM(amount_two)    + SUM(amount_three)    + SUM(amount_for)    + SUM(amount_five))     AS amount, SUM(amount_six),                      SUM(number_of_five),              SUM(amount_seven)                     , SUM(number_of_six)                  , SUM(amount_eight)                    , SUM(number_of_seven)             , SUM(amount_nine)                    FROM Schem.TABLE aft , position p WHERE ag_date1 &gt;= &#039;2011-10-01 00:00:00&#039; AND ag_date1 &lt;= &#039;2011-10-31 23:59:59&#039; AND id_a = 206
+AND   p.id_b = aft.id_b
+AND aft.id_b = ANY( &#039;{1442,1436,1440,1441,1443,1452,1451,1435,1449,1450,1439,1444,1446,1438,1437,1445,1448,1447}&#039; )
+--AND p.id_b = ANY( &#039;{1442,1436,1440,1441,1443,1452,1451,1435,1449,1450,1439,1444,1446,1438,1437,1445,1448,1447}&#039; )
+ GROUP BY  currency,id_a, position;.</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[Postgres.0]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1310</uri>
+		</author>
+		<updated>2012-03-09T11:10:03Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13097#p13097</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Bitmap Heap Scan]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13096#p13096"/>
+		<content type="html"><![CDATA[<p>C&#039;est la 8.4</p>]]></content>
+		<author>
+			<name><![CDATA[Postgres.0]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1310</uri>
+		</author>
+		<updated>2012-03-09T10:59:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13096#p13096</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Bitmap Heap Scan]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13095#p13095"/>
+		<content type="html"><![CDATA[<p>Non, ce n&#039;est pas vraiment «normal» qu&#039;il y ait une erreur d&#039;estimation de ce genre. Il se trompe vraisemblablement sur l&#039;estimation de la sélectivité du filtre du bitmap heap scan. Mais de toutes façons le bitmap index scan + bitmap heap scan est probablement la meilleure stratégie tout de même…</p><p>Vous pouvez essayer de jouer sur les critères du filtre pour trouver ce qui l&#039;induit en erreur. Peut-être le ANY ? Par ailleurs, c&#039;est quelle version de PG ?</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2012-03-09T10:57:02Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13095#p13095</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Bitmap Heap Scan]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13094#p13094"/>
+		<content type="html"><![CDATA[<p>Bitmap Heap Scan on par_TABLE_2011_10 aft&#160; (cost=39.89..7441.02 rows=2 width=109) (actual time=0.641..8.092 rows=1934 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Recheck Cond: (id_a = 206)</p><p>Sur ce bout de code, il s&#039;attend à avoir 2 lignes mais à la fin il a 1934, je me demande si c&#039;est normal.<br />J&#039;ai lu quelque part que le Heap Scan&#160; est pas loin du seq scan.</p><p>Le problème&#160; est que j&#039;ai une procedure qui vas boucler n fois sur ce type de requetes, cette procedure a en paramètre un tableau d&#039;id_a, et un tableau d&#039;id_b ainsi que les autres filtres.</p><p>Pour executer la requete je faits RETURN QUERY EXECUTE ma_chane.<br />ma_chaine contient la requete (SQLD).<br />Mon temps d&#039;execution dépasse les 4mn, j&#039;ai donc analyser une étape de la boucle, por voir comment je peux gagner du temps.</p>]]></content>
+		<author>
+			<name><![CDATA[Postgres.0]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1310</uri>
+		</author>
+		<updated>2012-03-09T10:42:02Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13094#p13094</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Bitmap Heap Scan]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13093#p13093"/>
+		<content type="html"><![CDATA[<p>Il a éliminé toutes les partitions qui n&#039;ont pas ag_date1 &gt;= &#039;2011-10-01 00:00:00&#039; AND ag_date1 &lt;= &#039;2011-10-31 23:59:59&#039;, et se contente donc de la partition par_TABLE_2011_10 et de la table parente.<br />Pour la table parente du partitionnement, il la lit par index sur id_a=206. Il a raison, c&#039;est le plus rapide, vu que ça va ramener 0 enregistrements, donc ça ne coûte quasiment rien.<br />Pour la table par_TABLE_2011_10, il choisit un bitmap_index_scan. C&#039;est à dire de parcourir l&#039;index intégralement pour construire la liste des blocs disques de la table à aller visiter. Ensuite il passe au bitmap heap scan, c&#039;est à dire qu&#039;il va regarder tous ces blocs. Pour tous ces blocs, il revérifie id_a=206 (le recheck), et il applique les autres filtres de la clause where.</p><p>Il fait un append de l&#039;index scan et du bitmap heap scan (c&#039;est fait en même temps, bien sûr, il n&#039;attend pas d&#039;avoir reçu tous les enregistrements).</p><p>Au fur et à mesure de cet append, il jointure sur position, via son nested loop. Et évidemment il agrège l&#039;ensemble, comme demandé par le group by.</p><p>Où est le problème ? (le plan me semble assez logique vu la requête).</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2012-03-09T10:30:06Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13093#p13093</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Bitmap Heap Scan]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13090#p13090"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>quand je fais un AXPLAIN ANALYZE de ma requete, j&#039;ai le plan suivant :</p><div class="codebox"><pre><code>HashAggregate  (cost=7474.42..7474.68 rows=3 width=211) (actual time=20.994..21.020 rows=15 loops=1)
+   -&gt;  Nested Loop  (cost=0.00..7474.22 rows=3 width=211) (actual time=0.683..14.333 rows=1934 loops=1)
+         -&gt;  Append  (cost=0.00..7449.31 rows=3 width=202) (actual time=0.655..8.342 rows=1934 loops=1)
+               -&gt;  Index Scan using TABLE_idx0 on TABLE aft  (cost=0.00..8.30 rows=1 width=388) (actual time=0.013..0.013 rows=0 loops=1)
+                     Index Cond: (id_a = 206)
+                     Filter: ((ag_date1 &gt;= &#039;2011-10-01 00:00:00&#039;::timestamp without time zone) AND (ag_date1 &lt;= &#039;2011-10-31 23:59:59&#039;::timestamp without time zone) AND (id_b = ANY (&#039;{1442,1436,1440,1441,1443,1452,1451,1435,1449,1450,1439,1444,1446,1438,1437,1445,1448,1447}&#039;::bigint[])))
+               -&gt;  Bitmap Heap Scan on par_TABLE_2011_10 aft  (cost=39.89..7441.02 rows=2 width=109) (actual time=0.641..8.092 rows=1934 loops=1)
+                     Recheck Cond: (id_a = 206)
+                     Filter: ((ag_date1 &gt;= &#039;2011-10-01 00:00:00&#039;::timestamp without time zone) AND (ag_date1 &lt;= &#039;2011-10-31 23:59:59&#039;::timestamp without time zone) AND (id_b = ANY (&#039;{1442,1436,1440,1441,1443,1452,1451,1435,1449,1450,1439,1444,1446,1438,1437,1445,1448,1447}&#039;::bigint[])))
+                     -&gt;  Bitmap Index Scan on par_TABLE_2011_10_idx0  (cost=0.00..39.89 rows=2034 width=0) (actual time=0.353..0.353 rows=1934 loops=1)
+                           Index Cond: (id_a = 206)
+         -&gt;  Index Scan using position_pkey on position p  (cost=0.00..8.29 rows=1 width=13) (actual time=0.002..0.003 rows=1 loops=1934)
+               Index Cond: (p.id_pos = aft.id_pos)
+ Total runtime: 21.223 ms.</code></pre></div><p>Je ne comprends pas le comportement du Bitmap Heap Scan.<br />Je ne comprends pas non plus pourqoui il y a plusieurs check cond.<br />Je&#160; signale que ma table est partitionnée.</p><br /><p>Voici la requête:</p><div class="codebox"><pre><code>  SELECT currency, id_a, NULL :: bigint, NULL :: character varying,  position , NULL :: integer, (SUM(number_of_one) + SUM(number_of_two) + SUM(number_of_zero) + SUM(number_of_three) + SUM(number_of_for))  AS nbr, (SUM(amount_one)    + SUM(amount_two)    + SUM(amount_three)    + SUM(amount_for)    + SUM(amount_five))     AS amount, SUM(amount_six),                      SUM(number_of_five),              SUM(amount_seven)                     , SUM(number_of_six)                  , SUM(amount_eight)                    , SUM(number_of_seven)             , SUM(amount_nine)                    FROM Schem.TABLE aft , position p WHERE ag_date1 &gt;= &#039;2011-10-01 00:00:00&#039; AND ag_date1 &lt;= &#039;2011-10-31 23:59:59&#039; AND id_a = 206
+AND   p.id_b = aft.id_b
+AND aft.id_b = ANY( &#039;{1442,1436,1440,1441,1443,1452,1451,1435,1449,1450,1439,1444,1446,1438,1437,1445,1448,1447}&#039; )
+AND p.id_b = ANY( &#039;{1442,1436,1440,1441,1443,1452,1451,1435,1449,1450,1439,1444,1446,1438,1437,1445,1448,1447}&#039; )
+ GROUP BY  currency,id_a, position;
+.</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[Postgres.0]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1310</uri>
+		</author>
+		<updated>2012-03-09T09:56:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13090#p13090</id>
+	</entry>
+</feed>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Réplication multi-maître-maitre]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1339&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1339"/>
+	<updated>2011-04-08T13:17:44Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1339</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Réplication multi-maître-maitre]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8854#p8854"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Pour ce qui est des serveurs injoignables, c&#039;est dans le cas où une agence est en blackout suite à une panne de courant</p></div></blockquote></div><p>Dans ce cas, inutile que le serveur de l&#039;agence ne soit un master lui-même, de toute façon, il n&#039;a pas de courant <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>Je sais que ce n&#039;est qu&#039;un exemple. Cependant, il faut avoir un vrai cas d&#039;utilisation pour demander une telle solution qui a toujours des contraintes très fortes.</p><div class="quotebox"><blockquote><div><p>Nous avons une base dite &quot;groupe&quot; où les infos de toutes les agences sont centralisées. Cette base est accessible à certains de nos clients pour inscription de données.<br />Les agences de leurs cotés doivent pouvoir travailler (logique) et donc créer également des données dans les bases &quot;locales&quot;.<br />Ils me faut donc un moyen pour consolider le tout et que les données groupe soient descendues dans les données locales et inversement.</p></div></blockquote></div><p>Il existe plusieurs façons. Par exemple, disons que vous avez la table stock où chaque agence doit pouvoir écrire. Il suffit dans ce cas de créer une table stock_agence1 où seule l&#039;agence 1 peut écrire, stock_agence2 où seule l&#039;agence 2 peut écrire, etc. Pour lire, il vous suffit d&#039;une vue qui agrège les différentes tables ou d&#039;une table parent dans le cas d&#039;un héritage. Le but étant d&#039;avoir pour chaque table un seul maître, ce qui vous permet d&#039;utiliser Slony ou Londiste par exemple. Autre possibilité, associer un bigint pour la clé primaire et spécifier que l&#039;agence 1 peut aller de la valeur 1 à 1000000, l&#039;agence 2 de 1000001 à 2000000, etc. Il est possible de forcer cela en configurant correctement les séquences associées.</p><p>Bref, il existe des solutions ne passant pas par du maître/maître.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-04-08T13:17:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8854#p8854</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Réplication multi-maître-maitre]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8853#p8853"/>
+		<content type="html"><![CDATA[<p>Tout d&#039;abord merci de votre réponse.</p><p>Pour ce qui est des serveurs injoignables, c&#039;est dans le cas où une agence est en blackout suite à une panne de courant (par exemple).<br />Après je suis ouvert à vos conseils concernant l&#039;architecture.</p><p>je pense en avoir besoin car voilà le schéma actuelle :</p><p>Nous avons une base dite &quot;groupe&quot; où les infos de toutes les agences sont centralisées. Cette base est accessible à certains de nos clients pour inscription de données.<br />Les agences de leurs cotés doivent pouvoir travailler (logique) et donc créer également des données dans les bases &quot;locales&quot;.<br />Ils me faut donc un moyen pour consolider le tout et que les données groupe soient descendues dans les données locales et inversement.</p><p>Je suis ouvert à tout conseil y compris architecture (c&#039;est une refonte du SI).</p><p>Merci d&#039;avance</p>]]></content>
+		<author>
+			<name><![CDATA[TTIOT]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1189</uri>
+		</author>
+		<updated>2011-04-08T12:52:02Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8853#p8853</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Réplication multi-maître-maitre]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8852#p8852"/>
+		<content type="html"><![CDATA[<p>Ce que vous cherchez à obtenir m&#039;a l&#039;air tout simplement impossible. Vous voulez du multi-maître, en sachant que les serveurs peuvent être injoignables. Comment gérez-vous les conflits dans ce cas ? par conflit, j&#039;entends qu&#039;un utilisateur sur un serveur modifie une ligne qu&#039;un autre utilisateur sur un autre serveur modifie aussi. Comment voulez-vous que ce cas soit géré si les deux serveurs ne peuvent pas communiquer ?</p><p>Maintenant, cela étant dit, je n&#039;ai jamais rencontré de cas où une réplication multi-maître était vraiment indispensable. Pourquoi pensez-vous en avoir besoin ?</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-04-08T12:41:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8852#p8852</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réplication multi-maître-maitre]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8850#p8850"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous,</p><p>Je me permets de vous contacter afin d&#039;avoir votre avis sur mon problème.<br />Je doit mettre en place un système de réplication entre différents serveurs à travers la France et tous ces serveurs doivent être en lecture/écriture.<br />J&#039;ai regardé du coté de bucardo mais il ne gère que 2 maîtres.</p><p>Auriez vous des conseils pour moi sachant que les serveurs peuvent être injoignables?</p><p>Merci par avance de votre aide.</p><p>Cordialement,</p><p>Julien</p>]]></content>
+		<author>
+			<name><![CDATA[TTIOT]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1189</uri>
+		</author>
+		<updated>2011-04-08T12:04:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8850#p8850</id>
+	</entry>
+</feed>

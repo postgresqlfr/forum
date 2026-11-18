@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Question trigger]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3795&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3795"/>
+	<updated>2016-04-05T13:33:14Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3795</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Question trigger]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23228#p23228"/>
+		<content type="html"><![CDATA[<p>La ligne en cours d&#039;insertion, mais j&#039;ai réussi à résoudre mon soucis. <br />Merci d&#039;avoir répondu <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" />. </p><p>je poste le code au cas ou <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /> </p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION etude_count () RETURNS TRIGGER AS $etude_cn$
+DECLARE 
+
+nomTable text; 
+BEGIN
+	execute &#039;select nomdfluxassoc from etude where id = &#039;||NEW.id||&#039;&#039; INTO nomTable ; 
+    --fonctionne mais met a zero mes autre champs
+    execute &#039; update etude set nbenregistrements = ( SELECT COUNT(*) FROM &#039;||nomTable||&#039;) where id = &#039;||NEW.id||&#039;&#039;; 
+    RETURN null; 
+END;
+$etude_cn$ language plpgsql;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[mika]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=6248</uri>
+		</author>
+		<updated>2016-04-05T13:33:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23228#p23228</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Question trigger]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23227#p23227"/>
+		<content type="html"><![CDATA[<p>Vous voulez mettre à jour les autres lignes ou la ligne en cours d&#039;insertion ?</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2016-04-05T13:31:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23227#p23227</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Question trigger]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23226#p23226"/>
+		<content type="html"><![CDATA[<p>Bobjour, </p><p>Etant nouveau dans le domaine, je me pose une question concernant les triggers : Est-il possible de mettre à jour une ligne sans modifier toutes les lignes de la même colonnes ? </p><p>Je m&#039;explique. J&#039;ai créer une table etude qui références toutes les études disponibles. A chaque fois qu&#039;une nouvelle etude est crée (ce qui correspond à un nouvelle insert) je calcule le nombre d&#039;enregistrement contenu dans la table qui est lié à la nouvelle étude. Mon soucis est que quand le trigger se lance, il compte bien les enregistrements et l&#039;affecte bien à la ligne courante, mais il met à zero toutes les lignes précédentes. </p><p>(ps : ce n&#039;est que du bidouillage, rien de très officiel) </p><p>table d&#039;étude, ou le champs &#039;nbenregistrements&#039; contient le nom de table associé à l&#039;insert et dont il faut compter le nombre d&#039;enregistrement. </p><div class="codebox"><pre><code>CREATE TABLE etude
+(
+  id serial NOT NULL,
+  personneressource character(50),
+  nometude character(50),
+  description character(50),
+  licence character(50),
+  droit character(50),
+  espece character(50),
+  datededebu character(20),
+  datedefin character(20),
+  emprise geometry,
+  creatfichdat character(70),
+  nomdfluxassoc character(255),
+  nbenregistrements character(20),
+  nombranimaux character(20),
+  CONSTRAINT etude_pkey PRIMARY KEY (id)
+)</code></pre></div><p>la fonction </p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION etude_count () RETURNS TRIGGER AS $etude_cn$
+DECLARE 
+nomTable text; 
+BEGIN
+
+--ici j&#039;ai essayer de recupérer le nom de la table associé
+    execute &#039;select etude.nomdfluxassoc from etude  where etude.id = &#039;||NEW.id||&#039;&#039; INTO nomTable ; 
+    --fonctionne mais met a zero mes autre champs
+--ici je met a jour le champs de la table etude
+    execute &#039;update etude set nbenregistrements =(SELECT COUNT(*) FROM &#039;||nomTable||&#039; where id = &#039;||NEW.id||&#039;)&#039;; 
+
+  
+    RETURN; 
+END;
+$etude_cn$ language plpgsql;</code></pre></div><p>le trigger </p><div class="codebox"><pre><code>CREATE TRIGGER etude_ch
+    AFTER INSERT ON etude
+    FOR EACH ROW EXECUTE PROCEDURE 
+    etude_count();</code></pre></div><p>Ce qui m&#039;étonne le plus c&#039;est que j&#039;ai repris la même structure pour un trigger qui met à jour la date de création du fichier, et ça fonctionne. Alors je ne sais vraiment pas. </p><p>En tout cas merci de votre patience !</p>]]></content>
+		<author>
+			<name><![CDATA[mika]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=6248</uri>
+		</author>
+		<updated>2016-04-05T12:30:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23226#p23226</id>
+	</entry>
+</feed>

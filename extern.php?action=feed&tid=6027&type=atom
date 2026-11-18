@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Production d'un flux texte par concaténation (écarts de performance)]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=6027&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=6027"/>
+	<updated>2021-06-01T08:36:45Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=6027</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Production d'un flux texte par concaténation (écarts de performance)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32516#p32516"/>
+		<content type="html"><![CDATA[<p>@rjuju,</p><p>&#160; Merci pour ta réponse éclairée.</p><p>&#160; Je précise que mon besoin initial est bien ensembliste et majoritairement produit à partir du langage SQL.<br />&#160; Seule la partie de transformation en flux texte final était codé en procédural, car plus facile à maintenir.<br />&#160; Les exemples que j&#039;ai fourni dans mon post initial sont uniquement là pour se focaliser sur la fonction de concaténation de chaînes de caractères.</p><p>&#160; Après analyse du code source, je constate que les deux opérandes text sont systématiquement recopiées pour former la chaîne concaténée, ce qui pose problème lorsque la chaîne initiale est complétée de manière récursive. <br />&#160; Les autres approches qui font intervenir des tableaux ou des fonctions d’agrégation ne sont pas concernées par cette problématique, ce qui les rend bien plus performantes.</p><p>&#160; Dans un contexte de migration d&#039;Oracle (ou autre SGBD) vers PostgreSQL, les informations disponibles dans ce sujet peuvent être très utiles.</p><p>Cordialement</p>]]></content>
+		<author>
+			<name><![CDATA[Chlipouni]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9521</uri>
+		</author>
+		<updated>2021-06-01T08:36:45Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32516#p32516</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Production d'un flux texte par concaténation (écarts de performance)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32505#p32505"/>
+		<content type="html"><![CDATA[<p>Cela dit la principale raison de la lenteur de votre cas 1 (et de tous les autres dans une certaine mesure) est due au fait que vous utilisez une approche impérative plutôt qu&#039;ensembliste, et une base de donnée n&#039;est généralement pas faite pour ça.&#160; Certains langage procéduraux pourraient avoir de meilleurs performances, mais ce n&#039;est pas le cas de plpgsql, car il n&#039;a pas vocation à implémenter de manière très efficace ce qui n&#039;est pas censé être implémenté en langage procédural.</p><br /><p>Une bonne réécriture serait donc :</p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION public.generate_text(p_rows integer)
+ RETURNS text
+ LANGUAGE plpgsql
+AS $function$
+DECLARE
+  v_text text := &#039;&#039;;
+BEGIN
+  SELECT string_agg(&#039;This is the first value : &#039; || &#039;1&#039; || &#039; / This is the second value : &#039; || &#039;2&#039; || &#039; / This is the third value : &#039; || &#039;3&#039; || &#039; / This is the fourth value : &#039; || &#039;4&#039;, chr(10)) INTO v_text FROM generate_series(1, p_rows);
+  return v_text;
+END; $function$</code></pre></div><p>Cette fonction s&#039;exécute chez moi en moins de 10ms.&#160; Utilisez postgres comme une base de données et vous aurez de meilleurs performances et généralement moins de bugs.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2021-05-29T08:18:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32505#p32505</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Production d'un flux texte par concaténation (écarts de performance)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32504#p32504"/>
+		<content type="html"><![CDATA[<p>Merci beaucoup pour vos réponses et votre réactivité.</p><p>Je reste tout de même sceptique sur le fait que rien ne puisse être optimisé en interne, car :<br />- Le cas n°1 avec Oracle prend 3 secondes pour 10 000 lignes et n&#039;est pas impacté par la taille de la chaîne de caractères produite pour chaque ligne<br />- Le cas n°1 avec PostgreSQL part en dérive exponentielle dès que la taille de la chaîne de caractères augmente pour chaque ligne</p><p>Je conserve la solution basée sur le tableau de chaînes de caractères, qui reste bien plus efficace.</p><p>Cordialement</p>]]></content>
+		<author>
+			<name><![CDATA[Chlipouni]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9521</uri>
+		</author>
+		<updated>2021-05-29T07:30:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32504#p32504</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Production d'un flux texte par concaténation (écarts de performance)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32499#p32499"/>
+		<content type="html"><![CDATA[<p>L&#039;opérateur || alloue la taille des 2 chaînes cumulées, puis copie dans l&#039;espace alloué la chaîne 1, puis la chaîne 2. Il est obligé de faire ça parce qu&#039;il doit produire une nouvelle chaîne d&#039;un seul tenant.</p><p>Comme l&#039;algorithme du cas 1) cumule en boucle la chaine v_text qui est à la fois source et destination, il passe son temps à recopier ce qu&#039;il a déjà copié. D&#039;une certaine manière si le coût d&#039;une opération de concaténation était de 1, l&#039;ordre de grandeur du coût global n&#039;est pas de 1+1+1+1... avec N additions mais plutôt 1+2+3+4+...+N, soit (N*(N+1))/2.</p><p>Optimiser individuellement l&#039;opérateur || ne changerait pas cette complexité qui est la raison principale de la lenteur.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2021-05-28T13:29:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32499#p32499</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Production d'un flux texte par concaténation (écarts de performance)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32496#p32496"/>
+		<content type="html"><![CDATA[<p>Je ne suis pas particulièrement étonné pour la différence entre les cas 1 et 2. L&#039;utilisation d&#039;un opérateur nécessite l&#039;appel d&#039;une fonction. Vous utilisez 9 fois l&#039;opérateur || dans le cas 1,donc vous avez neuf appels de fonction.Or vous n&#039;avez que deux appels de fonction dans le cas 2.Logiquement, le cas 1 devrait donc être 4 fois plus lent que le cas 2, ce qui est grosso modo le cas.</p><p>Pour la différence entre le cas 2 et le cas 3, cela dépend plus de ce que font chacune des fonctions. Je ne suis pas spécialement étonné que des fonctions différentes aient des performances différentes.</p><p>De toute façon, la manipulation de chaînes de caractères directement en PL/pgsql est plutôt lente. Mieux vaut d&#039;autres langages comme le C ou le perl.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2021-05-28T09:53:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32496#p32496</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Production d'un flux texte par concaténation (écarts de performance)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32495#p32495"/>
+		<content type="html"><![CDATA[<p>bonjour,</p><p>&#160; J&#039;ai un besoin relatif à la génération d&#039;un flux texte par opérations de concaténation de chaînes de caractères.<br />&#160; Venant du monde Oracle, mon premier réflexe a été d&#039;utiliser l&#039;opérateur &quot;||&quot;, mais a ma grande surprise, les performances sont très mauvaises !</p><p>&#160; Les tests ci-dessous ont été réalisés avec PostgreSQL 13 en environnement Windows 64-bit.</p><p>&#160; <strong>Cas 1: Utilisation de l&#039;opérateur &quot;||&quot; (10 000 lignes en 10.8 secondes)</strong></p><div class="codebox"><pre><code>create or replace function generate_text(p_rows in integer) returns text
+language plpgsql
+as $$
+declare
+  v_text text := &#039;&#039;;
+begin
+  for i in 1..p_rows
+  loop
+    v_text := v_text || &#039;This is the first value : &#039; || &#039;1&#039; || &#039; / This is the second value : &#039; || &#039;2&#039; || &#039; / This is the third value : &#039; || &#039;3&#039; || &#039; / This is the fourth value : &#039; || &#039;4&#039; || chr(10);
+  end loop;
+ 
+  return v_text;
+end; $$</code></pre></div><p>&#160; <strong>Cas 2: Utilisation de la fonction &quot;format&quot; pour la substitution des valeurs de chaque ligne (10 000 lignes en 2.6 secondes) </strong></p><div class="codebox"><pre><code>create or replace function generate_text_2(p_rows in integer) returns text
+language plpgsql
+as $$
+declare
+  v_text text := &#039;&#039;;
+begin
+  for i in 1..p_rows
+  loop
+    v_text := v_text || format(&#039;This is the first value : %1$s / This is the second value : %2$s / This is the third value : %3$s / This is the fourth value : %4$s&#039;,&#039;1&#039;, &#039;2&#039;, &#039;3&#039;, &#039;4&#039;) || chr(10);
+  end loop;
+ 
+  return v_text;
+end; $$</code></pre></div><p>&#160; <strong>Cas 3: Utilisation de la fonction &quot;format&quot; et d&#039;un tableau pour la gestion des lignes de texte (10 000 lignes en 47 millisecondes)</strong></p><div class="codebox"><pre><code>create or replace function generate_text_3(p_rows in integer) returns text
+language plpgsql
+as $$
+declare
+  v_array text[];
+begin
+  for i in 1..p_rows
+  loop
+    v_array := array_append(v_array, format(&#039;This is the first value : %1$s / This is the second value : %2$s / This is the third value : %3$s / This is the fourth value : %4$s&#039;,&#039;1&#039;, &#039;2&#039;, &#039;3&#039;, &#039;4&#039;));
+  end loop;
+ 
+  return array_to_string(v_array, chr(10));
+end; $$</code></pre></div><p>&#160; Suite à ces constats :<br />&#160; - Jugez-vous ces différences normales et avez-vous une explication sur de tels écarts de performance ?<br />&#160; - Sachant que le néophyte ira plus facilement sur la première stratégie, n&#039;y a-t-il pas un moyen pour optimiser l&#039;opérateur &quot;||&quot; ?</p><p>Cordialement</p>]]></content>
+		<author>
+			<name><![CDATA[Chlipouni]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9521</uri>
+		</author>
+		<updated>2021-05-28T09:18:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32495#p32495</id>
+	</entry>
+</feed>

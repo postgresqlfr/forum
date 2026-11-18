@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Problème fichier transaction pg_clog]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3946&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3946"/>
+	<updated>2016-09-16T14:41:30Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3946</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème fichier transaction pg_clog]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23985#p23985"/>
+		<content type="html"><![CDATA[<p>Pas facilement, non. C&#039;est complexe, et les erreurs/oublis sont faciles.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2016-09-16T14:41:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23985#p23985</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème fichier transaction pg_clog]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23984#p23984"/>
+		<content type="html"><![CDATA[<p>Merci pour le retour... même si les nouvelles ne sont pas très bonnes...</p><p>Est ce que l&#039;on a un moyen à partir de l&#039;id d&#039;une transaction de remonter aux données mise en jeu ?</p>]]></content>
+		<author>
+			<name><![CDATA[pitpoule]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=636</uri>
+		</author>
+		<updated>2016-09-16T09:14:50Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23984#p23984</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème fichier transaction pg_clog]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23983#p23983"/>
+		<content type="html"><![CDATA[<p>Ce n&#039;est pas que la 8.2 date. C&#039;est surtout qu&#039;elle n&#039;est plus maintenue, et que faire tourner un serveur ayant des données importantes pour vous avec une version 8.2, c&#039;est juste irresponsable.</p><p>Concernant ce problème, un fichier a disparu alors qu&#039;il n&#039;aurait pas dû. Généralement, c&#039;est un problème disque. Recréer manuellement le fichier va régler temporairement le problème d&#039;une très mauvaise façon. Ce fichier contient l&#039;état des transactions (validées/annulées en gros). Sans ce fichier là, PostgreSQL ne peut pas savoir si les lignes présentes dans les tables sont réellement visibles ou pas (uniquement pour les transactions dont le statut est indiqué dans ce fichier).</p><p>La meilleure solution est donc de restaurer la dernière sauvegarde disponible. De préférence sur un autre disque.</p><p>Si vous n&#039;avez pas de sauvegarde et que les données sont quand même importantes, la solution de créer le fichier se tente mais ne vous étonnez pas si certaines données valides disparaissent ou si des données anciennement supprimées réapparaissent. Le mieux dans ce cas est de tout sauvegarder et de tout restaurer. Cela permet au moins de s&#039;assurer d&#039;avoir quelque chose de propre et que les contraintes (notamment clés étrangères) sont respectées.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2016-09-16T08:37:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23983#p23983</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème fichier transaction pg_clog]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23982#p23982"/>
+		<content type="html"><![CDATA[<p>Si ce fichier est corrompu, c&#039;est très très mauvais. La clog, c&#039;est ce qui permet à PostgreSQL de savoir comment se sont terminées chaque transaction, et donc de déterminer la visibilité de chaque enregistrement. La seule solution est effectivement de faire un dd, qui va créer un clog disant que toutes les transactions qu&#039;il contient sont validées… ce qui va probablement entraîner de la corruption dans les données.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2016-09-16T08:29:39Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23982#p23982</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Problème fichier transaction pg_clog]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23981#p23981"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je rencontre cette erreur au cours de l&#039;analyze sur une table<br />INFO:&#160; analyzing &quot;public.toto&quot;<br />ERROR:&#160; could not access status of transaction 2305722024<br /> Could not open file &quot;pg_clog/0896&quot;: No such file or directory.</p><p>J&#039;ai rapidement cherché et la seule solution que j&#039;ai vue est de faire un dd pour récréer manuellement le fichier.... je suis à la recherche d&#039;une solution moins cavalière... est ce que vous avez ça dans vos musettes ?</p><p>Détail qui peut avoir son importance, je suis sous postgresql 8.2 (oui je sais, ça date)</p><p>Merci</p>]]></content>
+		<author>
+			<name><![CDATA[pitpoule]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=636</uri>
+		</author>
+		<updated>2016-09-16T07:23:39Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23981#p23981</id>
+	</entry>
+</feed>

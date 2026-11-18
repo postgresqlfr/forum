@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / mise à jour du champ clé étrangère]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4018&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4018"/>
+	<updated>2016-12-08T09:47:53Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4018</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  mise à jour du champ clé étrangère]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24377#p24377"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><p>ha en effet si je peux regrouper mes triggers en un seul se serait mieux!! je ne savias pas que cela était possible.</p><br /><p>Voici la structure de mes triggers </p><br /><p>trigger tablea : </p><br /><p>CREATE OR REPLACE FUNCTION exo.tablea_fct_trg()<br />&#160; RETURNS trigger AS<br />$BODY$<br />&#160; &#160;BEGIN<br />&#160; &#160; &#160; IF TG_OP = &#039;INSERT&#039; THEN<br />&#160; &#160; &#160; &#160; </p><p>&#160; &#160; &#160; &#160; INSERT INTO exo.tablea (id_a, champa, geom) VALUES (DEFAULT, NEW.champa, NEW.geom);<br />&#160; &#160; &#160; &#160; RETURN NEW;<br />&#160; &#160; &#160; ELSIF TG_OP = &#039;UPDATE&#039; THEN<br />&#160; &#160; &#160; &#160; </p><p>&#160; &#160; &#160; &#160; UPDATE exo.tablea SET (id_a, champa, geom) = (DEFAULT, NEW.champa, NEW.geom)<br />&#160; &#160; &#160; &#160; WHERE id_a = NEW.id_a;<br />&#160; &#160; &#160; &#160; RETURN NEW;<br />&#160; &#160; &#160; ELSIF TG_OP = &#039;DELETE&#039; THEN<br />&#160; &#160; &#160; &#160; </p><p>&#160; &#160; &#160; &#160; DELETE FROM exo.tablea<br />&#160; &#160; &#160; &#160; WHERE id_a = OLD.id_a;<br />&#160; &#160; &#160; &#160; RETURN NULL;<br />&#160; &#160; &#160; END IF;<br />&#160; &#160; &#160; RETURN NEW;<br />&#160; &#160; END;</p><br /><p>Trigger tableb :</p><br /><p>CREATE OR REPLACE FUNCTION exo.tableb_fct_trg()<br />&#160; RETURNS trigger AS<br />$BODY$<br />&#160; &#160;BEGIN<br />&#160; &#160; &#160; IF TG_OP = &#039;INSERT&#039; THEN<br />&#160; &#160; &#160; &#160; <br />&#160; &#160; &#160; &#160; INSERT INTO exo.tableb (champb, geom) VALUES (NEW.champb, NEW.geom);<br />&#160; &#160; &#160; &#160; RETURN NEW;<br />&#160; &#160; &#160; ELSIF TG_OP = &#039;UPDATE&#039; THEN<br />&#160; &#160; &#160; &#160; </p><p>&#160; &#160; &#160; &#160; UPDATE exo.tableb SET (champb, geom) = (NEW.champb, NEW.geom)<br />&#160; &#160; &#160; &#160; WHERE id_b = NEW.id_b;<br />&#160; &#160; &#160; &#160; RETURN NEW;<br />&#160; &#160; &#160; ELSIF TG_OP = &#039;DELETE&#039; THEN<br />&#160; &#160; &#160; &#160; </p><p>&#160; &#160; &#160; &#160; DELETE FROM exo.tableb<br />&#160; &#160; &#160; &#160; WHERE id_b = OLD.id_b;<br />&#160; &#160; &#160; &#160; RETURN NULL;<br />&#160; &#160; &#160; END IF;<br />&#160; &#160; &#160; RETURN NEW;<br />&#160; &#160; END;</p>]]></content>
+		<author>
+			<name><![CDATA[arasleva]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7108</uri>
+		</author>
+		<updated>2016-12-08T09:47:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24377#p24377</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  mise à jour du champ clé étrangère]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24371#p24371"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Il faudrait la définition des fonctions table_a_fct_trg() et table_b_fct_trg().&#160; Sinon, je pense qu&#039;un seul trigger pour mettre à jour les deux tables serait une meilleure idée.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2016-12-07T17:00:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24371#p24371</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[mise à jour du champ clé étrangère]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24370#p24370"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><p>j&#039;aimerais savoir comment paramétrer mes tables ou ma vue pour que le champ &quot;foreign key&quot; se remplisse automatiquement.... j&#039;ai bien mis dans la structure de mes tables les contraintes de clés primaires et clé étrangère, j&#039;ai aussi une vue qui reprend l&#039;ensemble des champs de mes 2 tables. Quand je saisie des données dans cette vue, les champ_a et champ_b se remplissent bien mais pas le champ &quot;clé étrangère&quot; a_id........</p><br /><p>voici la structure de mes tables :</p><br /><p>tablea<br />&#160; &#160;id_a (pk - serial)<br />&#160; &#160;champa</p><br /><p>et</p><br /><p>tableb<br />&#160; &#160;id_b (pk - serial)<br />&#160; &#160;a_id (fk - integer)<br />&#160; &#160;champb</p><br /><p>et voici celle de ma vue : </p><br /><p>CREATE OR REPLACE VIEW v_test AS <br /> SELECT </p><br /><p>&#160; &#160; id_a,<br />&#160; &#160; champa,<br />&#160; &#160; champb,</p><br /><p>FROM tablea<br />&#160; &#160;JOIN tableb ON tablea.id_a = tableb.a_id</p><br /><p>CREATE TRIGGER tablea_trg<br />&#160; INSTEAD OF INSERT OR UPDATE OR DELETE<br />&#160; ON v_form<br />&#160; FOR EACH ROW<br />&#160; EXECUTE PROCEDURE tablea_fct_trg();</p><br /><p>CREATE TRIGGER tableb_trg<br />&#160; INSTEAD OF INSERT OR UPDATE OR DELETE<br />&#160; ON v_form<br />&#160; FOR EACH ROW<br />&#160; EXECUTE PROCEDURE tableb_fct_trg();</p><br /><p>pouvez-vous m&#039;aider?</p>]]></content>
+		<author>
+			<name><![CDATA[arasleva]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7108</uri>
+		</author>
+		<updated>2016-12-07T16:44:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24370#p24370</id>
+	</entry>
+</feed>

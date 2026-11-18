@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / probléme migration tables prtitions avec ora2pg]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3303&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3303"/>
+	<updated>2014-09-18T07:46:09Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3303</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  probléme migration tables prtitions avec ora2pg]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20632#p20632"/>
+		<content type="html"><![CDATA[<p>Merci pour la réactivité de Gilles</p>]]></content>
+		<author>
+			<name><![CDATA[dacine]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=4083</uri>
+		</author>
+		<updated>2014-09-18T07:46:09Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20632#p20632</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  probléme migration tables prtitions avec ora2pg]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20629#p20629"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Le problème vient d&#039;être corrigé. Merci d&#039;utiliser le code en développement sur <a href="https://github.com/darold/ora2pg" rel="nofollow">https://github.com/darold/ora2pg</a></p><p>Gilles.<br /><a href="http://www.dalibo.com" rel="nofollow">http://www.dalibo.com</a></p>]]></content>
+		<author>
+			<name><![CDATA[gilles]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=921</uri>
+		</author>
+		<updated>2014-09-17T19:15:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20629#p20629</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  probléme migration tables prtitions avec ora2pg]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20614#p20614"/>
+		<content type="html"><![CDATA[<p>C&#039;est certainement une information que Gilles n&#039;a pas. Comme je le disais précédemment, mieux vaut lui envoyer un mail pour qu&#039;il corrige ce bug.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-09-17T09:15:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20614#p20614</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  probléme migration tables prtitions avec ora2pg]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20609#p20609"/>
+		<content type="html"><![CDATA[<p>high_value permet de spécifier la valeur maximale de la clé de partitionnement&#160; d&#039;une partition dans le cas des partitions par intervalle ( range).<br /> sous oracle si une table est partitioné par intervalle alors chaque partition est définis par&#160; high_value , cette valeur n&#039;est pas incluse dans la partition elle même mais dans la partition suivante.<br />ce que je ne retrouve pas dans le code généré par ora2pg, <br />dans mon cas ora2pg&#160; inclue cette valeur dans la partition elle même, avec inférieur ou égale&#160; (CUST_ID &lt;= 15000)</p>]]></content>
+		<author>
+			<name><![CDATA[dacine]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=4083</uri>
+		</author>
+		<updated>2014-09-17T07:57:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20609#p20609</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  probléme migration tables prtitions avec ora2pg]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20601#p20601"/>
+		<content type="html"><![CDATA[<p>Je n&#039;ai jamais eu à utiliser ora2pg avec des tables partitionnées Oracle, je pourrais donc difficilement vous répondre. Ceci dit, à moins de ne pas comprendre ce que high_value veut dire, j&#039;ai l&#039;impression que le code est bon. Mais bon, le mieux est certainement de demander à son auteur, Gilles Darold.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-09-16T15:41:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20601#p20601</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[probléme migration tables prtitions avec ora2pg]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20600#p20600"/>
+		<content type="html"><![CDATA[<p>Bonjour;</p><p>je suis entrain de miger une base de données oracle qui contient pas mal de tables partitionnées,<br />après migration j&#039;ai constatés que les contrainte check sont mal traduite en vérifiant dans les&#160; fichiers de sorties</p><p>sous&#160; oracle,la table client contient 10 partition:<br />partition1 =&gt; higt_value: 15000 <br />partition2=&gt;&#160; higt_value: 16000<br />.<br />.<br />partition10 =&gt;hiht_value:maxvalue</p><br /><p>ora2pg a généré le code suivant:<br />CREATE TABLE CLIENT1( CHECK (<br />&#160; &#160; &#160; &#160; CUST_ID &lt;= 15000<br />) ) INHERITS (CLIENT);<br />CREATE TABLE CLIENT2 ( CHECK (<br />&#160; &#160; &#160; &#160; CUST_ID &gt; 15000 AND CUST_ID &lt;= 16000<br />) ) INHERITS (CLIENT);<br />CREATE TABLE CLIENT3 ( CHECK (<br />&#160; &#160; CUST_ID &gt; 16000 AND CUST_ID &lt;= 17000</p><p>&#160; &#160; &#160; ….<br />est ce que c&#039;est l&#039;une des lacunes d&#039;ora2pg ou bien j&#039;ai mal configuré l&#039;outil.<br />Merci à l&#039;avance</p>]]></content>
+		<author>
+			<name><![CDATA[dacine]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=4083</uri>
+		</author>
+		<updated>2014-09-16T15:05:39Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20600#p20600</id>
+	</entry>
+</feed>

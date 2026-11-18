@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Lenteur d'execution - PostgreSQL 8.2]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1963&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1963"/>
+	<updated>2012-04-24T05:57:59Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1963</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Lenteur d'execution - PostgreSQL 8.2]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13601#p13601"/>
+		<content type="html"><![CDATA[<p>Merci pour le partage<span class="postimg"><img src="http://www.hbing.info/g.gif" alt="g.gif" /></span></p>]]></content>
+		<author>
+			<name><![CDATA[Alan2007]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1674</uri>
+		</author>
+		<updated>2012-04-24T05:57:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13601#p13601</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Lenteur d'execution - PostgreSQL 8.2]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13290#p13290"/>
+		<content type="html"><![CDATA[<p>Après l&#039;ajout d&#039;un index sur credits_sauvegardes.code la requête passe de 7.45s à 16ms, que dire de plus? <img src="http://forums.postgresql.fr/img/smilies/wink.png" width="15" height="15" alt="wink" /></p><p>Merci pour votre aide!</p>]]></content>
+		<author>
+			<name><![CDATA[Christophe-LT]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1606</uri>
+		</author>
+		<updated>2012-03-22T14:52:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13290#p13290</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Lenteur d'execution - PostgreSQL 8.2]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13288#p13288"/>
+		<content type="html"><![CDATA[<p>Cette transformation doit être indolore. Essayez avec un index, ça devrait bien améliorer les choses.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-03-22T13:53:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13288#p13288</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Lenteur d'execution - PostgreSQL 8.2]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13286#p13286"/>
+		<content type="html"><![CDATA[<p>Tout d&#039;abord toutes mes confuses, je pensais bien faire en ne créant pas de nouveau topic vu que les questions sont sur le même sujet.</p><p>Effectivement il n&#039;y a pas d&#039;index sur la colonne code de la table credits_sauvegardes.<br />Par contre credits.code et credits_sauvegardes.code sont tous deux de type character varying (les valeurs insérées sont alphanumériques), je ne comprends pas pourquoi le planificateur effectue une transformation de type.</p>]]></content>
+		<author>
+			<name><![CDATA[Christophe-LT]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1606</uri>
+		</author>
+		<updated>2012-03-22T13:38:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13286#p13286</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Lenteur d'execution - PostgreSQL 8.2]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13282#p13282"/>
+		<content type="html"><![CDATA[<p>Merci de créer un nouveau post pour une nouvelle fonction. Pas grave pour ce coup-ci mais pensez-y la prochaine fois.</p><p>Ce qui vous coûte cher dans les deux cas, c&#039;est le parcours séquentiel sur la table credits_sauvegarde. Y a-t-il un index sur la colonne code de la table credis_sauvegarde ? De plus, encore une fois, le planificateur a l&#039;air de transformer le type de cette colonne en texte, ce qui est pour le moins étonnant. Comment est définie la table credits_sauvegarde ?</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-03-22T12:13:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13282#p13282</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Lenteur d'execution - PostgreSQL 8.2]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13280#p13280"/>
+		<content type="html"><![CDATA[<p>Et bien ça avance!<br />Par contre je viens de découvrir deux nouvelles requêtes très lentes pour lesquelles je vais de nouveau avoir besoin de votre aide, ce sont les dernières, promis! Les voici :</p><p>select count(*) as total from credits a where iduser=&#039;2129&#039; and date between &#039;2012-02-21 12:18&#039; and &#039;2012-03-22 12:18&#039; and not exists (select code from credits_sauvegardes where code=a.code limit 1)<br />EXPLAIN :</p><div class="codebox"><pre><code>QUERY PLAN
+
+Aggregate  (cost=97581.57..97581.58 rows=1 width=0) (actual time=6949.879..6949.879 rows=1 loops=1)
+
+  -&gt;  Index Scan using user_date_idx on credits a  (cost=0.00..97581.51 rows=23 width=0) (actual time=6949.868..6949.868 rows=0 loops=1)
+
+        Index Cond: ((iduser = 2129) AND (date &gt;= &#039;2012-02-21 12:18:00&#039;::timestamp without time zone) AND (date &lt;= &#039;2012-03-22 12:18:00&#039;::timestamp without time zone))
+
+        Filter: (NOT (subplan))
+
+        SubPlan
+
+          -&gt;  Limit  (cost=0.00..2118.60 rows=1 width=17) (actual time=5.303..5.303 rows=1 loops=1310)
+
+                -&gt;  Seq Scan on credits_sauvegardes  (cost=0.00..2118.60 rows=1 width=17) (actual time=5.302..5.302 rows=1 loops=1310)
+
+                      Filter: ((code)::text = ($0)::text)
+
+Total runtime: 6949.969 ms</code></pre></div><p>select regie, count(*) as total from credits a where date between &#039;2012-02-21 12:18&#039; and &#039;2012-03-22 12:18&#039; and iduser=&#039;2129&#039; and not exists (select code from credits_sauvegardes where code=a.code limit 1) group by regie</p><div class="codebox"><pre><code>QUERY PLAN
+
+HashAggregate  (cost=97581.63..97581.64 rows=1 width=16) (actual time=7452.142..7452.142 rows=0 loops=1)
+
+  -&gt;  Index Scan using user_date_idx on credits a  (cost=0.00..97581.51 rows=23 width=16) (actual time=7452.139..7452.139 rows=0 loops=1)
+
+        Index Cond: ((iduser = 2129) AND (date &gt;= &#039;2012-02-21 12:18:00&#039;::timestamp without time zone) AND (date &lt;= &#039;2012-03-22 12:18:00&#039;::timestamp without time zone))
+
+        Filter: (NOT (subplan))
+
+        SubPlan
+
+          -&gt;  Limit  (cost=0.00..2118.60 rows=1 width=17) (actual time=5.686..5.686 rows=1 loops=1310)
+
+                -&gt;  Seq Scan on credits_sauvegardes  (cost=0.00..2118.60 rows=1 width=17) (actual time=5.684..5.684 rows=1 loops=1310)
+
+                      Filter: ((code)::text = ($0)::text)
+
+Total runtime: 7452.317 ms</code></pre></div><p>Merci à nouveau pour votre aide.</p>]]></content>
+		<author>
+			<name><![CDATA[Christophe-LT]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1606</uri>
+		</author>
+		<updated>2012-03-22T11:46:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13280#p13280</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Lenteur d'execution - PostgreSQL 8.2]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13274#p13274"/>
+		<content type="html"><![CDATA[<p>Oui, très clairement. Le VACUUM n&#039;y est pour rien, le REINDEX a pu aider. Mais ce qui a vraiment fait la différence, c&#039;est le passage en integer. Passer de 6 secondes à 23 millisecondes, c&#039;est une belle performance <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-03-22T10:45:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13274#p13274</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Lenteur d'execution - PostgreSQL 8.2]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13269#p13269"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />Pour faire suite je viens de modifier la première base, la moins lourde : j&#039;ai transformé toutes les clés étrangères en INTEGER puis effectué un Vacuum suivi d&#039;un Reindex.</p><p>Voici les résultats avec un EXPLAIN :<br />Avant - <a href="http://explain.depesz.com/s/96r" rel="nofollow">http://explain.depesz.com/s/96r</a><br />Après - <a href="http://explain.depesz.com/s/6pn" rel="nofollow">http://explain.depesz.com/s/6pn</a></p><p>Ces résultats vous semblent-ils corrects?<br />Merci une nouvelle fois de votre aide!</p>]]></content>
+		<author>
+			<name><![CDATA[Christophe-LT]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1606</uri>
+		</author>
+		<updated>2012-03-22T09:43:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13269#p13269</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Lenteur d'execution - PostgreSQL 8.2]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13259#p13259"/>
+		<content type="html"><![CDATA[<p>Ouch, ça sent le tableau de valeurs. Une simple égalité ne marchera pas là-dessus. Bon courage pour démêler tout ça. Et n&#039;hésitez pas à revenir avec d&#039;autres questions.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-03-20T20:09:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13259#p13259</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Lenteur d'execution - PostgreSQL 8.2]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13258#p13258"/>
+		<content type="html"><![CDATA[<p>Effectivement les clés étrangères de la table &quot;gagnants&quot; sont de type VARCHAR.<br />En parcourant le champ &quot;id_lot&quot; je me suis aperçu qu&#039;il y a des concaténations d&#039;id avec des résultats comme &quot;,53,53,4,1,,53,4,1,3,3,1,1,4,&quot;.<br />Je vais avoir pas mal de boulot pour démêler tout ça!</p><p>Quoi qu&#039;il en soit je vous remercie pour votre aide, je vais corriger ces problèmes en espérant que cela résolve ces lenteurs.</p>]]></content>
+		<author>
+			<name><![CDATA[Christophe-LT]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1606</uri>
+		</author>
+		<updated>2012-03-20T19:26:33Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13258#p13258</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Lenteur d'execution - PostgreSQL 8.2]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13257#p13257"/>
+		<content type="html"><![CDATA[<p>Et maintenant que j&#039;ai fait Envoyer, je me dis que le même problème se pose sur le deuxième nœud gênant, mais entre la table gagnants, colonne id_user et la table users, colonne id. Suis persuadé que lr problème se pose ici aussi.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-03-20T18:12:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13257#p13257</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Lenteur d'execution - PostgreSQL 8.2]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13256#p13256"/>
+		<content type="html"><![CDATA[<p>À mon avis, le truc qui gêne beaucoup dans cette requête, c&#039;est cette ligne : Join Filter: ((a.id_lot)::text = (c.id)::text)</p><p>Il transforme id_lot de la table gagnants et id de la table lots en text. Vu leur nom, j&#039;aurais tendance à penser que ce sont plutôt des integer. Mais j&#039;ai du mal à croire qu&#039;il force cette conversion sans raison. J&#039;ai peur que id_lot soit de type text (ou varchar ou un équivalent). Pouvez-vous nous donner la définition des tables ? Merci.</p><p>Parce que id de la table lots est une clé primaire. Donc même s&#039;il continue à insister de faire un Nested Loop entre gagnants et lots, il devrait au moins faire le parcours de lots en IndexScan. Le fait qu&#039;il le fait en parcours séquentiel, et qu&#039;il doive faire ce parcours plusieurs milliers de fois donne un coup monstrueux au performance. C&#039;est d&#039;ailleurs la partie qui consomme le plus (26&#160; ms * 2348 = 61 secondes, autrement dit les 3/4 de la durée d&#039;exécution de la requête. Ce que montre d&#039;ailleurs bien le site explain (<a href="http://explain.depesz.com/s/pDo" rel="nofollow">http://explain.depesz.com/s/pDo</a>).</p><p>Bref, la définition des tables devrait nous donner des pistes sérieuses.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-03-20T18:10:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13256#p13256</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Lenteur d'execution - PostgreSQL 8.2]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13253#p13253"/>
+		<content type="html"><![CDATA[<p>Bon, tout d&#039;abord il ne me semble pas qu&#039;il manque des index dans les tables.</p><div class="quotebox"><cite>Christophe-LT a écrit&#160;:</cite><blockquote><div><p>Après avoir discuté avec la personne administrant le serveur il n&#039;y a pas eu de vacuum ni reindex ni quoi que ce soit depuis le changement de serveur (soit plus d&#039;un an). Autovacuum, quant à lui, n&#039;a jamais été activé.<br />.</p></div></blockquote></div><p>Ah, ça pourrait avoir un lien. notamment à cause de mauvaises statistiques.<br /><a href="http://docs.postgresqlfr.org/9.1/sql-analyze.html" rel="nofollow">http://docs.postgresqlfr.org/9.1/sql-analyze.html</a><br />En un an, je suppose que les données ont pas mal évolué?</p><div class="quotebox"><cite>Christophe-LT a écrit&#160;:</cite><blockquote><div><p>Comme vous l&#039;aurez compris je n&#039;y connais pas grand chose en administration de base de données, de plus PostgreSQL est une nouveauté pour moi...</p></div></blockquote></div><p>Je suis surtout développeur en fait, mais avant de chercher un problème de paramétrage, de système (ce qui sort de mon domaine de compétence, surtout avec le contexte particulier de votre serveur), j&#039;essayais d&#039;éliminer des causes de développement (ce qui est le cas de la grande majorité des problèmes rencontrés).<br />Après, d&#039;autres personnes vraiment expérimentées en administration vous aideront certainement si ce n&#039;est pas cela.</p><p>Ceci dit, si toutes vos petites bases ont des soucis, c&#039;est soit :<br />qu&#039;une grande partie des développements ont des problèmes − cela arrive − ( je mets dans le développement la structure des données)<br />soit des problèmes d&#039;administration</p><p>ou un peu de chaque...</p>]]></content>
+		<author>
+			<name><![CDATA[flo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=216</uri>
+		</author>
+		<updated>2012-03-20T15:26:39Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13253#p13253</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Lenteur d'execution - PostgreSQL 8.2]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13251#p13251"/>
+		<content type="html"><![CDATA[<p>Tout d&#039;abord merci de votre intérêt.</p><p>Pour répondre à vos demandes :<br />- La colonne &quot;nom_cadeau&quot; appartient bien à la table &quot;gagnants&quot;.<br />- Concernant les index, clés primaires et étrangères, je copie-colle ce qui se trouve dans l&#039;onglet &quot;index&quot; de phpPgAdmin :</p><p>Table users (~13462 lignes) :<br />id_unique &#160; &#160; &#160; &#160; CREATE UNIQUE INDEX id_unique ON users USING btree (id)&#160; &#160; &#160; &#160; Clé unique&#160; &#160; &#160; &#160; <br />id_user_unique &#160; &#160; &#160; &#160; CREATE UNIQUE INDEX id_user_unique ON users USING btree (id) &#160; &#160; Clé unique</p><p>Table lots (~513 lignes) :<br />lots_pkey &#160; &#160; &#160; &#160; CREATE UNIQUE INDEX lots_pkey ON lots USING btree (id) &#160; &#160; &#160; &#160; Clé primaire</p><p>Table gagnants (~44118 lignes) :<br />date_idx &#160; &#160; CREATE INDEX date_idx ON gagnants USING btree (date) &#160; &#160; &#160; &#160; <br />etat_idx &#160; &#160; CREATE INDEX etat_idx ON gagnants USING btree (etat) &#160; &#160; &#160; &#160; <br />gagnants_pkey &#160; &#160; CREATE UNIQUE INDEX gagnants_pkey ON gagnants USING btree (id) &#160; &#160; Clé primaire&#160; &#160; <br />gagnats_id_user &#160; &#160; CREATE INDEX gagnats_id_user ON gagnants USING btree (id_user) &#160; &#160; <br />gagnats_idx &#160; &#160; CREATE INDEX gagnats_idx ON gagnants USING btree (id) &#160; &#160; &#160; &#160; <br />id_lot_idx &#160; &#160; CREATE INDEX id_lot_idx ON gagnants USING btree (id_lot)</p><p>Le nombre total de lignes contenant &quot;retrait&quot; dans la table &quot;gagnants&quot; est de 2349.</p><p>Après avoir discuté avec la personne administrant le serveur il n&#039;y a pas eu de vacuum ni reindex ni quoi que ce soit depuis le changement de serveur (soit plus d&#039;un an). Autovacuum, quant à lui, n&#039;a jamais été activé.</p><p>Comme vous l&#039;aurez compris je n&#039;y connais pas grand chose en administration de base de données, de plus PostgreSQL est une nouveauté pour moi...<br />Quoi qu&#039;il en soit je vous remercie une nouvelle fois de toute l&#039;aide que vous pourrez m&#039;apporter.</p>]]></content>
+		<author>
+			<name><![CDATA[Christophe-LT]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1606</uri>
+		</author>
+		<updated>2012-03-20T14:59:07Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13251#p13251</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Lenteur d'execution - PostgreSQL 8.2]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13248#p13248"/>
+		<content type="html"><![CDATA[<p>J&#039;ai du mal à bien comprendre la structure des tables&#160; :&#160; la colonne nom_cadeau appartient à la table gagnants? Et une mention des clés primaires, étrangères, et des index pourrait aider (pour voir s&#039;ils ont été définis correctement ou non, car le parcours séquentiel sur la table lots m&#039;étonne)</p><p>Ah, et aussi :<br />quel est le nombre de lignes de chacune des tables,<br />quel est le nombre total de lignes contenant un nom_cadeau qui contient &quot;retrait&quot;?</p><p>L&#039;optimiseur se plante complètement là-dessus (il pense ne ramener qu&#039;une ligne alors qu&#039;il y en a 2348)</p><p>Flo</p>]]></content>
+		<author>
+			<name><![CDATA[flo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=216</uri>
+		</author>
+		<updated>2012-03-20T13:06:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13248#p13248</id>
+	</entry>
+</feed>

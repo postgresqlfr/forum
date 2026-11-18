@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / ORDER BY hors du scope de DISTINCT ON]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2006&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2006"/>
+	<updated>2012-04-13T11:16:13Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2006</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ORDER BY hors du scope de DISTINCT ON]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13526#p13526"/>
+		<content type="html"><![CDATA[<p>Pour les performances, aucune idée. Il faudrait voir le plan d&#039;exécution de chaque requête.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-04-13T11:16:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13526#p13526</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ORDER BY hors du scope de DISTINCT ON]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13525#p13525"/>
+		<content type="html"><![CDATA[<p>MERCI !<br />en effet ma première pensée venait à utiliser<br />SELECT DISTINCT (location) time FROM weather_reports ORDER&#160; BY time;</p><p>ce qui me semblait le plus logique, mais oublliant la virgule entre apres le (location)&#160; :&#160; j&#039;ai eu un message d&#039;erreur qui m&#039;a laisser penser que la logique était mauvaise, d&#039;où les complications qui on suivit.</p><p>dans mon exemple, location est unique, et les doublons provenant de jointures.<br />supposons que location n&#039;est pas unique, nous devrions utiliser un DISTINCT ON (location) location, time ... ORDER BY time pour avoir les &#039;locations&#039; les plus recents (comem expliqué dans la doc)<br />mais comment les classer ensuite ? une requete imbriquee semble indispensable, pour reprendre votre seconde proposition :<br />WITH req AS (SELECT DISTINCT ON (location) location, time FROM weather_reports ORDER BY location, time DESC) SELECT location FROM req ORDER BY time;</p><p>n&#039;est-ce pas ?</p><p>par ailleurs pour revenir aux questions de performances, et à votre post précédent, voyez-vous des raisons à des performances différentes entre vos deux propositions ?</p>]]></content>
+		<author>
+			<name><![CDATA[ilrico]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1234</uri>
+		</author>
+		<updated>2012-04-13T11:06:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13525#p13525</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ORDER BY hors du scope de DISTINCT ON]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13521#p13521"/>
+		<content type="html"><![CDATA[<p>J&#039;aurais tendance à utiliser ça :</p><div class="codebox"><pre><code>SELECT distinct (location), time from weather_reports order by time;</code></pre></div><p>Vous pouvez aussi faire (à partir de la 8.4) :</p><div class="codebox"><pre><code>with req as (select location, time from weather_reports group by location, time)
+select location from req order by time;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-04-13T09:20:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13521#p13521</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ORDER BY hors du scope de DISTINCT ON]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13517#p13517"/>
+		<content type="html"><![CDATA[<p>en fait ce que je veux faire est du style :<br />SELECT location FROM (<br />&#160; &#160;SELECT location, time FROM weather_reports GROUP BY location)<br />ORDER BY time;</p><p>mais question est : il y a-t-il une autre manière de faire plus &quot;propre&quot; (j&#039;ai toujours l&#039;impression que les requetes imbriquées sont un peu bricolage, mais je ne suis pas suffisement expert pour comprendre dans quelle mesure ce n&#039;est qu&#039;une impression.</p>]]></content>
+		<author>
+			<name><![CDATA[ilrico]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1234</uri>
+		</author>
+		<updated>2012-04-13T08:52:55Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13517#p13517</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[ORDER BY hors du scope de DISTINCT ON]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13504#p13504"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Dans la doc PostgreSQL, il est indiqué que :</p><p><em><br />DISTINCT ON ( expression [, ...] ) keeps only the first row of each set of rows where the given expressions evaluate to equal. The DISTINCT ON expressions are interpreted using the same rules as for ORDER BY (see above). Note that the &quot;first row&quot; of each set is unpredictable unless ORDER BY is used to ensure that the desired row appears first. For example:</em></p><p><em>SELECT DISTINCT ON (location) location, time, report<br />&#160; &#160; FROM weather_reports<br />&#160; &#160; ORDER BY location, time DESC;</em></p><p><em>retrieves the most recent weather report for each location. But if we had not used ORDER BY to force descending order of time values for each location, we&#039;d have gotten a report from an unpredictable time for each location.</em></p><p><em>The DISTINCT ON expression(s) must match the leftmost ORDER BY expression(s). The ORDER BY clause will normally contain additional expression(s) that determine the desired precedence of rows within each DISTINCT ON group.<br /></em></p><p>Or ce que je cherche à faire est d&#039;avoir les résultats &#039;location&#039; uniques (elles sont déjà uniques, le DISTINCT ON vient du fait que le résultat venant d&#039;un select multi-tables, j&#039;ai les doublons), mais le tout ordonné par &#039;time&#039; : ie avoir &#039;time&#039; comme premier filtre de classement (en absolu, pas pour chaque &#039;location&#039;) : actuellement, mon résultat est ordonné par &#039;location&#039;.</p><p>J&#039;espère être clair dans ma question, sinon je le reformulerai !</p><p>Merci !</p>]]></content>
+		<author>
+			<name><![CDATA[ilrico]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1234</uri>
+		</author>
+		<updated>2012-04-12T15:12:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13504#p13504</id>
+	</entry>
+</feed>

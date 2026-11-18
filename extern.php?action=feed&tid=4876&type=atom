@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / SELECT dynamique sur les Champs avec INFORMATION_SCHEMA.COLUMNS]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4876&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4876"/>
+	<updated>2018-08-22T19:56:08Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4876</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  SELECT dynamique sur les Champs avec INFORMATION_SCHEMA.COLUMNS]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28157#p28157"/>
+		<content type="html"><![CDATA[<p>Vous pouvez commencer avec quelque chose de ce genre, pour expérimenter</p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION public.demo_cols()
+ RETURNS void
+ LANGUAGE plpgsql
+AS $function$
+DECLARE
+        mycols varchar;
+        myrecord record;
+BEGIN
+        SELECT string_agg(column_name,&#039;,&#039;) INTO mycols FROM information_schema.columns
+        WHERE table_name = &#039;test&#039; AND table_schema=&#039;public&#039;;
+        EXECUTE &#039;SELECT &#039; || mycols || &#039; FROM test&#039; LIMIT 1 INTO myrecord;
+        RAISE NOTICE &#039;RECORD: %&#039;,myrecord;
+END
+$function$
+;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2018-08-22T19:56:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28157#p28157</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[SELECT dynamique sur les Champs avec INFORMATION_SCHEMA.COLUMNS]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28156#p28156"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je souhaiterai constituer une fonction dynamique (ou une requête simple) me permettant de récupérer les noms des champs d&#039;une table pour les utiliser dans un SELECT. J&#039;ai en effet une table avec un grand nombre de champs, en plus susceptibles de s&#039;incrémenter et j&#039;aimerai ne pas avoir à rajouter manuellement le nom des champs dans mes requêtes à chaque fois.</p><p>Je sais que l&#039;on peut récupérer les noms des champs d&#039;une table avec la requête : </p><div class="codebox"><pre><code> SELECT (SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS where TABLE_NAME=&#039;matable&#039;) ; </code></pre></div><p>Maintenant, j&#039;aimerai concaténer tous les enregistrements du champs ainsi créé (et les formater sous le format &#039;nomcol1, nomcol2, nomcol3&#039;) pour pouvoir les appeler dans un select.<br />Pour faire un exemple, j&#039;aimerai faire un </p><div class="codebox"><pre><code> SELECT (SELECT (SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS where TABLE_NAME=&#039;matable&#039;)) FROM matable </code></pre></div><p>Il me semble que c&#039;est possible, vu que j&#039;ai trouvé ce post :</p><div class="quotebox"><cite>SQLPro a écrit&#160;:</cite><blockquote><div><p>&quot; Il faut construire votre requête en assemblant des bouts de chaines de caractères lus à partir des vues de métadonnées comme INFORMATION_SCHEMA.COLUMNS puis exécuter la chaine de caractères avec la commande EXECUTE.&quot;</p></div></blockquote></div><p><a href="https://www.developpez.net/forums/d1861132/bases-donnees/postgresql/requetes/select-colonnes-dynamiques/" rel="nofollow">https://www.developpez.net/forums/d1861 … ynamiques/</a></p><br /><p>Mais la méthode n&#039;est malheureusement pas détaillée et je n&#039;ai pas trouvé de fonction sur les chaines de caractères adéquate.<br />Je vous remercie d&#039;avance si vous avez des pistes pour m&#039;aider.</p>]]></content>
+		<author>
+			<name><![CDATA[robinson]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8040</uri>
+		</author>
+		<updated>2018-08-22T15:54:38Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28156#p28156</id>
+	</entry>
+</feed>

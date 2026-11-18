@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / PostgreSQL - Les index]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3102&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3102"/>
+	<updated>2014-04-21T20:06:18Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3102</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  PostgreSQL - Les index]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19685#p19685"/>
+		<content type="html"><![CDATA[<p>À moins d&#039;avoir créé une contrainte unique sur name (auquel cas un index sera déjà créé), le champ name peut contenir des doublons.</p><p>Créer un index sur cette colonne pourra aider lors d&#039;une recherche sur ce champ, que le champ contienne des doublons ou non.</p><p>Concernant CLUSTER, il s&#039;agit d&#039;une opération qui réécrit physiquement la table entièrement afin d&#039;ordonner les lignes par rapport à l&#039;ordre d&#039;un index spécifique. Vous ne pouvez donc pas faire de CLUSTER sur 2 index différents.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2014-04-21T20:06:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19685#p19685</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  PostgreSQL - Les index]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19683#p19683"/>
+		<content type="html"><![CDATA[<p>Merci pour votre réponse. <br />J&#039;ai juste une dernière petite question, imaginons que mon index se porte sur mon champ &quot;id&quot;. Ma table se présente ainsi :<br />&#039;id&#039; - &#039;name&#039;<br />1 - &#039;xavier&#039;<br />2 - &#039;jeremy &#039;<br />3 - &#039;adele&#039;<br />4 - &#039;nathan&#039;<br />5 - &#039;antoine&#039;<br />6 - &#039;theo&#039;<br />7 - &#039;daniel&#039;</p><p>Si j&#039;ajoute un index sur &quot;name&quot;, visuellement, la recherche par &quot;name&quot; ne peut être améliorée, puis qu’aucune occurrence ne peut avoir le même id. Je voulais savoir si Postgres, créait ainsi un 2ème index en arrière plan, ainsi clusterisé par &quot;name&quot;... Sinon comment peut-il améliorer la recherche par &quot;name&quot; ?</p><p>Encore merci pour la réponse, je me prends un peu la tête mais je souhaiterai utiliser les index judicieusement. Mes précédentes recherches ne m&#039;ont pas permis de répondre à cette interrogation.</p>]]></content>
+		<author>
+			<name><![CDATA[nathanpas]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3414</uri>
+		</author>
+		<updated>2014-04-21T18:04:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19683#p19683</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  PostgreSQL - Les index]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19680#p19680"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Je rajoute un index &#039;name_idx&#039; sur mon champ &#039;name&#039; et ma requête fait toujours 18ms.</p></div></blockquote></div><p>Rien ne dit qu&#039;il utilise l&#039;index. Il faudrait utiliser EXPLAIN pour le savoir.</p><div class="quotebox"><blockquote><div><p>Par contre si j&#039;effectue un Cluster sur mon index &#039;name_idx&#039;, (quand je parcours ma table, les occurences s&#039;affichent par ordre de &quot;name&quot;...), ma requête passe de 18ms à 12ms,</p></div></blockquote></div><p>Certainement parce que, cette fois, il utilise l&#039;index. Avoir une table clusterisé rend l&#039;utilisation de l&#039;index plus intéressant.</p><div class="quotebox"><blockquote><div><p>Dans ma situation, comment puis-je améliorer la recherche par nom sans détériorer la recherche par id ?</p></div></blockquote></div><p>Qui dit que la recherche par id est détérioré par la présence de l&#039;index sur name ?</p><div class="quotebox"><blockquote><div><p>Si cela n&#039;est pas possible, quel est l&#039;intérêt d&#039;avoir plusieurs index sur une table ?</p></div></blockquote></div><p>Si on reprend votre exemple, une recherche sur id pourra utiliser l&#039;index sur id et pas l&#039;index sur name, et une recherche sur name pourra utiliser l&#039;index sur name et pas l&#039;index sur id.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-04-20T13:52:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19680#p19680</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[PostgreSQL - Les index]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19679#p19679"/>
+		<content type="html"><![CDATA[<p>Bonjour !</p><p>J&#039;ai une question concernant les index.</p><p>J&#039;utilise une bdd Postgresql que j&#039;exploite via Doctrine. J&#039;ai une table User de 4571 entrées contenant notamment les champs &#039;id&#039;, &#039;name&#039;.<br />Le champ &#039;id&#039; étant ma clé primaire, j&#039;ai un index unique dessus.<br />Je fais une requête qui va chercher tous les users qui commence par la lettre &#039;b&#039;, &#039;j&#039;, &#039;l&#039;, etc... pour essayer de reproduire une requête lente...<br />Ma requête fait 18ms.<br />Je rajoute un index &#039;name_idx&#039; sur mon champ &#039;name&#039; et ma requête fait toujours 18ms.<br />Par contre si j&#039;effectue un Cluster sur mon index &#039;name_idx&#039;, (quand je parcours ma table, les occurences s&#039;affichent par ordre de &quot;name&quot;...), ma requête passe de 18ms à 12ms, <br />mais j&#039;imagine que maintenant, si j&#039;effectue une recherche par id, celle-çi en payera les frais...</p><p>Ma question est donc la suivante :<br />Dans ma situation, comment puis-je améliorer la recherche par nom sans détériorer la recherche par id ?<br />Si cela n&#039;est pas possible, quel est l&#039;intérêt d&#039;avoir plusieurs index sur une table ?</p>]]></content>
+		<author>
+			<name><![CDATA[nathanpas]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3414</uri>
+		</author>
+		<updated>2014-04-19T11:17:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19679#p19679</id>
+	</entry>
+</feed>

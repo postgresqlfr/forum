@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / bloom filters]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4030&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4030"/>
+	<updated>2016-12-16T14:42:16Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4030</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  bloom filters]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24410#p24410"/>
+		<content type="html"><![CDATA[<p>Il considère que le plan parallèle est moins cher…</p><div class="codebox"><pre class="vscroll"><code>marc=# explain (analyze,buffers) select * from foo where c1=463274 and c2=459458 and c3=291859 and c4=198159;
+                                                          QUERY PLAN                                                          
+------------------------------------------------------------------------------------------------------------------------------
+ Bitmap Heap Scan on foo  (cost=218735.30..218739.32 rows=1 width=32) (actual time=84.289..84.289 rows=0 loops=1)
+   Recheck Cond: ((c1 = 463274) AND (c2 = 459458) AND (c3 = 291859) AND (c4 = 198159))
+   Buffers: shared hit=7534 read=9649
+   -&gt;  Bitmap Index Scan on foo_c1c2c3c4c5  (cost=0.00..218735.29 rows=1 width=0) (actual time=84.284..84.284 rows=0 loops=1)
+         Index Cond: ((c1 = 463274) AND (c2 = 459458) AND (c3 = 291859) AND (c4 = 198159))
+         Buffers: shared hit=7534 read=9649
+ Planning time: 0.785 ms
+ Execution time: 84.433 ms
+(8 rows)
+
+marc=# set max_parallel_workers_per_gather TO 8;
+SET
+marc=# explain (analyze,buffers) select * from foo where c1=463274 and c2=459458 and c3=291859 and c4=198159;
+                                                       QUERY PLAN                                                       
+------------------------------------------------------------------------------------------------------------------------
+ Gather  (cost=1000.00..124529.87 rows=1 width=32) (actual time=1276.689..1276.689 rows=0 loops=1)
+   Workers Planned: 4
+   Workers Launched: 4
+   Buffers: shared hit=8671 read=65071
+   -&gt;  Parallel Seq Scan on foo  (cost=0.00..123529.76 rows=1 width=32) (actual time=1249.315..1249.315 rows=0 loops=5)
+         Filter: ((c1 = 463274) AND (c2 = 459458) AND (c3 = 291859) AND (c4 = 198159))
+         Rows Removed by Filter: 2000000
+         Buffers: shared hit=8459 read=65071
+ Planning time: 1.047 ms
+ Execution time: 1277.830 ms
+(10 rows)</code></pre></div><p>Je dirais qu&#039;il est pessimiste sur le coût du bloom… mais bon, c&#039;est une structure statistique, on ne sait pas vraiment ce qui va se passer… et il faut lire tout l&#039;index bloom de toutes façons. Bref, je dirais que le modèle de coût de l&#039;index bloom est assez rudimentaire pour le moment, et qu&#039;il se plante tout simplement sur son coût d&#039;utilisation ici.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2016-12-16T14:42:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24410#p24410</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[bloom filters]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24409#p24409"/>
+		<content type="html"><![CDATA[<p>Bonjour, <br />j&#039;ai essayé de mettre en oeuvre les bloom filters. j&#039;ai suivi le lien : <a href="http://blog.coelho.net/database/2016/12/11/postgresql-bloom-index.html" rel="nofollow">http://blog.coelho.net/database/2016/12 … index.html</a></p><p>j&#039;ai crée une table foo avec 100 millions de lignes<br />un index bloom, mais quoi que je fasse, je passe toujours en seq scan.<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Table Â« public.foo Â»<br /> Colonne |&#160; &#160; &#160; &#160; &#160; &#160; Type&#160; &#160; &#160; &#160; &#160; &#160; &#160;|&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Modificateurs<br />---------+-----------------------------+------------------------------------------------------<br /> id&#160; &#160; &#160; | integer&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;| non NULL Par dÃ©faut, nextval(&#039;foo_id_seq&#039;::regclass)<br /> c1&#160; &#160; &#160; | integer&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;|<br /> c2&#160; &#160; &#160; | integer&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;|<br /> c3&#160; &#160; &#160; | integer&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;|<br /> c4&#160; &#160; &#160; | integer&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;|<br /> c5&#160; &#160; &#160; | integer&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;|<br /> it&#160; &#160; &#160; | timestamp without time zone | non NULL Par dÃ©faut, now()<br />Index :<br />&#160; &#160; &quot;foo_c1c2c3c4c5&quot; bloom (c1, c2, c3, c4, c5) WITH (length=&#039;64&#039;, col1=&#039;3&#039;, col2=&#039;3&#039;, col3=&#039;3&#039;, col4=&#039;3&#039;, col5=&#039;3&#039;)</p><p>idev00=&gt; explain select * from foo where c1=463274 and c2=459458 and c3=291859 and c4=198159;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; QUERY PLAN<br />---------------------------------------------------------------------------------------<br /> Gather&#160; (cost=1000.00..1042428.67 rows=1 width=32)<br />&#160; &#160;Workers Planned: 7<br />&#160; &#160;-&gt;&#160; Parallel Seq Scan on foo&#160; (cost=0.00..1041428.57 rows=1 width=32)<br />&#160; &#160; &#160; &#160; &#160;Filter: ((c1 = 463274) AND (c2 = 459458) AND (c3 = 291859) AND (c4 = 198159))<br />(4 lignes)</p><p> Quelqu&#039;un aurait une idée ?</p><p>merci</p>]]></content>
+		<author>
+			<name><![CDATA[fbamiere@yahoo.com]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2174</uri>
+		</author>
+		<updated>2016-12-16T14:21:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24409#p24409</id>
+	</entry>
+</feed>

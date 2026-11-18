@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / [RESOLU]Non utilisation d'index sur un LIKE en pl/pgsql]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2929&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2929"/>
+	<updated>2014-01-09T13:38:47Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2929</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU]Non utilisation d'index sur un LIKE en pl/pgsql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18911#p18911"/>
+		<content type="html"><![CDATA[<p>FOR x IN (EXECUTE...) ne fonctionne pas car ce qui est entre parenthèse doit être une requête. Or EXECUTE n&#039;est pas une instruction du langage SQL.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-01-09T13:38:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18911#p18911</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU]Non utilisation d'index sur un LIKE en pl/pgsql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18906#p18906"/>
+		<content type="html"><![CDATA[<p>Merci pour cette réponse très claire. </p><p>Voila donc la transformation du code qui fonctionne : </p><div class="codebox"><pre><code>DO $$
+DECLARE
+    y record;
+    x record;
+BEGIN
+FOR y IN (
+    SELECT id,chaine
+    FROM matable
+    WHERE id &lt; 1000
+    ) LOOP
+      
+    FOR x IN EXECUTE concat (&#039;SELECT count(1) nb&#039;
+                            ,&#039; FROM matable m&#039; 
+                            ,&#039; WHERE m.chaine LIKE &#039;,quote_literal(y.chaine)
+                            ,&#039; AND m.id &lt;&gt; &#039;,y.id
+                            )
+    LOOP
+        RAISE INFO &#039;%-%-%&#039;,y.id,y.chaine,x.nb;
+    END LOOP;
+END LOOP;
+END$$;</code></pre></div><p>A noter qu&#039;il faut impérativement ne pas mettre de parenthèses dans &quot;FOR x IN EXECUTE&quot; (autrement dit FOR x IN (EXECUTE...) ne fonctionne pas, alors que FOR x IN (SELECT ...) fonctionne).</p>]]></content>
+		<author>
+			<name><![CDATA[ladeche]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1798</uri>
+		</author>
+		<updated>2014-01-08T07:15:00Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18906#p18906</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU]Non utilisation d'index sur un LIKE en pl/pgsql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18903#p18903"/>
+		<content type="html"><![CDATA[<p>Le problème vient du fait que PostgreSQL met en cache le plan d&#039;exécution de la requête avec PL/pgsql.</p><p>Quand vous mettez l&#039;opérateur =, il s&#039;agit d&#039;une égalité pure. Si votre index est très discriminant, PostgreSQL choisira l&#039;index une fois pour toutes, que ce soit une bonne idée ou pas. Quand vous mettez l&#039;opérateur LIKE, il ne s&#039;agit pas forcément d&#039;une égalité pure. y.chaine peut contenir des caractères joker (_ et %) qui feront que PostgreSQL pourra ou non utiliser l&#039;index. Comme il ne peut pas le savoir, il part d&#039;emblé sur la seule solution acceptable (en terme de résultat juste) : le parcours séquentiel.</p><p>Le seul moyen d&#039;éviter cela est de passer par une requête dynamique pour éviter la mise en cache du plan. Voir <a href="http://docs.postgresql.fr/9.3/plpgsql-statements.html#plpgsql-statements-executing-dyn" rel="nofollow">http://docs.postgresql.fr/9.3/plpgsql-s … cuting-dyn</a> pour les détails.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-01-07T15:53:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18903#p18903</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[[RESOLU]Non utilisation d'index sur un LIKE en pl/pgsql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18902#p18902"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Soit une bête table avec une clef primaire et un champ varchar indexé : </p><div class="codebox"><pre><code>CREATE TABLE matable
+(
+  id integer NOT NULL,
+  chaine character varying,
+  CONSTRAINT pk_id PRIMARY KEY (id )
+) WITH (  OIDS=FALSE);
+CREATE INDEX idx_chaine  ON matable  USING btree   (chaine COLLATE pg_catalog.&quot;default&quot; );</code></pre></div><p>Si je fais </p><div class="codebox"><pre><code> 
+SELECT * FROM matable where chaine = &#039;000ZX34/14&#039;; 
+SELECT * FROM matable where chaine LIKE &#039;000ZX34/14&#039; ;</code></pre></div><p>Dans les deux cas l&#039;optimiseur utilise l&#039;index idx_chaine.</p><p>Par contre si je fais le script suivant : </p><div class="codebox"><pre><code>DO $$
+DECLARE
+    y record;
+    x record;
+BEGIN
+FOR y IN (
+    SELECT id,chaine
+    FROM matable
+    WHERE id &lt; 200
+    ) LOOP
+    FOR x IN (SELECT count(1) nb
+                 FROM matable m
+                 WHERE m.chaine LIKE y.chaine
+                 AND m.id &lt;&gt; y.id
+                 )
+       LOOP                                                             
+        RAISE INFO &#039;%-%-%&#039;,y.id,y.chaine,x.nb;
+       END LOOP;
+END LOOP;
+END$$;</code></pre></div><p>L&#039;index ne sera pas utilisé dans la requête imbriquée (FOR x), à la place on a un seq scan. En remplaçant le like par =, l&#039;index est utilisé.<br />J&#039;ai essayé en ajoutant un index sur chaine avec la classe opérateur &quot;varchar_pattern_ops&quot; mais sans plus de succès. </p><p>Le bout de code ci-dessus est un peu idiot mais je voudrais surtout comprendre le fonctionnement du LIKE dans ce cas là et pourquoi il n&#039;utilise pas l&#039;index.</p><p>Merci.</p>]]></content>
+		<author>
+			<name><![CDATA[ladeche]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1798</uri>
+		</author>
+		<updated>2014-01-07T15:37:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18902#p18902</id>
+	</entry>
+</feed>

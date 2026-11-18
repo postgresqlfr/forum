@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Fonction permettant de créer de générer des tables]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3167&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3167"/>
+	<updated>2014-06-03T21:22:48Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3167</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Fonction permettant de créer de générer des tables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20092#p20092"/>
+		<content type="html"><![CDATA[<p>Ah oui, en effet. Quand le &quot;OPEN curs&quot; était dans la boucle, la première itération ouvrait le curseur et la deuxième itération ne pouvait que renvoyer une erreur comme quoi le curseur était déjà ouvert.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-06-03T21:22:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20092#p20092</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Fonction permettant de créer de générer des tables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20076#p20076"/>
+		<content type="html"><![CDATA[<p>Bonjour, </p><p>Oui effectivement, j&#039;ai entre temps changé le nom de la fonction désolé. Mais l&#039;erreur reste la même. <br />J&#039;ai néanmoins réussi à résoudre mon problème.</p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION france.emprise_table()
+  RETURNS void AS
+$BODY$
+DECLARE
+    liste RECORD;
+    rec RECORD;
+    curs refcursor;
+BEGIN
+   FOR liste in select nom_donnee FROM france.table_liste
+   LOOP
+    EXECUTE &#039;CREATE or replace view france.&#039;||quote_ident(liste.tablename)||&#039;_emp AS 
+    SELECT nom_donnee, st_convexhull( st_collect (the_geom_wgs84)) as the_geom_wgs84
+    FROM &#039;||quote_ident(liste.tablename)||&#039; group by nom_donnee;&#039;;
+    END LOOP; 
+  OPEN curs FOR SELECT nom_donnee FROM table_liste;   
+    LOOP
+        FETCH curs INTO rec;
+        exit when not found;
+    END LOOP;
+   CLOSE curs;
+END;
+$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+ALTER FUNCTION france.emprise_table()
+  OWNER TO postgres; </code></pre></div><p>A priori il manquait des LOOP et certains étaient mal placés.<br />Merci pour vos aides. </p><p>Sadewizz</p>]]></content>
+		<author>
+			<name><![CDATA[Sadewizz]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3590</uri>
+		</author>
+		<updated>2014-06-03T07:30:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20076#p20076</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Fonction permettant de créer de générer des tables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20072#p20072"/>
+		<content type="html"><![CDATA[<p>Le nom de la fonction dans le message d&#039;erreur ne correspond pas au nom de la fonction pour le code proposé.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-06-02T19:27:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20072#p20072</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Fonction permettant de créer de générer des tables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20064#p20064"/>
+		<content type="html"><![CDATA[<p>Merci pour votre réponse, et l&#039;intérêt porté à mon post. <br />J&#039;ai suivi vos conseils et j&#039;ai commencé par réaliser une fonction que j’appellerais ensuite dans le trigger de la table en question. <br />Seulement pg_admin me retourne erreur que je ne comprend pas lorsque j&#039;appel ma fonction avec un select * from mafonction(). </p><p>Voici ma fonction: </p><div class="codebox"><pre><code> CREATE OR REPLACE FUNCTION france.emprise_table() RETURNS void AS $$
+DECLARE
+    liste RECORD;
+    rec RECORD;
+    curs refcursor;
+BEGIN
+    FOR liste in select nom_donnee from france.table_liste
+    LOOP
+    perform &#039;CREATE table france.&#039;||quote_ident(liste.nom_donnee)||&#039;_emp AS 
+SELECT nom_donnee, st_convexhull( st_collect (the_geom_wgs84))
+   FROM &#039;||quote_ident(liste.nom_donnee)||&#039; group by nom_donnee;&#039;;
+    OPEN curs FOR SELECT nom_donnee FROM table_liste;   
+        FETCH curs INTO rec;
+    END LOOP;
+    CLOSE curs;
+END;
+$$ LANGUAGE plpgsql;</code></pre></div><p>Et le message d&#039;erreur qui en découle :</p><div class="codebox"><pre><code>ERREUR:  curseur « &lt;unnamed portal 149&gt; » déjà en cours d&#039;utilisation
+CONTEXT:  fonction PL/pgsql fct(), ligne 12 à OPEN
+********** Erreur **********
+
+ERREUR: curseur « &lt;unnamed portal 149&gt; » déjà en cours d&#039;utilisation
+État SQL :42P03
+Contexte : fonction PL/pgsql fct(), ligne 12 à OPEN</code></pre></div><p>D&#039;où pourrait venir le problème d&#039;après vous?<br />Enfin, tout d&#039;abord ma fonction n&#039;est peut-être pas exact...</p>]]></content>
+		<author>
+			<name><![CDATA[Sadewizz]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3590</uri>
+		</author>
+		<updated>2014-06-02T09:22:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20064#p20064</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Fonction permettant de créer de générer des tables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20063#p20063"/>
+		<content type="html"><![CDATA[<p>Si votre trigger est écrit en pl/pgsql, vous pouvez exécuter une requête dynamique, à l&#039;aide du mot clé &quot;PERFORM&quot;, par exemple « PERFORM &#039;CREATE TABLE t AS SELECT ... &#039;; », voir la documentation : <a href="http://docs.postgresql.fr/9.2/plpgsql-statements.html" rel="nofollow">http://docs.postgresql.fr/9.2/plpgsql-statements.html</a></p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2014-06-02T08:04:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20063#p20063</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Fonction permettant de créer de générer des tables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20062#p20062"/>
+		<content type="html"><![CDATA[<p>Bonjour, </p><p>Merci pour votre réponse!<br />J&#039;avais déjà lu la doc que vous m&#039;avez conseillé, cependant les fonction triggers, il me semble, n&#039;effectue pas de &quot;create table&quot; si? <br />Plus simplement je voudrait créer une fonction me permettant un &quot;create table T as select st_convexhull(the_geom)&quot; (la syntaxe est à titre indicatif), dés l&#039;insertion d&#039;une nouvelle table.<br />Je ne sais pas si ce que je souhaite est possible, qu&#039;en pensé vous? </p><p>Sadewizz</p>]]></content>
+		<author>
+			<name><![CDATA[Sadewizz]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3590</uri>
+		</author>
+		<updated>2014-06-02T07:39:21Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20062#p20062</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Fonction permettant de créer de générer des tables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20039#p20039"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>vous pouvez écrire un trigger qui se déclenchera sur insertion dans la table concernée, et pourra exécuter des requêtes dynamiques : <a href="http://docs.postgresql.fr/9.3/sql-createtrigger.html" rel="nofollow">http://docs.postgresql.fr/9.3/sql-createtrigger.html</a></p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2014-05-30T15:25:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20039#p20039</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Fonction permettant de créer de générer des tables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20032#p20032"/>
+		<content type="html"><![CDATA[<p>Bonjour, </p><p>je suis novice en ce qui concerne postgres/gis, et dans le cadre d&#039;un stage je suis amené à créer une base donnée spatiale. <br />Ma question est la suivante: Une fonction plp/gsql ou autre peut elle générer automatiquement une table ? </p><p>Je m&#039;explique. j&#039;ai déjà une vue me permettant de lister toutes me tables de manière dynamique. Mais je voudrait qu&#039;a l&#039;insertion de chaque table, une fonction, ou plusieurs, me récupère le nom de la nouvelle table dans la liste en question,&#160; et crée une autre nouvelle table de style st_convexhull à partir de cette nouvelle table en récupérant juste les informations souhaitées. <br />Cela est il possible ? </p><p>Merci pour vos réponses,<br />Sadewizz.</p>]]></content>
+		<author>
+			<name><![CDATA[Sadewizz]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3590</uri>
+		</author>
+		<updated>2014-05-30T09:51:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20032#p20032</id>
+	</entry>
+</feed>

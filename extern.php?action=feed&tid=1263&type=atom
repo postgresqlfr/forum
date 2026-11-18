@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / pg_dump all]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1263&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1263"/>
+	<updated>2011-03-03T10:59:51Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1263</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pg_dump all]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8294#p8294"/>
+		<content type="html"><![CDATA[<p>c&#039;est en gros ce que je fais (pas sur les schémas mais sur les databases).</p><p>pour backuper les fichiers de configurations, je fais un liens (ln -s) des fichiers vers le PGDATA et je les récupère (c&#039;est un script perl) :</p><div class="codebox"><pre><code>select * from pg_read_file(&#039;postgresql.conf&#039;,0,1048576)</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[arthurr]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=62</uri>
+		</author>
+		<updated>2011-03-03T10:59:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8294#p8294</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pg_dump all]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8283#p8283"/>
+		<content type="html"><![CDATA[<p>pour kenrio merci je n&#039;ai qu&#039;une base</p><p>&lt;&lt;Vu que vous comptez sauvegarder vos datas pourquoi ne pas faire tout &quot;simplement&quot; du hot physical backup ?<br />c &#039;est a dire copier le Data sur un NAs par exemple , peut tu mieux m&#039;expliquer?</p><p>pour Arthur , merci arthur trés intéréssant </p><p>moi je fais pg_dump pour chaque&#160; schéma meme le public </p><p>pg_dump mabase -Fc -x -O -n mon public -U postgres &gt; /usr/local/public.gz<br />pg_dump mabase -Fc -x -O -n mon insee -U postgres &gt; /usr/local/insee.gz<br />pg_dump mabase -Fc -x -O -n mon insee -U postgres &gt; /usr/local/insee2006.gz</p><p>et je peux faire comme tu dis pour les roles <br />pg_dumpall -g &gt; role.out </p><p>donc a la restauration sur un autre ordi <br />- je restaure en premier le schema public<br />- puis je fais psql -f role.out mabase<br />- puis je restaure tous mes autres schemas (insee, insee2006&#160; etc ...)</p><p>peut tu confimer en tous cas Merci !</p>]]></content>
+		<author>
+			<name><![CDATA[mich30]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=523</uri>
+		</author>
+		<updated>2011-03-02T16:15:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8283#p8283</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pg_dump all]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8272#p8272"/>
+		<content type="html"><![CDATA[<p>bonjour,<br />pour ne recup que les roles : pg_dumpall -g </p><p>de mon coté, je fais des &quot;pg_dump -Fc&quot; pour chaque base + un &quot;pg_dumpall -g&quot; pour le cluster<br />je recup aussi les fichiers postgresql.conf et pg_hba.conf</p>]]></content>
+		<author>
+			<name><![CDATA[arthurr]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=62</uri>
+		</author>
+		<updated>2011-03-02T11:22:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8272#p8272</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pg_dump all]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8271#p8271"/>
+		<content type="html"><![CDATA[<p>bonjour,</p><p>le mettre dans un .sql c&#039;est la méthode plain, pas de compression, c&#039;est un fichier texte, donc peut devenir très/trop gros suivant votre base.<br />Vu que vous comptez sauvegarder vos datas pourquoi ne pas faire tout &quot;simplement&quot; du hot physical backup ?<br />nb : pgdumpall ne sait pas sauvegarder plusieurs bases en parallèles donc peut être lent sur de multiples grosses bases il me semble.</p>]]></content>
+		<author>
+			<name><![CDATA[kenrio]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=964</uri>
+		</author>
+		<updated>2011-03-02T11:16:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8271#p8271</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[pg_dump all]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8263#p8263"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />Je me fait du soucis en cas de crasch de ma base si un jour à la veille du 14 juillet <br />ou toujours au bon moment ....</p><p>donc j&#039;ai fait un pg_dump de tous mes schemas<br />maintenant je veux utiliser pg_dumpall , j&#039;ai regardé la doc car je veux<br />sauvegarder mes roles de groupe , role de connection par ailleurs <br />j&#039;ai vu que <br />Du coup, pg_dumpall est une solution intégrée pour sauvegarder vos bases de données. Mais, notez une limitation : il ne peut pas sauvegarder les &lt;&lt; objets larges &gt;&gt;, car pg_dump ne peut pas sauvegarder de tels objets dans des fichiers texte.</p><p>donc si j&#039;integre des rasters dans postgis cela ne sera pas sauvegarder est ce cela des objets<br />larges ???</p><p>donc ce que je compte faire (3 précautions)</p><p>1) svg de tous mes schemas avec pg_dump (pas de role sauvegardé ici) .<br />2) Svg de la base totale avec pg_dumpall&#160; (role sauvegardé) faut t&#039;il arreter la base ?<br />3) copie du repertoire &quot;data&quot; sur mon NAS&#160; (Cause Objet large)</p><p> pg_dumpall -h localhost -U &lt;user&gt; -c &gt; file.sql&#160; &#160;</p><p> c&#039;est quoi l&#039;avantage de le mettre dans un .sql&#160; ?</p><br /><p>merci pour vos remarques</p>]]></content>
+		<author>
+			<name><![CDATA[mich30]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=523</uri>
+		</author>
+		<updated>2011-03-01T08:58:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8263#p8263</id>
+	</entry>
+</feed>

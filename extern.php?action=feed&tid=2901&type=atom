@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / [résolu]recovery.done]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2901&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2901"/>
+	<updated>2013-12-10T08:49:19Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2901</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [résolu]recovery.done]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18787#p18787"/>
+		<content type="html"><![CDATA[<p>Ok je viens de comprendre.<br />Merci pour la réponse <img src="http://forums.postgresql.fr/img/smilies/wink.png" width="15" height="15" alt="wink" /></p><p>Bon aller je retourne jouer avec mes réplications <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[jli]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2911</uri>
+		</author>
+		<updated>2013-12-10T08:49:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18787#p18787</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [résolu]recovery.done]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18785#p18785"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>le recovery.conf n&#039;est renommé en recovery.done que lors de la fin de la restauration, donc dans votre cas en cas de promotion de l&#039;esclave en maître. Si ce n&#039;était pas le cas, il serait assez compliqué d&#039;éteindre l&#039;eslcave et de le redémarrer sans avoir à le reconstruire.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2013-12-09T19:16:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18785#p18785</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[[résolu]recovery.done]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18783#p18783"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>j&#039;ai mis en place sur ma plate forme de test une streaming replication master/slave en version 9.3.2<br />Tout semble bien se passer, la réplication fonctionne mais mon fichier recovery.conf n&#039;a pas été renommé en recovery.done</p><p>Voici mes logs de démarrage</p><p>2013-12-09 15:30:09 CET&#160; LOG:&#160; le système de bases de données a été arrêté pendant la restauration à 2013-12-09 15:29:54 CET<br />2013-12-09 15:30:09 CET&#160; LOG:&#160; entre en mode standby<br />2013-12-09 15:30:09 CET [inconnu] [local]LOG:&#160; paquet de démarrage incomplet<br />2013-12-09 15:30:10 CET postgres [local]FATAL:&#160; le système de bases de données se lance<br />2013-12-09 15:30:10 CET postgres [local]FATAL:&#160; le système de bases de données se lance<br />2013-12-09 15:30:11 CET postgres [local]FATAL:&#160; le système de bases de données se lance<br />2013-12-09 15:30:11 CET postgres [local]FATAL:&#160; le système de bases de données se lance<br />2013-12-09 15:30:12 CET postgres [local]FATAL:&#160; le système de bases de données se lance<br />2013-12-09 15:30:13 CET postgres [local]FATAL:&#160; le système de bases de données se lance<br />2013-12-09 15:30:13 CET postgres [local]FATAL:&#160; le système de bases de données se lance<br />2013-12-09 15:30:14 CET postgres [local]FATAL:&#160; le système de bases de données se lance<br />2013-12-09 15:30:14 CET postgres [local]FATAL:&#160; le système de bases de données se lance<br />2013-12-09 15:30:15 CET postgres [local]FATAL:&#160; le système de bases de données se lance<br />2013-12-09 15:30:15 CET&#160; LOG:&#160; restauration du journal de transactions « 000000010000000200000052 » à partir de l&#039;archive<br />2013-12-09 15:30:15 CET&#160; LOG:&#160; la ré-exécution commence à 2/52000028<br />2013-12-09 15:30:15 CET postgres [local]FATAL:&#160; le système de bases de données se lance<br />2013-12-09 15:30:15 CET [inconnu] [local]LOG:&#160; paquet de démarrage incomplet<br />rsync: link_stat &quot;/home/sauvegarde/pg_xlog/000000010000000200000053&quot; failed: No such file or directory (2)<br />rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1536) [Receiver=3.0.9]<br />2013-12-09 15:30:15 CET&#160; LOG:&#160; état de restauration cohérent atteint à 2/53492EB8<br />2013-12-09 15:30:15 CET&#160; LOG:&#160; le système de bases de données est prêt pour accepter les connexions en lecture seule<br />2013-12-09 15:30:15 CET&#160; LOG:&#160; record with zero length at 2/53492EB8<br />2013-12-09 15:30:15 CET&#160; LOG:&#160; Commence le flux des journaux depuis le principal à 2/53000000 sur la timeline 1</p><br /><p>Mon recovery.conf<br />restore_command = &#039;rsync -ar sauvegarde@[IP]:/home/sauvegarde/pg_xlog/%f %p&#039;<br />standby_mode = on<br />primary_conninfo = &#039;host=[IP] port=5432 user=repli password=[pass]&#039;</p><br /><p>Les droits sur mes fichiers : <br />-rw-------&#160; 1 postgres postgres&#160; 208 déc.&#160; &#160;9 14:53 backup_label.old<br />-rw-------&#160; 1 postgres postgres&#160; 196 déc.&#160; &#160;9 15:19 recovery.conf</p><br /><br /><p>J&#039;ai bien mon backup_label qui a été renommé en backup_label.old</p><p>J&#039;ai l&#039;impression que je n&#039;avais pas le soucis avant la dernière mise à jour.</p><p>Est-ce grave ?</p>]]></content>
+		<author>
+			<name><![CDATA[jli]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2911</uri>
+		</author>
+		<updated>2013-12-09T14:33:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18783#p18783</id>
+	</entry>
+</feed>

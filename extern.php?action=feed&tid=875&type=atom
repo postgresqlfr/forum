@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Trigger qui récupère les valeurs induites]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=875&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=875"/>
+	<updated>2010-06-24T08:53:49Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=875</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Trigger qui récupère les valeurs induites]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5460#p5460"/>
+		<content type="html"><![CDATA[<p>Ok... ça marche.</p><p>Mots-clé: trigger, valeurs, agir, conditions,<br />Je résume pour les autres (gain de temps notable pour tous et évitement des doublons ultérieurs):</p><p>Trigger sur lequel on fait une sélection d&#039;une valeur induite par celle d&#039;un autre: voir #5, le code est complet. Reste à l&#039;adapter à votre cas.</p><p>Le trigger ci dessous permet de vérifier un/des champs et lance le trigger si ils sont vérifiés. Le voici en entier:</p><div class="codebox"><pre><code>Declare
+id integer;
+
+Begin
+select into id &quot;Id_Matiere&quot;
+from &quot;Facturation&quot;.&quot;Nom_Prod_Fini&quot;
+where &quot;Nom_Produit&quot; = new.&quot;Nom_Produit_Fini&quot;;
+
+
+	If ((NEW.&quot;Type_facture&quot; = &#039;Facture&#039; OR NEW.&quot;Type_facture&quot; = &#039;Acompte&#039;) AND TG_OP = &#039;INSERT&#039;) 
+		Then insert into stocks.&quot;Matiere&quot; (&quot;Id_Matière&quot;,&quot;Quantite_commande_(kg)&quot;,&quot;Quantite_casse_(kg)&quot;,&quot;Quantite_Sortie_(kg)&quot;)
+		Values (id,0,0,new.&quot;Quantite&quot;); -- ici, ne vous fiez pas à ce qu&#039;il y a entre parenthèses. Adaptez-le selon l&#039;ordre des champs de votre table et ce que vous voulez faire--
+		Return new;
+
+	end if;
+	return new;
+
+	
+End;</code></pre></div><p>Voilà bonne journée à tous, et encore une fois, merci à vous gleu,</p><p>A bientôt,</p><p>LeHibou</p>]]></content>
+		<author>
+			<name><![CDATA[LeHibou]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=794</uri>
+		</author>
+		<updated>2010-06-24T08:53:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5460#p5460</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Trigger qui récupère les valeurs induites]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5458#p5458"/>
+		<content type="html"><![CDATA[<p>Je ne vois pas où vous avez trouvé une expression du type IF(expr1,expre2,expre3) dans la documentation de PostgreSQL. Ça n&#039;existe pas.</p><p>À priori, vous avez l&#039;air de vouloir faire quelque chose comme ça :</p><div class="codebox"><pre><code>IF ((NEW.&quot;Type_facture&quot; = &#039;Facture&#039; OR NEW.&quot;Type_facture&quot; = &#039;Acompte&#039;) AND TG_OP = &#039;INSERT&#039;)</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-06-24T08:24:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5458#p5458</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Trigger qui récupère les valeurs induites]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5457#p5457"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;ai tenté une nouvelle chose: faire en sorte que le trigger se déclenche si une valeur est sélectionnée dans &quot;Calculs&quot;.&quot;Type_facture&quot;: j&#039;ai donc edité la ligne du If mais j&#039;ai un message d&#039;erreur:</p><div class="codebox"><pre><code>If (&quot;Type_facture&quot; = &#039;Facture&#039; or &quot;Type_facture&quot; = &#039;Acompte&#039;, TG_OP = &#039;INSERT&#039;)</code></pre></div><p>qui donne:<br />ERROR:&#160; column &quot;Type_facture&quot; does not exist</p><p>Si j&#039;ajoute le &quot;Calculs&quot;. devant, il me dit qu&#039;il manque une clause &quot;FROM&quot;.<br />Je me suis pourtant renseigné sur les conditions de type IF(expr1,expre2,expre3). Même en supprimant le OR, je n&#039;ai rien de bon...</p><p>Pourquoi? je pose pourtant bien les bases de la condition non?</p><p>A bientôt,</p><p>LeHibou</p>]]></content>
+		<author>
+			<name><![CDATA[LeHibou]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=794</uri>
+		</author>
+		<updated>2010-06-24T06:36:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5457#p5457</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Trigger qui récupère les valeurs induites]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5456#p5456"/>
+		<content type="html"><![CDATA[<p>Euh, non, désolé, j&#039;ai écris ma réponse sans voir votre réponse de 20h09. Ma faute.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-06-23T21:19:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5456#p5456</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Trigger qui récupère les valeurs induites]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5455#p5455"/>
+		<content type="html"><![CDATA[<p>J&#039;entends bien gleu,</p><p>Je perçois que mon &quot;Merci à vous gleu.&quot; pouvait être mal interprété et c&#039;est ma faute. <br />Il aurait été plus judicieux d&#039;écrire : &quot;ne vous en faites pas, c&#039;est bon, j&#039;avais mal écrit le code. Mais j&#039;ai trouvé à présent.&quot;</p><p>En tout cas, je vous remercie puisque vous m&#039;avez mis sur la voie avec la fonction.</p><p>A bientôt!</p>]]></content>
+		<author>
+			<name><![CDATA[LeHibou]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=794</uri>
+		</author>
+		<updated>2010-06-23T20:35:02Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5455#p5455</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Trigger qui récupère les valeurs induites]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5454#p5454"/>
+		<content type="html"><![CDATA[<p>Impossible de vous aider quand le message d&#039;erreur ne correspond en rien à la fonction que vous donnez.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-06-23T18:22:33Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5454#p5454</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Trigger qui récupère les valeurs induites]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5453#p5453"/>
+		<content type="html"><![CDATA[<p>C&#039;est bon, cela fonctionne. Je laisse à tous le trigger qui renvoit le résultat dans une colonne. Cela peut servir à d&#039;autres.</p><p>Voici donc la solution pour que cela marche:</p><div class="codebox"><pre><code>Declare
+Id integer;
+
+Begin
+select into id &quot;Id_Matiere&quot;
+from &quot;Facturation&quot;.&quot;Nom_Prod_Fini&quot;
+where &quot;Nom_Prod_Fini&quot;.&quot;Nom_Produit&quot;= new.&quot;Nom_Produit_Fini&quot;;
+
+    If (TG_OP = &#039;INSERT&#039;)
+        Then insert into stocks.&quot;Matiere&quot; (&quot;Id_Matière&quot;,&quot;Quantite_commande_(kg)&quot;,&quot;Quantite_casse_(kg)&quot;,&quot;Quantite_Sortie_(kg)&quot;)
+        Values (id,0,0,-(new.&quot;Quantite&quot;));
+        Return new;
+
+    end if;
+    return new;
+
+    
+End;</code></pre></div><p>Merci à vous gleu.</p>]]></content>
+		<author>
+			<name><![CDATA[LeHibou]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=794</uri>
+		</author>
+		<updated>2010-06-23T18:09:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5453#p5453</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Trigger qui récupère les valeurs induites]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5452#p5452"/>
+		<content type="html"><![CDATA[<p>Mon égalité avec le where ne donne rien; Ce qu&#039;il faut pourtant, c&#039;est que la requête s&#039;effectue sur le produit sélectionné dans la table &quot;Calculs&quot;.</p><p>Voici mon trigger réécrit:</p><div class="codebox"><pre><code>Declare
+Id integer;
+
+Begin
+select into id &quot;Id_Matiere&quot;
+from &quot;Facturation&quot;.&quot;Nom_Prod_Fini&quot;
+where &quot;Nom_Prod_Fini&quot;.&quot;Nom_Produit&quot;=&quot;Nom_Produit_Fini&quot;;
+
+	If (TG_OP = &#039;INSERT&#039;)
+		Then insert into stocks.&quot;Matiere&quot; (&quot;Id_Matière&quot;,&quot;Quantite_commande_(kg)&quot;,&quot;Quantite_casse_(kg)&quot;,&quot;Quantite_Sortie_(kg)&quot;)
+		Values (id,0,0,-(new.&quot;Quantite&quot;));
+		Return new;
+
+	end if;
+	return new;
+
+	
+End;</code></pre></div><p>je mets également les extraits de tables concernées (sans contraintes, etc...):</p><p>Table Calculs:</p><div class="codebox"><pre><code>CREATE TABLE &quot;Facturation&quot;.&quot;Calculs&quot;
+(
+  &quot;Prix_HT&quot; numeric NOT NULL,
+  &quot;Remise(%)&quot; numeric,
+  &quot;Quantite&quot; numeric,
+  &quot;Prix_Net_HT&quot; numeric(30,2),
+  &quot;Nom_Produit_Fini&quot; character varying NOT NULL,
+  &quot;Tva-type&quot; integer,
+  &quot;Valeur_Tva&quot; numeric NOT NULL,
+  &quot;Montant_tva&quot; numeric(30,2),
+  &quot;Num_Id&quot; integer,
+  &quot;Montant_Ligne&quot; numeric(30,2),
+  &quot;Num_Ope&quot; integer NOT NULL DEFAULT nextval(&#039;&quot;Facturation&quot;.&quot;Num_ope_seq&quot;&#039;::regclass),
+  &quot;Type_facture&quot; character varying,</code></pre></div><p>Nom_Produit_Fini est lié à cette table:</p><div class="codebox"><pre><code>CREATE TABLE &quot;Facturation&quot;.&quot;Nom_Prod_Fini&quot;
+(
+  &quot;Nom_Produit&quot; character varying NOT NULL,
+  &quot;Id_Matiere&quot; integer,
+  &quot;Id_Pot&quot; integer,</code></pre></div><p>et la table de stock est la suivante:</p><div class="codebox"><pre><code>CREATE TABLE stocks.&quot;Matiere&quot;
+(
+  &quot;Id_Matière&quot; integer NOT NULL,
+  &quot;Quantite_commande_(kg)&quot; numeric,
+  &quot;Quantite_casse_(kg)&quot; numeric,
+  &quot;Quantite_Sortie_(kg)&quot; numeric,
+  &quot;Quantite_finale_(kg)&quot; numeric,
+  &quot;Date&quot; timestamp with time zone,</code></pre></div><p>Le message d&#039;erreur est le suivant:</p><div class="codebox"><pre><code>ERROR:  missing FROM-clause entry for table &quot;Calculs&quot;
+LINE 1: ...turation&quot;.&quot;Nom_Prod_Fini&quot; where &quot;Nom_Prod_Fini&quot; = &quot;Calculs&quot;....</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[LeHibou]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=794</uri>
+		</author>
+		<updated>2010-06-23T17:36:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5452#p5452</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Trigger qui récupère les valeurs induites]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5451#p5451"/>
+		<content type="html"><![CDATA[<p>Bonsoir gleu,</p><p>Plus précisément, j&#039;ai une table &quot;Calculs&quot;.</p><p>J&#039;entre toutes les informations, dont le nom du produit. Ce nom de produit contient un id matière et un id pot. Ces deux dernières info figurent sur une autre table.</p><p>Il y a donc trois tables qui entrent en interaction.</p><p>Ce que je souhaite, c&#039;est que quand je valide ma table &quot;Calculs&quot;, il mette à jour une autre colonne d&#039;une autre table. Cette autre table n&#039;est autre que ma table de stocks.<br />Ainsi, pour un produit donné dans calcul, les composants vont mettre à jour les tables matiere et pot.</p><p>Et je bloque lamentablement dessus.</p><p>Je vais essayer votre code,</p><p>A tout à l&#039;heure,</p><p>LeHibou</p><p>PS: au temps pour moi. dans </p><div class="codebox"><pre><code>WHERE &quot;Nom_Prod_Fini&quot;.&quot;Nom_Produit&quot; = &quot;Nom_Produit&quot;</code></pre></div><p>il faut en fait lire</p><div class="codebox"><pre><code>WHERE &quot;Nom_Prod_Fini&quot;.&quot;Nom_Produit&quot; = &quot;Nom_Produit_Fini&quot;</code></pre></div><p>Cette valeur est différente. Sinon effectivement, aucun intérêt à faire une égalité.</p><p>A tout à l&#039;heure</p>]]></content>
+		<author>
+			<name><![CDATA[LeHibou]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=794</uri>
+		</author>
+		<updated>2010-06-23T17:13:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5451#p5451</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Trigger qui récupère les valeurs induites]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5450#p5450"/>
+		<content type="html"><![CDATA[<p>Il est possible que vous cherchiez à faire ça:</p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION &quot;Facturation&quot;.&quot;MAJ_Quantite_Matiere&quot;()
+  RETURNS trigger AS
+$BODY$
+DECLARE
+  id text;
+BEGIN
+  SELECT INTO id &quot;Id_Matiere&quot;
+  FROM &quot;Facturation&quot;.&quot;Nom_Prod_Fini&quot;
+  WHERE &quot;Nom_Prod_Fini&quot;.&quot;Nom_Produit&quot; = &quot;Nom_Produit&quot;;
+
+  IF TG_OP = &#039;INSERT&#039;
+  THEN
+    INSERT INTO stocks.&quot;Matiere&quot;
+           (&quot;Id_Matière&quot;,&quot;Quantite_commande_(kg)&quot;,&quot;Quantite_casse_(kg)&quot;,&quot;Quantite_Sortie_(kg)&quot;)
+    VALUES (id, 0, 0, -(NEW.&quot;Quantite&quot;));
+  END IF;
+
+  RETURN NEW;
+END;
+$BODY$
+LANGUAGE &#039;plpgsql&#039;;</code></pre></div><p>Évidemment, ça ne marchera pas car la clause WHERE &quot;Nom_Prod_Fini&quot;.&quot;Nom_Produit&quot; = &quot;Nom_Produit&quot; est toujours vrai (colonne X = colonne X, ça peut pas être faux...). Et comme je ne sais pas d&#039;où il vient (peut-être de la ligne NEW ?)...</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-06-23T16:46:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5450#p5450</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Trigger qui récupère les valeurs induites]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5449#p5449"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous,</p><p>J&#039;en vois déjà certains grogner de mon retour.</p><p>Tout d&#039;abord, voilà où j&#039;en suis:<br />BDD 20 tables, impressions pour factures gérées avec Calc.</p><p>Mais il y a encore une dernière chose qui me dérange. <br />Est-il possible à mon trigger de renvoyer le résultat de la requête que j&#039;ai écrite dans une colonne bien précise?</p><p>Je viens de rééditer le message pour la seconde fois. j&#039;ai supprimé les tables qui ne servaient pas à la compréhension du problème.</p><p>Dans mon&#160; trigger, si je supprime la requête et remplace &quot;Id_Matière&quot; dans &quot;Values (&quot;Id_Matiere&quot;...&quot;par un Id existant, alors ça marche. mais je veux qu&#039;il fasse une requête.<br />La requête, une fois faite, me donne les informations dont j&#039;ai besoin.</p><p><strong>ce que j&#039;aimerais, c&#039;est que mon trigger insère dans stocks.&quot;Matiere&quot;.&quot;Id_Matiere&quot; le résultat de la requête qu&#039;il contient (select... from...)</strong><br />Lui même est situé dans Facturation. Donc un autre schéma. Ce trigger envoie donc à une table étrangère les valeurs de la table locale ET le résultat d&#039;une requête qui se fait sur une table voisine.</p><br /><p>J&#039;ai créé le trigger suivant:</p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION &quot;Facturation&quot;.&quot;MAJ_Quantite_Matiere&quot;()
+  RETURNS trigger AS
+$BODY$Begin
+SELECT 
+&quot;Id_Matiere&quot;
+FROM 
+  &quot;Facturation&quot;.&quot;Nom_Prod_Fini&quot;
+WHERE 
+  &quot;Nom_Prod_Fini&quot;.&quot;Nom_Produit&quot; = &quot;Nom_Produit&quot;;
+
+	If (TG_OP = &#039;INSERT&#039;)
+		Then Insert into stocks.&quot;Matiere&quot; (&quot;Id_Matière&quot;,&quot;Quantite_commande_(kg)&quot;,&quot;Quantite_casse_(kg)&quot;,&quot;Quantite_Sortie_(kg)&quot;)
+		Values (&quot;Id_Matiere&quot;, 0,0,-(new.&quot;Quantite&quot;));
+		Return new;
+
+	end if;
+	return new;
+
+	
+End;$BODY$
+  LANGUAGE &#039;plpgsql&#039; VOLATILE
+  COST 100;
+ALTER FUNCTION &quot;Facturation&quot;.&quot;MAJ_Quantite_Matiere&quot;() OWNER TO postgres;</code></pre></div><p>Ce n&#039;est pas simple à expliquer.<br />Mais je serais ravi de m&#039;exprimer à nouveau sur les points qu&#039;il faudra.</p><p>Merci</p>]]></content>
+		<author>
+			<name><![CDATA[LeHibou]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=794</uri>
+		</author>
+		<updated>2010-06-23T16:06:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5449#p5449</id>
+	</entry>
+</feed>

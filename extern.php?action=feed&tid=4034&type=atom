@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Problème de cohabitation de triggers]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4034&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4034"/>
+	<updated>2016-12-30T14:09:54Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4034</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème de cohabitation de triggers]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24479#p24479"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;ai enfin trouvé la solution pour récupérer correctement l&#039;ID_CARTON de la table CARTONS lorsque les triggers se mettent en action :<br />Voici le code : </p><p>CREATE OR REPLACE FUNCTION cartons_sortie() RETURNS TRIGGER AS $$<br />DECLARE<br />init INTEGER;<br />fin INTEGER;<br />res INTEGER;<br />BEGIN<br />&#160; &#160; init := OLD.quantite_consommable_restant_carton;<br />&#160; &#160; fin := NEW.quantite_consommable_restant_carton;<br />&#160; &#160; res := init - fin;<br />&#160; &#160; PERFORM ID_CARTON FROM CARTONS WHERE quantite_consommable_restant_carton = (res);<br />&#160; &#160; &#160;&#160; &#160; RAISE WARNING&#039;La valeur RES vaut : %&#039;, res;<br />&#160; &#160; &#160; &#160; IF RES != 0 THEN<br />&#160; &#160; &#160; &#160; RAISE WARNING&#039;La valeur ID_CARTON vaut : %&#039;, NEW.ID_CARTON;<br />&#160; &#160; &#160; &#160; INSERT INTO COMMANDES (ID_CARTON) VALUES(NEW.ID_CARTON);<br />&#160; &#160; &#160; &#160; END IF;<br />&#160; &#160; RETURN NEW;<br />END; <br />$$ LANGUAGE plpgsql;</p><p>create trigger sortie_cartons<br />after update on cartons<br />for each row<br />&#160; &#160; execute procedure cartons_sortie();</p><p>Passez de bonnes fêtes.</p>]]></content>
+		<author>
+			<name><![CDATA[PunkAndBad]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7165</uri>
+		</author>
+		<updated>2016-12-30T14:09:54Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24479#p24479</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème de cohabitation de triggers]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24466#p24466"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>En arrivant à observer les traces du trigger 1, je m&#039;aperçois que celui-ci ne fonctionne pas comme je le souhaite.<br />Son fonctionnement est &quot;normal&quot; lorsque je tape directement dans le champ QTE_OBJET_RESTANT_CARTON&#160; de la table CARTONS, par contre lorsque le trigger 2 s&#039;active le trigger 1 ne récupère pas correctement les ID_CARTONS.<br />Je sèche un peu sur le trigger 1 pour trouver la requête qui va identifier les bons ID_CARTON mais je ne désespère pas en cette période de Noël ;-)</p><p>Bonnes fêtes à vous tous.</p>]]></content>
+		<author>
+			<name><![CDATA[PunkAndBad]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7165</uri>
+		</author>
+		<updated>2016-12-24T15:42:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24466#p24466</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème de cohabitation de triggers]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24437#p24437"/>
+		<content type="html"><![CDATA[<p>Merci pour votre réponse M. COUSIN.</p><p>Il y avait un petit oubli dans la table OBJETS. J&#039;ai oublié la clé étrangère ID_CARTON.</p><p>La table est constituée de la manière suivante :</p><p>OBJETS<br />PrK - ID_OBJET&#160; &#160;(auto_inc)<br />NUM_SERIE_OBJET&#160; (int)<br />ACTIF_OBJET&#160; &#160; &#160; &#160;(bool)<br />FrK - ID_CARTON (int)</p><br /><p>J&#039;ai rajouté votre &quot;exemple&quot; dans les trigger mais je ne vois pas de traces de sortie du RAISE NOTICE dans la console de PgAdmin 4 ni dans le fichier pg_log (Je tourne sous PostgreSQL 9.6 sous W10). Faut-il chercher à un endroit spécifique ?</p><p>Sous PgAdmin, j&#039;ai passé des champs actif_objet de TRUE à FALSE et Postgresql m&#039;indique le message suivant :</p><br /><p>ERREUR:&#160; la valeur d&#039;une clé dupliquée rompt la contrainte unique « prk_constraint_commandes_bons »<br />DETAIL:&#160; La clé « (id_bon, id_commande)=(2, 8) » existe déjà.<br />CONTEXT:&#160; instruction SQL « INSERT INTO COMMANDES_BONS VALUES (i,j) »<br />fonction PL/pgsql commandes_insertion_commandes_bons(), ligne 14 à instruction SQL<br />instruction SQL « INSERT INTO COMMANDES (ID_CARTON) (SELECT ID_CARTON FROM CARTONS WHERE QTE_OBJET_RESTANT_CARTON = NEW.QTE_OBJET_RESTANT_CARTON) »<br />fonction PL/pgsql cartons_sortie(), ligne 3 à instruction SQL<br />instruction SQL « update cartons car<br />set QTE_OBJET_RESTANT_CARTON = (select count(actif_objet) from objets objt<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;where actif_objet = TRUE<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;and car.id_carton = objt.id_carton) »<br />fonction PL/pgsql compte_consommable_actif(), ligne 3 à instruction SQL</p><br /><p>En revanche, lorsque je désactive le trigger de la table OBJETS et que je modifie manuellement les données du champ QTE_OBJET_RESTANT_CARTON de la table CARTONS tout se passe bien !!!! Les tables différentes tables reçoivent alors correctement les insertions de données.</p><br /><p>Arf, arf, arf...</p>]]></content>
+		<author>
+			<name><![CDATA[PunkAndBad]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7165</uri>
+		</author>
+		<updated>2016-12-21T21:40:29Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24437#p24437</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème de cohabitation de triggers]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24426#p24426"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Le mieux, c&#039;est de rajouter une petite trace dans chaque fonction de trigger pour voir ce qu&#039;elles font. Faites le avec RAISE. Par exemple dans le premier trigger:</p><div class="codebox"><pre><code>RAISE NOTICE &#039;appel du trigger Compte_Objets_Actif pour %&#039;,new.QTE_OBJET_RESTANT_CARTON</code></pre></div><p>C&#039;est évidemment un exemple très basique, c&#039;est juste pour vous montrer la syntaxe.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2016-12-21T08:43:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24426#p24426</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Problème de cohabitation de triggers]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24420#p24420"/>
+		<content type="html"><![CDATA[<p>Bonjour à vous toutes et tous,</p><br /><p>Étant débutant sous PostgreSQL, je bloque depuis plusieurs jours sur un trigger.</p><br /><p>J&#039;ai 3 tables :</p><br /><p>COMMANDES<br />PrK - ID_COMMANDE (auto_inc)<br />FrK - ID_CARTON&#160; &#160; (int)<br />-----------------------------------------------------<br />CARTONS<br />Prk - ID_CARTON (auto_inc)<br />NUM_CARTON&#160; &#160; &#160; &#160; (int)<br />QTE_OBJET_CARTON (int)<br />QTE_OBJET_RESTANT_CARTON&#160; (int)<br />NUM_SERIE_DEBUT&#160; &#160; &#160; &#160; (int)<br />NUM_SERIE_FIN&#160; &#160; &#160; &#160; (int)<br />-----------------------------------------------------<br />OBJETS<br />PrK - ID_OBJET&#160; &#160;(auto_inc)<br />NUM_SERIE_OBJET&#160; (int)<br />ACTIF_OBJET &#160; &#160;&#160; &#160;(bool)</p><br /><p>Le 1er trigger (tables CARTONS) :</p><br /><p>CREATE OR REPLACE FUNCTION cartons_sortie() RETURNS TRIGGER AS $$<br />BEGIN<br />&#160; &#160; INSERT INTO COMMANDES (ID_CARTON) (SELECT ID_CARTON FROM CARTONS WHERE QTE_OBJET_RESTANT_CARTON = NEW.QTE_OBJET_RESTANT_CARTON); <br />&#160; &#160; RETURN NEW;<br />END; <br />$$ LANGUAGE plpgsql;</p><br /><p>create trigger sortie_cartons<br />after update on cartons<br />for each row<br />&#160; &#160; execute procedure cartons_sortie();</p><br /><p>Lorsque je modifie manuellement dans la table CARTONS les valeurs du champ QTE_OBJET_RESTANT_CARTON, les ID_CARTON associés <br />s&#039;insèrent correctement dans la table COMMANDES. </p><p>Le 2nd trigger (tables OBJETS) :</p><br /><p>CREATE OR REPLACE FUNCTION Compte_Objets_Actif() RETURNS TRIGGER AS $$<br />BEGIN<br />update cartons car<br />set QTE_OBJET_RESTANT_CARTON = (select count(actif_objet) from objets objt<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;where actif_objet = TRUE<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;and car.id_carton = objt.id_carton);</p><p>&#160; &#160; RETURN new;<br />END;<br />$$ language plpgsql;</p><br /><p>CREATE TRIGGER Objets_Compte_Actif <br />AFTER UPDATE ON objets<br />FOR EACH ROW <br />&#160; EXECUTE PROCEDURE Compte_Objets_Actif(); </p><p>&#160; <br />Lorsque dans la table OBJETS je passe le champ ACTIF_OBJET de TRUE à FALSE, le champ QTE_OBJET_RESTANT_CARTON de la table CARTONS se recalcule automatiquement m&#039;indiquant ainsi les objets restants pour chaque carton (ID_CARTON).</p><br /><p>Séparement ces 2 triggers fonctionnent parfaitement, par contre lorsqu&#039;ils cohabitent PostgreSQL me retourne une erreur en indiquant qu&#039;il y a une duplication de clés dans la table COMMANDES. </p><br /><p>Je suis débutant sous PostgreSQL mais je pense comprendre que lorsque les champs ACTIF_OBJET passent à FALSE (table OBJETS), le 2nd trigger recalcule sans distinction tous les champs QTE_OBJET_RESTANT_CARTON de la table CARTONS. Le 1er trigger s&#039;enclenche alors et tous les ID_CARTON vont essayer de s&#039;insérer dans la table COMMANDES provoquant ainsi une erreur.</p><br /><p>J&#039;ai beau modifier mon 2nd trigger je retombe toujours sur ce problème de duplication de clés.<br />Si vous avez une idée ou une solution je suis preneur.</p><br /><p>Merci à vous.</p><p>@+</p>]]></content>
+		<author>
+			<name><![CDATA[PunkAndBad]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7165</uri>
+		</author>
+		<updated>2016-12-20T22:43:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24420#p24420</id>
+	</entry>
+</feed>

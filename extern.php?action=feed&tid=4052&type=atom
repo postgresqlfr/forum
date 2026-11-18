@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Première connexion distante]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4052&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4052"/>
+	<updated>2017-01-11T19:34:05Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4052</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Première connexion distante]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24565#p24565"/>
+		<content type="html"><![CDATA[<p>Bon,</p><p>La doc a été salvatrice, maintenant le serveur sert et le client cliente et moi, je suis bien content ! <br />Je relève toutefois que le message d&#039;erreur que je recevais, </p><p>&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &quot;psql: FATAL:&#160; no pg_hba.conf entry for host &quot;10.0.1.20&quot;, user &quot;postgres&quot;, database &quot;test&quot;, SSL off&quot;</p><p>est quelque part buggué, car il mentionne bien l&#039;adresse de la machine depuis laquelle je tentais la connexion, et non celle du serveur (qui est en 10.0.1.65). Ca ne contribue pas à la clarté du débat. Et je note bien l&#039;histoire du socket, encore un truc qui ne me venait pas tout seul...</p><p>La prochaine étape est de nettoyer mon MacMini de l&#039;installation 9.4 Apple actuelle et d&#039;y installer un beau build 9.6 tout propre, installé conformément aux canons ...nix. Il n&#039;y a pas de raison de faire autrement. D&#039;autant plus que la doc de build du site Français est parfaite et fonctionne right out of the box, elle ! La seule chose que je dois faire si je comprends bien est de récupérer le fichier launchd et de l&#039;adapter à mes souhaits. Je suis optimiste...</p><p>En tout cas merci à vous deux, il est agréable de ne pas se sentir tout seul en ces tragiques circonstances ;-)</p><p>Thierry</p>]]></content>
+		<author>
+			<name><![CDATA[TJ85]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7228</uri>
+		</author>
+		<updated>2017-01-11T19:34:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24565#p24565</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Première connexion distante]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24564#p24564"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Par contre il y a à coup sûr un lézard dans ma configuration, car lorsque je démarre psql je me fais injurier car il ne trouve pas le serveur sur un socket /var/pgsql_socket/.s.PGSQL.5432</p></div></blockquote></div><br /><p>C&#039;est normal parce que quand on lance psql sans argument de host (-h) par défaut il prend celui avec lequel sa lib a été compilée, et dans le cas du psql compilé/pré-installé par Apple c&#039;est le répertoire pour Unix Domain Socket se trouvant dans /var/pgsql_socket (pour une connexion locale, donc).</p><p>Il faut s&#039;assurer d&#039;utiliser -h et dans le cas présent d&#039;un psql compilé par vos soins, s&#039;assurer de lancer celui-là et non celui pré-installé dans /usr/bin.</p><p>Les versions plus de MacOS version desktop ont un client PostgreSQL pré-installé, mais pas les plus récentes (depuis au moins 2 ans je crois).</p><br /><p>Sinon le problème de départ, comme répondu par Marc est que les règles pour pour autoriser les clients via pg_hba.conf se font sur le serveur, pas sur le client, sinon n&#039;importe quel client pourrait s&#039;auto-autoriser, ça n&#039;apporterait aucune sécurité.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2017-01-11T16:08:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24564#p24564</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Première connexion distante]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24559#p24559"/>
+		<content type="html"><![CDATA[<p>Grand merci pour le lien, je pense que je vais pouvoir m&#039;en tirer en lisant cette doc. Elle m&#039;avait échappé jusqu&#039;ici. Dans le cas contraire, je referai un tour par ici !</p><p>Bonne soirée, </p><p>Thierry</p>]]></content>
+		<author>
+			<name><![CDATA[TJ85]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7228</uri>
+		</author>
+		<updated>2017-01-10T22:11:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24559#p24559</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Première connexion distante]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24554#p24554"/>
+		<content type="html"><![CDATA[<p>Connection refused, c&#039;est probablement que vous avez listen_addresses qui est toujours à localhost (postgres n&#039;écoute dans ce cas qu&#039;en local). Modifiez le paramètre à * dans le fichier de configuration.</p><p>Pour ce qui est d&#039;être compliqué, oui, par défaut, postgres est plutôt «fermé» par défaut, pour des raisons de sécurité.</p><p>Sinon, pour se mettre le pied à l&#039;étrier: <a href="http://postgresql.fr/guidedemarragerapide" rel="nofollow">http://postgresql.fr/guidedemarragerapide</a></p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2017-01-10T18:30:07Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24554#p24554</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Première connexion distante]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24552#p24552"/>
+		<content type="html"><![CDATA[<p>Oui, c&#039;est au moins une chose dont je suis sûr. Par contre il y a à coup sûr un lézard dans ma configuration, car lorsque je démarre psql je me fais injurier car il ne trouve pas le serveur sur un socket /var/pgsql_socket/.s.PGSQL.5432.<br />Du coup, j&#039;essaie de procéder à l&#039;envers, du serveur officiel vers le client. Et j&#039;obtiens un autre message d&#039;erreur : &quot;Connection refused&quot;. Ceci après avoir ouvert mon firewall sur le client, 10.0.1.20, qui du coup est devenu le serveur... </p><p>J&#039;ai redémarré le serveur sur mon client (!), après avoir modifié pg_hba.conf ainsi : </p><p>host&#160; &#160;all&#160; &#160; &#160; &#160; &#160; &#160; &#160; all&#160; &#160; &#160; &#160; &#160; &#160; &#160;0.0.0.0/0&#160; &#160; &#160; &#160; &#160; &#160; &#160; trust</p><p>Si j&#039;ai bien compris, je devrais ainsi accepter toutes les connexions, sans restrictions ni password. Rien ne change pourtant : &quot;Connection refused&quot;. Je note que lorsque je tente une connexion à distance avec postgres démarré en interactif, je ne logue aucun message d&#039;erreur alors que lorsque je me connecte avec un nom d&#039;utilisateur Postgres inconnu je vois bien une trace sur la console.</p><p>Donc, c&#039;est pas encore ça... Mais diantre, que c&#039;est donc compliqué !</p>]]></content>
+		<author>
+			<name><![CDATA[TJ85]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7228</uri>
+		</author>
+		<updated>2017-01-10T17:39:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24552#p24552</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Première connexion distante]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24551#p24551"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>C&#039;est un message envoyé par le serveur. C&#039;est bien du contenu du pg_hba.conf du serveur dont il est question ici. Oubliez la configuration sur le client.</p><p>Avez vous bien fait un reload de la configuration après avoir modifié le pg_hab.conf ?</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2017-01-10T15:24:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24551#p24551</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Première connexion distante]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24550#p24550"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous,</p><p>Nouveau venu dans l&#039;univers PostgreSQL, je découvre. J&#039;étais habitué à RdB sous VMS, et bien sûr aux autres BDs courantes sur PC. Je trouve PostgreSQL remarquable, la doc également. MAIS : Je suis fichtrement infoutu de me connecter d&#039;une machine sur une autre !<br />J&#039;ai une installation standard OSX Server sur un MacMini. La version servie par Apple est 9.4, ses répertoires d&#039;installation sont non-standard. L&#039;adresse IP de cette machine est 10.0.1.65.<br />J&#039;aimerais attaquer Postgres depuis un autre Mac, d&#039;adresse 10.0.1.20, sur lequel j&#039;ai construit de manière standard une version 9.6 complète (dans l&#039;idée de développer des trucs, un peu pour jouer). <br />Des deux côtés Postgres fonctionne en local sans problème.</p><p>J&#039;essaie tout d&#039;abord ceci, depuis le client (10.0.1.20) :</p><p>$ /usr/local/pgsql/bin/psql -h 10.0.1.65 -d test -U postgres </p><p>et je reçois ce message :</p><p>psql: FATAL:&#160; no pg_hba.conf entry for host &quot;10.0.1.20&quot;, user &quot;postgres&quot;, database &quot;test&quot;, SSL off</p><p>Je ne comprends pas ce message. Je comprendrais qu&#039;il me dise qu&#039;il ne trouve pas de fichier pg_hba.conf à l&#039;adresse 10.0.1.65, qui est ma cible et l&#039;endroit où tourne le serveur que j&#039;attaque, mais là il semble chercher le fichier en local...</p><p>Pour essayer de lui faire plaisir, sur la machine 10.0.1.20 (cliente), j&#039;ai renseigné le fameux fichier ainsi : </p><p>host&#160; &#160;all&#160; &#160; &#160; &#160; &#160; &#160; &#160; all&#160; &#160; &#160; &#160; &#160; &#160; &#160;10.0.0.0/8&#160; &#160; &#160; &#160; &#160; &#160; &#160; trust</p><p>L&#039;idée est de permettre à tout mon réseau (255 machines au maximum) d&#039;attaquer le serveur.</p><p>Ca n&#039;a rien changé.</p><p>Côté serveur j&#039;utilise l&#039;outil pgAdmin3. J&#039;ai constaté que j&#039;arrive à ouvrir un fichier pg_hba.conf en passant par Tools - Server Configuration, mais que lorsque je veux utiliser l&#039;option File - Open pg_hba.conf, l&#039;interface ne trouve pas le fichier.</p><p>J&#039;ai modifié le contenu du fichier accessible pour qu&#039;il soit identique à celui de l&#039;autre machine, soit : <br />host&#160; &#160;all&#160; &#160; &#160; &#160; &#160; &#160; &#160; all&#160; &#160; &#160; &#160; &#160; &#160; &#160;10.0.0.0/8&#160; &#160; &#160; &#160; &#160; &#160; &#160; trust</p><p>Malgré tout, lorsque je tente la connexion depuis le client (10.0.1.20) j&#039;ai toujours le même fichu message, que je ne comprends toujours pas :</p><p>psql: FATAL:&#160; no pg_hba.conf entry for host &quot;10.0.1.20&quot;, user &quot;postgres&quot;, database &quot;test&quot;, SSL off</p><p>Moilà ! Si quelqu&#039;un passant par ici pouvait me décoincer, il aurait droit à ma reconnaissance durant un certain nombre de clicks !</p><p>Merci d&#039;avance, bonne fin de journée</p><p>Thierry</p>]]></content>
+		<author>
+			<name><![CDATA[TJ85]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7228</uri>
+		</author>
+		<updated>2017-01-10T14:49:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24550#p24550</id>
+	</entry>
+</feed>

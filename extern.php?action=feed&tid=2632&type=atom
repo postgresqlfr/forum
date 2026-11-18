@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / IMEI déclaration et exploitation]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2632&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2632"/>
+	<updated>2013-05-15T20:23:01Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2632</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  IMEI déclaration et exploitation]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17225#p17225"/>
+		<content type="html"><![CDATA[<p>merci beaucoup pour l&#039;aide que vous m&#039;avez apporte <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /><br />bonne soirée <br />cordialement</p>]]></content>
+		<author>
+			<name><![CDATA[MôMö13]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2234</uri>
+		</author>
+		<updated>2013-05-15T20:23:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17225#p17225</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  IMEI déclaration et exploitation]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17213#p17213"/>
+		<content type="html"><![CDATA[<p>Le plus performant sera sans doute :</p><div class="codebox"><pre><code>CREATE DOMAIN D_IMEI 
+   AS CHAR(15) --&gt; pas de VARCHAR !
+   CONSTRAINT CK_IMEI CHECK (CAST(VALUE AS DECIMAL(15,0)) &gt; 0
+                             AND CHARACTER_LENGTH(LTRIM(VALUE)) = 15);;</code></pre></div><div class="codebox"><pre><code>CREATE TABLE T_IMEI
+(IMEI D_IMEI);</code></pre></div><p>Tests :</p><p>Bon :</p><div class="codebox"><pre><code>INSERT INTO T_IMEI VALUES (&#039;123456789012345&#039;);</code></pre></div><p>Faux et levée d&#039;une exception :</p><div class="codebox"><pre><code>INSERT INTO T_IMEI VALUES (&#039;12345678901234&#039;)</code></pre></div><p>Taille incorrecte.</p><br /><div class="codebox"><pre><code>INSERT INTO T_IMEI VALUES (&#039;12345678901234a&#039;)</code></pre></div><p>Lettre incorrecte.</p><br /><div class="codebox"><pre><code>INSERT INTO T_IMEI VALUES (&#039; 23456789012345&#039;)</code></pre></div><p>Blanc devant</p><br /><br /><p>Mais si pour vous les 3 zones de l&#039;IMEI devront être requêtées séparément, alors mieux vaut atomiser dès le départ en 3 colonnes et vous pouvez faire une&#160; vue donnant la concaténation.</p><p>A +</p>]]></content>
+		<author>
+			<name><![CDATA[SQLpro]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1054</uri>
+		</author>
+		<updated>2013-05-12T16:26:31Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17213#p17213</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  IMEI déclaration et exploitation]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17211#p17211"/>
+		<content type="html"><![CDATA[<p>non pas vraiment j&#039;ai déjà utiliser pour la gestion de bibliothèque , pour la gestion des code bar et référencement des livre. dans mon cas c&#039; pour l&#039;IMEI c&#039; est similaire mais pour la gestion des mobile.<br />je vous savoir comment les géré et normaliser ,&#160; c&#039;est pour se la que j&#039;ai mes les 4 options, je suit novice en bdd </p><p>merci</p>]]></content>
+		<author>
+			<name><![CDATA[MôMö13]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2234</uri>
+		</author>
+		<updated>2013-05-10T17:34:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17211#p17211</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  IMEI déclaration et exploitation]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17208#p17208"/>
+		<content type="html"><![CDATA[<p>Je ne sais pas si ça correspond exactement à ce que vous voulez mais PostgreSQL dispose d&#039;un module isn. Voir <a href="http://docs.postgresql.fr/9.2/isn.html" rel="nofollow">http://docs.postgresql.fr/9.2/isn.html</a> pour les détails.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2013-05-10T11:36:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17208#p17208</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[IMEI déclaration et exploitation]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17206#p17206"/>
+		<content type="html"><![CDATA[<p>Bonjour <br />Voila je travaille sur un sujet de stage MDM pour Mobile Device Management; dans se cas de figure je suis en train de essayer de normaliser la basse de donnée. pour La déclaration d’IMEI (International Mobile Equipment Identity) <br />Je doits faire :</p><p>1-CREATE TABLE imei( IMEI varchar(15) NOT NULL&#160; );<br />2-rechercher un type telle-que « Types de données isn »<br />3- CREATE TYPE imei AS ( TAC varchar(8), SNR varchar(6), CR varchar(1)&#160; ) ;<br />4- CREATE DOMAIN imei AS varchar(15) <br />CHECK (VALUE ~* E &#039; d {2} \ . \\d {2}\&#160; . \\d {2}\ . \\d {2}\ . \\d {2}\ . \\d {2}\ . \\d {2}\ .&#160; \\d {1}&#039; );<br />Quelle option choisir ou autre solution ???</p><p>systeme ubuntu 12.04 sur VM et postgres 9.1<br />~100 appareil mobile </p><p>INFORMATION : L&#039;IMEI est composé de 15 chiffres (14 chiffres utiles + 1 chiffre de contrôle). Depuis le 1eravril 2004, il contient les informations suivantes :<br />Le Type Allocation Code (TAC) fourni par l&#039;autorité de certification. Il est codé sur huit chiffres, les deux premiers chiffres désignant le code pays où le mobile a été immatriculé.<br />Le numéro de série (SNR) de fabrication de cet appareil, codé sur six chiffres.Le chiffre de contrôle servant de somme de contrôle sur les 14 autres chiffres.</p><p>MERCI D&#039;AVANCE</p>]]></content>
+		<author>
+			<name><![CDATA[MôMö13]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2234</uri>
+		</author>
+		<updated>2013-05-10T10:42:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17206#p17206</id>
+	</entry>
+</feed>

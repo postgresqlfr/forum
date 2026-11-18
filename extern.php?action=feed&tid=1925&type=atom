@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / index varchar_pattern_ops fonctionne pour un equal ?]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1925&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1925"/>
+	<updated>2012-02-24T09:56:43Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1925</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  index varchar_pattern_ops fonctionne pour un equal ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13007#p13007"/>
+		<content type="html"><![CDATA[<p>Exactement.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2012-02-24T09:56:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13007#p13007</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  index varchar_pattern_ops fonctionne pour un equal ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13006#p13006"/>
+		<content type="html"><![CDATA[<p>ok merci, donc si on utilise des order sur une colonne, c&#039;est bien de garder son index normal.</p><p>Merci pour toutes ces informations, c&#039;est vrai qu&#039;avant nous étions en 8.2.14 et que nous avions pris l&#039;habitude de créer 2 indexs sur les colonnes où nous utilisions des LIKE et des EQUAL.</p>]]></content>
+		<author>
+			<name><![CDATA[lolotte35]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1425</uri>
+		</author>
+		<updated>2012-02-24T08:58:21Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13006#p13006</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  index varchar_pattern_ops fonctionne pour un equal ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13004#p13004"/>
+		<content type="html"><![CDATA[<p>C&#039;est normal que les varchar_pattern_ops marchent aussi pour les =. En fait ce qu&#039;explique la doc (en essayant de faire plus clair), c&#039;est que les opérateurs par défauts utilisés pour indexer un champ texte travaillent avec la collation de la colonne, qui sera vraisemblablement un truc du genre fr_FR.utf8. Ce dont on parle, c&#039;est d&#039;une fonction à la cmp ou &lt;=&gt; qu&#039;on rencontre dans d&#039;autres langages (il va retourner par exemple -1 si a&lt;b, 0 si a=b, 1 si a&gt;b). Le varchar_pattern_ops utilise aussi un opérateur de comparaison entre les chaînes, mais il les compare «bêtement» par leur valeur ascii, octet par octet. On a donc bien aussi la possibilité d&#039;utiliser =.</p><p>Là où le varchar_pattern_ops fait des choses où l&#039;opérateur normal n&#039;est pas bon, c&#039;est dans les clauses LIKE &#039;toto%&#039;, ou ~ &#039;toto(a|k).*titi&#039; (expression régulière). L&#039;optimiseur sait, quand il a un varchar_pattern_ops, qu&#039;il peut l&#039;utiliser pour parcourir des ranges de valeurs et donc écrémer fortement par le parcours de l&#039;index les valeurs à retourner.</p><p>Par exemple, le LIKE &#039;toto%&#039; va être transformé au niveau du parcours de l&#039;index en un ( &gt; &#039;toto&#039; and &lt;&#039;totp&#039; )</p><p>Avec un index qui a une collation arbitraire, cette transformation est plus compliquée à faire. Je ne dis pas qu&#039;elle serait impossible, mais la transformation dépendrait de la collation (par exemple, où arrive un caractère accentué&#160; dans le tri alphabêtique ?), et ce n&#039;est pas implémenté au niveau de l&#039;optimiseur.</p><p>Et donc pour revenir à la question de départ, oui, les *_pattern_ops marchent pour les =. À partir de la 8.4. Avant, ils n&#039;étaient pas utilisables pour les =.</p><p>En pré-8.4, on partait du fait que l&#039;égalité entre 2 chaînes ne voulait pas forcément dire que les deux chaînes étaient égales au niveau octet (plusieurs façons d&#039;écrire le même mot). Le cas est suffisamment peu fréquent, et peu utile dans la vraie vie, qu&#039;en 8.4 et plus, PostgreSQL décide que deux chaînes sont égales si et seulement si elles ont exactement la même valeur binaire, ce qui permet d&#039;utiliser les pattern_ops pour les tests d&#039;égalité, et ne pas se trimbaler d&#039;index supplémentaire juste pour l&#039;égalité.</p><p>Ça ne veut pas dire que les index normaux ne servent plus à rien… Ils restent les seuls qui retournent les données triées avec le bon tri alphabétique. Ils ont donc aussi leurs cas d&#039;utilisation (tous les cas, sauf si on veut faire du like ou de l&#039;expression régulière).</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2012-02-24T08:16:35Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13004#p13004</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  index varchar_pattern_ops fonctionne pour un equal ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12996#p12996"/>
+		<content type="html"><![CDATA[<p>bonjour</p><p>Dans la doc <a href="http://docs.postgresqlfr.org/9.0/indexes-opclass.html" rel="nofollow">http://docs.postgresqlfr.org/9.0/indexes-opclass.html</a> , il est bien précisé que ce type d&#039;index ne travaille pas sur les &quot;locales&quot; de l&#039;utilisateur donc ne permettent pas les comparaisons du type &gt;,&lt;, ... <br />mais ils savent travailler sur des égalités (&quot;Néanmoins, des comparaisons d&#039;égalité ordinaires peuvent utiliser ces classes d&#039;opérateur.&quot;)</p>]]></content>
+		<author>
+			<name><![CDATA[arthurr]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=62</uri>
+		</author>
+		<updated>2012-02-23T15:17:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12996#p12996</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[index varchar_pattern_ops fonctionne pour un equal ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12995#p12995"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>je suis en Postgres 9.1.1, j&#039;ai un index en varchar_pattern_ops sur une colonne, je pensais qu&#039;il n&#039;était utilisé que pour les LIKE.<br />Mais là j&#039;ai fait une requête avec un = et je vois dans mon explain qu&#039;il utilise mon index!</p><p>ça me va très bien, mais c&#039;est normal?</p><p>Est ce que c&#039;est uniquement parce que la table ne contient pas beaucoup d&#039;enregistrement (53 000) ?<br />Ou alors le varchar_pattern_ops fonctionne pour les LIKE et les = ?</p><p>Car sur d&#039;autres tables ( beaucoup plus volumineuses) nous avons créé 2 indexs sur la même colonne, l&#039;un en varchar_pattern_ops et l&#039;autre sans pour les cas où nous utilisons un LIKE ou un equal.</p><br /><br /><p>Merci pour vos réponses</p>]]></content>
+		<author>
+			<name><![CDATA[lolotte35]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1425</uri>
+		</author>
+		<updated>2012-02-23T15:11:33Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12995#p12995</id>
+	</entry>
+</feed>

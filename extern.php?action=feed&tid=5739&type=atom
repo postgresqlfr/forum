@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Impossible d'ajouter des lignes dans une table via View/Edit data]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5739&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5739"/>
+	<updated>2020-04-16T15:34:22Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5739</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Impossible d'ajouter des lignes dans une table via View/Edit data]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31063#p31063"/>
+		<content type="html"><![CDATA[<p>Merci pour la rapidité de la réponse.<br />J&#039;avais déjà essayé tout cela avant même d&#039;appeler à l&#039;aide : <br />- redémarrages de pgAdmin,<br />- refresh de table<br />- purge des éventuels View/Edit data restés ouverts en parallèle<br />- relecture de la table pour vérifier l&#039;absence de la ligne, par Query Tool<br />- ...</p><p>Pour l&#039;instant, rien n&#039;y fait.</p><p>J&#039;ai ajouté une colonne dans la table pour m&#039;assurer que le défaut ne provenait pas de la table à colonne unique. Nouvelle surprise, le comportement a évolué : la saisie d&#039;une nouvelle ligne&#160; (saisie d&#039;un nom et d&#039;un libellé) suivie du Save provoque systématiquement le message &quot;Not connected to the server or the connection to the server has been closed.&quot; et l&#039;impossibibilité de réexécuter la requête de SELECT du View/Edit data.<br />Pourtant, ma connexion n&#039;est pas coupée (le clic droit sur mon serveur me propose &quot;Diconnect Server&quot;. D&#039;ailleurs, je peux créer et exécuter une requête via Query Tool sur cette même table, sans me reconnecter.</p><p>Le mystère s&#039;épaissis...</p>]]></content>
+		<author>
+			<name><![CDATA[FleurDePoireau]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8838</uri>
+		</author>
+		<updated>2020-04-16T15:34:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31063#p31063</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Impossible d'ajouter des lignes dans une table via View/Edit data]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31062#p31062"/>
+		<content type="html"><![CDATA[<p>À priori le message d&#039;erreur est généré par postgres, pas par pgAdmin.&#160; Peut-être un soucis de synchronisation de la grille essayez d&#039;actualiser et/ou de redémarrer pgAdmin sait-on jamais.&#160; Vous pouvez sinon vérifier avec l&#039;éditeur de requête que la ligne n&#039;est pas présentes dans la table, ou que la grille n&#039;aurait pas mémorisée une précédente tentative de saisie qui se retrouverait automatiquement ajoutée.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2020-04-16T14:52:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31062#p31062</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Impossible d'ajouter des lignes dans une table via View/Edit data]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31060#p31060"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je suis en PostgreSQL V10 / pgAdmin4 V2.1.<br />J&#039;ai créé une table Test_tri de 1 colonne appelée NomCol.<br />J&#039;ai voulu sous pgadmin - View/Edit data entrer quelques lignes à la main mais impossible. <br />Dans un premier temps, la ligne vide permettant la saisie ne s&#039;affichait pas. J&#039;ai fini par trouver que sans OID incluse ou de clé primaire unique sur la table, point de salut (saisie non supportée par pgAdmin4) !. J&#039;ai donc ajouté une clé primaire sur NomCol.<br />Maintenant, je peux saisir des données mais impossible de les enregistrer avec le bouton Save de la barre de fonctions.<br />Message :&#160; <br />ERREUR:&#160; la valeur d&#039;une clé dupliquée rompt la contrainte unique « Test_tri_pkey »<br />DETAIL:&#160; La clé « (&quot;NomCol&quot;)=(jardin) » existe déjà.</p><p>Or je saisis le mot jardin dans ma table qui est vide.</p><p>Je n&#039;ai aucun souci d&#039;insertion de ligne via un INSERT exécuté sous pgAdmin4.<br />Après insertion de lignes via INSERT, pgAdmin4 me permet bien via View/Edit data de modifier les données insérées et de les enregistrer via le bouton Save, sans aucun problème.<br />Je ne peux par contre là encore pas ajouter de nouvelle ligne.</p><p>Ma table ne me semble pas présenter d&#039;anomalie dans sa définition :<br />CREATE TABLE ux.&quot;Test_tri&quot;<br />(<br />&#160; &#160; &quot;NomCol&quot; character varying(10) COLLATE pg_catalog.&quot;default&quot; NOT NULL,<br />&#160; &#160; CONSTRAINT &quot;Test_tri_pkey&quot; PRIMARY KEY (&quot;NomCol&quot;)<br />&#160; &#160; &#160; &#160; USING INDEX TABLESPACE &quot;CAIDB_PostgreSQL&quot;<br />)<br />WITH (<br />&#160; &#160; OIDS = FALSE<br />)<br />TABLESPACE &quot;CAIDB_PostgreSQL&quot;;</p><p>Erreur de ma part ou souci de l&#039;IHM de pgAdmin4 V2.1&#160; pour l&#039;insertion de lignes dans une table ?</p><p>Merci d&#039;avance pour votre aide.</p><p>PS : je ne connais pas ce problème sur le pgAdmin4 V4.18 que j&#039;ai sur mon PostgreSQL 12. J&#039;ai aussi un bouton en plus &quot;Save data changes&quot; dans cette version...</p>]]></content>
+		<author>
+			<name><![CDATA[FleurDePoireau]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8838</uri>
+		</author>
+		<updated>2020-04-16T14:35:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31060#p31060</id>
+	</entry>
+</feed>

@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Plantage REINDEX par manque d'espace disque]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1260&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1260"/>
+	<updated>2012-10-26T14:07:50Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1260</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Plantage REINDEX par manque d'espace disque]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15602#p15602"/>
+		<content type="html"><![CDATA[<p>Petit retour ... au final j&#039;ai fait comme ça :</p><br /><div class="codebox"><pre><code>SELECT &#039;DROP INDEX IF EXISTS &#039; || nspname || &#039;.&#039; || relname || &#039;;&#039; as &quot;DROP INDEX&quot;
+from pg_class c, pg_namespace 
+where relkind=&#039;i&#039; and relnamespace not in 
+    (select oid 
+     from pg_namespace 
+     where nspname in (&#039;pg_catalog&#039;,&#039;pg_toast&#039;)
+    ) 
+and c.oid not in (select indexrelid from pg_index where indisprimary ) 
+and c.relowner = nspowner 
+order by nspname;</code></pre></div><div class="codebox"><pre><code>VACUUM FULL ANALYZE;</code></pre></div><div class="codebox"><pre><code>SELECT pg_get_indexdef(oid) || &#039;;&#039; as &quot;CREATE INDEX&quot;
+from pg_class 
+where relkind=&#039;i&#039; and relnamespace not in 
+    (select oid 
+     from pg_namespace 
+     where nspname in (&#039;pg_catalog&#039;,&#039;pg_toast&#039;)
+    ) 
+and oid not in (select indexrelid from pg_index where indisprimary);</code></pre></div><br /><p>Gôm</p>]]></content>
+		<author>
+			<name><![CDATA[gom]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=550</uri>
+		</author>
+		<updated>2012-10-26T14:07:50Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15602#p15602</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Plantage REINDEX par manque d'espace disque]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8316#p8316"/>
+		<content type="html"><![CDATA[<p>Les &quot;WALs&quot; ? Une petite explication sur les risques ? <br />=&gt; Si le système de fichiers contenant les WAL est plein, le moteur s&#039;arrête. Et impossible de le redémarrer tant qu&#039;il n&#039;y aura pas de place libre. Pas de corruption, mais une bonne interruption de service…</p><p>Sinon, est-ce qu&#039;il existe une commande (sql ? pgsql ? curseur ?) qui permet de supprimer et recréer mes index dynamiquement ?<br />=&gt; REINDEX table xxx; Mais je présume que ce n&#039;est pas la réponse souhaitée <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>Pour le script, ça va être difficile: ce n&#039;est pas un script PostgreSQL.</p><p>Pour ce qui est de recréer des index, il y a bien plus simple :</p><div class="codebox"><pre><code>SELECT pg_get_indexdef(oid) 
+from pg_class 
+where relkind=&#039;i&#039; and relnamespace not in 
+    (select oid 
+     from pg_namespace 
+     where nspname in (&#039;pg_catalog&#039;,&#039;pg_toast&#039;)
+    ) 
+and oid not in (select indexrelid from pg_index where indisprimary );</code></pre></div><p>=&gt; Va retourner la liste des create index à faire pour regénérer tous les index qui ne sont pas des clés primaires</p><p>Ensuite il suffit de faire un </p><div class="codebox"><pre><code>SELECT &#039;DROP INDEX &#039; || relname || &#039;;&#039;
+from pg_class 
+where relkind=&#039;i&#039; and relnamespace not in 
+    (select oid 
+     from pg_namespace 
+     where nspname in (&#039;pg_catalog&#039;,&#039;pg_toast&#039;)
+    ) 
+and oid not in (select indexrelid from pg_index where indisprimary );</code></pre></div><p>Pour un script qui drop tous ces index.</p><p>On peut évidemment faire quelque chose du même genre pour les primary keys. C&#039;est juste un peu plus dur (c&#039;est à coup de pg_get_constraintdef, sur la table pg_constraint)</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-03-04T09:44:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8316#p8316</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Plantage REINDEX par manque d'espace disque]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8311#p8311"/>
+		<content type="html"><![CDATA[<p>Nouvelle découverte !</p><p>A partir de cette requête SQL je suis capable de lister toutes les tables de mon entrepôt de données qui possèdent au moins un index et donc pour lesquelles je dois supprimer et recréer le ou les index ! <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><div class="codebox"><pre><code>SELECT * 
+FROM pg_tables 
+WHERE schemaname not in (&#039;information_schema&#039;, &#039;pg_catalog&#039;, &#039;public&#039;) 
+and hasindexes;</code></pre></div><p>Gôm</p>]]></content>
+		<author>
+			<name><![CDATA[gom]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=550</uri>
+		</author>
+		<updated>2011-03-04T09:14:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8311#p8311</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Plantage REINDEX par manque d'espace disque]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8310#p8310"/>
+		<content type="html"><![CDATA[<p>Je viens de trouver ce script, mais je ne le comprends pas donc si vous pouviez me donner quelques explications ce serait merveilleux ! <img src="http://forums.postgresql.fr/img/smilies/wink.png" width="15" height="15" alt="wink" /></p><div class="codebox"><pre><code>DECLARE @indexName sysname --Changed to sysname, since that&#039;s what it was
+DECLARE @tableName sysname
+DECLARE @dropIndexSql NVARCHAR(4000)
+
+DECLARE tableIndexes CURSOR FOR
+SELECT name,OBJECT_NAME(ID) FROM sysindexes
+WHERE OBJECTPROPERTY(ID,N&#039;IsTable&#039;) = 1 
+AND OBJECTPROPERTY(ID,N&#039;IsMSShipped&#039;) = 0
+AND indid 0 --Is this right? Wouldn&#039;t this attempt to drop clustered PK?
+AND indid &lt; 255
+AND INDEXPROPERTY(id, name, &#039;IsStatistics&#039;) = 0
+OPEN tableIndexes
+FETCH NEXT FROM tableIndexes INTO @indexName, @tableName
+WHILE @@fetch_status = 0
+BEGIN
+SET @dropIndexSql = N&#039; DROP INDEX &#039; + @tableName + &#039;.&#039;  + @indexName
+EXEC sp_executesql @dropIndexSql
+FETCH NEXT FROM tableIndexes INTO @indexName, @tableName
+END
+CLOSE tableIndexes
+DEALLOCATE tableIndexes</code></pre></div><p><span class="bbu">Source :</span> <a href="http://bytes.com/topic/sql-server/answers/545913-drop-all-indexes-table-how-drop-all-user-tables-database" rel="nofollow">http://bytes.com/topic/sql-server/answe … s-database</a></p><br /><p>Gôm</p>]]></content>
+		<author>
+			<name><![CDATA[gom]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=550</uri>
+		</author>
+		<updated>2011-03-04T09:05:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8310#p8310</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Plantage REINDEX par manque d'espace disque]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8309#p8309"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>Marc Cousin a écrit&#160;:</cite><blockquote><div><p>Désolé. Par défaut, les systèmes de fichier ext (2,3,4) sous Linux ont 5% de blocs réservés à root. 5% de 300Go, c&#039;est 15Go. Donc si tu as un FS de 300Go, il y en a en fait 285 d&#039;utilisables par les utilisateurs. Ce qui expliquerait ton problème je pense.</p></div></blockquote></div><p>OK merci pour l&#039;explication. Pour info ... <a href="http://eric.quinton.free.fr/spip.php?article36" rel="nofollow">http://eric.quinton.free.fr/spip.php?article36</a> <img src="http://forums.postgresql.fr/img/smilies/wink.png" width="15" height="15" alt="wink" /></p><br /><div class="quotebox"><cite>daamien a écrit&#160;:</cite><blockquote><div><p>Effectivement la solution à court terme consiste à détruire/recréer les index...</p><p>Par contre, si vous n&#039;avez plus de place dans la baie SAN alors votre soucis dépasse largement le problème du REINDEX.... Notamment si la partition qui héberge les WALs est saturée vous allez au devant d&#039;un sérieux plantage.</p><p>Un disque de 500Go coute 50€, je comprends pas ce qui vous empêche d&#039;augmenter votre volume de stockage..</p></div></blockquote></div><p>Les &quot;WALs&quot; ? Une petite explication sur les risques ? <img src="http://forums.postgresql.fr/img/smilies/neutral.png" width="15" height="15" alt="neutral" /></p><br /><p>Sinon, est-ce qu&#039;il existe une commande (sql ? pgsql ? curseur ?) qui permet de supprimer <span class="bbu"><strong>et</strong></span> recréer mes index dynamiquement ? Mon objectif est que si quelqu&#039;un ajoute, modifie ou supprime un index sans que je sois au courant, alors mon script de maintenance prendra automatiquement en compte ces changements.</p><p>Du genre :</p><div class="quotebox"><blockquote><div><p>1/ Lecture d&#039;une table système qui contient toutes les informations nécessaires sur l&#039;ensemble des index actuellement présents dans mon entrepôt de données afin de créer un script &quot;recréation de tous mes index&quot; ;<br />2/ Suppression de tous mes index en générant des DROP INDEX via la table système énoncée ci-dessus ;<br />3/ VACUUM FULL ANALYSE;<br />4/ Création de mes index tout juste supprimés grâce à mon script &quot;recréation de tous mes index&quot; créé en 1/.</p></div></blockquote></div><p>Le rêve quoi ... <img src="http://forums.postgresql.fr/img/smilies/big_smile.png" width="15" height="15" alt="big_smile" /></p><p>Gôm</p>]]></content>
+		<author>
+			<name><![CDATA[gom]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=550</uri>
+		</author>
+		<updated>2011-03-04T08:35:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8309#p8309</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Plantage REINDEX par manque d'espace disque]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8251#p8251"/>
+		<content type="html"><![CDATA[<p>ok ok ! Disons plutot 500€ ... <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>J&#039;essaie juste de dire à&#160; gom que s&#039;il n&#039; a plus de place sur son SAN alors il y a des priorités plus importantes que cette histoire de ré-indexation</p>]]></content>
+		<author>
+			<name><![CDATA[daamien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=19</uri>
+		</author>
+		<updated>2011-02-27T20:51:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8251#p8251</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Plantage REINDEX par manque d'espace disque]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8250#p8250"/>
+		<content type="html"><![CDATA[<p>Parce que ça coute 50€ si on achète un disque SATA chez materiel.net. Dans un SAN, c&#039;est pas le même tarif (du tout).</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-02-26T19:29:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8250#p8250</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Plantage REINDEX par manque d'espace disque]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8248#p8248"/>
+		<content type="html"><![CDATA[<p>Effectivement la solution à court terme consiste à détruire/recréer les index...</p><p>Par contre, si vous n&#039;avez plus de place dans la baie SAN alors votre soucis dépasse largement le problème du REINDEX....Notamment si la partition qui héberge les WALs est saturée vous allez au devant d&#039;un sérieux plantage.</p><p>Un disque de 500Go coute 50€, je comprends pas ce qui vous empêche d&#039;augmenter votre volume de stockage..</p>]]></content>
+		<author>
+			<name><![CDATA[daamien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=19</uri>
+		</author>
+		<updated>2011-02-26T18:40:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8248#p8248</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Plantage REINDEX par manque d'espace disque]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8246#p8246"/>
+		<content type="html"><![CDATA[<p>Désolé. Par défaut, les systèmes de fichier ext (2,3,4) sous Linux ont 5% de blocs réservés à root. 5% de 300Go, c&#039;est 15Go. Donc si tu as un FS de 300Go, il y en a en fait 285 d&#039;utilisables par les utilisateurs. Ce qui expliquerait ton problème je pense.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-02-25T19:54:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8246#p8246</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Plantage REINDEX par manque d'espace disque]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8245#p8245"/>
+		<content type="html"><![CDATA[<p>Tu peux être plus explicite s&#039;il te plaît.</p>]]></content>
+		<author>
+			<name><![CDATA[gom]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=550</uri>
+		</author>
+		<updated>2011-02-25T19:02:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8245#p8245</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Plantage REINDEX par manque d'espace disque]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8244#p8244"/>
+		<content type="html"><![CDATA[<p>Sinon, ça sent les 5% de blocs réservés sur un système de fichiers EXT cette histoire <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-02-25T18:48:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8244#p8244</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Plantage REINDEX par manque d'espace disque]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8243#p8243"/>
+		<content type="html"><![CDATA[<p>Malheureusement :</p><p>a/ impossible --&gt; plus de place disque dans le SAN <img src="http://forums.postgresql.fr/img/smilies/sad.png" width="15" height="15" alt="sad" /><br />b/ impossible --&gt; même raison ! <img src="http://forums.postgresql.fr/img/smilies/yikes.png" width="15" height="15" alt="yikes" /></p><p>c/ C&#039;est ce que je vais effectivement être obligé de faire</p><br /><p>Que pensez-vous de :</p><div class="codebox"><pre><code>DROP INDEX IF EXISTS mon_idx1;
+DROP INDEX IF EXISTS mon_idx2;
+
+VACUUM FULL ANALYSE;
+
+CREATE INDEX mon_idx_1;
+CREATE INDEX mon_idx_2;</code></pre></div><p>Parce que &quot;In fact, it is often faster to drop all indexes, VACUUM FULL, and recreate the indexes.&quot;, lu ici : <a href="http://www.postgresql.org/docs/8.4/static/sql-vacuum.html" rel="nofollow">http://www.postgresql.org/docs/8.4/stat … acuum.html</a>.</p><br /><p>Gôm</p>]]></content>
+		<author>
+			<name><![CDATA[gom]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=550</uri>
+		</author>
+		<updated>2011-02-25T17:39:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8243#p8243</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Plantage REINDEX par manque d'espace disque]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8242#p8242"/>
+		<content type="html"><![CDATA[<p>La taille de votre index est probablement supérieur à l&#039;espace disponible sur le tablespace... Vous pouvez connaitre facilement cette taille avec la commande :</p><div class="codebox"><pre><code>SELECT pg_size_pretty(pg_relation_size(votre_index));</code></pre></div><p>Je ne connais pas exactement le comportement de REINDEX mais il est probable que si vous voulez réindexer un index volumineux ( disons 3 Go ) . PostgreSQL va mettre un verrou en écriture sur l&#039;index et en créer un nouveau&#160; . Vous aurez donc besoin de 3Go d&#039;espace libre puisque les deux index vont coexister sur le disque pendant la durée du REINDEX.</p><p>Je vois plusieurs solutions :</p><p>&#160; a/ agrandir la partition&#160; <br />&#160; b/ placer l&#039;index sur une partition avec assez d&#039;espace libre<br />&#160; c/ faire un DROP INDEX puis CREATE INDEX</p><p>A noter que stricto sensu, la solution c/ n&#039;est pas équivalente à un REINDEX</p><p><a href="http://docs.postgresql.fr/9.0/sql-reindex.html" rel="nofollow">http://docs.postgresql.fr/9.0/sql-reindex.html</a></p>]]></content>
+		<author>
+			<name><![CDATA[daamien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=19</uri>
+		</author>
+		<updated>2011-02-25T17:29:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8242#p8242</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Plantage REINDEX par manque d'espace disque]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8241#p8241"/>
+		<content type="html"><![CDATA[<p>Oui, à 282Go/300Go.</p>]]></content>
+		<author>
+			<name><![CDATA[gom]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=550</uri>
+		</author>
+		<updated>2011-02-25T17:24:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8241#p8241</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Plantage REINDEX par manque d'espace disque]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8240#p8240"/>
+		<content type="html"><![CDATA[<p>et c&#039;est la partition qui est à 282Go ?</p>]]></content>
+		<author>
+			<name><![CDATA[daamien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=19</uri>
+		</author>
+		<updated>2011-02-25T17:22:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8240#p8240</id>
+	</entry>
+</feed>

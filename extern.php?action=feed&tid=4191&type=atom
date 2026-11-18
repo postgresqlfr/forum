@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / dblink ou postgres fdw ou ?]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4191&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4191"/>
+	<updated>2017-04-10T19:23:23Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4191</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  dblink ou postgres fdw ou ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25225#p25225"/>
+		<content type="html"><![CDATA[<p>Il y a des exemples sur <a href="http://docs.postgresql.fr/9.6/contrib-dblink-function.html" rel="nofollow">http://docs.postgresql.fr/9.6/contrib-d … ction.html</a></p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2017-04-10T19:23:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25225#p25225</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  dblink ou postgres fdw ou ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25217#p25217"/>
+		<content type="html"><![CDATA[<p>Un grand merci à vous deux pour ces précisions.</p><p>@Guillaume : pourriez-vous me donner un lien avec un exemple ? car je voudrais éviter de mettre un username/password dans une fonction.</p><p>Bonne journée à vous deux</p>]]></content>
+		<author>
+			<name><![CDATA[Michel Depiesse]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5329</uri>
+		</author>
+		<updated>2017-04-10T07:33:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25217#p25217</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  dblink ou postgres fdw ou ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25214#p25214"/>
+		<content type="html"><![CDATA[<p>Et de toute façon, il est possible de faire un dblink sans dblink_connect.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2017-04-09T19:46:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25214#p25214</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  dblink ou postgres fdw ou ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25213#p25213"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>Michel Depiesse a écrit&#160;:</cite><blockquote><div><p>mais&#160; le disconnect ne sera jamais atteint, bien sûr.</p></div></blockquote></div><p>Si parce que RETURN QUERY ne termine pas l&#039;exécution de la fonction, contrairement à RETURN tout court.</p><p>Cf la doc: <a href="http://docs.postgresql.fr/9.6/plpgsql-control-structures.html" rel="nofollow">http://docs.postgresql.fr/9.6/plpgsql-c … tures.html</a></p><div class="quotebox"><blockquote><div><p>RETURN NEXT et RETURN QUERY ne quittent pas réellement la fonction -- elles ajoutent simplement zéro ou plusieurs lignes à l&#039;ensemble de résultats de la fonction. L&#039;exécution continue ensuite avec l&#039;instruction suivante de la fonction PL/pgSQL</p></div></blockquote></div>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2017-04-08T19:02:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25213#p25213</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  dblink ou postgres fdw ou ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25206#p25206"/>
+		<content type="html"><![CDATA[<p>je joins le query à toutes fins utiles :</p><div class="codebox"><pre class="vscroll"><code> select
+                public.dblink_connect(&#039;link2contacts&#039;, &#039;hostaddr=x.x.x.x port=5432 dbname=contacts user=x  password=xxx&#039;);
+
+
+        with
+                &quot;qryMailPrep&quot;
+                as (
+                        select
+                                case when &quot;gc_To&quot; like &#039;%rubin%&#039; then &#039;RECEIVE&#039; else &#039;SENT&#039; end as &quot;SENT_RECEIVE&quot;,
+                                case when &quot;gc_To&quot; like &#039;%rubin%&#039; then &quot;gc_SenderEmailAddress&quot; else &quot;gc_To&quot; end as &quot;EMAIL&quot;,
+                                &quot;Mail&quot;.*
+                        from
+                                &quot;Mail&quot;
+                ),
+                &quot;tblContacts&quot;
+                as (
+                        select
+                                *
+                        from
+                                dblink(&#039;link2contacts&#039;, &#039;select &quot;Alpha&quot;, &quot;ContactID&quot;, &quot;Email1&quot;, &quot;Email2&quot; from &quot;tblContacts&quot;&#039;)
+                                AS t (   &quot;Alpha&quot;        varchar
+                                        ,&quot;ContactID&quot;    integer
+                                        ,&quot;Email1&quot;       varchar
+                                        ,&quot;Email2&quot;       varchar
+                                        )
+                ),
+                &quot;tblContactsSubs&quot;
+                as (
+                        select
+                                *
+                        from
+                                dblink(&#039;link2contacts&#039;, &#039;select &quot;ContactID&quot;, &quot;Email1&quot; from &quot;tblContactsSubs&quot;&#039;)
+                                AS t (   &quot;ContactID&quot;    integer
+                                        ,&quot;Email1&quot;       varchar
+                                        )
+                )
+        select
+                &quot;tblContacts&quot;.&quot;Alpha&quot;, &quot;tblContacts&quot;.&quot;ContactID&quot;, &quot;qryMailPrep&quot;.*
+        from
+                &quot;qryMailPrep&quot; INNER JOIN &quot;tblContacts&quot; on &quot;qryMailPrep&quot;.&quot;EMAIL&quot; = &quot;tblContacts&quot;.&quot;Email1&quot;
+        union all
+        select
+                &quot;tblContacts&quot;.&quot;Alpha&quot;, &quot;tblContacts&quot;.&quot;ContactID&quot;, &quot;qryMailPrep&quot;.*
+        from
+                &quot;qryMailPrep&quot; INNER JOIN &quot;tblContacts&quot; on &quot;qryMailPrep&quot;.&quot;EMAIL&quot; = &quot;tblContacts&quot;.&quot;Email2&quot;
+        union all
+        select
+                &quot;tblContacts&quot;.&quot;Alpha&quot;, &quot;tblContacts&quot;.&quot;ContactID&quot;, &quot;qryMailPrep&quot;.*
+        from
+                &quot;qryMailPrep&quot; INNER JOIN (&quot;tblContacts&quot; INNER JOIN &quot;tblContactsSubs&quot;
+                                        on &quot;tblContacts&quot;.&quot;ContactID&quot; = &quot;tblContactsSubs&quot;.&quot;ContactID&quot;)
+                        on &quot;qryMailPrep&quot;.&quot;EMAIL&quot; = &quot;tblContactsSubs&quot;.&quot;Email1&quot;;
+
+        SELECT dblink_disconnect(&#039;link2contacts&#039;);</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[Michel Depiesse]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5329</uri>
+		</author>
+		<updated>2017-04-07T12:05:06Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25206#p25206</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[dblink ou postgres fdw ou ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25204#p25204"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je dois écrire une fonction qui fait un select compliqué sur 3 tables appartenant à deux bases de données.</p><p>J&#039;avais commencé avec dblink mais...</p><div class="codebox"><pre><code>create or replace function query_mail returns table( plein de colonnes) as $$
+begin
+
+       select public.dblink_connect(&#039;...
+
+       return query select ... (un truc très compliqué)
+
+       dblink_disconnect(&#039;...</code></pre></div><p>mais&#160; le disconnect ne sera jamais atteint, bien sûr.</p><p>Y a-t-il moyen de faire un dblink permanent ?</p><p>Ou vaut-il mieux utiliser un autre mécanisme que dblink ?</p><p>Merci pour votre attention,<br />mchl</p>]]></content>
+		<author>
+			<name><![CDATA[Michel Depiesse]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5329</uri>
+		</author>
+		<updated>2017-04-07T11:52:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25204#p25204</id>
+	</entry>
+</feed>

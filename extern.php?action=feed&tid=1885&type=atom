@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / PL/proxy]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1885&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1885"/>
+	<updated>2012-02-07T16:51:18Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1885</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  PL/proxy]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12745#p12745"/>
+		<content type="html"><![CDATA[<p>effectivement c&#039;etait un probleme de quote ! <br />je ne savais pas que c&#039;etait une double quote.</p><p>Ca fonctionne, merci beaucoup Marc</p>]]></content>
+		<author>
+			<name><![CDATA[thedigital]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1530</uri>
+		</author>
+		<updated>2012-02-07T16:51:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12745#p12745</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  PL/proxy]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12744#p12744"/>
+		<content type="html"><![CDATA[<p>Essayez avec deux quotes consécutives :</p><br /><p>CREATE SERVER writeshardedcluster FOREIGN DATA WRAPPER plproxy<br />OPTIONS (connection_lifetime &#039;1800&#039;,<br />&#160; &#160; &#160; &#160; &#160;p0 &#039;dbname=shard host=192.168.0.32 port=5435 options=&#039;&#039;-c search_path=affiliation_10&#039;&#039;&#039;,<br />&#160; &#160; &#160; &#160; &#160;p1 &#039;dbname=shard host=192.168.0.63 port=5432 options=&#039;&#039;-c search_path=affiliation_0&#039;&#039;&#039; );</p><p>C&#039;est la façon de saisir un quote dans une chaîne de caractère en SQL.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2012-02-07T16:43:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12744#p12744</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  PL/proxy]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12742#p12742"/>
+		<content type="html"><![CDATA[<p>J&#039;avais essayé avec cette syntaxe mais ca ne marche pas.</p><p>Si j&#039;écris : </p><p>CREATE SERVER writeshardedcluster FOREIGN DATA WRAPPER plproxy<br />OPTIONS (connection_lifetime &#039;1800&#039;,<br />&#160; &#160; &#160; &#160; &#160;p0 &#039;dbname=shard host=192.168.0.32 port=5435 options=-c search_path=affiliation_10&#039;,<br />&#160; &#160; &#160; &#160; &#160;p1 &#039;dbname=shard host=192.168.0.63 port=5432 options=-c search_path=affiliation_0&#039; );</p><br /><p>Quand j&#039;exécute ma fonction plproxy j&#039;obtiens :<br />ERREUR:&#160; PL/Proxy function affiliation.get_clics(1): [(null)] PQconnectStart: option de connexion « search_path » invalide</p><p>Je me suis dis que c&#039;etait peut etre un probleme de simple quote, mais je ne peut pas mettre de simple quote a l&#039;interieur de la connexion string puisque la connection string elle meme doit etre entourée de simple quote.</p>]]></content>
+		<author>
+			<name><![CDATA[thedigital]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1530</uri>
+		</author>
+		<updated>2012-02-07T16:38:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12742#p12742</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  PL/proxy]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12741#p12741"/>
+		<content type="html"><![CDATA[<p>Après un peu de farfouillage, la syntaxe c&#039;est:<br />options=&#039;-c search_path=toto&#039;</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2012-02-07T16:10:45Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12741#p12741</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  PL/proxy]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12740#p12740"/>
+		<content type="html"><![CDATA[<p>Peut-être en lui passant un options=search_path=&#039;mon_schema&#039; en plus des host, port …</p><p>Pas sûr de la syntaxe, vu que je n&#039;ai jamais essayé, mais ça doit être un truc de ce genre. L&#039;idée étant de forcer les schémas à l&#039;établissement de la session.</p><p>Si vous ne trouvez pas, je chercherai, mais jetez déjà un œil dans cette direction.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2012-02-07T15:59:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12740#p12740</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[PL/proxy]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12739#p12739"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous,</p><p>Je suis actuellement en train de travailler sur du sharding et à ce titre j&#039;utilise pl/proxy.<br />Tout se passe très bien cependant j&#039;aurais aimé pour des raisons de simplicité et de scripting pouvoir multiplier les schemas plutot que les clusters sur un même serveur.</p><p>Dans la définition des foreign data wrapper, on ne peut pas aller plus en profondeur que la base de données lors de la creation des partitions (ex: dbname=shard host=192.168.0.32 port=5435)<br />J&#039;aurais aimé pouvoir faire qque chose du style :<br />&#160; &#160;dbname=shard schema=shard_1 host=192.168.0.32 port=5435<br />&#160; &#160;dbname=shard schema=shard_2 host=192.168.0.32 port=5435</p><p>malheureusement pqconnect ne permet pas de spécifier un schema.</p><p>J&#039;aimerais éviter de :<br />&#160; - multiplier les clusters<br />&#160; - multiplier les base de données<br />&#160; - devoir préfixer le schema à utiliser au niveau du code applicatif</p><br /><p>Je me rends compte que j&#039;ai une utilisation particulière des schemas, cependant quelqu&#039;un a-t-il une idée afin de tout intégrer au niveau de pl/proxy ?</p><p>Merci d&#039;avance</p>]]></content>
+		<author>
+			<name><![CDATA[thedigital]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1530</uri>
+		</author>
+		<updated>2012-02-07T15:39:07Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12739#p12739</id>
+	</entry>
+</feed>

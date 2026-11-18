@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Problème de schéma]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4280&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4280"/>
+	<updated>2017-06-26T17:14:24Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4280</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème de schéma]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25687#p25687"/>
+		<content type="html"><![CDATA[<p>Alors en fait, si, tu peux. C&#039;est un peu chercher les emmerdes comme tu as pu le voir, mais c&#039;est possible. Il faut ajouter des guillemets doubles (et comme il y en a déjà, il faut les échapper) :</p><div class="codebox"><pre><code>pg_dump -n &quot;\&quot;top.test\&quot;&quot; ...</code></pre></div><p>Mais bon, c&#039;est quand même à déconseiller, sauf si on aime se faire du mal^W^W^W^Wjongler avec les guillemets.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2017-06-26T17:14:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25687#p25687</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème de schéma]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25683#p25683"/>
+		<content type="html"><![CDATA[<p>Je me répond à moi même :</p><p>pg_dump -p 5432 -Fp -s -n &#039;&quot;top.test&quot;&#039; -f save_hophop_sch_toptest.txt hophop </p><p>Pour que ça fonctionne.</p><p>PS : Ne pas mettre des caractères spéciaux dans les noms d&#039;objets</p>]]></content>
+		<author>
+			<name><![CDATA[superette]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7528</uri>
+		</author>
+		<updated>2017-06-23T19:00:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25683#p25683</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Problème de schéma]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25682#p25682"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;essaye d&#039;importer/exporter des tables d&#039;un schéma particulier, et de les importer en changeant certaines informations :</p><div class="codebox"><pre><code>hophop=# set search_path = &quot;$user&quot;, public, &quot;top.test&quot;;
+SET
+hophop=# \dt+
+                                     List of relations
+    Schema     |             Name             | Type  |  Owner   |    Size    | Description
+---------------+------------------------------+-------+----------+------------+-------------
+top.test         | ---                              | table | --     | 48 kB      |
+top.test         | ---                              | table | --     | 280 kB     |
+top.test         | ---                              | table | --     | 16 kB      |
+top.test         | ---                              | table | --     | 4224 kB    |</code></pre></div><br /><p>Mais lorsque j&#039;essaie de faire le dump de la structure de ce schéma il me retourne l&#039;erreur suivante :</p><div class="codebox"><pre><code>pg_dump -p 5432 -d hophop -Fp -s -n &quot;top.test&quot; -f save_hophop_sch_toptest.txt
+pg_dump -p 5432 -d hophop -Fp -s -n top.test -f save_hophop_sch_toptest.txt
+
+pg_dump -p 5432 -Fp -s -n &quot;top.test&quot; -f save_hophop_sch_toptest.txt hophop
+pg_dump -p 5432 -Fp -s -n top.test -f save_hophop_sch_toptest.txt hophop
+
+pg_dump -p 5432 -Fp -s -n hophop.&quot;top.test&quot; -f save_hophop_sch_toptest.txt hophop
+
+pg_dump: no matching schemas were found</code></pre></div><br /><p>Une idée de ce qui manque à ma commande pour qu&#039;il puisse sauvegarder la structure du schéma en question ? </p><p>Une fois que j&#039;aurais réussi à obtenir le sql de création de ce shéma, je souhaite modifier le nom du schéma en top_test et supprimer les majuscules dans les noms de colonnes.<br />Ya t&#039;il des choses à mettre en place pour que mon import des données de l&#039;ancienne structure vers la nouvelle fonctionne ?</p><p>D&#039;avance merci de votre retour.</p>]]></content>
+		<author>
+			<name><![CDATA[superette]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7528</uri>
+		</author>
+		<updated>2017-06-23T16:19:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25682#p25682</id>
+	</entry>
+</feed>

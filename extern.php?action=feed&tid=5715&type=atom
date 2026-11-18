@@ -1,0 +1,465 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Administration base Postgresql via SSH]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5715&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5715"/>
+	<updated>2020-03-18T00:27:57Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5715</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Administration base Postgresql via SSH]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30888#p30888"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>pifor a écrit&#160;:</cite><blockquote><div><div class="quotebox"><cite>jmarsac a écrit&#160;:</cite><blockquote><div><p>Il faut vérifier/corriger l&#039;encodage du fichier .txt contenant le script (D:/Users/jl3/intensetbm_test/intensetbm-etool/script2.txt par exemple)</p></div></blockquote></div><p>OK mais comment fait-on avec Windows ?</p></div></blockquote></div><p>Le plus simple est d&#039;utiliser notepad++ qui permet de contrôler et convertir l&#039;encodage du fichier (client psql 12, server 11.2); j&#039;ai utilisé deux scripts différents :</p><p>itest-ansi.sql (encodé en ANSI) :</p><div class="codebox"><pre><code>\encoding
+set client_encoding to &#039;Win1252&#039;;
+show client_encoding;
+\l b1
+insert into t2 values (&#039;öéùàè&#039;,&#039;ANSI&#039;);
+select * from t2;
+set client_encoding to &#039;UTF8&#039;;
+show client_encoding;
+select * from t2;
+set client_encoding to &#039;Win1252&#039;;
+show client_encoding;
+select * from t2;</code></pre></div><p>itest-utf8.sql (encodé en UTF8) :</p><div class="codebox"><pre><code>\encoding
+set client_encoding to &#039;Win1252&#039;;
+show client_encoding;
+\l b1
+insert into t2 values (&#039;öéùàè&#039;,&#039;UTF8&#039;);
+select * from t2;
+set client_encoding to &#039;UTF8&#039;;
+show client_encoding;
+select * from t2;
+set client_encoding to &#039;Win1252&#039;;
+show client_encoding;
+select * from t2;</code></pre></div><div class="codebox"><pre class="vscroll"><code>********* QUERY **********
+create table t2 (a text,script_encoding text);
+**************************
+
+CREATE TABLE
+********* QUERY **********
+set client_encoding to &#039;Win1252&#039;;
+**************************
+
+SET
+********* QUERY **********
+show client_encoding;
+**************************
+
+ client_encoding 
+-----------------
+ WIN1252
+(1 row)
+
+                                    List of databases
+ Name |  Owner   | Encoding |      Collate       |       Ctype        | Access privileges 
+------+----------+----------+--------------------+--------------------+-------------------
+ b1   | postgres | UTF8     | French_France.1252 | French_France.1252 | 
+(1 row)
+
+********* QUERY **********
+insert into t2 values (&#039;öéùàè&#039;,&#039;ANSI&#039;);
+**************************
+
+INSERT 0 1
+********* QUERY **********
+select * from t2;
+**************************
+
+   a   | script_encoding 
+-------+-----------------
+ öéùàè | ANSI
+(1 row)
+
+********* QUERY **********
+set client_encoding to &#039;UTF8&#039;;
+**************************
+
+SET
+********* QUERY **********
+show client_encoding;
+**************************
+
+ client_encoding 
+-----------------
+ UTF8
+(1 row)
+
+********* QUERY **********
+select * from t2;
+**************************
+
+   a   | script_encoding 
+-------+-----------------
+ Ã¶Ã©Ã¹Ã Ã¨ | ANSI
+(1 row)
+
+********* QUERY **********
+set client_encoding to &#039;win1252&#039;;
+**************************
+
+SET
+********* QUERY **********
+select * from t2;
+**************************
+
+   a   | script_encoding 
+-------+-----------------
+ öéùàè | ANSI
+(1 row)
+
+********* QUERY **********
+set client_encoding to &#039;Win1252&#039;;
+**************************
+
+SET
+********* QUERY **********
+show client_encoding;
+**************************
+
+ client_encoding 
+-----------------
+ WIN1252
+(1 row)
+
+                                    List of databases
+ Name |  Owner   | Encoding |      Collate       |       Ctype        | Access privileges 
+------+----------+----------+--------------------+--------------------+-------------------
+ b1   | postgres | UTF8     | French_France.1252 | French_France.1252 | 
+(1 row)
+
+********* QUERY **********
+insert into t2 values (&#039;Ã¶Ã©Ã¹Ã Ã¨&#039;,&#039;UTF8&#039;);
+**************************
+
+INSERT 0 1
+********* QUERY **********
+select * from t2;
+**************************
+
+     a      | script_encoding 
+------------+-----------------
+ öéùàè      | ANSI
+ Ã¶Ã©Ã¹Ã Ã¨ | UTF8
+(2 rows)
+
+********* QUERY **********
+set client_encoding to &#039;UTF8&#039;;
+**************************
+
+SET
+********* QUERY **********
+show client_encoding;
+**************************
+
+ client_encoding 
+-----------------
+ UTF8
+(1 row)
+
+********* QUERY **********
+select * from t2;
+**************************
+
+     a      | script_encoding 
+------------+-----------------
+ Ã¶Ã©Ã¹Ã Ã¨      | ANSI
+ ÃƒÂ¶ÃƒÂ©ÃƒÂ¹ÃƒÂ ÃƒÂ¨ | UTF8
+(2 rows)
+
+********* QUERY **********
+set client_encoding to &#039;Win1252&#039;;
+**************************
+
+SET
+********* QUERY **********
+show client_encoding;
+**************************
+
+ client_encoding 
+-----------------
+ WIN1252
+(1 row)
+
+********* QUERY **********
+select * from t2;
+**************************
+
+     a      | script_encoding 
+------------+-----------------
+ öéùàè      | ANSI
+ Ã¶Ã©Ã¹Ã Ã¨ | UTF8
+(2 rows)</code></pre></div><p>Comme le dit Pifor, l&#039;important est de bien configurer l&#039;encodage du client et d&#039;utiliser la bonne page de code dans la console (chcp)</p>]]></content>
+		<author>
+			<name><![CDATA[jmarsac]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7302</uri>
+		</author>
+		<updated>2020-03-18T00:27:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30888#p30888</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Administration base Postgresql via SSH]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30887#p30887"/>
+		<content type="html"><![CDATA[<p>J&#039;ai fait des tests avec PostgreSQL 10.12 sur Windows 2016, j&#039;ai créé un script SQL avec notepad.exe.<br />Que le script soit sauvegardé en ANSI ou UTF-8 ne semble influer ni sur l&#039;affichage ni sur le stockage d&#039;une chaîne de caractères avec un caractère accentué.</p><p>Mon script en entrée:</p><div class="codebox"><pre><code>select version();
+\encoding
+show client_encoding;
+\l demo
+\d t
+truncate t;
+insert into t values(&#039;Côte&#039;);
+select * from t;</code></pre></div><p>Résultat</p><div class="codebox"><pre class="vscroll"><code>select version();
+                           version
+-------------------------------------------------------------
+ PostgreSQL 10.12, compiled by Visual C++ build 1800, 64-bit
+(1 ligne)
+
+
+WIN1252
+show client_encoding;
+ client_encoding
+-----------------
+ WIN1252
+(1 ligne)
+
+
+                                Liste des bases de données
+ Nom  | Propriétaire | Encodage |  Collationnement   |    Type caract.    | Droits d&#039;accès
+------+--------------+----------+--------------------+--------------------+----------------
+ demo | postgres     | UTF8     | French_France.1252 | French_France.1252 |
+(1 ligne)
+
+
+                    Table « public.t »
+ Colonne | Type | Collationnement | NULL-able | Par défaut
+---------+------+-----------------+-----------+------------
+ c       | text |                 |           |
+
+
+truncate t;
+TRUNCATE TABLE
+insert into t values(&#039;Côte&#039;);
+INSERT 0 1
+select * from t;
+  c
+------
+ Côte
+(1 ligne)</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[pifor]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8375</uri>
+		</author>
+		<updated>2020-03-17T19:30:00Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30887#p30887</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Administration base Postgresql via SSH]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30885#p30885"/>
+		<content type="html"><![CDATA[<p>Remarque générale qui n&#039;explique pas le problème précis qu&#039;on a: au début de la discussion vous avez dit que vous prévoyez d&#039;avoir une base sur Linux et vous développez avec une base Windows. Si vous utilisez la même version de PostgreSQL vous devez avoir en général le même comportement de la base mais pas sur certaines fonctionnalités liées aux jeux de caractères car PostgreSQL peut avoir un comportement différent liés aux paramètres de création de la base qui ne sont pas les mêmes sur Windows et Linux. Ainsi si je crée une base sur Linux avec PG 10.12 j&#039;ai par défaut:</p><div class="codebox"><pre><code>postgres=# create database demo;
+CREATE DATABASE
+postgres=# \l demo;
+                             List of databases
+ Name |  Owner   | Encoding |   Collate   |    Ctype    | Access privileges 
+------+----------+----------+-------------+-------------+-------------------
+ demo | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 | 
+(1 row)
+
+postgres=# </code></pre></div><p>Je constate que le paramètres LC_COLLATE et LC_CTYPE sont différents avec Windows: ce qui peut entraîner des comportements différents, par exemple dans le tri de chaînes de caractères.</p>]]></content>
+		<author>
+			<name><![CDATA[pifor]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8375</uri>
+		</author>
+		<updated>2020-03-17T17:21:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30885#p30885</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Administration base Postgresql via SSH]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30882#p30882"/>
+		<content type="html"><![CDATA[<p>bon merci quand même ; )<br />bonne fin de journée</p>]]></content>
+		<author>
+			<name><![CDATA[LECARROU]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8824</uri>
+		</author>
+		<updated>2020-03-17T16:35:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30882#p30882</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Administration base Postgresql via SSH]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30881#p30881"/>
+		<content type="html"><![CDATA[<p>quand j&#039;enregistre mon fichier avec blocnote l&#039;encodage est bien UTF-8</p>]]></content>
+		<author>
+			<name><![CDATA[LECARROU]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8824</uri>
+		</author>
+		<updated>2020-03-17T16:34:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30881#p30881</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Administration base Postgresql via SSH]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30880#p30880"/>
+		<content type="html"><![CDATA[<p>Le paramètrage jeu de caractère côté client Windows et côté serveur PostgreSQL me semblent corrects.<br />Reste la piste de l&#039;encodage du script sur Windows et peut-être autre chose que je ne vois pas.</p>]]></content>
+		<author>
+			<name><![CDATA[pifor]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8375</uri>
+		</author>
+		<updated>2020-03-17T16:33:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30880#p30880</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Administration base Postgresql via SSH]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30879#p30879"/>
+		<content type="html"><![CDATA[<div class="codebox"><pre><code>WIN1252
+ client_encoding
+-----------------
+ WIN1252
+(1 ligne)
+
+
+                                           Liste des bases de données
+    Nom     | Propriétaire | Encodage |  Collationnement   |    Type caract.    |        Droits d&#039;accès
+------------+--------------+----------+--------------------+--------------------+-------------------------------
+ intensetbm | postgres     | UTF8     | French_France.1252 | French_France.1252 | =Tc/postgres                 +
+            |              |          |                    |                    | postgres=CTc/postgres        +
+            |              |          |                    |                    | intensetbm_admin=CTc/postgres
+(1 ligne)
+
+
+INSERT 0 1
+ deleted | pay_ide | pay_nom_eng | pay_abr |  pay_nom_fra
+---------+---------+-------------+---------+----------------
+         |       2 | Ivory Coast | CIV     | CÃ´te d Ivoire
+         |       8 | Ivory Coast | CIV     | Côte d Ivoire
+         |       9 | Ivory Coast | CIV     | CÃ´te d Ivoire
+(3 lignes)</code></pre></div><p>il ne faut considérer que la dernière ligne de la tabel</p>]]></content>
+		<author>
+			<name><![CDATA[LECARROU]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8824</uri>
+		</author>
+		<updated>2020-03-17T16:30:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30879#p30879</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Administration base Postgresql via SSH]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30878#p30878"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>jmarsac a écrit&#160;:</cite><blockquote><div><div class="quotebox"><cite>LECARROU a écrit&#160;:</cite><blockquote><div><p>j&#039;ai modifier runpsql.bat et je n&#039;ai plus l&#039;avertissement au lancement de psql (cool)</p><p>si je fait </p><div class="codebox"><pre><code>INSERT INTO adm_pay (pay_nom_eng,pay_nom_fra,pay_abr) VALUES (&#039;Ivory Coast&#039;,&#039;Côte d Ivoire&#039;,&#039;CIV&#039;);</code></pre></div><p>directement dans la console pslq pas de problème, il m&#039;insère correctement les accents</p><p>mais si je lance le script depuis la console : \i &#039;D:/Users/jl3/intensetbm_test/intensetbm-etool/script2.txt&#039; toujours un problème sur les accents...</p></div></blockquote></div><p>Il faut vérifier/corriger l&#039;encodage du fichier .txt contenant le script (D:/Users/jl3/intensetbm_test/intensetbm-etool/script2.txt par exemple)</p></div></blockquote></div><p>OK mais comment fait-on avec Windows ?</p>]]></content>
+		<author>
+			<name><![CDATA[pifor]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8375</uri>
+		</author>
+		<updated>2020-03-17T16:29:02Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30878#p30878</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Administration base Postgresql via SSH]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30877#p30877"/>
+		<content type="html"><![CDATA[<p>Désolé il manquait un &#039;;&#039; pour la commande &quot;show client_encoding&#039;</p><div class="codebox"><pre><code>\encoding
+show client_encoding;
+\l intensetbm
+INSERT INTO adm_pay (pay_nom_eng,pay_nom_fra,pay_abr) VALUES (&#039;Ivory Coast&#039;,&#039;Côte d Ivoire&#039;,&#039;CIV&#039;);
+select * from_adm_pay where pay_abr=&#039;CIV&#039;;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[pifor]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8375</uri>
+		</author>
+		<updated>2020-03-17T16:27:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30877#p30877</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Administration base Postgresql via SSH]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30876#p30876"/>
+		<content type="html"><![CDATA[<p>euh, pas sûr d&#039;avoir compris ! ; )</p><p>je me suis connecté via SQL Shell et j&#039;obtiens le message suivant : </p><div class="codebox"><pre><code>Server [localhost]:
+Database [postgres]:
+Port [5433]:
+Username [postgres]: postgres
+Page de codes active : 1252
+Mot de passe pour l&#039;utilisateur postgres :
+psql (10.10)
+Saisissez « help » pour l&#039;aide.
+
+postgres=#</code></pre></div><p>à partir de là, je lance donc le script que vous m&#039;avez donné (aucun SET de l&#039;encoding):</p><div class="codebox"><pre><code>\encoding
+show client_encoding
+\l intensetbm
+INSERT INTO adm_pay (pay_nom_eng,pay_nom_fra,pay_abr) VALUES (&#039;Ivory Coast&#039;,&#039;Côte d Ivoire&#039;,&#039;CIV&#039;);
+select * from adm_pay where pay_abr=&#039;CIV&#039;;</code></pre></div><p>et j&#039;obtiens la sortie suivante : </p><div class="codebox"><pre><code>WIN1252
+                                           Liste des bases de données
+    Nom     | Propriétaire | Encodage |  Collationnement   |    Type caract.    |        Droits d&#039;accès
+------------+--------------+----------+--------------------+--------------------+-------------------------------
+ intensetbm | postgres     | UTF8     | French_France.1252 | French_France.1252 | =Tc/postgres                 +
+            |              |          |                    |                    | postgres=CTc/postgres        +
+            |              |          |                    |                    | intensetbm_admin=CTc/postgres
+(1 ligne)</code></pre></div><p>les instructions SQL sortent en erreur</p><div class="codebox"><pre><code>psql:D:/Users/jl3/intensetbm_test/intensetbm-etool/test.txt:4: ERREUR:  erreur de syntaxe sur ou près de « INSERT »
+LIGNE 2 : INSERT INTO adm_pay (pay_nom_eng,pay_nom_fra,pay_abr) VALUES...
+          ^
+psql:D:/Users/jl3/intensetbm_test/intensetbm-etool/test.txt:5: ERREUR:  la relation « adm_pay » n&#039;existe pas
+LIGNE 1 : select * from adm_pay where pay_abr=&#039;CIV&#039;;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[LECARROU]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8824</uri>
+		</author>
+		<updated>2020-03-17T16:21:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30876#p30876</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Administration base Postgresql via SSH]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30874#p30874"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>LECARROU a écrit&#160;:</cite><blockquote><div><p>j&#039;ai modifier runpsql.bat et je n&#039;ai plus l&#039;avertissement au lancement de psql (cool)</p><p>si je fait </p><div class="codebox"><pre><code>INSERT INTO adm_pay (pay_nom_eng,pay_nom_fra,pay_abr) VALUES (&#039;Ivory Coast&#039;,&#039;Côte d Ivoire&#039;,&#039;CIV&#039;);</code></pre></div><p>directement dans la console pslq pas de problème, il m&#039;insère correctement les accents</p><p>mais si je lance le script depuis la console : \i &#039;D:/Users/jl3/intensetbm_test/intensetbm-etool/script2.txt&#039; toujours un problème sur les accents...</p></div></blockquote></div><p>Il faut vérifier/corriger l&#039;encodage du fichier .txt contenant le script (D:/Users/jl3/intensetbm_test/intensetbm-etool/script2.txt par exemple)</p>]]></content>
+		<author>
+			<name><![CDATA[jmarsac]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7302</uri>
+		</author>
+		<updated>2020-03-17T16:09:02Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30874#p30874</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Administration base Postgresql via SSH]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30873#p30873"/>
+		<content type="html"><![CDATA[<p>Pouvez-vous nous donner la sortie complète&#160; du script suivant exécuté dans le même environnement que script2.txt:</p><div class="codebox"><pre><code>\encoding
+show client_encoding
+\l intensetbm
+INSERT INTO adm_pay (pay_nom_eng,pay_nom_fra,pay_abr) VALUES (&#039;Ivory Coast&#039;,&#039;Côte d Ivoire&#039;,&#039;CIV&#039;);
+select * from_adm_pay where pay_abr=&#039;CIV&#039;;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[pifor]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8375</uri>
+		</author>
+		<updated>2020-03-17T16:03:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30873#p30873</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Administration base Postgresql via SSH]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30872#p30872"/>
+		<content type="html"><![CDATA[<p>je viens de le faire et toujours pas...</p>]]></content>
+		<author>
+			<name><![CDATA[LECARROU]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8824</uri>
+		</author>
+		<updated>2020-03-17T15:50:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30872#p30872</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Administration base Postgresql via SSH]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30871#p30871"/>
+		<content type="html"><![CDATA[<p>Essayer de supprimer toutes les instructions pour CLIENT_ENCODING (ALTER ROLE intensetbm_admin SET client_encoding TO &#039;utf8&#039;;&#160; et SET client_encoding TO &#039;utf8&#039;;) dans les scripts et retestez.</p>]]></content>
+		<author>
+			<name><![CDATA[pifor]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8375</uri>
+		</author>
+		<updated>2020-03-17T15:38:50Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30871#p30871</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Administration base Postgresql via SSH]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30869#p30869"/>
+		<content type="html"><![CDATA[<p>j&#039;ai modifier runpsql.bat et je n&#039;ai plus l&#039;avertissement au lancement de psql (cool)</p><p>si je fait </p><div class="codebox"><pre><code>INSERT INTO adm_pay (pay_nom_eng,pay_nom_fra,pay_abr) VALUES (&#039;Ivory Coast&#039;,&#039;Côte d Ivoire&#039;,&#039;CIV&#039;);</code></pre></div><p>directement dans la console pslq pas de problème, il m&#039;insère correctement les accents</p><p>mais si je lance le script depuis la console : \i &#039;D:/Users/jl3/intensetbm_test/intensetbm-etool/script2.txt&#039; toujours un problème sur les accents...</p><p>script1.txt</p><div class="codebox"><pre><code>CREATE DATABASE intensetbm;
+CREATE USER intensetbm_admin WITH PASSWORD &#039;admin&#039;;
+ALTER ROLE intensetbm_admin SET client_encoding TO &#039;utf8&#039;;
+ALTER ROLE intensetbm_admin SET default_transaction_isolation TO &#039;read committed&#039;;
+ALTER ROLE intensetbm_admin SET timezone TO &#039;UTC&#039;;
+GRANT ALL PRIVILEGES ON DATABASE intensetbm TO intensetbm_admin;</code></pre></div><p>script2.txt</p><div class="codebox"><pre><code>SET client_encoding TO &#039;utf8&#039;;
+INSERT INTO adm_pay (pay_nom_eng,pay_nom_fra,pay_abr) VALUES (&#039;Ivory Coast&#039;,&#039;Côte d Ivoire&#039;,&#039;CIV&#039;);</code></pre></div><p>je vais craquer... ; )</p>]]></content>
+		<author>
+			<name><![CDATA[LECARROU]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8824</uri>
+		</author>
+		<updated>2020-03-17T15:20:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30869#p30869</id>
+	</entry>
+</feed>

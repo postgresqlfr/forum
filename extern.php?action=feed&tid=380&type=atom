@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Soucis de droits]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=380&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=380"/>
+	<updated>2009-08-17T04:08:02Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=380</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Soucis de droits]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2199#p2199"/>
+		<content type="html"><![CDATA[<p>Un REVOKE ALL doit suffire.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2009-08-17T04:08:02Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2199#p2199</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Soucis de droits]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2198#p2198"/>
+		<content type="html"><![CDATA[<p>Une dernière pour la route: Est-ce qu&#039;un REVOQUE ALL sur chaque objet est suffisant, ou bien faut-t&#039;il rentrer dans le détail?</p>]]></content>
+		<author>
+			<name><![CDATA[Jiff]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=434</uri>
+		</author>
+		<updated>2009-08-16T22:28:54Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2198#p2198</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Soucis de droits]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2197#p2197"/>
+		<content type="html"><![CDATA[<p>Merci, je vois mieux le tableau d&#039;ensemble maintenant et j&#039;incluerai les REVOQUE au moment de la création des objets (mais c&#039;est galère comme fonctionnement, tout bloquer de base aurait été plus logique question sécurité.)</p>]]></content>
+		<author>
+			<name><![CDATA[Jiff]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=434</uri>
+		</author>
+		<updated>2009-08-16T18:45:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2197#p2197</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Soucis de droits]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2196#p2196"/>
+		<content type="html"><![CDATA[<p>CHAMPS n&#039;existe pas, VIEW est équivalent à TABLE dans ce cadre. TRIGGER et RULE ne font pas partie des objets auxquels on peut donner des droits. Les contraintes rentrent aussi dans ce cas des objets sans droits, vu qu&#039;ils sont là pour assurer la cohérence des données, comme les triggers et les rules.</p><p>Le REVOKE doit être fait sur chacun des objets restants.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2009-08-16T18:37:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2196#p2196</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Soucis de droits]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2195#p2195"/>
+		<content type="html"><![CDATA[<p>Ok pour l&#039;analogie avec les répertoires, c&#039;est très parlant <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /><br />Donc, si j&#039;ai bien suivi et vu qu&#039;il n&#039;y-a pas propagation des droits, cela veut dire que je vais être obligé de révoquer *tous* les droits sur *tous les &quot;objets&quot;*; <br />soit: REVOQUE ALL ON (DB, TABLESPACE, LANGUAGE, SCHEMA, FUNCTION, SEQUENCE, TABLES, CHAMPS, VIEW, TRIGGER, RULE, ) FROM public ? (en ai-je oublié?)<br />Ou bien seulement certains REVOQUE vont-ils suffire à tous interdire au méta-user &#039;public&#039;?</p>]]></content>
+		<author>
+			<name><![CDATA[Jiff]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=434</uri>
+		</author>
+		<updated>2009-08-16T18:14:33Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2195#p2195</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Soucis de droits]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2194#p2194"/>
+		<content type="html"><![CDATA[<p>Les droits de la base ne sont pas identiques aux droits des autres objets, donc non, un REVOKE ALL ON DATABASE x ne supprimera pas les droits sur les autres objets. Je dirais, contrairement à vous, que c&#039;est (trop?) logique. On supprime les droits de la base de données, point. Pas sur les objets inférieurs (schémas, tables, vues, etc).</p><p>D&#039;ailleurs, c&#039;est la même logique que pour les droits d&#039;un répertoire dans un système de fichiers. En acceptant l&#039;accès à un répertoire, vous ne donnez pas ce droit à tous les sous-répertoires de ce répertoire.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2009-08-16T17:50:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2194#p2194</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Soucis de droits]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2193#p2193"/>
+		<content type="html"><![CDATA[<p>Bon, je me réponds tout seul: NON!</p><p>Apparemment il faut aussi &quot;REVOQUE ALL ON SCHEMA xxxx FROM public&quot;, ce qui n&#039;est absolument pas logique, la DB étant censée chapeauter tout le reste (mais bon, je dois me tromper qq part)</p>]]></content>
+		<author>
+			<name><![CDATA[Jiff]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=434</uri>
+		</author>
+		<updated>2009-08-16T17:44:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2193#p2193</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Soucis de droits]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2192#p2192"/>
+		<content type="html"><![CDATA[<p>Juste une dernière question, histoire d&#039;être absolument sur de ne faire aucune connerie: &quot;REVOQUE ALL ON DATABASE mydb FROM public&quot; est-il suffisant ?</p>]]></content>
+		<author>
+			<name><![CDATA[Jiff]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=434</uri>
+		</author>
+		<updated>2009-08-16T17:32:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2192#p2192</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Soucis de droits]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2191#p2191"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Le schéma public et le méta-groupe public sont deux choses différente</p></div></blockquote></div><p>Haaa, je comprends maintenant, j&#039;étais persuadé qu&#039;il n&#039;existait qu&#039;un schéma &quot;public&quot;</p><p>Merci</p>]]></content>
+		<author>
+			<name><![CDATA[Jiff]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=434</uri>
+		</author>
+		<updated>2009-08-16T17:21:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2191#p2191</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Soucis de droits]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2190#p2190"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>REVOKE ALL ON SCHEMA public FROM public;<br />DROP SCHEMA public;</p></div></blockquote></div><p>Le schéma public et le méta-groupe public sont deux choses différentes. Autant il est possible de supprimer le schéma, autant le méta-groupe ne peut pas être supprimé. Et ses droits doivent être supprimés des objets pour que ces derniers puissent être finement configurés.</p><div class="quotebox"><blockquote><div><p>oops: ton link est mort!</p></div></blockquote></div><p>En fait, le forum a ajouté le point final de la phrase dans le lien. Donc c&#039;est <a href="http://blog.postgresql.fr/index.php?post/drupal/137" rel="nofollow">http://blog.postgresql.fr/index.php?post/drupal/137</a></p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2009-08-16T17:12:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2190#p2190</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Soucis de droits]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2189#p2189"/>
+		<content type="html"><![CDATA[<p>oops: ton link est mort!</p>]]></content>
+		<author>
+			<name><![CDATA[Jiff]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=434</uri>
+		</author>
+		<updated>2009-08-16T17:01:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2189#p2189</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Soucis de droits]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2188#p2188"/>
+		<content type="html"><![CDATA[<p>Pourtant, à la fin de mon script d&#039;init de la base, j&#039;avais normalement fait cela:<br />REVOKE ALL ON SCHEMA public FROM public;<br />DROP SCHEMA public;</p><p>??</p>]]></content>
+		<author>
+			<name><![CDATA[Jiff]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=434</uri>
+		</author>
+		<updated>2009-08-16T16:55:35Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2188#p2188</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Soucis de droits]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2187#p2187"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Quelqu&#039;un aurait-il la gentillesse de me brieffer sur les priorités des droits PG (ou pointer vers une doc, je n&#039;en ai pas trouvé)?</p></div></blockquote></div><p>Il y a <a href="http://blog.postgresql.fr/index.php?post/drupal/137" rel="nofollow">http://blog.postgresql.fr/index.php?post/drupal/137</a>. C&#039;est plus de la gestion des rôles mais bon, concernant les droits, y&#039;a vraiment pas grand chose à savoir.</p><div class="quotebox"><blockquote><div><p>GRANT EXECUTE ON FUNCTION sch.proc TO USER test&#160; &#160;=&gt;&#160; &#160;test n&#039;a pas accès à SCH (et donc pas à PROC) (normal ?)</p></div></blockquote></div><p>Oui, normal. En fait, le message d&#039;erreur est explicite: ERREUR:&#160; droit refusé pour le schéma sch. Il faut ajouter le droit USAGE au schéma pour cet utilisateur, comme vous l&#039;avez d&#039;ailleurs découvert après.</p><div class="quotebox"><blockquote><div><p>GRANT USAGE ON SCHEMA sch TO USER test&#160; &#160;=&gt;&#160; &#160;test voit tout (normal), et peut exécuter PROC (semble normal, puisque précédemment autorisé)</p></div></blockquote></div><p>Oui et non. Oui, c&#039;est normal qu&#039;il puisse l&#039;exécuter, non ce n&#039;est pas grâce au GRANT EXECUTE. En fait, tout le monde a le droit d&#039;utiliser la fonction tant que :<br />1. cette personne a le droit d&#039;utiliser le schéma<br />2. ce droit n&#039;ait pas été explicitement révoqué à PUBLIC.</p><p>PUBLIC est un espèce de groupe regroupant tous les utilisateurs existant et les futurs qui seront créés. Pour empêcher l&#039;utilisation de la fonction par un utilisateur particulier, il faut révoquer les droits de PUBLIC et ajouter les droits aux bons utilisateurs.</p><div class="codebox"><pre><code>revoke execute on function sch.proc() from public;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2009-08-16T16:46:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2187#p2187</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Soucis de droits]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2186#p2186"/>
+		<content type="html"><![CDATA[<p>Salut,</p><p>Quelqu&#039;un aurait-il la gentillesse de me brieffer sur les priorités des droits PG (ou pointer vers une doc, je n&#039;en ai pas trouvé)?</p><p>Ex: Dans le schéma SCH, j&#039;ai une proc PROC (toute simple: pas de parms, retourne un integer), le owner (également SU) est celui qui donne les droits.</p><p>RIEN&#160; &#160;=&gt;&#160; &#160;test n&#039;a pas l&#039;accès à SCH (normal)</p><p>GRANT EXECUTE ON FUNCTION sch.proc TO USER test&#160; &#160;=&gt;&#160; &#160;test n&#039;a pas accès à SCH (et donc pas à PROC) (normal ?)</p><p>GRANT USAGE ON SCHEMA sch TO USER test&#160; &#160;=&gt;&#160; &#160;test voit tout (normal), et peut exécuter PROC (semble normal, puisque précédemment autorisé)</p><p>REVOQUE EXECUTE ON FUNCTION sch.proc FROM USER test =&gt; PB: user peut toujours exécuter PROC</p><p>J&#039;ai testé dans tous les sens, mais quelque soit la combinaison le résultat est identique; même si TEST n&#039;a pas reçu de GRANT EXECUTE sur PROC <img src="http://forums.postgresql.fr/img/smilies/sad.png" width="15" height="15" alt="sad" /></p>]]></content>
+		<author>
+			<name><![CDATA[Jiff]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=434</uri>
+		</author>
+		<updated>2009-08-16T15:24:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2186#p2186</id>
+	</entry>
+</feed>

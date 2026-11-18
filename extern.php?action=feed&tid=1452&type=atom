@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Curseur : Eviter de boucler 2x une même requête / curseurs imbriqués]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1452&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1452"/>
+	<updated>2011-06-08T09:25:43Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1452</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Curseur : Eviter de boucler 2x une même requête / curseurs imbriqués]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9739#p9739"/>
+		<content type="html"><![CDATA[<p>Merci Marc, j&#039;ai trouvé la solution grâce à votre post.<br />Ci-dessous la solution :</p><div class="codebox"><pre class="vscroll"><code>CREATE OR REPLACE FUNCTION bbb_test(ibord numeric, iprecision numeric)
+  RETURNS void AS
+$BODY$
+ 
+DECLARE 
+        bVal BOOLEAN;
+	sPol bigint;
+	sPintersect text;
+        sArea double precision;
+	sPlante text;
+	sSchema text;
+	sTable text;
+	sChamp text;
+	sSrid text;
+        sql_cursor cursor FOR SELECT DISTINCT(bord_carto_id),nom FROM conso_geographique, entite_carto, conso_element WHERE r_bord = iBord AND conso_geographique.rc_code = &#039;UTM_2-1&#039; AND conso_geographique.ent_id = entite_carto.ent_id AND id_element = id_element_observe ORDER BY nom;
+	sql_cursor_2 cursor FOR SELECT ent_libelle, area
+			FROM (SELECT max(
+				area2d(
+					intersection(
+						ST_SnapToGrid(
+							(SELECT bd.geometry FROM bord_carto AS bd WHERE bord_id = sPol ), iPrecision ) , ST_SnapToGrid(geometry, iPrecision ))
+			)
+			) AS area , 
+			ent_libelle 
+			FROM entite_carto AS ent 
+			JOIN ref_carto AS ref ON ref.rc_id = ent.rc_id WHERE ref.rc_code =&#039;UTM_2-1&#039; 
+			AND INTERSECTS((SELECT bd.geometry FROM bord_carto AS bd WHERE bord_id = sPol ), geometry) 
+			GROUP BY ent_id, ent_libelle ORDER BY area DESC) AS rqt
+			WHERE area &gt; 0;
+	--sql_cursor_3 refcursor;
+        nb_ligne integer;
+ 
+BEGIN
+ 
+EXECUTE &#039;DELETE FROM aaa_cas_test;&#039;;
+ 
+OPEN sql_cursor;
+ 
+&lt;&lt;label1&gt;&gt;
+ 
+LOOP
+ 
+	FETCH sql_cursor INTO sPol, sPlante;
+ 
+	EXIT label1 WHEN NOT FOUND;
+ 
+	RAISE NOTICE &#039;ANALYSE % (%) &#039;, sPol, sPlante;
+ 
+ 
+		OPEN sql_cursor_2;
+ 
+		&lt;&lt;label2&gt;&gt;
+ 
+		LOOP
+			FETCH sql_cursor_2 INTO sPintersect, sArea;
+ 
+			EXIT label2 WHEN NOT FOUND;
+ 
+			RAISE NOTICE &#039;polygone : % surface : % &#039;, sPintersect, sArea;
+ 
+			EXECUTE &#039;INSERT INTO aaa_cas_test VALUES (&#039;&#039;&#039; || sPol || &#039;&#039;&#039;,&#039;&#039;&#039; || sPlante || &#039;&#039;&#039;, &#039;&#039;&#039; || sPintersect || &#039;&#039;&#039;,&#039;&#039;&#039; || sArea || &#039;&#039;&#039;);&#039;;
+ 
+		END LOOP;
+ 
+		CLOSE sql_cursor_2;
+ 
+ 
+END LOOP;
+ 
+CLOSE sql_cursor;
+RETURN;
+END;
+$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+ALTER FUNCTION bbb_test(numeric, numeric) OWNER TO postgres;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[mougoye]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1272</uri>
+		</author>
+		<updated>2011-06-08T09:25:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9739#p9739</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Curseur : Eviter de boucler 2x une même requête / curseurs imbriqués]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9731#p9731"/>
+		<content type="html"><![CDATA[<p>Merci pour votre réponse <br />Je vais tester cela</p>]]></content>
+		<author>
+			<name><![CDATA[mougoye]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1272</uri>
+		</author>
+		<updated>2011-06-08T07:16:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9731#p9731</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Curseur : Eviter de boucler 2x une même requête / curseurs imbriqués]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9718#p9718"/>
+		<content type="html"><![CDATA[<p>Pour la première question: rien ne vous oblige à faire EXIT WHEN NOT FOUND simple.</p><p>Voici un exemple tiré de la doc:</p><p>&lt;&lt;ablock&gt;&gt;<br />BEGIN<br />&#160; &#160; -- some computations<br />&#160; &#160; IF stocks &gt; 100000 THEN<br />&#160; &#160; &#160; &#160; EXIT ablock;&#160; -- causes exit from the BEGIN block<br />&#160; &#160; END IF;<br />&#160; &#160; -- computations here will be skipped when stocks &gt; 100000<br />END;</p><p>Rien ne vous empêche donc de mettre des labels à chacune de vos boucles, et de faire un <br />EXIT&#160; mon_label WHEN NOT FOUND;</p><p>Pour le second point, bien sûr, vous pouvez récupérer plusieurs valeurs dans un enregistrement en même temps. Tout est documenté ici: <a href="http://doc.postgresql.fr/9.0/plpgsql-cursors.html" rel="nofollow">http://doc.postgresql.fr/9.0/plpgsql-cursors.html</a><br />Pour résumer, lors du fetch, donnez lui la liste des variables à affecter séparées par des virgules, au lieu d&#039;une seule variable.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-06-07T16:24:45Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9718#p9718</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Curseur : Eviter de boucler 2x une même requête / curseurs imbriqués]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9717#p9717"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Désolé d&#039;avance si le post n&#039;est pas clair car j&#039;ai encore un peu de mal avec les termes débutant dans ce langage.<br />J&#039;ai une fonction aaa_test qui permet d&#039;écrire dans une table.<br />Dans cette fonction se trouve 3 curseurs imbriqués (2 dans 1) : sql_cursor_2 et sql_cursor_3 imbriqués dans sql_cursor.<br />Première question : est-il possible d&#039;imbriqué plusieurs curseurs sans utilisé FOR .... IN EXECUTE ..... pour les curseurs suivants du style: </p><div class="codebox"><pre><code>OPEN sql_cursor;
+ 
+LOOP
+ 
+	FETCH sql_cursor INTO sPol, sPlante;
+ 
+	EXIT WHEN NOT FOUND;
+ 
+	RAISE NOTICE &#039;ANALYSE % (%) &#039;, sPol, sPlante;
+
+		OPEN sql_cursor_2;
+	 
+		LOOP
+			FETCH sql_cursor_2 INTO sPintersect, sArea;
+             
+                        EXIT WHEN NOT FOUND;
+
+			RAISE NOTICE &#039;polygone : % surface : % &#039;, sPintersect, sArea;
+			
+		END LOOP;
+
+END LOOP;</code></pre></div><p>Le souci c&#039;est que le EXIT WHEN NOT FOUND nous faire sortir de tous les curseurs</p><p>Pour contourner ce problème, j&#039;ai donc insérer deux curseurs sql_cursor_2 et sql_cursor_3<br />Cependant,<br />Deuxième question : les curseurs sql_cursor_2 et sql_cursor_3 effectuent sensiblement la même chose mise à part que le select s&#039;effectue sur un champ différent. N&#039;y a-t-il pas moyen d&#039;éviter ce double &quot;balayement&quot; en récupérant directement les valeurs des deux champs et en les stockant dans des variables ?</p><p><strong><span class="bbu">Fonction entière : </span></strong></p><div class="codebox"><pre class="vscroll"><code>-- Function: aaa_test(numeric, numeric)
+
+-- DROP FUNCTION aaa_test(numeric, numeric);
+
+CREATE OR REPLACE FUNCTION aaa_test(ibord numeric, iprecision numeric)
+  RETURNS void AS
+$BODY$
+ 
+DECLARE 
+        bVal BOOLEAN;
+	sPol text;
+	sPintersect text;
+        sArea text;
+	sPlante text;
+	sSchema text;
+	sTable text;
+	sChamp text;
+	sSrid text;
+        sql_cursor cursor FOR SELECT DISTINCT(bord_carto_id),nom FROM conso_geographique, entite_carto, conso_element WHERE r_bord = iBord AND conso_geographique.rc_code = &#039;UTM_2-1&#039; AND conso_geographique.ent_id = entite_carto.ent_id AND id_element = id_element_observe ORDER BY nom;
+	sql_cursor_2 refcursor;
+	sql_cursor_3 refcursor;
+        nb_ligne integer;
+ 
+BEGIN
+ 
+EXECUTE &#039;DELETE FROM aaa_cas_test;&#039;;
+ 
+OPEN sql_cursor;
+ 
+LOOP
+ 
+	FETCH sql_cursor INTO sPol, sPlante;
+ 
+	EXIT WHEN NOT FOUND;
+ 
+	RAISE NOTICE &#039;ANALYSE % (%) &#039;, sPol, sPlante;
+
+		FOR sql_cursor_2 IN EXECUTE 
+
+			&#039;SELECT ent_libelle
+			FROM (SELECT max(
+				area2d(
+					intersection(
+						ST_SnapToGrid(
+							(SELECT bd.geometry FROM bord_carto AS bd WHERE bord_id = &#039; || sPol || &#039;),&#039; || iPrecision || &#039;) , ST_SnapToGrid(geometry,&#039; || iPrecision || &#039;))
+			)
+			) AS area , 
+			ent_libelle 
+			FROM entite_carto AS ent 
+			JOIN ref_carto AS ref ON ref.rc_id = ent.rc_id WHERE ref.rc_code =&#039;&#039;UTM_2-1&#039;&#039; 
+			AND INTERSECTS((SELECT bd.geometry FROM bord_carto AS bd WHERE bord_id = &#039; || sPol || &#039;), geometry) 
+			GROUP BY ent_id, ent_libelle ORDER BY area DESC) as rqt
+			WHERE area &gt; 0;&#039;
+	 
+		LOOP
+	 
+			sPintersect := sql_cursor_2;
+
+		END LOOP;	
+
+		FOR sql_cursor_3 IN EXECUTE 
+
+			&#039;SELECT area 
+			FROM (SELECT max(
+				area2d(
+					intersection(
+						ST_SnapToGrid(
+							(SELECT bd.geometry FROM bord_carto AS bd WHERE bord_id = &#039; || sPol || &#039;),&#039; || iPrecision || &#039;) , ST_SnapToGrid(geometry,&#039; || iPrecision || &#039;))
+			)
+			) AS area , 
+			ent_libelle 
+			FROM entite_carto AS ent 
+			JOIN ref_carto AS ref ON ref.rc_id = ent.rc_id WHERE ref.rc_code =&#039;&#039;UTM_2-1&#039;&#039; 
+			AND INTERSECTS((SELECT bd.geometry FROM bord_carto AS bd WHERE bord_id = &#039; || sPol || &#039;), geometry) 
+			GROUP BY ent_id, ent_libelle ORDER BY area DESC) as rqt
+			WHERE area &gt; 0;&#039;
+	 
+		LOOP
+			sArea := sql_cursor_3;
+		END LOOP;
+
+		RAISE NOTICE &#039;polygone : % surface : % &#039;, sPintersect, sArea;
+
+		EXECUTE &#039;INSERT INTO aaa_cas_test VALUES (&#039;&#039;&#039; || sPol || &#039;&#039;&#039;,&#039;&#039;&#039; || sPlante || &#039;&#039;&#039;, &#039;&#039;&#039; || sPintersect || &#039;&#039;&#039;,&#039;&#039;&#039; || sArea || &#039;&#039;&#039;);&#039;;
+ 
+	 	
+END LOOP;
+ 
+CLOSE sql_cursor;
+RETURN;
+END;</code></pre></div><p>Merci par avance pour vos réponses</p>]]></content>
+		<author>
+			<name><![CDATA[mougoye]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1272</uri>
+		</author>
+		<updated>2011-06-07T16:12:06Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9717#p9717</id>
+	</entry>
+</feed>

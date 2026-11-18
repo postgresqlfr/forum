@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / [Résolu] réplication d'un cluster de prod vers un serveur test]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=6684&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=6684"/>
+	<updated>2023-11-06T10:15:57Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=6684</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] réplication d'un cluster de prod vers un serveur test]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34643#p34643"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />avec la réplication physique, toutes les opérations sur le leader sont effectuées automatiquement sur le ou les replicas.<br />Mais contrairement à la replication logique, les réplicas en réplication physique sont en read-only.</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2023-11-06T10:15:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34643#p34643</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] réplication d'un cluster de prod vers un serveur test]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34636#p34636"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>gleu a écrit&#160;:</cite><blockquote><div><p>Aucune opération DDL (sauf TRUNCATE) n&#039;est répliquée dans une réplication logique.</p></div></blockquote></div><p>Quand je parle de wal_level : logical c&#039;est le niveau de WAL de la réplication physique que j&#039;ai mise en place, ce n&#039;est pas celui d&#039;une réplication logique par souscription.<br />Du coup les opérations DDl semblent bien prises en compte....ce qui m&#039;arrange.</p>]]></content>
+		<author>
+			<name><![CDATA[PEREZ J.]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=10077</uri>
+		</author>
+		<updated>2023-10-27T08:23:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34636#p34636</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] réplication d'un cluster de prod vers un serveur test]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34635#p34635"/>
+		<content type="html"><![CDATA[<p>C&#039;est noté!.<br />Encore merci</p>]]></content>
+		<author>
+			<name><![CDATA[PEREZ J.]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=10077</uri>
+		</author>
+		<updated>2023-10-27T08:05:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34635#p34635</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] réplication d'un cluster de prod vers un serveur test]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34634#p34634"/>
+		<content type="html"><![CDATA[<p>Aucune opération DDL (sauf TRUNCATE) n&#039;est répliquée dans une réplication logique.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2023-10-26T19:59:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34634#p34634</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] réplication d'un cluster de prod vers un serveur test]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34633#p34633"/>
+		<content type="html"><![CDATA[<p>Merci pour votre réponse.<br />Je vais commencer par mettre en place une réplication continue de tout le cluster de production vers un serveur de réplication.<br />Mais je suppose qu&#039;en dehors d&#039;une réplication logique on ne peut pas répliquer les bases XXX sans les XXX_test si il y en a.<br />Est-ce que les drop sont répercutés en wal_level : logical?</p>]]></content>
+		<author>
+			<name><![CDATA[PEREZ J.]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=10077</uri>
+		</author>
+		<updated>2023-10-26T15:07:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34633#p34633</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] réplication d'un cluster de prod vers un serveur test]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34632#p34632"/>
+		<content type="html"><![CDATA[<p>Si j&#039;étais vous je partirais plutôt sur une approche basée sur l&#039;automatisation d&#039;un pg_dump / pg_restore plutôt que de la réplication logique, surtout si vous avez une bonne bonne passante entre les serveurs.&#160; Cela devrait être plus simple à mettre en place, et risque moins d&#039;impacter votre serveur de production.&#160; La réplication logique est loin d&#039;être gratuite : il faut redémarrer l&#039;instance pour changer le niveau de WAL, les WAL générés sont plus volumineux, les grosses transactions sont assez couteuses à décoder et peuvent entraîner de nombreux problèmes, la syncronisation initiale est loin d&#039;être rapide etc etc.&#160; Surtout qu&#039;en plus vous avez en plus des tables relativement incompatibles avec la réplication logique (celles sans clé primaires).</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2023-10-26T14:49:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34632#p34632</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] réplication d'un cluster de prod vers un serveur test]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34631#p34631"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>rjuju a écrit&#160;:</cite><blockquote><div><p>Ce n&#039;est toujours pas très clair.&#160; Voulez vous créer localement une base de données XXX_test à chaque fois depuis la base originale XXX, ou souhaitez-vous répliquer les données de chaque base vers 2 bases: une base identique et une base XXX_test ?</p></div></blockquote></div><p>Dans l&#039;idéal, je souhaiterais pouvoir répliquer chaque base vers 2 bases: une base identique et une base XXX_test que je pourrai bidouiller tranquillement. Sinon je pourrais me contenter de la version créer localement une base de données XXX_test à chaque fois depuis la base originale XXX avec XXX_test en lecture/écriture (dans ce cas, ça serait bien de pouvoir le faire plus facilement&#160; qu&#039;à la main avec pg_dump, transfert du fichier vers le serveur test puis psql ou pg_restore)</p>]]></content>
+		<author>
+			<name><![CDATA[PEREZ J.]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=10077</uri>
+		</author>
+		<updated>2023-10-26T14:12:31Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34631#p34631</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] réplication d'un cluster de prod vers un serveur test]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34630#p34630"/>
+		<content type="html"><![CDATA[<p>Ce n&#039;est toujours pas très clair.&#160; Voulez vous créer localement une base de données XXX_test à chaque fois depuis la base originale XXX, ou souhaitez-vous répliquer les données de chaque base vers 2 bases: une base identique et une base XXX_test ?</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2023-10-26T13:43:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34630#p34630</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] réplication d'un cluster de prod vers un serveur test]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34629#p34629"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>rjuju a écrit&#160;:</cite><blockquote><div><p>Bonjour,</p><br /><p>Voulez-vous maintenir la réplication une fois les écritures activées sur le serveur de test?</p></div></blockquote></div><p>Bonjour.<br />Idéalement oui si la même instance me permet de faire des tests sur une copie des bases répliquées. Par exemple : avoir une base activite à jour et la possibilité de créer et travailler sur une base activite_test avec les données à jour.<br />Mais la priorité reste quand même de pouvoir travailler avec un cluster conforme à mon instance de production sans impact sur elle et de ne pas être obligé de détruire/reconstruire tout le cluster quand je veux repartir de quelque chose de propre.</p>]]></content>
+		<author>
+			<name><![CDATA[PEREZ J.]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=10077</uri>
+		</author>
+		<updated>2023-10-26T13:09:07Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34629#p34629</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] réplication d'un cluster de prod vers un serveur test]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34628#p34628"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><p>Voulez-vous maintenir la réplication une fois les écritures activées sur le serveur de test?</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2023-10-26T11:33:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34628#p34628</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[[Résolu] réplication d'un cluster de prod vers un serveur test]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34625#p34625"/>
+		<content type="html"><![CDATA[<p>Résolu par la séparation du serveur de test et de celui de réplication : mise en place d&#039;une réplication physique et l&#039;utilisation de pg_dumpalll une fois par mois et pg_dump pour les bases tests</p><p>Bonjour.<br />Je souhaite répliquer un cluster de production vers un serveur de test en mode lecture/écriture mais pas en mode master/master?<br />La réplication logique doit permettre de le faire.Mais le cluster contenant une dizaine de bases de données, ça veut dire que je vais devoir créer une dizaine de publications, une dizaine de souscriptions et autant de slots de réplication. <br />Et pour couronner le tout, certaines tables n&#039;ont pas de clef primaire ce qui veut dire que je devrais les rajouter manuellement avant de mettre en place la réplication.<br />N&#039;y aurait-il pas une possibilité plus globale du type pg_basebackup permettant de garder la cible en lecture/écriture?<br />Merci d&#039;avance.</p>]]></content>
+		<author>
+			<name><![CDATA[PEREZ J.]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=10077</uri>
+		</author>
+		<updated>2023-10-26T10:25:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34625#p34625</id>
+	</entry>
+</feed>

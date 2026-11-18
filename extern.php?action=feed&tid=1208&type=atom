@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / trigger historisation des modifications sur une base de données]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1208&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1208"/>
+	<updated>2011-02-07T13:10:31Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1208</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  trigger historisation des modifications sur une base de données]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7980#p7980"/>
+		<content type="html"><![CDATA[<p>merci beaucoup pour votre aide.</p>]]></content>
+		<author>
+			<name><![CDATA[chris0938]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=784</uri>
+		</author>
+		<updated>2011-02-07T13:10:31Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7980#p7980</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  trigger historisation des modifications sur une base de données]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7978#p7978"/>
+		<content type="html"><![CDATA[<p>Exact.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-02-07T12:57:07Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7978#p7978</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  trigger historisation des modifications sur une base de données]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7977#p7977"/>
+		<content type="html"><![CDATA[<p>je viens de trouver. je dois utiliser new.id ou old.id selon le cas.</p><p>merci</p>]]></content>
+		<author>
+			<name><![CDATA[chris0938]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=784</uri>
+		</author>
+		<updated>2011-02-07T12:47:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7977#p7977</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  trigger historisation des modifications sur une base de données]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7965#p7965"/>
+		<content type="html"><![CDATA[<p>ok. j&#039;ai essaye avec tg_relname est cela fonctionne.</p><p>la seule chose qui ne fonctionne pas c&#039;est l&#039;id de l&#039;enregistrement modifié.<br />je m&#039;explique:</p><div class="codebox"><pre><code>insert into profil (id,libelle,datecreation) values (&#039;PROF649302&#039;,&#039;gestionnaire de site&#039;,now());
+INSERT 0 1
+
+
+select * from histo;
+    id    | typemod | datemodif    | usermodif | idmodif | tablemodif
+---------+-----------+---------------+------------+---------+------------
+ histo453 | I            | 2011-02-07  | postgres  | 152476  | profil</code></pre></div><p>idmodif vaut 152476 alors que je voudrai que ca soit prof649302. je ne sais pas si c&#039;est bien possible.</p><p>voici la partie de la fonction qui nous intéresse ici</p><div class="codebox"><pre><code>elsif (TG_OP=&#039;INSERT&#039;) then
+			insert into histo_uliss select &#039;histo453&#039;,&#039;I&#039;,now(),user,TG_Relid,TG_RELNAME;
+			return new;</code></pre></div><p>merci d&#039;avance pour toutes idées.</p><p>ps: une petite question qui n&#039;a rien avoir: quand on insert et que tout se passe bien on a ce message&#160; </p><div class="codebox"><pre><code> insert 0 1</code></pre></div><p>que signifie 0 1?</p>]]></content>
+		<author>
+			<name><![CDATA[chris0938]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=784</uri>
+		</author>
+		<updated>2011-02-07T10:43:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7965#p7965</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  trigger historisation des modifications sur une base de données]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7964#p7964"/>
+		<content type="html"><![CDATA[<p>Oui. C&#039;est dispo qu&#039;à partir de la version 9.0.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-02-07T10:25:55Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7964#p7964</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  trigger historisation des modifications sur une base de données]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7961#p7961"/>
+		<content type="html"><![CDATA[<p>bonjour,<br />j&#039;ai voulu mettre en place le trigger mais quand j&#039;ai fait un insert sur une table ou le trigger porte j&#039;ai eu ce message d&#039;erreur:</p><div class="codebox"><pre><code> error: column &quot;tg_table_name&quot; does not exist
+context: sql statement &quot;insert into histo select &#039;I&#039;,now(),user,$i,TG_table_name
+pl/pgsql function &quot;histo_audit&quot; line 9 at sql statement</code></pre></div><p>la ligne 9 correspond a ceci : </p><div class="codebox"><pre><code> elsif (TG_OP=&#039;INSERT&#039;) then</code></pre></div><p>j&#039;ai oublie de préciser que postgresql est la version 8.4. est ce que cela a un rapport?<br />merci d&#039;avance.</p>]]></content>
+		<author>
+			<name><![CDATA[chris0938]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=784</uri>
+		</author>
+		<updated>2011-02-07T10:07:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7961#p7961</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  trigger historisation des modifications sur une base de données]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7925#p7925"/>
+		<content type="html"><![CDATA[<p>Oui, tg_table_name est la bonne variable.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-02-04T10:34:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7925#p7925</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  trigger historisation des modifications sur une base de données]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7919#p7919"/>
+		<content type="html"><![CDATA[<p>bonjour,<br />merci de votre réponse. est ce mieux d&#039;utiliser tg_table_name a la place de tg_relname?</p><p>je vais regarde aller voir tablelog.</p>]]></content>
+		<author>
+			<name><![CDATA[chris0938]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=784</uri>
+		</author>
+		<updated>2011-02-04T08:40:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7919#p7919</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  trigger historisation des modifications sur une base de données]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7913#p7913"/>
+		<content type="html"><![CDATA[<p>Mon lien était bon mais apparemment, le point de fin de phrase a été mis dans le lien.</p><p>Cela étant dit, votre code a l&#039;air bon. Attention à tg_relname qui est obsolète. Il fonctionne toujours mais pourrait être abandonné dans une version future.</p><p>Quant à l&#039;historisation, vous feriez mieux de télécharger des outils qui le font déjà. Il y a au moins tablelog et e-maj (tous les deux dispos sur pgfoundry).</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-02-03T22:49:50Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7913#p7913</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  trigger historisation des modifications sur une base de données]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7903#p7903"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />merci pour votre réponse. votre lien ne fonctionne pas mais j&#039;ai celui ci qui correspond à ce que je souhaite faire. <a href="http://docs.postgresqlfr.org/8.0/plpgsql-trigger.html" rel="nofollow">http://docs.postgresqlfr.org/8.0/plpgsql-trigger.html</a>.<br />est ce que ceci est juste</p><div class="codebox"><pre><code>create function histo_audit() returns trigger as $histo$
+begin
+		--ajoute une ligne dans la table histo pour refleter l&#039;operation réalisé sur les tables
+		--utilise la variable spéciale TG_OP pour cette opération
+		--
+		if(TG_OP=&#039;DELETE&#039;) then
+			insert into histo_uliss select &#039;D&#039;,now(),user,TG_Relid,TG_Relname;
+			return old;
+		elsif (TG_OP=&#039;UPDATE&#039;) then
+			insert into histo_uliss select &#039;U&#039;,now(),user,TG_Relid,TG_Relname;
+			return new;
+		elsif (TG_OP=&#039;INSERT&#039;) then
+			insert into histo_uliss select &#039;I&#039;,now(),user,TG_Relid,TG_Relname;
+			return new;
+		end if;
+		return null; -- le résultat est ignoré car il s&#039;agit d&#039;un déclencheur AFTER
+	end;
+	$histo$ language plpgsql;	
+
+	
+CREATE TRIGGER histo
+	AFTER INSERT or Update or DELETE on utilisateur
+	for each row execute procedure histo_audit();</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[chris0938]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=784</uri>
+		</author>
+		<updated>2011-02-03T14:58:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7903#p7903</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  trigger historisation des modifications sur une base de données]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7884#p7884"/>
+		<content type="html"><![CDATA[<p>Ça dépend du langage de procédures. Pour PL/pgsql, tout est expliqué sur <a href="http://docs.postgresql.fr/9.0/plpgsql-trigger.html" rel="nofollow">http://docs.postgresql.fr/9.0/plpgsql-trigger.html</a>.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-02-02T13:33:09Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7884#p7884</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[trigger historisation des modifications sur une base de données]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7882#p7882"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />Je souhaiterai mettre en place un trigger qui insert des lignes dans une table d&#039;historique dès qu&#039;un utilisateur fait des modifications sur la base.</p><p>J&#039;aimerai pouvoir récupère le nom de la table modifié, l&#039;identifiant de la ligne, l&#039;utilisateur qui a fait cette modification, quel est le type de la modification (update,delete,insert), et la date. <br />Pour le moment, je n&#039;ai que la date que je sais comment récupére mais le reste je ne sais pas. </p><p>Est ce possible de récupère ces informations?</p><p>Merci d&#039;avance pour tout informations.</p><p>Chris</p>]]></content>
+		<author>
+			<name><![CDATA[chris0938]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=784</uri>
+		</author>
+		<updated>2011-02-02T10:34:45Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7882#p7882</id>
+	</entry>
+</feed>

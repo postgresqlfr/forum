@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Accumulateur sur une suite d'enregistrement]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1005&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1005"/>
+	<updated>2010-10-07T08:23:25Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1005</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Accumulateur sur une suite d'enregistrement]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6263#p6263"/>
+		<content type="html"><![CDATA[<p>L&#039;index créé est correct, dans le sens syntaxique. Le using btree est facultatif, btree est le type par défaut. C&#039;est un index en arbre balancé, c&#039;est à dire la structure la plus classique, proposée par défaut par tous les SGBD.</p><p>Par contre, je vous avais conseillé sur pvehicleid,ptime, qui sera à mon avis plus performant pour la procédure stockée.</p><p>Ensuite: les index composés sont capables de répondre de façon très efficaces à toute requête sur leur n premières colonnes. Comme là vous avez 2 colonnes, ce que cela signifie, c&#039;est qu&#039;un index sur pvehicleid,ptime saura aussi répondre aux requêtes pour lesquelles on aurait créé un index sur pvehicleid.</p><p>Ce que je vous recommande donc, c&#039;est :</p><p>un index sur (pvehicleid,ptime) et un sur ptime. Supprimez celui que vous venez de créer.</p><p>La raison pour laquelle je pense qu&#039;un index sur (pvehicleid,ptime) sera plus efficace qu&#039;un index sur (ptime,pvehicleid) est que dans votre procédure PL, la requête principale demande, pour UN vehicleid donné, tous les ptime compris entre deux valeurs. Il est plus efficace pour un index composé de parcourir un «range» (une plage de valeur) sur sa dernière colonne que sur les colonnes précédentes, à cause de sa structure physique.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-10-07T08:23:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6263#p6263</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Accumulateur sur une suite d'enregistrement]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6262#p6262"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;ai effectué des tests de charges en insérant 100 000 records dans ma table de positions :<br />- requête 1 : sur l&#039;intégralité des données de la vue : 4 min 30<br />- requête 2 : sur un véhicule dans la vue : 9 s<br />Ensuite j&#039;ai suivi votre conseil avec un index sur (pvehicleId, ptime) :<br />- requête 1 : 3 s<br />- requête 2 : 130 ms<br />Conclusion : sans commentaire</p><p>Voici l&#039;index créé :<br />CREATE INDEX veh_time_index<br />&#160; ON positions<br />&#160; USING btree<br />&#160; (ptime, pvehicleid);</p><p>Est-ce correct ? je ne sais pas ce que signifie btree.</p><p>Dois je créé un index sur ptime seul et sur pvehicleId seul ? quel est l&#039;impact ?</p><p>Merci encore pour vos conseils avisés.</p><p>Phil</p>]]></content>
+		<author>
+			<name><![CDATA[philaman]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=917</uri>
+		</author>
+		<updated>2010-10-07T08:14:00Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6262#p6262</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Accumulateur sur une suite d'enregistrement]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6255#p6255"/>
+		<content type="html"><![CDATA[<p>Oui, c&#039;est bon, c&#039;est ce que je voulais savoir: aucun intérêt à calculer tous les trajets, si c&#039;est sur un tout petit sous-ensemble qu&#039;il travaille. Je voulais juste vérifier qu&#039;effectivement, il arrivait à pousser la clause where jusque dans la sous-requête</p><p>Par contre, ça serait certainement intéressant d&#039;indexer positions. Il vous faut au moins un index composé sur (pvehicleId,ptime) pour que la fonction PL soit efficace.</p><p>Il vous faudra certainement aussi un second index sur ptime uniquement, puisque je présume que vous allez faire des recherches sur des périodes de temps.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-10-06T07:31:33Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6255#p6255</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Accumulateur sur une suite d'enregistrement]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6254#p6254"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;ai modifié la vue pour prendre en plus le véhicule, la vue devient donc :</p><p>CREATE VIEW journeyView AS<br />SELECT VehicleId, BeginDate, (journeyComputed).journeyEndDate AS EndDate, (journeyComputed).mileage AS Mileage <br />FROM (SELECT pvehicleId as VehicleId, ptime AS BeginDate, compute_journey(ptime, pvehicleId) AS journeyComputed<br />FROM Positions WHERE pstate = &#039;Start&#039;) AS tmp;</p><p>En faisant quelques explain sur les requêtes :</p><p>1) Requête sur une date et un véhicule : explain select * from journeyView where BeginDate=&#039;2010-10-04 12:00:00&#039; and VehicleId =&#039;1&#039;;<br />&quot;Subquery Scan on tmp&#160; (cost=0.00..31.79 rows=1 width=44)&quot;<br />&quot;&#160; -&gt;&#160; Seq Scan on positions&#160; (cost=0.00..31.78 rows=1 width=12)&quot;<br />&quot;&#160; &#160; &#160; &#160; Filter: ((pstate = &#039;Start&#039;::state) AND (ptime = &#039;2010-10-04 12:00:00&#039;::timestamp without time zone) AND (pvehicleid = 1))&quot;</p><p>2) Requête uniquement sur une date : explain select * from journeyView where BeginDate=&#039;2010-10-04 12:00:00&#039;;<br />&quot;Subquery Scan on tmp&#160; (cost=0.00..28.71 rows=1 width=44)&quot;<br />&quot;&#160; -&gt;&#160; Seq Scan on positions&#160; (cost=0.00..28.70 rows=1 width=12)&quot;<br />&quot;&#160; &#160; &#160; &#160; Filter: ((pstate = &#039;Start&#039;::state) AND (ptime = &#039;2010-10-04 12:00:00&#039;::timestamp without time zone))&quot;</p><p>3) Requête sur l&#039;intégralité de la vue : explain select * from journeyView;<br />&quot;Subquery Scan on tmp&#160; (cost=0.00..26.93 rows=6 width=44)&quot;<br />&quot;&#160; -&gt;&#160; Seq Scan on positions&#160; (cost=0.00..26.88 rows=6 width=12)&quot;<br />&quot;&#160; &#160; &#160; &#160; Filter: (pstate = &#039;Start&#039;::state)&quot;</p><p>Je ne sais pas bien interpréter ces résultats, mais apparemment il filtre d&#039;abord et exécute la vue ensuite, est-ce bien cela ? </p><p>Merci.</p>]]></content>
+		<author>
+			<name><![CDATA[philaman]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=917</uri>
+		</author>
+		<updated>2010-10-06T07:25:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6254#p6254</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Accumulateur sur une suite d'enregistrement]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6251#p6251"/>
+		<content type="html"><![CDATA[<p>Effectivement, j&#039;avais oublié les parenthèses pour l&#039;accès aux composites <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>Bien performant, j&#039;en doute. La question, c&#039;est surtout de savoir quel plan le moteur choisira si vous faites :</p><p>SELECT * FROM jouneyView WHERE BeginDate = xxx : est ce que PostgreSQL arrive à ne faire le calcul que pour cette date, ou est ce qu&#039;il matérialise l&#039;ensemble de la vue pour répondre ?</p><p>Pouvez vous mettre le résultat de </p><p>EXPLAIN SELECT * FROM jouneyView WHERE BeginDate = xxx ? (en mettant une date qui ait un sens <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /> )</p><br /><p>Autre chose qui m&#039;étonne dans la vue : où est obtenu l&#039;id du véhicule ? S&#039;il est obtenu à partir de BeginDate, est-ce normal ? (on pourrait imaginer deux véhicules démarrant exactement à la même date). Par ailleurs, dans la vue, ça serait bien d&#039;avoir l&#039;id du véhicule aussi.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-10-06T06:59:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6251#p6251</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Accumulateur sur une suite d'enregistrement]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6250#p6250"/>
+		<content type="html"><![CDATA[<p>Re-bonsoir,</p><p>En fouillant un peu partout des exemples de types composites j&#039;ai essayé avec des parenthèses d&#039;accéder à ce fameux type :</p><p>CREATE VIEW journeyView AS<br />SELECT BeginDate, (journeyComputed).journeyEndDate AS EndDate, (journeyComputed).mileage AS Mileage <br />FROM (SELECT ptime AS BeginDate, compute_journey(ptime, pvehicleId) AS journeyComputed<br />FROM Positions WHERE pstate = &#039;Start&#039;) AS tmp;</p><p>Dernière question : est-ce bien performant comme principe ? Quels sont les best practices sur le sujet ?</p><p>Merci encore pour votre aide.</p>]]></content>
+		<author>
+			<name><![CDATA[philaman]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=917</uri>
+		</author>
+		<updated>2010-10-05T20:43:52Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6250#p6250</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Accumulateur sur une suite d'enregistrement]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6249#p6249"/>
+		<content type="html"><![CDATA[<p>Bonsoir, </p><p>J&#039;ai pu mettre en application tout ceci en rentrant et j&#039;en suis à l&#039;étape 3 : la plus importante.<br />J&#039;ai donc créé mes tables avec des données, créer une fonction mais je bloque sur la vue avec le &quot;split&quot; des données dans mon type spécifique (avec 2 attributs).</p><p>Voici mon type :</p><p>CREATE TYPE journey_calculus_type as (journeyEndDate timestamp, mileage integer);</p><p>Voici ma fonction :</p><p>CREATE OR REPLACE FUNCTION compute_journey(journeyBeginDate timestamp, vehicleId integer)<br />RETURNS journey_calculus_type AS $$<br />DECLARE<br />&#160; &#160; next_journey_start_date timestamp;<br />&#160; &#160; result journey_calculus_type%rowtype;<br />BEGIN<br />&#160; &#160; SELECT ptime INTO next_journey_start_date FROM Positions WHERE pvehicleid=vehicleId AND pstate=&#039;Start&#039; AND ptime &gt; journeyBeginDate LIMIT 1;<br />&#160; &#160; SELECT max(ptime),sum(pkms) INTO result FROM Positions where pvehicleid=vehicleId AND ptime &gt;= journeyBeginDate AND ptime &lt; next_journey_start_date;<br />&#160; &#160; RETURN result;<br />END;<br />$$ LANGUAGE plpgsql;</p><p>Quand je créé ma vue sous la forme :</p><p>CREATE VIEW journeyView AS<br />SELECT BeginDate, journeyComputed.journeyEndDate AS EndDate, journeyComputed.mileage AS Mileage <br />FROM (SELECT ptime AS BeginDate, compute_journey(ptime, pvehicleId) AS journeyComputed<br />FROM Positions WHERE pstate = &#039;Start&#039;) AS tmp;</p><p>=&gt; Résultat il manque un FROM sur le journeyComputed du premier SELECT</p><p>J&#039;ai alors remplacé le premier select par un * (je sais c&#039;est pas très joli mais c&#039;est pour tester), la vue devient donc :</p><p>CREATE VIEW journeyView AS<br />SELECT *<br />FROM (SELECT ptime AS BeginDate, compute_journey(ptime, pvehicleId) AS journeyComputed<br />FROM Positions WHERE pstate = &#039;Start&#039;) AS tmp;</p><p>=&gt; J&#039;ai bien mes résultat quand je requête cette vue mais la deuxième colonne contient un champs de type &quot;journeyComputed&quot; que je n&#039;arrive pas à séparer.</p><p>Merci pour votre aide.</p><p>Phil</p>]]></content>
+		<author>
+			<name><![CDATA[philaman]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=917</uri>
+		</author>
+		<updated>2010-10-05T20:24:38Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6249#p6249</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Accumulateur sur une suite d'enregistrement]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6246#p6246"/>
+		<content type="html"><![CDATA[<p>Sinon, vous n&#039;êtes pas forcément obligé d&#039;utiliser une vue, c&#039;est comme vous le sentez. J&#039;en ai parlé parce que c&#039;est ce que vous demandiez. Utiliser simplement la fonction sera peut-être plus pratique, suivant les besoins de votre application.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-10-05T09:55:55Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6246#p6246</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Accumulateur sur une suite d'enregistrement]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6245#p6245"/>
+		<content type="html"><![CDATA[<p>Merci beaucoup. Dans mon application d&#039;origine je parcourais la table et je créai un identifiant de trajet dès que je détectai un nouveau démarrage.<br />Votre solution semble plus élégante et c&#039;est directement le SGBD qui gère tout cela, je serai tenté de dire que c&#039;est plus performant.<br />Pour résumer je dois créer :<br />- une table avec les historiques (évidement)<br />- une fonction calcule_trajet qui prend en paramètre une date et un véhicule et qui retourne le km calculé ainsi que la date du dernier événement du trajet<br />- une vue permettant de tester tout cela<br />Je vais maquetter cette solution et je reviendrai probablement vers vous, je pensais utiliser la dernière version la 9.0.</p><p>Merci encore</p>]]></content>
+		<author>
+			<name><![CDATA[philaman]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=917</uri>
+		</author>
+		<updated>2010-10-05T09:51:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6245#p6245</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Accumulateur sur une suite d'enregistrement]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6244#p6244"/>
+		<content type="html"><![CDATA[<p>Le plus simple pour effectuer cela est d&#039;utiliser une procédure stockée calculant pour chaque trajet son détail. Il va vous falloir coder (en PLPgSQL, c&#039;est le langage approprié pour cela).</p><p><a href="http://docs.postgresql.fr/9.0/plpgsql.html" rel="nofollow">http://docs.postgresql.fr/9.0/plpgsql.html</a></p><p>Vous devriez écrire une fonction ramenant, pour un début de trajet, toutes les informations relatives à ce trajet. Vous aurez donc par exemple une fonction calcule_trajet (vehicule, horodatage_debut) qui vous retournera un n_uplet (heure_fin, kilométrage)</p><p>Je pense que le code PL devrait faire un traitement du genre :</p><p>- Trouver le début du trajet suivant (s&#039;il y en a un).<br />- Faire un SELECT max(horodatage),sum(km) FROM table where vehicule = xxxxx AND horodatage &gt;= horodatage_debut AND horodatage &lt; horodata_trouve precedemment<br />- Retourner ces deux valeurs.</p><p>Une fois que vous avez cette fonction, il est assez facile de déclarer une vue utilisant cette fonction :</p><p>CREATE VIEW ma_vue AS SELECT heure_debut, calcule_trajet.heure_fin AS heure_fin, calcule_trajet.kms as kilometrage <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; FROM (SELECT horodatage AS heure_debut, calcule_trajet(vehicule, horodatage) AS calcule_trajet<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; FROM ma_table WHERE type_evenement = &#039;D&#039;) AS tmp</p><p>La vue est un petit peu complexe simplement parce que la fonction calcule_trajet devra renvoyer un type composite (il renvoie deux valeurs). Il faut donc un autre SELECT à l&#039;extérieur pour l&#039;éclater.</p><p>Ça a l&#039;air compliqué au premier abord, mais ça ne l&#039;est pas tant que ça. Si vous avez besoin d&#039;aide sur les différents composants, n&#039;hésitez pas à continuer à demander. Commencez par définer la fonction (CREATE FUNCTION), et avant ça, définissez un type de retour pour cette fonction (CREATE TYPE)</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-10-05T09:34:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6244#p6244</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Accumulateur sur une suite d'enregistrement]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6243#p6243"/>
+		<content type="html"><![CDATA[<p>Oui c&#039;est tout à fait cela, la table contient l&#039;historique des positions de plusieurs véhicules.</p><p>Phil</p>]]></content>
+		<author>
+			<name><![CDATA[philaman]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=917</uri>
+		</author>
+		<updated>2010-10-05T08:51:29Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6243#p6243</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Accumulateur sur une suite d'enregistrement]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6242#p6242"/>
+		<content type="html"><![CDATA[<p>Ok. Mais comment détectez vous les membres d&#039;une série ? Par véhicule et ordre chronologique ?</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-10-05T08:42:03Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6242#p6242</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Accumulateur sur une suite d'enregistrement]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6241#p6241"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Un trajet est défini par la détection d&#039;un démarrage (D), une liste d&#039;événement de conduite (C) et une fin définie par le statut arrêt (A).<br />En fait dans ma table j&#039;ai une série de : D - C - C - C ... - A - D - C ... - A - C<br />Pour identifier un trajet il faut parcourir cette liste, prendre le premier D, cumuler les C, et arrêter à un A.<br />L&#039;identifiant de trajet en tant qu&#039;ID peut être généré automatiquement.</p><p>Merci.</p>]]></content>
+		<author>
+			<name><![CDATA[philaman]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=917</uri>
+		</author>
+		<updated>2010-10-05T08:21:38Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6241#p6241</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Accumulateur sur une suite d'enregistrement]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6240#p6240"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Qu&#039;est ce qui permet d&#039;identifier un trajet ?</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-10-05T08:14:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6240#p6240</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Accumulateur sur une suite d'enregistrement]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6239#p6239"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous,</p><p>Je suis nouveau sur ce Forum ainsi que sur Postgresql, depuis longtemps je suis limité avec mon ancien SGBD que je ne nommerai pas ici.<br />Voilà ma problématique : j&#039;ai une table qui contient une liste d&#039;événements horodatés concernant des informations de la localisation de véhicules sous la forme suivante :<br />Date/ heure ; véhicule ; position (latitude, longitude) ; type d&#039;état ; kilomètre réalisé depuis le dernier arrêt<br />Le type d&#039;état peut être un des cas suivant : démarrage, conduite, arrêt<br />J&#039;aimerai savoir si il est possible de créer une vue &quot;Trajet&quot; qui me retourne les informations suivantes :<br />véhicule ; date/ heure début, date/ heure fin de trajet; kilométrage réalisé<br />J&#039;ai déjà réalisé ce genre de chose mais avec une application qui va parcourir ma première table et qui à chaque démarrage / arrêt créé un nouveau trajet et compte les kms puis sotcke dans une autre table. L&#039;application fonctionne mais je reste persuadé qu&#039;il est possible de déléguer ce genre de chose directement au SGBDR.<br />S&#039;agit t-il d&#039;une forme d&#039;accumulateur de somme ou suis-je sur la mauvaise piste ?</p><p>Merci beaucoup pour votre aide.</p><p>Phil.</p>]]></content>
+		<author>
+			<name><![CDATA[philaman]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=917</uri>
+		</author>
+		<updated>2010-10-05T08:11:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6239#p6239</id>
+	</entry>
+</feed>

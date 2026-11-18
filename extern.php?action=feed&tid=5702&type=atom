@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Equivalent Windows de ulimit pour augmenter max_stack_depth]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5702&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5702"/>
+	<updated>2020-02-21T18:15:07Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5702</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Equivalent Windows de ulimit pour augmenter max_stack_depth]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30739#p30739"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>odn62 a écrit&#160;:</cite><blockquote><div><div class="codebox"><pre><code>ERREUR:  valeur invalide pour le paramètre « max_stack_depth » : 5120
+DETAIL:  « max_stack_depth » ne doit pas dépasser 3584 Ko.</code></pre></div></div></blockquote></div><p>Et bien positionnez max_stack_depth à 3583 ou 3584 et priez pour que cela suffise, ou que le support corrige le problème.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2020-02-21T18:15:07Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30739#p30739</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Equivalent Windows de ulimit pour augmenter max_stack_depth]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30735#p30735"/>
+		<content type="html"><![CDATA[<p>bonjour</p><div class="quotebox"><cite>pifor a écrit&#160;:</cite><blockquote><div><p>Il faudrait essayer d&#039;utiliser l&#039;outil EDITBIN livré avec Visual Studio d&#039;après <a href="http://content.atalasoft.com/atalasoft-blog/increasing-the-size-of-your-stack-net-memory-management-part-3" rel="nofollow">Atalsoft</a>.</p><p>J&#039;ai trouvé un message sur les listes de distribution PostgreSQL qui référence cet outil en 2005:<a href="https://www.postgresql.org/message-id/6BCB9D8A16AC4241919521715F4D8BCE4766DC@algol.sollentuna.se" rel="nofollow">message de 2005</a></p><p>PS. Pour ce type d&#039;erreur il faut vraiment utiliser le forum StackOverflow&#160; <img src="http://forums.postgresql.fr/img/smilies/wink.png" width="15" height="15" alt="wink" /></p></div></blockquote></div><p>Je n&#039;ai pas Visual Studio sur mon poste, mais j&#039;ai trouvé une solution qui doit être identique à ce que fait EDITBIN pour modifier la stack dans les exécutables.</p><p>PE TOOLS <a href="https://github.com/petoolse/petools#pe-editor" rel="nofollow">https://github.com/petoolse/petools#pe-editor</a></p><p>et voici le doc&#160; qui m&#039;a inspiré cette outils pour augmenter la pile d&#039;exécution d&#039;un executable:<br /><a href="https://docplayer.fr/23486532-Microsoft-access-et-vba-comment-augmenter-la-taille-de-la-pile-d-execution.html" rel="nofollow">https://docplayer.fr/23486532-Microsoft … ution.html</a></p><p>J&#039;ai testé sur les exécutables : <strong>pg_ctl.exe</strong> et <strong>postgres.exe</strong> mais cela rien changé, j&#039;ai toujours <strong>3584 Ko</strong> en valeur max.</p><p>@+<br />Eric</p>]]></content>
+		<author>
+			<name><![CDATA[odn62]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8810</uri>
+		</author>
+		<updated>2020-02-21T08:19:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30735#p30735</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Equivalent Windows de ulimit pour augmenter max_stack_depth]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30733#p30733"/>
+		<content type="html"><![CDATA[<p>Bonjour</p><div class="quotebox"><cite>rjuju a écrit&#160;:</cite><blockquote><div><p>Il n&#039;est pas nécessaire de redémarrer postgres pour changer le paramètre max_stack_depth :</p><div class="codebox"><pre><code>=# show max_stack_depth ;
+ max_stack_depth
+-----------------
+ 2MB
+(1 row)
+
+=# set max_stack_depth = &#039;5MB&#039;;
+SET
+
+=# show max_stack_depth ;
+ max_stack_depth
+-----------------
+ 5MB
+(1 row)</code></pre></div><p>.&#160; Vous pouvez donc essayer différentes valeurs pour voir si cela corrige votre problème.&#160; Cela dit, quand ce genre de problème arrive il s&#039;agit plus souvent d&#039;une requête ou d&#039;un traitement mal écrit.&#160; Quelle requête effectuez-vous pour arriver à cette erreur ?</p></div></blockquote></div><p>J&#039;ai essayé de modifier max_stack_depth comme ci-dessus</p><div class="codebox"><pre><code>set max_stack_depth = &#039;5MB&#039;;</code></pre></div><p>mais j&#039;obtiens la même erreur</p><div class="codebox"><pre><code>ERREUR:  valeur invalide pour le paramètre « max_stack_depth » : 5120
+DETAIL:  « max_stack_depth » ne doit pas dépasser 3584 Ko.
+HINT:  Augmenter la limite de profondeur de la pile sur votre plateforme via
+« ulimit -s » ou l&#039;équivalent local.</code></pre></div><p>Pour ce qui est d&#039;une requête&#160; ou d&#039;un traitement mal écrit, je ne peux pas intervenir dessus car cela vient d&#039;un application que nous avons acheté.</p><p>L&#039;erreur arrive de temps en temps&#160; et cela nous oblige redémarrer l&#039;application pour débloquer les utilisateur.</p><p><strong>Nous avons contacter le support de l&#039;application et comme nous ne savons pas quel est l&#039;action qui produit l&#039;erreur pour&#160; la reproduire, le support m&#039;a demandé d&#039;augmenter le max_stack_depth.</strong></p><p>D&#039;où ma demande.</p>]]></content>
+		<author>
+			<name><![CDATA[odn62]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8810</uri>
+		</author>
+		<updated>2020-02-21T08:02:52Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30733#p30733</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Equivalent Windows de ulimit pour augmenter max_stack_depth]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30731#p30731"/>
+		<content type="html"><![CDATA[<p>Il n&#039;est pas nécessaire de redémarrer postgres pour changer le paramètre max_stack_depth :</p><div class="codebox"><pre><code>=# show max_stack_depth ;
+ max_stack_depth
+-----------------
+ 2MB
+(1 row)
+
+=# set max_stack_depth = &#039;5MB&#039;;
+SET
+
+=# show max_stack_depth ;
+ max_stack_depth
+-----------------
+ 5MB
+(1 row)</code></pre></div><p>.&#160; Vous pouvez donc essayer différentes valeurs pour voir si cela corrige votre problème.&#160; Cela dit, quand ce genre de problème arrive il s&#039;agit plus souvent d&#039;une requête ou d&#039;un traitement mal écrit.&#160; Quelle requête effectuez-vous pour arriver à cette erreur ?</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2020-02-20T17:48:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30731#p30731</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Equivalent Windows de ulimit pour augmenter max_stack_depth]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30729#p30729"/>
+		<content type="html"><![CDATA[<p>Il faudrait essayer d&#039;utiliser l&#039;outil EDITBIN livré avec Visual Studio d&#039;après <a href="http://content.atalasoft.com/atalasoft-blog/increasing-the-size-of-your-stack-net-memory-management-part-3" rel="nofollow">Atalsoft</a>.</p><p>J&#039;ai trouvé un message sur les listes de distribution PostgreSQL qui référence cet outil en 2005:<a href="https://www.postgresql.org/message-id/6BCB9D8A16AC4241919521715F4D8BCE4766DC@algol.sollentuna.se" rel="nofollow">message de 2005</a></p><p>PS. Pour ce type d&#039;erreur il faut vraiment utiliser le forum StackOverflow&#160; <img src="http://forums.postgresql.fr/img/smilies/wink.png" width="15" height="15" alt="wink" /></p>]]></content>
+		<author>
+			<name><![CDATA[pifor]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8375</uri>
+		</author>
+		<updated>2020-02-20T16:21:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30729#p30729</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Equivalent Windows de ulimit pour augmenter max_stack_depth]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30728#p30728"/>
+		<content type="html"><![CDATA[<p>Bonjour</p><p>J&#039;utilise un Postgres sur un Windows</p><p>J&#039;ai cette erreur</p><p>ERROR&gt; 18/02/2020 00:14:07.598 Database disconnected. Try reconnecting in 10000ms...<br />ERROR&gt; 18/02/2020 00:14:17.661 Error during the query execution : org.postgresql.util.PSQLException: ERREUR: dépassement de limite (en profondeur) de la pile<br />&#160; Indice: Augmenter le paramètre max_stack_depth&#160; (actuellement 2048 Ko) après vous<br />être assurée la limite de profondeur de la pile de la plateforme est adéquate.</p><p>J&#039;ai donc augmenté dans postresql.conf avec max_stack_depth = 20MB</p><p>et en redémarrant le service, j&#039;ai cette erreur :</p><p>LOG:&#160; valeur invalide pour le paramètre &quot; max_stack_depth &quot; : 20480<br />DETAIL:&#160; &quot; max_stack_depth &quot; ne doit pas dépasser 3584 Ko.<br />ASTUCE :&#160; Augmenter la limite de profondeur de la pile sur votre plateforme via<br />&#160; &#160; &quot; ulimit -s &quot; ou l&#039;équivalent local.</p><p>Le problème c&#039;est que ulimit c&#039;est une commande Linux et je ne vois pas comment faire sur Windows.</p><p>Est-ce que quelqu&#039;un sais comment modifier la profondeur de pile sur Windows?</p><p>Cordialement</p><p>Eric</p>]]></content>
+		<author>
+			<name><![CDATA[odn62]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8810</uri>
+		</author>
+		<updated>2020-02-20T15:53:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30728#p30728</id>
+	</entry>
+</feed>

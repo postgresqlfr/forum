@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Problème d'insertion dans une table]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5898&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5898"/>
+	<updated>2021-01-07T14:58:25Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5898</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème d'insertion dans une table]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31848#p31848"/>
+		<content type="html"><![CDATA[<p>Pour ce que je comprends, vous avez une table fonction d&#039;un côté qui préexiste (la question ne porte pas sur comment remplir cette table), avec une colonne &quot;id&quot; qui est une clef synthétique sans signification métier, et des colonnes </p><p>fonction_niv1 <br />fonction_niv2<br />intitule_exact<br />statut</p><p>qui ont des significations métier.</p><br /><p>D&#039;un autre côté il y a un import dans une table agro avec 4 colonnes ci-dessous qui correspondent dans le même ordre:</p><p>inser_pro_fonction_niv1<br />inser_pro_fonction_niv2<br />inser_pro_fonction_intitule_exact<br />inser_pro_statut</p><p>sauf que cette correspondance peut être imparfaite, parce que sinon une jointure simple sur l&#039;ensemble des colonnes fonctionnerait.</p><br /><p>A mon sens si c&#039;est bien la situation de départ, vous ne pouvez pas faire l&#039;économie de décrire dans le détail, au niveau métier, ce qui est acceptable ou pas pour établir la correspondance entre une ligne à importer et les valeurs dans la table fonction.</p><p>C&#039;est seulement une fois que l&#039;analyse métier est faite, qui prend en compte tous les cas possibles, qu&#039;on peut écrire le bout de SQL (LEFT JOIN ou autre) qui met en oeuvre cette analyse.</p><p>En l&#039;occurrence les cas possibles semblent être des réponses oui/non aux quetsions &quot;telle colonne est-elle remplie?&quot; puisque si elle est remplie c&#039;est une correspondance exacte sur la valeur qui va être attendue (je suppose).</p><p>Mais avec 4 colonnes ça fait quand même 2^4=16 combinaisons d&#039;un côté de la jointure, 16 combinaisons de l&#039;autre, soit 16x16=256 combinaisons possibles.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2021-01-07T14:58:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31848#p31848</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème d'insertion dans une table]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31841#p31841"/>
+		<content type="html"><![CDATA[<p>Effectivement c&#039;est ce qui pose problème pour la table fonction !! </p><p>Comment forcer l&#039;insertion des colonnes nulles sur postgres ??</p>]]></content>
+		<author>
+			<name><![CDATA[Salomai]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9153</uri>
+		</author>
+		<updated>2021-01-07T12:34:52Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31841#p31841</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème d'insertion dans une table]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31817#p31817"/>
+		<content type="html"><![CDATA[<p>Parce que dans la comparaison NULL=quelquechose, NULL est absorbant, comme 0 dans la multiplication,<br />et que dans une combinaison logique expr1 AND expr2,&#160; NULL comme expression est aussi absorbant.</p><p>dit en SQL</p><div class="codebox"><pre><code>test=&gt; select ( true AND true AND 1=null ) is true;
+ ?column? 
+----------
+ f</code></pre></div><p>Concrètement pour la jointure ça veut simplement dire que dans l&#039;appariemment avec par exemple la table &quot;fonction&quot;, si une des colonnes relatives à la fonction dans la table d&#039;import est nulle, peu importe les autres colonnes, le résultat de l&#039;appariemment avec LEFT JOIN est qu&#039;il n&#039;y aura pas de ligne trouvée dans fonction. Si c&#039;est le résultat attendu, pas de problème.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2021-01-04T20:13:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31817#p31817</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème d'insertion dans une table]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31816#p31816"/>
+		<content type="html"><![CDATA[<p>Pourquoi : &quot;la condition de jointure ci-dessus est fausse dès qu&#039;une seule colonne est à NULL&quot; ?</p>]]></content>
+		<author>
+			<name><![CDATA[Salomai]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9153</uri>
+		</author>
+		<updated>2021-01-04T17:16:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31816#p31816</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème d'insertion dans une table]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31790#p31790"/>
+		<content type="html"><![CDATA[<p>Merci pour votre réponse. </p><p>Les lignes de employeur &amp; fonction ne peuvent pas être nulles, par contre une colonne peut être nulle. <br />J&#039;aimerais une jointure qui accepte les lignes nulles de la table agro car, comme je l&#039;ai dit, la base étant tellement mal remplie, je peux avoir les informations associées aux contrats mais pas à l&#039;employeur. C&#039;est pour ça que je pensais un LEFT JOIN adapté, mais je me trompe peut-être....?</p><br /><p>Pour votre dernier point : &quot;quand on a une correspondance sur toutes ces colonnes, quelle est la garantie qu&#039;il y a une seule ligne qui correspond dans fonction (resp. employeur) ? Autrement dit est-ce qu&#039;il y a un index unique (clef composite) sur l&#039;ensemble de ces colonnes? S&#039;il peut y avoir plusieurs lignes correspondantes, ça va poser un problème de multiplication des lignes à insérer.&quot; <br />Effectivement, ça risque de poser problème car il n&#039;y a pas la garantie d&#039;unicité pour les lignes... Mais comment rajouter un index unique pour éviter la multiplication des lignes à insérer ?</p>]]></content>
+		<author>
+			<name><![CDATA[Salomai]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9153</uri>
+		</author>
+		<updated>2020-12-29T18:28:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31790#p31790</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème d'insertion dans une table]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31778#p31778"/>
+		<content type="html"><![CDATA[<p>Pour dire si le SQL est juste ou voir ce qui n&#039;est pas juste, il faut revenir à l&#039;expression ce que la requête doit faire.<br />Globalement on voit que la requête veut retrouver la ligne dans &quot;fonction&quot; qui satisferait ces conditions là:</p><br /><div class="codebox"><pre><code>f.fonction_niv1 = ag.inser_pro_fonction_niv1 AND f.fonction_niv2 = ag.inser_pro_fonction_niv2 AND f.intitule_exact = ag.inser_pro_fonction_intitule_exact AND f.statut = ag.inser_pro_statut</code></pre></div><p>sachant que &quot;ag&quot; désigne la table &quot;agro&quot; et f la table &quot;fonction&quot;</p><br /><p>Et il y a la même logique pour la table employeur, avec ces conditions là:</p><div class="codebox"><pre><code>ag.inser_pro_organisme_nom = emp.nom_organisme AND ag.inser_pro_type_employeur_niv1 = emp.type_employeur_niv1 AND ag.inser_pro_type_employeur_niv2 = emp.type_employeur_niv2 AND ag.inser_pro_taille_structure_niv1 = emp.taille_structure_niv1 AND ag.inser_pro_taille_structure_niv2 = emp.taille_structure_niv2</code></pre></div><p>Pour que cette logique fonctionne, il y a déjà des choses à vérifier:</p><p>- est-ce que certaines de ces colonnes dans agro peuvent être à NULL ou pas?</p><br /><p>- si oui, est-ce que la colonne correspondante dans employeur ou fonction doit être NULL quand la colonne dans agro s&#039;avère être à NULL? Autrement dit est-ce que NULL d&#039;un côté et NULL de l&#039;autre doit être considéré comme une égalité ou au contraire dès que l&#039;un des côtés est NULL la correspondance ne doit pas être détectée?</p><p>Dans les réponses plus haut il est dit que dans la table employeur, une ligne ne peut pas être complètement nulle. Mais ce n&#039;est pas la même question, parce que la condition de jointure ci-dessus est fausse dès qu&#039;une seule colonne est à NULL.</p><br /><p>- quand on a une correspondance sur toutes ces colonnes, quelle est la garantie qu&#039;il y a une seule ligne qui correspond dans fonction (resp. employeur) ? Autrement dit est-ce qu&#039;il y a un index unique (clef composite) sur l&#039;ensemble de ces colonnes? S&#039;il peut y avoir plusieurs lignes correspondantes, ça va poser un problème de multiplication des lignes à insérer.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2020-12-28T18:09:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31778#p31778</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème d'insertion dans une table]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31776#p31776"/>
+		<content type="html"><![CDATA[<p>Hm, après réflexion je pense que une jointure LEFT JOIN serait plus appropriée (car dans ma table employeur j&#039;ai fait en sorte qu&#039;il n&#039;y ait aucune ligne nulle or il est possible - tellement la base est mal remplie - que j&#039;ai l&#039;information du contrat alors même que je n&#039;ai pas d&#039;employeur).</p><p>Après avoir inséré étape par étape dans la table contrat pour voir où se situait le problème, l&#039;insertion bug effectivement à partir de fonction et d&#039;employeur. </p><p>Est-ce que cela peut être lié au fait que parfois des lignes peuvent être les mêmes ? Du coup, lorsque je lui dit d&#039;insérer quand employeur.col1 = agro.col1, employeur.col2 = agro.col2, etc., il se mélange les pinceaux ? </p><p>Je sais pas, au secours aidez-moi........................................</p>]]></content>
+		<author>
+			<name><![CDATA[Salomai]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9153</uri>
+		</author>
+		<updated>2020-12-28T11:27:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31776#p31776</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème d'insertion dans une table]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31760#p31760"/>
+		<content type="html"><![CDATA[<p>Merci pour votre réponse. </p><p>Je ne suis pas super au clair avec les jointures je crois. En fait, j&#039;ai créé la table employeur de manière à ce qu&#039;il n&#039;y ait aucune ligne de ma table entièrement nulle, ce qui fait qu&#039;il y a moins de lignes que dans la table agro. J&#039;ai procédé de la même manière pour la table fonction. <br />Bien que toutes les tables (contrat, fonction, employeur) aient des informations liées, le manque de données à disposition fait que j&#039;ai parfois pour un étudiant aucune information dans la table fonction mais des infos dans la table contrat ou employeur. Ce pourquoi j&#039;ai opté pour un FULL JOIN. Avec ce type de jointure, j&#039;ai l&#039;impression de ne perdre aucune informations mais par contre il est vrai qu&#039;il y a beaucoup de NULL dans la table contrat. </p><p>J&#039;espère avoir été claire...</p>]]></content>
+		<author>
+			<name><![CDATA[Salomai]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9153</uri>
+		</author>
+		<updated>2020-12-15T16:25:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31760#p31760</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème d'insertion dans une table]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31759#p31759"/>
+		<content type="html"><![CDATA[<p>Pour donner une opinion sur la requête, il faudrait comprendre pourquoi elle utilise ces FULL JOIN, qui sont utilisés rarement dans ce contexte.<br />Avec ce type de jointure, quand on teste si une colonne est NULL on ne sait pas si la colonne est absente et mise à NULL par le FULL JOIN ou si elle est présente mais que sa valeur est effectivement à NULL. A moins que toutes ces colonnes soient déclarées NOT NULL dans la source.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2020-12-14T18:12:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31759#p31759</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Problème d'insertion dans une table]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31756#p31756"/>
+		<content type="html"><![CDATA[<p>Bonjour, </p><p>J&#039;ai un petit soucis lors de mon insertion entre mes deux tables. J&#039;ai une table employeur et une table contrat que j&#039;alimente à partir d&#039;une table générique &quot;agro&quot; qui contient l&#039;intégralité des données (récupérées à partir d&#039;un csv). </p><p>La table contrat contient une clé étrangère &quot;employeur&quot; reliée à la table employeur. </p><p>L&#039;insertion de ma table employeur fonctionne parfaitement et celle de ma table contrat aussi : toutes les informations sont bonnes lorsque je fais des tests sur la table uniquement. Néanmoins, lorsque je fais des tests avec jointure des tables contrat et employeur les résultats obtenus sont bons mais incomplets (au lieu de me retourner 16 personnes qui ont travaillé dans les ONG par exemple, il m&#039;en retourne que 7). </p><p>Je me dis que ce qui pêche ce doit être lors de l&#039;insertion des valeurs dans la table contrat ... Voici ma requete d&#039;insertion dans la table : </p><p><strong> INSERT INTO &quot;contrat&quot;(pays, etudiant, employeur, fonction, type_contrat1, type_contrat2, annee_contrat, montant_salaire, secteur_niv1, secteur_niv2, temps_recherche, insertion) </strong></p><p><strong>SELECT pa.&quot;id&quot;, e.&quot;id&quot;, emp.&quot;id&quot;, f.&quot;id&quot;, inser_pro_type_contrat_niv1, <br />inser_pro_type_contrat_niv2, inser_pro_annee_contrat, inser_pro_salaire, inser_pro_secteur_activite_niv1, inser_pro_secteur_activite_niv2, inser_pro_temps_recherche_emploi, true </strong></p><p><strong>FROM &quot;agro&quot; as ag</strong></p><p><strong>LEFT JOIN &quot;pays&quot; pa ON pa.pays = ag.inser_pro_pays </strong></p><p><strong>INNER JOIN &quot;etudiant&quot; e ON e.&quot;id&quot; = ag.&quot;id&quot;</strong></p><p><strong>FULL JOIN &quot;fonction&quot; f ON f.fonction_niv1 = ag.inser_pro_fonction_niv1 AND f.fonction_niv2 = ag.inser_pro_fonction_niv2 AND f.intitule_exact = ag.inser_pro_fonction_intitule_exact AND f.statut = ag.inser_pro_statut</strong></p><p><strong>FULL JOIN employeur emp ON ag.inser_pro_organisme_nom = emp.nom_organisme AND ag.inser_pro_type_employeur_niv1 = emp.type_employeur_niv1 AND ag.inser_pro_type_employeur_niv2 = emp.type_employeur_niv2 AND ag.inser_pro_taille_structure_niv1 = emp.taille_structure_niv1 AND ag.inser_pro_taille_structure_niv2 = emp.taille_structure_niv2</strong></p><p><strong>WHERE (inser_pro_type_contrat_niv1 IS NOT NULL OR inser_pro_type_contrat_niv2 IS NOT NULL OR inser_pro_annee_contrat IS NOT NULL OR inser_pro_salaire IS NOT NULL OR inser_pro_secteur_activite_niv1 IS NOT NULL OR inser_pro_secteur_activite_niv2 IS NOT NULL OR inser_pro_temps_recherche_emploi IS NOT NULL);</strong></p><p>pays, etudiant, employeur, fonction sont donc des clés étrangères ; les autres valeurs sont récupérées à partir de ma table agro. </p><p>Y aurait-il une erreur dans mon insertion que je ne vois pas ?? </p><p>Merci de m&#039;aider....</p><p>Bonne journée à vous!</p>]]></content>
+		<author>
+			<name><![CDATA[Salomai]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9153</uri>
+		</author>
+		<updated>2020-12-11T13:42:21Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31756#p31756</id>
+	</entry>
+</feed>

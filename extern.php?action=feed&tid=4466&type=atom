@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Réutiliser un tablespace existant après réinstallation de PostgreSQL]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4466&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4466"/>
+	<updated>2017-12-06T15:20:45Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4466</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Réutiliser un tablespace existant après réinstallation de PostgreSQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26467#p26467"/>
+		<content type="html"><![CDATA[<p>oui j&#039;avoue que c&#039;est particulièrement crado ;-)<br />le salut viendra d&#039;une bonne sauvegarde, il n&#039; y a pas de doute.</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2017-12-06T15:20:45Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26467#p26467</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Réutiliser un tablespace existant après réinstallation de PostgreSQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26465#p26465"/>
+		<content type="html"><![CDATA[<p>Ça risque d&#039;être horriblement douloureux, plusieurs jours plus tard, quand les corruptions vont devenir évidentes <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>Plus sérieusement, il n&#039;y a pas l&#039;information de visibilité dans les tables, juste les id de transaction de création et destruction des enregistrements. L&#039;info manquante est dans la clog. Si les deux sont incohérents, les données vues sont incohérentes.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2017-12-06T14:59:07Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26465#p26465</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Réutiliser un tablespace existant après réinstallation de PostgreSQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26464#p26464"/>
+		<content type="html"><![CDATA[<p>Et si en cas d&#039;urgence et pas de sauvegarde on essayait de jouer aux apprentis sorciers :<br />- on replace les fichiers aux endroits d&#039;origines<br />- on créé les liens symboliques dans pg_tblspc avec un nom d&#039;oid pour le nom du lien<br />- on insert dans la table pg_tablespace les informations qui correspondent à iod, spcname</p><p>et faire la même chose pour les autres objets.</p><p>non ? bien sûr ce serait trop facile...</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2017-12-06T14:51:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26464#p26464</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Réutiliser un tablespace existant après réinstallation de PostgreSQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26462#p26462"/>
+		<content type="html"><![CDATA[<p>merci à vous deux pour ces infos.</p>]]></content>
+		<author>
+			<name><![CDATA[tclipha]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7847</uri>
+		</author>
+		<updated>2017-12-06T14:42:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26462#p26462</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Réutiliser un tablespace existant après réinstallation de PostgreSQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26461#p26461"/>
+		<content type="html"><![CDATA[<p>Non cela n&#039;est pas possible, il faut restaurer une sauvegarde pour récupérer les données.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2017-12-06T14:22:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26461#p26461</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Réutiliser un tablespace existant après réinstallation de PostgreSQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26460#p26460"/>
+		<content type="html"><![CDATA[<p>Si on parle de CREATE TABLESPACE, non ce n&#039;est pas possible parce que la liste et les structures des tables sont dans d&#039;autres tables (du schéma pg_catalog) et il n&#039;y&#160; a pas d&#039;auto-découverte possible des tables et autres objets dans un tablespace pris isolément.</p><p>Par ailleurs, quand l&#039;instance d&#039;avant a été arrêtée, les données dans ce tablespace en étaient à un certain avancement de transaction&#160; &#160;qui est lié à cette instance et ne correspond plus à rien dans la nouvelle instance.</p><p>En clair un tablespace pris isolément est inutilisable, autant que des fichiers de données qu&#039;on aurait pris directement de $PGDATA.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2017-12-06T14:15:54Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26460#p26460</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réutiliser un tablespace existant après réinstallation de PostgreSQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26458#p26458"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />je suis sous ubuntu 16.04.3<br />j&#039;avais installé PostgreSQL 9.5 qui exploitait des tablespaces placés sur une partition différente de la partition système.</p><p>J&#039;ai dut réinstaller mon OS et donc reformater la partition système, mais la partition qui contenait les tablespaces de la DB sont intactes.<br />J&#039;ai réinstallé PostgreSQL 9.5 et ai essayé de recréer un tablespace avec le chemin du tablespace déjà existant, mais cela ne lui plaît pas.</p><p>Existe t&#039;il un moyen de déclarer dans cette nouvelle installation de PostgreSQL un tablespace qui existe déjà et contient les données de la DB précédente ?</p><p>D&#039;avance merci de votre aide</p>]]></content>
+		<author>
+			<name><![CDATA[tclipha]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7847</uri>
+		</author>
+		<updated>2017-12-06T08:27:31Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26458#p26458</id>
+	</entry>
+</feed>

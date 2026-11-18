@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / script pour afficher résultat d'une fonction]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1905&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1905"/>
+	<updated>2012-02-14T17:33:44Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1905</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  script pour afficher résultat d'une fonction]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12862#p12862"/>
+		<content type="html"><![CDATA[<p>Déjà répondu dans un autre message, mais à tout hasard voila la doc postgresql au sujet du renvoi de refcursor :</p><p><a href="http://docs.postgresql.fr/9.1/plpgsql-cursors.html#id5673972" rel="nofollow">http://docs.postgresql.fr/9.1/plpgsql-c … #id5673972</a></p><p>Cette solution impose d&#039;être en transaction, donc un BEGIN explicite.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2012-02-14T17:33:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12862#p12862</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[script pour afficher résultat d'une fonction]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12853#p12853"/>
+		<content type="html"><![CDATA[<p>Bonjour tout le monde,<br />j&#039;ai crée la fonction suivante : </p><div class="codebox"><pre class="vscroll"><code>CREATE OR REPLACE FUNCTION &quot;mabase&quot;.&quot;get_the_results&quot; (varchar) RETURNS &quot;pg_catalog&quot;.&quot;refcursor&quot; AS
+$body$
+DECLARE
+  CodeId ALIAS FOR $1;
+  curRet REFCURSOR;
+  SQL_QUERY varchar;
+BEGIN
+      SQL_QUERY := &#039;SELECT sp_code_sq_pk    ,      
+             sp_gsp_code_fk   ,     
+             A.CDF_NOM        AS STATUT_LABO ,          
+             B.CDF_NOM        AS SP_LISTE    ,         
+             sp_catc_code_fk  ,    
+             sp_ceph_code_fk  ,   
+             sp_cge_code_fk   ,     
+             sp_pr_code_fk    ,      
+             sp_type_spe      ,        
+             sp_gref_fk       ,         
+             sp_nom           ,           
+             sp_nomcomp       ,         
+             sp_ph            ,           
+             sp_cipucd        ,         
+             sp_datecr        ,        
+             sp_datemj        ,          
+             sp_nl            ,             
+             sp_aphp          ,            
+             sp_origine_gene  ,    
+             sp_nomlong		  ,
+             SP_CIPUCD13	  ,
+		     SP_MONO_VIRTUELLE AS MONO_VIR      
+      FROM   theriaque.SP_SPECIALITE,
+             theriaque.CDF_CODIF A, 
+             theriaque.CDF_CODIF B
+      WHERE  SP_CDF_SLAB_CODE_FK = A.CDF_CODE_PK 
+      AND    SP_CDF_LI_CODE_FK   = B.CDF_CODE_PK
+      AND    A.CDF_NUMERO_PK     = &#039;&#039;15&#039;&#039; 
+      AND    B.CDF_NUMERO_PK     = &#039;&#039;08&#039;&#039;
+      AND    SP_CODE_SQ_PK = CAST(&#039;||CodeId||&#039; AS NUMERIC)&#039;;
+open curRet FOR execute SQL_QUERY;
+RETURN curRet;
+end;</code></pre></div><p>et je désire écrire un script qui affiche les résultats retournés par cette fonction. J&#039;ai essayé avec ces lignes </p><div class="codebox"><pre><code>declare resCur CURSOR for select * from get_the_specialite(&#039;13183&#039;,1,0); 
+FETECH ALL in resCur;</code></pre></div><p>mais aucun résultat n&#039;est affiché. Si j&#039;exécute la 1ère ligne seulement j&#039;ai comme résultat le nom de la procédure comme libellé et &lt;unnamed dropal X&gt; comme valeur.<br />Est ce que quelqu&#039;un pourrait m&#039;éclaircir ce problème et m&#039;aider à le résoudre.<br />Merci d&#039;avance pour votre aide.<br />Cordialement.</p>]]></content>
+		<author>
+			<name><![CDATA[mourad]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=290</uri>
+		</author>
+		<updated>2012-02-14T16:29:29Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12853#p12853</id>
+	</entry>
+</feed>

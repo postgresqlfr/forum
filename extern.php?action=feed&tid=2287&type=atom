@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / sauvgarde des données en sql]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2287&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2287"/>
+	<updated>2015-07-12T23:07:43Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2287</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  sauvgarde des données en sql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22172#p22172"/>
+		<content type="html"><![CDATA[<p>bonjour </p><br /><p>un truc qui en depatrouilera plus d&#039;un </p><br /><br /><p>sauvegarde </p><br /><div class="codebox"><pre class="vscroll"><code>#!/bin/bash
+#    
+# cp based backup script.
+#
+echo &quot;bonjour&quot;  
+
+if [! -d &quot;/media/soleil/6528-D95D/SAUVEGARDE&quot; ] 
+then  
+echo &quot;Branche le lecteur&quot;
+exit  1
+fi 
+
+echo &quot;bonjour&quot;
+
+
+	echo -n &quot;Voulez-SAUVEGARDER Y/N : &quot;
+	read ouinon
+	if [ &quot;$ouinon&quot; = &quot;y&quot; ] || [ &quot;$ouinon&quot; = &quot;Y&quot; ]
+		then
+
+		cd /media/soleil/6528-D95D/SAUVEGARDE/ 
+
+ 		dat=$(date +%Y%m%d)  
+    
+
+		echo &quot;sauvegarde PostgreSQL  CGIFCH&quot;  
+
+		CGIFCH_DATA=&quot;CGIFCH_DATA_&quot;$dat&quot;.backup&quot; 
+		CGIFCH_SCHEMA=&quot;CGIFCH_SCHEMA_&quot;$dat&quot;.backup&quot; 
+ 
+		echo -n &quot;File PostgreSQL ---  A Sauvegarder :&quot;
+		echo &quot;$CGIFCH_DATA&quot;
+		echo -n &quot;File PostgreSQL ---  A Sauvegarder :&quot;
+		echo &quot;$CGIFCH_SCHEMA&quot;
+# DATA
+		 pg_dump     --format custom -a 	      			       --encoding utf8 --host 127.1.1 --port 5432 --username postgres CGIFCH &gt; $CGIFCH_DATA
+# SCHEMA
+		 pg_dump     --format custom --section pre-data  --section post-data   --encoding utf8 --host 127.1.1 --port 5432 --username postgres CGIFCH &gt; $CGIFCH_SCHEMA 
+ 
+
+		echo &quot;sauvegarde Repertoire Terminer&quot; 
+
+	elif [ &quot;$ouinon&quot; = &quot;n&quot; ] || [ &quot;$ouinon&quot;= &quot;N&quot; ] 
+		then
+    		echo &quot;Ok, bye!&quot;
+	else
+    	
+		echo &quot;Il faut taper Y ou N!! Pas $ouinon&quot; 
+
+	fi
+
+exit 0</code></pre></div><p>========================================</p><p><img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" />:):)</p><p>restore <br /> </p><div class="codebox"><pre class="vscroll"><code>#!/bin/bash
+#    
+# cp based backup script.
+#
+#
+
+if [! -d &quot;/media/soleil/6528-D95D/SAUVEGARDE/&quot; ]
+then
+echo &quot;Branche le lecteur&quot;
+exit 1
+fi 
+
+	echo &quot;recuperation RESTAURE BDsql: &quot;
+	echo -n &quot;Entrez: sa date de sauvegarde : &quot;
+	read file
+
+	CGIFCH_SCHEMA=&quot;CGIFCH_SCHEMA_&quot;$file&quot;.backup&quot; 
+	CGIFCH_DATA=&quot;CGIFCH_DATA_&quot;$file&quot;.backup&quot; 
+ 
+ 	echo -n &quot;File PostgreSQL ---  A Restaurer :&quot;
+	echo &quot;$CGIFCH_SCHEMA&quot;
+
+	echo -n &quot;File PostgreSQL ---  A Restaurer :&quot;
+	echo &quot;$CGIFCH_DATA&quot;
+
+if [ -e &quot;$CGIFCH_DATA&quot; ]
+	then
+
+	echo -n &quot;Voulez-Restaurer Y/N : &quot;
+	read ouinon
+	if [ &quot;$ouinon&quot; = &quot;y&quot; ] || [ &quot;$ouinon&quot; = &quot;Y&quot; ] 
+		then
+
+cd /media/soleil/6528-D95D/SAUVEGARDE/ 
+
+# recharge et creation des tables et leurs definitions
+		pg_restore      --host 127.1.1 --port 5432 --username postgres   --dbname  CGIFCH   $CGIFCH_SCHEMA
+# recharge les données 
+		pg_restore   -a --host 127.1.1 --port 5432 --username postgres   --dbname CGIFCH   $CGIFCH_DATA
+
+		echo  &quot;restaurer controler avec un vacum general &quot;
+
+	elif [ &quot;$ouinon&quot; = &quot;n&quot; ] || [ &quot;$ouinon&quot; = &quot;N&quot; ]
+		then
+    		echo &quot;Ok, bye! &quot;	
+	else
+    		echo &quot;Il faut taper Y ou N!! Pas $ouinon&quot;
+	fi
+else
+        echo &quot;Le fichier n&#039;existe pas, du moins n&#039;est pas dans le répertoire d&#039;exécution du script&quot;
+fi
+exit 0</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[jplaroche]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=4144</uri>
+		</author>
+		<updated>2015-07-12T23:07:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22172#p22172</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  sauvgarde des données en sql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15308#p15308"/>
+		<content type="html"><![CDATA[<p>Pour les exécutions automatiques sous Windows, vous devez utiliser les tâches planifiées. Pour automatiser la saisie du mot de passe, vous devez passer par le fichier .pgpass (ou pgpass.conf sous Windows). Vous aurez plus d&#039;informations sur ce fichier à cette adresse : <a href="http://docs.postgresqlfr.org/9.2/libpq-pgpass.html" rel="nofollow">http://docs.postgresqlfr.org/9.2/libpq-pgpass.html</a></p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-10-04T10:05:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15308#p15308</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  sauvgarde des données en sql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15303#p15303"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>gleu a écrit&#160;:</cite><blockquote><div><p>Pourquoi ne pouvez-vous pas taper le mot de passe ? si vous vous inquiétez qu&#039;il n&#039;apparaisse pas, ni même des étoiles ou d&#039;autres caractères, c&#039;est normal. Saisissez-le, puis faites entré. Que se passe-t-il ensuite ? avez-vous un message d&#039;erreur ?</p></div></blockquote></div><p>Bonjour,</p><p>pour répondre à votre question quant je tape le mot de passe y a rien qui s&#039;affiche sur la ligne et quand je tape entrer&#160; y a mot de passe&#160; erruer ..!!</p><p>bref j&#039;ai pu réaliser ma sauvgarde de ma BDD en faisant ceci :</p><p>pour sauvgarder :</p><p>pg_dump.exe -h localhost -p 5432 -U postgres -F p -v -f &quot;C:\Temp\BDD.backup&quot; BDD</p><br /><p>et pour réstaurer je tape ceci :</p><p>pg_restore.exe -h localhost -p 5432 -U postgres -d BDD -v &quot;C:\Temp\BDD.backup&quot;</p><p>tout marche trés bien sous la comande dos windows 7 et là j&#039;ai une petite question comment automatise ça je m&#039;explique, <br />comment réaliser un fichier qui sera exécuter par exemple tout les 4heures (ou une heure précise de la journée) automatiquement et qui réalise une sauvegarde de ma base de données.</p><p>Merci d&#039;avance de m&#039;avoir aider </p><p>A+<br />zbdd</p>]]></content>
+		<author>
+			<name><![CDATA[zbdd]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1932</uri>
+		</author>
+		<updated>2012-10-04T08:26:03Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15303#p15303</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  sauvgarde des données en sql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15293#p15293"/>
+		<content type="html"><![CDATA[<p>Pourquoi ne pouvez-vous pas taper le mot de passe ? si vous vous inquiétez qu&#039;il n&#039;apparaisse pas, ni même des étoiles ou d&#039;autres caractères, c&#039;est normal. Saisissez-le, puis faites entré. Que se passe-t-il ensuite ? avez-vous un message d&#039;erreur ?</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-10-03T12:39:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15293#p15293</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  sauvgarde des données en sql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15290#p15290"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>gleu a écrit&#160;:</cite><blockquote><div><p>Nous aussi pour être franc, je ne vois pas trop ce qu&#039;on peut vous dire de plus. Il vous suffit de taper la commande pg_dump. Un simple &quot;pg_dump labase &gt; mon_fichier&quot; suffit.</p></div></blockquote></div><br /><p>Bonjour,</p><p>effectivement c&#039;est simple mais ça bloc chez moi je m&#039;explique:</p><p>j&#039;utilise postgresql version 9.1 et sous windows 7 et il est installer par défaut sur le C program files...bref installation par défaut .<br />quant je veux faire une sauvgarde de ma base de données je procède comme suite :</p><p>j&#039;ouvre la comande dos cmd.. et je fais ceci:</p><p>c:\Program Files\PostgreSQL\9.1\bin&gt;pg_dump nom_de_mabase &gt; nom_base_save.dump&#160; &#160;</p><p>et là il me domande d&#039;entré le mot de passe : le problème c&#039;est que je ne peut pas le tapé sur la commade !!!! <br />et je tape la touche entré un fichier nommé nom_base_save.dump se cree dasn le repertoir du fichier bin mais vide !!!</p><p>mes questions sont</p><p>1- quelqu&#039;un peut m&#039;expliquer&#160; pourquoi je n&#039;arrive pas à saisir le mot de passe quand m&#039;a été demandé?<br />2- quelle est la solution de mon problème de sauvgarde</p><p>Merci d&#039;avance pour votre aide</p>]]></content>
+		<author>
+			<name><![CDATA[zbdd]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1932</uri>
+		</author>
+		<updated>2012-10-03T07:41:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15290#p15290</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  sauvgarde des données en sql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15288#p15288"/>
+		<content type="html"><![CDATA[<p>Nous aussi pour être franc, je ne vois pas trop ce qu&#039;on peut vous dire de plus. Il vous suffit de taper la commande pg_dump. Un simple &quot;pg_dump labase &gt; mon_fichier&quot; suffit.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-10-03T06:48:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15288#p15288</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  sauvgarde des données en sql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15287#p15287"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>MitsuTomoe a écrit&#160;:</cite><blockquote><div><p>Si ça peut aider, voici la procédure de sauvegarde qui tourne chez nous (Ubuntu 12.04) :</p><div class="codebox"><pre><code>DATE=$(date +%Y-%m-%d-%H-%M)
+rm -f /var/lib/postgresql/conclavi_test.sql
+
+pg_dumpall &gt; /var/lib/postgresql/conclavi_test.sql
+
+rm -f /var/lib/postgresql/backups/conclavi_test*.*
+mv conclavi_test.sql /var/lib/postgresql/backups/conclavi_test-${DATE}.sql
+
+tar -jcvf /var/lib/postgresql/backups/conclavi_test-${DATE}.bz2 /var/lib/postgresql/backups/conclavi_test-${DATE}.sql
+
+echo &#039;Copie FTP&#039;
+ftp -in &lt;&lt;THEEND
+open monftp
+user monuser monpasswd
+lcd backups
+cd base-test
+put conclavi_test-${DATE}.bz2
+close
+bye
+THEEND</code></pre></div><p>L&#039;avantage de pg_dumpall est qu&#039;il sauvegarde un cluster complet (rôles, bases...) .</p></div></blockquote></div><br /><br /><p>Merci pour la réponse donc si je comprends bien je dois taper ceci sur la la fenetre cmd...du windows&#160; <br />mais coment ça marche&#160; ...veuillez m&#039;excuser mais je suis un peu perdu.:(</p>]]></content>
+		<author>
+			<name><![CDATA[zbdd]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1932</uri>
+		</author>
+		<updated>2012-10-02T10:40:50Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15287#p15287</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  sauvgarde des données en sql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15286#p15286"/>
+		<content type="html"><![CDATA[<p>Vu que vous êtes sur windows, vous ouvrez un cmd et vous tapez la ligne de commande.</p><p>ps : windows -&gt; executer -&gt; tapez &quot;cmd&quot;</p>]]></content>
+		<author>
+			<name><![CDATA[kenrio]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=964</uri>
+		</author>
+		<updated>2012-10-02T09:12:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15286#p15286</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  sauvgarde des données en sql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15285#p15285"/>
+		<content type="html"><![CDATA[<p>Si ça peut aider, voici la procédure de sauvegarde qui tourne chez nous (Ubuntu 12.04) :</p><div class="codebox"><pre><code>DATE=$(date +%Y-%m-%d-%H-%M)
+rm -f /var/lib/postgresql/conclavi_test.sql
+
+pg_dumpall &gt; /var/lib/postgresql/conclavi_test.sql
+
+rm -f /var/lib/postgresql/backups/conclavi_test*.*
+mv conclavi_test.sql /var/lib/postgresql/backups/conclavi_test-${DATE}.sql
+
+tar -jcvf /var/lib/postgresql/backups/conclavi_test-${DATE}.bz2 /var/lib/postgresql/backups/conclavi_test-${DATE}.sql
+
+echo &#039;Copie FTP&#039;
+ftp -in &lt;&lt;THEEND
+open monftp
+user monuser monpasswd
+lcd backups
+cd base-test
+put conclavi_test-${DATE}.bz2
+close
+bye
+THEEND</code></pre></div><p>L&#039;avantage de pg_dumpall est qu&#039;il sauvegarde un cluster complet (rôles, bases...) .</p>]]></content>
+		<author>
+			<name><![CDATA[MitsuTomoe]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1680</uri>
+		</author>
+		<updated>2012-10-02T09:11:52Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15285#p15285</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  sauvgarde des données en sql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15284#p15284"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>zbdd a écrit&#160;:</cite><blockquote><div><div class="quotebox"><cite>kenrio a écrit&#160;:</cite><blockquote><div><p>Bonjour,</p><p>je vois pas ce qu&#039;on peut dire de plus, la doc : <a href="http://www.postgresql.org/docs/9.1/static/app-pgdump.html" rel="nofollow">http://www.postgresql.org/docs/9.1/stat … gdump.html</a> est très bien faite, si vous avez des erreurs mettez les nous au moins.</p></div></blockquote></div><p>ma question est un peu bête mais je ne sais pas ou il fait taper ceci :</p><p>pg_restore.exe -h localhost -p 5432 -U postgres -d mabase-v &quot;C:\Temp\mabase.backup&quot;</p><p>A+</p></div></blockquote></div>]]></content>
+		<author>
+			<name><![CDATA[zbdd]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1932</uri>
+		</author>
+		<updated>2012-10-02T09:11:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15284#p15284</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  sauvgarde des données en sql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15283#p15283"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>kenrio a écrit&#160;:</cite><blockquote><div><p>Bonjour,</p><p>je vois pas ce qu&#039;on peut dire de plus, la doc : <a href="http://www.postgresql.org/docs/9.1/static/app-pgdump.html" rel="nofollow">http://www.postgresql.org/docs/9.1/stat … gdump.html</a> est très bien faite, si vous avez des erreurs mettez les nous au moins.</p></div></blockquote></div><p>ma question va etre un bete mais je ne sais pas ou il fait taper ceci :</p><p>pg_restore.exe -h localhost -p 5432 -U postgres -d mabase-v &quot;C:\Temp\mabase.backup&quot;</p><p>A+</p>]]></content>
+		<author>
+			<name><![CDATA[zbdd]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1932</uri>
+		</author>
+		<updated>2012-10-02T09:09:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15283#p15283</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  sauvgarde des données en sql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15282#p15282"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>kenrio a écrit&#160;:</cite><blockquote><div><p>Bonjour,</p><p>je vois pas ce qu&#039;on peut dire de plus, la doc : <a href="http://www.postgresql.org/docs/9.1/static/app-pgdump.html" rel="nofollow">http://www.postgresql.org/docs/9.1/stat … gdump.html</a> est très bien faite, si vous avez des erreurs mettez les nous au moins.</p></div></blockquote></div><p>ma question est un peu bête mais je ne sais pas ou il fait taper ceci :</p><p>pg_restore.exe -h localhost -p 5432 -U postgres -d mabase-v &quot;C:\Temp\mabase.backup&quot;</p><p>A+</p>]]></content>
+		<author>
+			<name><![CDATA[zbdd]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1932</uri>
+		</author>
+		<updated>2012-10-02T09:08:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15282#p15282</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  sauvgarde des données en sql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15281#p15281"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>je vois pas ce qu&#039;on peut dire de plus, la doc : <a href="http://www.postgresql.org/docs/9.1/static/app-pgdump.html" rel="nofollow">http://www.postgresql.org/docs/9.1/stat … gdump.html</a> est très bien faite, si vous avez des erreurs mettez les nous au moins.</p>]]></content>
+		<author>
+			<name><![CDATA[kenrio]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=964</uri>
+		</author>
+		<updated>2012-10-02T08:27:07Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15281#p15281</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[sauvgarde des données en sql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15280#p15280"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>je m&#039;adresse vers vous pour m&#039;aider à réaliser une sauvegarde de ma basse de donnée en format sql</p><p>autrement dit quand j&#039;exécute le code sql je reproduit la même base de donnée de A à z les table enfaite tout</p><p>comment doit-je faire ...j&#039;ai lu la doc et je sais qu&#039;il faut utiliser &quot;pg_dump &quot; mais je n&#039;arrive toujours pas je cherche une petite explication simple avec des etapes à suivre.</p><p>Merci encore</p>]]></content>
+		<author>
+			<name><![CDATA[zbdd]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1932</uri>
+		</author>
+		<updated>2012-10-02T07:59:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15280#p15280</id>
+	</entry>
+</feed>

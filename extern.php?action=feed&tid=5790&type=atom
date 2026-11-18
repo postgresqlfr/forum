@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / SSL - besoin d'explications]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5790&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5790"/>
+	<updated>2020-06-29T11:31:26Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5790</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  SSL - besoin d'explications]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31316#p31316"/>
+		<content type="html"><![CDATA[<p>Donc si je mets md5 il demande le mot de passe mais le certificat est quand même nécessaire à cause de hostssl. Merci.</p><p>Reste à flanquer ça dans le connect string du standby.</p>]]></content>
+		<author>
+			<name><![CDATA[albourg]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7029</uri>
+		</author>
+		<updated>2020-06-29T11:31:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31316#p31316</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  SSL - besoin d'explications]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31315#p31315"/>
+		<content type="html"><![CDATA[<p>1. La différence entre cert et md5: cert va utiliser le certificat - qui doit être stocké côté client - pour ne pas demande de mot de passe alors que md5 va demander et vérifier le mot de passe enregistré dans la base.</p><p>2. Je ne sais pas.</p>]]></content>
+		<author>
+			<name><![CDATA[pifor]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8375</uri>
+		</author>
+		<updated>2020-06-29T10:56:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31315#p31315</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  SSL - besoin d'explications]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31314#p31314"/>
+		<content type="html"><![CDATA[<p>Merci pour ces réponses.<br />Comme le dit daniel, je cherche juste à ce que le client ne communique que s&#039;il a un certificat... pour l&#039;instant.<br />Par contre, <br />1. quelle est la différence entre cert et md5?<br />2. Si je veux qu&#039;un standby se connecte à ce serveur, comment puis-je lui donner le root.crt dans le connect string?</p><p>Merci.</p>]]></content>
+		<author>
+			<name><![CDATA[albourg]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7029</uri>
+		</author>
+		<updated>2020-06-29T09:01:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31314#p31314</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  SSL - besoin d'explications]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31313#p31313"/>
+		<content type="html"><![CDATA[<p>Dans pg_hba.conf vous pouvez ajouter la méthode CERT:</p><div class="codebox"><pre><code>hostssl db            usr            192.168.0.1/16         cert </code></pre></div><br /><p>Demander à PostgreSQL de prendre en compte cette modification avec:</p><div class="codebox"><pre><code>pg_ctl reload</code></pre></div><br /><p>Et vérifier dans le log de PostgreSQL qu&#039;il n&#039;y a pas d&#039;erreur (car s&#039;il y a une erreur dans pg_hba.conf, pg_ctl ne dit rien):</p><div class="codebox"><pre><code>2020-06-29 09:00:20.313 CEST [11349] LOG:  received SIGHUP, reloading configuration files</code></pre></div><p>S&#039;il y a une erreur vous avez des messages qui signifient que le modification de pg_hba.conf <strong>n&#039;a pas été prise en compte</strong>:</p><div class="codebox"><pre><code>2020-06-29 09:03:31.821 CEST [11349] LOG:  received SIGHUP, reloading configuration files
+2020-06-29 09:03:31.822 CEST [11349] LOG:  invalid authentication method &quot;clientcert=verify-ca&quot;
+2020-06-29 09:03:31.822 CEST [11349] CONTEXT:  line 83 of configuration file &quot;/var/lib/pgsql/12/data/pg_hba.conf&quot;
+2020-06-29 09:03:31.822 CEST [11349] LOG:  pg_hba.conf was not reloaded</code></pre></div><p>Dans ce cas PostgreSQL continue de fonctionner mais avec l&#039;ancienne version de pg_hba.conf.</p><br /><p>Si vos tests ne fonctionnent pas, précisez quels sont les certificats que vous avez installés côté client ainsi que les message d&#039;erreur à la connexion (de préférence avec psql) et les messages d&#039;erreur correspondants dans le log de PostgreSQL.</p>]]></content>
+		<author>
+			<name><![CDATA[pifor]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8375</uri>
+		</author>
+		<updated>2020-06-29T07:06:33Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31313#p31313</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  SSL - besoin d'explications]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31311#p31311"/>
+		<content type="html"><![CDATA[<p>La déclaration ci-dessous a un problème de syntaxe:</p><div class="codebox"><pre><code>hostssl db            usr            192.168.0.1/16         clientcert=verify-ca</code></pre></div><p>Le modèle de syntaxe est</p><div class="codebox"><pre><code># hostssl       DATABASE  USER  ADDRESS  METHOD  [OPTIONS]</code></pre></div><p>et clientcert=verify-ca est une option, pas une méthode d&#039;authentification.<br />Il faut donc ajouter un choix d&#039;authentification dans la colonne METHOD.</p><p>Par ailleurs quand on utilise&#160; clientcert=verify-ca, c&#039;est pour que le serveur vérifie le certificat du client, qui par défaut est<br />fourni dans ~/.postgresql/postgresql.crt<br />Or dans la question il ne semble pas que ce soit le cas, il semble que vous mettiez en oeuvre le test<br />inverse qui consiste à ce que le client vérifie qu&#039;il parle bien avec le bon serveur via le certificat<br />(~/.postgresql/root.crt par défaut)</p><p>Ce qu&#039;il faut fournir dans les deux cas est décrit par <a href="https://www.postgresql.org/docs/current/libpq-ssl.html" rel="nofollow">https://www.postgresql.org/docs/current/libpq-ssl.html</a><br />dans &quot;Client Verification of Server Certificates&quot; et &quot;Client Certificates&quot;.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2020-06-28T18:50:55Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31311#p31311</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[SSL - besoin d'explications]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31310#p31310"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />postgres 12.2, linux x64. J&#039;ai généré un certificat self-signed moi-même via ce script:</p><div class="codebox"><pre><code>DAYS=3650
+DOMAIN=masociete.com
+HOST=serveur
+SSLCONF=/etc/pki/tls/openssl.cnf
+
+echo generate csr + key pair root.csr root.key
+openssl req -new -nodes -text -out root.csr -keyout root.key -subj &quot;/CN=root.$DOMAIN&quot;
+chmod og-rwx root.key
+echo sign using root.csr, root.key to generate root.crt
+openssl x509 -req -in root.csr -text -days $DAYS -extfile $SSLCONF -extensions v3_ca -signkey root.key -out root.crt
+echo Use same command to generate server csr+key pair server.csr server.key
+openssl req -new -nodes -text -out server.csr -keyout server.key -subj &quot;/CN=$HOST.$DOMAIN&quot;
+chmod og-rwx server.key
+echo sign using CA root
+openssl x509 -req -in server.csr -text -days $DAYS -CA root.crt -CAkey root.key -CAcreateserial -out server.crt
+chmod og-rwx server.crt
+openssl verify -CAfile root.crt server.crt</code></pre></div><p>Au niveau pg_hba.conf</p><div class="codebox"><pre><code>hostssl db            usr            192.168.0.1/16          md5</code></pre></div><p>ensuite:</p><div class="codebox"><pre><code>createuser --pwprompt usr</code></pre></div><p>psql -&gt;</p><div class="codebox"><pre><code>create database db;
+grant connect on database db to usr;
+grant all privileges on database db to usr;</code></pre></div><p>Si je copie root.crt sur mon poste, le spécifie à pgadmin (+ ssl require), je peux me connecter. Sans le certificat, ça ne fonctionne pas.<br />Or dans la doc , <a href="https://www.postgresql.org/docs/current/ssl-tcp.html#SSL-CLIENT-CERTIFICATES" rel="nofollow">https://www.postgresql.org/docs/current … RTIFICATES</a>, il est marqué </p><div class="quotebox"><blockquote><div><p>add the authentication option clientcert=verify-ca or clientcert=verify-full to the appropriate hostssl line(s) in pg_hba.conf</p></div></blockquote></div><p>Quand je mets</p><div class="codebox"><pre><code>hostssl db            usr            192.168.0.1/16         clientcert=verify-ca</code></pre></div><p>dans le pg_hba.conf, le connection est refusée. Il indique même que le certificat est invalide.<br />Or,</p><div class="codebox"><pre><code>openssl verify -CAfile root.crt server.crt</code></pre></div><p>permet d&#039;affirmer que le certificat est correct.</p><p>Quelqu&#039;un peut m&#039;expliquer pq le clientcert=verify-ca ne fonctionne pas, et éventuellement s&#039;il est utile, comment le faire fonctionner?</p><p>Merci.</p>]]></content>
+		<author>
+			<name><![CDATA[albourg]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7029</uri>
+		</author>
+		<updated>2020-06-26T11:37:39Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31310#p31310</id>
+	</entry>
+</feed>

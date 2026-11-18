@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / pgAdmin : créer un rôle et lui affecter des droits sur une base]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1025&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1025"/>
+	<updated>2010-10-14T09:45:05Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1025</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pgAdmin : créer un rôle et lui affecter des droits sur une base]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6388#p6388"/>
+		<content type="html"><![CDATA[<p>J&#039;ai donc séparé mes instructions en deux, l&#039;une pour la base et l&#039;autre pour les tables et effectivement ça marche.<br />Je joint mon sql des fois que ça puisse aider quelqu&#039;un qui trouverait ce post.<br />Merci à vous deux pour votre expertise, je &quot;bookmark&quot; ce forum.</p><div class="codebox"><pre><code>grant connect
+on database embtrack 
+to embtrack_utilisateur;
+
+grant select, insert, update, delete
+on table adresse, associer, description_panne_courante, descr_intervention_courante, embarquement, embarquer, embarqueur, entreprise, fournir, intervention, materiel_embarque, panne, referent, type_embarqueur, type_materiel
+to embtrack_utilisateur;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[jmnicolas]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=931</uri>
+		</author>
+		<updated>2010-10-14T09:45:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6388#p6388</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pgAdmin : créer un rôle et lui affecter des droits sur une base]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6387#p6387"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Le message d&#039;erreur est normal. Prenons le droit SELECT par exemple. C&#039;est un droit de table. On ne peut donc pas l&#039;assigner à une base de données. Il faut l&#039;assigner à une table. C&#039;est là que c&#039;est pénible: vous devez faire vos grants sur tous les objets de la base. En 9.0 il y a une commande pour tout faire d&#039;un coup, mais en 8.4 et précédentes, c&#039;est malheureusement manuel.</p><p>On peut malgré tout l&#039;automatiser partiellement :</p><p>SELECT &#039;GRANT SELECT ON TABLE &#039; || schemaname || &#039;.&#039; || tablename || &#039; TO embtrack_utilisateur;&#039; from pg_tables where schemaname = &#039;public&#039;;</p><p>Le résultat de cette requête sera un script prêt à l&#039;emploi. Je vous laisse le modifier à votre guise pour qu&#039;il corresponde exactement à vos besoins.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-10-14T09:19:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6387#p6387</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pgAdmin : créer un rôle et lui affecter des droits sur une base]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6386#p6386"/>
+		<content type="html"><![CDATA[<p>Un utilisateur a le droit de se connecter, un groupe ne le peut pas. Donc il n&#039;est pas très étonnant que votre programme ne puisse pas se connecter si vous utilisez un groupe. Avoir le message d&#039;erreur permettrait de s&#039;assurer qu&#039;il s&#039;agit bien de ce problème.</p><p>Concernant la gestion des droits dans PostgreSQL, vous devez donner les droits objets par objets et chaque objet a des droits particuliers. Donc donner le droit SELECT à une base n&#039;a aucun sens dans ce cadre. On ne fait pas de SELECT sur une base. On se connecte ou on crée des objets, d&#039;où les droits CONNECT et CREATE pour ce type d&#039;objet. Par contre, sur une table, on peut faire des SELECT, des UPDATE, etc. d&#039;où le fait que le GRANT SELECT sur une table fonctionne.</p><p>Avant la 9.0, il fallait le faire sur chaque table. Avec la 9.0, il est possible de le faire pour toutes les tables d&#039;un schéma.</p><p>Je vous conseille de lire le document sur GRANT (<a href="http://docs.postgresql.fr/9.0/sql-grant.html" rel="nofollow">http://docs.postgresql.fr/9.0/sql-grant.html</a>) et REVOKE (<a href="http://docs.postgresql.fr/9.0/sql-revoke.html" rel="nofollow">http://docs.postgresql.fr/9.0/sql-revoke.html</a>), ça vous permettra de mieux comprendre la gestion des droits sous PostgreSQL.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-10-14T09:15:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6386#p6386</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[pgAdmin : créer un rôle et lui affecter des droits sur une base]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6384#p6384"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Bon désolé de faire du crossposting, mais je me rend compte que le forum où j&#039;ai posté précédemment n&#039;est peut être pas le plus adapté vu le peu de passage dans la section postgres ( <a href="http://www.developpez.net/forums/d986967/bases-donnees/postgresql/administration/pgadmin-creer-role-lui-affecter-droits-base/#post5526090" rel="nofollow">http://www.developpez.net/forums/d98696 … ost5526090</a> ).</p><p>Voilà mon message originel (depuis j&#039;ai essayé d&#039;autres manips, mais ça ne marche toujours pas).</p><p>j&#039;ai un &quot;serveur&quot; postgresql 8.3 distant auquel je me connecte grâce à pgAdmin.<br />Dessus j&#039;ai créé une base nommée embtrack à laquelle je me connecte grâce à un rôle de connexion jmnicolas auquel j&#039;avais donné les droits d&#039;amin totaux lors de l&#039;installation de postgres.<br />A noter que jmnicolas &quot;possède&quot; embtrack.</p><p>Jusque là tout va bien, si ce n&#039;est que maintenant la base va rentrer en production et j&#039;aimerais créer un utilisateur lambda qui ait juste les droits select, insert, update, delete et connect.</p><p>J&#039;ai donc créé embtrack_utilisateur en tant que rôle de groupe (j&#039;ai aussi fait l&#039;essais avec rôle de connexion, je comprend pas bien ces histoires de rôles, le manuel est pas clair amha).</p><p>Puis sur embtrack je lance le sql suivant (que j&#039;ai formé en utilisant le manuel) :</p><div class="codebox"><pre><code>grant select, insert, update, delete, connect
+on database embtrack
+to embtrack_utilisateur;</code></pre></div><p>Mais j&#039;ai le message d&#039;erreur suivant :</p><div class="quotebox"><blockquote><div><p>ERREUR:&#160; droit SELECT invalide pour la base de données</p><br /><p>********** Erreur **********</p><p>ERREUR: droit SELECT invalide pour la base de données<br />État SQL :0LP01</p></div></blockquote></div><p>Si je lance la commande pour chaque table ça fonctionne, mais le programme que je développe (C# 3.5 avec npgsql) ne parvient pas à se connecter en utilisant cet utilisateur.</p><div class="codebox"><pre><code>grant select, insert, update, delete
+on table adresse, [...]
+to embtrack_utilisateur;</code></pre></div><p>Help ? <img src="http://forums.postgresql.fr/img/smilies/big_smile.png" width="15" height="15" alt="big_smile" /></p><p>PS je fais tout sous pgAdmin depuis un client Windows, postgres est hébergée sur un serveur Debian avec que de la ligne de commande qui fait peur <img src="http://forums.postgresql.fr/img/smilies/sad.png" width="15" height="15" alt="sad" /></p>]]></content>
+		<author>
+			<name><![CDATA[jmnicolas]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=931</uri>
+		</author>
+		<updated>2010-10-14T09:05:38Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6384#p6384</id>
+	</entry>
+</feed>

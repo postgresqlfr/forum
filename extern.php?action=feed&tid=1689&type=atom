@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Pas tout compris]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1689&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1689"/>
+	<updated>2011-10-12T11:17:09Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1689</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Pas tout compris]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11360#p11360"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Attention concernant le vocabulaire. En vous connecter avec le user test et en allant voir chez toto,vous vous connectez sur la BASE toto et n&#039;allez pas voir dans le schéma de toto. Une instance Postgres peut héberger plusieurs bases de données - pour preuve, les deux ordres CREATE DATABASE que vous avez passez.<br />Et pour vous répondre, lorsque vous faites le CREATE DATABASE, Postgres vous place implicitement un ordre &quot;GRANT CONNECT, TEMPORARY ON DATABASE base TO public;&quot; public étant un alias pour dire &quot;tout le monde&quot;.<br />Donc pour interdire à test de se connecter sur la base toto, vous devrez y aller en deux étapes :<br />- REVOKE CONNECT, TEMPORARY ON DATABASE toto FROM public;<br />- GRANT CONNECT, TEMPORARY ON DATABASE toto TOTO;</p><p>Et contrairement à Oracle (car j&#039;imagine que la confusion vient de là), un utilisateur ne dispose pas d&#039;un schéma particulier qui lui est dédié. A vous de créer les bons schémas dans les bonnes bases. En revanche, chaque base possède un schéma &quot;public&quot; dans lequel tout le monde peut créer des objets.<br />De la même façon, le schéma public reçoit implicitement un &quot;GRANT ALL ON SCHEMA public TO public;&quot;.</p>]]></content>
+		<author>
+			<name><![CDATA[frost242]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=24</uri>
+		</author>
+		<updated>2011-10-12T11:17:09Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11360#p11360</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Pas tout compris]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11357#p11357"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Sur une install toute fraiche postgresql/8.4 sur ubuntu lucid, j&#039;essaye de gérer mes bases/users :</p><div class="codebox"><pre><code>CREATE ROLE toto WITH ENCRYPTED PASSWORD &#039;test&#039; NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT LOGIN;
+CREATE DATABASE toto;
+GRANT ALL PRIVILEGES ON DATABASE toto TO toto;
+
+CREATE ROLE test WITH ENCRYPTED PASSWORD &#039;toto&#039; NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT LOGIN;
+CREATE DATABASE test;
+GRANT ALL PRIVILEGES ON DATABASE test TO test;</code></pre></div><p>Maintenant je me connecte avec le user test dans phpPgAdmin (qui est sur une autre machine).</p><p>Et j&#039;arrive à créer une table dans le shema du user toto.</p><p>Donc je ne comprend plus rien...</p><p>Help !</p>]]></content>
+		<author>
+			<name><![CDATA[nledez]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1406</uri>
+		</author>
+		<updated>2011-10-12T09:43:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11357#p11357</id>
+	</entry>
+</feed>

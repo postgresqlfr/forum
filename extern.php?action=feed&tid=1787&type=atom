@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Export multiple en CSV par individu-année]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1787&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1787"/>
+	<updated>2011-12-11T23:34:53Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1787</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Export multiple en CSV par individu-année]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12093#p12093"/>
+		<content type="html"><![CDATA[<p>Ça y est ! Je viens d&#039;écrire ma première fonction PL/pgSQL, avec une émotion non feinte ! <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>Voilà donc ce que ça donne :</p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION exportIdYear(tablocs varchar) RETURNS VOID AS
+$BODY$
+DECLARE
+  id text;
+  year text;
+  req text;
+BEGIN
+  FOR id IN EXECUTE &#039;SELECT DISTINCT id FROM &#039; || quote_ident(tablocs) 
+    || &#039; ORDER BY id&#039;
+  LOOP
+    RAISE LOG &#039;%&#039;,  id;
+    FOR year IN EXECUTE &#039;SELECT DISTINCT to_char(date, &#039;&#039;YYYY&#039;&#039;) AS year FROM &#039; 
+      || quote_ident(tablocs) || &#039; WHERE id = &#039; || quote_literal(id) 
+      || &#039; ORDER BY year&#039;
+    LOOP
+      RAISE LOG &#039;%&#039;,  year;
+      EXECUTE &#039;COPY (SELECT id,date, x,y, FROM &#039;
+      || quote_ident(tablocs)
+      || &#039; WHERE id = &#039; || quote_literal(id) 
+      || &#039; AND to_char(date, &#039;&#039;YYYY&#039;&#039;) = &#039; || quote_literal(year) || &#039;) &#039;
+      || &#039;TO &#039;&#039;/home/postgres/&#039; || id || &#039;-&#039; || year || &#039;.csv&#039;&#039; &#039;
+      || &#039;WITH CSV HEADER DELIMITER &#039;&#039;,&#039;&#039; &#039;;
+    END LOOP;
+  END LOOP;
+END;
+$BODY$
+LANGUAGE &#039;plpgsql&#039; VOLATILE;</code></pre></div><p>Que j&#039;appelle sur une table &#039;bla&#039; avec un simple :</p><div class="codebox"><pre><code>SELECT exportIdYear(&#039;bla&#039;);</code></pre></div><p>Un grand merci en tout cas pour vos réponses qui m&#039;ont mis sur la bonne voie !<br />Maps</p>]]></content>
+		<author>
+			<name><![CDATA[Maps]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1477</uri>
+		</author>
+		<updated>2011-12-11T23:34:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12093#p12093</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Export multiple en CSV par individu-année]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12089#p12089"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>gleu a écrit&#160;:</cite><blockquote><div><p>a n&#039;est pas forcément un entier, ça peut être un texte ou tout autre type de données. Et, oui, il est possible d&#039;imbriquer deux boucles FOR.</p></div></blockquote></div><p>Superbe ! Je vais tester ça dès que j&#039;ai un peu de temps (dans le courant du week-end j&#039;espère), et je reviendrais poster mes résultats !</p><p>Encore merci pour ces précisions rapides !<br />Maps.</p>]]></content>
+		<author>
+			<name><![CDATA[Maps]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1477</uri>
+		</author>
+		<updated>2011-12-10T17:58:07Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12089#p12089</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Export multiple en CSV par individu-année]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12088#p12088"/>
+		<content type="html"><![CDATA[<p>a n&#039;est pas forcément un entier, ça peut être un texte ou tout autre type de données. Et, oui, il est possible d&#039;imbriquer deux boucles FOR.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-12-10T17:53:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12088#p12088</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Export multiple en CSV par individu-année]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12087#p12087"/>
+		<content type="html"><![CDATA[<p>Ouh... J&#039;étais donc bien sur la bonne piste avec le FOR, mais j&#039;étais encore bien loin du compte. C&#039;est sensiblement plus complexe que ce que j&#039;imaginais ! Pour autant, la syntaxe reste assez simple et intuitive. Malheureusement, le serveur tourne avec PostgreSQL 8.4.9... Est-ce grave, docteur ?</p><p>Je ne suis pas trop sûr, mais avec une procédure embarquée, on procéderait peut-être comme ceci (j&#039;ai essayé d&#039;adapter un code trouvé sur le net) :</p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION testexport() AS
+$BODY$
+declare
+a integer;
+req text;
+begin
+for a in select distinct year from locs order by year
+loop
+  raise log &#039;%&#039;, a;
+  execute &#039;COPY (SELECT id, year, x, y FROM locs &#039;
+    || &#039;WHERE year = &#039; || a || &#039; AND id = &#039;&#039;CA12&#039;&#039;) &#039;
+    || &#039;TO &#039;&#039;/tmp/test&#039; || a || &#039;.csv&#039;&#039; &#039;
+    || &#039;WITH CSV HEADER DELIMITER &#039;&#039;,&#039;&#039; &#039;;
+end loop;
+end
+$BODY$
+LANGUAGE &#039;plpgsql&#039; VOLATILE;</code></pre></div><p>Dans cet exemple, est-ce que &#039;a&#039; est forcément un entier ? Est-ce qu&#039;on pourrait faire la même chose avec </p><div class="codebox"><pre><code>FOR ind IN SELECT DISTINCT id FROM locs ORDER BY id</code></pre></div><p>? Et ensuite imbriquer les 2 ?</p><p>Un gros merci pour cette réponse très rapide ! (ça paraît simple une fois expliqué !)<br />Maps</p>]]></content>
+		<author>
+			<name><![CDATA[Maps]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1477</uri>
+		</author>
+		<updated>2011-12-10T17:51:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12087#p12087</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Export multiple en CSV par individu-année]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12086#p12086"/>
+		<content type="html"><![CDATA[<p>Si vous avez une version 9.0 ou ultérieure, vous pouvez faire ceci :</p><div class="codebox"><pre><code>do language plpgsql $do$
+declare
+a integer;
+req text;
+begin
+for a in select distinct year from locs order by year
+loop
+  raise log &#039;%&#039;, a;
+  execute &#039;COPY (SELECT id, year, x, y FROM locs &#039;
+    || &#039;WHERE year = &#039; || a || &#039; AND id = &#039;&#039;CA12&#039;&#039;) &#039;
+    || &#039;TO &#039;&#039;/tmp/test&#039; || a || &#039;.csv&#039;&#039; &#039;
+    || &#039;WITH CSV HEADER DELIMITER &#039;&#039;,&#039;&#039; &#039;;
+end loop;
+end
+$do$;</code></pre></div><p>Sur les versions antérieures, je ne vois pas de solution en dehors de la création d&#039;une procédure stockée (qui reprend en gros le code ci-dessus).</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-12-10T17:18:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12086#p12086</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Export multiple en CSV par individu-année]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12085#p12085"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;utilise PostGIS depuis déjà quelques mois (un vrai bonheur !). Pour autant, si je suis capable d&#039;écrire des requêtes spatiales parfois complexes, les requêtes non spatiales les plus simples (purement PostgreSQL) me sont parfois inaccessibles. Et je crois que c&#039;est le cas ici.</p><p>Je vais essayer de simplifier le problème : j&#039;ai une table (appelons-la &#039;locs&#039;) avec notamment les champs &#039;id&#039;, &#039;year&#039;, &#039;x&#039;, &#039;y&#039;. Je souhaiterais exporter cette table mais en créant un fichier CSV par id-year. Je suis capable de le faire manuellement, par exemple :</p><div class="codebox"><pre><code>COPY (SELECT id, year, x, y FROM locs
+WHERE year = &#039;2010&#039; AND id = &#039;CA12&#039;)
+TO &#039;/home/postgres/test.csv&#039; WITH CSV HEADER DELIMITER &#039;,&#039;;</code></pre></div><p>Mais je n&#039;arrive pas à boucler tout ça pour le faire en une seul requête pour tous les id-year (j&#039;ai pas mal d&#039;individus-années, et je dois ensuite le répliquer avec quelques variantes). J&#039;ai regardé du côté des boucles sous PostgreSQL (notamment FOR), mais sans succès. Il me semble que les boucles sont prévues pour évaluer une fonction ligne à ligne...</p><p>Je suis capable de récupérer les &#039;id&#039; (ou les années) uniques avec </p><div class="codebox"><pre><code>SELECT DISTINCT id FROM locs;</code></pre></div><p>mais je ne sais pas du tout quoi en faire ensuite... En bref, je n&#039;ai aucune idée d&#039;où regarder en ce moment (je n&#039;ai quasi aucun automatisme pour PostgreSQL et j&#039;ai l&#039;impression de chercher au hasard, avec des mots-clés qui ne sont pas pertinents). </p><p>Je suis donc preneur de toute information, piste ou conseil ! Merci d&#039;avance !<br />Maps</p>]]></content>
+		<author>
+			<name><![CDATA[Maps]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1477</uri>
+		</author>
+		<updated>2011-12-10T16:44:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12085#p12085</id>
+	</entry>
+</feed>

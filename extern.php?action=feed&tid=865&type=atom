@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Facture avec postgreSQL]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=865&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=865"/>
+	<updated>2010-06-17T19:50:21Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=865</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Facture avec postgreSQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5387#p5387"/>
+		<content type="html"><![CDATA[<p>d&#039;accord... J&#039;avais besoin que cela soit présenté ainsi.</p><p>C&#039;est juste un gain en rapidité. </p><p>J&#039;avais vu déjà le lien. Mais honnêtement, il y a tellement de types de triggers qu&#039;il y a de quoi se perdre. </p><p>J&#039;arrête ici mes questionnements mais recommence mes remerciements.</p><p>A bientôt Marc et bonne continuation jusque là,</p><p>LeHibou</p>]]></content>
+		<author>
+			<name><![CDATA[LeHibou]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=794</uri>
+		</author>
+		<updated>2010-06-17T19:50:21Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5387#p5387</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Facture avec postgreSQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5386#p5386"/>
+		<content type="html"><![CDATA[<p>C&#039;est assez simple : TG_OP contient le type d&#039;opération qui a déclenché le trigger. On pourrait très bien imaginer faire 3 triggers différents, un par type d&#039;opération. C&#039;est un choix, en termes de lisibilité.</p><p>La doc sur le sujet : <a href="http://docs.postgresql.fr/8.4/plpgsql-trigger.html" rel="nofollow">http://docs.postgresql.fr/8.4/plpgsql-trigger.html</a></p><p>D&#039;ailleurs mon code en était assez fortement inspiré.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-06-17T19:40:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5386#p5386</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Facture avec postgreSQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5385#p5385"/>
+		<content type="html"><![CDATA[<p>Pas du tout!!</p><p>J&#039;ai modifié le code pour vraiment le personnaliser. C&#039;est bon, ça y est ça marche.</p><p>Par contre, j&#039;ai fait des recherches sur Tg_op. Je n&#039;arrive pas à saisir son fonctionnement. La page de PostgreSQL n&#039;est pas claire à ce sujet. J&#039;ai cherché mais ne suis tombé que sur des posts qui ont des problèmes avec mais pas d&#039;explication particulière.</p><p>Je ne veux pas abuser de votre générosité Marc, vous m&#039;avez sorti d&#039;un sacré pétrin.</p><p>En tout cas voilà un merci sincère...</p>]]></content>
+		<author>
+			<name><![CDATA[LeHibou]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=794</uri>
+		</author>
+		<updated>2010-06-17T18:18:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5385#p5385</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Facture avec postgreSQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5384#p5384"/>
+		<content type="html"><![CDATA[<p>Ah oui, ok. Je la refais en remplacant ça.</p><p>marc=# CREATE TABLE detail (commande int, montant numeric);<br />CREATE TABLE<br />marc=# CREATE TABLE facture (commande int, somme numeric);<br />CREATE TABLE</p><br /><p>CREATE OR REPLACE FUNCTION calc_somme () RETURNS trigger as $code$<br />BEGIN<br />&#160; &#160; &#160; &#160; IF (TG_OP = &#039;DELETE&#039;) THEN<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; UPDATE facture SET somme=somme-OLD.montant WHERE commande=OLD.commande; -- Aucune importance si l&#039;enregistrement n&#039;existe pas<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; RETURN OLD;<br />&#160; &#160; &#160; &#160; ELSIF (TG_OP = &#039;UPDATE&#039;) THEN<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; UPDATE facture SET somme=somme-old.montant+new.montant WHERE commande=new.commande;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; IF NOT FOUND THEN<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; INSERT INTO facture (commande,somme) VALUES (NEW.commande,NEW.montant);<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; END IF;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; RETURN NEW;<br />&#160; &#160; &#160; &#160; ELSIF (TG_OP = &#039;INSERT&#039;) THEN<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; UPDATE facture SET somme=somme+NEW.montant WHERE commande=NEW.commande;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; if NOT FOUND THEN<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; INSERT INTO facture (commande,somme) VALUES (NEW.commande,NEW.montant);<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; END IF;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; RETURN NEW;<br />&#160; &#160; &#160; &#160; END IF;<br />&#160; &#160; &#160; &#160; RETURN NEW;<br />END;<br />$code$ LANGUAGE plpgsql;</p><p>CREATE TRIGGER maj_somme AFTER INSERT OR UPDATE OR DELETE ON detail FOR EACH ROW EXECUTE PROCEDURE calc_somme();</p><br /><p>Mais n&#039;essayez pas de simplement remplacer des morceaux en espérant que ça marche. Il faut vraiment que vous vous appropriez le fonctionnement des triggers.</p><p>Au fait, sinon vous avez 10 fois plus simple, si vous voulez juste une &#039;table&#039; qui contienne les sommes :</p><p>CREATE VIEW facture AS SELECT commande,sum(montant) AS somme FROM detail;</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-06-17T18:10:45Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5384#p5384</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Facture avec postgreSQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5383#p5383"/>
+		<content type="html"><![CDATA[<p>Merci Marc,</p><p>J&#039;ai tenté, j&#039;ai échoué.</p><p>Le problème, c&#039;est je tente de personnaliser le code suivant la structure schéma.table ou table.colonne mais je m&#039;y perd dans la dénomination -identique- du nom de la table et du nom de la colonne &quot;somme&quot;. <br />C&#039;est à dire que je tente de comprendre mais ne suis pas sûr de ce à quoi fait référence somme dans un cas et somme dans l&#039;autre. </p><p>J&#039;attends vos précisions? merci d&#039;avance en tout cas, je n&#039;aurais jamais trouvé ce code.</p>]]></content>
+		<author>
+			<name><![CDATA[LeHibou]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=794</uri>
+		</author>
+		<updated>2010-06-17T17:55:02Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5383#p5383</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Facture avec postgreSQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5382#p5382"/>
+		<content type="html"><![CDATA[<p>Voici un exemple de code qui ferait ce genre de travail.</p><p>marc=# CREATE TABLE detail (commande int, montant numeric);<br />CREATE TABLE<br />marc=# CREATE TABLE somme (commande int, somme numeric);<br />CREATE TABLE</p><br /><p>CREATE OR REPLACE FUNCTION calc_somme () RETURNS trigger as $code$<br />BEGIN<br />&#160; &#160; &#160; &#160; IF (TG_OP = &#039;DELETE&#039;) THEN<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; UPDATE somme SET somme=somme-OLD.montant WHERE commande=OLD.commande; -- Aucune importance si l&#039;enregistrement n&#039;existe pas<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; RETURN OLD;<br />&#160; &#160; &#160; &#160; ELSIF (TG_OP = &#039;UPDATE&#039;) THEN<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; UPDATE somme SET somme=somme-old.montant+new.montant WHERE commande=new.commande;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; IF NOT FOUND THEN<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; INSERT INTO somme (commande,somme) VALUES (NEW.commande,NEW.montant);<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; END IF;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; RETURN NEW;<br />&#160; &#160; &#160; &#160; ELSIF (TG_OP = &#039;INSERT&#039;) THEN<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; UPDATE somme SET somme=somme+NEW.montant WHERE commande=NEW.commande;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; if NOT FOUND THEN<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; INSERT INTO somme (commande,somme) VALUES (NEW.commande,NEW.montant);<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; END IF;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; RETURN NEW;<br />&#160; &#160; &#160; &#160; END IF;<br />&#160; &#160; &#160; &#160; RETURN NEW;<br />END;<br />$code$ LANGUAGE plpgsql;</p><p>CREATE TRIGGER maj_somme AFTER INSERT OR UPDATE OR DELETE ON detail FOR EACH ROW EXECUTE PROCEDURE calc_somme();</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-06-17T16:14:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5382#p5382</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Facture avec postgreSQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5381#p5381"/>
+		<content type="html"><![CDATA[<p>Tout à fait!</p>]]></content>
+		<author>
+			<name><![CDATA[LeHibou]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=794</uri>
+		</author>
+		<updated>2010-06-17T15:07:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5381#p5381</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Facture avec postgreSQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5380#p5380"/>
+		<content type="html"><![CDATA[<p>Si je comprends bien, ce que vous voulez, c&#039;est un trigger sur la table 1 qui maintienne les totaux de la table 2 à jour ?</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-06-17T15:03:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5380#p5380</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Facture avec postgreSQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5379#p5379"/>
+		<content type="html"><![CDATA[<p>Bien sûr, au temps pour moi, je me suis mal exprimé.</p><p>Voici le schéma ci dessous qui représente la situation:</p><p>Table 1</p><div class="codebox"><pre><code>Id Produit
+Prix unitaire
+Quantité
+Remise
+Prix net HT
+Taux Tva
+Tva totale</code></pre></div><p>La table 2, quant à elle, permet de calculer le total à payer.</p><div class="codebox"><pre><code>Total HT
+Total TTC</code></pre></div><p>Bien sûr, la présentation, ni toutes les fonctionnalités ne sont pas là mais au moins, c&#039;est plus simple.</p><p>J&#039;ai été piégé car je ne peux pas mettre de trigger dans la même table. en effet, il ne me permet d&#039;avoir que les résultats sur la ligne (à mon niveau de connaissance!).</p><p>Il faudrait que je puisse avoir les totaux pour préparer mes facturations. Sachant que ce que j&#039;attends de postgresql, ce ne sont que les calculs, la présentation, je la fais dans un formulaire OOo Base.</p><p>Ce que je veux est possible ou pas? Sinon je passe sous OOo Calc pour mes factures et serai obligé de maintenir à jour ma base manuellement... Pas top.</p>]]></content>
+		<author>
+			<name><![CDATA[LeHibou]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=794</uri>
+		</author>
+		<updated>2010-06-17T14:49:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5379#p5379</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Facture avec postgreSQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5377#p5377"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Pourrais tu reformuler la question ? Une table ne calcule pas, c&#039;est juste un moyen de stockage. Calculer quoi sur champ1 ?</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-06-17T14:20:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5377#p5377</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Facture avec postgreSQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5376#p5376"/>
+		<content type="html"><![CDATA[<p>PostgreSQL 8.4 - Debian - OOo Base 3 - PgAdmin 3</p><br /><p>Bonjour à tous,</p><p>Je développe ma BDD pour ma société et actuellement j&#039;en suis à la facturaton.</p><p>Actuellement, elle compte à peu près 12-13 tables différentes (fournisseurs, stocks...).</p><p>Mon ennui actuellement, c&#039;est que j&#039;ai besoin de réaliser les champs pour la facturation.</p><p>Pour la présentation j&#039;ai OOo Base. Je les fais déjà fonctionner ensemble, tout va bien. Je ne veux pas de log externe (FactOoor..).</p><p>J&#039;ai reproduit ci-dessous un exemple de ce que je veux (attention, cette table ne comporte qu&#039;un champ mais j&#039;ai besoin de la logique):</p><p>Table 1</p><div class="codebox"><pre><code>-- Table: &quot;Calculs&quot;.&quot;Champs&quot;
+
+-- DROP TABLE &quot;Calculs&quot;.&quot;Champs&quot;;
+
+CREATE TABLE &quot;Calculs&quot;.&quot;Champs&quot;
+(
+  &quot;Champ 1&quot; numeric,
+  &quot;Id_Opération&quot; integer NOT NULL,
+  CONSTRAINT &quot;Champs_pkey&quot; PRIMARY KEY (&quot;Id_Opération&quot;)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE &quot;Calculs&quot;.&quot;Champs&quot; OWNER TO postgres;</code></pre></div><p>Puis la table de résultat:</p><div class="codebox"><pre><code>-- Table: &quot;Calculs&quot;.&quot;Résultat&quot;
+
+-- DROP TABLE &quot;Calculs&quot;.&quot;Résultat&quot;;
+
+CREATE TABLE &quot;Calculs&quot;.&quot;Résultat&quot;
+(
+  resultat numeric
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE &quot;Calculs&quot;.&quot;Résultat&quot; OWNER TO postgres;</code></pre></div><p><strong>Ce que je souhaite</strong>:<br />Que la table Résultat calcule toutes les lignes du champs 1. Résultat correspond en vrai au Total à payer.<br />Pourtant je parviens à effectuer des triggers mais que sur une ligne.<br />Sur plusieurs lignes voire plusieurs tables, je suis perdu.</p><p>Mais j&#039;ai envie d&#039;apprendre.</p><p>Pouvez-vous m&#039;aider, svp?</p><p>LeHibou</p>]]></content>
+		<author>
+			<name><![CDATA[LeHibou]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=794</uri>
+		</author>
+		<updated>2010-06-17T14:07:29Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5376#p5376</id>
+	</entry>
+</feed>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / PlProxy et répartition des données]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3311&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3311"/>
+	<updated>2014-09-19T13:14:06Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3311</id>
+	<entry>
+		<title type="html"><![CDATA[PlProxy et répartition des données]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20654#p20654"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous,</p><p>j&#039;aurais besoin d&#039;une petite aide sur un problème avec PlProxy, parce que là je vous avoue que je sèche.</p><p>En gros, j&#039;ai actuellement 4 shards (avec id_topic comme clé) répartis sur 4 serveurs, jusque là tout va bien. Toutes mes procédures stockées ont bien été &#039;proxifiées&#039; et tout fonctionne comme sur des roulettes.<br />Le problème se pose avec une seule procédure, celle qui permet de déplacer un message d&#039;un topic vers un autre topic qui se présente comme ça :</p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION deplace_message(
+    in_id_message BIGINT,
+    in_id_topic_origin BIGINT,
+    in_id_topic_move BIGINT,
+) RETURNS void AS $$
+BEGIN
+    UPDATE message
+        SET id_topic_message = in_id_topic_move
+        WHERE id_topic_message = in_id_topic_origin
+        AND id_message = in_id_message;
+END;
+$$ LANGUAGE plpgsql STABLE SECURITY DEFINER;</code></pre></div><p>(La procédure n&#039;est pas complète, je fais ensuite pas mal de traitements / vérifications par la suite, mais c&#039;est cette partie qui pose problème)<br />En gros cette fonction prend en paramètre l&#039;id du message, l&#039;id de l&#039;ancien topic, et l&#039;id du nouveau topic et change juste l&#039;id de l&#039;ancien topic par celui du noveau dans la table message.<br />J&#039;ai une clé étrangère qui référence donc id_topic dans la table message.</p><p>Le soucis c&#039;est que vu que je shard par id_topic, l&#039;id_topic_origin et l&#039;id_topic_move ne sont pas forcément sur la même shard. Et c&#039;est au moment de déclarer ma procédure proxifiée que se pose le soucis :</p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION move_message(
+    in_id_message BIGINT,
+    in_id_forum INTEGER,
+    in_id_topic_origin BIGINT,
+    in_id_topic_move BIGINT,
+    in_id_alias INTEGER,
+    in_groupe_alias INTEGER
+) RETURNS SETOF void AS $$
+    CLUSTER &#039;main&#039;; RUN ON ??
+$$ LANGUAGE plproxy;</code></pre></div><p>Au niveau du RUN ON, d&#039;habitude, je fais juste un RUN ON mod(id_topic, 4); ce qui fonctionne correctement, mais dans ce cas là, comment puis-je faire pour ne pas violer la contrainte de clé étrangère ?</p><p>D&#039;avance merci !</p>]]></content>
+		<author>
+			<name><![CDATA[bouchigreque]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=4090</uri>
+		</author>
+		<updated>2014-09-19T13:14:06Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20654#p20654</id>
+	</entry>
+</feed>

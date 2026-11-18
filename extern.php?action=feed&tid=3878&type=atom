@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / audit table with integer column]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3878&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3878"/>
+	<updated>2016-07-25T15:52:05Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3878</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  audit table with integer column]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23693#p23693"/>
+		<content type="html"><![CDATA[<p>Finaly, i&#039;m not sure the problem was do to CONCAT ignoring NULL argument but to the fact that in the CASE WHEN i was returning either an integer &#039;NEW.&quot;categorySignId&quot; or varchar &#039;NULL&#039;.<br />Following syntax works perfectly:<br />INSERT INTO audit (stamp,query) VALUES( now(), CONCAT(&#039;INSERT INTO proposition VALUES(&#039;,NEW.id,&#039;,&#039;,quote_nullable(NEW.text),&#039;,&#039;,CASE WHEN quote_nullable(NEW.&quot;categorySignId&quot;) IS NULL THEN &#039;NULL&#039; ELSE NEW.&quot;categorySignId&quot; END,&#039;);&#039;))</p><p>Is there any risk with an insert query which would looks like: INSERT INTO proposition VALUES(1,&#039;Exemple&#039;,&#039;1&#039;);<br />While third parameter is an integer?</p>]]></content>
+		<author>
+			<name><![CDATA[massup]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=6711</uri>
+		</author>
+		<updated>2016-07-25T15:52:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23693#p23693</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  audit table with integer column]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23672#p23672"/>
+		<content type="html"><![CDATA[<p>According to the doc, concat ignores NULL arguments. Try manual concatenation with quote_nullable() the args instead.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2016-07-22T15:28:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23672#p23672</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  audit table with integer column]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23671#p23671"/>
+		<content type="html"><![CDATA[<p>I already tried this syntax but postgres doesn&#039;t like:<br />mydb=# INSERT INTO proposition VALUES(2944,&#039;Example&#039;,NULL);<br />ERROR:&#160; invalid input syntax for integer: &quot;NULL&quot;<br />LINE 1: ...),&#039;,&#039;,CASE WHEN NEW.&quot;categorySignId&quot; IS NULL THEN &#039;NULL&#039; ELS...<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;^<br />QUERY:&#160; INSERT INTO audit (stamp,query) VALUES( now(), CONCAT(&#039;INSERT INTO proposition VALUES(&#039;,NEW.id,&#039;,&#039;,quote_nullable(NEW.text),&#039;,&#039;,CASE WHEN NEW.&quot;categorySignId&quot; IS NULL THEN &#039;NULL&#039; ELSE NEW.&quot;categorySignId&quot; END,&#039;);&#039;))<br />CONTEXT:&#160; PL/pgSQL function process_audit() line 269 at SQL statement</p><p>This comes from the apostrophes around &#039;NULL&#039;</p>]]></content>
+		<author>
+			<name><![CDATA[massup]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=6711</uri>
+		</author>
+		<updated>2016-07-22T15:05:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23671#p23671</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  audit table with integer column]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23656#p23656"/>
+		<content type="html"><![CDATA[<p>Are you aware that this is a french speaking board? Also, next time please post your topic in a more suited category. For now I move it to the general technical section.</p><br /><p>Something like that should work:</p><div class="codebox"><pre><code>[...] CASE WHEN NEW.&quot;categorySignId&quot; IS NULL THEN &#039;NULL&#039; ELSE NEW.&quot;categorySignId&quot; END [...]</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2016-07-22T08:40:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23656#p23656</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[audit table with integer column]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23655#p23655"/>
+		<content type="html"><![CDATA[<p>Hell,</p><p>I have a table proposition<br />&#160; &#160; &#160;Column&#160; &#160; &#160; &#160;|&#160; Type&#160; &#160; &#160;|&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Modifiers<br />------------------+---------+-----------------------------------------------------<br /> id&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; | integer&#160; | not null default nextval(&#039;proposition_id_seq&#039;::regcl<br /> text&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;| text&#160; &#160; &#160; |<br /> categorySignId | integer&#160; |</p><p>I&#039;m auditing in table audit all modifications made on table proposition via an audit function containing:<br />&#160; &#160;&#160; &#160;ELSIF (TG_TABLE_NAME = &#039;proposition&#039;) THEN<br />&#160; &#160;&#160; &#160; &#160;IF (TG_OP = &#039;DELETE&#039;) THEN<br />&#160; &#160; &#160; &#160; &#160; &#160; INSERT INTO audit (stamp,query) VALUES( now(), CONCAT(&#039;DELETE FROM proposition WHERE id=&#039;,OLD.id,&#039;;&#039;));<br />&#160; &#160; &#160; &#160; &#160; &#160; RETURN OLD;<br />&#160; &#160; &#160; &#160; ELSIF (TG_OP = &#039;UPDATE&#039;) THEN<br />&#160; &#160;&#160; &#160; &#160; &#160; &#160;INSERT INTO audit (stamp,query) VALUES( now(), CONCAT(&#039;UPDATE proposition SET text=&#039;,quote_nullable(NEW.text),&#039;,&quot;categorySignId&quot;=&#039;,NEW.&quot;categorySignId&quot;,&#039; WHERE id=&#039;,NEW.id,&#039;;&#039;));<br />&#160; &#160; &#160; &#160; &#160; &#160; RETURN NEW;<br />&#160; &#160; &#160; &#160; ELSIF (TG_OP = &#039;INSERT&#039;) THEN<br />&#160; &#160; &#160; &#160; &#160; &#160; INSERT INTO audit (stamp,query) VALUES( now(), CONCAT(&#039;INSERT INTO proposition VALUES(&#039;,NEW.id,&#039;,&#039;,quote_nullable(NEW.text),&#039;,&#039;,NEW.&quot;categorySignId&quot;,&#039;);&#039;));<br />&#160; &#160; &#160; &#160; &#160; &#160; RETURN NEW;<br />&#160; &#160; &#160; &#160; END IF;</p><p>When i insert following record in proposition:<br />INSERT INTO proposition VALUES(1,&#039;Exemple&#039;,NULL);</p><p>I obtain following an audit record with following query field:<br />INSERT INTO proposition VALUES(1,&#039;Exemple&#039;,);</p><p>This query is not correct, is there a way to obtain NULL string when the integer column is NULL in order to rebuild initial query?</p>]]></content>
+		<author>
+			<name><![CDATA[massup]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=6711</uri>
+		</author>
+		<updated>2016-07-22T08:28:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23655#p23655</id>
+	</entry>
+</feed>

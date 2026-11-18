@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Bug or not Bug ????]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1290&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1290"/>
+	<updated>2011-03-21T09:12:14Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1290</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Bug or not Bug ????]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8467#p8467"/>
+		<content type="html"><![CDATA[<p>Mea culpa et merci ! J&#039;ai cherché une syntaxe bien plus compliquée !</p><p>A +</p>]]></content>
+		<author>
+			<name><![CDATA[SQLpro]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1054</uri>
+		</author>
+		<updated>2011-03-21T09:12:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8467#p8467</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Bug or not Bug ????]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8466#p8466"/>
+		<content type="html"><![CDATA[<p>Pas un bug. Vous indiquez $3 qui ne correspond à rien vu que la fonction n&#039;a que deux arguments. Du coup, interval &#039;$3 days&#039; est compris comme interval &#039;3 days&#039;, ce qui explique qu&#039;il renvoie toujours le 4 janvier.</p><p>Au lieu de $3, il faut indiquer la variable contenant le résultat du calcul. Voici la fonction corrigée :</p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION F_TEST (n1 INT, n2 INT)
+RETURNS TIMESTAMP STABLE AS $$ 
+DECLARE n3 INT;
+BEGIN
+   n3 = n1 + n2 + FLOOR(10 * RANDOM());
+   RETURN CAST(&#039;2011-01-01&#039; AS TIMESTAMP) + n3 * INTERVAL &#039;1 DAYS&#039;;
+END; $$ LANGUAGE plpgsql ;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-03-21T08:33:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8466#p8466</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Bug or not Bug ????]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8465#p8465"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Il semble que la fonction RANDOM ne veuille jamais rien savoir lorsqu&#039;elle est incorporée dans une fonction PG au sein d&#039;un INTERVAL...</p><p>Exemple :</p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION F_TEST (n1 INT, n2 INT)
+RETURNS TIMESTAMP STABLE AS $$ 
+
+DECLARE n3 INT;
+BEGIN
+   n3 = n1 + n2 + FLOOR(10 * RANDOM());
+   RETURN CAST(&#039;2011-01-01&#039; AS TIMESTAMP) + INTERVAL &#039;$3 DAYS&#039;;
+END; $$ LANGUAGE plpgsql ;</code></pre></div><p>à la place de STABLE, vous pouvez mettre ce que vous voulez : VOLATILE, IMMUTABLE....</p><p>Bref, l&#039;exécution de cette fonction :</p><div class="codebox"><pre><code>SELECT F_TEST (1, 2)</code></pre></div><p>Ne donne jamais que toujours la même chose :<br />2011-01-04 00:00:00</p><p>Moi je chercher à faire quelque chose d&#039;aléatoire !!!!</p><p>A +</p>]]></content>
+		<author>
+			<name><![CDATA[SQLpro]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1054</uri>
+		</author>
+		<updated>2011-03-21T01:23:07Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8465#p8465</id>
+	</entry>
+</feed>

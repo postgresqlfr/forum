@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Plan d'execution et Paramètre ?]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2130&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2130"/>
+	<updated>2012-06-25T12:51:42Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2130</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Plan d'execution et Paramètre ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14362#p14362"/>
+		<content type="html"><![CDATA[<p>En fait, si, avec java et le driver jdbc on peut.</p><p><a href="http://jdbc.postgresql.org/documentation/91/server-prepare.html" rel="nofollow">http://jdbc.postgresql.org/documentatio … epare.html</a> =&gt; On peut modifier le preparethreshold. Par défaut, un preparedstatement java n&#039;est vraiment préparé qu&#039;à sa 5e exécution. On peut lui demander de le faire immédiatement (1) ou pas du tout (0), le 0 n&#039;étant d&#039;ailleurs pas dans la doc à ma connaissance.</p><p>Par ailleurs, le driver jdbc utilise des curseurs pour tous les ordres. Vous avez donc intérêt, si vous avez besoin qu&#039;il vous choisisse le bon plan, à passer cursor_tuple_fraction à 1 (au lieu de 0.1, qui veut dire «optimise l&#039;ordre en partant de l&#039;hypothèse que le curseur ne va ramener que 10% des enregistrements).</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2012-06-25T12:51:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14362#p14362</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Plan d'execution et Paramètre ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14359#p14359"/>
+		<content type="html"><![CDATA[<p>Non, vous ne pouvez pas indiquer un plan d&#039;exécution. Simplement ne passez pas par des requêtes préparées.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-06-25T12:27:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14359#p14359</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Plan d'execution et Paramètre ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14358#p14358"/>
+		<content type="html"><![CDATA[<p>Merci a vous pour cette réponse rapide.</p><p>Je peut donc forcer le plan précis ?</p><p>Mon client est en java. Je travaille sur des volumes de données conséquents, des sélections de millions de lignes parmi des dizaines de millions, donc la perte de temps de calcul du plan elle est vraiment minime. Les requets sont rarement relancée a l&#039;identique.</p>]]></content>
+		<author>
+			<name><![CDATA[Sidart]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1803</uri>
+		</author>
+		<updated>2012-06-25T12:25:55Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14358#p14358</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Plan d'execution et Paramètre ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14357#p14357"/>
+		<content type="html"><![CDATA[<p>Oui, le plan est très différent: dans la requête préparée, PostgreSQL calcule un plan générique, sans prendre en compte les paramètres. Le plan est donc moins bon, mais calculé une seule fois (si vous maintenez la requête préparée entre deux appels). Ça va un peu changer en 9.2 (il calculera un plan complet un certain nombre de fois, puis basculera sur le plan générique si il constate que celui-ci n&#039;aurait pas été plus de 10% plus coûteux que le plan complet).</p><p>Pour cette requête, exécutez la en forçant la planification à chaque fois. Le client est en quel langage ?</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2012-06-25T12:21:07Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14357#p14357</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Plan d'execution et Paramètre ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14356#p14356"/>
+		<content type="html"><![CDATA[<p>Bonjour a tous,</p><p>le fait d’exécuter une requête avec ses paramètres directement ou via une PreparedStatement donc avec des ? temporaire a la places des paramètres finaux, a t&#039;il une incidence sur le choix du plan d&#039;execution fait par postgres ?</p><p>car dans mon cas, j&#039;ai une requête sur une table donnée qui prend 6s quand je la joue dans PGAdmin aprés avoir customisé certaines paramétres : random_page_cost, enable_nestloop = off;</p><p>Mais quand elle est lancée directement depuis mon programme par une librairie tierce et donc avec une PreparedStatement, elle prend un temps infini, malgré un paramètrage de postgresql.conf identique.</p><p>Merci par avance pour vos idées <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[Sidart]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1803</uri>
+		</author>
+		<updated>2012-06-25T12:15:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14356#p14356</id>
+	</entry>
+</feed>

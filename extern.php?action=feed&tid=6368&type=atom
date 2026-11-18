@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Trigger New.geom]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=6368&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=6368"/>
+	<updated>2022-10-14T08:09:22Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=6368</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Trigger New.geom]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33806#p33806"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;ai trouver le problème !! <img src="http://forums.postgresql.fr/img/smilies/wink.png" width="15" height="15" alt="wink" /> </p><p> NEW.geo_par := (SELECT geo_parcelle<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; FROM cadastre_35_2022_22_2022.geo_parcelle)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; WHERE ST_Contains(geo_parcelle.geom,NEW.geom_point);</p><p>Dans le FROM j&#039;avais ppc.infraction alors que c&#039;est un trigger qui est sur cette même table.<br />Du coup, ca renvoyait plusieurs NEW.geo_point</p><br /><p>Merci de votre aide </p><p>Bonne journée</p>]]></content>
+		<author>
+			<name><![CDATA[Gisselmann]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=10345</uri>
+		</author>
+		<updated>2022-10-14T08:09:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33806#p33806</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Trigger New.geom]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33801#p33801"/>
+		<content type="html"><![CDATA[<p>Oui, sur un trigger BEFORE INSERT new devrait contenir la valeur insérée.&#160; Vous pouvez toujours ajouter un &quot;RAISE NOTICE &#039;%&#039;, st_astext(new.geom_point);&quot; et effectuer un INSERT manuellement et valider le contenu.</p><div class="quotebox"><blockquote><div><p>Effectivement quand je test la requête, elle me revoie tout les geo_parcelle qui contient un point mais je pensais que en utilisant NEW.geom_point dans la fonction ca allait prendre que le point du nouvel enregistrement ?</p></div></blockquote></div><p>Comment ça?&#160; Si vous testez la requête avec un point quelconque la requête vous renvoit toutes les parcelles ?&#160; Etes-vous sur que votre table geo_parcelle ne contient pas de geometrie qui se chevauchent ?</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2022-10-13T15:23:55Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33801#p33801</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Trigger New.geom]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33799#p33799"/>
+		<content type="html"><![CDATA[<p>En déplaçant les parenthèses j&#039;ai une amélioration mais toujours un message d&#039;erreur</p><p>Erreur du fournisseur de données :<br />&#160; &#160; &#160; Erreur PostGIS lors de l&#039;ajout d&#039;entité : ERREUR:&#160; plus d&#039;une ligne renvoyée par une sous-requête utilisée comme une expression</p><p>Effectivement quand je test la requête, elle me revoie tout les geo_parcelle qui contient un point mais je pensais que en utilisant NEW.geom_point dans la fonction ca allait prendre que le point du nouvel enregistrement ?</p>]]></content>
+		<author>
+			<name><![CDATA[Gisselmann]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=10345</uri>
+		</author>
+		<updated>2022-10-13T13:20:00Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33799#p33799</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Trigger New.geom]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33798#p33798"/>
+		<content type="html"><![CDATA[<p>Ah, je viens de voir le problème!</p><div class="codebox"><pre><code>           NEW.geo_par := (SELECT geo_parcelle
+                          FROM cadastre_35_2022_22_2022.geo_parcelle,ppc.infraction)
+                          WHERE ST_Contains(geo_parcelle.geom,NEW.geom_point);</code></pre></div><p>La clause WHERE est en dehors de la clause SELECT, du fait du premier ensemble de parenthèses.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2022-10-13T12:39:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33798#p33798</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Trigger New.geom]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33795#p33795"/>
+		<content type="html"><![CDATA[<p>Effectivement, j&#039;avais tester de rajouter geo_parcelle pour éviter toute ambiguïté mais il y a toujours la même erreur.</p><p>J&#039;ai testé avec un autre jeu de donnée:&#160; table geo_commune <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; champ nomcommune <br />Problème identique.</p><p>Jean</p>]]></content>
+		<author>
+			<name><![CDATA[Gisselmann]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=10345</uri>
+		</author>
+		<updated>2022-10-13T11:40:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33795#p33795</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Trigger New.geom]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33794#p33794"/>
+		<content type="html"><![CDATA[<p>Je me demande si l&#039;ambiguité ne vient pas de l&#039;affectation dans une variable.&#160; Avez-vous toujours le problème si vous remplacez la fonction avec &quot;SELECT geo_parcelle.geo_parcelle FROM cadastre...&quot; ?</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2022-10-13T11:15:45Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33794#p33794</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Trigger New.geom]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33789#p33789"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;ai mis en place un projet Qgis dans le quel les utilisateurs peuvent rajouter des points qui correspondent à des infractions (dépôts de déchet, épandage …)&#160; &#160;commises sur notre territoire.<br />Dans cette couche infraction il y a des informations sur la parcelle où est située l&#039;infraction.</p><p>Et je souhaitais faire une fonction déclencheur qui permet de récupérer automatiquement&#160; l&#039;identifiant unique de la parcelle (geo_parcelle) qui est dans ma couche geo_parcelle. C&#039;est pas une faute la table est le champ geo_parcelle ont le même nom. </p><br /><p>Schéma : cadastre_35_2022_22_2022&#160; &#160; &#160; &#160; &#160; &#160; &#160; Schéma : ppc<br />Table : geo_parcelle&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Table : infraction<br />Colonne : geo_parcelle&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Colonne: geo_par</p><br /><br /><p>La fonction utilisée:</p><br /><p>REATE FUNCTION ppc.info_parcelle()<br />&#160; &#160; RETURNS trigger<br />&#160; &#160; LANGUAGE &#039;plpgsql&#039;<br />&#160; &#160; COST 100<br />&#160; &#160; VOLATILE NOT LEAKPROOF<br />AS $BODY$<br />BEGIN<br />&#160; &#160; IF TG_OP = &#039;INSERT&#039; THEN</p><p>&#160; &#160; &#160; &#160;&#160; &#160; <br />&#160; &#160; &#160; &#160;&#160; &#160; NEW.geo_par := (SELECT geo_parcelle<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;&#160; &#160; &#160; &#160;FROM cadastre_35_2022_22_2022.geo_parcelle,ppc.infraction)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;&#160; &#160; &#160; &#160;WHERE ST_Contains(geo_parcelle.geom,NEW.geom_point);<br />&#160; &#160; &#160; &#160;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; <br />&#160; &#160; END IF;<br />&#160; &#160; <br />&#160; &#160; RETURN NEW;<br />END;<br />$BODY$;</p><p>ALTER FUNCTION ppc.info_parcelle()<br />&#160; &#160; OWNER TO postgres;</p><br /><br /><br /><p>Le trigger:</p><br /><p>CREATE TRIGGER info_parcelle<br />&#160; &#160; BEFORE INSERT<br />&#160; &#160; ON ppc.infraction<br />&#160; &#160; FOR EACH ROW<br />&#160; &#160; EXECUTE FUNCTION ppc.info_parcelle();</p><br /><p>Et du coup, j&#039;ai un message d&#039;erreur sur Qgis quand je souhaite enregistrer la nouvelle infraction.<br />J&#039;ai testé la requête en dehors de la fonction et elle fonctionne, elle me renvoi bien geo_parcelle.</p><br /><p>Message d&#039;erreur sur Qgis:</p><br /><p>Impossible de valider les changements pour la couche Infraction point</p><p>Erreurs : ERROR: 1 feature(s) not added.<br />&#160; <br />Erreur du fournisseur de données :<br />&#160; &#160; &#160; Erreur PostGIS lors de l&#039;ajout d&#039;entité : ERREUR:&#160; entrée manquante de la clause FROM pour la table « geo_parcelle »<br />&#160; &#160; LINE 3:&#160; &#160; &#160; &#160; &#160; &#160; WHERE ST_Contains(geo_parcelle.geom,NEW.geom_poin...<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;^<br />&#160; &#160; QUERY:&#160; SELECT (SELECT geo_parcelle<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;&#160; &#160; &#160; &#160;FROM cadastre_35_2022_22_2022.geo_parcelle,ppc.infraction)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;&#160; &#160; &#160; &#160;WHERE ST_Contains(geo_parcelle.geom,NEW.geom_point)<br />&#160; &#160; CONTEXT:&#160; fonction PL/pgSQL ppc.info_parcelle(), ligne 6 à affectation</p><br /><br /><p>Merci d&#039;avance pour votre aide.</p><p>Bien cordialement,</p>]]></content>
+		<author>
+			<name><![CDATA[Gisselmann]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=10345</uri>
+		</author>
+		<updated>2022-10-13T09:06:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33789#p33789</id>
+	</entry>
+</feed>

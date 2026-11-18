@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Boucle dans postgresql]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3409&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3409"/>
+	<updated>2014-12-23T23:26:33Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3409</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Boucle dans postgresql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21240#p21240"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Je ne sais pas pas si je suis claire ? ;D</p></div></blockquote></div><p>Absolument pas :-D</p><p>Peut-être qu&#039;en donnant les données en entrées et les données résultats, je pourrais mieux comprendre <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-12-23T23:26:33Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21240#p21240</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Boucle dans postgresql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21238#p21238"/>
+		<content type="html"><![CDATA[<p>Bon il semblerait que j&#039;avance avec:</p><br /><p>WITH RECURSIVE t(n) AS (<br />&#160; &#160; VALUES (21001)<br />&#160; UNION ALL<br />&#160; &#160; SELECT n+1 FROM t WHERE n &lt; 21019<br />)</p><p>select * from (select *, pop+round((select zz1.pop from (select * from table1 where code_district=&#039;ZZ&#039; AND code_com=&#039;21001&#039;)zz1 )*pop_portion) as repart from&#160; &#160; <br />&#160; &#160; &#160; &#160; (select *,pop/(select s1.sum from (select code_com, sum(pop) from table1 where code_district &lt;&gt; &#039;ZZ&#039; AND code_com=&#039;21001&#039; group by code_com order by code_com)s1) as pop_portion from<br />&#160; &#160; &#160; &#160; &#160; &#160; (select* from table1 where code_com=&#039;21001&#039;)com21001 where code_district&lt;&gt;&#039;ZZ&#039; order by code_com, pop) foo) repart1</p><p>Mais le message suivant :<br />ERROR:&#160; more than one row returned by a subquery used as an expression<br />********** Error **********</p><p>ERROR: more than one row returned by a subquery used as an expression<br />SQL state: 21000</p><br /><p>Alors que ma requête seule fonctionne ...</p><br /><p>Une idée?</p><br /><p>Merci d&#039;avance ...</p>]]></content>
+		<author>
+			<name><![CDATA[lea]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1919</uri>
+		</author>
+		<updated>2014-12-23T13:19:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21238#p21238</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Boucle dans postgresql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21237#p21237"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>je cherche à faire une boucle dans postgresql mais je ne connais pas l&#039;équivalent &#039;for&#039; en postgresql...<br />Je cherche à faire ce genre de requête en gros :</p><p> table1<br />------------<br />code_com&#160; &#160; &#160; pop&#160; &#160; &#160; &#160; &#160; code_district<br />---------------------------------------------------------<br />21001&#160; &#160; &#160; &#160; 25&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; yu<br />21001&#160; &#160; &#160; &#160; 5&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; re<br />21001&#160; &#160; &#160; &#160; 2&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; tr&#160; &#160; <br />21001&#160; &#160; &#160; &#160; 15&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; ZZ&#160; &#160; <br />21002&#160; &#160; &#160; &#160; 68&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; ee<br />21002&#160; &#160; &#160; &#160; 6&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; rt<br />21002&#160; &#160; &#160; &#160; 30&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; ZZ<br />21003&#160; &#160; &#160; &#160; 108&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; ii&#160; &#160; <br />21003&#160; &#160; &#160; &#160; 26&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; io<br />21003&#160; &#160; &#160; &#160; 88&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; ZZ<br />21004&#160; &#160; &#160; &#160; 52&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; fe<br />21004&#160; &#160; &#160; &#160; 98&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; cf<br />21004&#160; &#160; &#160; &#160; 8&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; ZZ&#160; &#160; <br />21005&#160; &#160; &#160; &#160; 89&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; az<br />21005&#160; &#160; &#160; &#160; 78&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; ws&#160; &#160; <br />21005&#160; &#160; &#160; &#160; 7&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; ZZ</p><p>--pour code_com = 21001<br />select * from (select *, pop+round((select zz1.pop from (select * from table1 where code_district=&#039;ZZ&#039; AND code_com=&#039;21001&#039;)zz1 )*pop_portion) as repart from &#160; &#160; <br />&#160; &#160; &#160; &#160; (select *,pop/(select s1.sum from (select code_com, sum(pop) from table1 where code_district &lt;&gt; &#039;ZZ&#039; AND code_com=&#039;21001&#039; group by code_com order by code_com)s1) as pop_portion from <br />&#160; &#160; &#160; &#160; &#160; &#160; (select* from table1 where code_com=&#039;21001&#039;)com21001 where code_district&lt;&gt;&#039;ZZ&#039; order by code_com, pop) foo) repart1</p><p>c&#039;est une table fictive, j&#039;ai beaucoup plus d&#039;enregistrements que ça et la requête est juste un aperçu d&#039;une requête plus longue ...</p><p>Je dois faire cette requête pour chaque code_com et faire une union de toutes les requêtes ce que j&#039;aimerais éviter de faire, c&#039;est :<br />requête pour code_com 21001 union requête pour code_com 21001 union requête pour code_com 21001 union requête pour code_com 21001</p><p>Et plutôt utiliser une boucle à partir de mes code_com&#160; : de 21001 à 21005&#160; avec un pas de 1,</p><p>mais je n&#039;ai aucune idée comment faire cela sous postgresql, j&#039;ai bien vu with recursive mais je ne sais pas si cela peut fonctionner dans ce cas et comment cela se met en place ... </p><p>Je ne sais pas pas si je suis claire ? ;D</p><p>Quelqu&#039;un aurait une idée?</p><p>Lea</p>]]></content>
+		<author>
+			<name><![CDATA[lea]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1919</uri>
+		</author>
+		<updated>2014-12-23T12:48:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21237#p21237</id>
+	</entry>
+</feed>

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Requêtes COPY : temps d'exec qui se dégradent]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=540&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=540"/>
+	<updated>2009-12-20T19:00:21Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=540</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requêtes COPY : temps d'exec qui se dégradent]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=3331#p3331"/>
+		<content type="html"><![CDATA[<p>C&#039;est difficile à dire. On peut limiter les fragmentations d&#039;index en modifiant leur remplissage, mais malgré tout, ça n&#039;est que statistique (on a moins de &#039;chances&#039; de fragmenter les index). La réindexation l&#039;aura toujours optimisé, ce qui sera bon pour les séléctions, mais ça n&#039;apportera probablement rien pour l&#039;insertion.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2009-12-20T19:00:21Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=3331#p3331</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requêtes COPY : temps d'exec qui se dégradent]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=3330#p3330"/>
+		<content type="html"><![CDATA[<p>Je n&#039;ai pas le choix concernant les index sur ces tables, je suis obligé de les garder, car ils sont indispensables pour d&#039;autres utilisations de ces tables.</p><p>Au final le reste des requêtes COPY s&#039;est terminé entre temps, donc je n&#039;ai pas eu à les dropper.</p><p>Par contre, je me suis dit qu&#039;il serait bien de lancer ce script avant de relancer un nouveau traitement :</p><div class="codebox"><pre><code>VACUUM ANALYZE VERBOSE
+REINDEX DATABASE &quot;MaBaseDeDonnees&quot;</code></pre></div><p>Ai-je eu raison ? De toute façon le temps d&#039;exécution final me le dira ! ;-)</p><p>Gôm</p>]]></content>
+		<author>
+			<name><![CDATA[gom]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=550</uri>
+		</author>
+		<updated>2009-12-20T18:29:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=3330#p3330</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requêtes COPY : temps d'exec qui se dégradent]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=3329#p3329"/>
+		<content type="html"><![CDATA[<p>Les dropper et les recréer après le chargement.</p><p>Idéalement, les tables sur lesquelles tu fais ton COPY ne devraient pas avoir d&#039;index du tout. Par contre le DROP INDEX prend un verrou sur la table. Il va donc bloquer tous les nouveaux COPY tant qu&#039;il n&#039;aura pas pu s&#039;exécuter, et devoir attendre la fin de tous les COPY en cours.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2009-12-20T08:33:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=3329#p3329</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requêtes COPY : temps d'exec qui se dégradent]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=3328#p3328"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je pencherais donc pour ta 1ère proposition : la fragmentation des index.</p><p>Un palliatif possible pour accélérer l&#039;exécution de la fin de mes requêtes ?</p><br /><p>Gôm</p>]]></content>
+		<author>
+			<name><![CDATA[gom]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=550</uri>
+		</author>
+		<updated>2009-12-20T08:17:55Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=3328#p3328</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requêtes COPY : temps d'exec qui se dégradent]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=3327#p3327"/>
+		<content type="html"><![CDATA[<p>Pour COPY, les statistiques n&#039;ont aucune importance. Si les performances de COPY se dégradent, c&#039;est rarement à cause de la table elle même.&#160; Il peut s&#039;agir des index par exemple (rajouter des données peut entraîner des fragmentations d&#039;index au bout d&#039;un moment si les ajouts se font &#039;au milieu&#039; de l&#039;index). COPY peut aussi déclencher des triggers, s&#039;il y en a.</p><p>Dernière possibilité que je vois comme ça à froid, des COPY qui avortent et laissent plein d&#039;espace non utilisé dans la table… c&#039;est le genre de cas où autovacuum ne va pas se déclencher, et celà pourrait entraîner des ralentissements.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2009-12-20T07:20:33Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=3327#p3327</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Requêtes COPY : temps d'exec qui se dégradent]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=3326#p3326"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous,</p><p>J&#039;ai des milliers de requêtes COPY qui sont en cours d&#039;exécution (en ce moment je suis toujours sur la même table). Elles sont lancées à travers Business Objects Data Integrator (mes requêtes COPY sont générées via un Script).</p><p>Problème : plus le temps passe et plus le temps d&#039;exécution de chaque requête est long.</p><p>N&#039;y aurait-il pas un paramétrage quelconque à modifier ? Paramétrage qui peut être modifié à chaud cela va de soit ! <img src="http://forums.postgresql.fr/img/smilies/wink.png" width="15" height="15" alt="wink" /></p><p>Je ne peux bien évidemment pas arrêter mon traitement BODI pour le relancer, car il doit être fini d&#039;ici demain soir.</p><br /><p>Gôm</p><p>PS : J&#039;entends parfois parler des statistiques sur les tables dont on peut &quot;forcer&quot; le rafraîchissement manuellement, mais je ne sais pas du tout si c&#039;est la solution dans mon cas et je sais encore moins si cette manipulation est réalisable dans mon cas.</p>]]></content>
+		<author>
+			<name><![CDATA[gom]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=550</uri>
+		</author>
+		<updated>2009-12-19T22:33:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=3326#p3326</id>
+	</entry>
+</feed>

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / event trigger ddl_command_end ne rapporte pas les ordres DROP]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5661&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5661"/>
+	<updated>2019-12-13T15:01:35Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5661</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  event trigger ddl_command_end ne rapporte pas les ordres DROP]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30495#p30495"/>
+		<content type="html"><![CDATA[<p>Merci pour vos réponses. ;-)</p>]]></content>
+		<author>
+			<name><![CDATA[OF]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8528</uri>
+		</author>
+		<updated>2019-12-13T15:01:35Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30495#p30495</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  event trigger ddl_command_end ne rapporte pas les ordres DROP]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30493#p30493"/>
+		<content type="html"><![CDATA[<p>D&#039;après la documentation :</p><div class="quotebox"><blockquote><div><p>To list the objects that have been dropped, use the set-returning function pg_event_trigger_dropped_objects() from the sql_drop event trigger code (see Section 9.28). Note that the trigger is executed after the objects have been deleted from the system catalogs, so it&#039;s not possible to look them up anymore.</p></div></blockquote></div>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2019-12-13T13:21:03Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30493#p30493</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  event trigger ddl_command_end ne rapporte pas les ordres DROP]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30491#p30491"/>
+		<content type="html"><![CDATA[<p>Le trigger se déclenche probablement mais on ne peut pas accéder aux infos via pg_event_trigger_ddl_commands()<br />dans le cas des DROP.</p><p>Voir <a href="https://www.postgresql.org/message-id/flat/CAALojA_twdT4mRKHgWn9xE6XsbnqF9RVWXjLtGZD0xr_EO72%2Bg%40mail.gmail.com" rel="nofollow">https://www.postgresql.org/message-id/f … .gmail.com</a><br />pour une discussion récente sur le sujet.</p><p>Conclusion: pour les DROP il faut capter l&#039;évènement sql_drop</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2019-12-13T13:05:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30491#p30491</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[event trigger ddl_command_end ne rapporte pas les ordres DROP]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30489#p30489"/>
+		<content type="html"><![CDATA[<p>Elo,<br />quelqu&#039;un sait-il pourquoi cet &quot;event trigger&quot; ne rapporte t-il pas les ordres DROP alors qu&#039;il serait censé le faire selon la documentation ?</p><p>au paragraphe 39.1 :<br />L&#039;évènement ddl_command_start se déclenche juste avant l&#039;exécution d&#039;une commande CREATE, ALTER, DROP, ...<br />...<br />...<br />L&#039;évènement ddl_command_end se déclenche juste après l&#039;exécution de ces même ensembles de commandes...<br />...</p><p>et au paragraphe 39.2 Matrice de déclenchement des triggers sur événement...</p><br /><br /><div class="codebox"><pre class="vscroll"><code>CREATE OR REPLACE FUNCTION ddl_log_command_end()
+ RETURNS event_trigger
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+AS $function$
+DECLARE
+    obj record;
+BEGIN
+    FOR obj IN
+        SELECT *
+        FROM pg_catalog.pg_event_trigger_ddl_commands()
+    LOOP
+        RAISE NOTICE &#039;% objet : % %.%&#039;,
+                     obj.command_tag,
+                     obj.object_type,
+                     obj.schema_name,
+                     obj.object_identity;
+    END LOOP;
+END;
+$function$;
+
+
+CREATE EVENT TRIGGER ddl_log_command_end ON ddl_command_end   
+   EXECUTE PROCEDURE ddl_log_command_end();                    
+   
+ 
+zof [7862]=# create table za (id int);
+NOTICE:  CREATE TABLE objet : table zof.zof.za
+CREATE TABLE
+
+zof [7862]=# alter table za add lib char(30);
+NOTICE:  ALTER TABLE objet : table zof.zof.za
+ALTER TABLE
+
+zof [7862]=# drop table za;
+DROP TABLE
+
+zof [7862]=#</code></pre></div><br /><p>Merci</p>]]></content>
+		<author>
+			<name><![CDATA[OF]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8528</uri>
+		</author>
+		<updated>2019-12-13T10:12:55Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30489#p30489</id>
+	</entry>
+</feed>

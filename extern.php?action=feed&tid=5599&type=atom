@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / paramètrage work_mem]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5599&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5599"/>
+	<updated>2019-09-10T13:29:09Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5599</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  paramètrage work_mem]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30215#p30215"/>
+		<content type="html"><![CDATA[<p>Ok merci pour les réponses</p>]]></content>
+		<author>
+			<name><![CDATA[duple]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7434</uri>
+		</author>
+		<updated>2019-09-10T13:29:09Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30215#p30215</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  paramètrage work_mem]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30213#p30213"/>
+		<content type="html"><![CDATA[<p>maintenance_work_mem peut être utilisé plusieurs fois. 5 semble un maximum raisonnable mais évidemment, c&#039;est théoriquement possible que ce soit plus.</p><p>Plutôt une utilisation du swap, jusqu&#039;à finir par rendre le serveur instable.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2019-09-09T21:28:38Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30213#p30213</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  paramètrage work_mem]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30212#p30212"/>
+		<content type="html"><![CDATA[<p>Ok, donc la config à adopter serait de faire work_mem ~ (RAM - Shared_buffers - maintenance_ work_mem) / max_connections ?<br />Et si on configure work_mem a une valeur trop élevée çà va entrainer quoi, une erreur &quot;out of memory&quot; ?</p>]]></content>
+		<author>
+			<name><![CDATA[duple]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7434</uri>
+		</author>
+		<updated>2019-09-09T12:26:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30212#p30212</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  paramètrage work_mem]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30191#p30191"/>
+		<content type="html"><![CDATA[<p>Si par &quot;caches pour fsync&quot;, vous voulez en fait parler du cache du système d&#039;exploitation, oui, c&#039;est ça. Et les autres applications exécutées. Si maintenance_work_mem vaut 1 Go, potentiellement, vous pouvez utiliser trois fois ça rien que pour l&#039;autovacuum. Donc 3 Go en moins, donc reste uniquement 10-3-3=4Go. On estime généralement le work_mem suivant le max_connections, ce qui ferait 4 Go / 50, soit 81 Mo. On le fait ainsi parce que toutes les sessions n&#039;utilisent pas forcément le work_mem et que certaines sessions l&#039;utiliseront plusieurs fois. Si on prend votre exemple, cela voudrait que 30 sessions à la fois utiliseraient tout work_mem pour chaque jointure (qui devront être des Hash Join, pas des Nested Loop ou des Merge Join) et un work_mem complet pour un tri. La probabilité que ceci arrive est pratiquement nulle.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2019-09-04T19:47:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30191#p30191</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[paramètrage work_mem]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30188#p30188"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />J&#039;aimerai savoir comment affiner le paramètrage de work_mem sur postgresql.<br />Exemple si on prend un evironnement linux , avec pg9.6 et ram = 10G, disons avec une configuration de shared_buffers = 3G (environ 25% de la RAM) et max_connection = 50,<br />est ce que cela veut il dire que sur les 10G de la RAM 3 G sera allouée spécialement pour les caches pg et donc on aurait 7G restant pour work_mem, maintenance_work_mem et les caches pour fsync ? Supposons que le nombre maximum de jointure dans une requête est de 4 + possibilité de trie sur les requêtes, et qu&#039;à un instant T on aurait en moyenne 30 requêtes en parallèle, et en plus on va paramétrer maintenance_work_mem = 1G; est ce que de par ce fait la valeur max à attribuer à work_mem serait donc dans cette situation de : work_mem = 50 MB sachant que 50MB * 4 (jointure) * 30 (connexions en mm temps)&#160; = 6000MB = 5.86GB retirés dans la RAM ?</p>]]></content>
+		<author>
+			<name><![CDATA[duple]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7434</uri>
+		</author>
+		<updated>2019-09-04T12:42:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30188#p30188</id>
+	</entry>
+</feed>

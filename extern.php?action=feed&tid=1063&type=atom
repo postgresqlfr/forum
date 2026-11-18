@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Trigger anniversaire]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1063&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1063"/>
+	<updated>2010-11-14T10:13:08Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1063</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Trigger anniversaire]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6664#p6664"/>
+		<content type="html"><![CDATA[<p>D&#039;accord, </p><p>Avec la fonction de recherche interne à Postgres: il suffit de créer des champs &quot;jour&quot;, &quot;mois&quot; et &quot;année&quot; dans la table client pour la date de naissance et de ne faire qu&#039;une recherche sur le(s) mois concerné(s) de cette table. Cela fonctionne impeccablement.</p><p>Avec le cron, il faut penser sa stratégie : voir deux mois à l&#039;avance pour les anniversaires est un minimum. On configure donc 6 lignes dans le crontab cherchant chaque fois le mois présent et le mois d&#039;après.</p><p>Avec le spreadsheet, et avec l&#039;utilisation en front d&#039;openoffice, il suffit d&#039;extraire la table et de faire un tri sur les résultats. Je n&#039;ai pas essayé le data pilot (je n&#039;aime pas sa logique de configuration).</p><p>Voilà pour faire le tour de ma question avec Postgresql 9.x.</p><p>A bientôt !</p><p>Le Hibou</p>]]></content>
+		<author>
+			<name><![CDATA[LeHibou]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=794</uri>
+		</author>
+		<updated>2010-11-14T10:13:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6664#p6664</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Trigger anniversaire]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6634#p6634"/>
+		<content type="html"><![CDATA[<p>Oui, le cron c&#039;est quelque chose de ce genre là. De préférence avec quelque chose qui laisse une trace de la dernière exécution réussie (dans une table par exemple). Pour pouvoir superviser son fonctionnement correct (il suffit, comme dit plus haut, qu&#039;un admin décide de supprimer les crontab ou d&#039;éteindre cron…)</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-11-10T14:54:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6634#p6634</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Trigger anniversaire]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6632#p6632"/>
+		<content type="html"><![CDATA[<p>Ok, je comprends mieux les tenants et les aboutissants.</p><p>A moins qu&#039;un script de ce genre fasse l&#039;affaire (supposé &quot;Trust&quot;, sinon pgpass)? :</p><div class="codebox"><pre><code>#!bin/bash
+psql -U lehibou -h monserveur -d mabase -c &quot;perform client.anniv from test.client if (date_part(&#039;month&#039;,timestamp &#039;client.anniv&#039;) = date_part(&#039;month&#039;,timestamp &#039;current_date) and (date_part(&#039;day&#039;,timestamp &#039;client.anniv&#039;) = date_part(&#039;day&#039;,timestamp &#039;current_date&#039;)  and (tg_op = &#039;INSERT&#039; or tg_op = &#039;UPDATE&#039;) then insert into test.alarme (alarm_anniv) Values (&#039;new.anniv&#039;); end if; return new; end;
+
+exit 0;</code></pre></div><p>Je suis à peu près sûr qu&#039;il y a des erreurs dans ce code. Mais l&#039;idée y est. Tout ceci dans un cron root. </p><p>Sinon, comme j&#039;utilise OpenOffice en front, je créé dans Postgres une table Alarme avec ce dont j&#039;ai besoin en champs, et Openoffice qui gère lui même la recherche... à creuser.</p><p>Vous avez des lumières là dessus ?</p><p>A bientôt,</p><p>LeHibou</p>]]></content>
+		<author>
+			<name><![CDATA[LeHibou]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=794</uri>
+		</author>
+		<updated>2010-11-10T13:18:54Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6632#p6632</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Trigger anniversaire]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6631#p6631"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>Marc Cousin a écrit&#160;:</cite><blockquote><div><p>C&#039;est ce qu&#039;apprécient les DBA Oracle, pas besoin de paramétrer cron sous unix ou le planificateur sous windows, avec deux procédures différentes, et devoir aussi superviser la bonne exécution des cron, etc…</p></div></blockquote></div><p>Ben oui.</p><p>J&#039;ajoute que bien souvent (pour ne pas dire presque toujours), ce ne sont pas les mêmes personnes qui s&#039;occupent des aspects systèmes du serveur, et ceux qui s&#039;occupent des bases de données.</p><p>La crontab, c&#039;est du système.</p><p>À chaque fois qu&#039;il y a une migration de serveur, c&#039;est toujours le même problème : Qui va sauvegarder / restaurer les crontabs :</p><p>L&#039;admin : Ah non, moi je ne m&#039;occupe que de la crontab système. Pas des crontabs utilisateur.<br />L&#039;opérateur : Ah ben non, moi je n&#039;ai les droits que pour effectuer les dump/restore.<br />Le DBA : Ah ben il est pas prévu que je travaille de nuit moi.</p><p>Enfin je carricature (un peu)&#160; ; mais c&#039;est toujours le genre de problèmes qu&#039;il y a...</p>]]></content>
+		<author>
+			<name><![CDATA[herve.lefebvre]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=506</uri>
+		</author>
+		<updated>2010-11-10T11:47:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6631#p6631</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Trigger anniversaire]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6630#p6630"/>
+		<content type="html"><![CDATA[<p>Voila, on a l&#039;argument d&#039;un des deux clans. On peut aussi imaginer, pour l&#039;autre point de vue, qu&#039;avoir ça dans la base de données, ça fait encore ça de moins de spécifique à l&#039;architecture sur laquelle on va le déployer. C&#039;est ce qu&#039;apprécient les DBA Oracle, pas besoin de paramétrer cron sous unix ou le planificateur sous windows, avec deux procédures différentes, et devoir aussi superviser la bonne exécution des cron, etc…</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-11-10T10:51:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6630#p6630</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Trigger anniversaire]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6629#p6629"/>
+		<content type="html"><![CDATA[<p>Oui, ce serait pratique. Mais c&#039;est clairement pas le boulot de la base de données. Ajouter un planificateur pour faire ce que fait cron, non. C&#039;est du code à développer, à tester, à maintenir. Ça représente beaucoup de travail, donc de temps, et il est bien préférable que les développeurs de PostgreSQL travaillent sur des fonctionnalités réellement base de données et non pas sur des fonctionnalités déjà disponibles ailleurs (cron sous Unix, tâche planifiée sous Windows... voire pgagent). Et le fait que ce soit dans Oracle n&#039;est pas un argument convaincant.</p><p>Par contre, si c&#039;est ajouter cette fonctionnalité pour disposer d&#039;une fonctionnalité autre qui elle est vraiment base de données, alors oui. D&#039;une pierre, deux coups, je ne peux que être pour.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-11-10T10:38:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6629#p6629</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Trigger anniversaire]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6628#p6628"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>Marc Cousin a écrit&#160;:</cite><blockquote><div><p>Complètement déplacé: ils sont déjà en train de discuter de la question. C&#039;est une des choses qui reviennent régulièrement, le débat tournant autour de &#039;c&#039;est pas le boulot de la base de données&#039; et &#039;oui mais c&#039;est bien pratique&#039; <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>Mais il se pourrait que ça arrive quand même dans une version future, vu que l&#039;infrastructure nécessaire commence à être mise en place (en raison de l&#039;implémentation d&#039;une autre fonctionnalité).</p></div></blockquote></div><p>Oui c&#039;est bien pratique de pouvoir intégrer dans la base de données du scheduling de tâches. Ça permet de tout récupérer/réinstaller avec de simples dump/restore.</p><p>Il y a ce genre de fonctionalités dans oracle maintenant.</p>]]></content>
+		<author>
+			<name><![CDATA[herve.lefebvre]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=506</uri>
+		</author>
+		<updated>2010-11-10T10:24:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6628#p6628</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Trigger anniversaire]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6626#p6626"/>
+		<content type="html"><![CDATA[<p>Complètement déplacé: ils sont déjà en train de discuter de la question. C&#039;est une des choses qui reviennent régulièrement, le débat tournant autour de &#039;c&#039;est pas le boulot de la base de données&#039; et &#039;oui mais c&#039;est bien pratique&#039; <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>Mais il se pourrait que ça arrive quand même dans une version future, vu que l&#039;infrastructure nécessaire commence à être mise en place (en raison de l&#039;implémentation d&#039;une autre fonctionnalité).</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-11-10T08:30:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6626#p6626</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Trigger anniversaire]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6625#p6625"/>
+		<content type="html"><![CDATA[<p>Ah..<br />Et comme je ne sais pas si c&#039;est une fonctionnalité qui intéresse grand monde, je pense que je suis &quot;condamné&quot; à faire par spreadsheet (mon niveau pour programmer une telle chose étant bien insuffisant).</p><p>Mais au cas où, je peux lancer une demande aux dévelopeurs de Postgres ? Ou cela paraîtra complètement déplacé ?</p><p>Merci en tout cas,</p><p>A bientôt,</p><p>LeHibou</p>]]></content>
+		<author>
+			<name><![CDATA[LeHibou]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=794</uri>
+		</author>
+		<updated>2010-11-10T08:18:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6625#p6625</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Trigger anniversaire]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6624#p6624"/>
+		<content type="html"><![CDATA[<p>C&#039;est exactement le problème qui gênait gleu je pense : un trigger n&#039;est exécuté qu&#039;en cas de modification de la table.</p><p>Il n&#039;y a pas vraiment de solution à votre problème à l&#039;heure actuelle dans PostgreSQL: il n&#039;y a pas de planificateur d&#039;événements interne. Il existe pgagent, qui fait partie de pgadmin, et qui permet de déclencher des événements suite à horodatage. Mais rien d&#039;intégré à PostgreSQL. Ou sinon, une tâche planifiée du système d&#039;exploitation, qui déclenche un script SQL.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-11-10T07:47:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6624#p6624</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Trigger anniversaire]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6623#p6623"/>
+		<content type="html"><![CDATA[<p>Je pensais que cela sélectionnait la bonne colonne pour l&#039;analyse globale.</p><p>Mais la nuit aidant, j&#039;ai l&#039;impression que je serai plus efficace pour gérer cela par une spreadsheat, pour 2 raisons :</p><p>- le trigger ne s&#039;enclenche que si on ajoute ou modifie la table.<br />- si une période creuse s&#039;annonce, le trigger va louper des anniversaires (cas des 367 clients ajoutés tous le premier jour).</p><p>Mais d&#039;un autre côté, cela oblige à faire des copier coller quotidien de la table dans un tableur, ce qui n&#039;est pas une solution en soi (limite numerique du tableur) et surtiout absence totale d&#039;automatisation.</p><p>Si on n&#039;opère pas par trigger (sauf si pour vous, c&#039;est cohérent), comment aborder ce problème de rappel d&#039;anniversaire ?</p><br /><p>Je suis preneur de toute piste,</p><p>A bientôt !</p><p>Le Hibou</p>]]></content>
+		<author>
+			<name><![CDATA[LeHibou]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=794</uri>
+		</author>
+		<updated>2010-11-10T07:34:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6623#p6623</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Trigger anniversaire]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6621#p6621"/>
+		<content type="html"><![CDATA[<p>Quel est le but de &quot;perform client.anniv from test.client;&quot; ? parce que ça n&#039;a aucun sens.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-11-09T23:33:02Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6621#p6621</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Trigger anniversaire]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6620#p6620"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous,</p><p>Je souhaite mettre en place un trigger anniversaire, me permettant de n&#039;oublier personne en route.<br />J&#039;ai également créé une table &quot;alarme&quot; qui recoit ce genre d&#039;infos.</p><p>Constat : les années&#160; avancent : il faut donc une base fixe. C&#039;est la raison pour laquelle j&#039;ai pensé à ne retenir que le jour et le mois de l&#039;anniversaire.</p><p>Voici ce que j&#039;ai, et qui ne fonctionne pas :</p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION mf.verific() RETURNS trigger AS
+$BODY$begin
+perform client.anniv
+from test.client;
+
+if (date_part(&#039;month&#039;,timestamp &#039;client.anniv&#039;) = date_part(&#039;month&#039;,timestamp &#039;current_date) and (date_part(&#039;day&#039;,timestamp &#039;client.anniv&#039;) = date_part(&#039;day&#039;,timestamp &#039;current_date&#039;)  and (tg_op = &#039;INSERT&#039; or tg_op = &#039;UPDATE&#039;)
+then insert into test.alarme (alarm_anniv)
+Values (&#039;new.anniv&#039;);
+end if;
+
+return new;
+end;$BODY$
+LANGUAGE plpgsql VOLATILE
+COST 100;</code></pre></div><p>Mes tables:</p><div class="codebox"><pre><code>-- Table: test.client
+
+-- DROP TABLE test.client;
+
+CREATE TABLE test.client
+(
+  anniv date NOT NULL,
+  CONSTRAINT client_pkey PRIMARY KEY (anniv)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE test.client OWNER TO &quot;me&quot;;
+
+-- Trigger: mp on test.client
+
+-- DROP TRIGGER mp ON test.client;
+
+CREATE TRIGGER mp
+  BEFORE INSERT OR UPDATE
+  ON test.client
+  FOR EACH ROW
+  EXECUTE PROCEDURE test.verific();</code></pre></div><div class="codebox"><pre><code>-- Table: test.alarme
+
+-- DROP TABLE test.alarme;
+
+CREATE TABLE test.alarme
+(
+  alarm_anniv date NOT NULL,
+  CONSTRAINT verif_pkey PRIMARY KEY (alarm_anniv)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE test.alarme OWNER TO &quot;me&quot;;</code></pre></div><p>Attention, c&#039;est pour le test car ici, il ne renvoit que la valeur de la date d&#039;anniv (inutile si on ne sait pas à qui elle appartient...). Egalement, la clé primaire interdit deux personne d&#039;avoir le même jour d&#039;anniv (débile, mais c&#039;est pour le test).</p><p>Si vous avez une idée sur la façon d&#039;aborder le sujet, je suis preneur...</p><p>A bientôt,</p><p>Le Hibou</p>]]></content>
+		<author>
+			<name><![CDATA[LeHibou]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=794</uri>
+		</author>
+		<updated>2010-11-09T21:56:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6620#p6620</id>
+	</entry>
+</feed>

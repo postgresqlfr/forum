@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / fonction update n'est pas mise à jour dans une boucle]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5548&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5548"/>
+	<updated>2019-07-04T13:58:23Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5548</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  fonction update n'est pas mise à jour dans une boucle]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29957#p29957"/>
+		<content type="html"><![CDATA[<p>Il semble que le besoin de votre fonction soit schématiquement:</p><br /><p> Tant qu&#039;il y a des enregistrements qui vérifient certains critères<br />&#160; &#160; &#160;faire certains traitements susceptibles de modifier ces enregistrements</p><p>Et donc la condition &quot;tant que&quot; serait à réévaluer à chaque fois.</p><p>La boucle FOR n&#039;est pas spécialement adaptée à ça, mais il y a d&#039;autres types de boucle<br />et structures de contrôle qui peuvent être plus appropriées:</p><p><a href="https://docs.postgresql.fr/11/plpgsql-control-structures.html" rel="nofollow">https://docs.postgresql.fr/11/plpgsql-c … tures.html</a></p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2019-07-04T13:58:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29957#p29957</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  fonction update n'est pas mise à jour dans une boucle]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29954#p29954"/>
+		<content type="html"><![CDATA[<p>Merci à vous pour ces explications.<br />Çà serait plutôt quand même sympa si on pouvait lors d&#039;élaboration de fonctions plpgsql d&#039;activer ou de désactiver ce comportement INSENSITIVE de la boucle FOR.</p>]]></content>
+		<author>
+			<name><![CDATA[duple]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7434</uri>
+		</author>
+		<updated>2019-07-04T08:04:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29954#p29954</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  fonction update n'est pas mise à jour dans une boucle]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29952#p29952"/>
+		<content type="html"><![CDATA[<p>Oui, même si l&#039;utilisation d&#039;un curseur dans une boucle FOR ... IN SELECT est probablement un détail d&#039;implémentation.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2019-07-03T12:49:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29952#p29952</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  fonction update n'est pas mise à jour dans une boucle]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29951#p29951"/>
+		<content type="html"><![CDATA[<p>rjuju&gt; Si je comprend INSENSITIVE explique le fait que la mise à jour dans la boucle n&#039;est pas perceptible durant la boucle (dans les prochaines itérations) ?<br />Et WHERE CURRENT OF cursor_name met à jour la ligne sur laquelle le curseur pointe, mais cette modification ne sera pas évaluer à la prochaine itération puisque le curseur est INSENSITIVE&#160; ?<br />C&#039;est çà ?</p>]]></content>
+		<author>
+			<name><![CDATA[duple]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7434</uri>
+		</author>
+		<updated>2019-07-03T12:32:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29951#p29951</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  fonction update n'est pas mise à jour dans une boucle]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29950#p29950"/>
+		<content type="html"><![CDATA[<p><a href="https://www.postgresql.org/docs/current/sql-declare.html" rel="nofollow">https://www.postgresql.org/docs/current … clare.html</a></p><div class="quotebox"><blockquote><div><p>INSENSITIVE</p><p>&#160; &#160; Indicates that data retrieved from the cursor should be unaffected by updates to the table(s) underlying the cursor that occur after the cursor is created. In PostgreSQL, this is the default behavior; so this key word has no effect and is only accepted for compatibility with the SQL standard.</p></div></blockquote></div><br /><p><a href="https://www.postgresql.org/docs/current/sql-update.html" rel="nofollow">https://www.postgresql.org/docs/current/sql-update.html</a></p><div class="quotebox"><blockquote><div><p>cursor_name</p><p>&#160; &#160; The name of the cursor to use in a WHERE CURRENT OF condition. The row to be updated is the one most recently fetched from this cursor. The cursor must be a non-grouping query on the UPDATE&#039;s target table. Note that WHERE CURRENT OF cannot be specified together with a Boolean condition. See DECLARE for more information about using cursors with WHERE CURRENT OF.</p></div></blockquote></div>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2019-07-03T11:37:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29950#p29950</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  fonction update n'est pas mise à jour dans une boucle]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29949#p29949"/>
+		<content type="html"><![CDATA[<p>Salut à tous, <br />Merci pour ces réponses.<br />dverite &gt; C&#039;est vrai qu&#039;un simple UPDATE pourrait sans doute faire les mises à jour nécessaires dans cet exemple mais en réalité il existe d&#039;autres traitement à faire qui nécessite de passer par une boucle FOR. Ici l&#039;exemple ne le montre pas car c&#039;est plus simplifié pour décrire le besoin.<br />rjuju &gt; Interessant, pourrais tu plus expliquer et décrire le sujet stp (WHERE CURRENT OF et curseur insensitive)?</p>]]></content>
+		<author>
+			<name><![CDATA[duple]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7434</uri>
+		</author>
+		<updated>2019-07-03T09:42:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29949#p29949</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  fonction update n'est pas mise à jour dans une boucle]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29946#p29946"/>
+		<content type="html"><![CDATA[<p>Il y a cela dit la notion de curseur [ INSENSITIVE ] en SQL, ainsi que la clause WHERE CURRENT OF sur les opérations DML qui permettent ce genre d&#039;opérations en pur SQL.&#160; À noter que postgres ne supporte que les curseurs &quot;insensitive&quot;.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2019-07-02T19:46:55Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29946#p29946</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  fonction update n'est pas mise à jour dans une boucle]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29945#p29945"/>
+		<content type="html"><![CDATA[<p>Il n&#039;y a pas de boucles en SQL, donc les boucles FOR sont des extensions procédurales qui sont plus ou moins différentes dans chaque SGBD.</p><p>A propos du fait qu&#039;il n&#039;y a pas de boucle, la logique itérative dans l&#039;exemple avec la boucle FOR interne devrait être repensée différemment.<br />C&#039;est-à-dire que si on considère</p><p> FOR variable in SELECT ... FROM T2.. WHERE...<br />&#160; LOOP<br />&#160; &#160;UPDATE T2 SET.. etc....<br />&#160; END LOOP;</p><p>En logique SQL qui n&#039;essaie pas de dupliquer la pensée procédurale,&#160; tout ça devrait être un seul UPDATE qui fait les mises à jour nécessaires sur les lignes concernées en une seule fois, avec comme conséquence qu&#039;il n&#039;y a plus de question de réévaluation ou pas des critères de la boucle FOR à chaque tour, puisqu&#039;il n&#039;y a plus de boucle FOR.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2019-07-02T15:25:38Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29945#p29945</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  fonction update n'est pas mise à jour dans une boucle]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29944#p29944"/>
+		<content type="html"><![CDATA[<p>Oui c&#039;est çà, la modification n&#039;est pas ré évaluer dans la suite des itérations.<br />Voilà pourquoi jai du passer par un traçage pour faire connaitre au boucle les changements de valeurs.<br />Mais est ce que ce principe de traitement de boucle for avec un select est valable pour tout sgbd ?</p>]]></content>
+		<author>
+			<name><![CDATA[duple]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7434</uri>
+		</author>
+		<updated>2019-07-02T14:32:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29944#p29944</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  fonction update n'est pas mise à jour dans une boucle]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29943#p29943"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Pour ajouter je veux que les modifications faites dans la 2ème boucle, soient perceptible au niveau de la 1ère boucle :</p></div></blockquote></div><p>Ce n&#039;est toujours pas clair parce que l&#039;expression &quot;pris en compte&quot; reste à interpréter. Il serait peut être utile d&#039;ajouter des raise notice dans ce code pour pouvoir dire à tel moment la valeur de telle variable est X alors qu&#039;elle devrait être Y.</p><p>Je suspecte qu&#039;il y a une confusion sur le fait que le SELECT derrière une boucle FOR n&#039;est exécuté qu&#039;une seule fois, et que les valeurs qu&#039;il délivre sont pré-établies à ce moment là indépendamment ce qui se passe dans la boucle. Voici un exemple qui illustre ça:</p><div class="codebox"><pre><code>create table list(x int);
+
+insert into list values (1),(2),(3),(4);
+
+do $$
+declare i integer;
+
+begin
+  for i in select x from list
+  loop
+   raise notice &#039;i=%&#039;, i;
+   update list set x=10;
+   i:=12;
+  end loop;
+end
+$$ language plpgsql;</code></pre></div><p>Ici dans la boucle la variable de boucle est modifiée, ainsi que l&#039;intégralité du contenu de la table sur laquelle on boucle.<br />Et ca n&#039;a aucun effet sur les valeurs de i au tour suivant de la boucle, dans le sens où la sortie est :</p><div class="codebox"><pre><code>NOTICE:  i=1
+NOTICE:  i=2
+NOTICE:  i=3
+NOTICE:  i=4</code></pre></div><p>Et si ce select avait une clause WHERE dont les valeurs changent dans la boucle, ce serait pareil. La clause WHERE ne serait pas réévaluée.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2019-07-02T13:42:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29943#p29943</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  fonction update n'est pas mise à jour dans une boucle]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29942#p29942"/>
+		<content type="html"><![CDATA[<p>En guise d&#039;information:<br />Pour contourner le problème j&#039;ai du à chaque update fait dans la 2ème boucle &gt; tracer la ligne modifiée par son id puis la valeur modifiée. Et au passage de boucle, vérifier si la ligne traitée dans la boucle figure dans le traçage, si oui mettre à jour l&#039;élément modifiée par sa bonne valeur. Re vérifier si le test dans 2 ème boucle coincide toujours avec les nouvelles valeurs. Du coup les éléments sont à jour au fur et à mesure des itérations.</p>]]></content>
+		<author>
+			<name><![CDATA[duple]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7434</uri>
+		</author>
+		<updated>2019-07-02T13:40:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29942#p29942</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  fonction update n'est pas mise à jour dans une boucle]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29938#p29938"/>
+		<content type="html"><![CDATA[<p>Pour ajouter je veux que les modifications faites dans la 2ème boucle, soient perceptible au niveau de la 1ère boucle : <br />itération i=1 de la première boucle , on fait une modification dans la 2ème boucle, donc dans la 2ième itération (et plus) de la première boucle le update fait (dans 2ème boucle) lors de la première itération (1ère boucle) soit pris en compte (valeur mise à jour dans les itérations qui suivent)</p><p>Normalement çà devrait être çà non ?</p>]]></content>
+		<author>
+			<name><![CDATA[duple]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7434</uri>
+		</author>
+		<updated>2019-07-02T07:12:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29938#p29938</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  fonction update n'est pas mise à jour dans une boucle]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29937#p29937"/>
+		<content type="html"><![CDATA[<p>Oui, je veux que lorsqu&#039;on fait une modification dans la boucle , cette modification sera tout de suite aperçu lors des prochaines itérations dans la boucle.<br />Pour plus d&#039;explication, une autre façon d&#039;approche c&#039;est que : <br />on a une valeur initiale par exemple : x = 2 , avant d&#039;entrer dans la boucle. Puis on entre en boucle FOR : x vaut 2 toujours , disons maintenant que durant les traitements effectués dans la boucle FOR, on fait un update de x , x est maintenant égale à 3 normalement (c&#039;est ce qu&#039;on veut); mais, on constate que durant le parcours de boucle x est toujours = 2 mais pas à 3. Les modifications ne sont elles pas prise en compte instantanément dans une boucle ? Ou faudrait il attendre que le boucle soit fini pour prendre en compte les modifications ? Comment on peut contourner cela ?</p>]]></content>
+		<author>
+			<name><![CDATA[duple]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7434</uri>
+		</author>
+		<updated>2019-07-02T06:02:03Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29937#p29937</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  fonction update n'est pas mise à jour dans une boucle]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29936#p29936"/>
+		<content type="html"><![CDATA[<p>Je ne suis pas sur de comprendre.&#160; Est-ce que votre question est de savoir pourquoi la requête utilisée dans la 2nde boucle ne se met pas à jour à chaque itération, au fur et à mesure des modifications effectuée dans la 2ème boucle ?&#160; Si c&#039;est le cas, c&#039;est contraire au principe de cohérence, où chaque requête effectuée garantit fournir un résultat cohérent, malgré toutes les modifications concurrentes.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2019-07-01T18:20:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29936#p29936</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[fonction update n'est pas mise à jour dans une boucle]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29935#p29935"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />Je travaille sous PG9.6 environnement linux.<br />J&#039;ai une fonction qui effectue des modifications de table avec un parcours de boucle.<br />En gros: je crée une table temporaire contenant des données pour simplifier disons :<br />La table T1 contient idt1, dateDeb_t1, dateFin_t1 (la table est remplie de données)<br />Par ailleurs, j&#039;ai aussi une autre table physique non temporaire T2, avec T2 = idt2, dateDeb_t2 et dateFin_T2<br />Le principe est le suivant : <br />Je parcours les données de T1 comme suit: à chaque itération (ligne d&#039;enregistrement) trouvée dans T1 je vérifie si il existe une certaine correspondance avec des lignes de T2 : s&#039;il y a correspondance alors je modife dateDeb_T2 par dateFin_T1 pour la ligne (itération) en question idt1.</p><p>Pour simplifier on a comme suit : </p><p>FOR x,y,z IN SELECT idt1, dateDeb_t1, dateFin_t1 FROM T1<br />LOOP -- Je parcours une à une les lignes de T1<br />&#160; &#160; FOR a,b,c IN SELECT idt2, dateDeb_t2, dateFin_T2 FROM T2 WHERE dateDeb_t2 &gt;= y AND dateDeb_t2&#160; &lt; z-- ici je verifie s&#039;il existe la &quot;correspondance&quot;<br />&#160; &#160; LOOP<br />&#160; &#160; -- Pour chaque ligne T2 comprise dans la ligne en cours T1 : modifier dateDeb_T2 par dateFin_T1 <br />&#160; &#160;-- C&#039;est ici le cas intéressant : le pourquoi du comment ???<br />&#160; &#160; &#160;UPDATE T2 SET dateDeb_T2&#160; = z<br />&#160; &#160; &#160; WHERE idt1 = a;<br />&#160; &#160; END LOOP;<br />END LOOP;</p><p>Le souci est que en exécutant cette fonction, elle tourne mais en vérifiant, les données ne sont pas à jour durant la boucle. C&#039;est à dire je modifie dans le cas &quot;pourquoi du comment&quot; dateDeb_t2 mais pourtant au fur et à mesure du passage d&#039;itération dans les boucles les nouvelles dateDeb_t2 ne sont pas à jour mais reste toujours la valeur initiale.</p><p>Sauriez vous pourquoi et comment corriger le fait que les valeurs initiales ne sont pas modifiées au fur et à mesure de la boucle.<br />Je précise que le type de dateDeb et dateFin joué ici est du timestamp without time zone, est qu&#039;il y a lien la -dessus ?</p><p>Merci de votre attention et espérant qu&#039;il y aura des réponses <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[duple]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7434</uri>
+		</author>
+		<updated>2019-07-01T15:47:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29935#p29935</id>
+	</entry>
+</feed>

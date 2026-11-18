@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / distance entre deux points par une polyligne]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3176&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3176"/>
+	<updated>2014-06-04T10:00:03Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3176</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  distance entre deux points par une polyligne]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20109#p20109"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous,</p><br /><p>J&#039;ai finalement réussi à résoudre le problème.</p><br /><p>Le script suivant (entre autres scripts et fonctions) a été décisif dans la résolution de mon problème :</p><br /><div class="codebox"><pre><code>WITH geoms AS(
+Select gid_1, idf, fid_combin, code_zone2, geom, geom_2 as point1, geom_3 as point2
+from v603_int)
+SELECT row_number()OVER()::integer AS gid, gid_1, idf, fid_combin, code_zone2, geom, point1, point2,
+ST_Length(ST_Line_Substring(geom, ST_Line_Locate_Point(geom, point1), ST_Line_Locate_Point(geom, point2))) as distance
+FROM geoms;</code></pre></div><p>J&#039;avais préalablement joint dans une même table mes 3 couches (polyligne, point, point) afin d&#039;avoir les 3 géométries sur la même table.</p><br /><p>Ensuite, l&#039;avant-dernière ligne de ce script est la plus importante. Par ST_Line_Substring, je crée une polyligne entre mes 2 points en passant par la polyligne du cours d&#039;eau. Par ST_Length, je calcule la longueur de chacune des polylignes.</p>]]></content>
+		<author>
+			<name><![CDATA[Géronimo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3575</uri>
+		</author>
+		<updated>2014-06-04T10:00:03Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20109#p20109</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[distance entre deux points par une polyligne]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20068#p20068"/>
+		<content type="html"><![CDATA[<p>Bonsoir à tous,</p><br /><p>Je vous expose mon problème :</p><br /><p>J&#039;ai 3 couches :</p><br /><p>&#160; - une couche des cours d&#039;eau, en géométrie polyligne. Il s&#039;agit donc d&#039;une arborescence de polyligne. Chaque branche de l&#039;arbre représentant un tronçon hydrographique et donc une ligne sur la table attributaire de la couche.<br />&#160; - une couche des intersections de ces cours d&#039;eau, en géométrie point. Chaque intersection des branches est un point et donc une ligne sur la table attributaire de cette couche.<br />&#160; - une couche de points parsemés sur les cours d&#039;eau, en géométrie point. Les points sont placés sans logique particulière sur les tronçons hydrographiques.</p><br /><p>Je voudrais, pour chaque point de la troisième couche, évaluer la distance qui le sépare de l&#039;intersection des cours d&#039;eau située juste en aval, c&#039;est-à-dire des points de la deuxième couche.<br />Cela me permettra de sélectionner celui qui est le plus loin et d&#039;effacer tous les autres, tronçons hydrographiques par tronçons hydrographiques.<br />Je veux bien sûr connaitre la distance entre ces points en passant par la polyligne du tronçon hydrographique et non par la distance la plus proche entre les deux.</p><br /><p>Existe-t-il des requêtes ou des fonctions particulières sur postgresql permettant de calculer la distance entre deux points en passant par une polyligne, puis de résoudre mon problème ?</p><br /><p>Je vous remercie de vos futures réponses.</p><br /><p>A bientôt.</p>]]></content>
+		<author>
+			<name><![CDATA[Géronimo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3575</uri>
+		</author>
+		<updated>2014-06-02T17:18:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20068#p20068</id>
+	</entry>
+</feed>

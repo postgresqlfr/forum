@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / GlassFish v2.11 - DataSource - JNDI]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1221&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1221"/>
+	<updated>2011-02-10T18:01:16Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1221</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  GlassFish v2.11 - DataSource - JNDI]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8059#p8059"/>
+		<content type="html"><![CDATA[<p>Et bie ça ne marche plus le lendemain : il manquait des choses.</p><p>Voici ce qui marche (Java) :<br />&#160; &#160; &#160; &#160; &#160; &#160; Context initCtx = new InitialContext();<br />&#160; &#160; &#160; &#160; &#160; &#160; System.out.println(&quot;InitialContext OK&quot;);<br />&#160; &#160; &#160; &#160; &#160; &#160; Context envCtx = (Context) initCtx.lookup(&quot;java:comp/env&quot;);<br />&#160; &#160; &#160; &#160; &#160; &#160; System.out.println(&quot;initCtx.lookup OK&quot;);<br />&#160; &#160; &#160; &#160; &#160; &#160; DataSource ds = (DataSource) envCtx.lookup(&quot;jdbc/postgresql&quot;);<br />&#160; &#160; &#160; &#160; &#160; &#160; System.out.println(&quot;envCtx.lookup OK&quot;);<br />&#160; &#160; &#160; &#160; &#160; &#160; Connection conn = ds.getConnection();<br />&#160; &#160; &#160; &#160; &#160; &#160; System.out.println(&quot;getConnection OK&quot;);<br />&#160; &#160; &#160; &#160; &#160; &#160; conn.close();<br />&#160; &#160; &#160; &#160; &#160; &#160; System.out.println(&quot;close OK&quot;);<br />Je vous passe le détail entre getConnection() et close().</p><p>MAIS il fallait modifier le pool de connexion ainsi :</p><p>Nom : PostgresPool<br /><strong>Nom de classe de la source de données : org.postgresql.ds.PGPoolingDataSource</strong><br /><strong>Type de ressource : java.sql.DataSource</strong></p><p>Tout le reste par défaut.</p><p>Propriétés:</p><p>databaseName : ****<br />portNumber : 5432<br />DataSourceName : jdbc/postgresql<br />serverName : localhost<br />password : *****<br />user : ****<br /><strong>JDBC30DataSource: true</strong></p><p>Et surtout dans sun-web.xml (j&#039;utilise NetBeans 6.8) :</p><p>&#160; &lt;resource-ref&gt;<br />&#160; &#160; &lt;res-ref-name&gt;jdbc/postgresql&lt;/res-ref-name&gt;<br />&#160; &#160; &lt;jndi-name&gt;jdbc/postgresql&lt;/jndi-name&gt;<br />&#160; &#160; &lt;default-resource-principal&gt;<br />&#160; &#160; &#160; &lt;name&gt;****&lt;/name&gt;<br />&#160; &#160; &#160; &lt;password&gt;****&lt;/password&gt;<br />&#160; &#160; &lt;/default-resource-principal&gt;<br />&#160; &lt;/resource-ref&gt;</p><p>Vous remarquerez la distinction possible entre le nom JNDI et sa référence. Pour JDBC, on a la même chose, mais pour d&#039;autres ressources, Glassfish admet une distinction possible.</p><p>Donc, définir correctement un pool de connexions et une ressource JDNI dans le serveur JEE n&#039;est pas suffisant : il faut déclarer pas mal de choses<br />dans les fichiers de configuration de l&#039;application web...</p>]]></content>
+		<author>
+			<name><![CDATA[jpiotrowski]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=947</uri>
+		</author>
+		<updated>2011-02-10T18:01:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8059#p8059</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  GlassFish v2.11 - DataSource - JNDI]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7991#p7991"/>
+		<content type="html"><![CDATA[<p>Bon, j&#039;arrive enfin à quelque chose : la connection marche enfin...</p><p>&#160; &#160; &#160; &#160; org.postgresql.ds.PGSimpleDataSource source2 = new org.postgresql.ds.PGSimpleDataSource();<br />&#160; &#160; &#160; &#160; Context context = null;<br />&#160; &#160; &#160; &#160; try {<br />&#160; &#160; &#160; &#160; &#160; &#160; context = new InitialContext();</p><p>&#160; &#160; &#160; &#160; } catch (NamingException ne) {<br />&#160; &#160; &#160; &#160; &#160; &#160; throw new Exception(ne.getMessage());<br />&#160; &#160; &#160; &#160; }<br />&#160; &#160; &#160; &#160; <strong>source2 = (PGSimpleDataSource)&#160; context.lookup(&quot;java:comp/env/jdbc/postgresql&quot;);</strong><br />&#160; &#160; &#160; &#160; connection = source2.getConnection();<br />&#160; &#160; &#160; &#160; System.out.println(&quot;JNDI OK&quot;);</p><p>Et aussi n&#039;oublions pas web.xml :</p><p>&#160; &#160; &lt;resource-ref&gt;<br />&#160; &#160; &#160; &#160; &lt;res-ref-name&gt;jdbc/postgresql&lt;/res-ref-name&gt;<br />&#160; &#160; &#160; &#160; &lt;res-type&gt;javax.sql.DataSource&lt;/res-type&gt;<br />&#160; &#160; &#160; &#160; &lt;res-auth&gt;Container&lt;/res-auth&gt;<br />&#160; &#160; &#160; &#160; &lt;res-sharing-scope&gt;Shareable&lt;/res-sharing-scope&gt;<br />&#160; &#160; &lt;/resource-ref&gt;</p><p>Le pool de connexions :</p><p>Nom : PostgresPool<br />Nom de classe de la source de données : org.postgresql.jdbc3.Jdbc3ConnectionPool<br />Type de ressource : javax;sql.ConnectionPoolDataSource<br />Tout le reste par défaut.<br />Propriétés:<br />databaseName : ****<br />portNumber : 5432<br />DataSourceName : jdbc/postgresql<br />serverName : localhost<br />password : *****<br />user : ****</p><p>La Ressources JDBC :</p><p>Nom JNDI : jdbc/postgresql<br />Nom du Pool :&#160; PostgresPool<br />Statut : activé</p><p>Je verrai plus tard pour les pools de connection (rappel : org.postgresql.ds.PGSimpleDataSource)<br />(PS : c&#039;est dans le cadre d&#039;une application Web).</p><p>Bon, je vais dormir, une dure et palpitante journée m&#039;attend demain <img src="http://forums.postgresql.fr/img/smilies/sad.png" width="15" height="15" alt="sad" /></p>]]></content>
+		<author>
+			<name><![CDATA[jpiotrowski]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=947</uri>
+		</author>
+		<updated>2011-02-07T22:54:31Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7991#p7991</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  GlassFish v2.11 - DataSource - JNDI]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7989#p7989"/>
+		<content type="html"><![CDATA[<p>À mon avis, l&#039;exemple que vous citez est surtout destiné aux développeurs de pool d&#039;application... ou pour comprendre comment cela fonctionne ( je m&#039;en sers en formation, parce qu&#039;on forme des débutants à Java, et que c&#039;est un peu hard de leur montrer JNDI d&#039;emblée...)</p><p>Je ne connais pas Glassfish, et je ne sais pas par coeur comment on utilise JNDI (surtout à cette heure-ci...), par contre ce qui est sûr c&#039;est que c&#039;est (ou ça devrait être ) dans la doc du serveur d&#039;application (ou dans les tutoriels de Sun/Oracle), mais pas dans les docs Postgresql (là on est vraiment sur une problèmatique JEE, pas spécifique Postgresql). Si mes souvenirs sont exacts, la seule chose spécifique au moteur de base de données, c&#039;est la forme de l&#039;URL à renseigner.<br />Pour PostgreSQL, L&#039;URL a une de ces formes :<br />jdbc:postgresql:database<br />jdbc:postgresql://host/database<br />jdbc:postgresql://host:port/database</p><p>C&#039;est décrit ici :<br /><a href="http://jdbc.postgresql.org/documentation/83/connect.html" rel="nofollow">http://jdbc.postgresql.org/documentatio … nnect.html</a> (pour la 8.3, mais ça m&#039;étonnerait que cela ait changé)</p><p>Bonne recherche. N&#039;hésitez pas à revenir si vous avez d&#039;autres soucis spécifiques à Postgresql.</p>]]></content>
+		<author>
+			<name><![CDATA[flo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=216</uri>
+		</author>
+		<updated>2011-02-07T20:21:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7989#p7989</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[GlassFish v2.11 - DataSource - JNDI]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7988#p7988"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>l&#039;exemple <a href="http://jdbc.postgresql.org/documentation/pgjdbc.html#jdbc-ds-jndi" rel="nofollow">http://jdbc.postgresql.org/documentatio … bc-ds-jndi</a> me semble inadéquat. JNDI est surtout fait pour justement ne avoir à renseigner les attributs d&#039;une DataSource dans le code source d&#039;une classe :</p><p>Jdbc3PoolingDataSource source = new Jdbc3PoolingDataSource();</p><p>source.setDataSourceName(&quot;A Data Source&quot;);<br />source.setServerName(&quot;localhost&quot;);<br />source.setDatabaseName(&quot;test&quot;);<br />source.setUser(&quot;testuser&quot;);<br />source.setPassword(&quot;testpassword&quot;);<br />source.setMaxConnections(10);<br />new InitialContext().rebind(&quot;DataSource&quot;, source);</p><p>J&#039;aurai plutôt vu ceci :</p><p>&#160; &#160; &#160; &#160; Context ctx = null;<br />&#160; &#160; &#160; &#160; try {<br />&#160; &#160; &#160; &#160; &#160; &#160; ctx = new InitialContext();<br />&#160; &#160; &#160; &#160; &#160; &#160; source = (Jdbc3PoolingDataSource) (DataSource) ctx.lookup(&quot;java:comp/env/jdbc/postgresql&quot;); /* forçage proposé par NetBeans */<br />&#160; &#160; &#160; &#160; &#160; &#160; connection = source.getConnection();<br />&#160; &#160; &#160; &#160; } catch (NamingException ne) {<br />&#160; &#160; &#160; &#160; &#160; &#160; throw new Exception(ne.getMessage());<br />&#160; &#160; &#160; &#160; }</p><p>Alors, comment utiliser un pool de connexion via JNDI, enregistré dans GlassFish v2.11 ?</p>]]></content>
+		<author>
+			<name><![CDATA[jpiotrowski]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=947</uri>
+		</author>
+		<updated>2011-02-07T20:02:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7988#p7988</id>
+	</entry>
+</feed>

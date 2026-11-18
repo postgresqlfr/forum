@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Crash recovery et annulation des transactions non commitées]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2664&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2664"/>
+	<updated>2013-06-05T20:55:10Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2664</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Crash recovery et annulation des transactions non commitées]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17403#p17403"/>
+		<content type="html"><![CDATA[<p>Encore Merci pour tout ce partage de connaissance <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /><br />Olivier</p>]]></content>
+		<author>
+			<name><![CDATA[obernhard]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2283</uri>
+		</author>
+		<updated>2013-06-05T20:55:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17403#p17403</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Crash recovery et annulation des transactions non commitées]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17402#p17402"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Comment accédez-vous à ce genre d&#039;information ?</p></div></blockquote></div><p>Principalement avec la documentation, avec des outils trouvés généralement dans les modules contribs, mais aussi en lisant les sources. Et puis ça fait quand même plus de dix ans que je travaille avec PostgreSQL. Ça aide <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>Concernant le code, il est vraiment très bien commenté. De plus, vous trouverez des fichiers README par-ci par-là qui seront plus simples à lire que le code lui-même.</p><div class="quotebox"><blockquote><div><p>Y a-t-il des fonctions permettant de dumper des blocs et d&#039;examiner leur contenu ?</p></div></blockquote></div><p>Le module pageinspect donne quelques infos (<a href="http://www.postgresql.org/docs/9.2/interactive/pageinspect.html" rel="nofollow">http://www.postgresql.org/docs/9.2/inte … spect.html</a>) mais je trouve pg_filedump bien plus intéressant (<a href="http://pgfoundry.org/projects/pgfiledump/" rel="nofollow">http://pgfoundry.org/projects/pgfiledump/</a>).</p><div class="quotebox"><blockquote><div><p>En tous les cas, je peux vous garantir que le fait de répondre aussi précisément à des question comme les miennes, est le meilleur moyen d&#039;attirer les dba oracle chevronnés !</p></div></blockquote></div><p>Content que ça vous plaise <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>Bonne suite dans votre découverte de PostgreSQL.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2013-06-05T20:45:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17402#p17402</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Crash recovery et annulation des transactions non commitées]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17401#p17401"/>
+		<content type="html"><![CDATA[<p>Génial ! Merci beaucoup pour ces explications (je me demandais effectivement à quoi servait pg_clog) et pour le lien vers l&#039;article que je vais m&#039;empresser de dévorer <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /><br />celà fait trois jours que je recherche sur le web des articles sur les internals de postgresql, et là je suis servi. J&#039;ai une facheuse tendance à avoir besoin de comprendre comment<br />tout fonctionne....<br />Juste une question : <br />Comment accédez-vous à ce genre d&#039;information ? Il y a bien sûr le code source, mais je ne suis pas développeur (par contre j&#039;ai remarqué que le code était très bien documenté).<br />Y a-t-il des fonctions permettant de dumper des blocs et d&#039;examiner leur contenu ?<br />En tous les cas, je peux vous garantir que le fait de répondre aussi précisément à des question comme les miennes, est le meilleur moyen d&#039;attirer les dba oracle chevronnés !<br />Encore Merci !<br />Olivier</p>]]></content>
+		<author>
+			<name><![CDATA[obernhard]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2283</uri>
+		</author>
+		<updated>2013-06-05T20:07:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17401#p17401</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Crash recovery et annulation des transactions non commitées]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17400#p17400"/>
+		<content type="html"><![CDATA[<p>Pour faire plus détailler, PostgreSQL maintient sur chaque ligne deux informations. La première correspond à l&#039;identifiant de transaction ayant créé la ligne (suite à un INSERT par exemple), la seconde à l&#039;identifiant ayant supprimé la ligne (suite à un UPDATE ou à un DELETE par exemple). Cet deux identifiants sont directement enregistrés dans la table, dans les colonnes xmin et xmax.</p><p>PostgreSQL maintient aussi un tableau indiquant si tel identifiant de transaction est commité ou rollbacké. Ces informations sont stockées dans les fichiers du répertoire pg_clog.</p><p>Du coup, si une transaction n&#039;est pas finie (suite à un crash du serveur ou à un crash de l&#039;application cliente ou à un problème réseau ou à je ne sais quoi d&#039;autres), les lignes que cette transaction a ajouté ou supprimée sont tagguées par un identifiant de transaction au statut rollbacké. Du coup PostgreSQL n&#039;en tient pas compte.</p><p>L&#039;article <a href="http://www.dalibo.org/glmf109_operations_de_maintenance_sous_postgresql" rel="nofollow">http://www.dalibo.org/glmf109_operation … postgresql</a> devrait vous intéressé.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2013-06-05T19:39:31Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17400#p17400</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Crash recovery et annulation des transactions non commitées]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17398#p17398"/>
+		<content type="html"><![CDATA[<p>Merci beaucoup guillaume.<br />Réponse claire et précise (et dans un délai plus rapide que le support oracle <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /> ) <br />Je débute sous postgresql après 14 années passées sur Oracle (que j&#039;aime toujours autant d&#039;un point de vue technique), mais postgresql <br />est à bien des égards tout à fait séduisant.<br />A+ pour sans doute d&#039;autres questions.</p>]]></content>
+		<author>
+			<name><![CDATA[obernhard]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2283</uri>
+		</author>
+		<updated>2013-06-05T19:31:00Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17398#p17398</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Crash recovery et annulation des transactions non commitées]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17396#p17396"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>mais qu&#039;en est-il du roll-backward qui consiste à annuler les transactions qui n&#039;ont pas été commitées ?</p></div></blockquote></div><p>Une transaction non commitée est considérée comme annulée (rollbackée).</p><div class="quotebox"><blockquote><div><p>A partir de là si tout ce qui précède le dernier checkpoint est ignoré, quid des transaction non commitées, écrites sur disque lors du dernier checkpoint mais non commitées ?</p></div></blockquote></div><p>Si la transaction s&#039;est terminée sans COMMIT, la transaction est considérée comme rollbackée et son identifiant a comme statut rollbacké.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2013-06-05T19:19:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17396#p17396</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Crash recovery et annulation des transactions non commitées]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17395#p17395"/>
+		<content type="html"><![CDATA[<p>J&#039;entrevois une possibilité (mais j&#039;aimerais bien avoir l&#039;avis d&#039;un expert sur le sujet) :</p><p>Dans la mesure où postgresql n&#039;utilise pas (comme oracle un mécanisme d&#039;undo) mais une notion de vacuum, il est possible que tout record écrit sur disque mais non commité soit considéré d&#039;emblée comme candidat au vacuum puisque non commité (j&#039;imagine néanmoins que celà doit être plus compliqué que celà, mais expliquerait pourquoi il n&#039;y a que du roll-forward et pas d&#039;anullation de transaction).</p>]]></content>
+		<author>
+			<name><![CDATA[obernhard]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2283</uri>
+		</author>
+		<updated>2013-06-05T16:21:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17395#p17395</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Crash recovery et annulation des transactions non commitées]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17390#p17390"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />Je suis à la recherche d&#039;une réponse assez précise concernant la gestion de l&#039;annulation des transactions<br />non commitées lors d&#039;un arrête brutal/redémarrage d&#039;un cluster postgresql.<br />Je précise que j&#039;ai une bonne connaissance de ces mécanismes sur d&#039;autres sgbd et j&#039;essaie d&#039;avoir le même<br />niveau de connaissance sur postgresql :</p><p>lorsqu&#039;un checkpoint se produit, il est tout à fait possible que des transactions non commitées soient écrites en bases (dans les fichiers de base de données).<br />Et donc si un arrêt/redémarrage brutal se produit, la base de données se retrouve dans un état non consistent puisque des transactions non validées ont été écrites sur disque.<br />Vous allez me dire : nous avons les WAL.</p><p>Mais lorsque je lis la documentation postgres, celle-ci insiste de manière exclusive sur le role des WAL pour rejouer les transactions qui n&#039;auraient pas été écrites dans la base de données.</p><p>je cite la documentation :</p><p>&quot;Write-Ahead Logging (WAL) est une méthode conventionnelle pour s&#039;assurer de l&#039;intégrité des données. Une description détaillée peut être trouvée dans la plupart des livres sur le traitement transactionnel. Brièvement, le concept central du WAL est d&#039;effectuer les changements des fichiers de données (donc les tables et les index) uniquement après que ces changements ont été écrits de façon sûr dans un journal, appelé journal des transactions. Si nous suivons cette procédure, nous n&#039;avons pas besoin d&#039;écrire les pages de données vers le disque à chaque validation de transaction car nous savons que, dans l&#039;éventualité d&#039;une défaillance, nous serons capables de récupérer la base de données en utilisant le journal : chaque changement qui n&#039;a pas été appliqué aux pages de données peut être ré-exécuté depuis les enregistrements du journal (ceci est une récupération roll-forward, aussi connue sous le nom de REDO)&quot;.</p><br /><p>La notion de roll-forward est ici la seule mentionnée.</p><p>mais qu&#039;en est-il du roll-backward qui consiste à annuler les transactions qui n&#039;ont pas été commitées ? <br />Doit-on comprendre que ces deux notions sont regroupée sous le terme &quot;roll-forward&quot; dans la terminologie postgres ?</p><p>Je m&#039;interroge d&#039;autant plus lorque je lis ceci dans la doc us :</p><p>&quot;At all times, PostgreSQL maintains a write ahead log (WAL) in the pg_xlog/ subdirectory of the cluster’s<br />data directory. The log records every change made to the database’s data files. This log exists primarily for<br />crash-safety purposes: if the system crashes, the database can be restored to consistency by “replaying”<br />the log entries made since the last checkpoint&quot;.</p><p>le replay des log entries ne concerne que les log entries qui font suite au dernier checkpoint.<br />Mais justement, un checkpoint signifie l&#039;écriture sur datafiles des données qui sont en cache, ce qui signifie aussi bien les données commitées que celles non commitées.</p><p>A partir de là si tout ce qui précède le dernier checkpoint est ignoré, quid des transaction non commitées, écrites sur disque lors du dernier checkpoint mais non commitées ?</p><p>Merci pour votre aide.</p><p>Olivier</p>]]></content>
+		<author>
+			<name><![CDATA[obernhard]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2283</uri>
+		</author>
+		<updated>2013-06-05T07:47:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17390#p17390</id>
+	</entry>
+</feed>

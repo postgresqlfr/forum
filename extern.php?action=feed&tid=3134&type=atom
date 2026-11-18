@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / migration  9.0.11 -postgis 1.5.3 en  9.3 - 1.2.1 ( srid en st_srid)]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3134&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3134"/>
+	<updated>2014-05-15T19:52:16Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3134</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  migration  9.0.11 -postgis 1.5.3 en  9.3 - 1.2.1 ( srid en st_srid)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19897#p19897"/>
+		<content type="html"><![CDATA[<p>N&#039;y aurait-il pas un script à exécuter pour pouvoir importer un dump postgis 1.3 vers du 2.1 ? à ma connaissance, il y en a un entre la 1.5 et la 2.quelquechose. Bref, jetez un oeil à la documentation de PostGIS, ça doit être expliqué.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-05-15T19:52:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19897#p19897</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  migration  9.0.11 -postgis 1.5.3 en  9.3 - 1.2.1 ( srid en st_srid)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19892#p19892"/>
+		<content type="html"><![CDATA[<p>j&#039;ai fait ceci sur la nouvelle version de postgres </p><p>CREATE OR REPLACE FUNCTION srid(geometry)<br />&#160; RETURNS integer AS<br />&#039;$libdir/postgis-2.1&#039;, &#039;LWGEOM_get_srid&#039;<br />&#160; LANGUAGE c IMMUTABLE STRICT<br />&#160; COST 1;<br />ALTER FUNCTION srid(geometry)<br />&#160; OWNER TO postgres;</p><p>et a priori ma table se creé ai ce la bonne solution ? merci</p>]]></content>
+		<author>
+			<name><![CDATA[mich30]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=523</uri>
+		</author>
+		<updated>2014-05-15T08:40:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19892#p19892</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  migration  9.0.11 -postgis 1.5.3 en  9.3 - 1.2.1 ( srid en st_srid)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19891#p19891"/>
+		<content type="html"><![CDATA[<p>voila le message erreur dans la nouvelle monture de postgres9.3 et postgis 2.1 il n&#039;existe plus srid (contrainte) <br />mais remplacé par st_srid dans les nouvelles versions donc erreur ci dessous </p><p><strong> pg_restore: [archiver (db)] could not execute query: ERROR:&#160; function public.srid(public.geometry) does not exist </strong></p><p>HINT:&#160; No function matches the given name and argument types. You might need to add explicit type casts.<br />&#160; &#160; Command was: CREATE TABLE pente_expo (<br />&#160; &#160; x double precision,<br />&#160; &#160; y double precision,<br />&#160; &#160; pente double precision,<br />&#160; &#160; exposition double ...<br />pg_restore: [archiver (db)] Error from TOC entry 8005; 0 206822 TABLE DATA pente_expo geniaux<br />pg_restore: [archiver (db)] could not execute query: ERROR:&#160; relation &quot;pente_expo&quot; does not exist<br />&#160; &#160; Command was: COPY pente_expo (x, y, pente, exposition, exposition_dist_nord, gid, the_geom) FROM stdin;</p><p>la vrai structure de cette table d&#039;origine dans la version postgres9.0.11 postgis 1.3&#160; est <br />CREATE TABLE occupsol.pente_expo<br />(<br />&#160; x double precision,<br />&#160; y double precision,<br />&#160; pente double precision,<br />&#160; exposition double precision,<br />&#160; exposition_dist_nord double precision,<br />&#160; gid integer NOT NULL DEFAULT nextval(&#039;pente_expo_gid_seq&#039;::regclass),<br />&#160; the_geom geometry,<br />&#160; CONSTRAINT pente_expo_pkey PRIMARY KEY (gid ),<br />&#160; CONSTRAINT enforce_dims_the_geom CHECK (st_ndims(the_geom) = 2),<br />&#160; CONSTRAINT enforce_geotype_the_geom CHECK (geometrytype(the_geom) = &#039;POINT&#039;::text OR the_geom IS NULL),<br />&#160; CONSTRAINT enforce_srid_the_geom CHECK (srid(the_geom) = 2154)<br />)<br />WITH (<br />&#160; OIDS=FALSE<br />);</p><br /><p>donc existe t&#039;il une manip pour pallier ce probleme , merci beaucoup</p>]]></content>
+		<author>
+			<name><![CDATA[mich30]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=523</uri>
+		</author>
+		<updated>2014-05-15T08:21:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19891#p19891</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  migration  9.0.11 -postgis 1.5.3 en  9.3 - 1.2.1 ( srid en st_srid)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19888#p19888"/>
+		<content type="html"><![CDATA[<p>1. --disable-triggers désactive les triggers, pas les contraintes<br />2. &quot;SET CONSTRAINTS ALL DEFERRED;&quot; ne sert pas à ça<br />3. Aucun intérêt<br />4. Nous dire l&#039;erreur que vous rencontrez pour qu&#039;on connaisse réellement le problème ?</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-05-14T20:21:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19888#p19888</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[migration  9.0.11 -postgis 1.5.3 en  9.3 - 1.2.1 ( srid en st_srid)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19887#p19887"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />Certaines tables de postgres 9.0.11 ne se crée pas dans ma nouvelle base postgres 9.3 <br />car toutes les fonctions commencent par st_ <br />exemple lors d&#039;un dump en postgres 9.0.11&#160; les contraintes&#160; sont du style&#160; CONSTRAINT enforce_srid_the_geom CHECK (srid(the_geom) = 2154<br />et devrait etre sous la forme CONSTRAINT enforce_srid_the_geom CHECK (st_srid(the_geom) = 2154</p><p>Apres des recherches j&#039;ai plusieurs solutions et je cherche la plus efficace</p><p>1° ) pour ne pas dumper les contraintes je regarde dans pg_dump ou pg_restore j&#039;ai fait mes tests <br />ce matin avec --disable-triggers mais rien n&#039;y fait ?</p><p>2) toujours pour ne pas dumper les contraintes <br />on me dit de faire un SET CONSTRAINTS ALL DEFERRED; <br />donc je lance cette sequence avant le dump ? <br />une fois le dump fini je remets&#160; SET CONSTRAINTS ALL&#160; NOT DEFERRABLE ?<br />et puis lorsque je restore ce dump , une table doit etre créer sans les contraintes et par la suite je dois creer <br />une fonction en pg/sql pour tout remettre ces contraintes dans cette nouvelle base</p><p>3) ou changer dans ma base d&#039;origine tous les srid par st_srid ??? et relancer un dump <br />via pg_contraint ( consrc ?) avez vous une requete de Mise a jour ? si c&#039;est la solution </p><p>4) autre astuce </p><p>merci à vous</p>]]></content>
+		<author>
+			<name><![CDATA[mich30]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=523</uri>
+		</author>
+		<updated>2014-05-14T11:51:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19887#p19887</id>
+	</entry>
+</feed>

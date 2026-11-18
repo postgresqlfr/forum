@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Insertion d'une quote avec Postgre 9.1]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2139&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2139"/>
+	<updated>2012-07-05T08:14:21Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2139</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Insertion d'une quote avec Postgre 9.1]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14490#p14490"/>
+		<content type="html"><![CDATA[<p>Pour les autres, je ne sais pas. Mais Oracle utilise un &#039; pour escaper un &#039; (ça donne donc &#039;&#039; pour un quote dans une chaîne de caractères), comme l&#039;impose le standard SQL.</p><p>Si j&#039;ai bien compris, SQLDirect utilise odbc pour se connecter à PG ? Si c&#039;est le cas, le problème pourrait tout simplement venir d&#039;une version obsolète du driver odbc: les versions les plus récentes prennent en compte standard_conforming_strings pour faire l&#039;escaping comme il faut. D&#039;après les release notes du driver odbc, c&#039;est pris en compte depuis la version 08.02.0402.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2012-07-05T08:14:21Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14490#p14490</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Insertion d'une quote avec Postgre 9.1]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14441#p14441"/>
+		<content type="html"><![CDATA[<p>C&#039;est préconisé car le standard SQL l&#039;impose. Par contre, aucune contrainte de perfs.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-07-02T13:13:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14441#p14441</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Insertion d'une quote avec Postgre 9.1]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14438#p14438"/>
+		<content type="html"><![CDATA[<p>Merci Gleu,</p><p>Ca fonctionne correctement avec le paramètre à off.<br />Concernant SQLDirect, ce composant permet d&#039;attaquer différentes bases, nous l&#039;utilisons notamment pour Oracle, MSSql et MySQL. Je pense que le code d&#039;échappement en \&#039; est commun à tous les moteurs.<br />En dehors du Warning, pourquoi préconise t&#039;on l&#039;utilisation du &#039;&#039; à la place du \&#039;. Y&#039;a des contraintes de perfos dernière ?</p>]]></content>
+		<author>
+			<name><![CDATA[Tetranos]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1819</uri>
+		</author>
+		<updated>2012-07-02T12:04:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14438#p14438</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Insertion d'une quote avec Postgre 9.1]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14436#p14436"/>
+		<content type="html"><![CDATA[<p>À priori, vous utilisez la version 9.1 de PostgreSQL. En 9.1, le paramètre standard_conforming_strings est à on par défaut, ce qui occasionne ce genre de problème. Le passer à off permettra d&#039;éviter ce problème, mais vous aurez des messages WARNING dans vos traces. Le mieux est évidemment que les développements de SQLDirect comprennent que l&#039;utilisation des antislashs n&#039;est pas standard et que la bonne façon de faire est d&#039;utiliser deux guillemets simples.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-07-02T08:34:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14436#p14436</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Insertion d'une quote avec Postgre 9.1]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14435#p14435"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Nous sommes en train de rendre nos applicatifs compatibles avec Postgre SQL.<br />Pour nous connecter (et pour ceux qui connaissent) nous utilisons SQLDirect. Ce composant se charge d&#039;échapper les &#039; avant l&#039;insertion.<br />La syntaxe utilisée par ce composant est \&#039; (au lieu de &#039;&#039;). D&#039;après la documentation ceci est correct :</p><p>&quot;Also, a single quote can be included in an escape string by writing \&#039;, in addition to the normal way of &#039;&#039;.&quot;</p><p>Mais on obtient pourtant une erreur SQL. J&#039;ai essayé de faire le test avec pgAdmim et j&#039;obtiens la même erreur :</p><p>INSERT INTO TEST1(TS1_INT, TS1_VARCHAR) VALUES (10, &#039;aujourd\&#039;hui&#039;)<br />ERREUR:&#160; erreur de syntaxe sur ou près de « hui »<br />LINE 1: ...TO TEST1(TS1_INT, TS1_VARCHAR) VALUES (10, &#039;aujourd\&#039;hui&#039;)</p><br /><p>********** Erreur **********</p><p>ERREUR: erreur de syntaxe sur ou près de « hui »<br />État SQL :42601<br />Caractère : 65</p><br /><p>Y&#039;a t&#039;il une option à activer quelque part ?</p><p>Merci</p>]]></content>
+		<author>
+			<name><![CDATA[Tetranos]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1819</uri>
+		</author>
+		<updated>2012-07-02T08:29:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14435#p14435</id>
+	</entry>
+</feed>

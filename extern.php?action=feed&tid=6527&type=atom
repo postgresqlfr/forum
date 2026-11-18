@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Restauration table par table et contraintes externes]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=6527&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=6527"/>
+	<updated>2023-05-10T16:03:23Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=6527</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Restauration table par table et contraintes externes]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34285#p34285"/>
+		<content type="html"><![CDATA[<p>Dans le 1er message il est question de faire DELETE, pas DROP ni TRUNCATE qui effectivement ne sont pas possibles en présence des contraintes d&#039;intégrité référentielles.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2023-05-10T16:03:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34285#p34285</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Restauration table par table et contraintes externes]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34284#p34284"/>
+		<content type="html"><![CDATA[<p>c&#039;est ce que j&#039;essaie de faire justement dans le même transaction, je fais les set constraints puis j&#039;essaie de deleter ma table avec drop table mais la commande ne passe pas ou bien vider son contenu avec truncate table (error:cannot truncate a table referenced in a foreign key constraint) ;</p><p>après mon begin, j&#039;ai même essayé un ALTER TABLE ma_table_à_restaurer DISABLE TRIGGER ALL;<br />et là mon \i ma_table_à_restaurer me répond &quot;ERROR:&#160; duplicate key value violates unique constraint ....&quot;<br />j&#039;ai l&#039;impression de tourner en rond ...</p>]]></content>
+		<author>
+			<name><![CDATA[noob_postgres]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=11065</uri>
+		</author>
+		<updated>2023-05-10T15:40:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34284#p34284</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Restauration table par table et contraintes externes]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34283#p34283"/>
+		<content type="html"><![CDATA[<p>L&#039;erreur du pg_restore citée au 1er message est une violation de clef primaire qui suggère le DELETE FROM ma_table_à_restaurer a été fait dans une transaction <strong>non committée</strong>.</p><br /><p>Le pg_restore se faisant dans une autre transaction, de son point de vue les données de ma_table_à_restaurer sont toujours là.</p><br /><p>Pour faire marcher votre idée, il faudrait tout faire dans la même transaction, donc au lieu de jouer pg_restore directement sur la base il faut lui demander de créer un fichier avec les commandes SQL de restauration (option -f- de pg_restore) et ensuite passer ces commandes dans la même transaction que le reste (\i sous psql) après le DELETE et avant le COMMIT.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2023-05-10T15:31:45Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34283#p34283</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Restauration table par table et contraintes externes]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34281#p34281"/>
+		<content type="html"><![CDATA[<p>en fait je viens de refaire un test où j&#039;ai çà :</p><p>BEGIN;<br />ALTER TABLE nom_table1 ALTER CONSTRAINT nom_contrainte1 DEFERRABLE;<br />SET CONSTRAINTS nom_contrainte1 DEFERRED;<br />ALTER TABLE nom_table2 ALTER CONSTRAINT nom_contrainte2 DEFERRABLE;<br />SET CONSTRAINTS nom_contrainte2 DEFERRED;<br />DROP ma_table_à_restaurer ;</p><p>et là erreur &quot;ERROR:&#160; cannot drop table ma_table_à_restaurer because other objects depend on it&quot; et me suggère de faire un DROP CASCADE ....ce qui ne m&#039;arrange pas du tout </p><p>Ici l&#039;idée était de faire un drop de ma table avant de lancer une restauration dans la transaction en cours en faisant \i ma_table_à_restaurer.sql&#160; (que j&#039;ai extrait de mon dump)</p><p>car si je lance la restauration sans dropper j&#039;ai ce message d&quot;erreur ERROR:&#160; relation &quot;ma_table_à_restaurer&quot; already exists ....</p>]]></content>
+		<author>
+			<name><![CDATA[noob_postgres]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=11065</uri>
+		</author>
+		<updated>2023-05-10T14:15:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34281#p34281</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Restauration table par table et contraintes externes]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34278#p34278"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />Qu&#039;entendez-vous par version personnalisés de pg_restore ?</p>]]></content>
+		<author>
+			<name><![CDATA[noob_postgres]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=11065</uri>
+		</author>
+		<updated>2023-05-10T09:29:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34278#p34278</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Restauration table par table et contraintes externes]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34277#p34277"/>
+		<content type="html"><![CDATA[<p>Elles passent &quot;deferred&quot;. Cependant, comme la documentation l&#039;indique, elles passent uniquement pendant le temps de la transaction. Donc au COMMIT, pouf, le mode &quot;DEFERRED&quot; est annulé. À ma connaissance, pg_restore ne peut pas le faire. Il faut donc créer votre propre solution (une version personnalisée de pg_restore semblerait le plus simple).</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2023-05-09T19:40:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34277#p34277</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Restauration table par table et contraintes externes]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34273#p34273"/>
+		<content type="html"><![CDATA[<p>Salut et merci pour la réponse.</p><p>c&#039;est que j&#039;ai fait mais les contraintes ne passent pas en &quot;deferred&quot;.</p>]]></content>
+		<author>
+			<name><![CDATA[noob_postgres]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=11065</uri>
+		</author>
+		<updated>2023-05-09T15:06:39Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34273#p34273</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Restauration table par table et contraintes externes]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34270#p34270"/>
+		<content type="html"><![CDATA[<p>Salut, j&#039;ai déjà eu besoin de faire quelque chose comme ça, donc voilà ma méthode, j&#039;espère que ça marchera pour vous</p><p>Restaurer des tables spécifiques sans toucher aux autres tables peut être délicat, surtout si vous avez des contraintes externes telles que des clés étrangères. Cependant, il existe une méthode pour y parvenir.</p><p>Tout d&#039;abord, vous pouvez utiliser la commande pg_dump pour extraire uniquement les tables que vous souhaitez restaurer. Par exemple, vous pouvez utiliser la commande suivante pour extraire la table nommée ma_table_à_restaurer :</p><p>pg_dump -t ma_table_à_restaurer ma_base &gt; ma_table_à_restaurer.dump</p><p>Ensuite, vous pouvez restaurer la table en utilisant la commande suivante :</p><p>pg_restore -v -p 5440 -d ma_base -t ma_table_à_restaurer ma_table_à_restaurer.dump</p><p>Notez que vous n&#039;avez pas besoin de l&#039;option --data-only car vous ne restaurez qu&#039;une seule table.</p><p>Enfin, si vous rencontrez toujours des erreurs de violation de contrainte, vous pouvez essayer de désactiver temporairement la contrainte avec la commande ALTER TABLE et SET CONSTRAINTS. Cependant, assurez-vous de réactiver la contrainte une fois que vous avez restauré toutes les tables nécessaires.</p><p>J&#039;espère que cela vous aidera à résoudre votre problème !</p>]]></content>
+		<author>
+			<name><![CDATA[Raoka]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=11257</uri>
+		</author>
+		<updated>2023-05-09T11:54:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34270#p34270</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Restauration table par table et contraintes externes]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34269#p34269"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je souhaite restaurer des tables spécifiques sans toucher aux autres tables et ne pas faire une restauration complète.<br />Or, sur ces tables, il y a des contraintes externes (clés étrangères).</p><p>J&#039;essaie de procéder ainsi :</p><p>BEGIN;<br />ALTER TABLE nom_table1 ALTER CONSTRAINT nom_contrainte1 DEFERRABLE;<br />SET CONSTRAINTS nom_contrainte1 DEFERRED;<br />ALTER TABLE nom_table2 ALTER CONSTRAINT nom_contrainte2 DEFERRABLE;<br />SET CONSTRAINTS nom_contrainte2 DEFERRED;<br />COMMIT;</p><p>puis j&#039;efface le contenu de ma table à restaurer :<br />DELETE FROM ma_table_à_restaurer;</p><p>puis j&#039;essaie de faire en user postgres : pg_restore -v -p 5440 -d ma_base -t ma_table_à_restaurer --data-only&#160; mondump.dump</p><p>mais j&#039;ai toujours des erreurs de ce type ERROR: duplicate key value violates unique constraint &quot;pk_nom_contrainte&quot;</p><p>Mais ce ne doit pas être la bonne façon de procéder ....je tourne en boucle sur le sujet.</p><p>Quelq&#039;un aurait-il une méthode qui fonctionne ?</p><p>Merci pour votre aide,</p>]]></content>
+		<author>
+			<name><![CDATA[noob_postgres]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=11065</uri>
+		</author>
+		<updated>2023-05-09T10:03:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34269#p34269</id>
+	</entry>
+</feed>

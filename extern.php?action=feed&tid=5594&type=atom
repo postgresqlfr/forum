@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / select sur une vue via npgsql]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5594&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5594"/>
+	<updated>2019-08-29T19:10:53Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5594</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  select sur une vue via npgsql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30176#p30176"/>
+		<content type="html"><![CDATA[<p>Arf. Évidemment. <br />Voilà ce qui arrive quand on a le C# avec sa normalisation de noms de variables sur un écran et PostgreSQL avec une autre normalisation sur l&#039;autre écran.<br />Je vais renommer les vues avec une casse pour respecter la normalisation PostgreSQL. <br />Merci de m&#039;avoir fait remarquer ce que j&#039;avais collé devant le nez et que je ne voyais pas.</p>]]></content>
+		<author>
+			<name><![CDATA[Jean-Marc68]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8715</uri>
+		</author>
+		<updated>2019-08-29T19:10:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30176#p30176</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  select sur une vue via npgsql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30175#p30175"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><div class="quotebox"><blockquote><div><p>string listeOCTRencodéssql = @&quot;SELECT * FROM OCTRencodees;&quot;;</p></div></blockquote></div><p>Étant donné que vous avez choisi d&#039;utiliser un nom de table avec une casse, il vous faut systématiquement utiliser des guillements doubles lorsque vous y faites référence.&#160; Le message d&#039;erreur vous l&#039;indique d&#039;ailleurs :</p><div class="quotebox"><blockquote><div><p>la relation « octrencodees » n&#039;existe pas</p></div></blockquote></div>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2019-08-29T18:53:52Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30175#p30175</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[select sur une vue via npgsql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30174#p30174"/>
+		<content type="html"><![CDATA[<p>Salut,</p><p>Je code en C# et je me lie à postgresql via npgsql (à jour, version 4.0.9).</p><p>Je n&#039;ai aucun problème à accéder aux tables, mais lorsque je crée une vue et que je veux la lire, je reçois un message d&#039;erreur me disant que la table n&#039;existe pas (erreur 42P01)</p><p>Voici une vue dans postgresql</p><div class="codebox"><pre><code>CREATE OR REPLACE VIEW public.&quot;OCTRencodees&quot; AS 
+ SELECT documents.num_document_cadastre AS no_octr,
+    documents.minute,
+    documents.date_minute,
+    documents.ag,
+    documents.matricule_ag
+   FROM documents
+  WHERE documents.type_document::text = &#039;OCTR&#039;::text
+  GROUP BY documents.num_document_cadastre, documents.minute, documents.date_minute, documents.ag, documents.matricule_ag
+  ORDER BY documents.num_document_cadastre;
+
+ALTER TABLE public.&quot;OCTRencodees&quot;
+  OWNER TO jmdeneyer;
+COMMENT ON VIEW public.&quot;OCTRencodees&quot;
+  IS &#039;Donne la liste des OCTR encodées&#039;;</code></pre></div><p>Voici le code de lecture de cette vue </p><div class="codebox"><pre class="vscroll"><code>public static MTObservableCollection&lt;MinuteDocument&gt; ListeOCTRencodés()
+        {
+            NpgsqlConnection conn = new NpgsqlConnection(Properties.Settings.Default.PostGISconnexionString);
+            MTObservableCollection&lt;MinuteDocument&gt; listeOCTR = new MTObservableCollection&lt;MinuteDocument&gt;();
+            string listeOCTRencodéssql = @&quot;SELECT * FROM OCTRencodees;&quot;;
+            NpgsqlCommand listeOCTRencodéscommand = new NpgsqlCommand(listeOCTRencodéssql, conn);
+            NpgsqlDataReader listeOCTRencodésdr;
+
+            try
+            {
+                conn.Open();
+                using (listeOCTRencodésdr = listeOCTRencodéscommand.ExecuteReader())
+                {
+                    while (listeOCTRencodésdr.Read())
+                    {
+                        MinuteDocument octr = new MinuteDocument();
+                        int noMandat = 0, noMatricule = 0;
+                        DateTime dateMinute = new DateTime();
+                        if (int.TryParse(listeOCTRencodésdr[&quot;no_octr&quot;].ToString(), out noMandat))
+                            octr.Numero = noMandat;
+                        if (int.TryParse(listeOCTRencodésdr[&quot;matricule_ag&quot;].ToString(), out noMatricule))
+                            octr.Matricule = noMatricule;
+                        if (DateTime.TryParse(listeOCTRencodésdr[&quot;date_minute&quot;].ToString(), out dateMinute))
+                            octr.DateMinute = dateMinute;
+                        octr.Minute = listeOCTRencodésdr[&quot;minute&quot;].ToString();
+                        octr.AG = listeOCTRencodésdr[&quot;ag&quot;].ToString();
+                        listeOCTR.Add(octr);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(&quot;la lecture des OCTR encodées a engendré l&#039;erreur suivante.Message : &quot; + ex.Message, ex);
+    }
+            finally
+            {
+                conn.Close();
+            }
+            if (listeOCTR.Count &gt; 0)
+                return listeOCTR;
+            return null;
+        }</code></pre></div><p>Voici le message que je reçois </p><div class="quotebox"><blockquote><div><p>System.Exception<br />&#160; HResult=0x80131500<br />&#160; Message=la lecture des OCTR encodées a engendré l&#039;erreur suivante.Message : ERREUR: 42P01: la relation « octrencodees » n&#039;existe pas<br />&#160; Source=TopocomArchives<br />Exception interne 1 :<br />NpgsqlException : ERREUR: 42P01: la relation « octrencodees » n&#039;existe pas</p></div></blockquote></div><p>Qu&#039;est-ce que je fais mal ?<br />Que dois-je faire pour avoir accès aux vues ?<br />Merci de vos z&#039;avis z&#039;avisés.</p>]]></content>
+		<author>
+			<name><![CDATA[Jean-Marc68]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8715</uri>
+		</author>
+		<updated>2019-08-29T13:50:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30174#p30174</id>
+	</entry>
+</feed>

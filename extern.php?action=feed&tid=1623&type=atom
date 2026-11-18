@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Problème de migration Mysql vers PostgreSQL avec la fonction PASSWORD]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1623&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1623"/>
+	<updated>2011-09-06T09:55:51Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1623</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème de migration Mysql vers PostgreSQL avec la fonction PASSWORD]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10837#p10837"/>
+		<content type="html"><![CDATA[<p>Super ! Tu m&#039;as donné la solution que je cherchais. <br />Merci encore !</p>]]></content>
+		<author>
+			<name><![CDATA[Darkroll]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=838</uri>
+		</author>
+		<updated>2011-09-06T09:55:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10837#p10837</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème de migration Mysql vers PostgreSQL avec la fonction PASSWORD]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10832#p10832"/>
+		<content type="html"><![CDATA[<p>Chez moi avec mysql 5.1.41 (ubuntu) ça donne ça:</p><div class="codebox"><pre><code>mysql&gt; select password(&#039;test&#039;);
++-------------------------------------------+
+| password(&#039;test&#039;)                          |
++-------------------------------------------+
+| *94BDCEBE19083CE2A1F959FD02F964C7AF4CFC29 |
++-------------------------------------------+
+1 row in set (0.00 sec)</code></pre></div><p>En fait la fonction password() a été changée à partir de mysql 4.1, donc apparemment tu utilises une version plus ancienne.</p><p>L&#039;ancien comportement est disponible via old_password.<br />Voilà ce que donne old_password(&#039;test&#039;) sur mysql5:</p><div class="codebox"><pre><code>mysql&gt; select old_password(&#039;test&#039;);
++----------------------+
+| old_password(&#039;test&#039;) |
++----------------------+
+| 378b243e220ca493     |
++----------------------+
+1 row in set (0.00 sec)</code></pre></div><p>C&#039;est bien ton résultat. Donc en fait c&#039;est old_password() que tu veux.</p><p>L&#039;algorithme de la fonction old_password() est spécifique à mysql, mais il est assez simple à réimplémenter, il y a un code php équivalent ici:<br /><a href="http://stackoverflow.com/questions/260236/mysql-hashing-function-implementation" rel="nofollow">http://stackoverflow.com/questions/2602 … ementation</a><br />Ca parait tout à fait jouable en plpgsql.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2011-09-06T09:09:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10832#p10832</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème de migration Mysql vers PostgreSQL avec la fonction PASSWORD]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10828#p10828"/>
+		<content type="html"><![CDATA[<p>Merci pour vos 2 réponses.<br />Mais malheureusement dverite, le mot de passe géré avec votre fonction ne renvoi pas le même résultat que la fonction password</p><p>Sur Mysql </p><div class="codebox"><pre><code>select PASSWORD(&#039;test&#039;)
+
+retourne : 
+378b243e220ca493</code></pre></div><p>Sur Postgresql</p><div class="codebox"><pre><code>select upper(encode(digest(digest(&#039;test&#039;,&#039;sha1&#039;), &#039;sha1&#039;), &#039;hex&#039;))
+
+retourne : 
+94BDCEBE19083CE2A1F959FD02F964C7AF4CFC29</code></pre></div><p>Si vous avez d&#039;autre piste je suis preneur <img src="http://forums.postgresql.fr/img/smilies/wink.png" width="15" height="15" alt="wink" />.</p><p>Merci !</p>]]></content>
+		<author>
+			<name><![CDATA[Darkroll]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=838</uri>
+		</author>
+		<updated>2011-09-06T08:03:35Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10828#p10828</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème de migration Mysql vers PostgreSQL avec la fonction PASSWORD]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10825#p10825"/>
+		<content type="html"><![CDATA[<p>L&#039;équivalent de la fonction password() de mysql est:</p><div class="codebox"><pre><code>&#039;*&#039; || upper(encode(digest(digest(&#039;LE MOT DE PASSE EN CLAIR&#039;,&#039;sha1&#039;), &#039;sha1&#039;), &#039;hex&#039;))</code></pre></div><p>La fonction digest() fait partie du module crypto (dans contrib)</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2011-09-05T22:00:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10825#p10825</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème de migration Mysql vers PostgreSQL avec la fonction PASSWORD]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10824#p10824"/>
+		<content type="html"><![CDATA[<p>Je ne sais pas exactement ce que fait la fonction password mais je suppose que ça chiffre un mot de passe. Pour chiffrer, vous avez la fonction md5. Vous avez accès à d&#039;autres fonctions de chiffrement avec le module pgcrypto.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-09-05T19:42:38Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10824#p10824</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Problème de migration Mysql vers PostgreSQL avec la fonction PASSWORD]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10820#p10820"/>
+		<content type="html"><![CDATA[<p>Bonjour, <br />J&#039;ai repris le travail d&#039;un développeur qui a quitté la société depuis de nombreuses années. </p><p>Je migre la base mysql vers Postgres mais je me heurte à un problème : <strong>&quot;Il a chiffré tous les mots de passe avec la fonction mysql PASSWORD&quot;</strong>.</p><p>Existe-il une fonction au sein de Postgresql pour crypter le mot de passe de la même façon que la fonction PASSWORD de Mysql ? </p><p>Sinon avez-vous d&#039;autres solutions ? </p><p>Merci d&#039;avance !</p>]]></content>
+		<author>
+			<name><![CDATA[Darkroll]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=838</uri>
+		</author>
+		<updated>2011-09-05T15:56:45Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10820#p10820</id>
+	</entry>
+</feed>

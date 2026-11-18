@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / UPDATE avec des valeurs au hasard]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=159&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=159"/>
+	<updated>2009-02-05T08:06:08Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=159</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  UPDATE avec des valeurs au hasard]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=685#p685"/>
+		<content type="html"><![CDATA[<p>Non, cela ne marche pas, le WHERE n&#039;a l&#039;air d&#039;être exécuté qu&#039;une seule fois, car au final tous mes enregs ont le même nom. J&#039;avais essayé.</p><p>J&#039;ai contourné le problème en externalisant la partie select dans une procédure et en remplaçant par :<br />UPDATE personne<br />SET nom_usuel = remplacer_nom();</p><p>Cela fonctionne, la fonction est recalculée pour chaque enreg.<br />Merci quand même.</p>]]></content>
+		<author>
+			<name><![CDATA[mt]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=237</uri>
+		</author>
+		<updated>2009-02-05T08:06:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=685#p685</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  UPDATE avec des valeurs au hasard]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=684#p684"/>
+		<content type="html"><![CDATA[<p>Pour cela, il ne faut pas que ce soit une sous-transaction :</p><div class="codebox"><pre><code>UPDATE personne
+SET nom_usuel = an.nom_usuel
+FROM ano_nom an 
+WHERE an.id_nom = mod(cast((floor(random()*100000000)) as bigint) ,8013);</code></pre></div><p>Mais bon, si random veut pas, tu ne pourras pas tout mettre à jour. Peut-être que generate_series serait plus approprié.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2009-02-04T21:16:50Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=684#p684</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[UPDATE avec des valeurs au hasard]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=680#p680"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je souhaite &quot;anonymiser&quot; des noms dans une table personne. </p><p>Pour ce faire, j&#039;ai constituer une table référence avec 2 colonnes : index et&#160; nom. Je voudrais remplacer chaque nom de ma table personne par un nom tiré au hasard de ma table référence.</p><p>La requete suivante me ramène le même nom pour toutes les occurences de personne.</p><div class="codebox"><pre><code>UPDATE personne
+SET nom_usuel = (SELECT an.nom_usuel FROM ano_nom an 
+ WHERE an.id_nom = mod(cast((floor(random()*100000000)) as bigint) ,8013));</code></pre></div><p>Comment forcer l&#039;exécution du SELECT pour chaque UPDATE ?</p><p>(8013, car j&#039;ai 8013 noms dans ma table référence)</p><p>Merci d&#039;avance.</p>]]></content>
+		<author>
+			<name><![CDATA[mt]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=237</uri>
+		</author>
+		<updated>2009-02-04T11:30:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=680#p680</id>
+	</entry>
+</feed>

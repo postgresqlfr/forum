@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / [Résolu] Migration MS Access vers Postgresql - Caractères CR/LF]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=6840&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=6840"/>
+	<updated>2024-02-25T17:50:37Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=6840</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] Migration MS Access vers Postgresql - Caractères CR/LF]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34938#p34938"/>
+		<content type="html"><![CDATA[<p>Les + et espaces ne sont que de la mise en page de psql (vous devez être dans le mode étendu). Ils ne sont pas en base.</p><p>Sinon si c&#039;est pour copier d&#039;une base access vers postgres, vous pouvez aussi demander à access de vous produire un CSV. COPY peut importer le format CSV directement, et vous serez sûr de garder vos caractères supplémentaires</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2024-02-25T17:50:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34938#p34938</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] Migration MS Access vers Postgresql - Caractères CR/LF]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34937#p34937"/>
+		<content type="html"><![CDATA[<p>Pourquoi n&#039;y avais-je pas pensé!</p><br /><p>C&#039;est exactement ce que je souhaitais faire : réaliser l&#039;import en conservant les différentes lignes.</p><div class="codebox"><pre><code>COPY adresses_t(id, adresse) FROM stdin;
+1{TAB}boulevard du Brouillard\r\n75001\r\nParis (avec les \\r\\n)
+2{TAB}impasse des Grenouilles\n33102\nPétaouchnock (avec le \\n seulement)
+\.</code></pre></div><p>Je ne m&#039;attendais pas à ce que le codes \r soit présent dans les cellules. Je ne m&#039;attendais pas non plus à l&#039;ajout d&#039;espaces et des &quot;+&quot; en fin de ligne.<br />En omettant le &quot;retour chariot&quot; et ne conservant que le &#039;nouvelle ligne&#039; cela me convient tout à fait.</p><div class="codebox"><pre><code>SELECT * FROM adresses;
+ id |             adresse              
+----+----------------------------------
+  1 | boulevard du Brouillard\r       +
+    | 75001\r                         +
+    | Paris (avec les \r\n)
+  2 | impasse des Grenouilles         +
+    | 33102                           +
+    | Pétaouchnock (avec le \n seulement)
+(2 lignes)</code></pre></div><p>Merci beaucoup aussi pour le lien vers l&#039;usage de COPY. Sa relecture n&#039;a pas été superflue.</p>]]></content>
+		<author>
+			<name><![CDATA[Alain V.]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=30</uri>
+		</author>
+		<updated>2024-02-25T16:51:55Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34937#p34937</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] Migration MS Access vers Postgresql - Caractères CR/LF]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34936#p34936"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />Puisque c&#039;est pour injecter dans un COPY, le plus simple, c&#039;est de remplacer CR par \r et LF par \n. cf paragraphe &quot;Text Format&quot; dans <a href="https://www.postgresql.org/docs/current/sql-copy.html" rel="nofollow">https://www.postgresql.org/docs/current/sql-copy.html</a></p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2024-02-25T13:55:00Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34936#p34936</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[[Résolu] Migration MS Access vers Postgresql - Caractères CR/LF]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34935#p34935"/>
+		<content type="html"><![CDATA[<p>Bonjour le forum,</p><br /><p><strong>Dans la base de données MS Access :</strong><br />J&#039;ai une colonne dont certaines cellules contiennent plusieurs lignes. Ces lignes sont distinctes entre elles car elles se terminent par des CR/LF.<br />Le type de données de cette colonne est &quot;Mémo&quot;. Il contient des adresses.<br />Voici un exemple du contenu de deux tuples dont la colonne [adresse] me pose problème :</p><div class="codebox"><pre><code>[id][adresse]
+1   boulevard du Brouillard{CR LF}
+    75001{CR LF}
+    Paris
+2   impasse des Grenouilles{CR LF}
+    33102{CR LF}
+    Pétaouchnock</code></pre></div><p><strong>Dans Postgresql : </strong><br />Voici la table dans laquelle je veux importer les données :</p><div class="codebox"><pre><code>CREATE TABLE adresses (
+id SERIAL UNIQUE NOT NULL,
+adresse CHARACTER VARYING(30)
+);</code></pre></div><p>A l&#039;import, cela se passe mal.<br />Motif : les CR/LF perturbent la structure du fichier d&#039;import : 1 tuple = 1 ligne terminée par CRLF. Cette structure n&#039;est plus respectée.<br />Voici le fichier d&#039;import :</p><div class="codebox"><pre><code>COPY adresses(id, adresse) FROM stdin;{CR LF}
+1{TAB}boulevard du Brouillard{CR LF}
+75001{CR LF}
+Paris{CR LF}
+2{TAB}impasse des Grenouilles{CR LF}
+33102{CR LF}
+Pétaouchnock{CR LF}
+\.{CR LF}</code></pre></div><p>Pour préserver la lisibilité de mon message, j&#039;ai changé les codes hexa non imprimables par des CR, LF et TAB </p><br /><p>Dans Postgresql, je veux conserver ces CR/LF pour réutiliser ce formatage dans d&#039;autres usages.<br />Si je remplace ces CR LF perturbants par des TAB et que je modifie la table en conséquence alors je peux procéder à l&#039;import mais je perd le formatage. Ce que je ne veux pas.<br />Il s&#039;agit de plusieurs milliers de tuples à migrer.<br />Est-ce possible? Comment?</p><br /><p>Merci beaucoup par avance pour toutes suggestions.</p>]]></content>
+		<author>
+			<name><![CDATA[Alain V.]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=30</uri>
+		</author>
+		<updated>2024-02-25T13:24:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34935#p34935</id>
+	</entry>
+</feed>

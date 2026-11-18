@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Incrémentation d'une colonne via un curseur]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=6357&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=6357"/>
+	<updated>2022-09-23T13:19:44Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=6357</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Incrémentation d'une colonne via un curseur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33749#p33749"/>
+		<content type="html"><![CDATA[<p>Bonjour Daniel,</p><p>Merci, j&#039;ai corrigé, ça tourne !<br />Bonne journée, Catherine.</p>]]></content>
+		<author>
+			<name><![CDATA[Catherine]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9584</uri>
+		</author>
+		<updated>2022-09-23T13:19:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33749#p33749</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Incrémentation d'une colonne via un curseur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33745#p33745"/>
+		<content type="html"><![CDATA[<p>En vrac, il y a plusieurs soucis visibles dans le code montré</p><br /><p>- BEGIN MAJ</p><p>Pourquoi MAJ? La syntaxe valide c&#039;est BEGIN tout seul.</p><br /><p>- FETCH ALL FROM cLecture;</p><p>La syntaxe est FETCH [ direction { FROM | IN } ] curseur INTO cible;</p><p>ALL n&#039;est pas possible. La cible devrait probablement être rt la variable déclarée mais pas utilisée. S&#039;il n&#039;y a aucune cible à avoir, un MOVE cLecture ferait mieux l&#039;affaire.</p><p>Attention au fait que la syntaxe du FETCH en plpgsql diffère du FETCH du SQL. C&#039;est piégeux mais c&#039;est une règle générale. Le plpgsql a sa propre syntaxe qui ressemble superficiellement au SQL mais qui diffère à cause des variables et du côté procédural.</p><br /><br /><p>- COMMIT à supprimer</p><br /><p>- la requête du curseur n&#039;a pas d&#039;ORDER BY donc il faut voir que les valeurs successives de NB vont arriver dans les lignes dans un ordre indéterminé.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2022-09-22T17:45:29Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33745#p33745</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Incrémentation d'une colonne via un curseur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33744#p33744"/>
+		<content type="html"><![CDATA[<p>Avec toutes mes excuses, Julien, votre solution fonctionne très bien, c&#039;est moi qui ai commis une erreur !<br />Si vous pouviez déboguer ma boucle, ce serait parfait !!!<br />Merci beaucoup, Catherine.</p>]]></content>
+		<author>
+			<name><![CDATA[Catherine]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9584</uri>
+		</author>
+		<updated>2022-09-21T09:49:21Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33744#p33744</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Incrémentation d'une colonne via un curseur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33743#p33743"/>
+		<content type="html"><![CDATA[<p>Cette syntaxe retourne le message d&#039;erreur suivant, même avec la création d&#039;une PK sur la colonne id_vaccin ? &quot;HINT:&#160; Il existe une colonne nommée « id_vaccin » pour la table « test » mais elle ne peut pas être référencée dans cette partie de la requête.&quot;</p><p>Merci pour votre aide, savez-vous ce qui est faux dans la boucle du traitement initial, SVP?</p>]]></content>
+		<author>
+			<name><![CDATA[Catherine]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9584</uri>
+		</author>
+		<updated>2022-09-21T09:34:29Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33743#p33743</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Incrémentation d'une colonne via un curseur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33742#p33742"/>
+		<content type="html"><![CDATA[<p>Vous devez utiliser la syntaxe UPDATE ... FROM.&#160; Par exemple:</p><div class="codebox"><pre><code>UPDATE ema.test
+SET numligne = rownum
+FROM (SELECT pkcol, row_number() OVER () AS rownum) sub
+WHERE sub.pkcol = ema.test.pkcol</code></pre></div><div class="quotebox"><blockquote><div><p>Pour ma connaissance personnelle, j&#039;aurais besoin de comprendre ce qui bloque dans ma boucle de lecture / mise à jour via curseur et fetch, s&#039;il vous plait ...</p></div></blockquote></div><br /><p>Comme l&#039;a indiqué Daniel, au moins le commit est problématique.&#160; Si vous avez corrigé ce point, quelles erreurs avez-vous pour lesquelles la documentation pointée n&#039;apporte pas de réponse ?</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2022-09-21T07:52:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33742#p33742</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Incrémentation d'une colonne via un curseur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33741#p33741"/>
+		<content type="html"><![CDATA[<p>Merci Julien,</p><p>Mais cette fonction convient pour les select, pas pour les update, elle génère l&#039;erreur : &quot;ERREUR:&#160; les fonctions de fenêtrage ne sont pas autorisés dans UPDATE.&quot;</p><p>Pour ma connaissance personnelle, j&#039;aurais besoin de comprendre ce qui bloque dans ma boucle de lecture / mise à jour via curseur et fetch, s&#039;il vous plait ...</p><p>Bonne journée, Catherine.</p>]]></content>
+		<author>
+			<name><![CDATA[Catherine]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9584</uri>
+		</author>
+		<updated>2022-09-21T07:42:02Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33741#p33741</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Incrémentation d'une colonne via un curseur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33740#p33740"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Merci pour votre réponse, mais je ne comprends pas comment faire un update incrémental d&#039;une colonne sans boucle, avec Oracle, c&#039;est possible via le rownum, mais pas avec PostGreSQL, si?</p></div></blockquote></div><p>Vous pouvez utiliser row_number() over () pour obtenir la même chose.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2022-09-21T06:18:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33740#p33740</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Incrémentation d'une colonne via un curseur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33739#p33739"/>
+		<content type="html"><![CDATA[<p>Bonjour Daniel,</p><p>Merci pour votre réponse, mais je ne comprends pas comment faire un update incrémental d&#039;une colonne sans boucle, avec Oracle, c&#039;est possible via le rownum, mais pas avec PostGreSQL, si?</p><p>Le commit ferme la transaction, vraiment ?</p><p>Merci pour votre retour, Catherine.</p>]]></content>
+		<author>
+			<name><![CDATA[Catherine]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9584</uri>
+		</author>
+		<updated>2022-09-21T03:14:55Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33739#p33739</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Incrémentation d'une colonne via un curseur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33738#p33738"/>
+		<content type="html"><![CDATA[<p>Est-ce un exercice? Parce qu&#039;en dehors d&#039;un exercice, ça n&#039;a aucun intérêt de faire une boucle au lieu d&#039;un seul UPDATE qui met à jour toutes les lignes.</p><br /><p>A part ça, il faut regarder la doc des curseurs en plpgsql pour les questions de syntaxe et d&#039;usage: <a href="https://docs.postgresql.fr/14/plpgsql-cursors.html" rel="nofollow">https://docs.postgresql.fr/14/plpgsql-cursors.html</a></p><br /><p>Sinon le COMMIT en milieu de boucle pose problème: un COMMIT ferme la transaction en cours et par extension les curseurs qui sont ouverts dedans, sauf s&#039;il sont marqués WITH HOLD. Mais pourquoi faire un COMMIT ici? Quel intérêt?</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2022-09-20T18:43:54Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33738#p33738</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Incrémentation d'une colonne via un curseur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33737#p33737"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je vous remercie de m&#039;indiquer quelle est mon erreur, je souhaite mettre à jour une colonne de table via un curseur qui la parcourt intégralement... Merci encore, Catherine.</p><br /><p>DO $$</p><p>DECLARE <br />&#160; cLecture CURSOR FOR SELECT * FROM EMA.TEST;<br />&#160; rt EMA.TEST%ROWTYPE;<br />&#160; NB Integer := 1;<br />&#160; &#160; <br />BEGIN MAJ <br />OPEN cLecture;<br />LOOP <br />&#160; &#160; FETCH ALL FROM cLecture;<br />&#160; &#160; EXIT WHEN NOT FOUND;&#160; <br />&#160; &#160; <br />&#160; &#160; &#160; &#160; UPDATE EMA.TEST SET NumLigne = NB WHERE CURRENT OF cLecture;<br />&#160; &#160; COMMIT;&#160; <br />&#160; &#160; NB := NB + 1 ; </p><p>END LOOP ;</p><p>CLOSE cLecture;</p><p>END MAJ; <br />$$ LANGUAGE plpgsql;</p>]]></content>
+		<author>
+			<name><![CDATA[Catherine]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9584</uri>
+		</author>
+		<updated>2022-09-20T12:13:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33737#p33737</id>
+	</entry>
+</feed>

@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / querying partioned table does not use the partition key when joining]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=6505&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=6505"/>
+	<updated>2023-04-04T17:45:18Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=6505</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  querying partioned table does not use the partition key when joining]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34215#p34215"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>etienne_lq a écrit&#160;:</cite><blockquote><div><p>L&#039;ajout ou non d&#039;une clé étrangère entre les tables ne change pas ce comportement.</p></div></blockquote></div><p>Je déconseille fortement l&#039;utilisation de clés étrangères sur les tables partitionnées PostgreSQL.</p><p>D&#039;abord parce qu&#039;un simple ATTACH peut prendre des heures, voire des jours selon la volumétrie et rendre la table inexploitable pendant ce temps (exclusive shared lock).</p><p>Ensuite, il y a manifestement des bugs sur les FK de tables partitionnées lors des ATTACH/DETACH(*)&#160; qui AMHA ne seront pas résolus de sitôt(**).</p><p>Au boulot, en solution de contournement en attendant mieux, on fait une vérification d&#039;intégrité avant de faire le ATTACH ; et on remplace la FK par un trigger &quot;maison&quot; qui fait le check d&#039;intégrité lors des insert/update.</p><p>(*) Ref: <a href="https://www.postgresql.org/message-id/CAECtzeWHCA%2B6tTcm2Oh2%2Bg7fURUJpLZb-%3DpRXgeWJ-Pi%2BVU%3D_w%40mail.gmail.com" rel="nofollow">https://www.postgresql.org/message-id/C … .gmail.com</a><br />(**) Ref : <a href="https://www.postgresql.org/message-id/CAECtzeV9P5yGD6aq0rfDuJjPYAEEQuqmb4EN4p-1An3aAuVtyQ%40mail.gmail.com" rel="nofollow">https://www.postgresql.org/message-id/C … .gmail.com</a></p>]]></content>
+		<author>
+			<name><![CDATA[herve.lefebvre]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=506</uri>
+		</author>
+		<updated>2023-04-04T17:45:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34215#p34215</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  querying partioned table does not use the partition key when joining]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34214#p34214"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>etienne_lq a écrit&#160;:</cite><blockquote><div><p>Merci pour vos réponses:<br />@herve:</p><div class="codebox"><pre><code>select n_live_tup,n_dead_tup from pg_stat_user_tables where relname like &#039;table_part_%&#039;;
+relname     |n_live_tup|n_dead_tup|
+------------+----------+----------+
+table_part_1|         0|         0|
+table_part_2|         0|         0|
+table_part_3|         0|         0|</code></pre></div><p>Si je comprends bien cela signifie que toutes les partitions sont a priori équivalentes c&#039;est bien cela ? (j&#039;ai rentré la même quantité de données dans chacune: 10k lignes), ce qui explique les plans d&#039;execution.</p></div></blockquote></div><p>Oui, mais à ce que je comprends, il n&#039;y a jamais eu de VACUUM ANALYZE effectué (j&#039;ai pas vérifié, mais je pense que cela devrait figurer dans les stats des partitions), par conséquent un scan de l&#039;index entraînera forcément une lecture de la page de données pointée par les feuilles de l&#039;index, donc autant effactuer directement un Seq Scan sur les pages de données.</p><p>Effectuez un VACUUM ANALYZE sur la table, et refaites un EXPLAIN ANALYZE histoire de voir si le plan d&#039;exécution change.</p>]]></content>
+		<author>
+			<name><![CDATA[herve.lefebvre]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=506</uri>
+		</author>
+		<updated>2023-04-04T17:18:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34214#p34214</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  querying partioned table does not use the partition key when joining]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34200#p34200"/>
+		<content type="html"><![CDATA[<p>Merci pour vos réponses:<br />@herve:</p><div class="codebox"><pre><code>select pg_relation_size(relname::text) from pg_stat_user_tables where relname like &#039;table_part_%&#039;;
+relname     |pg_relation_size|
+------------+----------------+
+table_part_1|         4431872|
+table_part_2|         4431872|
+table_part_3|         4431872|</code></pre></div><p>Et</p><div class="codebox"><pre><code>select n_live_tup,n_dead_tup from pg_stat_user_tables where relname like &#039;table_part_%&#039;;
+relname     |n_live_tup|n_dead_tup|
+------------+----------+----------+
+table_part_1|         0|         0|
+table_part_2|         0|         0|
+table_part_3|         0|         0|</code></pre></div><p>Si je comprends bien cela signifie que toutes les partitions sont a priori équivalentes c&#039;est bien cela ? (j&#039;ai rentré la même quantité de données dans chacune: 10k lignes), ce qui explique les plans d&#039;execution.</p><p>@rjuju<br />Je crois que j&#039;ai mieux compris et qu&#039;en indexant la table_ref sur la colonne name (ou sur id si j&#039;applique un prédicat dessus) je tombe dans un cas similaire au 2ème que vous décrivez, le plan d&#039;execution annonce qu&#039;il va scan toutes les partitions en revanche un analyze donne bien le fonctionnement que j&#039;attends et les scans sur les partitions qui ne sont pas dans le résultat de la première requête ne sont pas executés (même s&#039;il sont annoncés au même poids dans l&#039;explain plan):</p><div class="codebox"><pre><code>QUERY PLAN                                                                                                                                 |
+-------------------------------------------------------------------------------------------------------------------------------------------+
+Nested Loop  (cost=13.24..744.53 rows=260 width=222) (actual time=3.704..29.843 rows=100000 loops=1)                                       |
+  -&gt;  Index Only Scan using table_ref_pkey on table_ref tr  (cost=0.15..8.17 rows=1 width=4) (actual time=0.022..0.025 rows=1 loops=1)     |
+        Index Cond: (name = &#039;ref_1&#039;::text)                                                                                                 |
+        Heap Fetches: 1                                                                                                                    |
+  -&gt;  Append  (cost=13.09..733.75 rows=261 width=222) (actual time=3.679..19.880 rows=100000 loops=1)                                      |
+        -&gt;  Bitmap Heap Scan on table_part_1 tp_1  (cost=13.09..244.15 rows=87 width=222) (actual time=3.674..12.574 rows=100000 loops=1)  |
+              Recheck Cond: (id_ref = tr.id)                                                                                               |
+              Heap Blocks: exact=541                                                                                                       |
+              -&gt;  Bitmap Index Scan on table_part_1_pkey  (cost=0.00..13.06 rows=87 width=0) (actual time=3.604..3.604 rows=100000 loops=1)|
+                    Index Cond: (id_ref = tr.id)                                                                                           |
+        -&gt;  Bitmap Heap Scan on table_part_2 tp_2  (cost=13.09..244.15 rows=87 width=222) (never executed)                                 |
+              Recheck Cond: (id_ref = tr.id)                                                                                               |
+              -&gt;  Bitmap Index Scan on table_part_2_pkey  (cost=0.00..13.06 rows=87 width=0) (never executed)                              |
+                    Index Cond: (id_ref = tr.id)                                                                                           |
+        -&gt;  Bitmap Heap Scan on table_part_3 tp_3  (cost=13.09..244.15 rows=87 width=222) (never executed)                                 |
+              Recheck Cond: (id_ref = tr.id)                                                                                               |
+              -&gt;  Bitmap Index Scan on table_part_3_pkey  (cost=0.00..13.06 rows=87 width=0) (never executed)                              |
+                    Index Cond: (id_ref = tr.id)                                                                                           |
+Planning Time: 0.204 ms                                                                                                                    |
+Execution Time: 33.889 ms                                                                                                                  |</code></pre></div><p>L&#039;ajout ou non d&#039;une clé étrangère entre les tables ne change pas ce comportement.<br />Je pense que j&#039;ai les éléments de réponse pour ma question <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /> et que je vais clore le post, merci pour votre aide.</p>]]></content>
+		<author>
+			<name><![CDATA[etienne_lq]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=11140</uri>
+		</author>
+		<updated>2023-03-31T14:14:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34200#p34200</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  querying partioned table does not use the partition key when joining]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34198#p34198"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>etienne_lq a écrit&#160;:</cite><blockquote><div><p>Quant au problème j&#039;ai essayé d&#039;ajouter une foreign key mais cela ne change rien.<br />Ce que je ne comprends pas c&#039;est pourquoi la première requête a besoin de scan toutes les partitions alors que la clé de partition est fournie implicitement via la jointure, j&#039;aimerais savoir comment mieux écrire mes requêtes pour éviter ce comportement.</p></div></blockquote></div><br /><p>Non, vous ne fournissez pas de clé de partition implicitement.&#160; Votre modèle de données ne garantit absolument pas l&#039;unicité sur table_ref.name, donc &#039;ref_1&#039; pourrait tout à fait pointer vers des enregistrements dans toutes les partitions de table_part.</p><br /><p>Maintenant, même si vous aviez une contrainte d&#039;unicité sur table_ref.name, postgres continuerait tout de même à chercher dans toutes les partitions car le planificateur n&#039;a aucune idée de la valeur de table_ref.id pour un table_ref.name donné.&#160; Mais même s&#039;il le savait il ne pourrait pas l&#039;utiliser car il n&#039;y a aucune garantie que la planification et l&#039;exécution se fasse avec le même snapshot, voire la même transaction.</p><br /><p>À priori la seule possibilité serait d&#039;avoir du &quot;runtime partition pruning&quot;, donc d&#039;avoir le même plan mais avec une partie du plan non exécutée durant l&#039;exécution de la requête, mais ce cas n&#039;est pas géré j&#039;imagine du fait du peu de gain à espérer par rapport au surcout durant la planification et au faible nombre de cas où l&#039;optimisation serait possible (uniquement en cas d&#039;opérateur d&#039;égalité sur la colonne en question).&#160; En effet la bonne pratique est de créer un index sur les champ des clé étrangère, et même si chercher une valeur non existante dans un index n&#039;est pas gratuit c&#039;est quand même relativement peu couteux.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2023-03-31T03:01:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34198#p34198</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  querying partioned table does not use the partition key when joining]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34197#p34197"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>etienne_lq a écrit&#160;:</cite><blockquote><div><p>Bonjour,</p><p>Merci pour la réponse et désolé pour le post en anglais.<br />Quant au problème j&#039;ai essayé d&#039;ajouter une foreign key mais cela ne change rien.<br />Ce que je ne comprends pas c&#039;est pourquoi la première requête a besoin de scan toutes les partitions alors que la clé de partition est fournie implicitement via la jointure, j&#039;aimerais savoir comment mieux écrire mes requêtes pour éviter ce comportement.</p></div></blockquote></div><br /><p>Bonjour.</p><p>Vous avez dans votre table_ref des valeurs qui &#039;pointent&#039; sur les 3 partitions, donc de toute façon, il devra aller chercher dans les 3 partitions.</p><p>ça vous donne quoi :</p><div class="codebox"><pre><code>select pg_relation_size(relname::text) from pg_stat_user_tables where relname like &#039;table_part_%&#039;;</code></pre></div><p>et </p><div class="codebox"><pre><code>select n_live_tup,n_dead_tup from pg_stat_user_tables where relname like &#039;table_part_%&#039;;</code></pre></div><p>??</p>]]></content>
+		<author>
+			<name><![CDATA[herve.lefebvre]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=506</uri>
+		</author>
+		<updated>2023-03-30T13:51:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34197#p34197</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  querying partioned table does not use the partition key when joining]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34196#p34196"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Merci pour la réponse et désolé pour le post en anglais.<br />Quant au problème j&#039;ai essayé d&#039;ajouter une foreign key mais cela ne change rien.<br />Ce que je ne comprends pas c&#039;est pourquoi la première requête a besoin de scan toutes les partitions alors que la clé de partition est fournie implicitement via la jointure, j&#039;aimerais savoir comment mieux écrire mes requêtes pour éviter ce comportement.</p>]]></content>
+		<author>
+			<name><![CDATA[etienne_lq]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=11140</uri>
+		</author>
+		<updated>2023-03-30T10:29:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34196#p34196</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  querying partioned table does not use the partition key when joining]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34185#p34185"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><p>Tout d&#039;abord c&#039;est un forum spécifiquement français <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><br /><p>Ensuite concernant votre question, les 2 requêtes ne sont pas équivalentes car il n&#039;y a pas de contrainte de clé étrangère entre les deux tables, la première requête doit donc vérifier qu&#039;il existe bien un enregistrement dans table_part pour chaque ligne de table_ref alors que la 2nde requête renverra des enregistrements potentiellement &quot;orphelins&quot;.&#160; Vous pouvez supprimer la ligne dans table_ref pour id = 1 et vous verrez des résultats différents pour chaque requête.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2023-03-27T13:02:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34185#p34185</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[querying partioned table does not use the partition key when joining]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34184#p34184"/>
+		<content type="html"><![CDATA[<p>Hello,</p><p>I have an issue with the execution plans of postgresql (15.2) when querying a partitioned table. A simple example is provided below.<br />I would expect both query 1 and query 2 to have the same execution plans but query 1 does scan all the partitions of table_part while the join clause on the partition key should be enough to access only the partition table_part_1 that has id_ref = 1.<br />Can you provide some help and insights to understand and resolve the issue ?</p><div class="codebox"><pre class="vscroll"><code>-- create the tables and partitions
+CREATE TABLE IF NOT EXISTS table_ref (
+    name varchar(10),
+    id int4 NOT NULL,
+    PRIMARY KEY (id)
+);
+
+
+CREATE TABLE IF NOT EXISTS table_part (
+id_ref int4 NOT NULL,
+item varchar(10),
+PRIMARY KEY (id_ref,item)
+) PARTITION BY LIST (id_ref);
+
+
+CREATE TABLE table_part_1 PARTITION OF table_part FOR VALUES IN (1);
+CREATE TABLE table_part_2 PARTITION OF table_part FOR VALUES IN (2);
+CREATE TABLE table_part_3 PARTITION OF table_part FOR VALUES IN (3);
+
+-- insert some values
+INSERT INTO table_ref (name, id) values (&#039;ref_1&#039;,1);
+INSERT INTO table_ref (name, id) values (&#039;ref_2&#039;,2);
+INSERT INTO table_ref (name, id) values (&#039;ref_3&#039;,3);
+
+INSERT INTO table_part (id_ref,item) values (1,&#039;item_1&#039;);
+INSERT INTO table_part (id_ref,item) values (2,&#039;item_2&#039;);
+INSERT INTO table_part (id_ref,item) values (3,&#039;item_3&#039;);
+
+-- query 1
+SELECT tp.*
+FROM table_part tp
+JOIN table_ref tr ON tp.id_ref = tr.id
+WHERE tr.name = &#039;ref_1&#039;;
+
+/*
+QUERY PLAN                                                                      |
+--------------------------------------------------------------------------------+
+Hash Join  (cost=24.57..115.94 rows=18 width=42)                                |
+  Hash Cond: (tp.id_ref = tr.id)                                                |
+  -&gt;  Append  (cost=0.00..82.20 rows=3480 width=42)                             |
+        -&gt;  Seq Scan on table_part_1 tp_1  (cost=0.00..21.60 rows=1160 width=42)|
+        -&gt;  Seq Scan on table_part_2 tp_2  (cost=0.00..21.60 rows=1160 width=42)|
+        -&gt;  Seq Scan on table_part_3 tp_3  (cost=0.00..21.60 rows=1160 width=42)|
+  -&gt;  Hash  (cost=24.50..24.50 rows=6 width=4)                                  |
+        -&gt;  Seq Scan on table_ref tr  (cost=0.00..24.50 rows=6 width=4)         |
+              Filter: ((name)::text = &#039;ref_1&#039;::text)                            |
+*/
+
+-- query 2
+SELECT tp.*
+FROM table_part tp
+WHERE tp.id_ref = 1;
+
+/*
+QUERY PLAN                                                                    |
+------------------------------------------------------------------------------+
+Bitmap Heap Scan on table_part_1 tp  (cost=4.20..13.67 rows=6 width=42)       |
+  Recheck Cond: (id_ref = 1)                                                  |
+  -&gt;  Bitmap Index Scan on table_part_1_pkey  (cost=0.00..4.20 rows=6 width=0)|
+        Index Cond: (id_ref = 1)                                              |
+*/</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[etienne_lq]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=11140</uri>
+		</author>
+		<updated>2023-03-27T11:23:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34184#p34184</id>
+	</entry>
+</feed>

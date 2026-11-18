@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Blocage ...]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1243&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1243"/>
+	<updated>2011-02-16T13:12:27Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1243</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Blocage ...]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8127#p8127"/>
+		<content type="html"><![CDATA[<p>Il n&#039;y a pas vraiment de lien entre la &#039;relation&#039; et le &#039;pid&#039;. Une relation, c&#039;est le terme de l&#039;algèbre relationnelle. On appelle ça une table en SQL. En interne, PostgreSQL utilise des termes de l&#039;algèbre relationnelle, c&#039;est un peu déroutant quand on n&#039;en a pas l&#039;habitude.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-02-16T13:12:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8127#p8127</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Blocage ...]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8126#p8126"/>
+		<content type="html"><![CDATA[<p>Le PID c&#039;est l&#039;identifiant du processus système qui traite la requête.&#160; Tu peux retrouver la listes des processus avec la commande &quot;ps -u postgres&quot; (sous linux)</p><p>Il est possible de provoquer un ROLLBACK sur une transaction donnée en utilisant le PID . Par exemple si veut annuler le premier DELETE pour laisser passer les autres, il suffit de taper la requête SQL suivante : </p><div class="codebox"><pre><code>SELECT pg_cancel_backend(&#039;00002&#039;);</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[daamien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=19</uri>
+		</author>
+		<updated>2011-02-16T13:09:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8126#p8126</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Blocage ...]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8124#p8124"/>
+		<content type="html"><![CDATA[<p>PostgreSQL ne bloque pas les lignes mises à jour… pour les lecteurs (SELECT). C&#039;est à dire que les lecteurs ne bloquent pas les écrivains, les écrivains ne bloquent pas les lecteurs, et les lecteurs ne se bloquent pas entre eux.</p><p>Par contre, les écrivains, si ils veulent modifier la même donnée, se bloquent entre eux (et c&#039;est heureux).</p><p>Donc si 3 delete ont été lancés comme là, à quelques secondes d&#039;intervalle, les 00003 et 00004 voient encore les enregistrements de TableTOTO (00002 n&#039;a pas encore commité). Eux aussi veulent donc effacer les enregistrements correspondant à la clause where. Mais ils doivent attendre de savoir si 00002 commit (dans ce cas là, les enregistrements ne sont plus visibles pour eux) ou rollback (dans ce cas là, c&#039;est à eux de faire le travail).</p><p>Regardez le chapitre MVCC de la doc PostgreSQL, il explique tout ça très clairement: <a href="http://docs.postgresql.fr/9.0/mvcc.html" rel="nofollow">http://docs.postgresql.fr/9.0/mvcc.html</a></p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-02-16T13:01:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8124#p8124</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Blocage ...]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8122#p8122"/>
+		<content type="html"><![CDATA[<p>Re-bonjour...<br />En regardant mon moniteur de transaction via pgAdmiIII, je vois les choses suivantes&#160; :<br />... PID ...&#160; debut de requete&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;blocage&#160; &#160; &#160; &#160; &#160;requete</p><p>&#160; &#160;00002&#160; 2011/02/16&#160; 11:56:54&#160; &#160; &#160; &#160; 00004&#160; &#160; &#160; &#160; &#160; &#160; &#160;delete from TableTOTO&#160; &#160; &#160; &#160;where donnée=2010<br />&#160; &#160;00003&#160; 2011/02/16&#160; 11:56:51&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; delete from TableTOTO&#160; &#160; &#160; &#160;where donnée=2010<br />&#160; &#160;00004&#160; 2011/02/16&#160; 11:56:50&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; delete from TableTOTO&#160; &#160; &#160; &#160;where donnée=2010</p><p>Donc une &#039;contention&#039; entre mon PID 00002 et 0004 QUI BLOQUE les 3 &#039;delete&#039;...&#160; Cette situation a duré quelques minutes avant de se&#160; décanter =&gt; ok</p><p>Quand je regarde les verrous, je vois, dans la pid qui a bloqué &#039;00004&#039;, des lignes qui s&#039;accumulent avec des choses comme : ExclusiveLock, suivis de Roweclusivelock, accessSharelock etc... <br />Moi qui croyait que postgrès ne bloquait pas les lignes mise à jour, je suis un peu perplexe... <br />Pouvez-vous m&#039;expliquer le role de ces différents locks ?</p><p>Merci d&#039;avance...</p><p>PS : Quelle est le lien entre la &#039;relation&#039; et le &#039;PID&#039; ?</p>]]></content>
+		<author>
+			<name><![CDATA[genio]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1022</uri>
+		</author>
+		<updated>2011-02-16T12:55:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8122#p8122</id>
+	</entry>
+</feed>

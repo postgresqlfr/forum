@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Pb urgent : maintenance (vacuum et reindex) sur gros volume de données]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=418&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=418"/>
+	<updated>2009-10-07T11:27:04Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=418</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Pb urgent : maintenance (vacuum et reindex) sur gros volume de données]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2458#p2458"/>
+		<content type="html"><![CDATA[<p>En effet, et j&#039;en ai plein d&#039;autre comme ca...<br />J&#039;espère avoir le temps de modifier les requêtes a problème et de repasser un plan de test complet derrière, pas évident d&#039;ici la fin de la semaine...</p><p>J&#039;ai du boulot ;-)</p><p>Pour info, je suis en 8.3</p>]]></content>
+		<author>
+			<name><![CDATA[benbork]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=500</uri>
+		</author>
+		<updated>2009-10-07T11:27:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2458#p2458</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Pb urgent : maintenance (vacuum et reindex) sur gros volume de données]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2457#p2457"/>
+		<content type="html"><![CDATA[<p>Par contre, attention, avec le partitonnement, il y a qq requêtes qui peuvent poser problème (les plans sont plus difficiles à élaborer).</p><p>Des choses toutes bêtes comme &quot;select max(date) from ma_table_partitonnee&quot;. C&#039;est full scan de toutes les partitions (pas retesté en 8.4, mais c&#039;était le cas en 8.3).</p><p>Donc ça veut dire refaire une passe de validation sur l&#039;appli.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2009-10-07T11:22:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2457#p2457</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Pb urgent : maintenance (vacuum et reindex) sur gros volume de données]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2451#p2451"/>
+		<content type="html"><![CDATA[<p>Je suis effectivement en train de mettre en place le partitionnement, qui semble être la solution qui aurait du être spécifiée depuis le début, car complètement adaptée à mon cas.</p>]]></content>
+		<author>
+			<name><![CDATA[benbork]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=500</uri>
+		</author>
+		<updated>2009-10-07T10:06:29Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2451#p2451</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Pb urgent : maintenance (vacuum et reindex) sur gros volume de données]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2450#p2450"/>
+		<content type="html"><![CDATA[<p>La modification de structure proposée par Marc ne demande aucune modification de l&#039;application. Ce n&#039;est pas un soucis pour le déploiement de la solution.</p><p>Avec la structure actuelle... Pour le REINDEX, seul un maintenance_work_mem plus important pourra vous aider. Pour le VACUUM, jouer avec les coûts ne pourra qu&#039;augmenter la durée d&#039;exécution du VACUUM, mais améliorer la rapidité des autres procédures.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2009-10-07T09:54:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2450#p2450</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Pb urgent : maintenance (vacuum et reindex) sur gros volume de données]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2445#p2445"/>
+		<content type="html"><![CDATA[<p>Merci pour la piste, qui aurait du être explorée lors de la conception, plutôt qu&#039;a une semaine du déploiement...<br />Je vais y jeter un œil, et voir si cela est possible a mettre en place rapidement.</p><p>L&#039;ennui, donc, est que je voudrais éviter (au moins dans un premier temps) de trop modifier la structure de ma base, car l&#039;application doit être fonctionnelle la semaine prochaine, et seul ce problème subsiste.<br />Y a-t-il une configuration de postgresql (notamment les paramètres de réglage du vacuum et ru reindex ?) adaptée à mon cas, sans pour autant retoucher la structure ?</p><p>Merci!</p>]]></content>
+		<author>
+			<name><![CDATA[benbork]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=500</uri>
+		</author>
+		<updated>2009-10-06T09:42:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2445#p2445</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Pb urgent : maintenance (vacuum et reindex) sur gros volume de données]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2444#p2444"/>
+		<content type="html"><![CDATA[<p>On est en plein dans un des quelques cas ou il est intéressant de partitionner par date : il s&#039;agit de faire des plus petites tables, chacune ne contenant qu&#039;une partie de l&#039;intervalle de temps.</p><p>Voici déjà la doc sur le sujet, pour commencer : <a href="http://docs.postgresqlfr.org/8.4/ddl-partitioning.html" rel="nofollow">http://docs.postgresqlfr.org/8.4/ddl-partitioning.html</a></p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2009-10-06T09:29:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2444#p2444</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Pb urgent : maintenance (vacuum et reindex) sur gros volume de données]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2442#p2442"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;ai un gros soucis de maintenance de une base de données très volumineuse : presque 2 tera-octets répartis sur une table de près de 3 milliards de lignes ...<br />Cette dernière est donc très volumineuse, notamment une table qui contient des données enregistrées toutes les secondes, sous forme de &#039;bytea&#039;.<br />En gros, je dois enregistrer 1 an de données, avec une précision à la seconde, pour 80 entitées. Puis une fois presques pleine, la base doit effectuer un roulement, remplaçant les données les plus vieilles par les nouvelles.<br />Pour cela, chaque nuit, les lignes correspondant aux jours &quot;en trop&quot; sont supprimées (afin de pouvoir être remplacées).<br />Sauf que l&#039;espace disque n&#039;est pas rendu pour autant...</p><p>Comme un simple autovacuum n&#039;a pas suffit, j&#039;ai cherché à mettre en place une solution &quot;manuelle&quot;.<br />Après quelques lectures sur internet, j&#039;ai testé une solution qui marche sur un test avec seulement 1 jour de données (4 gigas sur 7 millions de lignes):<br />- vacuum + analyze<br />- reindex</p><p>Mais avec une base plus grosse (dès qu&#039;on atteint quelques semaines de données), l&#039;analyse ne se lance même pas (ou en tout cas le mode verbose n&#039;affiche rien, et attendre une nuit complète n&#039;y change rien...)</p><p>Dans l&#039;idéal, il faudrait que cette maintenance puisse se faire sans stopper les &quot;enregistrements&quot; pour autant.<br />Au pire, la maintenance devrait pouvoir etre effectuée le plus rapidement possible durant la nuit, pour ne stopper les &quot;enregistrements&quot; qu&#039;un minimum de temps.</p><p>J&#039;ai essayer de retoucher le fichier de config (nontament en augmentant le &#039;max_fsm_pages&#039;), mais rien n&#039;y fait...<br />Quelqu&#039;un a-t-il une idée de config, ou une piste a essayer ?</p>]]></content>
+		<author>
+			<name><![CDATA[benbork]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=500</uri>
+		</author>
+		<updated>2009-10-06T08:57:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2442#p2442</id>
+	</entry>
+</feed>

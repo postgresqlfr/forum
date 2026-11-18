@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Requete recursive ordre des elements par rapport au parent]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2820&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2820"/>
+	<updated>2013-10-11T09:09:21Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2820</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requete recursive ordre des elements par rapport au parent]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18395#p18395"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Merci pour votre réponse.<br />J&#039;y suis finalement arrivée.<br />Voici le résultat avec le chemin pour chacun et le nombre d&#039;enfant </p><div class="codebox"><pre><code>WITH RECURSIVE child AS
+					(
+			                SELECT d.id,d.nom,d.parent, 0 AS level, ARRAY[CAST(id AS VARCHAR)] AS path,x.noeud
+			                FROM domaine d,( select d.parent,count(*) as noeud from domaine d group by d.parent)x
+			                WHERE d.id=&#039;DOM87544915&#039;
+			                and x.parent=d.id
+				        UNION ALL
+			                SELECT d.id,d.nom,d.parent,c.level + 1 AS level, path || CAST(d.id AS VARCHAR),x.noeud
+			                FROM child c JOIN domaine d ON d.parent = c.id left join ( select d.parent,count(*) as noeud from domaine d group by d.parent)x on x.parent=d.id
+					)
+					SELECT c.id,c.parent,c.nom,level,path,noeud
+					FROM child c
+					ORDER BY path</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[chris0938]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=784</uri>
+		</author>
+		<updated>2013-10-11T09:09:21Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18395#p18395</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requete recursive ordre des elements par rapport au parent]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18387#p18387"/>
+		<content type="html"><![CDATA[<p>Ce que je veux faire c&#039;est récupérer la hiérarchie</p>]]></content>
+		<author>
+			<name><![CDATA[chris0938]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=784</uri>
+		</author>
+		<updated>2013-10-10T11:43:21Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18387#p18387</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requete recursive ordre des elements par rapport au parent]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18384#p18384"/>
+		<content type="html"><![CDATA[<p>Ce que vous voulez faire est un tri par le parent, non ?</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2013-10-10T11:25:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18384#p18384</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Requete recursive ordre des elements par rapport au parent]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18376#p18376"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;ai la requete recursive suivante:</p><div class="codebox"><pre><code>WITH recursive enfant(idEnfant,nomEnfant,parent,level) AS
+(
+    SELECT d.id,d.nom,d.parent,0
+    FROM domaine d where d.parent is null
+  union ALL
+    SELECT d.id,d.nom,d.parent,e.level+1
+    FROM domaine d,enfant e
+    where d.parent=e.idEnfant
+)
+SELECT idEnfant,nomEnfant,parent,level FROM enfant;</code></pre></div><p>Elle me retourne une série de domaine: </p><div class="codebox"><pre><code>idenfant	nomenfant	parent	 level
+DOM21455 	DOM1		NULL	          0
+DOM45123 	DOM2		DOM21455    1 
+DOM12421 	DOM3		DOM21455    1
+DOM95423 	DOM4		DOM21455    1
+DOM02354 	DOM5		DOM12421    2
+DOM75136 	DOM6		DOM45123    2
+DOM04452 	DOM7		DOM45123    2</code></pre></div><p>Je souhaiterai que la requete me retourne les domaines dans l&#039;ordre suivant :</p><div class="codebox"><pre><code>idenfant	nomenfant	parent	 level
+DOM21455 	DOM1		NULL	 0
+DOM45123 	DOM2		DOM21455 1 
+	DOM75136 	DOM6		DOM45123 2
+	DOM04452 	DOM7		DOM45123 2
+DOM12421 	DOM3		DOM21455 1
+	DOM02354 	DOM5	        DOM12421 2
+DOM95423 	DOM4		DOM21455 1</code></pre></div><p>Ma question est la suivante : est il possible de faire cela dans la requête ? </p><p>Merci d&#039;avance pour toutes infos.</p><p>Chris</p>]]></content>
+		<author>
+			<name><![CDATA[chris0938]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=784</uri>
+		</author>
+		<updated>2013-10-10T07:36:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18376#p18376</id>
+	</entry>
+</feed>

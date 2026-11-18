@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / A quoi sert le nested loop ?]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3736&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3736"/>
+	<updated>2016-01-14T16:41:37Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3736</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  A quoi sert le nested loop ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22948#p22948"/>
+		<content type="html"><![CDATA[<p>Alors ceci explique cela.</p><p>Je sais à présent que dès qu&#039;on utilise des tables temporaires, il est bon de procéder manuellement à un VACUUM ANALYZE pour ne pas perdre l&#039;optimiseur de requêtes.</p><p>Merci pour toute votre aide.</p>]]></content>
+		<author>
+			<name><![CDATA[ced]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=461</uri>
+		</author>
+		<updated>2016-01-14T16:41:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22948#p22948</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  A quoi sert le nested loop ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22941#p22941"/>
+		<content type="html"><![CDATA[<p>Oui, s&#039;il s&#039;agit de tables temporaires l&#039;autovacuum ne peut pas les voir et ne peut donc pas lancer de mainteance dessus. Il s&#039;agit d&#039;un des cas où il est généralement nécessaire de procéder à des VACUUM et/ou ANALYZE manuellement.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2016-01-14T10:00:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22941#p22941</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  A quoi sert le nested loop ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22940#p22940"/>
+		<content type="html"><![CDATA[<p>La version de PostgreSQL sur ce serveur est la 9.4.4.<br />L&#039;autovacuum est activé.</p><p>Mais les deux tables en question sont des tables temporaires. Ce qui explique peut-être une partie du problème, non ?<br />Précision : ces tables ont tout de même une clé primaire et sont indexées.</p>]]></content>
+		<author>
+			<name><![CDATA[ced]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=461</uri>
+		</author>
+		<updated>2016-01-13T13:31:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22940#p22940</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  A quoi sert le nested loop ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22938#p22938"/>
+		<content type="html"><![CDATA[<p>La cardinalité de la jointure est encore fausse d&#039;un facteur 10, mais au moins les cardinalités sur les deux parcours de tables sont bons, ce qui explique que postgres choisit maintenant un plan beaucoup plus adapté.</p><br /><p>Quelle version de postgres utilisez vous, et l&#039;autovacuum est-il bien activé ?</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2016-01-13T10:53:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22938#p22938</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  A quoi sert le nested loop ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22937#p22937"/>
+		<content type="html"><![CDATA[<p>Il va vraiment falloir que j&#039;apprenne à lire un explain...</p><p>Voici le plan de requête à l&#039;issue d&#039;un ANALYZE sur chacune des tables (la requête s&#039;exécute très rapidement) :</p><p>Merge Join&#160; (cost=9149.08..9706.91 rows=1164 width=84) (actual time=92.203..110.693 rows=17816 loops=1)<br />&#160; Merge Cond: ((p5.absc = n.absc) AND (p5.ord = n.ord))<br />&#160; -&gt;&#160; Sort&#160; (cost=4244.33..4306.88 rows=25023 width=46) (actual time=33.797..35.399 rows=21788 loops=1)<br />&#160; &#160; &#160; &#160; Sort Key: p5.absc, p5.ord<br />&#160; &#160; &#160; &#160; Sort Method: quicksort&#160; Memory: 2471kB<br />&#160; &#160; &#160; &#160; -&gt;&#160; Seq Scan on pts5 p5&#160; (cost=0.00..2416.28 rows=25023 width=46) (actual time=2.037..19.254 rows=21788 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; Filter: ((tirmax &gt; 1) AND (&quot;poi$&quot; = &#039;1&#039;::bpchar) AND (nincref = 7))<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; Rows Removed by Filter: 59142<br />&#160; -&gt;&#160; Sort&#160; (cost=4904.66..5022.27 rows=47043 width=42) (actual time=58.393..63.883 rows=46758 loops=1)<br />&#160; &#160; &#160; &#160; Sort Key: n.absc, n.ord<br />&#160; &#160; &#160; &#160; Sort Method: external sort&#160; Disk: 2664kB<br />&#160; &#160; &#160; &#160; -&gt;&#160; Seq Scan on noeuds n&#160; (cost=0.00..1253.72 rows=47043 width=42) (actual time=0.020..11.331 rows=47009 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; Filter: (zpop = &#039;1&#039;::text)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; Rows Removed by Filter: 7929<br />Planning time: 0.693 ms<br />Execution time: 111.634 ms</p>]]></content>
+		<author>
+			<name><![CDATA[ced]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=461</uri>
+		</author>
+		<updated>2016-01-13T10:21:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22937#p22937</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  A quoi sert le nested loop ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22929#p22929"/>
+		<content type="html"><![CDATA[<p>Pour détailler un peu plus ce que dit Julien, dans l&#039;exemple avec le Nested Loop, PostgreSQL suppose ne récupérer qu&#039;une seule ligne dans le parcours de pts5. Dans ce cas, une Nested Loop est le plus simple et certainement le plus performant. Cependant, en réalité, il récupère 21788 lignes, et&#160; là, clairement, un Nested Loop est la plus mauvaise option. Donc, comme le dit Julien, les statistiques sont fausses. Il faudrait recalculer les statistiques (commandes ANALYZE ci-dessus), puis voir si cela impacte le plan d&#039;exécution. Si ce n&#039;est pas le cas, il serait intéressant de connaître les statistiques sur les colonnes filtrées (tirmax, &quot;poi$&quot;, nincref), le nombre de lignes de la table et le nombre de lignes résultant des différents filtres.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2016-01-13T07:14:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22929#p22929</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  A quoi sert le nested loop ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22928#p22928"/>
+		<content type="html"><![CDATA[<p>Le problème ici est que les statistiques sont fausses, et postgres se retrouve à traiter beaucoup plus de ligne que prévu.</p><p>Pouvez-vous essayer de lancer les requêtes suivantes :</p><br /><p>ANALYZE pts5;<br />ANALYZE noeuds;</p><br /><p>et de rééxcuter l&#039;explain analyze ?</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2016-01-12T16:39:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22928#p22928</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  A quoi sert le nested loop ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22927#p22927"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous les deux et merci pour l&#039;aide que vous m&#039;apportez.</p><p>Voici le résultat d&#039;un EXPLAIN ANALYZE sans avoir désactivé les NestedLoop :<br />QUERY PLAN<br />Nested Loop&#160; (cost=6.42..2185.25 rows=1 width=302) (actual time=7.269..196975.150 rows=17816 loops=1)<br />&#160; Join Filter: ((p5.absc = n.absc) AND (p5.ord = n.ord))<br />&#160; Rows Removed by Join Filter: 1024214276<br />&#160; -&gt;&#160; Seq Scan on pts5 p5&#160; (cost=0.00..1700.00 rows=1 width=148) (actual time=0.033..51.698 rows=21788 loops=1)<br />&#160; &#160; &#160; &#160; Filter: ((tirmax &gt; 1) AND (&quot;poi$&quot; = &#039;1&#039;::bpchar) AND (nincref = 7))<br />&#160; &#160; &#160; &#160; Rows Removed by Filter: 59142<br />&#160; -&gt;&#160; Bitmap Heap Scan on noeuds n&#160; (cost=6.42..481.12 rows=275 width=158) (actual time=2.517..5.569 rows=47009 loops=21788)<br />&#160; &#160; &#160; &#160; Recheck Cond: (zpop = &#039;1&#039;::text)<br />&#160; &#160; &#160; &#160; Heap Blocks: exact=12353796<br />&#160; &#160; &#160; &#160; -&gt;&#160; Bitmap Index Scan on nd_zpop_idx&#160; (cost=0.00..6.35 rows=275 width=0) (actual time=2.469..2.469 rows=47009 loops=21788)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; Index Cond: (zpop = &#039;1&#039;::text)<br />Planning time: 0.490 ms<br />Execution time: 196976.834 ms</p><br /><p>Et voici le résultat de l&#039;EXPLAIN ANALYZE après désactivation des NestedLoop :<br />QUERY PLAN<br />Hash Join&#160; (cost=485.25..2185.34 rows=1 width=302) (actual time=25.282..62.898 rows=17816 loops=1)<br />&#160; Hash Cond: ((p5.absc = n.absc) AND (p5.ord = n.ord))<br />&#160; -&gt;&#160; Seq Scan on pts5 p5&#160; (cost=0.00..1700.00 rows=1 width=148) (actual time=0.040..15.750 rows=21788 loops=1)<br />&#160; &#160; &#160; &#160; Filter: ((tirmax &gt; 1) AND (&quot;poi$&quot; = &#039;1&#039;::bpchar) AND (nincref = 7))<br />&#160; &#160; &#160; &#160; Rows Removed by Filter: 59142<br />&#160; -&gt;&#160; Hash&#160; (cost=481.12..481.12 rows=275 width=158) (actual time=25.226..25.226 rows=47009 loops=1)<br />&#160; &#160; &#160; &#160; Buckets: 1024&#160; Batches: 1&#160; Memory Usage: 3489kB<br />&#160; &#160; &#160; &#160; -&gt;&#160; Bitmap Heap Scan on noeuds n&#160; (cost=6.42..481.12 rows=275 width=158) (actual time=5.866..15.316 rows=47009 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; Recheck Cond: (zpop = &#039;1&#039;::text)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; Heap Blocks: exact=567<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; -&gt;&#160; Bitmap Index Scan on nd_zpop_idx&#160; (cost=0.00..6.35 rows=275 width=0) (actual time=5.745..5.745 rows=47009 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Index Cond: (zpop = &#039;1&#039;::text)<br />Planning time: 0.187 ms<br />Execution time: 63.409 ms</p><br /><p>N&#039;étant pas DBA et n&#039;ayant pas ces connaissances, je ne suis pas trop au fait de la lecture de ces résultats.</p>]]></content>
+		<author>
+			<name><![CDATA[ced]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=461</uri>
+		</author>
+		<updated>2016-01-12T10:36:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22927#p22927</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  A quoi sert le nested loop ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22912#p22912"/>
+		<content type="html"><![CDATA[<p>L&#039;intérêt principal du Nested Loop est quand même de pouvoir traiter des jointures utilisant des opérateurs autres que l&#039;égalité. Autant l&#039;opérateur d&#039;égalité permet un MergeJoin ou un HashJoin, autant les autres opérateurs ne sont pas compatibles.</p><p>Mais bon, comme dit Julien, désactiver les NestedLoop n&#039;est pas la bonne solution. Il serait intéressant de voir pour une requête son plan d&#039;exécution pour pouvoir mieux vous guider (un EXPLAIN ANALYZE, pas un EXPLAIN seul qui n&#039;a que très peu d&#039;intérêt).</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2016-01-08T21:36:50Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22912#p22912</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  A quoi sert le nested loop ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22911#p22911"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><p>L&#039;intérêt des nested loop est principalement des jointures pour un faible nombre d&#039;enregistrements ou les requêtes ayant une clause limit, car il est peut commencer à renvoyer des données dès le démarrage. Les autres types de jointures (merge join et hash join) nécessitent un traitement préalable potentiellement couteux (trier toutes les lignes ou créer une table de hashage). Je vous déconseille fortement de désactiver de manière globale les nested loop, sinon vous risquez de vous retrouver avec des écarts de performances inverses pour d&#039;autres requêtes. Commencez par voir si les statistiques annoncées correspondent à la réalité, et également à vérifier que votre configuration correspond bien aux performances de votre serveur.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2016-01-08T18:40:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22911#p22911</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[A quoi sert le nested loop ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22910#p22910"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je me pose une question sur l&#039;utilité du &quot;nested loop&quot; dans la stratégie choisie par l&#039;optimiseur de requête de PostgreSQL.<br />Je m&#039;explique : je constate très souvent des requêtes drastiquement longues (plus de 30 secondes pour 20 000 lignes) pour lesquelles le temps devient inférieur à 1 seconde dès lors qu&#039;on passe le paramètre enable_nestloop à FALSE. La plupart du temps, quand j&#039;ai des requêtes longues, c&#039;est comme ça que je résout le problème... et l&#039;écart est énorme avant et après le changement de ce paramètre.</p><p>Quelle est l&#039;utilité de cette stratégie ?<br />Pourquoi l&#039;optimiseur y a-t-il facilement recours ?<br />Quels peuvent être les risques si, au niveau de la base de donnée, je passe ce paramètre à FALSE par défaut ?</p><p>Merci d&#039;avance pour vos éclaircissements.</p><p>Cédric</p>]]></content>
+		<author>
+			<name><![CDATA[ced]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=461</uri>
+		</author>
+		<updated>2016-01-08T18:28:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22910#p22910</id>
+	</entry>
+</feed>

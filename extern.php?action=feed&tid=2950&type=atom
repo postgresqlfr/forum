@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Etude de cas]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2950&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2950"/>
+	<updated>2014-01-22T10:42:13Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2950</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Etude de cas]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18994#p18994"/>
+		<content type="html"><![CDATA[<p>Hou quelle horreur ! Faites plutôt une seule requête et une seule ligne commençant par :<br />RETURN CASE WHEN EXISTS(ma requête test) THEN true ELSE false END;</p><p>A +</p>]]></content>
+		<author>
+			<name><![CDATA[SQLpro]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1054</uri>
+		</author>
+		<updated>2014-01-22T10:42:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18994#p18994</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Etude de cas]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18954#p18954"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous, je travaille actuellement sur une étude de cas et voici la question :<br />Créer une fonction qui prend trois paramètres : un code auditeur et deux codes d’unités d’enseignement et qui retourne vrai si l’auditeur les a validés toutes les deux et faux sinon.</p><p>voici mon code : <br />CREATE OR REPLACE FUNCTION validation_2ue(CHAR(6), CHAR(6), INT) RETURNS BOOLEAN AS &#039;<br />DECLARE<br /> REP BOOLEAN;<br /> REP2 BOOLEAN;<br /> codeue1 ALIAS FOR $1;<br /> codeue2 ALIAS FOR $2;<br /> manote1 inscription_ue.note1%TYPE;<br /> manote2 inscription_ue.note2%TYPE;<br /> manote2_1 inscription_ue.note1%TYPE;<br /> manote2_2 inscription_ue.note2%TYPE;</p><p> BEGIN<br />SELECT INTO manote1 note1, manote2 note2 FROM inscription_ue NATURAL JOIN inscription NATURAL JOIN auditeur WHERE codeue IN (SELECT codeue FROM inscription_ue WHERE codeue=codeue1) AND codeauditeur=$3;<br /> IF (manote1 IS NULL AND manote2 IS NULL) THEN<br />&#160; REP := FALSE;<br /> END IF;<br /> IF ((manote1&gt;=10 OR manote2&gt;=10) OR (manote1 IS NULL AND manote2&gt;=10) OR (manote1&gt;=10 AND manote2 IS NULL)) THEN<br />&#160; REP := TRUE;<br /> END IF;</p><p>SELECT INTO manote2_1 note1, manote2_2 note2 FROM inscription_ue NATURAL JOIN inscription NATURAL JOIN auditeur WHERE codeue IN (SELECT codeue FROM inscription_ue WHERE codeue=codeue2)&#160; AND codeauditeur=$3;<br /> IF (manote2_1 IS NULL AND manote2_2 IS NULL) THEN<br />&#160; REP2 := FALSE;<br /> END IF;<br /> IF ((manote2_1&gt;=10 OR manote2_2&gt;=10) OR (manote2_1 IS NULL AND manote2_2&gt;=10) OR (manote2_1&gt;=10 AND manote2_2 IS NULL) )THEN<br />&#160; REP2 := TRUE;<br /> END IF;<br />&#160; <br /> IF (REP AND REP2) THEN<br />&#160; RETURN TRUE;<br /> ELSE<br />&#160; RETURN FALSE;<br /> END IF;</p><p>END;<br />&#039; LANGUAGE &#039;plpgsql&#039;;</p><p>Le bémol c&#039;est que même si un auditeur a validé les 2 ue mais qu&#039;une des 2 notes pr le 1ere ue est NULL et/ou qu&#039;une des 2notes pr la 2nde ue est NULL la requête me renvoie false ...or il suffis qu&#039;il ai eu une des 2 notes &gt;=10 (pour la 1ere ue) et une des 2 notes &gt;=10(pour la 2nde) pour true...</p><p>Toutes aides est bonne à prendre,<br />Merci,</p><p>kant1.dro</p>]]></content>
+		<author>
+			<name><![CDATA[kant1.dro]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3079</uri>
+		</author>
+		<updated>2014-01-18T15:35:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18954#p18954</id>
+	</entry>
+</feed>

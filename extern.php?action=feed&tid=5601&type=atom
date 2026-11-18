@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / seqscan face a un parcour d'index]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5601&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5601"/>
+	<updated>2019-09-06T08:14:25Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5601</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  seqscan face a un parcour d'index]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30200#p30200"/>
+		<content type="html"><![CDATA[<p>mais oui bien sûr où avais-je la tête ;-)<br />Merci pour ces précisions.</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2019-09-06T08:14:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30200#p30200</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  seqscan face a un parcour d'index]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30198#p30198"/>
+		<content type="html"><![CDATA[<p>Sébastien: PostgreSQL peut faire un parcours d&#039;index même sans clause WHERE si toutes les colonnes intéressantes pour le SELECT sont dans l&#039;index, ce qui est le cas là. On appelle ça un Index Only Scan.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2019-09-05T13:44:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30198#p30198</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  seqscan face a un parcour d'index]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30197#p30197"/>
+		<content type="html"><![CDATA[<p>Parce que le coût du parcours séquentiel est moindre que celui du parcours d&#039;index :</p><div class="codebox"><pre><code>postgres=# explain select a from t1;
+                          QUERY PLAN                          
+--------------------------------------------------------------
+ Seq Scan on t1  (cost=0.00..193458.06 rows=10000006 width=4)
+(1 row)
+
+postgres=# set enable_seqscan to off;
+SET
+postgres=# explain select a from t1;
+                                     QUERY PLAN                                     
+------------------------------------------------------------------------------------
+ Index Only Scan using t1_a_idx on t1  (cost=0.43..353149.52 rows=10000006 width=4)
+(1 row)</code></pre></div><p>Et en soit, il n&#039;a pas tort :</p><div class="codebox"><pre><code>postgres=# explain (analyze) select a from t1;
+                                                   QUERY PLAN                                                    
+-----------------------------------------------------------------------------------------------------------------
+ Seq Scan on t1  (cost=0.00..193458.06 rows=10000006 width=4) (actual time=0.051..939.495 rows=10000000 loops=1)
+ Planning Time: 1.283 ms
+ Execution Time: 1212.499 ms
+(3 rows)
+
+postgres=# set enable_seqscan to off;
+SET
+postgres=# explain (analyze) select a from t1;
+                                                               QUERY PLAN                                            
+                   
+---------------------------------------------------------------------------------------------------------------------
+-------------------
+ Index Only Scan using t1_a_idx on t1  (cost=0.43..353149.52 rows=10000006 width=4) (actual time=0.079..1934.432 rows
+=10000000 loops=1)
+   Heap Fetches: 10000000
+ Planning Time: 0.042 ms
+ Execution Time: 2202.049 ms
+(4 rows)</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2019-09-05T13:41:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30197#p30197</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  seqscan face a un parcour d'index]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30196#p30196"/>
+		<content type="html"><![CDATA[<p>bonjour,</p><p>Si je ne me trompe pas le generate_series va insérer 10 millions de valeurs distinctes dans la colonne a. <br />Donc l&#039;index ne sera jamais utilisé car il n&#039;y a aucun intérêt par rapport au parcours de la table lui-même.</p><p>De plus dans votre select il n&#039;y a pas de clause where.</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2019-09-05T13:12:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30196#p30196</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[seqscan face a un parcour d'index]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30195#p30195"/>
+		<content type="html"><![CDATA[<p>bonjour a tous , </p><p>je suis entrain de faire quelque test pour améliorer es connaissance sur postgresql administration </p><p>en début j&#039;ai crée ce table&#160; et j&#039;ai essayer de faire une insertion en masive du donné </p><div class="codebox"><pre><code>insert into t1 ( a, b, c )
+select aa, bb, cc
+  from generate_series(1,10000000) aa
+     , md5(aa::varchar) bb
+     , now() cc;
+NSERT 0 10000000</code></pre></div><p>puis j&#039;ai crée cette index </p><div class="codebox"><pre><code>create index concurrently &quot;index_created_at_on_users&quot;
+on t1  btree (a);</code></pre></div><p> sur le colonne a </p><p>mais si je fait select a fro t1 j&#039;ai toujour un seqscan </p><div class="codebox"><pre><code> Seq Scan on t1  (cost=0.00..193457.87 rows=9999987 width=4)
+(1 ligne)</code></pre></div><p>j&#039;ai lancer un </p><div class="codebox"><pre><code>VACUUM(FULL, ANALYZE) t1 </code></pre></div><p> mais toujours optimiseur fait un seqscan </p><p>Qui a une idée coment je peut forcer optimiseur a utilisée un parcour d&#039;index </p><p>merci pour vos aides</p>]]></content>
+		<author>
+			<name><![CDATA[null008]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7705</uri>
+		</author>
+		<updated>2019-09-05T10:00:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30195#p30195</id>
+	</entry>
+</feed>

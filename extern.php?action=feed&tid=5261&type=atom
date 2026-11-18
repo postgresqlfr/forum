@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / impossible relancer servuer postgres avec systemctl]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5261&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5261"/>
+	<updated>2019-03-08T15:54:54Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5261</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  impossible relancer servuer postgres avec systemctl]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29337#p29337"/>
+		<content type="html"><![CDATA[<p>et oui... avec le masque /32 cela marche beaucoup mieux d&#039;un coup !</p><p>vraiment merci à vous deux !</p>]]></content>
+		<author>
+			<name><![CDATA[caius]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8555</uri>
+		</author>
+		<updated>2019-03-08T15:54:54Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29337#p29337</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  impossible relancer servuer postgres avec systemctl]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29336#p29336"/>
+		<content type="html"><![CDATA[<p>Vous n&#039;avez qu&#039;une adresse IP. C&#039;est soit une adresse IP avec son masque réseau, soit une adresse CIDR (voir la première ligne).</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2019-03-08T15:48:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29336#p29336</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  impossible relancer servuer postgres avec systemctl]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29335#p29335"/>
+		<content type="html"><![CDATA[<p>bonjour, </p><p>j&#039;ai rajouté la ligne dans ipv4 : </p><div class="codebox"><pre><code># IPv4 local connections:
+host    all             all             127.0.0.1/32            ident
+host    base_f          dude            10.134.2.200            md5</code></pre></div><p>effectivement quand j&#039;enlève ce que j&#039;ai ajouté (la 2ème ligne) ça fonctionne... pourriez-vous me dire ce que je fais mal dans le paramétrage de cette ligne svp ?</p>]]></content>
+		<author>
+			<name><![CDATA[caius]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8555</uri>
+		</author>
+		<updated>2019-03-08T15:30:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29335#p29335</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  impossible relancer servuer postgres avec systemctl]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29334#p29334"/>
+		<content type="html"><![CDATA[<p>PEUT ON AVOIR le contenu du fichier pg_hba.conf</p>]]></content>
+		<author>
+			<name><![CDATA[null008]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7705</uri>
+		</author>
+		<updated>2019-03-08T15:21:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29334#p29334</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[impossible relancer servuer postgres avec systemctl]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29332#p29332"/>
+		<content type="html"><![CDATA[<p>Bonjour, </p><p>j&#039;ai 3 instances postgres 10 qui écoute sur 3 port différents. J&#039;ai voulu arrêter puis relancer les serveurs pour enregistrer un ajout dans le fichier pg_hba.conf des mes instances mais depuis (je ne pense pas que cela a un rapport mais je précise) aucun instance ne veut redémarrer quand j&#039;utilise systemctl.</p><p>j&#039;obtiens : </p><div class="codebox"><pre><code>Job for postgresql-10.service failed because the control process exited with error code. See &quot;systemctl status postgresql-10.service&quot; and &quot;journalctl -xe&quot; for details.</code></pre></div><br /><p>en appelant les status j&#039;obtiens : </p><div class="codebox"><pre><code>postgresql-10.service - PostgreSQL 10 database server
+   Loaded: loaded (/usr/lib/systemd/system/postgresql-10.service; enabled; vendor preset: disabled)
+   Active: failed (Result: exit-code) since Fri 2019-03-08 16:07:59 CET; 18s ago
+     Docs: https://www.postgresql.org/docs/10/static/
+  Process: 9731 ExecStart=/usr/pgsql-10/bin/postmaster -D ${PGDATA} (code=exited, status=1/FAILURE)
+  Process: 9726 ExecStartPre=/usr/pgsql-10/bin/postgresql-10-check-db-dir ${PGDATA} (code=exited, status=0/SUCCESS)
+ Main PID: 9731 (code=exited, status=1/FAILURE)
+
+Mar 08 16:07:59 panorama postmaster[9731]: 2019-03-08 16:07:59.938 CET [9731] LOG:  listening on IPv4 address &quot;127.0.0.1&quot;, port 5432
+Mar 08 16:07:59 panorama postmaster[9731]: 2019-03-08 16:07:59.941 CET [9731] LOG:  could not create IPv6 socket for address &quot;::1&quot;: Address family not supported by protocol
+Mar 08 16:07:59 panorama postmaster[9731]: 2019-03-08 16:07:59.943 CET [9731] LOG:  listening on Unix socket &quot;/var/run/postgresql/.s.PGSQL.5432&quot;
+Mar 08 16:07:59 panorama postmaster[9731]: 2019-03-08 16:07:59.947 CET [9731] LOG:  listening on Unix socket &quot;/tmp/.s.PGSQL.5432&quot;
+Mar 08 16:07:59 panorama postmaster[9731]: 2019-03-08 16:07:59.960 CET [9731] LOG:  redirecting log output to logging collector process
+Mar 08 16:07:59 panorama postmaster[9731]: 2019-03-08 16:07:59.960 CET [9731] HINT:  Future log output will appear in directory &quot;log&quot;.
+Mar 08 16:07:59 panorama systemd[1]: postgresql-10.service: main process exited, code=exited, status=1/FAILURE
+Mar 08 16:07:59 panorama systemd[1]: Failed to start PostgreSQL 10 database server.
+Mar 08 16:07:59 panorama systemd[1]: Unit postgresql-10.service entered failed state.
+Mar 08 16:07:59 panorama systemd[1]: postgresql-10.service failed.</code></pre></div><p>et le journal donne : </p><div class="codebox"><pre><code>The result is failed.
+Mar 08 16:07:59 panorama systemd[1]: Unit postgresql-10.service entered failed state.
+Mar 08 16:07:59 panorama systemd[1]: postgresql-10.service failed.
+Mar 08 16:07:59 panorama polkitd[8596]: Unregistered Authentication Agent for unix-process:9720:8716297 (system bus name :1.418, object path /org/freedesktop/PolicyKit1/AuthenticationAge
+M</code></pre></div><br /><p>que dois-je faire ?</p><p>j&#039;ai le même problème avec mes 3 instances. je suis sur un serveurs redhat 7.</p><p>Merci à vous</p>]]></content>
+		<author>
+			<name><![CDATA[caius]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8555</uri>
+		</author>
+		<updated>2019-03-08T15:14:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29332#p29332</id>
+	</entry>
+</feed>

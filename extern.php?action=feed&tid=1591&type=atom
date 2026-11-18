@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Accès aux paramètres d'une fonction à l'intérieur d'un PREPARE]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1591&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1591"/>
+	<updated>2011-08-19T12:19:50Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1591</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Accès aux paramètres d'une fonction à l'intérieur d'un PREPARE]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10668#p10668"/>
+		<content type="html"><![CDATA[<p>Ça fonctionne!</p><p>C&#039;est bon à savoir que PREPARE n&#039;est pas obligatoire pour les tables temporaires ponctuelles comme j&#039;ai eu besoin de faire.</p><p>Merci beaucoup dverite pour les explications</p>]]></content>
+		<author>
+			<name><![CDATA[charleydc5]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1194</uri>
+		</author>
+		<updated>2011-08-19T12:19:50Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10668#p10668</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Accès aux paramètres d'une fonction à l'intérieur d'un PREPARE]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10667#p10667"/>
+		<content type="html"><![CDATA[<p>Tu auras plus vite fait de supprimer le PREPARE qui n&#039;est pas utile, dans le sens où tu peux faire:<br />CREATE TEMP TABLE tmpCas AS SELECT....<br />Le PREPARE est surtout utile quand une requête est réutilisée de multiples fois ce qui n&#039;est pas le cas ici.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2011-08-19T10:22:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10667#p10667</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Accès aux paramètres d'une fonction à l'intérieur d'un PREPARE]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10665#p10665"/>
+		<content type="html"><![CDATA[<p>Peut-être qu&#039;on peut résoudre ça avec une requête dynamique. Difficile de savoir sans connaître l&#039;erreur.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-08-18T20:38:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10665#p10665</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Accès aux paramètres d'une fonction à l'intérieur d'un PREPARE]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10663#p10663"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous,</p><p>J&#039;ai une fonction qui contient une table temporaire, donc un &quot;PREPARE&quot; suivi d&#039;un SELECT et de la commande CREATE TEMP TABLE.</p><p>J&#039;avais le message suivant à l&#039;exécution:</p><div class="codebox"><pre><code>ERROR:  could not determine data type of parameter $2
+CONTEXT:  SQL statement &quot;PREPARE tmpCas AS</code></pre></div><p>J&#039;ai donc découvert qu&#039;il fallait spécifier les types de paramètre dans une instruction PREPARE, car autrement PostgreSQL les perçoit comme &quot;unknown&quot;.</p><p>Mon instruction PREPARE est donc passée de </p><div class="codebox"><pre><code>PREPARE tmpCas AS</code></pre></div><p>à </p><div class="codebox"><pre><code>PREPARE tmpCas(integer, character varying, character varying, integer, character varying, integer, character varying, character varying, integer, integer, character varying) AS</code></pre></div><p>Maintenant, mon erreur n&#039;est plus la même. C&#039;est maintenant : </p><div class="codebox"><pre><code>ERROR:  operator does not exist: timestamp without time zone &gt;= character varying
+LINE 71:     stirq.Cheminement.datCheminement BETWEEN $3 AND $4 AND</code></pre></div><p>Lorsque j&#039;arrive à la ligne en question, je remarque PostgreSQL perçoit $3 et $4 comme le troisième et le quatrième paramètre de mon PREPARE (donc character varying et integer), alors que ma fonction a comme troisième et quatrième paramètre des timestamp (intervalle de date pour ma requête).</p><p>Lorsque je ne suis pas dans un prepare, c&#039;est parfait. Par contre, dans un PREPARE, je n&#039;arrive plus à accéder aux paramètres de ma fonction. </p><p>J&#039;ai essayé d&#039;ajouter ceci au début de ma fonction :</p><div class="codebox"><pre><code>DECLARE
+     ldatfrom TIMESTAMP := $3;
+     ldatto TIMESTAMP := $4;</code></pre></div><p>.. et d&#039;utiliser ldatfrom et ldatto dans le WHERE du PREPARE... négatif.</p><p>Quelqu&#039;un a une idée?</p><p>Finalement, voici le code complet de ma fonction:</p><div class="codebox"><pre class="vscroll"><code>CREATE OR REPLACE FUNCTION stirq.qrycastempscoutstyperpt(
+pvintregionid INT, 
+pvstrregionnom VARCHAR, 
+pvdatfrom timestamp without time zone, 
+pvdatto timestamp without time zone, 
+pvstrlangue VARCHAR)
+
+  RETURNS TABLE(intcasid integer, strnodossier character varying, strconseillernom character varying, intlocalisationid integer, strlocalisationnom character varying, intregionid integer, strregionnom character varying, stractivitenom character varying, inttemps integer, intcouts integer, strdossieretatnom character varying) AS
+$BODY$
+
+/*
+DECLARE
+	ldatfrom TIMESTAMP := $3;
+	ldatto TIMESTAMP := $4;
+*/
+
+BEGIN
+
+	PREPARE tmpCas(integer, character varying, character varying, integer, character varying, integer, character varying, character varying, integer, integer, character varying) AS
+
+	SELECT Cas.intCasId AS intCasIdGlobal,
+		Cas.strNoDossier,
+		Users.strUserFirstName || &#039; &#039; || Users.strUserLastName AS strConseillerNom,
+		Localisation.intLocalisationId,
+
+		CASE $5
+			WHEN &#039;fr&#039; THEN Localisation.strLocalisationNomFr
+			WHEN &#039;en&#039; THEN Localisation.strLocalisationNomEn
+		END AS strLocalisationNom,
+
+		Region.intRegionId,
+		CASE $5
+			WHEN &#039;fr&#039; THEN Region.strRegionNomFr
+			WHEN &#039;en&#039; THEN Region.strRegionNomEn
+		END AS strRegionNom,
+
+		CASE $5
+			WHEN &#039;fr&#039; THEN ActiviteNom.strActiviteNomFr
+			WHEN &#039;en&#039; THEN ActiviteNom.strActiviteNomEn
+		END AS strActiviteNom,
+
+		Cheminement.intTemps,
+		Cheminement.intCouts,
+		CASE $5
+			WHEN &#039;fr&#039; THEN DossierEtat.strDossierEtatAbrFr
+			WHEN &#039;en&#039; THEN DossierEtat.strDossierEtatAbrEn 
+		END AS strDossierEtatNom
+
+		FROM stirq.Cas
+
+		INNER JOIN stirq.DossierEtat ON
+		stirq.Cas.intDossierEtatId = stirq.DossierEtat.intDossierEtatId
+
+		INNER JOIN stirq.Localisation ON
+		stirq.Cas.intLocalisationId = stirq.Localisation.intLocalisationId
+
+		INNER JOIN stirq.Region ON
+		stirq.Localisation.intRegionId = stirq.Region.intRegionId
+
+		INNER JOIN stirq.Intervention ON
+		stirq.Cas.intCasId = stirq.Intervention.intCasId
+
+		INNER JOIN stirq.ActiviteNom ON
+		stirq.Intervention.intActiviteNomId = stirq.ActiviteNom.intActiviteNomId
+
+		INNER JOIN stirq.Cheminement ON
+		stirq.Intervention.intInterventionId = stirq.Cheminement.intInterventionId
+		
+		INNER JOIN 
+
+			(SELECT	stirq.Cas.intCasId,
+			MAX(intCheminementId) AS intLastCheminementId
+
+			FROM stirq.Cheminement 
+
+			INNER JOIN stirq.Intervention ON
+			stirq.Cheminement.intInterventionId = stirq.Intervention.intInterventionId
+
+			INNER JOIN stirq.Cas ON
+			stirq.Intervention.intCasId = stirq.Cas.intCasId
+					
+			INNER JOIN stirq.Localisation ON
+			stirq.Cas.intLocalisationId = stirq.Localisation.intLocalisationId
+
+			INNER JOIN stirq.Region ON
+			stirq.Localisation.intRegionId = stirq.Region.intRegionId
+					
+			WHERE 
+				stirq.Cheminement.datCheminement BETWEEN $3 AND $4 AND
+				Region.intRegionId = $1
+
+			GROUP BY Cas.intCasId
+			) AS vwsLastCheminementCas ON 
+		
+			Cas.intCasId = vwsLastCheminementCas.intCasId
+			
+		INNER JOIN (
+			SELECT	Cheminement.intCheminementId,
+					Cheminement.intConseiller1Id
+					
+			FROM	stirq.Cheminement
+			
+			INNER JOIN stirq.Intervention ON
+			stirq.Cheminement.intInterventionId = stirq.Intervention.intInterventionId
+
+			INNER JOIN stirq.Cas ON
+			stirq.Intervention.intCasId = stirq.Cas.intCasId
+					
+			INNER JOIN stirq.Localisation ON
+			stirq.Cas.intLocalisationId = stirq.Localisation.intLocalisationId
+
+			INNER JOIN stirq.Region ON
+			stirq.Localisation.intRegionId = stirq.Region.intRegionId
+			
+			WHERE 
+				stirq.Cheminement.datCheminement BETWEEN $3 AND $4 AND
+				stirq.Region.intRegionId = $1
+		
+		) AS vwsLastConseillerCas ON
+		vwsLastCheminementCas.intLastCheminementId = vwsLastConseillerCas.intCheminementId
+		
+		INNER JOIN stirq.Users ON
+		vwsLastConseillerCas.intConseiller1Id = stirq.Users.intUserId
+
+		WHERE 
+			Cheminement.datCheminement BETWEEN $3 AND $4 AND
+			Region.intRegionId = $1
+
+		ORDER BY Cas.strNoDossier, ActiviteNom.intOrder;
+
+	CREATE TEMP TABLE tmpCas AS EXECUTE tmpCas;
+	
+	INSERT INTO tmpCas
+	SELECT	0,
+		NULL,
+		NULL,
+		0,
+		NULL,
+		$1,
+		$2::VARCHAR,
+		CASE $5
+			WHEN &#039;fr&#039; THEN stirq.ActiviteNom.strActiviteNomFr
+			WHEN &#039;en&#039; THEN stirq.ActiviteNom.strActiviteNomEn
+		END AS strActiviteNom,
+		NULL,
+		NULL,
+		NULL
+	
+	FROM	stirq.ActiviteNom
+	WHERE	intActiviteTypeId = 4;
+   
+	RETURN QUERY SELECT * FROM tmpCas;
+
+	DEALLOCATE tmpCas;
+
+END;
+	
+$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100
+  ROWS 1000;
+ALTER FUNCTION stirq.qrycastempscoutstyperpt(integer, character varying, timestamp without time zone, timestamp without time zone, character varying) OWNER TO cxm526;</code></pre></div><p>Merci !</p>]]></content>
+		<author>
+			<name><![CDATA[charleydc5]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1194</uri>
+		</author>
+		<updated>2011-08-18T17:31:38Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10663#p10663</id>
+	</entry>
+</feed>

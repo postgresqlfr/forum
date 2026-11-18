@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Collation Case Insensitive]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4068&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4068"/>
+	<updated>2017-01-18T22:24:44Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4068</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Collation Case Insensitive]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24623#p24623"/>
+		<content type="html"><![CDATA[<p>Pour le frontend aucune idée… j&#039;imagine qu&#039;on peut continuer à utiliser access au travers d&#039;odbc. Je n&#039;ai pas d&#039;expérience sur la partie frontemd. Si quelqu&#039;un d&#039;autre s&#039;y connait, qu&#039;il n&#039;hésite pas…</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2017-01-18T22:24:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24623#p24623</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Collation Case Insensitive]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24618#p24618"/>
+		<content type="html"><![CDATA[<p>$0 ! pas mal...</p><p>tant que j&#039;ai un spécialiste en ligne...</p><p>j&#039;ai persuadé mon patron de passer d&#039;Access à PostgreSQL</p><p>mais pour le front-end ?</p><p>on peut garder Access</p><p>pensez-vous que Base de LibreOffice est assez puissant ?</p><p>et pour faire des forms en web, quel outil conseilleriez vous ?</p>]]></content>
+		<author>
+			<name><![CDATA[Michel Depiesse]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5329</uri>
+		</author>
+		<updated>2017-01-18T15:57:33Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24618#p24618</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Collation Case Insensitive]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24617#p24617"/>
+		<content type="html"><![CDATA[<p>Non, on fait pas. Mais on prévoit que les utilisateurs peuvent le faire… on en a bien un qui a voulu appeler une table $0 hier… <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2017-01-18T15:16:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24617#p24617</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Collation Case Insensitive]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24616#p24616"/>
+		<content type="html"><![CDATA[<p>mettre des double quotes dans des noms de variables ?</p><p>drôle d&#039;idée ;-)</p><p>on fait des trucs comme ça chez Dalibo ?</p>]]></content>
+		<author>
+			<name><![CDATA[Michel Depiesse]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5329</uri>
+		</author>
+		<updated>2017-01-18T15:16:06Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24616#p24616</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Collation Case Insensitive]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24615#p24615"/>
+		<content type="html"><![CDATA[<p>Bon, juste pour pinailler, ça ne va pas marcher si vous avez des double quotes dans les noms de tables ou de colonnes <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" />. Pour éviter le problème, on a une fonction qui s&#039;appelle quote_ident()</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2017-01-18T14:18:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24615#p24615</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Collation Case Insensitive]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24614#p24614"/>
+		<content type="html"><![CDATA[<p>Je vous envoie le script complet pour vous remercier;</p><div class="codebox"><pre class="vscroll"><code>#
+# convert all tables and columns of a dd to lower case
+#
+
+psql contacts_test -U postgres -t &gt; RenTables.sql &lt;&lt;EOF
+select 
+        &#039;alter table &quot;&#039; || table_name || &#039;&quot; rename to &quot;&#039; || lower(table_name) || &#039;&quot;;&#039;
+from 
+        information_schema.tables
+where   
+        table_schema = &#039;public&#039;
+order by 
+        table_schema,table_name;
+EOF
+
+psql contacts_test -U postgres  -f RenTables.sql
+
+psql contacts_test -U postgres -t &gt; RenColumns.sql &lt;&lt;EOF
+select
+        &#039;alter table &#039; || c.table_name || &#039; rename column &quot;&#039; ||  c.column_name || &#039;&quot; to &quot;&#039; || lower(c.column_name) || &#039;&quot;;&#039;
+from 
+        information_schema.columns c
+inner join
+        information_schema.tables t
+on
+        c.table_name = t.table_name
+where   
+        t.table_schema = &#039;public&#039;;
+EOF
+
+psql contacts_test -U postgres -f RenColumns.sql</code></pre></div><p>Vive PostgreSQL !</p>]]></content>
+		<author>
+			<name><![CDATA[Michel Depiesse]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5329</uri>
+		</author>
+		<updated>2017-01-18T14:16:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24614#p24614</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Collation Case Insensitive]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24612#p24612"/>
+		<content type="html"><![CDATA[<p>Pas de solution sans renommer les tables et colonnes, j&#039;entendais. Ça rendra probablement votre logiciel inutilisable de faire ces changements de noms.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2017-01-18T12:36:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24612#p24612</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Collation Case Insensitive]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24611#p24611"/>
+		<content type="html"><![CDATA[<p>Pas de solution !? </p><p>Si on joue le résultat de</p><div class="codebox"><pre><code>select
+        &#039;alter table &quot;&#039; || table_name || &#039;&quot; rename to &quot;&#039; || lower(table_name) || &#039;&quot;;&#039;
+from
+        information_schema.tables
+where   
+        table_schema = &#039;public&#039;
+order by
+        table_schema,table_name;</code></pre></div><p>en ensuite, on joue le résultat de </p><div class="codebox"><pre><code>select
+        &#039;alter table &#039; || c.table_name || &#039; rename column &quot;&#039; ||  c.column_name || &#039;&quot; to &quot;&#039; || lower(c.column_name) || &#039;&quot;;&#039;
+from
+        information_schema.columns c
+inner join
+        information_schema.tables t
+on
+        c.table_name = t.table_name
+where
+        t.table_schema = &#039;public&#039;;</code></pre></div><p>ne pensez-vous pas, alors, que le problème est résolu ?</p>]]></content>
+		<author>
+			<name><![CDATA[Michel Depiesse]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5329</uri>
+		</author>
+		<updated>2017-01-18T11:51:03Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24611#p24611</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Collation Case Insensitive]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24609#p24609"/>
+		<content type="html"><![CDATA[<p>Alors pas de solution…</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2017-01-18T10:25:02Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24609#p24609</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Collation Case Insensitive]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24608#p24608"/>
+		<content type="html"><![CDATA[<p>Merci pour votre attention. </p><p>Mais ce n&#039;est pas moi qui ai créé les objets, c&#039;est la bd access existante et je ne vois pas d&#039;options dans Bullzip qui me permettrait de mettre les noms d&#039;objets en minuscules</p>]]></content>
+		<author>
+			<name><![CDATA[Michel Depiesse]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5329</uri>
+		</author>
+		<updated>2017-01-18T10:24:21Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24608#p24608</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Collation Case Insensitive]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24607#p24607"/>
+		<content type="html"><![CDATA[<p>oui: créez les objets en minuscule, et vous n&#039;aurez plus à mettre de &quot;&quot; autour.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2017-01-18T10:22:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24607#p24607</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Collation Case Insensitive]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24606#p24606"/>
+		<content type="html"><![CDATA[<p>Tel n&#039;est pas le cas !</p><p>J&#039;ai créé ma db pg à partir d&#039;une bd access au moyen de Bullzip.</p><p>Est-il possible de faire que les noms d&#039;objets soient CI afin d&#039;éviter de mettre des &quot; dans les queries ?</p>]]></content>
+		<author>
+			<name><![CDATA[Michel Depiesse]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5329</uri>
+		</author>
+		<updated>2017-01-18T10:17:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24606#p24606</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Collation Case Insensitive]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24605#p24605"/>
+		<content type="html"><![CDATA[<p>Vous n&#039;avez pas besoin des &quot; &quot; normalement… tant que les noms des objets sont bien en minuscule dans le catalogue</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2017-01-18T10:02:03Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24605#p24605</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Collation Case Insensitive]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24604#p24604"/>
+		<content type="html"><![CDATA[<p>Merci ! Ca marche !</p><p>Encore une petite question : pourquoi dois-je écrire : <br />&#160; &#160;alter table &quot;a&quot; alter column &quot;c&quot; type citext;<br />et non<br />&#160; &#160;alter table a alter column c type citext;&#160; </p><p>Est-ce dû à la collation ?</p><p>Peut-on se passer de ces &quot; ?</p>]]></content>
+		<author>
+			<name><![CDATA[Michel Depiesse]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5329</uri>
+		</author>
+		<updated>2017-01-18T09:58:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24604#p24604</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Collation Case Insensitive]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24602#p24602"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Pour avoir des champs case insensitive dans PostgreSQL, on ne modifie pas la collation (je présume que vous venez de SQL Server ?). Avec PostgreSQL, soit on fait comme sous Oracle (on requête sur lower ou upper des chaînes et on crée des index sur lower et upper de ces chaînes au besoin), soit on utilise l&#039;extension citext, qui fournit un nouveau type citext. Si vous avez installé les «contribs», cela se fait assez simplement:</p><div class="codebox"><pre><code>CREATE EXTENSION citext;
+CREATE TABLE ma_table ( a int, b citext)…</code></pre></div><p>Si vous avez besoin de donner des limites de taille à vos champs citext, il faut rajouter des contraintes check. Par exemple:</p><div class="codebox"><pre><code>CREATE TABLE test (a citext CHECK (length(a) &lt; 50));</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2017-01-18T09:22:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24602#p24602</id>
+	</entry>
+</feed>

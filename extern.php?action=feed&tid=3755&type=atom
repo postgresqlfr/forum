@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / ptimisation de requête update]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3755&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3755"/>
+	<updated>2016-02-18T09:43:46Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3755</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ptimisation de requête update]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23078#p23078"/>
+		<content type="html"><![CDATA[<p>Ok :-)</p><p>En tous cas merci pour tout, vous m&#039;avez enlevé une belle épine du pied !!! Désormais tout est franchement plus efficace, c&#039;est le jour et la nuit.</p>]]></content>
+		<author>
+			<name><![CDATA[f.ravel]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1072</uri>
+		</author>
+		<updated>2016-02-18T09:43:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23078#p23078</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ptimisation de requête update]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23075#p23075"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>le message &quot;Aucune transaction en cours&quot; signifie plutôt que la première commande (update) est ignorée à cause du BOM, du coup la deuxième instruction (commit) est valide et est exécutée mais comme la première instruction a été annulée, il n&#039;y a rien à commiter.</p></div></blockquote></div><p>Non. Un COMMIT renverra toujours une erreur (un WARNING très exactement) s&#039;il n&#039;y a pas eu de BEGIN avant. Ça fonctionnera avec pgAdmin parce que ce dernier fait un BEGIN avant d&#039;exécuter les requêtes, mais essayez avec psql et avec tout autre outil qui ne cache pas les requêtes qu&#039;il exécute et vous aurez le même problème. La preuve :</p><div class="codebox"><pre><code>postgres=# SELECT 1;
+ ?column? 
+----------
+        1
+(1 row)
+
+postgres=# COMMIT;
+WARNING:  there is no transaction in progress
+COMMIT</code></pre></div><div class="quotebox"><blockquote><div><p>Y-a-t-il un moyen de rendre le vacuum &quot;exclusif&quot; sans mettre à mal l&#039;enchaînement des BEGIN suivants ?</p></div></blockquote></div><p>Non. Le seul moyen de contourner ça est de désactiver l&#039;autovacuum sur les tables en question et de faire manuellement le VACUUM ANALYZE entre chaque (ensemble d&#039;) opérations.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2016-02-18T09:01:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23075#p23075</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ptimisation de requête update]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23074#p23074"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Alors, en effet le &quot;BOM&quot; est la source de la première erreur (« I »eUPDATE »). Et celle-ci venait bien de l&#039;enregistrement via pgAdmin.<br />Et, parce que je pense que ça ne coûte rien d&#039;être rigoureux dans ses requêtes, j&#039;ai encadré chacune de mes requêtes d&#039;un BEGIN - COMMIT. Depuis, tout tourne sans erreur !!! Super. <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>Résultat des courses et de tous vos précieux conseils :<br />- l&#039;optimisation de la configuration de la base de données.<br />- l&#039;optimisation du comportement des vacuums sur les tables éditées<br />- le passage en psql et les BEGIN/COMMIT<br />...ont énormément amélioré mes mises à jours. Une requête chaînée qui pouvait tourner pendant des jours... est traitée en quelques heures !!! Un grand merci à vous !!! <img src="http://forums.postgresql.fr/img/smilies/big_smile.png" width="15" height="15" alt="big_smile" /></p><p>J&#039;abuse peut-être, mais je vais quand même poser une dernière question <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /> sur le comportement actuel de ma requête psql (chaîne de mises à jours d&#039;une même table).<br />D&#039;après ce que j&#039;observe via l&#039;évolution de la fenêtre psql et le moniteur d&#039;activité de pgAdmin :</p><p>BEGIN =&gt; début de la première transaction<br />Requête 1 =&gt; réalisation de la requête 1<br />COMMIT =&gt; fin de la transaction =&gt; initiation d&#039;un vacuum automatique<br />BEGIN =&gt; début de la seconde transaction, alors que le vacuum est en train de se réaliser<br />Requête 2 =&gt; réalisation de la requête 2 en parallèle du vacuum<br />COMMIT...etc.</p><p>J&#039;ai donc l&#039;impression qu&#039;à partir de la requête 2 celle-ci se réalise, au début, frontalement avec le vacuum (les deux sont visibles dans le moniteur d&#039;activité de pgAdmin) et jusqu&#039;à ce que celui-ci se finisse... ce qui fait sérieusement chuter les performance de mise à jour.<br />Le vacuum est nécessaire car sinon, au fur et à mesure des requêtes qui s&#039;enchaînent, les performance s&#039;effondrent.<br />Y-a-t-il un moyen de rendre le vacuum &quot;exclusif&quot; sans mettre à mal l&#039;enchaînement des BEGIN suivants ?</p>]]></content>
+		<author>
+			<name><![CDATA[f.ravel]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1072</uri>
+		</author>
+		<updated>2016-02-17T16:58:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23074#p23074</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ptimisation de requête update]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23072#p23072"/>
+		<content type="html"><![CDATA[<div class="codebox"><pre><code>Le message &quot;Aucune transaction en cours&quot; est dû au fait qu&#039;il faut ajouter 
+un BEGIN en début de transaction (ce que j&#039;avais mentionné plus haut).</code></pre></div><p>le message &quot;Aucune transaction en cours&quot; signifie plutôt que la première commande (update) est ignorée à cause du BOM, du coup la deuxième instruction (commit) est valide et est exécutée mais comme la première instruction a été annulée, il n&#039;y a rien à commiter.<br />Donc pas besoin de begin, il suffit de supprimer le BOM au début du fichier et ça va marcher (avec psql).</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2016-02-17T08:55:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23072#p23072</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ptimisation de requête update]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23070#p23070"/>
+		<content type="html"><![CDATA[<p>Concernant l&#039;erreur de syntaxe, si vous avez enregistré le script SQL à partir de pgAdmin, alors vous avez un BOM en début de fichier qu&#039;il faut supprimer. Le mieux est d&#039;enregistrer le script à partir d&#039;un éditeur de texte ou des dernières versions de pgAdmin qui permettent de ne pas enregistrer le BOM.</p><p>Le message &quot;Aucune transaction en cours&quot; est dû au fait qu&#039;il faut ajouter un BEGIN en début de transaction (ce que j&#039;avais mentionné plus haut).</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2016-02-16T21:46:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23070#p23070</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ptimisation de requête update]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23069#p23069"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;ai donc essayé d&#039;appliquer vos différents conseils et réalisé de nombreux test... ce qui explique mon temps de réponse.<br />En effet, les BEGIN et COMIT sont sans effet dans pgAdmin.<br />Concernant psql je ne maîtrise vraiment pas beaucoup (désolé...) donc ça m&#039;a pris un peu de temps pour arriver quelque peu à mes fins.</p><br /><p>Premier test avec le Shell de psql et un fichier .sql contenant les commandes :<br />- Je réussi à me connecter à la base cadastre_test<br />- Je tape cette commande =&gt; \i d:\rqte_psql.sql -u postgres -w<br />- J&#039;ai le message d&#039;erreur suivant =&gt; d: : permission denied<br />- J&#039;ai laissé tombé</p><br /><p>Second test avec psql dans une invite de commande et le même fichier .sql de commandes :<br />- Je tape cette commande =&gt; psql -d cadastre_test -p 5432 -h localhost -U postgres -w -f d:\rqte_psql.sql<br />- La commande se lance mais un premier problème apparaît =&gt; erreur de syntaxe sur ou près de « I »eUPDATE » (ça sent les problèmes d&#039;encodage ?) .... ATTENTION: aucune transaction en cours&#160; ... COMMIT...<br />- La première ligne de mon fichier sql pose donc systématiquement problème, la 1ère transaction ne se fait pas, le 1er COMMIT arrive, je vois un vacuum s&#039;effectuer sur la table à partir de la fenêtre &quot;état du serveur&quot; de pgAdmin (ce qui est une bonne chose), la seconde requête contenu dans mon .sql se lance par la suite car elle est visible dans l&#039;état du serveur côté pgAdmin... SUPER !!!</p><p>Donc :<br />- Est-ce que je fait bien les choses en lançant mes commandes via mon rqte_psql.sql ? Faut-il faire différemment ?<br />- Si c&#039;est bien la bonne méthode, pourquoi la première ligne dudit fichier pose systématiquement problème ? J&#039;ai donc essayé de mettre les BEGIN en plus des COMMIT, l&#039;erreur se produit alors avec I »eBEGIN mais au moins les UPDATE qui suivent se réalisent et la requête va jusqu&#039;à son terme :-)</p><p>Désolé pour toutes ces questions mais tous ces outils ne sont vraiment pas simple d&#039;usage de prime abord :-)</p>]]></content>
+		<author>
+			<name><![CDATA[f.ravel]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1072</uri>
+		</author>
+		<updated>2016-02-16T17:53:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23069#p23069</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ptimisation de requête update]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23068#p23068"/>
+		<content type="html"><![CDATA[<p>oui merci guillaume pour les précisions.<br />J&#039;avais oublié de dire que les commandes que j&#039;ai citées plus haut sont à exécuter avec psql (tel quel).</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2016-02-16T08:37:38Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23068#p23068</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ptimisation de requête update]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23067#p23067"/>
+		<content type="html"><![CDATA[<p>On va reformuler un peu ce que dit Sébastien <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>Si le script est exécuté par pgAdmin, il y a un BEGIN automatique au début et un COMMIT final. Du coup, l&#039;autovacuum n&#039;a aucune statistiques sur ce qui se passe sur cette table.</p><p>Si vous placez des COMMIT (et des BEGIN, ce que Sébastien a oublié) entre chaque UPDATE, les statistiques ne seront pas plus envoyées vu que pgAdmin envoie ça comme une seule et même chaîne. Or l&#039;envoi des statistiques ne se fait, à ma connaissance, qu&#039;à la fin de l&#039;exécution de la chaîne.</p><p>Bref, votre problème, c&#039;est pgAdmin. Utilisez psql.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2016-02-15T18:32:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23067#p23067</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ptimisation de requête update]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23066#p23066"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Il faudrait essayer avec des commits entre chaque update :</p><div class="codebox"><pre class="vscroll"><code>UPDATE cad_2015.edi_parc_uf
+  SET age_prop_dest_av_imp_2015 = 2015 - dat_nais_prop_dest_av_imp
+WHERE dat_nais_prop_dest_av_imp IS NOT NULL
+  AND dat_nais_prop_dest_av_imp &lt;&gt; 0
+;
+commit;
+UPDATE cad_2015.edi_parc_uf
+SET type_prop = &#039;NR&#039;
+;
+commit;
+UPDATE cad_2015.edi_parc_uf
+  SET type_prop = edi_parc.type_prop
+FROM 
+  cad_2015.edi_parc
+WHERE 
+  edi_parc.id_uf = edi_parc_uf.id_centr
+;
+UPDATE cad_2015.edi_parc_uf
+SET nom_prop_desti_av_imp = &#039;NR&#039;
+;
+commit;
+UPDATE cad_2015.edi_parc_uf
+  SET nom_prop_desti_av_imp = edi_parc.nom_prop_desti_av_imp
+FROM 
+  cad_2015.edi_parc
+WHERE 
+  edi_parc.id_uf = edi_parc_uf.id_centr
+;
+commit;</code></pre></div><p>Parce que sinon, le commit se fait à la fin de tous les updates.<br />Alors que dans le cas de pgadmin le commit est implicite (enfin il me semble...)</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2016-02-15T17:02:50Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23066#p23066</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ptimisation de requête update]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23065#p23065"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;ai donc mené de nombreux tests pour optimiser et essayer de mieux comprendre le fonctionnement de postgrès à l&#039;aide de tous vos conseils.</p><p>Requête utilisée pour les tests :</p><div class="codebox"><pre><code>UPDATE cad_2015.edi_parc_uf
+  SET age_prop_dest_av_imp_2015 = 2015 - dat_nais_prop_dest_av_imp
+WHERE dat_nais_prop_dest_av_imp IS NOT NULL
+  AND dat_nais_prop_dest_av_imp &lt;&gt; 0
+;
+UPDATE cad_2015.edi_parc_uf
+SET type_prop = &#039;NR&#039;
+;
+UPDATE cad_2015.edi_parc_uf
+  SET type_prop = edi_parc.type_prop
+FROM 
+  cad_2015.edi_parc
+WHERE 
+  edi_parc.id_uf = edi_parc_uf.id_centr
+;
+UPDATE cad_2015.edi_parc_uf
+SET nom_prop_desti_av_imp = &#039;NR&#039;
+;
+UPDATE cad_2015.edi_parc_uf
+  SET nom_prop_desti_av_imp = edi_parc.nom_prop_desti_av_imp
+FROM 
+  cad_2015.edi_parc
+WHERE 
+  edi_parc.id_uf = edi_parc_uf.id_centr
+;</code></pre></div><br /><p>1) Tout manuel<br />J&#039;ai donc commencé par refuser les autovacuum sur la table à mette à jour</p><div class="codebox"><pre><code>ALTER TABLE cad_2015.edi_parc_uf SET (
+  autovacuum_enabled = FALSE;</code></pre></div><p>J&#039;ai ensuite exécuté mes différentes requêtes unes à unes en les sélectionnant dans pgAdmin. Après chaque exécution j&#039;ai lancé un vacuum analyze. Les résultats sont très bons et chaque requête prend de 10 à 35 minutes pour se réaliser, en 1h30 tout est fait. (personnellement ça me convient très bien en termes de performances, mais pas à l&#039;usage, de nombreuses requêtes de ce type à lancer).</p><br /><p>2) Tout automatisé - test 1<br />Même configuration que précédemment, sauf que j&#039;ai lancé toutes les requêtes d&#039;un coup. Là c&#039;est a nouveau sans fin... j&#039;ai fini par stopper la requête au bout de plusieurs heures. Les performances de postgrès s&#039;effondrent. Aucun vacuum pour autant de requêtes enchaînées sur cette même table n&#039;est vraiment pas une bonne idée.</p><div class="codebox"><pre><code>relname	    n_tup_upd	n_live_tup	   last_autoanalyze	last_autovacuum	autovacuum_count	autoanalyze_count
+edi_parc_uf   7035669	0			                                            0	                        0</code></pre></div><p>3) Tout automatisé - test 2 (vacuums peu fréquents)<br />Cette fois-ci test de paramétrage des vacuums de la table :</p><div class="codebox"><pre><code>ALTER TABLE cad_2015.edi_parc_uf SET (
+  autovacuum_enabled = TRUE,
+  autovacuum_vacuum_scale_factor = 1,
+  autovacuum_analyze_scale_factor = 1,
+  autovacuum_vacuum_threshold = 3000000,
+  autovacuum_analyze_threshold = 3000000
+);</code></pre></div><p>Résultats identiques au point 2), mauvaise idée également.<br />J&#039;en ai relancé un autre avec des valeurs un peu moins élevées mais sans plus de succès. Requête stoppée.<br />Pour info :</p><div class="codebox"><pre><code>relname	    n_tup_upd	n_live_tup  	last_autoanalyze	                last_autovacuum	                    autovacuum_count       autoanalyze_count
+edi_parc_uf   11092034      3002889	      2016-02-12 11:56:03.3+01         2016-02-12 11:47:51.423+01                2                    1</code></pre></div><p>4) Tout automatisé - test 3 (vacuums fréquents)</p><div class="codebox"><pre><code>ALTER TABLE cad_2015.edi_parc_uf SET (
+  autovacuum_enabled = TRUE,
+  autovacuum_vacuum_scale_factor = 0.01,
+  autovacuum_analyze_scale_factor = 0.01,
+  autovacuum_vacuum_threshold = 20000,
+  autovacuum_analyze_threshold = 20000
+);</code></pre></div><p>Résultats identiques au point 2), la requête tourne depuis plus de 3 heures...</p><p>J&#039;ai comme l&#039;impression que cet enchaînement de requêtes, tant qu&#039;il ne s&#039;est pas intégralement réalisé :<br />&#160; - verrouille la tables,<br />&#160; - que les autovacuum ne peuvent s&#039;effectuer qu&#039;après libération de ces vérous<br />&#160; - et que, donc, on se retrouve dans la même situation que pour le 2) ???&#160; </p><p>Dans l&#039;absolu j&#039;aurais pu insérer des vacuums dans mon fichier de requêtes pour qu&#039;elles se réalisent comment dans mon cas 1) mais les vacuum ne sont pas tolérés dans cette configuration... à moins que je ne m&#039;y prenne pas correctement.</p><p>Comment faites-vous pour mettre à jour de grosses bases de données, sur de nombreux champs ? Comme moi avec mes requêtes enchaînées... ou bien totalement différemment ?</p>]]></content>
+		<author>
+			<name><![CDATA[f.ravel]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1072</uri>
+		</author>
+		<updated>2016-02-15T16:44:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23065#p23065</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ptimisation de requête update]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23064#p23064"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>L&#039;idée étant, dans mon cas précis ou je suis le seul accédant, et ayant de nombreuses tâches de mises à jour à réaliser en ce moment, de désactiver temporairement celles-ci et me laisser les lancer à la fin de chaque traitement chaîné ?</p></div></blockquote></div><p>Ça peut être une bonne stratégie.</p><div class="quotebox"><blockquote><div><p>Concernant les 0 lignes écrites, voici le dernier test réalisé de ma requête (suppression des champs, recréation de ceux-ci pour partir sur des champs vides). J&#039;ai vérifié les champs mis à jour et ils y a bien de la donnée écrite. Le query plan dit le contraire ?</p></div></blockquote></div><p>Non, le plan affiché par EXPLAIN montre qu&#039;il y a des écritures. Par contre, aucune ligne n&#039;est modifiée, ce n&#039;est pas la même chose.</p><p>Et pour infos, l&#039;autovacuum se déclenche généralement pas assez souvent (et non pas le contraire comme aimerait le croire beaucoup).</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2016-02-12T22:19:21Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23064#p23064</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ptimisation de requête update]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23060#p23060"/>
+		<content type="html"><![CDATA[<p>Merci pour vos conseils, je vais m&#039;y plonger demain, aujourd&#039;hui je n&#039;ai ou y travailler.</p>]]></content>
+		<author>
+			<name><![CDATA[f.ravel]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1072</uri>
+		</author>
+		<updated>2016-02-11T17:13:09Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23060#p23060</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ptimisation de requête update]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23059#p23059"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Vous pouvez régler l&#039;autovacuum et l&#039;autoanalyze pour chacune des tables qui sont en jeu dans vos requêtes. Cela permettra d&#039;éviter que ces 2 process automatiques se déclenchent trop souvent (avec les I/O qui vont avec).</p><p>Vous devez faire comme ceci pour chaque table :<br />ALTER TABLE edi_parc_uf SET (<br />&#160; autovacuum_enabled = true,<br />&#160; autovacuum_vacuum_scale_factor = 0.01,<br />&#160; autovacuum_analyze_scale_factor = 0.01<br />);</p><p>les scale_factor sont à calculer selon la volumétrie des tables et le taux de modification (insert, update, delete).<br />Par exemple 0.01 = déclenchement après 1% de modification dans la table.<br />0.1 = déclenchement après 10% de modification dans la table.<br />Donc si vous avez une table de 10 millions de lignes et un scale_factor de 0.1, l&#039;autovacuum se déclenchera après que 1 millions de lignes aient été modifiées.<br />A vous de jouer avec ces options pour trouver la bonne limite.</p><p>Vous devez jouer aussi avec autovacuum_vacuum_threshold et autovacuum_analyze_threshold qui sont d&#039;autres seuils de déclenchement mais cette fois au nombre de lignes (50 lignes modifiées par défaut).</p><p>Vous pouvez modifier tout ça avec pgadmin ou avec un alter table.</p><p>Doc à consulter pour plus de détails :<br /><a href="http://docs.postgresql.fr/9.4/runtime-config-autovacuum.html" rel="nofollow">http://docs.postgresql.fr/9.4/runtime-c … acuum.html</a></p><p>Pour voir si l&#039;autovacuum se déclenche trop souvent vous pouvez voir avec cette requête :<br />SELECT relname, n_tup_upd, n_live_tup, last_autoanalyze, last_autovacuum, autovacuum_count, autoanalyze_count FROM pg_stat_all_tables<br />WHERE schemaname = &#039;votre_shema&#039;<br />ORDER BY relname;</p><p>Cordialement.</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2016-02-11T09:08:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23059#p23059</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ptimisation de requête update]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23058#p23058"/>
+		<content type="html"><![CDATA[<p>Pour poursuivre l&#039;optimisation du serveur que j&#039;utilise, je me pose également une autre question :</p><p>La requête &quot;type&quot; sur laquelle nous avons réalisé des tests a démontré une nette amélioration des temps de calcul.</p><p>Les tâches que je réalise en ce moment m&#039;amènent à lancer des enchaînements de ce même genre de requêtes. (vous me direz si c&#039;est une bonne ou une mauvaise idée de procéder de la sorte ? Je ne suis pas administrateur de données de formation :-) )</p><p>Requête 1<br />;<br />Requête 2<br />;<br />Requête ...</p><p>Là aussi je me demande si, au bout de plusieurs heures calcul, il n&#039;y a pas des opérations de maintenance réalisées en automatique par le serveur (des vacuum ou je ne sais quoi d&#039;autre) qui viennent interférer dans la réalisation de la requête ?<br />L&#039;idée étant, dans mon cas précis ou je suis le seul accédant, et ayant de nombreuses tâches de mises à jour à réaliser en ce moment, de désactiver temporairement celles-ci et me laisser les lancer à la fin de chaque traitement chaîné ?</p><p>Concernant les 0 lignes écrites, voici le dernier test réalisé de ma requête (suppression des champs, recréation de ceux-ci pour partir sur des champs vides). J&#039;ai vérifié les champs mis à jour et ils y a bien de la donnée écrite. Le query plan dit le contraire ?</p><div class="quotebox"><blockquote><div><p>QUERY PLAN<br />Update on edi_parc_uf&#160; (cost=835946.26..1332168.33 rows=977854 width=1517) (actual time=1095770.487..1095770.487 rows=0 loops=1)<br />&#160; Buffers: shared hit=32783420 read=746508 dirtied=917352, temp read=157351 written=157337<br />&#160; CTE ident_surf_bati_uf<br />&#160; &#160; -&gt;&#160; HashAggregate&#160; (cost=339152.96..348931.50 rows=977854 width=76) (actual time=82749.792..84263.735 rows=2064209 loops=1)<br />&#160; &#160; &#160; &#160; &#160; Buffers: shared hit=63567 read=266475<br />&#160; &#160; &#160; &#160; &#160; -&gt;&#160; Seq Scan on edi_parc&#160; (cost=0.00..298628.54 rows=3241954 width=76) (actual time=9.489..71975.019 rows=3241824 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Buffers: shared read=266209<br />&#160; -&gt;&#160; Hash Join&#160; (cost=487014.76..983236.83 rows=977854 width=1517) (actual time=117747.933..187374.810 rows=2064208 loops=1)<br />&#160; &#160; &#160; &#160; Hash Cond: (ident_surf_bati_uf.id_uf = edi_parc_uf.id_centr)<br />&#160; &#160; &#160; &#160; Buffers: shared hit=164512 read=400398, temp read=157351 written=157337<br />&#160; &#160; &#160; &#160; -&gt;&#160; CTE Scan on ident_surf_bati_uf&#160; (cost=0.00..19557.08 rows=977854 width=576) (actual time=82749.807..85493.955 rows=2064209 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; Buffers: shared hit=63567 read=266475<br />&#160; &#160; &#160; &#160; -&gt;&#160; Hash&#160; (cost=154669.56..154669.56 rows=2065056 width=1185) (actual time=34997.763..34997.763 rows=2065094 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; Buckets: 65536&#160; Batches: 8&#160; Memory Usage: 131834kB<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; Buffers: shared hit=36628 read=133923, temp written=112380<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; -&gt;&#160; Seq Scan on edi_parc_uf&#160; (cost=0.00..154669.56 rows=2065056 width=1185) (actual time=12.052..30452.669 rows=2065094 loops=1)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Buffers: shared hit=96 read=133923<br />Total runtime: 1096110.130 ms</p></div></blockquote></div>]]></content>
+		<author>
+			<name><![CDATA[f.ravel]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1072</uri>
+		</author>
+		<updated>2016-02-11T08:24:35Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23058#p23058</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ptimisation de requête update]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23057#p23057"/>
+		<content type="html"><![CDATA[<p>Mais la requête ci-dessus fait un simple update, qui plus est sur 0 ligne. C&#039;est pourquoi je ne comprends pas ces écritures dans le journal de transaction.<br />Sauf si il y a une activité par ailleurs sur la base en parallèle...</p>]]></content>
+		<author>
+			<name><![CDATA[edlm]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1635</uri>
+		</author>
+		<updated>2016-02-11T08:13:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23057#p23057</id>
+	</entry>
+</feed>

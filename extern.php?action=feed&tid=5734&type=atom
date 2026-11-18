@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Mise à jour BD postgres depuis QGIS]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5734&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5734"/>
+	<updated>2020-04-13T19:27:26Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5734</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Mise à jour BD postgres depuis QGIS]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31044#p31044"/>
+		<content type="html"><![CDATA[<p>Merci pour la requête d&#039;insertion.<br />Pour l&#039;instant je vais me contenter d&#039;une requête d&#039;insertion et une autre pour les mise à jour. <br />Je vais creuser pour combiner les deux :-)</p>]]></content>
+		<author>
+			<name><![CDATA[HeadTrick24]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8848</uri>
+		</author>
+		<updated>2020-04-13T19:27:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31044#p31044</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Mise à jour BD postgres depuis QGIS]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31039#p31039"/>
+		<content type="html"><![CDATA[<p>Au vu de la tentative du 1er message (qui doit générer une erreur sur l&#039;INSERT, alors que l&#039;UPDATE semble correct):</p><div class="codebox"><pre><code>insert into test_importb select * from test_import where test_importb.id_metier_&lt;&gt;test_import.id_metier_;</code></pre></div><p>l&#039;idée est certainement d&#039;insérer dans test_importb les lignes de test_import dont l&#039;id_metier n&#039;est pas déjà dans la destination.</p><p>Ca peut s&#039;écrire:</p><div class="codebox"><pre><code>insert into test_importb select * from test_import where 
+ NOT EXISTS (select 1 FROM test_importb WHERE test_importb.id_metier_ = test_import.id_metier_);</code></pre></div><p>Sinon on peut aussi écrire l&#039;UPDATE et l&#039;INSERT combinés dans une seule instruction INSERT avec une clause ON CONFLICT DO UPDATE s&#039;il y a une contrainte unique sur id_metier_, mais c&#039;est un peu plus compliqué à écrire.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2020-04-10T17:32:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31039#p31039</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Mise à jour BD postgres depuis QGIS]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31036#p31036"/>
+		<content type="html"><![CDATA[<p>Pour vous aider, il&#160; faut avoir la description complète des tables concernées, la correspondance entre les colonnes et un exemple de MAJ: quand est-ce qu&#039;il faut la faire et quand est-ce qu&#039;il ne faut pas la faire.</p>]]></content>
+		<author>
+			<name><![CDATA[pifor]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8375</uri>
+		</author>
+		<updated>2020-04-10T12:07:03Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31036#p31036</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Mise à jour BD postgres depuis QGIS]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31035#p31035"/>
+		<content type="html"><![CDATA[<p>voici le message d&#039;erreur</p><p>duplicate key value violates unique constraint &quot;test_importb_pkey&quot;<br />DETAIL:&#160; Key (gid)=(541) already exists.</p><br /><br /><br /><br /><p>En essayant en sélectionnant les colonnes, j&#039;ai une autre erreur<br />insert into test_importb <br /> select test_import.id_metier_, test_import.type_pf, test_import.geom<br /> from test_import, test_importb <br /> where test_importb.id_metier_&lt;&gt;test_import.id_metier_;</p><p> <br /> column &quot;gid&quot; is of type integer but expression is of type character varying<br />LINE 2:&#160; select test_import.id_metier_, test_import.type_pf, test_im...<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; ^<br />HINT:&#160; You will need to rewrite or cast the expression.</p>]]></content>
+		<author>
+			<name><![CDATA[HeadTrick24]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8848</uri>
+		</author>
+		<updated>2020-04-10T11:55:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31035#p31035</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Mise à jour BD postgres depuis QGIS]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31034#p31034"/>
+		<content type="html"><![CDATA[<p>Est-ce que cette requête donne le résultat demandé ?</p><div class="codebox"><pre><code>insert into test_importb 
+ select test_import.* 
+ from test_import, test_importb 
+ where test_importb.id_metier_&lt;&gt;test_import.id_metier_;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[pifor]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8375</uri>
+		</author>
+		<updated>2020-04-10T11:13:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31034#p31034</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Mise à jour BD postgres depuis QGIS]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31033#p31033"/>
+		<content type="html"><![CDATA[<p>je n&#039;arrive toujours pas à insérer de nouvelles entités</p>]]></content>
+		<author>
+			<name><![CDATA[HeadTrick24]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8848</uri>
+		</author>
+		<updated>2020-04-10T09:18:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31033#p31033</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Mise à jour BD postgres depuis QGIS]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31032#p31032"/>
+		<content type="html"><![CDATA[<p>Effectivement, vous ne pouvez pas écrire la requête comme ça, il faut utiliser un UPDATE ... FROM ... WHERE.&#160; Il y a un exemple d&#039;écriture dans la documentation <a href="https://www.postgresql.org/docs/current/sql-update.html" rel="nofollow">https://www.postgresql.org/docs/current/sql-update.html</a></p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2020-04-10T06:42:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31032#p31032</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Mise à jour BD postgres depuis QGIS]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31031#p31031"/>
+		<content type="html"><![CDATA[<p>le voici</p><p>invalid reference to FROM-clause entry for table &quot;test_importb&quot;<br />LINE 6: ...f) from test_import where test_import.id_metier_&lt;&gt;test_impor...<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;^<br />HINT:&#160; There is an entry for table &quot;test_importb&quot;, but it cannot be referenced from this part of the query.</p>]]></content>
+		<author>
+			<name><![CDATA[HeadTrick24]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8848</uri>
+		</author>
+		<updated>2020-04-10T06:24:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31031#p31031</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Mise à jour BD postgres depuis QGIS]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31030#p31030"/>
+		<content type="html"><![CDATA[<p>Petite erreur de copier/coller sur le message d&#039;erreur <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2020-04-10T06:11:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31030#p31030</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Mise à jour BD postgres depuis QGIS]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31029#p31029"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je souhaite mettre à jour une table dans postgres en mettant à jour ou en insérant de nouvelles entités.</p><p>J&#039;arrive à mettre à jour mais je n&#039;arrive pas à insérer.</p><p>Voici mon code</p><p>update test_importb<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160;set<br />&#160; &#160; &#160; &#160; &#160; &#160;&#160; geom = (select geom from test_import where test_importb.id_metier_=test_import.id_metier_),<br />&#160; &#160; &#160; &#160; &#160; &#160; type_pf = (select type_pf from test_import where test_importb.id_metier_=test_import.id_metier_);</p><p>insert into test_importb select * from test_import where test_importb.id_metier_&lt;&gt;test_import.id_metier_;<br />end</p><p>et le message d&#039;erreur :</p><p>update test_importb<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160;set<br />&#160; &#160; &#160; &#160; &#160; &#160;&#160; geom = (select geom from test_import where test_importb.id_metier_=test_import.id_metier_),<br />&#160; &#160; &#160; &#160; &#160; &#160; type_pf = (select type_pf from test_import where test_importb.id_metier_=test_import.id_metier_);</p><p>insert into test_importb select * from test_import where test_importb.id_metier_&lt;&gt;test_import.id_metier_;<br />end</p>]]></content>
+		<author>
+			<name><![CDATA[HeadTrick24]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8848</uri>
+		</author>
+		<updated>2020-04-10T05:20:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31029#p31029</id>
+	</entry>
+</feed>

@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Paramètrage mémoire pour un Data Warehouse]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4409&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4409"/>
+	<updated>2017-10-13T13:14:54Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4409</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Paramètrage mémoire pour un Data Warehouse]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26207#p26207"/>
+		<content type="html"><![CDATA[<p>Merci à tous pour vos réponses, j&#039;ai l&#039;impression d&#039;avoir + appris sur Postgres en 1 journée qu&#039;au cours des 6 derniers mois.</p><p>Alors, concernant ma requête, effectivement, je n&#039;ai besoin que d&#039;1 seule colonne pour faire mon update (id_immeuble) et elle est indexée. Dans le plan d&#039;execution, je passe d&#039;un &quot;groupaggegate&quot; à un &quot;hashaggregate&quot; sans le &quot;sort&quot;. Le temps d’exécution est réduit à 10 minutes, c&#039;est formidable.</p><br /><p>Grace à vos conseils, je suis en train de réécrire et optimiser une bonne partie de mes scripts d&#039;alimentation</p>]]></content>
+		<author>
+			<name><![CDATA[krashtest31]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7768</uri>
+		</author>
+		<updated>2017-10-13T13:14:54Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26207#p26207</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Paramètrage mémoire pour un Data Warehouse]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26199#p26199"/>
+		<content type="html"><![CDATA[<p>J&#039;ajoute mon petit grain de sel. En ne lisant que le plan d&#039;exécution, on voit que tout le temps est passé sur le tri. PostgreSQL doit créer un fichier sur disque de pratiquement 3 Go pour effectuer ce tri. Comme il n&#039;est guère raisonnable de vouloir augmenter work_mem à ce type de valeur, un index sur les trois colonnes triées pourrait être une excellente solution, surtout s&#039;il est stocké sur un SSD.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2017-10-13T06:19:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26199#p26199</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Paramètrage mémoire pour un Data Warehouse]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26195#p26195"/>
+		<content type="html"><![CDATA[<p>+1</p><p>Et au passage j&#039;ai oublié de préciser un VACUUM FULL suivi d&#039;un REINDEX ne sert plus à rien depuis la version 9.0 : le REINDEX est fait par le VACUUM FULL.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2017-10-12T21:37:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26195#p26195</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Paramètrage mémoire pour un Data Warehouse]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26193#p26193"/>
+		<content type="html"><![CDATA[<p>bonjour,</p><p>au passage, je vous conseille de supprimer tous vos index avant le chargement de chaque nuit puis le vacuum full puis recréer les index.<br />Ce devrait être plus rapide comme ça.</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2017-10-12T15:48:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26193#p26193</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Paramètrage mémoire pour un Data Warehouse]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26192#p26192"/>
+		<content type="html"><![CDATA[<p>Je doute que cela soit la même requête, vu que celle-ci fait un group by sur 3 colonnes et non une seule.&#160; Et la table contient 50 millions de lignes, pas 13.</p><p>La majorité du temps de cette requête est passé à trier ces 50 millions de lignes.&#160; Vous pouvez essayer avec un work_mem bien plus haut (plusieurs Go), mais il serait sans doute plus efficace de créer un index sur (id_immeuble, id_agence, id_base).</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2017-10-12T15:33:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26192#p26192</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Paramètrage mémoire pour un Data Warehouse]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26191#p26191"/>
+		<content type="html"><![CDATA[<p>Merci de votre réponse rapide</p><br /><p>1) mon paramètre &quot;max_connections&quot; est à &quot;50&quot; mais je dois rarement dépasser les 10 sessions simultanées</p><br /><p>2) je viens de basculer le paramètre &quot;random_page_cost&quot; à 1.0 et &quot;effective_io_concurrency&quot; à 10 dans le conf, test cette nuit</p><br /><p>3)&#160; Voici le plan d&#039;execution de la requete ci-dessus retourné au bout de 28 minutes :</p><br /><div class="codebox"><pre><code>GroupAggregate  (cost=10009498003.17..10011689441.20 rows=5009002 width=45) (actual time=1404978.045..1728692.948 rows=20677 loops=1)&quot;
+  Output: id_immeuble, id_agence, id_base, sum(CASE WHEN ((sens)::text = &#039;D&#039;::text) THEN montant WHEN (((sens)::text = &#039;C&#039;::text) AND (date_comptable &lt; to_date((&#039;01/&#039;::text || to_char(((&#039;now&#039;::cstring)::date)::timestamp with time zone, &#039;MM/YYYY&#039;::text)), &#039; (...)&quot;
+  Group Key: r.id_immeuble, r.id_agence, r.id_base&quot;
+  -&gt;  Sort  (cost=10009498003.17..10009623228.20 rows=50090012 width=45) (actual time=1404973.381..1665300.805 rows=50088348 loops=1)&quot;
+        Output: id_immeuble, id_agence, id_base, sens, montant, date_comptable, date_lettrage&quot;
+        Sort Key: r.id_immeuble, r.id_agence, r.id_base&quot;
+        Sort Method: external merge  Disk: 2884536kB&quot;
+        -&gt;  Seq Scan on dwh_ics.itf_rappro_bq r  (cost=10000000000.00..10001551129.12 rows=50090012 width=45) (actual time=1.761..63870.558 rows=50088348 loops=1)&quot;
+              Output: id_immeuble, id_agence, id_base, sens, montant, date_comptable, date_lettrage&quot;
+Planning time: 0.676 ms&quot;
+Execution time: 1728934.307 ms&quot;</code></pre></div><p>4) J&#039;utilise zabbix comme outil de supervision, je vaisme reseigner auprés de l&#039;admin sys pour ajouter des composants de suivi</p>]]></content>
+		<author>
+			<name><![CDATA[krashtest31]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7768</uri>
+		</author>
+		<updated>2017-10-12T14:33:29Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26191#p26191</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Paramètrage mémoire pour un Data Warehouse]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26190#p26190"/>
+		<content type="html"><![CDATA[<p>Vous n&#039;avez pas précisé le nombre de connexions autorisées.&#160; Il faudrait également positionner le paramètre random_page_cost à 1 si vous avez des SSD, et augmenter le paramètre effective_io_concurrency (entre 10 et 20 sur un bon ssd).</p><br /><p>Pour le reste, pouvez-vous vous fournir un plan d&#039;exécution (options buffers, analyze et verbose activées) de la requête quand elle est lente ? (auto_explain peut vous aider).</p><p>Pour la mémoire, regardez vos métriques de supervision pour savoir si la mémoire le cache descend à certains moments, et s&#039;il l&#039;utilisation des disques est importante ou non.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2017-10-12T13:32:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26190#p26190</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Paramètrage mémoire pour un Data Warehouse]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26189#p26189"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous,</p><br /><p>J&#039;utilise une base PostgreSQL 9.4 comme Data Warehouse (grosses tables dénormalisées, plusieurs millions de lignes, peu de jointures)<br />Le serveur a 2 CPU Xeon à 2.5 Ghz et 16 Go de RAM. Il tourne sous Ubuntu 14<br />Le stockage est sur baie de SSD. La taille actuelle de la base est de +/- 100 Go</p><br /><p>Après diverses lectures a droite à gauche sur le net, voici le paramétrage actuel de mon postgresql.conf</p><div class="codebox"><pre><code>shared_buffers 3GB
+work_mem 512MB
+maintenance_work_mem 512MB
+temp_buffers 256MB
+Effective_cache_size 12GB
+Wal_buffers 16MB
+Check_point_segment 64
+Checkpoint_timeout 30min
+Checkpoint_completion_target 0.9
+Checkpoint_warning 0
+tcp_keepalives_idle 120
+tcp_keepalives_interval 60
+tcp_keepalives_count 10
+synchronous_commit off
+Default_statistics_target 400
+Enable_seqscan off</code></pre></div><p>Notes :<br />- les tables sont toutes créées en UNLOGGED<br />- il y a des indexs partout où cela est nécessaire<br />- La base est chargée toutes les nuits (7h de traitement), un gros VACUUM FULL + REINDEX + ANALYZE est lancé après l&#039;alimentation.<br />- Il n&#039;y a que du SELECT en journée</p><br /><p>les requêtes tournent parfaitement bien en journée mais j&#039;ai des difficultés lors de l&#039;alimentation de mes tables de faits, notamment sur les requêtes d&#039;alimentation utilisant des regroupements&#160; (GROUP BY) sur les grosses tables.</p><p>Exemple tout bête sur la requête ci-dessous :</p><div class="codebox"><pre><code>SELECT 
+	r.id_immeuble,
+	SUM ( CASE
+		WHEN sens = &#039;D&#039; THEN r.montant
+		WHEN sens = &#039;C&#039; and r.date_comptable &lt; to_date ( &#039;01/&#039; || to_char ( current_date,&#039;MM/YYYY&#039;) ,  &#039;DD/MM/YYYY&#039; ) THEN -r.montant
+		ELSE 0
+	END ) as SOLDE_RAPPRO_BQ,
+	MAX ( r.date_lettrage ) as DATE_LETTRAGE_MAX,
+	MAX ( r.date_comptable ) as DATE_RAPPRO_MAX
+
+FROM	dwh_ics.itf_rappro_bq r
+
+GROUP BY	r.id_immeuble</code></pre></div><br /><br /><p>la table &quot;dwh_ics.itf_rappro_bq&quot; compte 13 millions de lignes, la requête dure +45min !!<br />il y a des index sur les champs &quot;date_comptable&quot;, &quot;sens&quot; et &quot;id_immeuble&quot;, les statistiques sont à jour. Je ne vois pas quoi faire d&#039;autre ?</p><br /><br /><p>- Voyez vous quelque chose à modifier dans mon fichier de conf ?<br />- Comment savoir si la mémoire de mon serveur est saturée (linux utilise toute la mémoire par défaut) ?</p><br /><p>Merci de votre retour !</p>]]></content>
+		<author>
+			<name><![CDATA[krashtest31]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7768</uri>
+		</author>
+		<updated>2017-10-12T13:15:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26189#p26189</id>
+	</entry>
+</feed>

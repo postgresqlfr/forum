@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Petit problème dans une fonction]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3339&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3339"/>
+	<updated>2014-10-12T22:08:56Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3339</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Petit problème dans une fonction]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20786#p20786"/>
+		<content type="html"><![CDATA[<p>Effectivement, ça parle mieux; voici donc la query originale et ma fonction.<br />.<br />Elle sert à récupérer les tables|views|matviews|indexes|sequences d&#039;un schéma par son ptit nom.<br />.<br />Il y a deux choses que j&#039;aimerais savoir:<br />0- Pourquoi ça ne marche pas (enfin, si, mais ça renvoie *tous* les types d&#039;un seul coup) dans le cas précédemment évoqué (où &#039;rel_type&#039; était une string conforme à l&#039;original)?<br />1- Existe-t-il une façon plus simple de faire que la mienne?<br />2- Est-ce que cette function est injection-free ou non? (et si non, évidemment le pourquoi du comment;)<br />3- S&#039;il est important de déclarer son type? (et pourquoi)<br />4- Si 3, quel est son type? (j&#039;ai du mal à vraiment saisir le distingo entre STABLE et IMMUTABLE)<br />5- À tout hasard, si vous savez ce que peuvent bien être les tables|views|etc de types &#039;special&#039; et &#039;&#039;?<br />6- Pourquoi ça plante si j&#039;utilise &#039;$BODY$&#039; à la place de &#039;$$&#039;?<br />.<br />Query originale:</p><div class="codebox"><pre><code>SELECT n.nspname AS &quot;schema&quot;, c.relname AS &quot;name&quot;, c.oid AS &quot;oid&quot;,
+    CASE c.relkind
+        WHEN &#039;r&#039; THEN &#039;table&#039;
+        WHEN &#039;v&#039; THEN &#039;view&#039;
+        WHEN &#039;m&#039; THEN &#039;matview&#039;
+        WHEN &#039;i&#039; THEN &#039;index&#039;
+        WHEN &#039;S&#039; THEN &#039;sequence&#039;
+        WHEN &#039;s&#039; THEN &#039;special&#039;
+        WHEN &#039;f&#039; THEN &#039;foreign table&#039;
+    END AS &quot;type&quot;,
+    pg_catalog.pg_get_userbyid(c.relowner) AS &quot;owner&quot;,
+    pg_catalog.pg_size_pretty(pg_catalog.pg_table_size(c.oid)) AS &quot;size&quot;,
+    pg_catalog.obj_description(c.oid, &#039;pg_class&#039;) AS &quot;description&quot;
+FROM pg_catalog.pg_class c
+    LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+WHERE c.relkind IN (&#039;r&#039;,&#039;s&#039;,&#039;&#039;)
+    AND n.nspname !~ &#039;^pg_toast&#039;
+    AND n.nspname ~ &#039;^(mon_schema_a_moi_qu_il_est_beau)$&#039;
+ORDER BY 1,2;</code></pre></div><p>La fonction que j&#039;ai fini par trouver (celle qui ne fonctionnait pas était identique à l&#039;exception des &#039;rel_type&#039; tels que précédemment décrit):</p><div class="codebox"><pre class="vscroll"><code>CREATE FUNCTION	admin.schtabviematvieindseq(IN schema_name TEXT, IN relation_type TEXT, OUT schema NAME, OUT name NAME, OUT oid OID, OUT type TEXT, OUT owner NAME, OUT size TEXT, OUT description TEXT)
+RETURNS SETOF record AS $$	
+DECLARE	
+    sch_name TEXT := &#039;^(&#039; || $1 || &#039;)$&#039;;	
+    rel_type TEXT;	
+BEGIN	
+IF    $2 = &#039;tables&#039;    THEN rel_type = &#039;^(r|s|&#039;&#039;&#039;&#039;)&#039;;	
+ELSIF $2 = &#039;views&#039;     THEN rel_type = &#039;^(v|s|&#039;&#039;&#039;&#039;)&#039;;	
+ELSIF $2 = &#039;matviews&#039;  THEN rel_type = &#039;^(m|s|&#039;&#039;&#039;&#039;)&#039;;	
+ELSIF $2 = &#039;indexes&#039;   THEN rel_type = &#039;^(i|s|&#039;&#039;&#039;&#039;)&#039;;	
+ELSIF $2 = &#039;sequences&#039; THEN rel_type = &#039;^(S|s|&#039;&#039;&#039;&#039;)&#039;;	
+ELSE	
+    RAISE EXCEPTION &#039;Function ILLEGAL CALL: admin.tabviematvieindseq(TEXT, TEXT) - wrong 2nd parameter – By User #%&#039;, common.whoami_id();	
+------    HINT &#039;Depending on his mood, the DBA might cut your balls off with a rusty chainsaw or have you fired.&#039;;  --Breaks @ creation
+END IF;	
+------RAISE NOTICE &#039;HERE IS rel_type AFTER IF: %&#039;, rel_type;	
+RETURN QUERY	
+SELECT n.nspname AS &quot;schema&quot;, c.relname AS &quot;name&quot;, c.oid AS &quot;oid&quot;,	
+    CASE c.relkind	
+        WHEN &#039;r&#039; THEN &#039;table&#039;	
+        WHEN &#039;v&#039; THEN &#039;view&#039;	
+        WHEN &#039;m&#039; THEN &#039;matview&#039;	
+        WHEN &#039;i&#039; THEN &#039;index&#039;	
+        WHEN &#039;S&#039; THEN &#039;sequence&#039;	
+        WHEN &#039;s&#039; THEN &#039;special&#039;	
+        WHEN &#039;f&#039; THEN &#039;foreign table&#039;	
+    END AS &quot;type&quot;,	
+    pg_catalog.pg_get_userbyid(c.relowner) AS &quot;owner&quot;,	
+    pg_catalog.pg_size_pretty(pg_catalog.pg_table_size(c.oid)) AS &quot;size&quot;,	
+    pg_catalog.obj_description(c.oid, &#039;pg_class&#039;) AS &quot;description&quot;	
+FROM pg_catalog.pg_class c	
+    LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace	
+WHERE c.relkind ~ rel_type	
+    AND n.nspname !~ &#039;^pg_toast&#039;	
+    AND n.nspname ~ sch_name	
+ORDER BY 1,2;	
+END	
+$$ LANGUAGE plpgsql STRICT;	</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[Jiff]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=434</uri>
+		</author>
+		<updated>2014-10-12T22:08:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20786#p20786</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Petit problème dans une fonction]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20780#p20780"/>
+		<content type="html"><![CDATA[<p>Ce serait tellement plus simple si vous fournissiez un exemple, avec la fonction qui ne marche pas et comment vous l&#039;appelez.</p><p>Là, personnellement, je suis incapable de fournir la moindre réponse.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-10-12T08:02:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20780#p20780</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Petit problème dans une fonction]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20778#p20778"/>
+		<content type="html"><![CDATA[<p>Bon, je me réponds à moi-même, personnellement, tout seul (pu**in, j&#039;en ai chibavé quand même:(<br />.<br />Après un nombre respectable de tests, dont j&#039;aurais pu éviter une bonne partie en utilisant RAISE pour afficher ma string finale de l&#039;intérieur de la proc (@!#©&lt;), et lu un nombre impressionnant de pages sur le web, voila comment j&#039;ai résolu le PB.<br />.<br />En début de proc, j&#039;ai ajouté un IF et modifié le WHERE d&#039;origine:</p><div class="codebox"><pre><code>…
+IF    $2 = &#039;tables&#039;    THEN rel_type = &#039;^(r|s|&#039;&#039;&#039;&#039;)&#039;;
+ELSIF $2 = &#039;views&#039;     THEN rel_type = &#039;(&#039;&#039;v&#039;&#039;,&#039;&#039;s&#039;&#039;,&#039;&#039;&#039;&#039;)&#039;;
+ELSIF $2 = &#039;matviews&#039;  THEN rel_type = &#039;(&#039;&#039;m&#039;&#039;,&#039;&#039;s&#039;&#039;,&#039;&#039;&#039;&#039;)&#039;;
+ELSIF $2 = &#039;indexes&#039;   THEN rel_type = &#039;(&#039;&#039;i&#039;&#039;,&#039;&#039;s&#039;&#039;,&#039;&#039;&#039;&#039;)&#039;;
+ELSIF $2 = &#039;sequences&#039; THEN rel_type = &#039;(&#039;&#039;S&#039;&#039;,&#039;&#039;s&#039;&#039;,&#039;&#039;&#039;&#039;)&#039;;
+ELSE
+    RAISE EXCEPTION &#039;Function ILLEGAL CALL: admin.tabviematvieindseq(TEXT, TEXT) - Wrong 2nd Parm - By User #%&#039;, common.whoami_id();
+END IF;
+RAISE NOTICE &#039;VOICI rel_type APRÈS AFFECTATION DANS LE IF: %&#039;, rel_type;
+RETURN QUERY
+…
+WHERE c.relkind ~ rel_type
+…</code></pre></div><p>Quand le 2nd parm de ma proc est: &#039;tables&#039;, ça fonctionne nickel; par contre, ce que je m&#039;explique absolument pas, c&#039;est que le RAISE renvoie également &quot;une bonne string&quot; pour &#039;views&#039;: (&#039;v&#039;,&#039;s&#039;,&#039;&#039;), ce qui devrait normalement fonctionner aussi, non? (Pas sûr que j&#039;ai correctement appréhendé toutes les subtilités des regexp…)</p>]]></content>
+		<author>
+			<name><![CDATA[Jiff]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=434</uri>
+		</author>
+		<updated>2014-10-12T01:51:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20778#p20778</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Petit problème dans une fonction]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20777#p20777"/>
+		<content type="html"><![CDATA[<p>? J&#039;ai eu une discussion il y a un certain temps avec Tom Lane, et il me confirmait qu&#039;utiliser: &#039;$n&#039; à la place de: nom_du_parm permettait justement d&#039;éviter ça (d&#039;après ce que j&#039;avais compris, c&#039;est équivalent à: quote_literal(nom_du_parm)).<br />.<br />Maintenant, j&#039;ai ptêt ben compris de travers; auquel cas, d&#039;après votre réponse, il suffit que je prépare une requête paramétrée et que je fasse l&#039;appel par la proc?<br />.<br />Par ailleurs, j&#039;ai un bis repetita (plpgsql, ça n&#039;est _vraiment_ pas simple), je dois passer… j&#039;sais pas trop quoi en fait… à une proc.<br />.<br />La proc d&#039;origine utilise:</p><div class="codebox"><pre><code>…
+WHERE c.relkind IN (&#039;r&#039;,&#039;s&#039;,&#039;&#039;)
+…</code></pre></div><p>et là encore, je sèche <img src="http://forums.postgresql.fr/img/smilies/sad.png" width="15" height="15" alt="sad" /><br />.<br />Après m&#039;être battu un bon bout de temps avec un: IN parm CHAR[], qui n&#039;a pas plus fonctionné, je suis revenu à une string (avec laquelle j&#039;ai aussi bataillé un bout de temps):</p><div class="codebox"><pre><code>-- SELECT * FROM admin.tst( &#039;&#039;&#039;r&#039;&#039;,&#039;&#039;s&#039;&#039;,&#039;&#039;&#039;&#039;&#039; );
+
+CREATE FUNCTION	admin.tst(my TEXT)
+	
+RETURNS BOOLEAN AS $$	
+DECLARE	
+    az TEXT := &#039;(&#039; || $1 || &#039;)&#039;;	
+    ch CHAR := &#039;r&#039;;	
+BEGIN	
+--    RETURN az; --AVEC &quot;RETURNS TEXT AS&quot;: Fonctionne et renvoie bien: (&#039;r&#039;,&#039;s&#039;,&#039;&#039;)	
+--    RETURN ch ~ az;  --Fonctionne mais renvoie FALSE:(	
+--    RETURN ch IN az;  --Plante à la création: syntax error at or near “az”	
+    RETURN ch IN ($1);  --Fonctionne mais renvoie FALSE:(	
+END	
+$$ LANGUAGE plpgsql STRICT;	</code></pre></div><p>Et là, je n&#039;y comprend plus rien; je pensais qu&#039;en appliquant la même recette que la précédente, ça irait, meuh nan <img src="http://forums.postgresql.fr/img/smilies/sad.png" width="15" height="15" alt="sad" />(</p>]]></content>
+		<author>
+			<name><![CDATA[Jiff]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=434</uri>
+		</author>
+		<updated>2014-10-11T20:14:54Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20777#p20777</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Petit problème dans une fonction]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20776#p20776"/>
+		<content type="html"><![CDATA[<p>La regexp ne vous permet pas d&#039;éviter une injection. L&#039;utilisation de requêtes préparées ou l&#039;appels à des fonctions comme quote_literal sont à utiliser pour éviter les injectons.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2014-10-11T16:06:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20776#p20776</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Petit problème dans une fonction]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20775#p20775"/>
+		<content type="html"><![CDATA[<p>Ahhh, merci, ça fonctionne Tbien.<br />Mon erreur était de persister à vouloir rester en SQL (plPgSQL, céplukomplikékesicétéplusimp;-).<br />J&#039;avais utilisé temporairement &quot;n.nspname = $1&quot; pour pouvoir tester mon client, mais ça n&#039;était pas satisfaisant puisque, d&#039;après ce que je comprend, la regexp permet d&#039;éviter une injection.</p>]]></content>
+		<author>
+			<name><![CDATA[Jiff]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=434</uri>
+		</author>
+		<updated>2014-10-11T15:52:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20775#p20775</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Petit problème dans une fonction]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20774#p20774"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>À partir du moment ou vous mettez votre paramètre entre guillemet simple, cela devient une simple chaîne. Il y a 2 contournements possibles :</p><p>- soit vous remplacez « n.nspname ~ &#039;^($1)$&#039; » par « n.nspname = $1 »<br />- soit vous utilisez effectivement la regexp, et vous pouvez faire ceci :</p><div class="codebox"><pre><code>DECLARE
+regex text;
+BEGIN
+regex := &#039;^(&#039; || $1 || &#039;)$&#039;;
+[...]
+WHERE n.nspname ~ regex
+[...]</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2014-10-11T10:37:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20774#p20774</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Petit problème dans une fonction]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20772#p20772"/>
+		<content type="html"><![CDATA[<p>Salut forumers,<br />.<br />J&#039;ai une query qui fonctionne très bien en ligne de Cde, mais qui me me renvoit aucun résultat quand elle est placée dans une fonction.<br />Je suspecte fortement le quoting automatique de PG, mais je ne trouve pas comment la réécrire pour qu&#039;elle fonctionne correctement.<br />.<br />La ligne qui marche est:</p><div class="codebox"><pre><code>WHERE n.nspname ~ &#039;^(common)$&#039;</code></pre></div><p>En l&#039;occurence, common est le nom d&#039;un schéma.<br />.<br />La ligne qui me plante est sa &quot;traduction&quot; dans ma fonction qui prend ce nom de schéma comme parm:</p><div class="codebox"><pre><code>WHERE n.nspname ~ &#039;^($1)$&#039;</code></pre></div><p>Bon, je me doute que la regexp permet d&#039;éviter une éventuelle injection (et c&#039;est Tbien), mais en attendant çamorchpôéjtroufpôpourkoa.<br />.<br />J&#039;ai d&#039;ailleurs le même résultat que ci-dessus (une réponse vide de lignes) avec:</p><div class="codebox"><pre><code>WHERE n.nspname ~ &#039;^(&quot;common&quot;)$&#039;</code></pre></div><p>.<br />Comment dois-je réécrire cela pour que ça fonctionne comme attendu? (et que la protection reste activée).</p>]]></content>
+		<author>
+			<name><![CDATA[Jiff]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=434</uri>
+		</author>
+		<updated>2014-10-11T03:34:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20772#p20772</id>
+	</entry>
+</feed>

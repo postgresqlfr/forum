@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Faire un select avec un tableau]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3726&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3726"/>
+	<updated>2015-12-23T08:42:41Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3726</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Faire un select avec un tableau]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22862#p22862"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />Donc j&#039;ai fait ce que tu m&#039;a demandé sauf pour le array_upper parce que ça ne marche pas sur les tableau de text:</p><div class="codebox"><pre><code>{&quot;{\&quot;TOTO#1552EA101__0029
+\&quot;,\&quot;TOTO#1552EA101__002A\&quot;}&quot;}
+
+{&quot;TOTO#1552EA101__0029
+&quot;,&quot;TOTO#1552EA101__002A&quot;} </code></pre></div><p>Du coup on observe un truc assez interessant on dirait un tableau double dimensions... Puis que quand on regarde bien le deuxième tableau à un bon affichage... hmmm... Celà voudrais dire que le tableau créé par cette fonction serait donc un tableau à deux dimenssions...</p>]]></content>
+		<author>
+			<name><![CDATA[Papychampi]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5287</uri>
+		</author>
+		<updated>2015-12-23T08:42:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22862#p22862</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Faire un select avec un tableau]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22861#p22861"/>
+		<content type="html"><![CDATA[<p>La fonction me semble fonctionner normalement, mais je ne suis pas du tout expert php. Du côté de la procédure stockée, pouvez-vous afficher le contenu de la variable ? par exemple raise notice &#039;% % %&#039;, _sn_tab, _sn_tab[1], array_upper(_sn_tab[1]);</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2015-12-22T19:30:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22861#p22861</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Faire un select avec un tableau]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22859#p22859"/>
+		<content type="html"><![CDATA[<p>So...<br />J&#039;ai fais un test en mode manuel... et je pense que le problème ne viens en effet pas du SQL mais bien du PHP puisque ça marche en manuel...</p><p>Du coup juste pour être sûr... J&#039;ai une fonction php qui est censé transformé mes tableaux php en tableaux postgresql dont voici le code:</p><div class="codebox"><pre><code>&lt;?php
+function to_pg_array($set) {
+    settype($set, &#039;array&#039;); // can be called with a scalar or array
+    $result = array();
+    foreach ($set as $t) {
+        if (is_array($t)) {
+            $result[] = to_pg_array($t);
+        } else {
+            $t = str_replace(&#039;&quot;&#039;, &#039;\\&quot;&#039;, $t); // escape double quote
+            if (! is_numeric($t)) // quote only non-numeric values
+                $t = &#039;&quot;&#039; . $t . &#039;&quot;&#039;;
+            $result[] = $t;
+        }
+    }
+    return &#039;{&#039; . implode(&quot;,&quot;, $result) . &#039;}&#039;; // format
+}
+?&gt;</code></pre></div><p>Est ce que ce bout de code serait à l&#039;origine de mes problèmes?</p>]]></content>
+		<author>
+			<name><![CDATA[Papychampi]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5287</uri>
+		</author>
+		<updated>2015-12-22T14:54:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22859#p22859</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Faire un select avec un tableau]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22857#p22857"/>
+		<content type="html"><![CDATA[<p>Que vous renvoie la requête si vous l&#039;exécutez manuellement ? Par exemple</p><div class="codebox"><pre><code>SELECT * FROM product WHERE sdeliveryid = le_id AND sn = ANY(le_tableau)</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2015-12-22T13:12:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22857#p22857</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Faire un select avec un tableau]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22853#p22853"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Merci de votre réponse.</p><p>Cependant le problème persiste. Enfin pas au point de me sortir une erreur non voulu mais le:</p><div class="codebox"><pre><code>SELECT COUNT(sn) FROM product WHERE sdeliveryid = _id AND sn = ANY(_sn_tab) INTO _my_variable;</code></pre></div><p>me retourne 0. Du coup j&#039;ai quand même vérifié si mes valeur étaient bien dans mon tableau et elles y sont ensuite j&#039;ai vérifié si celà ne venais pas du sdeliveryid mais apparemment non... Je me sens tellement près du but!</p><p>Cordialement,</p>]]></content>
+		<author>
+			<name><![CDATA[Papychampi]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5287</uri>
+		</author>
+		<updated>2015-12-22T08:48:07Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22853#p22853</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Faire un select avec un tableau]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22851#p22851"/>
+		<content type="html"><![CDATA[<p>Je pense que vous cherchez l&#039;opérateur ANY. cf <a href="http://docs.postgresql.fr/9.3/functions-subquery.html" rel="nofollow">http://docs.postgresql.fr/9.3/functions-subquery.html</a></p><p>Par exemple</p><div class="codebox"><pre><code>select * from generate_series(1,10) i where i = any( &#039;{1,4}&#039;::int[]);
+ i 
+═══
+ 1
+ 4
+(2 rows)</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2015-12-21T18:14:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22851#p22851</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Faire un select avec un tableau]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22849#p22849"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je dois faire un select avec toutes les valeurs d&#039;un tableau passé en paramètre d&#039;une procédure stocké. Actuellement je passe par:</p><div class="codebox"><pre class="vscroll"><code>DECLARE
+	_ret				BOOLEAN;
+	_save_quantity		INTEGER;
+	_prev_quantity		INTEGER;
+	_my_variable		INTEGER;
+	_sorderid			INTEGER;
+	_ptypeid			INTEGER;
+	_batch			INTEGER;
+	_sdeliveryid_new	INTEGER;
+	_dddd			INTEGER;
+	_pid				INTEGER;
+	_save			INTEGER;
+	_family			TEXT;
+	_hex				TEXT;
+BEGIN
+	_ret:=check_sn(_sn);
+
+	IF _ret = false
+	THEN
+		RETURN FALSE;
+	END IF;
+	RAISE LOG &#039;======================================================================&#039;;
+	/* Chercher la candence avec le numéro de série */
+	IF (_id ISNULL)
+	THEN
+		IF (_sn ISNULL)
+		THEN
+			RAISE EXCEPTION &#039;Merci de rentrer une cadence ou un numéro de série&#039;;
+		END IF;
+		SELECT sdeliveryid FROM product WHERE sn = _sn INTO _id;
+		IF (_id ISNULL)
+		THEN
+			RAISE EXCEPTION &#039;Aucun produit ne correspond à ce numéro de série&#039;;
+		END IF;
+	ELSE
+		SELECT sdeliveryid FROM supplierdeliveries WHERE sdeliveryid = _id INTO _id;
+		IF (_id ISNULL)
+		THEN
+			RAISE EXCEPTION &#039;Aucune cadence trouvée&#039;;
+		END IF;
+	END IF;
+
+	/* Sélection de la quantité pour vérification */
+	
+	RAISE LOG &#039;sn_tab --&gt; %&#039;, _sn_tab;
+	RAISE LOG &#039;sn_tab_nb --&gt; %&#039;, _sn_tab_nb;
+	_save_quantity = _quantity;
+	SELECT quantity FROM supplierdeliveries WHERE sdeliveryid = _id INTO _prev_quantity;
+	RAISE LOG &#039;sdeliveryid --&gt; %&#039;, _id;
+	IF (_prev_quantity &gt; _quantity)
+	THEN
+		IF (_sn_tab ISNULL OR _sn_tab_nb = 0 OR _sn_tab_nb != (_prev_quantity - _quantity))
+		THEN
+			RAISE EXCEPTION &#039;Merci de renseigner les numéros de série des cartes non reçues&#039;;
+		END IF;
+		
+		SELECT COUNT(sn) FROM product WHERE sn IN (_sn_tab) AND sdeliverid = _id INTO _my_variable; // &lt;--------------- _sn_tab est le problème
+
+		IF (_my_variable != _sn_tab_nb)
+		THEN
+			RAISE EXCEPTION &#039;Le(s) numéro(s) de série ne correspond(ent) pas à la cadence indiquée&#039;;
+		END IF;
+	END IF;
+	/* Vérification des quantités */
+	IF _prev_quantity != _quantity
+	THEN
+		/* Création d&#039;une nouvelle cadence pour absorber la différence de produit */
+		SELECT sorderid FROM supplierdeliveries WHERE sdeliveryid = _id INTO _sorderid;
+		SELECT ptypeid FROM supplierdeliveries WHERE sdeliveryid = _id INTO _ptypeid;
+		SELECT batch FROM supplierdeliveries WHERE sdeliveryid = _id INTO _batch;
+		INSERT INTO supplierdeliveries (sorderid, ptypeid, batch) VALUES (_sorderid, _ptypeid, _batch) RETURNING &quot;sdeliveryid&quot; INTO STRICT _sdeliveryid_new;
+
+		IF _prev_quantity &gt; _quantity /* Si on en a moins que prévu */
+		THEN
+
+			/* MAJ de la candence initiale */
+			UPDATE supplierdeliveries SET quantity = _quantity WHERE  sdeliveryid = _id;
+			/* MAJ de la nouvelle candence */
+			UPDATE supplierdeliveries SET quantity = (_prev_quantity - _quantity) WHERE  sdeliveryid = _sdeliveryid_new;
+			/* Changer status en carte jamais livré */
+			UPDATE product SET sdeliveryid = _sdeliveryid_new, status = &#039;00000000000000000000000000000101&#039; WHERE sn IN (_sn_tab);
+			
+		ELSE /* Si on en a plus que prévu */
+
+			/* MAJ de la nouvelle candence */
+			UPDATE supplierdeliveries SET quantity = (_quantity - _prev_quantity), date = _date , deliveryslip = _deliveryslip WHERE  sdeliveryid = _sdeliveryid_new;
+			SELECT ptypeid FROM product WHERE sn = _sn INTO _ptypeid;
+			SELECT family FROM product_types WHERE ptypeid = _ptypeid INTO _family;
+			SELECT max(hex_to_int(right( sn, 4))) FROM product WHERE ptypeid IN (SELECT ptypeid AS _ptypeidtab FROM product_types WHERE family = _family) INTO  _dddd;
+			
+			/* Création des nouveaux produits associés à la nouvelle cadence Date = date de livraison et status = carte comandé + carte livrée */
+			FOR i IN 1 .. (_quantity - _prev_quantity) LOOP
+				_dddd := _dddd + i;
+				_hex = right(&#039;0000&#039; || int_to_hex(_dddd),4);
+				_sn := left(_sn, -4) || UPPER(_hex);
+				
+				/* Insertion */
+				INSERT INTO product (sdeliveryid, ptypeid, sn, status, date) VALUES (_id, _ptypeid::integer, _sn::text, &#039;00000000000000000000000000000011&#039;, _stardate);
+			END LOOP;
+		END IF;
+	END IF;
+
+	UPDATE product SET status = &#039;00000000000000000000000000000011&#039;, date = _date WHERE sdeliveryid = _id;
+	RAISE LOG &#039;sdeliveryid --&gt; %&#039;, _id;
+	UPDATE supplierdeliveries SET date = _date, deliveryslip = _deliveryslip WHERE  sdeliveryid = _id;
+	/* Cloture de la commande */
+	SELECT sorderid FROM supplierdeliveries WHERE sdeliveryid = _id INTO _pid;
+	
+	SELECT sdeliveryid FROM supplierdeliveries WHERE date ISNULL AND sorderid = _pid INTO _save;
+
+	IF (_save ISNULL)
+	THEN
+		UPDATE supplierorders SET enddate = _date WHERE sorderid = _pid;
+	END IF;
+	RETURN TRUE;
+END;</code></pre></div><div class="codebox"><pre><code>    _sn_tab text[],
+    _sn_tab_nb integer,
+    _sn text,
+    _date date,
+    _deliveryslip integer,
+    _quantity integer,
+    _id integer DEFAULT 0)
+  RETURNS boolean AS</code></pre></div><p>Donc du coup je voudrais savoirsi il existe un moyen de faire ça et si oui comment faire... Merci beaucoup d&#039;avance pour les réponses</p><p>Cordialement</p><p>Papychampi</p>]]></content>
+		<author>
+			<name><![CDATA[Papychampi]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5287</uri>
+		</author>
+		<updated>2015-12-21T13:57:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22849#p22849</id>
+	</entry>
+</feed>

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Création utilisateurs, problème droit superuser sur user et groupuser]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5674&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5674"/>
+	<updated>2020-01-20T08:18:53Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5674</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Création utilisateurs, problème droit superuser sur user et groupuser]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30590#p30590"/>
+		<content type="html"><![CDATA[<p>Je pense qu&#039;ils font une différence entre les deux parce que les attributs concernent des objets globaux (c&#039;est-à-dire non spécifiques à une base de données) alors que les droits concernent des objets locaux (donc sur une seule base de données). Pas sûr que ce soit la raison réelle mais c&#039;est la seule qui me vient à l&#039;esprit.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2020-01-20T08:18:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30590#p30590</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Création utilisateurs, problème droit superuser sur user et groupuser]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30589#p30589"/>
+		<content type="html"><![CDATA[<p>Merci Gleu pour ces infos. Je n&#039;avais pas du tout saisi cette différence entre attributs et droits.</p><p>Bonne journée,</p><p>Rémi</p>]]></content>
+		<author>
+			<name><![CDATA[rmayou]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8776</uri>
+		</author>
+		<updated>2020-01-20T07:09:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30589#p30589</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Création utilisateurs, problème droit superuser sur user et groupuser]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30588#p30588"/>
+		<content type="html"><![CDATA[<p>Oui. Le seul moyen de récupérer les attribut, c&#039;est de faire un SET nom_role.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2020-01-17T16:15:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30588#p30588</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Création utilisateurs, problème droit superuser sur user et groupuser]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30587#p30587"/>
+		<content type="html"><![CDATA[<p>Que je comprenne bien. Les droits correspondent à : SELECT, INSERT, UPDATE, DELETE, RULE, REFERENCES, TRIGGER, CREATE, TEMPORARY, EXECUTE et USAGE (<a href="https://docs.postgresql.fr/8.1/privileges.html" rel="nofollow">https://docs.postgresql.fr/8.1/privileges.html</a>).<br />C&#039;est de ça qu&#039;un utilisateur hérite de son groupe utilisateur.</p><p>Parcontre si le groupe utilisateur peut créer des rôles, grâce à son attribut, et que l&#039;utilisateur ne le peut pas, parcequ&#039;il ne possède pas l&#039;attribut (pour reprendre mon exemple). Alors malgré l&#039;appartenance de l&#039;utilisateur au groupe, il ne pourra toujours pas créer de nouveaux utilisateurs. Ai-je bien saisi? De toute façon je vais faire un test.</p>]]></content>
+		<author>
+			<name><![CDATA[rmayou]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8776</uri>
+		</author>
+		<updated>2020-01-17T15:05:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30587#p30587</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Création utilisateurs, problème droit superuser sur user et groupuser]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30586#p30586"/>
+		<content type="html"><![CDATA[<p>Il y a une différence entre les attributs (SUPERUSER, CREATEDB, CREATEUSER, REPLICATION, etc) et les droits. Les droits s&#039;héritent automatiquement si l&#039;attribut INHERIT est activé, les attributs ne s&#039;héritent jamais automatiquement.</p><p>Donc ce comportement est normal</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2020-01-17T14:31:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30586#p30586</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Création utilisateurs, problème droit superuser sur user et groupuser]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30585#p30585"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Désolé pour ce titre pas très explicite, je pense être plus clair dans mes explications. Je rencontre le problème que je vous détaille ci-dessous :<br />J’ai décidé de créer mes utilisateurs à partir d’un fichier plain text (écrit en SQL). Mes utilisateurs ouvrent le fichier plain text, y spécifie leur nom de user qui s’écrit prénom.nom et leur mot de passe. Après cette étape, j’ouvre mon invite de commande et y tape le code suivant :&#160; &#160; </p><p>C:\Program Files\PostgreSQL\9.6\bin&gt;createuser -U rmayou -h SRV-GREGIB -p 5432 prénom.nom &lt; &quot;C:\Users\rmayou\Desktop\postgresl_administration\CHARGEMENT_UTILISATEURS\recup_user.sql&quot;</p><br /><p>Le fichier plain text spécifié contient le code suivant :</p><p>--<br />-- PostgreSQL database cluster dump<br />--<br />SET default_transaction_read_only = off;<br />SET client_encoding = &#039;UTF8&#039;;<br />SET standard_conforming_strings = on;<br />--<br />-- Roles<br />--<br />CREATE ROLE &quot;prenom.nom&quot;;<br />ALTER ROLE &quot;prenom.nom&quot; WITH NOSUPERUSER INHERIT NOCREATEROLE NOCREATEDB LOGIN NOREPLICATION NOBYPASSRLS PASSWORD ‘mot_de_passe&#039;;<br />--<br />-- PostgreSQL database cluster dump complete<br />--</p><br /><p>Dans l’invite de commande j’ai un retour positif avec création de l’utilisateur lorsque je m’octroie les droits de superuser. J’ai un retour négatif lorsque je ne m’octroie pas ce droit :</p><p>…..CHARGEMENT_UTILISATEURS\recup_user.sql&quot;&#160; &#160; <br />Mot de passe :&#160; &#160; <br />createuser : la création du nouvel rôle a échoué : ERROR:&#160; permission denied to create role</p><p>Chose très bizarre est que dans un cas comme dans l’autre, mon rôle d’utilisateur est rattaché un rôle de groupe utilisateur qui lui a le droit de superuser. En connaissance de cet élément je devrais dans les deux cas pouvoir créer les utilisateurs, sachant que mon rôle a le droit INHERIT.<br />Auriez-vous déjà rencontré un problème de ce genre ?</p><p>Merci d’avance, Rémi</p>]]></content>
+		<author>
+			<name><![CDATA[rmayou]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8776</uri>
+		</author>
+		<updated>2020-01-17T11:14:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30585#p30585</id>
+	</entry>
+</feed>

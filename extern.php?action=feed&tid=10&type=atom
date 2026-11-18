@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Problème lié à l'archivage des fichiers WAL]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=10&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=10"/>
+	<updated>2008-09-24T10:06:04Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=10</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème lié à l'archivage des fichiers WAL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25#p25"/>
+		<content type="html"><![CDATA[<p>Ça paraît logique. Le répertoire archive_status est un répertoire où PostgreSQL enregistre des fichiers vides dont le nom indique le journal de transactions disponible prêt pour être archivé. Donc, sans ce répertoire, le processus chargé de lancer la commande d&#039;archivage ne voyait aucun journal à archiver. Les journaux se sont donc entassés dans pg_xlog et l&#039;archivage ne fonctionnait pas.</p><p>Content que votre problème soit résolu.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2008-09-24T10:06:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25#p25</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème lié à l'archivage des fichiers WAL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24#p24"/>
+		<content type="html"><![CDATA[<p>Effectivement, j&#039;avais les erreurs suivantes dans mon log :</p><p>2008-09-24 00:12:58 CEST [7633] FATAL:&#160; could not open archive status directory &quot;pg_xlog/archive_status&quot;: No such file or directory<br />2008-09-24 00:12:58 CEST [24615] LOG:&#160; archiver process (PID 7633) exited with exit code 1</p><p>j&#039;ai donc recréé le repertoire archive_status et tout est rentré dans l&#039;ordre !</p><p>Encore une fois, un grand merci pour votre expertise</p><p>Cordialement,<br />Vincent</p>]]></content>
+		<author>
+			<name><![CDATA[vincentMoreau]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=17</uri>
+		</author>
+		<updated>2008-09-24T09:40:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24#p24</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème lié à l'archivage des fichiers WAL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23#p23"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Le processus d&#039;archivage n&#039;est pas lancé en permanence. Et en fait, il n&#039;y a pas réellement de processus d&#039;archivage. Lorsqu&#039;un journal de transaction (WAL) est terminé, PostgreSQL lance la commande donnée par le paramètre archive_command. Si cette commande renvoie le code retour 0, il suppose que la commande s&#039;est bien terminée et flag ce fichier comme étant prêt à être ré-utilisé. Si la commande renvoie n&#039;importe quel autre code de retour, PostgreSQL attend un peu et relance un peu plus tard la commande d&#039;archivage.</p><p>Pour savoir si l&#039;archivage se passe bien, vérifiez les journaux applicatifs (traces) de PostgreSQL.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2008-09-24T08:25:50Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23#p23</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème lié à l'archivage des fichiers WAL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22#p22"/>
+		<content type="html"><![CDATA[<p>Bonjour Guillaume,</p><p>Merci pour cette réponse.</p><p>En fait, je pense que le problème vient du fait que le process archiver n&#039;est pas lancé : </p><p> ps -ef | grep -i post</p><p>postgres 24615&#160; &#160; &#160;1&#160; 0 Sep22 ?&#160; &#160; &#160; &#160; 00:00:01 /usr/bin/postmaster -p 5432 -D /home4/postgres<br />postgres 24618 24615&#160; 0 Sep22 ?&#160; &#160; &#160; &#160; 00:00:04 postgres: logger process&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; <br />postgres 24620 24615&#160; 0 Sep22 ?&#160; &#160; &#160; &#160; 00:00:45 postgres: writer process&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; <br />postgres 24622 24615&#160; 0 Sep22 ?&#160; &#160; &#160; &#160; 00:00:00 postgres: stats collector process&#160; &#160; &#160; &#160; &#160; &#160; &#160;</p><p>J&#039;ai vérifié le fichier postgresql.conf, j&#039;ai bien la ligne </p><p>archive_command = &#039;cp &quot;%p&quot; /home10/postgres/archive/&quot;%f&quot;&#039;</p><p>Comment peut on lancer ce process ?</p><p>Cordialement,<br />Vincent</p>]]></content>
+		<author>
+			<name><![CDATA[vincentMoreau]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=17</uri>
+		</author>
+		<updated>2008-09-24T08:02:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22#p22</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème lié à l'archivage des fichiers WAL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15#p15"/>
+		<content type="html"><![CDATA[<p>Oula, un pg_resetxlog <strong>supprime</strong> les logs, il ne les redirige pas.</p><p>Les logs sont créés/écrit dans le répertoire pg_xlog. Ils sont ensuite archivés si nécessaire (autrement dit si archive_command est renseigné). Enfin, ils sont supprimés quand PostgreSQL n&#039;en a plus besoin. Il ne faut surtout pas les supprimer manuellement, ce que fait pg_resetxlog.</p><p>Si le répertoire d&#039;archivage est rempli, PostgreSQL conserve les journaux de transaction en attendant de pouvoir de nouveau les archiver. Si vous voulez changer le répertoire d&#039;archivage, vous modifiez le paramètre archive_command pour que la copie se fasse ailleurs et vous rechargez la configuration (option reload).</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2008-09-23T12:37:55Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15#p15</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Problème lié à l'archivage des fichiers WAL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14#p14"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Nous sommes en PostgreSQL 8.2.3.<br />Nous archivons nos journaux avec la commande suivante :</p><p>archive_command = &#039;cp &quot;%p&quot; /home10/postgres/archive/&quot;%f&quot;&#039;</p><p>Il arrive que le /home10 soit full sur certains de nos serveurs. Nous avons alors constaté que les journaux sont sauvegardés dans le repertoire pg_xlog.</p><p>Une fois que l&#039;espace est libre sur le /home10, nous voulons que PostgreSQL copie à nouveau les journaux dans /home10</p><p>Malgrès un pg_resetxlog, nous n&#039;arrivons pas à modifier la destination d&#039;archivage des fichiers, Postgres continue à les stocker dans /home5/postgres/pg_xlog</p><p>Nous sommes alors obligés de désinstaller complétement Postgres et faire un dump / restore de la base.</p><p>Merci d&#039;avance pour votre aide,</p><p>Cordialement,<br />Vincent Moreau <br />Adeo Services</p>]]></content>
+		<author>
+			<name><![CDATA[vincentMoreau]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=17</uri>
+		</author>
+		<updated>2008-09-23T12:18:35Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14#p14</id>
+	</entry>
+</feed>

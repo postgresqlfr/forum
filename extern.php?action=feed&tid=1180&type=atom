@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Plantage du pilote ODBC lors de requêtes depuis ACCES - "appel échoué"]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1180&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1180"/>
+	<updated>2011-01-25T09:08:02Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1180</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Plantage du pilote ODBC lors de requêtes depuis ACCES - "appel échoué"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7704#p7704"/>
+		<content type="html"><![CDATA[<p>My pleasure !</p>]]></content>
+		<author>
+			<name><![CDATA[meles]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=789</uri>
+		</author>
+		<updated>2011-01-25T09:08:02Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7704#p7704</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Plantage du pilote ODBC lors de requêtes depuis ACCES - "appel échoué"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7693#p7693"/>
+		<content type="html"><![CDATA[<p>Bonsoir,</p><p>Ça y est je suis parvenu à utiliser le code que tu m&#039;avais transmis.</p><p>Le problème venait bien de moi et de mon peu d&#039;expérience avec postgres. J&#039;avais notamment des noms de champs avec des majuscules. Une fois corrigé la requête s&#039;exécute parfaitement.</p><p>Ton code m&#039;a même permis de rajouter d&#039;autres conditions de sous sélection et de tri.</p><div class="codebox"><pre><code>SELECT
+communes_fr_rgpt.code_au, 
+communes_fr_rgpt2.code_au,
+Sum(fd_mobpro_2006.ipondi)
+FROM 
+fd_mobpro_2006
+INNER JOIN communes_fr_rgpt ON communes_fr_rgpt.code_insee = fd_mobpro_2006.commune
+INNER JOIN communes_fr_rgpt2 ON communes_fr_rgpt2.code_insee = fd_mobpro_2006.dclt
+WHERE communes_fr_rgpt2.code_au not in (&#039;999&#039;,&#039;000&#039;)
+  AND communes_fr_rgpt.code_au not in (&#039;999&#039;,&#039;000&#039;)
+  AND communes_fr_rgpt.code_au &lt;&gt; communes_fr_rgpt2.code_au
+GROUP BY communes_fr_rgpt2.code_au, communes_fr_rgpt.code_au
+ORDER BY communes_fr_rgpt.code_au;.</code></pre></div><p>Merci beaucoup pour ton aide Meles</p>]]></content>
+		<author>
+			<name><![CDATA[f.ravel]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1072</uri>
+		</author>
+		<updated>2011-01-24T17:03:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7693#p7693</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Plantage du pilote ODBC lors de requêtes depuis ACCES - "appel échoué"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7685#p7685"/>
+		<content type="html"><![CDATA[<p>Ok, par contre tu ne m&#039;as pas dit en quoi le code que je t&#039;avais fournit ne focntionnait pas ?</p><p>Y&#039;a t-il un message d&#039;erreur (si tu l&#039;as exécuté dans psql, il devrait y avoir quelque chose)</p><p>Cordialement</p>]]></content>
+		<author>
+			<name><![CDATA[meles]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=789</uri>
+		</author>
+		<updated>2011-01-24T15:39:52Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7685#p7685</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Plantage du pilote ODBC lors de requêtes depuis ACCES - "appel échoué"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7684#p7684"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je réponds avec du retard, d&#039;autres impératifs m&#039;ont imposé une &quot;pause&quot; dans mes travaux sur postgres.</p><p>Tu as bien saisi l&#039;objet de ma requête.</p><p>Une fois que j&#039;ai rattaché une aire urbaine à chacune de mes communes je réalise ensuite une agrégation par aire urbaine.<br />Mon champ IPONDI se rapporte au poids de chacun de mes individus dans la population française (chacun de mes individus représentant un échantillon de la population, et également un déplacement domicile-travail), poids qu&#039;il me faut sommer pour obtenir la nombre total de déplacements entre aires urbaines.</p><p>Voici se que sa donne :</p><p>Individu&#160; l Aire urbaine&#160; &lt;-&gt; Commune de domicile&#160; l&#160; Commune de travail &lt;-&gt; Aire urbaine&#160; l IPONDI<br />N°1&#160; &#160; &#160; &#160; &#160; AU1&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Commune A&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Commune Z&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;AU2&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; 1,5<br />N°2&#160; &#160; &#160; &#160; &#160; AU1&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Commune B&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Commune Y&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;AU8&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; 2<br />N°3&#160; &#160; &#160; &#160; &#160; AU2&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Commune Z&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Commune X&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;AU3&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; 3<br />N°4&#160; &#160; &#160; &#160; &#160; AU1&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Commune C&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Commune P&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;AU2&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; 2,5<br />N°5&#160; &#160; &#160; &#160; &#160; AU2&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Commune E&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;Commune V&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;AU3&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; 4</p><p>Résultat de la requête :</p><p>Aire urbaine (domicile)&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; l&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Aire urbaine (travail)&#160; l Somme de IPONDI<br />AU1&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; AU2&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; 4<br />AU1&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; AU8&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; 2<br />AU2&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; AU3&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; 7</p><p>Le tout se réalisant sur une base à l&#039;individu... chaque individu ayant un poids... et il y a 8 000 000 d&#039;individus. Ça commence donc à faire des requêtes complexes et lourdes.</p><p>J&#039;arrive donc à obtenir des réponses à mes requêtes en 2-3 minutes. Ce qui ne m&#039;apparaît pas problématique pour l&#039;usage que j&#039;ai à en faire, à savoir extraire des données de ma table de départ pour les exploiter/analyser par la suite.</p>]]></content>
+		<author>
+			<name><![CDATA[f.ravel]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1072</uri>
+		</author>
+		<updated>2011-01-24T15:29:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7684#p7684</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Plantage du pilote ODBC lors de requêtes depuis ACCES - "appel échoué"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7637#p7637"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>f.ravel a écrit&#160;:</cite><blockquote><div><p>Bonsoir,<br />Je viens d&#039;essayer le code proposé mais ça ne fonctionne pas. Il est aussi fort probable que je fasse des erreurs. Je vais retenter tout de même.</p></div></blockquote></div><p>Bonjour, peux tu préciser comment ça ne fonctionne pas ? message d&#039;erreur ? ou autre ?</p><p>Si je suis ton raisonnement, tu veux connaitre pour chaque ligne de fd_mobpro_2006 la zone urbaine attaché au champ &quot;DCLT&quot;<br /> et celle attaché au champ &quot;commune&quot;.</p><p>La correspondance zone urbaine &lt;-&gt; code commune se trouve dans la table &quot;communes_fr_rgpt&quot;</p><p>Qu&#039;est ce qu&#039;IPONDI ?</p><p>Cordialement</p>]]></content>
+		<author>
+			<name><![CDATA[meles]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=789</uri>
+		</author>
+		<updated>2011-01-21T14:04:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7637#p7637</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Plantage du pilote ODBC lors de requêtes depuis ACCES - "appel échoué"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7614#p7614"/>
+		<content type="html"><![CDATA[<p>Bonsoir,</p><p>Je viens d&#039;essayer le code proposé mais ça ne fonctionne pas. Il est aussi fort probable que je fasse des erreurs. Je vais retenter tout de même.</p><p>Concernant la particularité de ma requête, c&#039;est qu&#039;elle concerne une table d&#039;origine/destination :</p><p>Chaque ligne représente un déplacement d&#039;une commune d&#039;habitation (champ commune) vers une commune de travail (champ DCLT)</p><p>Comme je souhaite agréger mes communes à l&#039;aide d&#039;une seconde table contenant le code des aires urbaines auxquelles celles-ci appartiennent je joins donc ma table des aires urbaine :</p><p> - une première fois sur mon champ commune<br /> - une seconde fois sur mon champ DCLT</p><p>...afin de demander une agrégation sur les aires urbaine d&#039;origine et également sur les aires urbaine de destination.</p><p>L&#039;objectif étant d&#039;obtenir les flux de migration entre les aires urbaines (et non pas entre les communes).</p><p>En tous cas merci pour l&#039;aide, je continue à tester vos propositions.</p><p>Cordialement</p>]]></content>
+		<author>
+			<name><![CDATA[f.ravel]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1072</uri>
+		</author>
+		<updated>2011-01-20T17:32:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7614#p7614</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Plantage du pilote ODBC lors de requêtes depuis ACCES - "appel échoué"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7611#p7611"/>
+		<content type="html"><![CDATA[<p>Bonjour, <br />&#160; je trouve cette requête curieuse, j&#039;ai l&#039;impression qu&#039;il y a un produit cartésien entre public_communes_fr_rgpt et public_communes_fr_rgpt_1<br />à moins que ce soit la notation access qui m&#039;induise en erreur.</p><p>Est ce que celle ci marcherai dans psql ?</p><div class="codebox"><pre><code>SELECT
+B.Code_AU, C.Code_AU,Sum(A.IPONDI)
+FROM fd_mobpro_2006 A
+INNER JOIN communes_fr_rgpt B ON B.code_insee = A.DCLT
+INNER JOIN communes_fr_rgpt C ON B.code_insee = A.commune
+WHERE B.Code_AU not in (&#039;999&#039;,&#039;000&#039;)
+  AND C.Code_AU not in (&#039;999&#039;,&#039;000&#039;)
+GROUP BY B.Code_AU, C.Code_AU;</code></pre></div><p>Cordialement</p>]]></content>
+		<author>
+			<name><![CDATA[meles]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=789</uri>
+		</author>
+		<updated>2011-01-20T16:11:38Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7611#p7611</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Plantage du pilote ODBC lors de requêtes depuis ACCES - "appel échoué"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7608#p7608"/>
+		<content type="html"><![CDATA[<p>Voici la requête telle que saisie sous ACCESS :</p><p>SELECT <br />public_communes_fr_rgpt.Code_AU, <br />public_communes_fr_rgpt_1.Code_AU, </p><p>Sum(public_fd_mobpro_2006.IPONDI)</p><p>FROM <br />public_communes_fr_rgpt AS public_communes_fr_rgpt_1 INNER JOIN (public_communes_fr_rgpt INNER JOIN public_fd_mobpro_2006 ON public_communes_fr_rgpt.code_insee = public_fd_mobpro_2006.commune) ON public_communes_fr_rgpt_1.code_insee = public_fd_mobpro_2006.DCLT</p><p>WHERE <br />(((public_communes_fr_rgpt.Code_AU)&lt;&gt;&quot;999&quot; And (public_communes_fr_rgpt.Code_AU)&lt;&gt;&quot;000&quot;) AND ((public_communes_fr_rgpt_1.Code_AU)&lt;&gt;&quot;999&quot; And (public_communes_fr_rgpt_1.Code_AU)&lt;&gt;&quot;000&quot;))</p><p>GROUP BY <br />public_communes_fr_rgpt.Code_AU, public_communes_fr_rgpt_1.Code_AU;</p>]]></content>
+		<author>
+			<name><![CDATA[f.ravel]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1072</uri>
+		</author>
+		<updated>2011-01-20T15:44:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7608#p7608</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Plantage du pilote ODBC lors de requêtes depuis ACCES - "appel échoué"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7606#p7606"/>
+		<content type="html"><![CDATA[<p>Impossible à dire sans connaître la requête et le plan d&#039;exécution de celle-ci.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-01-20T15:21:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7606#p7606</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Plantage du pilote ODBC lors de requêtes depuis ACCES - "appel échoué"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7600#p7600"/>
+		<content type="html"><![CDATA[<p>Merci pour toutes ces infos.</p><p>De mon côté j&#039;ai bien avancé sur le fait que le problème puisse venir d&#039;ACCESS, et notamment à la lecture du log qui laisse entendre que postgres &quot;n&#039;a pas pu recevoir les donnÃ©es du client&quot;.</p><p>Pour réaliser ma requête je faisais, entre autres, une jointure entre une table sous ACCESS et une autre dans postgres... ce qui est très certainement une erreur de débutant. Résultat j&#039;ai importé ladite table directement dans postgres et recommencé ma requête depuis ACCESS... et ça fonctionne !!!</p><p>Le temps de réponse est cependant très long, de l&#039;ordre de 5 à 10 minutes, ce qui m&#039;étonne un peu pour un SGBD aussi performant postgres. Ça me laisse entendre qu&#039;il y a certainement encore des choses que je ne fais pas correctement.</p><p>Mes deux tables ont une clé primaire et son indexées sur les champs principaux que j&#039;utilise pour requêter, en l&#039;occurrence les codes insee de mes communes.</p><p>N&#039;est-il pas nécessaire de faire d&#039;autres choses pour que les performance soient meilleurs ?</p><p>Merci</p>]]></content>
+		<author>
+			<name><![CDATA[f.ravel]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1072</uri>
+		</author>
+		<updated>2011-01-20T14:11:31Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7600#p7600</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Plantage du pilote ODBC lors de requêtes depuis ACCES - "appel échoué"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7599#p7599"/>
+		<content type="html"><![CDATA[<p>Pas depuis le pilote mais depuis PostgreSQL. En tout cas, il y a déjà des erreurs avec des requêtes qui font appel à une table msysconf qui n&#039;existe pas. Ça ne vient clairement pas du pilote ODBC. Donc soit d&#039;access, soit d&#039;autre chose.</p><p>Pour avoir la requête, le plus simple est de configurer PostgreSQL pour tout tracer. Par exemple avec un log_min_duration_statement à 0. J&#039;ai regardé sur Google, il y a quelqu&#039;un lien concernant votre message d&#039;erreur. Ça ne m&#039;a pas dit grand-chose. Malgré cela, vous feriez bien de faire la même recherche (Binding were not allocated properly access postgres), comme vous connaissez Access plus que moi, ça devrait vous en dire plus.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-01-20T13:37:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7599#p7599</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Plantage du pilote ODBC lors de requêtes depuis ACCES - "appel échoué"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7590#p7590"/>
+		<content type="html"><![CDATA[<p>En effet, ACCESS peut très bien être la cause du problème. J&#039;ai aussi cherché dans cette direction et celle du pilote odbc mais je n&#039;ai, pour l&#039;instant, pas trouvé de réponses à mon problème de ce côté non plus. Je suis ouvert à toutes les pistes.</p><p>Comme je débute, voici ce que j&#039;ai trouvé comme fichier log, en espérant que ce soit ce que vous évoquez :</p><p>2011-01-20 09:00:46 CET FATAL:&#160; le système de bases de données se lance<br />2011-01-20 09:00:46 CET LOG:&#160; le système de bases de données a été arrêté à 2011-01-19 18:11:11 CET<br />2011-01-20 09:00:47 CET FATAL:&#160; le système de bases de données se lance<br />2011-01-20 09:00:48 CET LOG:&#160; le système de bases de données est prêt pour accepter les connexions<br />2011-01-20 09:00:48 CET LOG:&#160; lancement du processus autovacuum<br />2011-01-20 09:20:53 CET ERREUR:&#160; la relation Â« msysconf Â» n&#039;existe pas au caractÃ¨re 28<br />2011-01-20 09:20:53 CET INSTRUCTION :&#160; SELECT Config, nValue FROM MSysConf<br />2011-01-20 09:26:55 CET LOG:&#160; n&#039;a pas pu envoyer les donnÃ©es au client : Unknown winsock error 10061<br />2011-01-20 09:26:55 CET INSTRUCTION :&#160; SELECT &quot;commune&quot; ,&quot;DCLT&quot; ,&quot;IPONDI&quot;&#160; FROM &quot;public&quot;.&quot;fd_mobpro_2006&quot; <br />2011-01-20 09:27:04 CET LOG:&#160; n&#039;a pas pu recevoir les donnÃ©es du client : Unknown winsock error 10061<br />2011-01-20 09:27:04 CET LOG:&#160; fin de fichier (EOF) inattendue de la connexion du client<br />2011-01-20 09:27:06 CET ERREUR:&#160; la relation Â« msysconf Â» n&#039;existe pas au caractÃ¨re 28<br />2011-01-20 09:27:06 CET INSTRUCTION :&#160; SELECT Config, nValue FROM MSysConf<br />2011-01-20 09:28:18 CET LOG:&#160; n&#039;a pas pu envoyer les donnÃ©es au client : Unknown winsock error 10061<br />2011-01-20 09:28:18 CET INSTRUCTION :&#160; SELECT &quot;commune&quot; ,&quot;DCLT&quot; ,&quot;IPONDI&quot;&#160; FROM &quot;public&quot;.&quot;fd_mobpro_2006&quot; <br />2011-01-20 09:28:29 CET LOG:&#160; n&#039;a pas pu recevoir les donnÃ©es du client : Unknown winsock error 10061<br />2011-01-20 09:28:29 CET LOG:&#160; fin de fichier (EOF) inattendue de la connexion du client<br />2011-01-20 09:28:29 CET ERREUR:&#160; la relation Â« msysconf Â» n&#039;existe pas au caractÃ¨re 28<br />2011-01-20 09:28:29 CET INSTRUCTION :&#160; SELECT Config, nValue FROM MSysConf</p><p>Pour ce qui est de récupérer la requête exécutée depuis le pilote... je ne sais pas faire. Quelle en est la méthode ?</p><p>Merci</p>]]></content>
+		<author>
+			<name><![CDATA[f.ravel]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1072</uri>
+		</author>
+		<updated>2011-01-20T10:24:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7590#p7590</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Plantage du pilote ODBC lors de requêtes depuis ACCES - "appel échoué"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7588#p7588"/>
+		<content type="html"><![CDATA[<p>Étonnant que vous ne parliez pas d&#039;une limitation d&#039;Access. Pour moi, le problème vient soit du driver ODBC soit d&#039;Access.</p><p>Pour éliminer PostgreSQL de l&#039;équation, il faudrait vérifier le contenu des logs de PostgreSQL pour voir si des messages apparaissent suite à l&#039;exécution de la requête. D&#039;autre part, il est aussi possible de récupérer la requête exécutée et de tenter son exécution via psql pour voir si ça passe (sans Access et ODBC).</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-01-20T09:40:03Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7588#p7588</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Plantage du pilote ODBC lors de requêtes depuis ACCES - "appel échoué"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7587#p7587"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;utilise depuis peu postgres.</p><p>J&#039;ai besoin de réaliser des requêtes sur ma base postgres à partir d&#039;ACCESS et ce par le biais d&#039;une connexion ODBC.<br />La table sur laquelle je réalise des requêtes contient 8 000 000 de lignes.</p><p>Dans la plupart des requêtes simples que j&#039;exécute, j&#039;obtiens un résultat quasi instantané, par exemple :<br />- agrégation de ma table sur un champ X...<br />- avec somme des enregistrements du champ Y...<br />- sélection d&#039;un seul de mes individus du champ X</p><p>Malheureusement, dès que je souhaite réaliser une requête un peu plus &quot;lourde&quot; à savoir la même requête que précédemment mais sans sous-sélectionner un de mes individus la requête plante systématiquement.</p><p>Requête type :<br />- agrégation de ma table sur un champ X...<br />- avec somme des enregistrements du champ Y... BUG !!!</p><p>Message d&#039;erreur renvoyé par ACCESS :<br />ODBC -- l&#039;appel à échoué<br />Bindingd were not allocated properly. (#15)</p><p>Pour informations :<br />- quand la requête &quot;simple&quot; retourne une réponse quasi instantanée, la requête plus &quot;lourde&quot; demande 10 à 20 secondes.<br />- dans le cas de la requête plus &quot;lourde&quot; la charge mémoire du PC client grimpe en flèche.</p><p>Quelqu&#039;un saurait-il d&#039;où peu venir le problème ? Limitation du pilote ODBC, limitation côté serveur postgres (donc mauvaise configuration de ma part)...</p><p>D&#039;avance merci,</p><p>Fabrice.</p>]]></content>
+		<author>
+			<name><![CDATA[f.ravel]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1072</uri>
+		</author>
+		<updated>2011-01-20T09:21:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7587#p7587</id>
+	</entry>
+</feed>

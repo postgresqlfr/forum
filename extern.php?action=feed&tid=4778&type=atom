@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Java Framwork Hibernate champs vide.]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4778&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4778"/>
+	<updated>2018-06-06T06:38:31Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4778</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Java Framwork Hibernate champs vide.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27743#p27743"/>
+		<content type="html"><![CDATA[<p>OK. merci beaucoup.<br />Faut que je vois ça exactement et surtout voir si en Java sa passe.</p>]]></content>
+		<author>
+			<name><![CDATA[Flow]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8144</uri>
+		</author>
+		<updated>2018-06-06T06:38:31Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27743#p27743</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Java Framwork Hibernate champs vide.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27740#p27740"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>pour les date, les nombres et les boolean, postgres n&#039;accepte pas les champs null</p></div></blockquote></div><p>Faux, il est tout à fait possible d&#039;enregistrer NULL dans un champ date ou integer ou boolean. Il faut bien sûr que la colonne ne soit pas déclarée NOT NULL. Je ne pourrais pas vous aider sur la partie Hibernate ou Java, n&#039;y connaissant rien mais PostgreSQL accepte les NULL quelque soit le type du champ.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2018-06-05T21:08:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27740#p27740</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Java Framwork Hibernate champs vide.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27737#p27737"/>
+		<content type="html"><![CDATA[<p>Bonjour</p><p>Je développe une appli en J2EE avec un DB PostgreSQL.</p><p>J&#039;utilise pgAdmin4 version3.0, Eclipse Oxygen et Hibernate 3.0.</p><p>Depuis mon appli, je rempli une table a partir d&#039;un fichier Excel.</p><p>Le fichier Excel contient des champs texte, date et nombre (sachant qu&#039;un champ de nombre sont saisi en string dont un correspond à un boolean).</p><p>Mon problème est que j&#039;ai des champs qui sont vide et que au vu de mes essaies, pour les date, les nombres et les boolean, postgres n&#039;accepte pas les champs null et bien sur, le client veut que ces champs reste null (sinon, c&#039;est pas marrant ^^).</p><p>Existe t&#039;il un moyen pour faire accepter des champs null pour des date, nombre et boolean en tant que nul dans une base postgre (encore faut-il que je les fasse accepter par le Java) ??</p><br /><p>Voici mon code Java si cela peut intéresser quelqu&#039;un:</p><div class="codebox"><pre class="vscroll"><code>import java.io.File;
+import java.io.FileInputStream;
+import java.text.NumberFormat;
+import java.util.Date;
+import java.util.Iterator;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.DateUtil;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+
+import com.opensymphony.xwork2.ActionSupport;
+
+import trigo.Util.HibernateUtil;
+import trigo.beans.TestTempLigneExtract;
+
+@SuppressWarnings(&quot;serial&quot;)
+public class OpenWorkBook extends ActionSupport{
+
+	static XSSFRow row;
+	Logger log = LogManager.getLogger(OpenWorkBook.class);
+	private TestTempLigneExtract tmp = new TestTempLigneExtract();
+	
+	@Override
+	public String execute() throws Exception {
+		
+		File file = new File(&quot;cheminFichierExcel.xlsx&quot;);
+		FileInputStream fis = new FileInputStream(file);
+
+		
+		if(file.isFile() &amp;&amp; file.exists()) {
+			System.out.println(&quot;Fichier Excel ouvert&quot;);
+		}else {
+			System.out.println(&quot;Erreur sur l&#039;ouverture du fichier Excel&quot;);
+		}
+		
+		XSSFWorkbook wb = new XSSFWorkbook(fis);
+		XSSFSheet sheet = wb.getSheetAt(0);
+		Iterator&lt;Row&gt; rowIterator = sheet.iterator();
+		int i = 0;
+		while(rowIterator.hasNext()) {
+			Session s = HibernateUtil.getSession();
+			Transaction tx = s.beginTransaction();
+			row = (XSSFRow)rowIterator.next();
+			Iterator&lt;Cell&gt; cellIterator = row.cellIterator();
+			tmp = new TestTempLigneExtract();
+			i++;
+			System.out.println(row.getRowNum());
+			while(cellIterator.hasNext()) {
+				Cell cell = cellIterator.next();
+			
+				switch (cell.getColumnIndex()) {
+					case 0:
+						String avis;
+						if(cell.getStringCellValue().isEmpty()) {
+							avis = &quot;&quot;;
+						}else {
+							avis = cell.getStringCellValue();
+						}
+						tmp.setAvis(avis);
+						break;
+					case 1:
+						String art;
+						if(cell.getStringCellValue().isEmpty()) {
+							art = &quot;&quot;;
+						}else {
+							art = cell.getStringCellValue();
+						}
+						tmp.setArticle(art);
+						break;
+					case 2:
+						String des;
+						if(cell.getStringCellValue().isEmpty()) {
+							des = &quot;&quot;;
+						}else {
+							des = cell.getStringCellValue();
+						}
+						tmp.setDesignationArticle(des);
+						break;
+					case 3:
+						String sn;
+						if(cell.getStringCellValue().isEmpty()) {
+							sn = &quot;&quot;;
+						}else {
+							sn = cell.getStringCellValue();
+						}
+						tmp.setSn(sn);
+						break;
+					case 4:
+						String four;
+						if(cell.getStringCellValue().isEmpty()) {
+							four = &quot;&quot;;
+						}else {
+							four = cell.getStringCellValue();
+						}
+						tmp.setFournisseur(four);
+						break;
+					case 5:
+						String grp;
+						if(cell.getStringCellValue().isEmpty()) {
+							grp = &quot;&quot;;
+						}else {
+							grp = cell.getStringCellValue();
+						}
+						tmp.setGroupeDeCode(grp);
+						break;
+					case 6:
+						String descrip;
+						if(cell.getStringCellValue().isEmpty()) {
+							descrip = &quot;&quot;;
+						}else {
+							descrip = cell.getStringCellValue();
+						}
+						tmp.setDescription(descrip);
+						break;
+					case 7:
+						String statut;
+						if(cell.getStringCellValue().isEmpty()) {
+							statut = &quot;&quot;;
+						}else {
+							statut = cell.getStringCellValue();
+						}
+						tmp.setStatut(statut);
+						break;
+					case 8:
+						Date jour = null;
+						if(cell.getDateCellValue() == null) {
+							jour = null;
+						}else {
+							jour = cell.getDateCellValue();
+						}
+						tmp.setJourCreation(jour);
+						break;
+					case 9:
+						String heure;
+						if(cell.getStringCellValue().isEmpty()) {
+							heure = &quot;&quot;;
+						}else {
+							heure = cell.getStringCellValue();
+						}
+						tmp.setHeureCreation(heure);
+						break;
+					case 10:
+						String gest;
+						if(cell.getStringCellValue().isEmpty()) {
+							gest = &quot;&quot;;
+						}else {
+							gest = cell.getStringCellValue();
+						}
+						tmp.setGestionnaire(gest);
+						break;
+					case 11:
+						String value;
+						if(cell.getStringCellValue() == null) {
+							value = &quot;0.0&quot;;
+						}else {
+							value = cell.getStringCellValue();
+						}
+						NumberFormat nf = NumberFormat.getInstance();
+						double valeur = nf.parse(value.replace(&quot;.&quot;, &quot;&quot;)).doubleValue(); // il y a des . comme separateur des milliers dans L&#039;Excel
+						tmp.setValeur(valeur);
+						break;
+					case 12:
+						String devise;
+						if(cell.getStringCellValue().isEmpty()) {
+							devise = &quot;&quot;;
+						}else {
+							devise = cell.getStringCellValue();
+						}
+						tmp.setDevise(devise);
+						break;
+					case 13:
+						if (cell.getNumericCellValue() == 0.0){
+							tmp.setRic(false);
+						}else if (cell.getNumericCellValue() == 1.0) {
+							tmp.setRic(true);
+						}else {
+							tmp.setRic(null);
+						}
+						break;
+					default:
+						break;
+				} // switch Index
+			} // while Cell
+
+			s.save(tmp);
+			tx.commit();
+			s.clear();
+			s.close();
+			System.out.println();
+		
+		} // while Row
+
+		return SUCCESS;
+	}
+	
+}</code></pre></div><p>Dans le mapping Hibernate, j&#039;ai </p><div class="codebox"><pre><code>not-null=&quot;false&quot;</code></pre></div><p> mais impossible de le mettre manuellement à <strong>NO</strong> à <strong>NOT NULL</strong> dans pgAdmin sur les champs qui m&#039;interessent</p><br /><p>Merci d&#039;avance pour votre aide.</p>]]></content>
+		<author>
+			<name><![CDATA[Flow]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8144</uri>
+		</author>
+		<updated>2018-06-05T11:23:55Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27737#p27737</id>
+	</entry>
+</feed>

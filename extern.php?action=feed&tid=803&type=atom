@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Modifier le type d'une colonne : bit(1) en boolean]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=803&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=803"/>
+	<updated>2010-06-09T17:50:48Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=803</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Modifier le type d'une colonne : bit(1) en boolean]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5298#p5298"/>
+		<content type="html"><![CDATA[<p>serial n&#039;est pas un type réel. C&#039;est juste une aide lorsque vous créez une table pour ajouter une séquence et ajouter une valeur par défaut sur la colonne associée pour que sa valeur soit auto-incrémentée.</p><p>Autrement dit, serial est utilisable dans un CREATE TABLE mais pas ailleurs.</p><p>Dans votre cas, il faut créer la séquence puis modifier la valeur par défaut de la colonne avec un nextval de la séquence.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-06-09T17:50:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5298#p5298</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Modifier le type d'une colonne : bit(1) en boolean]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5297#p5297"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />&#160; &#160; &#160; &#160; &#160; &#160; suite à un import de fichier texte, j&#039;ai une colonne vide appelée &quot;Numero_carte&quot; de type text dans ma table &quot;CARTE101&quot;. J&#039;ai renommé la colonne &quot;Numero_carte&quot; en &quot;Id_carte&quot;.Je veux maintenant la transformer en type serial (auto incrémentation) mais je n&#039;y arrive pas. J&#039;ai tout de même utilisé la requête suivante:</p><p>ALTER TABLE &quot;CARTE101&quot; <br />ALTER COLUMN &quot;Id_carte&quot; serial;</p><p>Et j&#039;obtiens comme réponse:</p><p>ERROR:&#160; syntax error at or near &quot;serial&quot;<br />LIGNE 2 : ALTER COLUMN &quot;Id_carte&quot; serial;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;^</p><p>Pourriez-vous me donner un conseil pouvant me permettre de faire ce changement?<br />Bien cordialement,</p>]]></content>
+		<author>
+			<name><![CDATA[Stanley]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=743</uri>
+		</author>
+		<updated>2010-06-09T15:44:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5297#p5297</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Modifier le type d'une colonne : bit(1) en boolean]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5056#p5056"/>
+		<content type="html"><![CDATA[<p>Ok merci beaucoup. Ça fonctionne.</p>]]></content>
+		<author>
+			<name><![CDATA[Lika]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=723</uri>
+		</author>
+		<updated>2010-05-19T10:26:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5056#p5056</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Modifier le type d'une colonne : bit(1) en boolean]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5054#p5054"/>
+		<content type="html"><![CDATA[<p>S&#039;il suffisait d&#039;une simple conversion, il l&#039;aurait fait lui-même. Non, il faut lui indiquer la méthode pour convertir le type bit(1) en booléen. Ceci devrait mieux fonctionner :</p><div class="codebox"><pre><code>alter table ma_table alter column ma_colonne type boolean using ma_colonne::integer=1;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-05-19T10:15:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5054#p5054</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Modifier le type d'une colonne : bit(1) en boolean]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5053#p5053"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je possède une table contenant beaucoup de données.<br />Les données d&#039;une colonne sont de type bit(1), les valeurs sont donc 0 ou 1.</p><p>Je souhaiterai modifier le type bit(1) en booléens : 0 =&gt; false et 1 =&gt; true.</p><p>J&#039;ai essayé la requête suivante :</p><div class="codebox"><pre><code>ALTER TABLE &quot;ma_table&quot; ALTER COLUMN &quot;ma_colonne&quot; TYPE boolean USING &quot;ma_colonne&quot;::boolean;</code></pre></div><p>J&#039;obtiens l&#039;erreur suivante :<br />ERREUR: ne peut pas convertir le type bit en boolean</p><p>Je ne connais pas bien la clause USING...<br />Existe-t-il un moyen pour modifier le type de ma colonne ?</p><p>Merci d&#039;avance.</p>]]></content>
+		<author>
+			<name><![CDATA[Lika]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=723</uri>
+		</author>
+		<updated>2010-05-19T10:02:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5053#p5053</id>
+	</entry>
+</feed>

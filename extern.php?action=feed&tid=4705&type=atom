@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / longueur des variables]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4705&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4705"/>
+	<updated>2018-05-15T09:56:28Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4705</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  longueur des variables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27552#p27552"/>
+		<content type="html"><![CDATA[<p>Char(N) est défini par le standard SQL comme un type de base depuis les débuts du SQL, au moins SQL-89, de même que Varchar(N).<br />Ne serait-qu&#039;à cause de ça, il n&#039;est pas question de l&#039;enlever.<br />A ma connaissance ces deux types existent sur les autres SGBDs en général et ont grosso-modo le même comportement.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2018-05-15T09:56:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27552#p27552</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  longueur des variables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27539#p27539"/>
+		<content type="html"><![CDATA[<p>@deverite : dans ce cas, pourquoi est-ce que PGS conserve le char() dans ses types de variables ? Autant le supprimer et pour des raisons d&#039;interopérabilité avec un autre logiciel, varchar() de PGS correspondrait au char() de tous les autres logiciels...</p>]]></content>
+		<author>
+			<name><![CDATA[databaser]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2047</uri>
+		</author>
+		<updated>2018-05-14T17:04:31Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27539#p27539</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  longueur des variables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27528#p27528"/>
+		<content type="html"><![CDATA[<p>Ce n&#039;est pas la peine de mettre une contrainte via CHECK pour la longueur car un champ typé&#160; VARCHAR(5) par exemple a déjà une contrainte sur le non-dépassement de 5 caractères.<br />Sinon oui c&#039;est judicieux de remplacer CHAR(n) par VARCHAR(n). CHAR(n) complète avec des blancs à droite qui prennent de la place et n&#039;ont aucun intérêt.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2018-05-14T13:49:39Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27528#p27528</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  longueur des variables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27526#p27526"/>
+		<content type="html"><![CDATA[<p>Merci pour toutes vos réponses, je regarde tout cela.</p><p>D&#039;après la doc PGS10, vaut mieux mettre varchar tout simplement au lieu des char() pour une question de coût de stockage. Est-ce que dans ce cas, mettre une variable avec une contrainte de vérification CHECK &quot;vérifier que la taille de la variable ne dépasse pas 5&quot; à une VARCHAR, à la place d&#039;une longueur donnée en utilisant CHAR(5), est judicieux ? Je ne pense pas mais je préfère vous demander votre avis. Merci <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[databaser]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2047</uri>
+		</author>
+		<updated>2018-05-14T11:26:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27526#p27526</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  longueur des variables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27515#p27515"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Ses : min(octet_length) = 10 et max(octet_length)=12. Pourquoi cette différence entre le max et le min ? A priori, tous les codes ont longueur de 9.</p></div></blockquote></div><p>Ce résultat, s&#039;il est obtenu sur une colonne déclarée CHAR(10), prouve à 100% que vous avez des caractères qui ne sont ni des blancs ni des chiffres qui ont atterri dans le champ.</p><p>Pour voir exactement ce que sont ces caractères y compris s&#039;ils sont invisibles à l&#039;écran,<br />vous pouvez exécuter ce genre de requête qui extrait les caractères un par un avec leur code numérique:</p><div class="codebox"><pre><code>select r,ascii(r) from
+  (select regexp_split_to_table(code, &#039;&#039;) as r from BD.TABLE where octet_length(code)=12) s;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2018-05-11T11:09:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27515#p27515</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  longueur des variables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27511#p27511"/>
+		<content type="html"><![CDATA[<p>Le type TEXT n&#039;est-il pas fait pour cela ?</p>]]></content>
+		<author>
+			<name><![CDATA[genamiga]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=255</uri>
+		</author>
+		<updated>2018-05-11T10:30:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27511#p27511</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  longueur des variables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27510#p27510"/>
+		<content type="html"><![CDATA[<p>Je ne comprends absolument rien, et comme Guillaume sans exemple clair avec données à l&#039;appui je ne vois pas comment aller plus loin.</p><br /><p>Concernant </p><div class="quotebox"><blockquote><div><p>De toute manière, max(char_length) ne compte que les caractères, pas les espaces, n&#039;est-ce pas ?</p></div></blockquote></div><p>Je vais supposer que vous parlez de char_length(chaine), et la réponse est facile à trouver:</p><div class="codebox"><pre><code># select char_length(&#039; &#039;);
+ char_length 
+-------------
+           1
+(1 row)</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2018-05-11T09:49:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27510#p27510</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  longueur des variables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27506#p27506"/>
+		<content type="html"><![CDATA[<p>d&#039;accord. </p><p>1/Pour l&#039;espace, j&#039;ai vérifié le contenu de la cellule, il n&#039;y pas d&#039;espace. <br />Julien, avez-vous remarqué que j&#039;ai écris : &quot;&gt;9&quot;=&quot;strictement supérieur à 9 caractères&quot; et le résultat est un nom de 9 caractères sans aucun espace.</p><div class="codebox"><pre><code>SELECT CODE
+FROM BD.TABLE
+WHERE LENGTH(CODE) &gt;9;</code></pre></div><p>Rq : LENGTH ou CHAR_LENGTH c&#039;est le même résultat<br />Si je fais le même code avec LENGTH(CODE) =9, je retrouve toutes les autres lignes et elles, elles contiennent un espace après le code (du à : CREATE TABLE BD.TABLE<br />CODE char(10) )</p><p>De toute manière, max(char_length) ne compte que les caractères, pas les espaces, n&#039;est-ce pas ? C&#039;est pour cela que je vérifiais avec max(octet_length) qui prend en compte les espaces.</p><br /><p>Pour la question 2/</p><div class="codebox"><pre><code>CREATE TABLE BD.TABLE
+(...)
+NOMAFNOR char(42),
+(...);</code></pre></div><div class="codebox"><pre><code>SELECT max(char_length(TABLE.NOMAFNOR))
+FROM BD.TABLE;</code></pre></div><p>Résultat : 32</p><div class="codebox"><pre><code>SELECT max(octet_length(TABLE.NOMAFNOR))
+FROM BD.TABLE;</code></pre></div><p>Résultat : 42</p><p>Donc, le max(octet_length) = à l&#039;espace que nous allouons à la variable lors de la création de la table.</p>]]></content>
+		<author>
+			<name><![CDATA[databaser]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2047</uri>
+		</author>
+		<updated>2018-05-10T16:26:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27506#p27506</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  longueur des variables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27504#p27504"/>
+		<content type="html"><![CDATA[<p>Tout à fait possible que le caractère supplémentaire dans l&#039;exemple 1 soit invisible. Un espace au tout début ou en toute fin de la chaîne par exemple.</p><p>Pour le reste, c&#039;est impossible de répondre sans les vraies requêtes et leurs résultats. Montrez un script SQL complet avec ces résultats par exemple. Ça part trop dans tous les sens, et j&#039;avoue ne rien y comprendre <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2018-05-10T15:56:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27504#p27504</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  longueur des variables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27503#p27503"/>
+		<content type="html"><![CDATA[<p>Merci, Julien <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" />&#160; Deux choses bizarres : </p><p>1/dans une table, une variable dont la longueur déclarée dans CREATE TABLE, est CODE char(10) (10 est un chiffre arbitraire) a :<br />un max(char_length) = 10 et min(char_length)=9. En principe, ce code a une longueur de 9 caractères.<br />Donc, pour trouver quelles lignes ont une longueur de 10, j&#039;écris :</p><div class="codebox"><pre><code> SELECT CODE
+FROM BD.TABLE
+WHERE LENGTH(CODE) &gt;9; </code></pre></div><p>Résultat : une ligne avec un code qui compte... 9 caractères! Pourquoi ce résultat ? Il n&#039;y a aucun caractère spécial dans le code renvoyé (d&#039;ailleurs, c&#039;est un code avec des chiffres mais enregistré comme chaîne de caractères.) A noter : ce résultat se trouve à la ligne 1 de la table.<br />Ses : min(octet_length) = 10 et max(octet_length)=12. Pourquoi cette différence entre le max et le min ? A priori, tous les codes ont longueur de 9.</p><br /><p>2/ Est-ce que le octet_length marche vraiment ? Je vous explique : ex :</p><p>Dans une table différente de ma question 1/, j&#039;importe mes données avec une COPY FROM et par ex dans CREATE TABLE, j&#039;ai créé une variable &quot;nom varchar (100)&quot;<br />Puis, je vérifie la taille des noms :</p><div class="codebox"><pre><code>SELECT max(length(TABLE.NOM))
+FROM BD.TABLE;</code></pre></div><p>Si max(length) donne 15, cela signifie que le nom le plus long est une chaîne de caractère de longueur 15.<br />max(octet_length) = 100. La différence entre ces deux max est bien trop grande!<br />Et ceci vaut pour toutes les variables, ex : si ADRESSE varchar (255), le max(octet_length) sera de 255.</p><p>3/qu&#039;est-ce qu&#039;exactement ces octets ? Je lis PGS 10 mais pas encore certaine de la réponse<br />Merci beaucoup!</p>]]></content>
+		<author>
+			<name><![CDATA[databaser]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2047</uri>
+		</author>
+		<updated>2018-05-10T15:47:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27503#p27503</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  longueur des variables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27501#p27501"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Je fais cela pour stocker moins (je me dis que si on mets longueur 255, cela prend de la place).</p></div></blockquote></div><p>Avec le type varchar(N), la place n&#039;est pas réservée à l&#039;avance dans le stockage, et ça ne fait pas gagner de place<br />de mettre un N le plus petit possible.</p><p>Avec le type char(N) elle est réservée à l&#039;avance mais surtout la chaîne est complétée par des espaces à droite avec un comportement bien particulier dans les comparaisons, voir la doc<br /><a href="https://docs.postgresql.fr/10/datatype-character.html" rel="nofollow">https://docs.postgresql.fr/10/datatype-character.html</a></p><p>Ca n&#039;est que dans le cas de char(N) que ça peut être intéressant de réduire le N.</p><p>Il faut savoir aussi que l&#039;unité de cette quantité N est le caractère, pas l&#039;octet.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2018-05-10T11:13:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27501#p27501</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  longueur des variables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27495#p27495"/>
+		<content type="html"><![CDATA[<p>Je n&#039;ai pas vraiment compris la question, mais peut être que ces fonctions peuvent vous aider :</p><div class="codebox"><pre><code># select char_length(&#039;œ&#039;), length(&#039;œ&#039;), octet_length(&#039;œ&#039;);
+ char_length | length | octet_length 
+-------------+--------+--------------
+           1 |      1 |            2
+(1 row)</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2018-05-09T18:45:07Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27495#p27495</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[longueur des variables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27493#p27493"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;aimerais créer des variables de la longueur maximale de la chaîne de caractères la plus longue pour chaque variable.</p><p>Je mesure cela avec char_length la longueur des variables (qui sont toutes de type chaîne de caractères même si ce sont des chiffres. C&#039;est dû au fichier source. Par la suite, je vais changer les types des numériques en numérique). Je peux faire char_length car j&#039;ai mis longueur = 255 pour toutes les variables mais je vais changer ces longueurs.</p><p>1/ Certains caractères comme &quot;oe&quot; occuperaient plusieurs octets. Donc comment connaître la vraie longueur de ma variable puisque char_length ne prend pas en compte ces caractères ?</p><p>2/ Est-ce une bonne démarche ? Je fais cela pour stocker moins (je me dis que si on mets longueur 255, cela prend de la place).<br />Pensez-vous que ma démarche soit naïve ?<br />Je n&#039;ai rien trouvé dans la doc de PGS 10.</p><p>Merci <img src="http://forums.postgresql.fr/img/smilies/tongue.png" width="15" height="15" alt="tongue" /></p>]]></content>
+		<author>
+			<name><![CDATA[databaser]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2047</uri>
+		</author>
+		<updated>2018-05-09T15:31:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27493#p27493</id>
+	</entry>
+</feed>

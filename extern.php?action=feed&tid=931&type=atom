@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Test de connexion basique]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=931&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=931"/>
+	<updated>2010-08-11T09:59:44Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=931</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Test de connexion basique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5794#p5794"/>
+		<content type="html"><![CDATA[<p>[Résolu]<br />J&#039;ai mis la méthode d&#039;authentification à ident afin de pouvoir me connecter à la Base de données<br />via psql. Ensuite dans psql je tape la commande suivante :</p><div class="codebox"><pre><code>\password</code></pre></div><p>car en fait dans la doc. il est mentionné ceci :</p><div class="quotebox"><blockquote><div><p>Si aucun mot de passe n&#039;est enregistré pour un utilisateur, le mot de passe enregistré est nul et l&#039;authentification par mot de passe échoue systématiquement pour cet utilisateur</p></div></blockquote></div><p>Je crée un mot de passe pour l&#039;utilisateur joachim dans la Base de données jogstore.</p><p>Ensuite je modifie le fichier pg_hba.conf en mettant la méthode d&#039;authentification à md5, puis<br />je re-démarre le serveur postgres ... et je peux me connectant sans problème en tapant la <br />commande suivante, avec le mot de passe :</p><div class="codebox"><pre><code>psql -h localhost -U votre_utilisateur -p 5432 jogstore</code></pre></div><p>Merci encore.<br />Sophonie.</p>]]></content>
+		<author>
+			<name><![CDATA[sophonie]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=191</uri>
+		</author>
+		<updated>2010-08-11T09:59:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5794#p5794</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Test de connexion basique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5793#p5793"/>
+		<content type="html"><![CDATA[<p>La sauvegarde des fichiers est la première opération mise en oeuvre avant toute autre ...</p><div class="codebox"><pre><code># TYPE  DATABASE    USER        CIDR-ADDRESS          METHOD
+
+# &quot;local&quot; is for Unix domain socket connections only
+local   all         all                               md5
+# IPv4 local connections:
+host    all         all         127.0.0.1/32         ident
+host    inventaire  all         127.0.0.1       255.255.255.255      ident map=audit
+host    jogstore    all         127.0.0.1       255.255.255.255      ident map=audit
+# IPv6 local connections:
+host    all         all         ::1/128               ident</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[sophonie]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=191</uri>
+		</author>
+		<updated>2010-08-11T09:09:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5793#p5793</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Test de connexion basique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5792#p5792"/>
+		<content type="html"><![CDATA[<p>J&#039;espère que vous avez sauvegardé votre fichier avant de faire votre modification. Revenez à la configuration précédente et indiquez nous ce qui se trouve dans ce fichier.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-08-11T08:58:29Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5792#p5792</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Test de connexion basique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5791#p5791"/>
+		<content type="html"><![CDATA[<p>Bonjour gleu,</p><p>Dans le fichier pg_hba quel ligne dois-je modifier pour permettre la connection à la Base de données?<br />J&#039;ai modifié la partie concernant la méthode d&#039;identification, en mettant md5 à la place de ident mais<br />j&#039;ai toujours le même mesage d&#039;erreur, ou soit lorsque je tente de lancer le serveur postgres ce dernier<br />ne se lance pas.</p><p>Merci d&#039;avance.<br />Sophonie.</p>]]></content>
+		<author>
+			<name><![CDATA[sophonie]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=191</uri>
+		</author>
+		<updated>2010-08-11T08:49:35Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5791#p5791</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Test de connexion basique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5790#p5790"/>
+		<content type="html"><![CDATA[<p>Le problème se trouve donc dans la configuration du fichier pg_hba.conf. La méthode d&#039;authentification pour les connexions &quot;local&quot; (socket unix) est différente de la méthode pour les connexions TCP/IP. Il vaudrait mieux passer par la méthode md5.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-08-11T08:43:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5790#p5790</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Test de connexion basique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5786#p5786"/>
+		<content type="html"><![CDATA[<p>J&#039;obtiens le message d&#039;erreur suivant :</p><div class="codebox"><pre><code>psql: FATAL:  authentification Ident échouée pour l&#039;utilisateur « joachim »</code></pre></div><p>par contre si je tape la commande suivante dans le login de shell de joachim :</p><div class="codebox"><pre><code>psql jogstore</code></pre></div><p>je&#160; me connecte directement sans aucun message d&#039;erreur.</p>]]></content>
+		<author>
+			<name><![CDATA[sophonie]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=191</uri>
+		</author>
+		<updated>2010-08-11T07:18:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5786#p5786</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Test de connexion basique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5781#p5781"/>
+		<content type="html"><![CDATA[<p>C&#039;est étrange. Cela laisserait supposer que vous n&#039;arrivez même pas à vous y connecter. Pouvez-vous essayer de vous y connecter via psql, avec la commande suivante (équivalente):</p><p>psql -h localhost -U votre_utilisateur -p 5432 jogstore</p><p>Et voir quel message vous récupérez.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-08-10T14:45:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5781#p5781</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Test de connexion basique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5780#p5780"/>
+		<content type="html"><![CDATA[<p>Il s&#039;agit du fichier postgresql-Tue.log mais il n&#039;y a rien concernant l&#039;echec de la connexion à la<br />Base de données.</p>]]></content>
+		<author>
+			<name><![CDATA[sophonie]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=191</uri>
+		</author>
+		<updated>2010-08-10T14:12:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5780#p5780</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Test de connexion basique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5779#p5779"/>
+		<content type="html"><![CDATA[<p>La log est probablement dans un sous répertoire pg_log du répertoire où se trouve l&#039;instance PostgreSQL.</p><p>Sinon vous pouvez toujours rechercher sur toute votre arborescence :</p><p>find / -name &#039;p*.log&#039;</p><p>Ça ne devrait pas vous retourner des centaines d&#039;entrées, et le fichier sera vraisemblablement dans la liste.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-08-10T14:10:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5779#p5779</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Test de connexion basique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5778#p5778"/>
+		<content type="html"><![CDATA[<p>Le fichier de log de PostgreSQL se trouve dans le répertoire suivant :<br />/var/lib/pgsql/data/pg_log<br />pour ma distribution</p>]]></content>
+		<author>
+			<name><![CDATA[sophonie]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=191</uri>
+		</author>
+		<updated>2010-08-10T14:07:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5778#p5778</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Test de connexion basique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5777#p5777"/>
+		<content type="html"><![CDATA[<p>C&#039;est vrai autant pour moi, j&#039;utilise une distribution Linux F12, j&#039;ai fais l&#039;installation de PostgreSQL<br />via le repo pgdg84 en utilisant yum.</p>]]></content>
+		<author>
+			<name><![CDATA[sophonie]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=191</uri>
+		</author>
+		<updated>2010-08-10T13:54:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5777#p5777</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Test de connexion basique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5776#p5776"/>
+		<content type="html"><![CDATA[<p>Ça dépend de beaucoup de paramètres, dont la distribution et le package postgresql utilisé.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-08-10T13:51:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5776#p5776</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Test de connexion basique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5775#p5775"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>- C&#039;est normal qu&#039;il n&#039;y ait même pas de nom d&#039;utilisateur à la chaine de connexion ?</p></div></blockquote></div><p>J&#039;ai rajouté un nom d&#039;utilisateur et un mot de passe, mais cela ne change rien.</p><p>Ou se trouve le fichier du log des erreurs de PostgreSQL, j&#039;ai regardé dans /var/log et je ne trouve rien!</p>]]></content>
+		<author>
+			<name><![CDATA[sophonie]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=191</uri>
+		</author>
+		<updated>2010-08-10T13:45:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5775#p5775</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Test de connexion basique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5774#p5774"/>
+		<content type="html"><![CDATA[<p>- C&#039;est normal qu&#039;il n&#039;y ait même pas de nom d&#039;utilisateur à la chaine de connexion ?<br />- Ça serait bien de regarder dans la log de postgresql. Il est très probable qu&#039;il dise pourquoi il a rejeté la connexion.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-08-10T13:23:02Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5774#p5774</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Test de connexion basique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5773#p5773"/>
+		<content type="html"><![CDATA[<p>Bonjour à toutes et à tous,</p><p>Ma base de données PostgreSQL est active sur le serveur localhost port 5432, via PHP j&#039;ai conçu<br />un script permettant de tester la connection au serveur de Base de données.<br />Je n&#039;arrive pas à me connecter à la Base de données, voici le script PHP permettant de tester <br />la connection :</p><div class="codebox"><pre><code>--- fichier connection.inc.php ---
+&lt;?php
+$connection = pg_connect(&quot;host=localhost port=5432 dbname=jogstore&quot;)
+     or die (&quot;Nao consegui conectar ao PostGres --&gt; &quot; . pg_last_error($conn)); 
+?&gt;</code></pre></div><div class="codebox"><pre><code>--- fichier accueil.php ---
+&lt;div id=&quot;container&quot;&gt;
+            &lt;h5&gt;Fiche article&lt;/h5&gt;
+                &lt;?php include(&#039;connection.inc.php&#039;); 
+
+                $result=pg_exec(&quot;SELECT COUNT(*) FROM articles;&quot;);
+                $fetch = pg_fetch_row($result); 
+
+                pg_close($connection); 
+                ?&gt; 
+&lt;/div&gt;</code></pre></div><p>Dans l&#039;affichage du fichier accueil.php, j&#039;ai le message Nao consegui conectar ao PostGres --&gt;<br />La connection ne semble pas se faire ....</p><p>Merci d&#039;avance.<br />Sophonie.</p>]]></content>
+		<author>
+			<name><![CDATA[sophonie]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=191</uri>
+		</author>
+		<updated>2010-08-10T13:16:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5773#p5773</id>
+	</entry>
+</feed>

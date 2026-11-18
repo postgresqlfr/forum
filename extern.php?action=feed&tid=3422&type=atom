@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / LIBPQ.DLL version 64 bits]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3422&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3422"/>
+	<updated>2015-01-17T11:52:23Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3422</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  LIBPQ.DLL version 64 bits]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21340#p21340"/>
+		<content type="html"><![CDATA[<p>Problème résolu.<br />Mon pc ayant plusieurs versions en 32 et 64 plus divers programmes utilisant chacun libpq, je pense qu&#039;il se mélangeait les pinceaux...<br />Avec &quot;Dependency walker for Win64&quot; j&#039;ai regardé la liste des dll que libpq.dll utilisait et j&#039;ai testé les différentes combinaisons et voici l&#039;ordre de chargement qui fonctionne<br />1° libeay32.dll<br />2° libintl-8.dll<br />3° ssleay32.dll<br />4° libpq.dll&quot;</p>]]></content>
+		<author>
+			<name><![CDATA[Pasquali.Philippe]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3634</uri>
+		</author>
+		<updated>2015-01-17T11:52:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21340#p21340</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  LIBPQ.DLL version 64 bits]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21333#p21333"/>
+		<content type="html"><![CDATA[<p>Test fait en VC avec Visual Studio 12 :<br />#include &quot;stdafx.h&quot;<br />#include &lt;windows.h&gt;<br />#include &lt;stdio.h&gt;<br />#include &lt;conio.h&gt; </p><p>int _tmain(int argc, _TCHAR* argv[])<br />{<br />&#160; &#160; HINSTANCE hinstLib;<br />&#160; &#160; DWORD nErrorCode;<br />&#160; &#160; CHAR* msg;</p><p>&#160; &#160; //LPCSTR DllName = &quot;D:\\Mes Projets\\LIBPQ\\Exe\\Exécutable Windows 64 bits\\EnCours-libpq64\\libintl-8.dll&quot;;<br />&#160; &#160; LPCSTR DllName = &quot;D:\\Mes Projets\\LIBPQ\\Exe\\Exécutable Windows 64 bits\\EnCours-libpq64\\libpq.dll&quot;;<br />&#160; &#160; hinstLib = LoadLibraryA(DllName);</p><p>&#160; &#160; if (hinstLib == NULL)<br />&#160; &#160; {<br />&#160; &#160; &#160; &#160; nErrorCode = GetLastError();<br />&#160; &#160; &#160; &#160; FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;&#160; &#160; NULL,<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;&#160; &#160; nErrorCode, <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;&#160; &#160; MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;&#160; &#160; (LPSTR)&amp;msg, <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;&#160; &#160; 0, <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;&#160; &#160; NULL);<br />&#160; &#160; &#160; &#160; printf(&quot;Erreur : %d\n%s\n&quot;, nErrorCode, msg);&#160; &#160; &#160; &#160; &#160; &#160; // nErrorCode = 193<br />&#160; &#160; }<br />&#160; &#160; else<br />&#160; &#160; {<br />&#160; &#160; &#160; &#160; FreeLibrary(hinstLib);<br />&#160; &#160; &#160; &#160; printf(&quot;%s\n&quot;, &quot;Ok&quot;);<br />&#160; &#160; }<br />&#160; &#160; return 0;<br />}<br />1&gt;------ Début de la génération : Projet : ConsoleApplication4, Configuration : Debug x64 ------<br />1&gt;&#160; ConsoleApplication4.cpp<br />1&gt;&#160; ConsoleApplication4.vcxproj -&gt; D:\VS2013\ConsoleApplication4\x64\Debug\ConsoleApplication4.exe<br />========== Génération : 1 a réussi, 0 a échoué, 0 mis à jour, 0 a été ignoré ==========<br />pour libintl-8.dll -&gt; ok<br />pour libpq.dll -&gt; Erreur : 193<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; %1 n&#039;est pas une application Win32 valide. (message identique !)</p><p>Sauf erreur de ma part, le problème me semble de moins en moins lié au langage mais plus à libpq.dll version 64 bits.</p>]]></content>
+		<author>
+			<name><![CDATA[Pasquali.Philippe]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3634</uri>
+		</author>
+		<updated>2015-01-16T11:17:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21333#p21333</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  LIBPQ.DLL version 64 bits]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21332#p21332"/>
+		<content type="html"><![CDATA[<p>Test fait en VB avec Visual Studio 12 :</p><p>Module Module1<br />&#160; &#160; Private Declare Function LoadLibraryA Lib &quot;kernel32&quot; Alias &quot;LoadLibraryA&quot; (ByVal lpFileName As String) As Long</p><p>&#160; &#160; Sub Main()<br />&#160; &#160; &#160; &#160; Dim hnd As Long<br />&#160; &#160; &#160; &#160; Dim DllName As String</p><p>&#160; &#160; &#160; &#160; DllName = &quot;D:\Mes Projets\LIBPQ\Exe\Exécutable Windows 64 bits\EnCours-libpq64\libintl-8.dll&quot;<br />&#160; &#160; &#160; &#160; hnd = LoadLibraryA(DllName)<br />&#160; &#160; &#160; &#160; MsgBox(hnd, MsgBoxStyle.Information, &quot;libintl-8.dll&quot;)</p><p>&#160; &#160; &#160; &#160; DllName = &quot;D:\Mes Projets\LIBPQ\Exe\Exécutable Windows 64 bits\EnCours-libpq64\libpq.dll&quot;<br />&#160; &#160; &#160; &#160; hnd = LoadLibraryA(DllName)<br />&#160; &#160; &#160; &#160; MsgBox(hnd, MsgBoxStyle.Information, &quot;libpq.dll&quot;)</p><p>&#160; &#160; End Sub<br />End Module</p><p>------ Début de la génération : Projet : ConsoleApplication2, Configuration : Debug x64 ------<br />&#160; ConsoleApplication2 -&gt; D:\VS2013\ConsoleApplication2\ConsoleApplication2\bin\x64\Debug\ConsoleApplication2.exe<br />========== Génération : 1 a réussi, 0 a échoué, 0 mis à jour, 0 a été ignoré ==========</p><p>libintl-8.dll renvoi hnd &lt;&gt; 0<br />libpq.dll&#160; &#160; &#160;renvoi hnd =&#160; 0</p><p>le problème ne semble pas lié à Windev</p>]]></content>
+		<author>
+			<name><![CDATA[Pasquali.Philippe]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3634</uri>
+		</author>
+		<updated>2015-01-15T16:52:31Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21332#p21332</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[LIBPQ.DLL version 64 bits]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21330#p21330"/>
+		<content type="html"><![CDATA[<p>Bonjour (et bonne année 2015)<br />Environnement&#160; : Windows : 64 bits</p><p>- J&#039;ai téléchargé postgresql-9.4.0-1-windows-binaries.zip et postgresql-9.4.0-1-windows-x64-binaries.zip pour avoir <br />libpq.dll et libintl.dll (32 bits) <br />libpq.dll et libintl-8.dll (64 bits)</p><p>- Avec dumpbin de Visual Studio 12.0 j&#039;ai bien vérifié que j&#039;avais bien des versions 32 bits et 64 bits</p><p>- Avec Windev version 18</p><p>1° je compile mon application pour du 32bits : tout fonctionne à 100%</p><p>2° je compile mon application pour du 64 bits : Impossible de charger la dll libpq.dll<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Message d&#039;erreur : &quot;libpq.dll n&#039;est pas une application Win32 valide&quot;</p><p>Si je test avec la fonction : LoadLibraryA au lieu d&#039;utiliser la fonction LoadDll() de Windev :</p><p>DLLName1 est une chaîne = PathOfDll + &quot;libintl-8.dll&quot;<br />handleDLL1 est un entier système = API(&quot;Kernel32.dll&quot;, &quot;LoadLibraryA&quot;, &amp;DLLName1)&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;// ---&gt; handleDLL &lt;&gt; 0 c&#039;est OK</p><p>DLLName2 est une chaîne = PathOfDll + &quot;libpq.dll&quot;<br />handleDLL2 est un entier système = API(&quot;Kernel32.dll&quot;, &quot;LoadLibraryA&quot;, &amp;DLLName2)&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;// ---&gt; handleDLL = 0&#160; &#160; c&#039;est bad</p><p>J&#039;avoue que je sèche lamentablement...</p>]]></content>
+		<author>
+			<name><![CDATA[Pasquali.Philippe]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3634</uri>
+		</author>
+		<updated>2015-01-15T11:26:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21330#p21330</id>
+	</entry>
+</feed>

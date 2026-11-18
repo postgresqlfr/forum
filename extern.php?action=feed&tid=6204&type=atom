@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / processus Archiver et Checkoint en delay]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=6204&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=6204"/>
+	<updated>2022-02-02T16:26:44Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=6204</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  processus Archiver et Checkoint en delay]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33167#p33167"/>
+		<content type="html"><![CDATA[<p>bonjour,</p><p>oui mais quid de la restauration PITR ? les backups (s&#039;il y en a) ne sont plus cohérents.<br />(à cause de l&#039;archive_commande=yes)<br />Ou alors faite vite un backup full.</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2022-02-02T16:26:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33167#p33167</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  processus Archiver et Checkoint en delay]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33165#p33165"/>
+		<content type="html"><![CDATA[<p>Merci Guillaume pour ces conseils.</p><p>Effectivement sauter l&#039;étape d&#039;archivage n&#039;a plus de sens puisque le réplicat est maintenant postérieur au flux de wal à traiter.</p><p>J&#039;ai effectivement lancé archive_command=&#039;yes&#039; en effectuant un reload du service postgresql</p>]]></content>
+		<author>
+			<name><![CDATA[tholot]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8409</uri>
+		</author>
+		<updated>2022-02-02T16:08:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33165#p33165</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  processus Archiver et Checkoint en delay]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33161#p33161"/>
+		<content type="html"><![CDATA[<p>Le serveur primaire n&#039;&#039;a pas de raison de faire autrement. Je pense qu&#039;il a simplement un retard conséquent et que l&#039;archivage est suffisamment lent pour qu&#039;il n&#039;arrive pas à rattraper le retard. Le plus simple dans votre cas, si j&#039;ai bien compris votre problème, serait de remplacer la commande d&#039;archivage par une commande rapide style cd ou yes (qui n&#039;archivera pas, mais donnera l&#039;impression à PostgreSQL que l&#039;archivage est fait). Une fois tous les journaux faussement archivés, vous remettez en place votre vraie commande d&#039;archivage et vous recréez le secondaire (pg_start_backup, rsync, pg_stop_backup).</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2022-02-02T13:28:52Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33161#p33161</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[processus Archiver et Checkoint en delay]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33160#p33160"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous,</p><p>La semaine dernière suite a une mauvaise manipulation de droits,&#160; le stockage du flux de wal d&#039;archivage continu dans un emplacement partagé entre le serveur maitre et le secondaire en standby a été interrompu.</p><p>Le problème n&#039;a été qu&#039;en partie diagnostiqué en milieu de semaine dernière et le décallage avec le serveur secondaire étant important décision a été prise de resynchronisé le serveur directement par rsync des fichiers de base de données.</p><p>La difficulté actuelle est que le serveur maitre continue le processus d&#039;archivage en continu des wals en parallèle avec 7 jours de retard par rapport au wal rééllement nécessaire à l&#039;actualisation du secondaire.</p><p>il s&#039;avère que pour une raison non encore établie le processus checkpoint et le processus archiver alternent tous les deux des phases d&#039;execution (R) et de sleep (D) visible au travers de la console htop.</p><p>Avez une idée de ce qui pourrait contraindre la performance globale de ces process?</p><p>Pas de message d&#039;erreur de postgres sur les limites du checkpoint et le serveur a récemment été rebootée et semble ne pas faire grand chose en terme de charge.</p>]]></content>
+		<author>
+			<name><![CDATA[tholot]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8409</uri>
+		</author>
+		<updated>2022-02-02T10:39:52Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33160#p33160</id>
+	</entry>
+</feed>

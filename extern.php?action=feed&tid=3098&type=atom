@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / [Sauvegarde]]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3098&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3098"/>
+	<updated>2014-04-16T07:31:30Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3098</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Sauvegarde]]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19669#p19669"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Petite précision qui peut être utile :<br />- sauvegarde physique = sauvegarde à chaud (cluster démarré) ou sauvegarde à froid (cluster arrêté) : dans ce cas tout le cluster (donc toutes les bases) est sauvegardé par copie des fichiers du file system en mode start_backup/stop_backup.<br />- sauvegarde logique = pgdumpall (save du cluster en entier) ou pg_dump (pour save d&#039;une base, d&#039;un schéma ou même d&#039;une seule table) : il s&#039;agit là d&#039;un export des données et/ou des structures de vos objets, donc on ne touche pas les fichiers du file system. </p><p>pg_basebackup fait de la sauvegarde physique donc du cluster en entier.</p><p>Pour networker, il faut juste récupérer le fichier produit par pg_basebackup, ça suffit. Inutile de récupérer en plus les fichiers sur vos FS puisque sans start/stop_backup ils seraient inexploitable.<br />Par contre un conseil : pensez à ramasser avec networker vos fichiers de configuration (postgresql.conf, pg_hba.conf, .pgpass, etc...)</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2014-04-16T07:31:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19669#p19669</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[[Sauvegarde]]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19667#p19667"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Nous sauvegardions la seule base de donnée Postgres que nous avions a chaud, en utilisant pg_start_backup, puis pg_stop_backup<br />Nos WALL etant sauvegardés et purgés toutes les 2h.</p><br /><br /><p>Entre le pg_start_backup et le pg_stop_backup nous utilisions Networker afin de mettre sur bande nos données (dont des tablespaces).</p><br /><br /><p>Nous avons une nouvelle application qui elle a été construite en mode cluster ou instance pour Postgres.<br />Ainsi pour une instance Postgres, nous avons 4 bases de données distinctes derrière.</p><br /><br /><p>La méthode de sauvegarde a chaud que nous utilisions précédemment, ne fonctionne plus. En effet des que l&#039;on démarre un backup sur la première base et que nous lançons le second sur la seconde base, afin que les données des 4 bases soit synchronisées, Postgres nous signale qu&#039;il a deja un pg_start_backup en court, et que donc il ne peut pas backupé la seconde en même temps.</p><br /><br /><p>Nous avons donc décidé d&#039;utiliser pg_basebackup qui répond presque parfaitement a notre problématique, puisque c&#039;est toujours une sauvegarde a chaud, avec PITR.</p><br /><br /><p>En revanche il faut spécifier un fichier de sortie. Et la est notre problème. Nous aimerions toujours utiliser Networker pour sauvegarder sur bande nos FS.<br />Seulement avant nous avions le contrôle entre le start et le stop backup, plus maintenant.</p><br /><br /><p>Y&#039;a t&#039;il une solution pour qu&#039;en gros ce soit Networker qui gère la sauvegarde physique des données ? Ou sommes nous obligé de prendre le fichier résultat de pg_basebackup et le mettre lui sur bande ?<br />Et dans ce cas la, une sauvegarde physique de nos FS n&#039;est plus utile du tout je suppose ? </p><br /><br /><p>Cdt,</p>]]></content>
+		<author>
+			<name><![CDATA[Pooky]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1083</uri>
+		</author>
+		<updated>2014-04-15T15:30:31Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19667#p19667</id>
+	</entry>
+</feed>

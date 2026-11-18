@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Vitesse Postgres]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1186&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1186"/>
+	<updated>2011-03-18T20:45:18Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1186</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Vitesse Postgres]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8460#p8460"/>
+		<content type="html"><![CDATA[<p>En effet,</p><p>quelque soit la stratégie de stockage utilisé, on a toujours les mêmes temps d’exécution.</p><p>merci beaucoup pour vos réponses</p>]]></content>
+		<author>
+			<name><![CDATA[kris_le_parisien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1075</uri>
+		</author>
+		<updated>2011-03-18T20:45:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8460#p8460</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Vitesse Postgres]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8459#p8459"/>
+		<content type="html"><![CDATA[<p>largeobject et toast vont avoir la même performance (ça marche pareil, derrière). La plupart du temps on utilise des bytea, les performances sont les mêmes et c&#039;est le plus souvent plus simple à manipuler. Accéder à la colonne bytea, ou à un large object dont l&#039;oid sera stockée dans la table, ça sera le même coût.</p><p>Le passage d&#039;extended à external pourrait être plus rapide mais j&#039;en doute. À moins que vos données se compressent vraiment très mal.</p><p>Pour la taille de stockage en&#160; external, je ne me suis jamais posé la question, désolé <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /><br />Mais il y a de toutes façons un surcoût par rapport à la taille réelle de la colonne, ne serait-ce que parce qu&#039;il y a des index dans le toast.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-03-18T18:39:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8459#p8459</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Vitesse Postgres]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8458#p8458"/>
+		<content type="html"><![CDATA[<p>oui je crois que c&#039;est ça. Pour chacune de mes tables contenant des éléments de type bytea, une table TOAST lui est associé.</p><p>- J&#039;ai vu qu&#039;il y avait aussi l&#039;insertion d&#039;objets larges (dans pg_largeobject) . Je voudrais savoir si cela ne concernait que l&#039;insertion de fichier depuis un autre programme (exemple une image au format jpeg depuis une application écrite en C) dans la base?<br />- Si il y a un moyen d&#039;utiliser cette méthode, pour juste insérer de grosses données (comme de volumineux&#160; résultats de calculs, mais pas des fichiers), cela serait - t - il plus efficace que la méthode TOAST?</p><p>- Dans ma table sig_gab: La colonne Sig_vector de type bytea a un stockage de type EXTENDED. <br />Si je change le type de stockage pour EXTERNAL, mes requêtes (SELECT surtout) sur cette colonne sera -t- elle plus rapide, malgré un espace de stockage plus grand (corrigez- moi au cas où j&#039;ai mal compris la définition <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /> )?</p><p>Si l&#039;on choisit la méthode EXTERNAL, il y a -t-il un moyen d&#039;estimer l&#039;espace de stockage liée à la table TOAST? (Etant donnée n lignes dans la table sig_gab (sig_vector est non nulle), et qu&#039;il est indiqué largeur moyenne de colonne sig_vector = 263)?</p><br /><p>merci d&#039;avance</p>]]></content>
+		<author>
+			<name><![CDATA[kris_le_parisien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1075</uri>
+		</author>
+		<updated>2011-03-18T18:14:52Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8458#p8458</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Vitesse Postgres]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8440#p8440"/>
+		<content type="html"><![CDATA[<p>La colonne est probablement stockée en dehors de la table (ça s&#039;appelle le mécanisme TOAST) sous Postgres.</p><p>Donc quand vous n&#039;accédez pas à cette colonne, il n&#039;a pas besoin d&#039;aller la chercher, ce qui est plus rapide. Il n&#039;y a rien à faire pour rendre ça plus rapide: vous accédez à davantage de données, ça prend donc plus de temps.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-03-17T08:39:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8440#p8440</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Vitesse Postgres]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8424#p8424"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>j&#039;aurais une question à propos des colonnes contenant des valeurs très grosses.<br />J&#039;ai ainsi une colonne appelée sig_vector contenant des valeurs de type bytea:</p><p>exemple de la valeur d&#039;une ligne:<br />1.11498E+02, 1.35706E+02, 2.88843E+02, 1.30191E+02, 1.89009E+02, 1.88747E+02, 1.16372E+03, 1.71711E+02, 1.84266E+02, 2.83373E+02, 2.02455E+03, 2.50216E+02, 2.94586E+02, 4.01803E+02, 2.74225E+03, 3.59621E+02, 2.37780E+02, 4.26430E+02, 4.90676E+03, 3.64694E+02</p><p>Quelque soit la requête SELECT, quand je rajoute la colonne sig_vector, ça me ralentit énormément les temps d&#039;exécution.</p><p>Sauriez- vous si en modifiant la valeur d&#039;un paramètre on peut diminuer ce temps?</p><p>Exemple:</p><p>SELECT id_image, id_signature, norm_x, norm_y, scale_numbers, quadrant&#160; ---&gt; 11 279 ms en ayant augmenté le paramètre work_mem à 5MB<br />FROM&#160; sig_gab,signature, image<br />where signature.image_id_image = image.id_image<br />and signature.id_signature = sig_gab.signature_id_signature order by time</p><p>SELECT id_image, id_signature, norm_x, norm_y, scale_numbers, quadrant,sig_vector --&gt; 55 450 ms quelque soit la valeur de work_mem<br />FROM&#160; sig_gab,signature, image<br />where signature.image_id_image = image.id_image<br />and signature.id_signature = sig_gab.signature_id_signature order by time; </p><p>résultats du explain analyse:</p><p>&quot;Sort&#160; (cost=66346.27..66685.69 rows=135769 width=292) (actual time=1671.917..1869.361 rows=137058 loops=1)&quot;<br />&quot;&#160; Sort Key: image.&quot;time&quot;&quot;<br />&quot;&#160; Sort Method:&#160; external merge&#160; Disk: 40928kB&quot;<br />&quot;&#160; -&gt;&#160; Hash Join&#160; (cost=7606.65..36207.42 rows=135769 width=292) (actual time=135.894..1105.050 rows=137058 loops=1)&quot;<br />&quot;&#160; &#160; &#160; &#160; Hash Cond: (signature.image_id_image = image.id_image)&quot;<br />&quot;&#160; &#160; &#160; &#160; -&gt;&#160; Merge Join&#160; (cost=8.85..15113.99 rows=137058 width=284) (actual time=0.101..568.280 rows=137058 loops=1)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; Merge Cond: (sig_gab.signature_id_signature = signature.id_signature)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; -&gt;&#160; Index Scan using fk_sig_gab_signature on sig_gab&#160; (cost=0.00..9058.56 rows=137058 width=280) (actual time=0.058..184.511 rows=137058 loops=1)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; -&gt;&#160; Index Scan using signature_pkey on signature&#160; (cost=0.00..50013.17 rows=1645065 width=8) (actual time=0.036..170.357 rows=137059 loops=1)&quot;<br />&quot;&#160; &#160; &#160; &#160; -&gt;&#160; Hash&#160; (cost=5214.58..5214.58 rows=137058 width=12) (actual time=135.720..135.720 rows=137058 loops=1)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; -&gt;&#160; Seq Scan on image&#160; (cost=0.00..5214.58 rows=137058 width=12) (actual time=0.014..76.676 rows=137058 loops=1)&quot;<br />&quot;Total runtime: 1939.968 ms&quot;</p>]]></content>
+		<author>
+			<name><![CDATA[kris_le_parisien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1075</uri>
+		</author>
+		<updated>2011-03-16T11:39:39Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8424#p8424</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Vitesse Postgres]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8305#p8305"/>
+		<content type="html"><![CDATA[<p>Ok. merci. </p><p>Pour les signatures, chacune d&#039;elles a identifiant unique (on a crée cette relation, pour identifier de manière unique les résultats de chaque algorithme). Il n&#039;y a donc qu&#039;un seul ID pour une signature. Je n&#039;ai pas très bien compris quand vous dites stocker directement la signature.</p><p>J&#039;ai oublié de préciser que toutes les signatures ne sont pas toutes utilisées (le véritable mot est: entraînées) par un cluster. C&#039;est le cas pour seulement certaines d&#039;entre elles. 1 signature peut être utilisée par plusieurs clusters.<br />Votre suggestion était peut-être de placer les attributs de signatures directement dans ClustersSignature. Mais la précision que j&#039;ai rajoutée l&#039;en empêche, je pense.</p><p>merci beaucoup pour votre aide.</p>]]></content>
+		<author>
+			<name><![CDATA[kris_le_parisien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1075</uri>
+		</author>
+		<updated>2011-03-03T17:02:52Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8305#p8305</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Vitesse Postgres]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8302#p8302"/>
+		<content type="html"><![CDATA[<p>Ok. Si vous pouvez avoir plusieurs signatures différentes pour un même algorithme, je comprends mieux.</p><p>Un dernier point: pouvez vous avoir plusieurs ids différents pour la même signature ? sinon, autant stocker directement la signature.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-03-03T15:39:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8302#p8302</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Vitesse Postgres]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8297#p8297"/>
+		<content type="html"><![CDATA[<p>Bonjour et merci,</p><p>En fait c&#039;est qu&#039;il y doit y avoir par la suite une autre table qui n&#039;est pas utilisé pour le moment. Cette table s&#039;appelle Detecteur.<br />Mode de fonctionnement:<br />Une image est analysé par différents détecteurs, ce qui donne plusieurs résultats. Ces résultats sont passés à divers algorithmes dont les résultats sont stockés dans les tables sig_gab, sig_tex,... (une table par type d&#039;algo).<br />Donc à une image , pour un algo donné (exemple celui de la table sig_gab), on obtient plusieurs résultats différents (pour chaque type de détecteurs).<br />On a un lien: à 1 image correspond n lignes de sig_gab.</p><p>Pour le moment, on n&#039;utilise pas les detecteurs (comme si on utilisait le detecteur vide). Dans le cas présent votre solution est donc parfaite.<br />La table signature contient en fait les attributs suivants:&#160; (id_signature, fk_id_image, fk_id_detecteur)&#160; --&gt; fk= foreign&#160; key, avec fk_id_detecteur=NULL pour l&#039;instant.</p><p>Je n&#039;avais pas parlé de la table Detecteur pour ne pas rendre les choses plus confuses.<br />L&#039;id de signature permet de rendre chaque résultat unique (pour pouvoir être reconnu uniquement par une autre classe appelé cluster)</p><p>On a donc en réalité:</p><p>image(id_image,...) --&gt;&gt; 1 image -&gt; n signatures ( n= n1 résultats dans sig_gab (pour n1 detecteurs)+ n2 resultats dans sig_tex (pour n2 detecteurs,...)<br />Detecteur(id_detecteur,...) --&gt;&gt; pas encore utilisé, par la suite on aura&#160; 1 detecteur-&gt; n signatures ( n= n1 résultats dans sig_gab (pour n1 images)+ n2 resultats dans sig_tex (pour n2&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; images,...)<br />Signature(id_signature, fk_id_image, fk_id_detecteur) --&gt; 1 signature -&gt;1 image, 1 detecteur, 1 algo<br />Sig_gab(id_sig_gab,...), Sig_tex(id_sig_tex,...), ... --&gt; 1 ligne pour 1 image et 1 detecteur</p><p>Cluster(id_cluster,...) --&gt; 1 cluster -&gt; n signature, 1 signature -&gt; m cluster<br />ClustersSignature(fk_id_cluster,fk_id_signature ) --&gt; pour stocker les signatures (=résultats d&#039;un algo sur une image, étant donné un détecteur) utilisés par un cluster</p><p>Voici notre base à l&#039;état actuel, sous réserve d&#039;ajouts par la suite. D’après ce que vous avez dit, il est mieux d&#039;avoir une table avec beaucoup d&#039;attributs (même si certains sont Null) que plusieurs tables (pour ainsi éviter les jointures).</p><p>Peut-être que je devrais appliquer certains principe de normalisation pour améliorer tout ça.</p>]]></content>
+		<author>
+			<name><![CDATA[kris_le_parisien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1075</uri>
+		</author>
+		<updated>2011-03-03T12:31:00Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8297#p8297</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Vitesse Postgres]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8287#p8287"/>
+		<content type="html"><![CDATA[<p>Bien sûr, on peut changer le paramètre juste pour la requête. Ne pas oublier de faire un RESET work_mem juste après, pour la ramener à la valeur qu&#039;il avait avant le SET.</p><p>Ce que je dis en dessous dépend de ce que je comprends du schéma bien sûr… je pourrais être totalement à côté de la plaque:<br />Pour la partie schéma, je ne comprends toujours pas le besoin des tables sig_gab et sig_tex. Elles ont un lien 1 pour 1 avec la table image. Pourquoi ne pas stocker directement les signatures dans des colonnes de la table image ? Cela serait bien plus performant (scanner une table par rapport à 3). Surtout que le principe d&#039;une signature, c&#039;est d&#039;être unique ou presque, je présume… donc que remplacer la signature dans une table par une clé technique ne va rien vous faire gagner en termes d&#039;espace disque, et uniquement compliquer le schéma (toujours si je comprends).</p><p>Si je n&#039;ai toujours rien compris, le mieux ça serait un exemple je crois <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-03-03T07:03:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8287#p8287</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Vitesse Postgres]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8284#p8284"/>
+		<content type="html"><![CDATA[<p>D&#039;accord,</p><p>La base de données que je conçois actuellement à pour but d&#039;être accessibles par des programmes externes (en ADA, python,...). Dans ce cas si l&#039;on a besoin de changer des paramètres du serveur juste pour une requête, est-ce que l&#039;on peut inclure le changement du paramètre dans la requête ou est-il obligatoire de changer le fichier de configuration du serveur?</p><p>exemple:<br />set&#160; work_mem TO 64MB; ma_requete_sql;&#160; --&gt; envoyé depuis un autre programme. (faut- il ensuite réinitialisé la valeur de work_mem?)</p><p>----------<br />Pour le cas du schéma.<br />En fait on a les tables image, signature, sig_gab mais aussi sig_tex,....<br />Les tables sig_gab, sig_tex représentent les résultat d&#039;algorithme (un algo distinct par table) appliqués aux images. A une image (une ligne dans Image) peut correspondre une ligne dans sig_gab et/ou aussi dans sig_tex. <br />La signature est donc l&#039;identifiant de ce résultat (on crée une table signature en plus, pour que cet identifiant soit unique par rapport à&#160; toute la base. Si on avait pris comme identifiant les clés de sig_gab et sig_tex, on pourrait avoir&#160; un ID 1 dans sig_gab et 1 dans sig_tex. On ne peut pas identifier les résultats de manière unique.)<br />Pensez-vous qu&#039;une meilleure solution est possible?</p><p>merci beaucoup</p>]]></content>
+		<author>
+			<name><![CDATA[kris_le_parisien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1075</uri>
+		</author>
+		<updated>2011-03-02T17:50:31Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8284#p8284</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Vitesse Postgres]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8282#p8282"/>
+		<content type="html"><![CDATA[<p>- La seule différence, c&#039;est que le explain analyze ne ramène pas les données, contrairement au vrai ordre SQL. Le reste ça ressemble à du temps réseau. Vous avez peut-être un lien lent entre le serveur et vous ? Ou bien un grand volume de données retourné ? En temps normal le explain analyze est plus lent que la requête normale, puisqu&#039;il rajoute de l&#039;instrumentation pour mesurer les différentes phases du plan d&#039;exécution</p><p>- Le work_mem peut être augmenté juste pour votre session, pas la peine de modifier le fichier de configuration, si vous voulez juste effectuer des tests :<br />SET work_mem TO &#039;64MB&#039; <br />par exemple, ça ne le modifiera que pour la session courante. Ça vous permettra de faire des tests. Par contre effectivement, c&#039;est dangereux de le garder à une valeur élevée si vous avez plusieurs sessions, puisque chacune peut allouer ce work_mem (voire même l&#039;allouer plusieurs fois, comme dans votre requête, puisqu&#039;elle l&#039;allouera une fois pour le hash, et une fois pour le sort)</p><p>Pour ce qui est du schéma, je ne comprends pas pourquoi ne pas stocker la signature d&#039;une image dans le même enregistrement que l&#039;image. Vous n&#039;avez certainement pas plus d&#039;une signature par image. Ou alors je ne comprends pas l&#039;intérêt de la signature <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-03-02T16:07:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8282#p8282</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Vitesse Postgres]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8281#p8281"/>
+		<content type="html"><![CDATA[<p>En fait j&#039;ai constaté que les temps marqués dans le explain analyse après &quot;Total runtime &quot; est toujours largement inferieur à celui obtenu lors de l&#039;execution de la requête en enlevant le explain analyse.</p><p>exemple:</p><p> SELECT id_image, id_signature, norm_x, norm_y, scale_numbers, quadrant<br />FROM&#160; sig_gab,signature, image<br />where signature.image_id_image = image.id_image<br />and signature.id_signature = sig_gab.signature_id_signature order by time ---&gt;</p><p> 57 308 ms au départ,<br /> 13 199 ms. avec SET enable_mergejoin=off., <br />11 279 ms avec&#160; work_mem à 5MB et enable_mergejoin=on ou off. Dans explain analyse on a des temps très différents &quot;Total runtime: 4109.467 ms&quot;</p><p>On dirait que explain analyse n&#039;execute pas completement la requête, doù peut-être la différence de temps. Avez-vous une idée de la raison?</p><p>J&#039;ai augmenté le work_mem qui était à 1MB&#160; et que j&#039;ai passé à 5MB. J&#039;obtiens maintenant un temps d&#039;execution de 11 279 ms avec enable_mergejoin=off.</p><p>avec la requête explain analyse j&#039;obtiens &quot;Total runtime: 1846.291 ms&quot; et le noeud merge_join n&#039;est pas remplacé. On a la même structure d&#039;arbre.</p><p>Puis-je encore augmenter work_mem, sans qu&#039;il y ait de conséquances trop néfastes pour d&#039;autres requêtes? Pensez-vous que c&#039;est la meilleure optimisation possible?</p><p>----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------<br />Concernant le schéma, on a actuellement une ligne dans sig_gab pour chaque ligne de image car on a appliqué une fonction qui pour chaque image (1 ligne de image) stocke le résultat dans sig_gab. On a donc le même nombre de lignes.</p><p>Les tables signatures et sig_gab ont 137 058 lignes en communs (les lignes de sig_gab). Une signature sert à identifier de manère unique les lignes de sig_gab, étant donné une image,<br />(l&#039;identifiant de sig_gab ne suffit pas car on a aussi d&#039;autres tables sig_tex,... qui fonctionnent sur le même principe. On ne peut pas prendre leurs clés primaires pour identifier les résultats de manière unique.). Le merge_ join renvoie 137 058 lignes, le hash join aussi&#160; car , pour le moment , à 1 résultat (ligne) de sig_gab correspond 1 image (1 ligne).</p><p>La table signature nous sert juste pour identifier dans toute la base de manière unique le résultat. Je n&#039;ai pas trouvé d&#039;erreur pour l&#039;instant, mais je vais revérifier.</p><p>merci.</p>]]></content>
+		<author>
+			<name><![CDATA[kris_le_parisien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1075</uri>
+		</author>
+		<updated>2011-03-02T15:58:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8281#p8281</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Vitesse Postgres]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8276#p8276"/>
+		<content type="html"><![CDATA[<p>Les temps sont totalement incohérents entre les différents posts. On voit dans le explain analyze 3100ms. Pouvez-vous clarifier ?</p><p>Pour ce qui est du merge_join, il est probable qu&#039;il devienne un hash join de lui même si vous avez suffisamment de work mem. En tout cas sur le plan affiché, le merge join coûte 1.5s. Il peut être très largement plus lent si les données sont en cache. Ce qui ne sera pas le cas d&#039;un hash join, qui fera des parcours séquentiels des tables, et aura donc un temps acceptable même si les données ne sont pas dans le cache.</p><p>Et réfléchissez tout de même au schéma, il y a à mon avis quelque chose de louche, comme une table éclatée en 2 sans bonne raison.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-03-02T15:06:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8276#p8276</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Vitesse Postgres]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8275#p8275"/>
+		<content type="html"><![CDATA[<p>Bonjour, entre temps j&#039;ai rajouté: SET enable_mergejoin=off; et le temps d&#039;execution est passé de&#160; 57 308 à 13 199 ms.</p><p>Le noued merge_join est remplacé par hash join.</p><p>Actuellement image et sig_gab ont le même nombre de lignes car on a créé une ligne de sig_gab pour chaque ligne de image (une ligne de sig_gab contient le résultat d&#039;un algorithme&#160; appliqué à une image). La table signature nous sert à identifier de manière unique le résultat de cet algo sur cette image.</p><p>je vais essayer pour le work_mem.</p>]]></content>
+		<author>
+			<name><![CDATA[kris_le_parisien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1075</uri>
+		</author>
+		<updated>2011-03-02T14:58:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8275#p8275</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Vitesse Postgres]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8274#p8274"/>
+		<content type="html"><![CDATA[<p>Pour commencer, non, il ne va pas être possible d&#039;optimiser la requête en rajoutant des index.</p><p>Le choix du moteur est probablement le meilleur… Boucler sur l&#039;index id_image serait bien plus coûteux que le hash-join qu&#039;il choisit. Par contre, vu le volume de données, je pense que votre paramètre work_mem est très insuffisant pour une requête de ce type (On voit d&#039;ailleurs qu&#039;on a un tri disque, pour 5Mo de données). Réessayez avec un work_mem beaucoup plus élevé, le temps d&#039;exécution devrait être plus faible.</p><p>Par contre, êtes-vous sûr que vous avez besoin de 3 tables ? Vu que les trois étapes du plan ramènent exactement le même nombre d&#039;enregistrements avant jointure, on a l&#039;impression que non. Mais évidemment, avec aussi peu d&#039;informations, je peux me tromper. Il est quand même très louche que image et sig_gab aient le même nombre d&#039;enregistrements, et que le scan sur signature_pkey en ramène juste un de plus.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-03-02T14:45:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8274#p8274</id>
+	</entry>
+</feed>

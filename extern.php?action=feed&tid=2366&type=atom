@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / déclencher une requête à une heure précise chaque jour PostgreSQL]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2366&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2366"/>
+	<updated>2012-11-15T10:34:44Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2366</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  déclencher une requête à une heure précise chaque jour PostgreSQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15798#p15798"/>
+		<content type="html"><![CDATA[<p>Chez nous, avec Ubuntu 12.04 et PG 9.1.6, j&#039;ai un cron job qui tourne toutes les nuits pour nous faire des stats.</p><p>Je fais donc comme ceci ...</p><p>1. Cron pour lancer un fichier de commandes bash : postgresbatch.sh <br />&#160; &#160; crontab -l<br />&#160; &#160; 00 22 * * 1-5 bash /home/xx/pgstuff/prod/scripts/bash/postgresbatch.sh # JOB_ID_1</p><p>2. Dans postgresbatch.sh, j&#039;ai ceci <br />&#160; &#160; psql -f &#039;/home/xx/pgstuff/prod/scripts/psql/psql stats batch.psqlb&#039; -a -d pgbase&#160; &gt;&#039;/home/xx/pgstuff/prod/scripts/bash/psql.log&#039; 2&gt;&amp;1<br />&#160; &#160; (qui lance psql avec (-f) un nom de fichier en argument, et stocke l&#039;output de psql dans un fichier log psql.log)</p><p>3. Ce fichier&#160; : &#039;psql stats batch.psqlb&#039; contient des commandes psql comme ceci <br />&#160; &#160; \echo `date`<br />&#160; &#160; \timing<br />&#160; &#160; \i &#039;/home/xx/pgstuff/prod/scripts/psql/requete01.sql&#039;<br />&#160; &#160; \echo `date`</p><p>&#160; &#160; \i &#039;/home/xx/pgstuff/prod/scripts/psql/requete02.sql&#039;<br />&#160; &#160; \echo `date`</p><p>&#160; &#160; ...</p><p>&#160; &#160; \i &#039;/home/xx/pgstuff/prod/scripts/psql/requete99.sql&#039; <br />&#160; &#160; \echo `date`</p><p>4. \echo `date` permet de voir la date et l&#039;heure de lancement de chaque requête dans le log et de répérer les fainéants<br />&#160; &#160; \i permet d&#039;exécuter une requête<br />&#160; &#160; \timing ... err... je ne sais plus</p><p>5. pour finir, j&#039;ai un alias : alias greperr=&#039;grep -i Error /home/xx/pgstuff/prod/scripts/bash/psql.log&#039;<br />&#160; &#160; qui me permet de chercher des erreurs dans le fichier log, rapidos.</p><p>Voilà,</p><p>&quot;Friendly&quot; ,</p><p>Butin</p>]]></content>
+		<author>
+			<name><![CDATA[butin-matou]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1160</uri>
+		</author>
+		<updated>2012-11-15T10:34:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15798#p15798</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  déclencher une requête à une heure précise chaque jour PostgreSQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15731#p15731"/>
+		<content type="html"><![CDATA[<p>le mieux serait d&#039;utiliser PGagent.</p><p>A +</p>]]></content>
+		<author>
+			<name><![CDATA[SQLpro]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1054</uri>
+		</author>
+		<updated>2012-11-10T19:37:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15731#p15731</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  déclencher une requête à une heure précise chaque jour PostgreSQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15728#p15728"/>
+		<content type="html"><![CDATA[<p>Pourquoi pas utiliser le cron (linux) ou le scheduler (win) ?</p>]]></content>
+		<author>
+			<name><![CDATA[kenrio]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=964</uri>
+		</author>
+		<updated>2012-11-09T11:20:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15728#p15728</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[déclencher une requête à une heure précise chaque jour PostgreSQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15727#p15727"/>
+		<content type="html"><![CDATA[<p>bonjour,<br /> j&#039;aimerais avoir vos lumières sur une chose.<br />j&#039;aimerais déclencher une requête à une certaine heure.<br />faut-il utiliser un Timer ou autre chose ? et comment ?<br />merci d&#039;avance</p>]]></content>
+		<author>
+			<name><![CDATA[simolay]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1520</uri>
+		</author>
+		<updated>2012-11-09T11:04:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15727#p15727</id>
+	</entry>
+</feed>

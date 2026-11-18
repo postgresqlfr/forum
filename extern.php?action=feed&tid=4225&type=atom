@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / grant (suite)]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4225&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4225"/>
+	<updated>2017-05-05T12:21:31Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4225</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  grant (suite)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25402#p25402"/>
+		<content type="html"><![CDATA[<p>La fonction vu dans pgadmin3 :</p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION sync.update_handler(
+    schema_name character varying,
+    r public.audit_history)</code></pre></div><p>Pourquoi public ? Les fonctions sans cette variable, je peux les appeler à partit de l&#039;user daniel. C&#039;est sans doute ce qui crée le problème...</p>]]></content>
+		<author>
+			<name><![CDATA[Michel Depiesse]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5329</uri>
+		</author>
+		<updated>2017-05-05T12:21:31Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25402#p25402</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  grant (suite)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25401#p25401"/>
+		<content type="html"><![CDATA[<p>Bon... Je suis un cran plus loin.</p><p>Maintenant, un script lancé avec -U daniel me donne: </p><div class="codebox"><pre><code>ERROR:  function sync.update_handler(character varying, audit_history) does not exist
+LINE 1: SELECT sync.update_handler(sync_schema_name, r.*)
+               ^
+HINT:  No function matches the given name and argument types. You might need to add explicit type casts.
+QUERY:  SELECT sync.update_handler(sync_schema_name, r.*)</code></pre></div><p>Alors que, pgadmin me dit, que cette fonction du schema sync a été grantée à generic user (avec grant option) et generic_user a été granté à daniel.<br />Je pédale dans la choucroute...</p>]]></content>
+		<author>
+			<name><![CDATA[Michel Depiesse]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5329</uri>
+		</author>
+		<updated>2017-05-05T12:14:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25401#p25401</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  grant (suite)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25400#p25400"/>
+		<content type="html"><![CDATA[<p>Si je comprends bien :</p><div class="codebox"><pre><code>revoke all privileges on all tables in schema sync from generic_user;
+grant all privileges on all tables in schema sync to generic_user with grant option;
+
+grant usage on schema sync to generic_user with grant option;</code></pre></div><p>Vous ai-je bien compris ?</p><p>Merci</p>]]></content>
+		<author>
+			<name><![CDATA[Michel Depiesse]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5329</uri>
+		</author>
+		<updated>2017-05-05T09:28:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25400#p25400</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  grant (suite)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25399#p25399"/>
+		<content type="html"><![CDATA[<p>Donner les droits adéquats (GRANT USAGE) sur le schéma sync en plus des objets contenus dans ceux-ci.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2017-05-05T09:22:03Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25399#p25399</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[grant (suite)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25396#p25396"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je fais :</p><div class="codebox"><pre><code>revoke all privileges on all tables in schema sync from generic_user;
+grant all privileges on all tables in schema sync to generic_user with grant option;</code></pre></div><p>Dans le passé, j&#039;avais fait</p><div class="codebox"><pre><code>grant generic user to daniel</code></pre></div><p>Et quand, je fais </p><div class="codebox"><pre><code>psql dev_contacts_server daniel
+delete from sync.log;</code></pre></div><p>Je reçois</p><div class="codebox"><pre><code>ERROR:  permission denied for schema sync
+LINE 1: delete from sync.log;</code></pre></div><p>Je ne comprends pas... Que faire ?</p>]]></content>
+		<author>
+			<name><![CDATA[Michel Depiesse]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5329</uri>
+		</author>
+		<updated>2017-05-05T09:04:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25396#p25396</id>
+	</entry>
+</feed>

@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Jointure spatiale multiple]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4958&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4958"/>
+	<updated>2018-11-22T16:42:58Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4958</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Jointure spatiale multiple]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28611#p28611"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Merci pour votre réponse. Effectivement je me demandais si il fallait décomposer la requête pour comparer les tables deux à deux ou si c&#039;était possible autrement. En revanche je ne comprends pas trop quand vous parlez de mettre des parenthèses? Il est possible de faire des condition &quot;imbriquées&quot; avec des parenthèses dans un where?</p><p>Pour ce qui est de ma requête, j&#039;en suis venu à bout en apprenant que les CTE pouvaient appeller une CTE précédente. J&#039;ai donc construit mes jointures progressivement deux à deux dans les CTE avec WITH.</p><div class="codebox"><pre><code>WITH
+canalisation_piquage AS (
+SELECT * FROM papaichton_raepa_canalaep_l_ddd WHERE branchemnt = &#039;O&#039;
+),
+canalisation_principale AS (
+SELECT * FROM papaichton_raepa_canalaep_l_ddd WHERE branchemnt = &#039;N&#039;
+),
+startpoint AS (
+SELECT ST_Startpoint(st_linemerge(geom)) as geom FROM papaichton_raepa_canalaep_l_ddd
+),
+endpoint AS(
+SELECT ST_Endpoint(st_linemerge(geom)) as geom FROM papaichton_raepa_canalaep_l_ddd
+),
+startpoint_endpoint AS (
+SELECT * FROM startpoint
+UNION
+SELECT * FROM endpoint
+),
+condition0 AS (
+SELECT canalisation_piquage.idcana, canalisation_piquage.id, canalisation_principale.idcana, ST_INTERSECTION(canalisation_piquage.geom, canalisation_principale.geom) as geom 
+FROM canalisation_piquage, canalisation_principale
+WHERE ST_INTERSECTS(canalisation_piquage.geom, canalisation_principale.geom)
+)
+SELECT * FROM condition0, startpoint_endpoint
+WHERE ST_INTERSECTS(condition0.geom, startpoint_endpoint.geom)</code></pre></div><p>Merci pour le coup de main.</p>]]></content>
+		<author>
+			<name><![CDATA[robinson]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8040</uri>
+		</author>
+		<updated>2018-11-22T16:42:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28611#p28611</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Jointure spatiale multiple]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28605#p28605"/>
+		<content type="html"><![CDATA[<p>Vous ne pouvez joindre que des ensembles deux par deux.&#160; Vous pouvez joindre t1 à t2, puis le résultat de cette jointure à t3 par exemple, ou joindre t1 à t3, t2 à t3 et joindre ensuite ces deux ensembles (du moins avec la syntaxe JOIN).&#160; C&#039;est de toutes façons ce que fera postgres.</p><br /><br /><p>Est-ce que votre problème est une erreur de syntaxe ou un résultat différent de ce que vous voulez ? Naivement je me dis que votre clause WHERE contenant des AND et des OR mériterait bien des parenthèses pour être sur que ça fasse ce que vous pensez que ça devrait faire.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2018-11-21T13:26:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28605#p28605</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Jointure spatiale multiple]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28604#p28604"/>
+		<content type="html"><![CDATA[<p>Merci pour votre réponse.<br />Pour préciser, je souhaite sélectionner les couples d&#039;identifiants des tables t1 et t2 où les géometries s&#039;intersectent et qui vérifient aussi deux conditions d&#039;intersection sur les géometries des tables t3 et t4.<br />Je me demandais surtout quelle était la syntaxe correcte pour exprimer la requête présentée ci dessus. Cette formulation est incorrecte, et celle avec des jointures ne renvoie aucun résultat (alors même que des géometries s&#039;intersectant existent. En effet, je ne vois pas comment exprimer un OR avec des jointures, ni comment réaliser une condition spatiale sur quatre tables différentes. Les tables sont de type :<br />id(integer)&#160; col1(varchar) col2(varchar) col3(varchar) geom(geometry)</p><p>La question est vraiment syntaxique, et malgré plusieurs recherches dans des forums j&#039;ai n&#039;ai trouvé personne traitant un problème similaire.</p>]]></content>
+		<author>
+			<name><![CDATA[robinson]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8040</uri>
+		</author>
+		<updated>2018-11-21T13:17:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28604#p28604</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Jointure spatiale multiple]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28603#p28603"/>
+		<content type="html"><![CDATA[<p>Difficile de vous répondre sur &quot;ça ne marche pas&quot;.&#160; Il faudrait au minimum la structure des tables, et quelques exemples de lignes qui posent problème (un affichage des géométries avec st_astext() par exemple si les géométroes ne sont pas trop grosses) ainsi que le problème exact, et idéalement un moyen de reproduire.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2018-11-21T12:50:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28603#p28603</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Jointure spatiale multiple]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28602#p28602"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Etant toujours bloqué, je vais reformuler ma question. J&#039;aimerai pouvoir executer une commande du type :</p><div class="codebox"><pre><code>WITH
+t1 AS (
+SELECT * FROM t01 WHERE x = &#039;O&#039;
+),
+t2 AS (
+SELECT * FROM t02 WHERE x = &#039;N&#039;
+)
+SELECT t1.id, t2.id FROM t1, t2, t3, t4
+WHERE ST_INTERSECTS (t1.geom, t2.geom)
+AND ST_INTERSECTS (t1.geom, t3. geom)
+OR ST_INTERSECTS (t1.geom, t4.geom)</code></pre></div><p>J&#039;ai essayé avec des jointures mais cela ne marche pas non plus... Une bonne âme aurait elle une suggestion?<br />Merci d&#039;avance.</p>]]></content>
+		<author>
+			<name><![CDATA[robinson]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8040</uri>
+		</author>
+		<updated>2018-11-21T12:35:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28602#p28602</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Jointure spatiale multiple]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28525#p28525"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je cherche à insérer dans une table les identifiants de certaines lignes sous conditions d&#039;intersection géométrique. Ma table représente des canalisations (lignes) dont certaines, secondaires, ne sont reliées que par un seul côté aux canalisations principales. J&#039;ai besoin de récupérer les identifiants des canalisations principales pour les insérer dans une colonne des canalisations secondaires. <br />J&#039;ai écrit le code suivant (j&#039;écrirai le UPDATE plus tard) :</p><div class="codebox"><pre><code>WITH
+canalisation_secondaire AS (
+SELECT * FROM canalisations WHERE branchemnt = &#039;O&#039;
+),
+canalisation_principale AS (
+SELECT * FROM canalisations WHERE branchemnt = &#039;N&#039;
+)
+SELECT canalisation_secondaire.idcana, canalisation_secondaire.id, canalisation_principale.idcana FROM canalisation_secondaire, canalisation_principale
+WHERE ST_INTERSECTS(canalisation_secondaire.geom, canalisation_principale.geom)</code></pre></div><p>Néanmoins, certaines lignes se croisent et je récupère donc aussi les identifiants des canalisations principales coupant les canalisations secondaires en leur milieu. J&#039;ai donc essayé de rajouter une contrainte pour ne garder que les identifiants des canalisations en bout de ligne. J&#039;ai donc créé une table temporaire avec des points (st_startpoint et endpoint).<br />Néanmoins, je n&#039;arrive pas à réaliser une double clause where sur une table extérieure :</p><br /><div class="codebox"><pre><code>WITH
+canalisation_secondaire AS (
+SELECT * FROM canalisations WHERE branchemnt = &#039;O&#039;
+),
+canalisation_principale AS (
+SELECT * FROM canalisations WHERE branchemnt = &#039;N&#039;
+)
+SELECT canalisation_secondaire.idcana, canalisation_secondaire.id, canalisation_principale.idcana FROM canalisation_secondaire, canalisation_principale 
+WHERE ST_INTERSECTS(canalisation_secondaire.geom, canalisation_principale.geom)
+AND ST_INTERSECTS(canalisation_secondaire.geom, start_end_point.geom)</code></pre></div><br /><p>La table start_end_point est manquante de la clause FROM, et si je la rajoute j&#039;obtiens le double des résultats attendus</p><p>La formulation avec une double jointure ne fonctionne pas non plus (elle renvoie plus d&#039;enregistrements qu&#039;attendu) :</p><div class="codebox"><pre><code>WITH
+canalisation_secondaire AS (
+SELECT * FROM canalisations WHERE branchemnt = &#039;O&#039;
+),
+canalisation_principale AS (
+SELECT * FROM canalisations WHERE branchemnt = &#039;N&#039;
+)
+SELECT canalisation_secondaire.idcana, canalisation_secondaire.id, canalisation_principale.idcana FROM canalisation_secondaire
+LEFT OUTER JOIN canalisation_principale ON ST_INTERSECTS(canalisation_secondaire.geom, canalisation_principale.geom)
+LEFT OUTER JOIN endpoint_startpoint ON ST_INTERSECTS(canalisation_secondaire.geom, canalisation_principale.geom)</code></pre></div><p>Idéalement, j&#039;aurais souhaité faire porter la condition sur l&#039;intersection stricte de trois tables. Est-ce possible?<br />Merci d&#039;avance.</p>]]></content>
+		<author>
+			<name><![CDATA[robinson]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8040</uri>
+		</author>
+		<updated>2018-11-13T19:04:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28525#p28525</id>
+	</entry>
+</feed>

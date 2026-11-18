@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Replication postgresql 9.4.4 problème de droit avec archive_command]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4210&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4210"/>
+	<updated>2017-04-26T13:39:37Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4210</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Replication postgresql 9.4.4 problème de droit avec archive_command]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25356#p25356"/>
+		<content type="html"><![CDATA[<p>Je reviens donner des nouvelles, je n&#039;ai pas réussi à utiliser la commande &quot;xcopy&quot; mais j&#039;ai avancé sur la commande &quot;copy&quot;.<br />Comme mentionné plus haut il faut effectivement lancer le service &quot;postgresql&quot; avec les droits adéquates, voici comment j&#039;ai procédé:<br /> - Créer un utilisateur dans la gestion des utilisateurs de Windows (postgresql par exemple avec un mot de passe)<br /> - sur la machine distante j&#039;ai aussi créé un compte &quot;postgresql&quot; avec le même mot de passe.<br /> - Ouvrir ensuite la console GPEDIT.MSC et aller dans les &quot;Configuration ordinateur&quot; -&quot;Paramètres Windows&quot; - &quot;Paramètre de sécurité&quot; - &quot;Stratégies Locales&quot; - &quot;Attribution des droit utilisateurs&quot;, dans l&#039;option &quot;ouvrir une session en tant que service&quot; ajouter l&#039;utilisateur &quot;postgresql&quot;<br /> - Aller dans gestion de l&#039;ordinateur puis dans service, ouvrir les propriétés du service &quot;postgresql&quot; et selectionner l&#039;onglet &quot;Connexion&quot;. Dans Ce compte choisisser &quot;postgresql&quot; et insérer le mot de passe puis redémarrer le service.<br />Mais fichiers du dossier pg_xlog du poste maitre ce sont bien copié sur le poste slave.<br />Merci pour votre aide ;-)</p>]]></content>
+		<author>
+			<name><![CDATA[asdean]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7507</uri>
+		</author>
+		<updated>2017-04-26T13:39:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25356#p25356</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Replication postgresql 9.4.4 problème de droit avec archive_command]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25346#p25346"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>ruizsebastien a écrit&#160;:</cite><blockquote><div><p>dans la doc l&#039;archive_command pour windows reseemble plutôt à ça :<br />archive_command = &#039;copy &quot;%p&quot; &quot;C:\\server\\archivedir\\%f&quot;&#039;&#160; # Windows</p><p>Il manque donc pour vous la lettre du lecteur.<br />Désolé mais je ne travaille jamais avec un postgresql sous windows...donc je tâtonne aussi.</p></div></blockquote></div><p>S&#039;agissant d&#039;un chemin réseau Windows, la syntaxe utilisée par asdean est correcte. Le chemin indiqué dans la doc est un chemin local (qui pourrait pointer sur un lecteur réseau) d&#039;où la lettre identifiant le lecteur en première position.<br />Il y a confusion entre les antislashes doublés dans une affectation et le double antislash introduisant un nom de machine ou adresse IP (ce qui dans une affectation donne 4 antislashes !) <br />Comme le dit rjuju c&#039;est un problème de droits de l&#039;utilisateur exécutant le service.<br />Vous pouvez les vérifier avec Propriétés : Onglet Sécurité puis Avancé et onglet Autorisations effectives</p>]]></content>
+		<author>
+			<name><![CDATA[jmarsac]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7302</uri>
+		</author>
+		<updated>2017-04-26T09:57:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25346#p25346</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Replication postgresql 9.4.4 problème de droit avec archive_command]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25342#p25342"/>
+		<content type="html"><![CDATA[<p>L&#039;utilisateur qui démarre le service est : &quot;service reseau&quot;<br />Si je le change par administrateur par exemple j&#039;ai: &quot;echec de la connexion au service&quot;</p>]]></content>
+		<author>
+			<name><![CDATA[asdean]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7507</uri>
+		</author>
+		<updated>2017-04-26T09:08:09Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25342#p25342</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Replication postgresql 9.4.4 problème de droit avec archive_command]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25340#p25340"/>
+		<content type="html"><![CDATA[<p>De mes lointains souvenirs sur windows, utiliser un chemin réseau créé automatiquement un lecteur réseau pour l&#039;utilisateur en question (la commande « net use » doit les afficher).</p><p>Quel est l&#039;utilisateur démarrant le service postgres ?&#160; Peut-être y a-t-il des droits supplémentaires à donner pour cet utilisateur (que ce soit sur le partage, le répertoire, l&#039;AD s&#039;il y a ou l&#039;utilisateur en question).</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2017-04-26T08:30:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25340#p25340</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Replication postgresql 9.4.4 problème de droit avec archive_command]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25339#p25339"/>
+		<content type="html"><![CDATA[<p>dans la doc l&#039;archive_command pour windows reseemble plutôt à ça :<br />archive_command = &#039;copy &quot;%p&quot; &quot;C:\\server\\archivedir\\%f&quot;&#039;&#160; # Windows</p><p>Il manque donc pour vous la lettre du lecteur.<br />Désolé mais je ne travaille jamais avec un postgresql sous windows...donc je tâtonne aussi.</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2017-04-26T08:20:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25339#p25339</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Replication postgresql 9.4.4 problème de droit avec archive_command]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25338#p25338"/>
+		<content type="html"><![CDATA[<p>Bonjour Sébastien,</p><p>Je viens de tenter avec la commande Xcopy, voici la ligne utilisé:<br />archive_command = &#039;xcopy &quot;%p&quot; &quot;\\\\192.168.1.161\\archives\\%f&quot;&#039;</p><p>Et le retour dans les logs:<br />2017-04-26 08:00:10 CEST DÉTAIL:&#160; La commande d&#039;archivage qui a échoué était : xcopy &quot;pg_xlog\00000001000000000000001A&quot; &quot;\\192.168.1.161\archives\00000001000000000000001A&quot;<br />Sp‚cification du lecteur non valide</p><p>Si je fais la commande sous DOS:<br />xcopy c:\ademis\Postgresql\9.4\data\pg_xlog\*.* \\192.168.1.161\archives\<br />Là ça fonctionne.<br />Ma commande ne doit pas être bonne dans le fichier &quot;postgresql.conf&quot;<br />Auriez-vous une idée?<br />Cordialement,</p><p>Asdean</p>]]></content>
+		<author>
+			<name><![CDATA[asdean]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7507</uri>
+		</author>
+		<updated>2017-04-26T08:10:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25338#p25338</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Replication postgresql 9.4.4 problème de droit avec archive_command]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25335#p25335"/>
+		<content type="html"><![CDATA[<p>Bonjour Guillaume et merci du retour,</p><p>Pour la copie sous Windows, je peux depuis le poste maitre écrire sur le poste esclave via explorer en mettant dans la barre d&#039;adresse \\192.168.1.161\archives\ en copier/coller.<br />Lors de l&#039;installation de Postgresql j&#039;ai renseigné au mot de passe pour un utilisateur (postgres) que je retrouve en utilisant la console pgAdminIII mais je n&#039;ai aucun utilisateur dans la gestion des utilisateur de Windows qui s&#039;appel &quot;postgres&quot;.<br />Le service &quot;postgresql-x64-9.4&quot; dans la gestion des services de Windows s&#039;exécute en tant que &quot;service réseau&quot; donc à aucun endroit j&#039;ai la possibilité de mettre l&#039;utilisateur &quot;postgres&quot;.<br />Je tourne un peu en rond.<br />Avez-vous assez d&#039;éléments pour m&#039;aider?<br />Cordialement,</p><p>Asdean</p>]]></content>
+		<author>
+			<name><![CDATA[asdean]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7507</uri>
+		</author>
+		<updated>2017-04-26T07:25:07Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25335#p25335</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Replication postgresql 9.4.4 problème de droit avec archive_command]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25334#p25334"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Pour les copies distantes pouvez utiliser xcopy au lieu de copy ?</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2017-04-26T07:24:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25334#p25334</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Replication postgresql 9.4.4 problème de droit avec archive_command]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25330#p25330"/>
+		<content type="html"><![CDATA[<p>Quand vous dites que la copie fonctionne sous Explorer, êtes-vous bien connecté en tant qu&#039;utilisateur postgres ? parce que là, le problème est dû à un droit manquant.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2017-04-25T20:00:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25330#p25330</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Replication postgresql 9.4.4 problème de droit avec archive_command]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25329#p25329"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je suis tout nouvel utilisateur de PostgreSQL version 9.4.4. Je souhaite mettre en marche la fonction REPLICATION entre 2 Pc sous Windows 7.<br />Voici le contenu de mon fichier &quot; postgresql.conf&quot; (je mets que les lignes actives)</p><p>listen_addresses = &#039;*&#039;<br />port = 25432<br />wal_level = hot_standby<br />archive_mode = on<br />archive_command = &#039;copy &quot;%p&quot; &quot;\\\\192.168.1.161\\archives\\%f&quot;&#039;<br />max_wal_senders = 2<br />wal_keep_segments = 10</p><p>Sur mon poste distant le dossier &quot;archives&quot; est partagé avec tout les droits pour pouvoir écrire (sous exploreur la copie fonctionne).<br />Je redémarre mon service postgresql et voici mon retour de log:</p><p>2017-04-25 16:47:38 CEST LOG:&#160; le système de bases de données a été arrêté à 2017-04-25 16:47:34 CEST<br />2017-04-25 16:47:38 CEST LOG:&#160; MultiXact member wraparound protections are now enabled<br />2017-04-25 16:47:38 CEST LOG:&#160; le système de bases de données est prêt pour accepter les connexions<br />2017-04-25 16:47:38 CEST LOG:&#160; lancement du processus autovacuum<br />AccŠs refus‚.</p><p>2017-04-25 16:47:38 CEST LOG:&#160; échec de la commande d&#039;archivage avec un code de retour 1<br />2017-04-25 16:47:38 CEST DÉTAIL:&#160; La commande d&#039;archivage qui a échoué était : copy &quot;pg_xlog\00000001000000000000001A&quot; &quot;\\192.168.1.161\archives\00000001000000000000001A&quot;</p><p>Je vois bien qu&#039;il y a un problème de droit mais je n&#039;arrive pas à le contourner.<br />Est-ce que quelqu&#039;un aurait déjà été confronté à ce problème?<br />Est-ce qu&#039;il existe un moyen d&#039;accorder les droits sans toucher au compte de connexion du service postgresql de Windows?<br />Merci d&#039;avance pour votre aide.</p><p>Asdean.</p>]]></content>
+		<author>
+			<name><![CDATA[asdean]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7507</uri>
+		</author>
+		<updated>2017-04-25T16:53:00Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25329#p25329</id>
+	</entry>
+</feed>

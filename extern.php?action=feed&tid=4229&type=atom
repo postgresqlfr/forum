@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / grant execute sur des fonctions]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4229&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4229"/>
+	<updated>2017-05-08T07:43:16Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4229</id>
+	<entry>
+		<title type="html"><![CDATA[grant execute sur des fonctions]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25409#p25409"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;ai des fonctions compilées avec -U sync dans un schéma sync.</p><p>Pour ces fonctions, j&#039;ai fait :</p><div class="codebox"><pre><code>grant usage on schema sync to generic_user with grant option;
+
+revoke all privileges on all tables in schema sync from generic_user;
+grant all privileges on all tables in schema sync to generic_user with grant option;
+
+revoke all privileges on all sequences in schema sync from generic_user;
+grant all privileges on all sequences in schema sync to generic_user with grant option;
+
+grant execute on all functions in schema sync to generic_user with grant option;</code></pre></div><p>Et en pgadmin3, je vois que les fonctions ont un grant execute pour generic_user.</p><p>Je joue un script qui appelle ces fonctions et je reçois un message</p><div class="codebox"><pre><code>ERROR:  function sync.update_handler(character varying, audit_history) does not exist                                                          
+LINE 1: SELECT sync.update_handler(sync_schema_name, r.*)                                                                                      
+               ^                                                                                                                               
+HINT:  No function matches the given name and argument types. You might need to add explicit type casts.</code></pre></div><p>pour toutes les fonctions ayant un argument de la forme &quot;public.nom_de_table&quot; comme </p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION sync.update_handler(
+    schema_name character varying,
+    r public.audit_history)</code></pre></div><p>Par contre, les autres fonctions sont reconnues sans problèmes.</p><p>J&#039;ai fait </p><div class="codebox"><pre><code>grant usage on schema public to generic_user;
+grant select on public.audit_history to generic_user;</code></pre></div><p>mais ça ne change rien.</p><p>Que faire ?<br />Merci pour votre attention</p>]]></content>
+		<author>
+			<name><![CDATA[Michel Depiesse]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5329</uri>
+		</author>
+		<updated>2017-05-08T07:43:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25409#p25409</id>
+	</entry>
+</feed>

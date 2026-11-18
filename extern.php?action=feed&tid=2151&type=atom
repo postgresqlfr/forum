@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / UPDATE après SELECT]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2151&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2151"/>
+	<updated>2012-07-07T16:34:02Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2151</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  UPDATE après SELECT]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14537#p14537"/>
+		<content type="html"><![CDATA[<p>Merci pour votre aide</p>]]></content>
+		<author>
+			<name><![CDATA[MitsuTomoe]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1680</uri>
+		</author>
+		<updated>2012-07-07T16:34:02Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14537#p14537</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  UPDATE après SELECT]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14536#p14536"/>
+		<content type="html"><![CDATA[<p>On peut écrire le résultat d&#039;une requête ou le contenu d&#039;une table avec la commande COPY. Mais vous n&#039;avez que la commande COPY qui vous permet de créer un fichier sur le serveur avec le langage PL/pgsql. Sinon vous devez utiliser PL/perl ou PL/python ou encore le C.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-07-07T15:39:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14536#p14536</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  UPDATE après SELECT]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14535#p14535"/>
+		<content type="html"><![CDATA[<p>Je croyais qu&#039;on ne pouvait pas créer de fichier à partir d&#039;une procédure stockée ???</p>]]></content>
+		<author>
+			<name><![CDATA[MitsuTomoe]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1680</uri>
+		</author>
+		<updated>2012-07-07T14:16:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14535#p14535</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  UPDATE après SELECT]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14534#p14534"/>
+		<content type="html"><![CDATA[<p>Si vous devez faire des modifications dans le fichier de sortie, il faudra absolument une étape en dehors de psql.</p><br /><p>Pour simplifier vous pouvez utiliser :<br />psql -c &quot;select export();&quot;</p><br /><p>Avec le code dans une seule procédure stockée du genre (non testée):</p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION export() returns void AS
+$$
+DECLARE
+	id integer;
+BEGIN
+	SELECT min(id_envoi) INTO id FROM diffusion_envoi where dat_envoi is null;
+	EXECUTE &#039;COPY (SELECT fichier_contenu FROM diffusion_envoi WHERE id_envoi = &#039; || id || &#039;) TO &#039;&#039;/var/lib/postgresql/1131422.xml&#039;&#039; CSV&#039;;
+	UPDATE diffusion_envoi SET dat_envoi = now() WHERE id_envoi = id;
+	return;
+END;
+$$
+language plpgsql;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2012-07-07T12:38:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14534#p14534</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  UPDATE après SELECT]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14532#p14532"/>
+		<content type="html"><![CDATA[<p>J&#039;ai trouvé une solution, probablement pas la plus élégante mais qui a le mérite de marcher. Si qqn a une meilleure idée ?</p><br /><p>DATE=$(date +%Y-%m-%d)<br />TIME=$(date +%T)<br />rm -f /var/lib/postgresql/diff_ann.ok<br />psql &lt;&lt; EOF<br />&#160; &#160; copy&#160; (select id_envoi from diffusion_envoi where dat_envoi is null order by id_envoi limit 1) to &#039;/var/lib/postgresql/diff_ann.ok&#039;;<br />EOF</p><p>id=`head -1 /var/lib/postgresql/diff_ann.ok`<br />if [ -z &quot;$id&quot; ]<br />&#160; &#160; then <br />&#160; &#160; &#160; &#160; echo &quot;Aucun fichier à envoyer&quot;<br />&#160; &#160; else<br />&#160; &#160; &#160; &#160; echo &quot;Traitement envoi $id&quot; <br />&#160; &#160; &#160; &#160; &#160;psql &lt;&lt; EOF<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160;copy&#160; (select fichier_contenu from diffusion_envoi where id_envoi = $id) to &#039;/var/lib/postgresql/1131422.xml&#039; csv;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160;update diffusion_envoi set dat_envoi=&#039;$DATE $TIME&#039; WHERE id_envoi = $id;<br />EOF<br />&#160; &#160; &#160; &#160; sed --in-place -e &#039;s/\&quot;\&quot;/\&quot;/g&#039; 1131422.xml<br />&#160; &#160; &#160; &#160; sed --in-place -e &#039;s/\&quot;&lt;?xml/&lt;?xml/g&#039; 1131422.xml<br />&#160; &#160; &#160; &#160; sed --in-place -e &#039;s/\n\&quot;\n/\n/g&#039; 1131422.xml<br />&#160; &#160; &#160; &#160; sed --in-place -e &#039;$!N;s|\n\&quot;||&#039; 1131422.xml<br />&#160; &#160; &#160; &#160; rm -f 1131422.zip<br />&#160; &#160; &#160; &#160; zip -r 1131422.zip 1131422.xml<br />#<br />#&#160; &#160; &#160; &#160; ftp<br />#<br />&#160; &#160; &#160; &#160; msg=&quot; $DATE $TIME Envoi no. $id effectué&quot;<br />&#160; &#160; &#160; &#160; echo $msg | mail -s &quot;Multi-diffusion&quot; -t xxx -a From:xxx<br />fi</p>]]></content>
+		<author>
+			<name><![CDATA[MitsuTomoe]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1680</uri>
+		</author>
+		<updated>2012-07-07T00:13:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14532#p14532</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  UPDATE après SELECT]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14531#p14531"/>
+		<content type="html"><![CDATA[<p>Je n&#039;ai qu&#039;un champ d&#039;une ligne à exporter à chaque fois. Ce qui me manque est un moyen de récuperer la PK de la ligne exportée.</p>]]></content>
+		<author>
+			<name><![CDATA[MitsuTomoe]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1680</uri>
+		</author>
+		<updated>2012-07-06T22:48:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14531#p14531</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  UPDATE après SELECT]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14530#p14530"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />vous serez obligé de faire les 2 requêtes séparément.</p><p>Vous voulez faire l&#039;export de vos ligne 1 par 1 ?<br />Une solution à base de trigger faisant le copy sur update de la colonne date_envoi pourrait peut-être faire le tout en un.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2012-07-06T16:24:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14530#p14530</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[UPDATE après SELECT]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14513#p14513"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />je voudrais mettre à jour la ligne d&#039;une table qui vient de faire l&#039;objet d&#039;un COPY.<br />Je fais :<br />copy&#160; (select fichier_contenu from diffusion_envoi where dat_envoi is null order by id_envoi limit 1) to &#039;/var/lib/postgresql/1131422.xml&#039; csv;</p><p>et je voudrais faire après :</p><p>update diffusion_envoi set dat_envoi=now() where ???</p><p>J&#039;ai plus ou moins compris que les CTE étaient faites pour ce genre de chose, mais je ne vois pas comment faire.</p>]]></content>
+		<author>
+			<name><![CDATA[MitsuTomoe]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1680</uri>
+		</author>
+		<updated>2012-07-06T13:49:07Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14513#p14513</id>
+	</entry>
+</feed>

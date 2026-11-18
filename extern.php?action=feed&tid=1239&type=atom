@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / parametre enable_seqscan]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1239&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1239"/>
+	<updated>2011-02-16T13:32:04Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1239</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  parametre enable_seqscan]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8128#p8128"/>
+		<content type="html"><![CDATA[<p>OK merci ...</p>]]></content>
+		<author>
+			<name><![CDATA[genio]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1022</uri>
+		</author>
+		<updated>2011-02-16T13:32:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8128#p8128</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  parametre enable_seqscan]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8125#p8125"/>
+		<content type="html"><![CDATA[<p>non, c&#039;est juste faux: le paramètre n&#039;empêche rien. il ne fait que défavoriser très très fortement le seqscan. Par exemple:</p><br /><p>marc=# CREATE TABLE test (a int);<br />CREATE TABLE<br />marc=# INSERT INTO test (a) select generate_series(1,1000);<br />INSERT 0 1000<br />marc=# CREATE INDEX tst1 ON test ( a );<br />CREATE INDEX<br />marc=# EXPLAIN SELECT * from test where a=1;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;QUERY PLAN&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; <br />-----------------------------------------------------------------<br /> Index Scan using tst1 on test&#160; (cost=0.00..8.27 rows=1 width=4)<br />&#160; &#160;Index Cond: (a = 1)<br />(2 rows)</p><p>marc=# SET enable_seqscan TO off;<br />SET<br />marc=# EXPLAIN SELECT * from test where a=1;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;QUERY PLAN&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; <br />-----------------------------------------------------------------<br /> Index Scan using tst1 on test&#160; (cost=0.00..8.27 rows=1 width=4)<br />&#160; &#160;Index Cond: (a = 1)<br />(2 rows)</p><p>marc=# DROP INDEX tst1 ;<br />DROP INDEX<br />marc=# EXPLAIN SELECT * from test where a=1;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;QUERY PLAN&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;<br />------------------------------------------------------------------------<br /> Seq Scan on test&#160; (cost=10000000000.00..10000000017.50 rows=1 width=4)<br />&#160; &#160;Filter: (a = 1)<br />(2 rows)</p><p>J&#039;ai désactivé le seq scan. Mais il n&#039;y a pas d&#039;index. Il n&#039;a pas trop le choix, il fait un seq scan tout de même. Et on voit même comment il s&#039;y prend: le seq scan a une pénalité de 10000000000. Il n&#039;est pas empêché d&#039;utiliser le scan séquentiel.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-02-16T13:06:07Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8125#p8125</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  parametre enable_seqscan]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8123#p8123"/>
+		<content type="html"><![CDATA[<p>Excusez-moi Marc mais quand vous dites : &#039;Oui, c&#039;est faux&#039; , dois-je en conclure que :<br /> oui =&gt; question 2.1<br /> faux =&gt; Question 2.2&#160; ?</p>]]></content>
+		<author>
+			<name><![CDATA[genio]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1022</uri>
+		</author>
+		<updated>2011-02-16T12:59:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8123#p8123</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  parametre enable_seqscan]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8121#p8121"/>
+		<content type="html"><![CDATA[<p>1) set enable_seqscan to off<br />2) oui, c&#039;est faux. le paramètre passe juste le coût du seqscan à un 1 suivi de beaucoup de zéros. si il n&#039;y a pas d&#039;index utilisable, il passera en seq scan quand même.<br />3) Juste pour du debug: s&#039;assurer qu&#039;un index est utilisable. si même avec ce paramètre à off, le moteur ne passe pas par l&#039;index, c&#039;est vraisemblablement qu&#039;il ne peut pas.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-02-16T12:36:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8121#p8121</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  parametre enable_seqscan]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8118#p8118"/>
+		<content type="html"><![CDATA[<p>Merci ...<br />Je continue ...<br />1°) Comment mettre ce paramètre à Off sur &#039;MA&#039; session, étant donné qu&#039;il est présent dans le fichier postgrès.conf ?<br />2°) Me trompe-je si je dis que : <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160;2.1) A ON, ce paramètre permet à l&#039;optimiseur d&#039;utiliser les index de 2 façons suivante : Direct et scan ?<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160;2.2) A OFF ce paramètre ne permet pas l&#039;index scan, maois permet l&#039;acces direct ? <br />3°) Et dans l&#039;affirmative, à quoi sert ce paramètre qui empêche l&#039;optimiseur de chopsir lui-même son chemin d&#039;accès ?</p><p>Merci pour vos réponses...</p>]]></content>
+		<author>
+			<name><![CDATA[genio]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1022</uri>
+		</author>
+		<updated>2011-02-16T09:38:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8118#p8118</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  parametre enable_seqscan]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8113#p8113"/>
+		<content type="html"><![CDATA[<p>Simple. Il ne faut jamais le mettre à off en production. Ensuite, il est possible de le mettre à off sur sa session pour voir si cela favorise l&#039;utilisation des index. Et du coup, s&#039;il faut repenser sa requête ou prévoir d&#039;autres index pour optimiser la requête.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-02-15T17:28:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8113#p8113</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[parametre enable_seqscan]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8097#p8097"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous...<br />j&#039;ai effectué quelques lectures sur ce paramètre mais je n&#039;arrive pas vraiment à comprendre pourquoi certaine fois, il faut le mettre à OFF et d&#039;autres à ON... </p><p>Pouvez-vous m&#039;aider ? </p><br /><p>PS : Que veut dire : langage plsql volatile</p>]]></content>
+		<author>
+			<name><![CDATA[genio]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1022</uri>
+		</author>
+		<updated>2011-02-15T13:02:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8097#p8097</id>
+	</entry>
+</feed>

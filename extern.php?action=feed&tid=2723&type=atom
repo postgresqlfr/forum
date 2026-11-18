@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Conseil sur stockage de données binaires avec Postgresql]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2723&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2723"/>
+	<updated>2013-11-21T21:24:21Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2723</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Conseil sur stockage de données binaires avec Postgresql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18723#p18723"/>
+		<content type="html"><![CDATA[<p>Bonsoir à tous.<br />J&#039;avais oublié de mettre à jour ce post.<br />Effectivement, l&#039;augmentation du à l&#039;échappement&#160; ne se limite qu&#039;à la RAM (durant la manip de la donnée avec un programme C/ecpg).<br />J&#039;ai ré-importé une table de 60Go d&#039;Oracle vers Postgresql et le volume est quasi-identique entre les 2 serveurs.<br />Merci arthurr.</p>]]></content>
+		<author>
+			<name><![CDATA[David]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=626</uri>
+		</author>
+		<updated>2013-11-21T21:24:21Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18723#p18723</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Conseil sur stockage de données binaires avec Postgresql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17817#p17817"/>
+		<content type="html"><![CDATA[<p>le <strong>1/</strong> en utilisant une fonction automatique d’échappement suivant le langage utilisé pour peupler la base (quote en perl, pg_escape_bytea en php, ...).<br /><strong>&quot;Le volume final est de ce fait augmenté d&#039;un facteur 2 à 3&quot;</strong> : d&#039;après la doc, non : <strong>&quot;Par exemple, une chaîne littérale passée au serveur comme E&#039;\\001&#039; devient \001 après être passée au travers de l&#039;analyseur d&#039;échappement de chaîne. Le \001 est envoyé à la fonction d&#039;entrée de bytea, qui le convertit en un octet simple ayant une valeur décimale de 1&quot;</strong>, de plus ta donnée va être &quot;Toasted&quot; donc compressée.</p>]]></content>
+		<author>
+			<name><![CDATA[arthurr]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=62</uri>
+		</author>
+		<updated>2013-08-02T10:28:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17817#p17817</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Conseil sur stockage de données binaires avec Postgresql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17816#p17816"/>
+		<content type="html"><![CDATA[<p>Ok.<br />Alors disons que dans le cas où l&#039;utilité est avérée et si vous avez été confronté à une telle configuration, quelle a été pour vous la solution la plus satisfaisante parmi celles que j&#039;ai listées.<br />Je vous remercie par avance.</p>]]></content>
+		<author>
+			<name><![CDATA[David]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=626</uri>
+		</author>
+		<updated>2013-08-02T09:16:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17816#p17816</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Conseil sur stockage de données binaires avec Postgresql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17815#p17815"/>
+		<content type="html"><![CDATA[<p>D&#039;accord avec arthurr. Stocker des objets binaires en base peut se faire et il existe de bonnes raisons pour le faire. Mais elles ne sont pas nombreuses et généralement, les inconvénients dépassent fortement les avantages.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2013-07-30T19:06:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17815#p17815</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Conseil sur stockage de données binaires avec Postgresql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17814#p17814"/>
+		<content type="html"><![CDATA[<p>Si vous n&#039;avez pas à faire de requêtes sur ces données binaires, autant ne pas les stocker dans la base.<br />Habituellement (enfin pour moi), on stock le PATH du fichier binaire dans la base et ce PATH pointe vers un fichier sur le FileSystem.<br />La base est plus petite, donc plus facile à sauvegarder / restaurer, par contre, il faut penser à backuper les fichiers sur le FS.</p>]]></content>
+		<author>
+			<name><![CDATA[arthurr]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=62</uri>
+		</author>
+		<updated>2013-07-30T14:38:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17814#p17814</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Conseil sur stockage de données binaires avec Postgresql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17809#p17809"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous.<br />Dans le cadre d&#039;un projet, je souhaite stocker un (très) grand nombre de données binaires dans une même base.<br />J&#039;ai commencé à regarder quelles étaient les solutions possibles. J&#039;ai noté à ce jour 3 possibilités:</p><p>1) La première, que j&#039;ai déjà mise en production il y a 4 ans sur un projet de base non pérenne, est le stockage des donnée binaires dans un champ de type BYTEA. <br />Dans ce cas, il faut échapper les caractères spéciaux par &#039;\\&#039;. Le volume final est de ce fait augmenté d&#039;un facteur 2 à 3 (tout dépend du type de données origine) ce qui a un impact non négligeable sur le stockage.</p><p>2) Autre solution implémentée par un collègue, encoder le type binaire pour éviter d&#039;avoir à échapper ces caractères spéciaux mais là aussi augmentation certes moindre mais d&#039;environ 4/3 du volume</p><p>3) Sinon, utiliser le type &#039;large_object&#039; dit &#039;lo&#039; mais la limitation du type &#039;oid&#039; utilisé pour référencer chacun des objets &quot;lo&quot; dans la table du dictionnaire est limité à 2*32 donc déjà inférieur à mon nombre actuel de données. </p><p>Si parmi vous certains ont été confrontés à cette problématique, leurs retours d&#039;expérience me très seraient utiles, aussi bien sur la partie stockage que sur les performances en R/W.</p><p>Bonne journée.</p>]]></content>
+		<author>
+			<name><![CDATA[David]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=626</uri>
+		</author>
+		<updated>2013-07-30T06:57:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17809#p17809</id>
+	</entry>
+</feed>

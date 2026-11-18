@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Ligne manquante?]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=6242&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=6242"/>
+	<updated>2022-03-23T08:17:13Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=6242</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Ligne manquante?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33324#p33324"/>
+		<content type="html"><![CDATA[<p>ça marche! un tout grand merci!</p>]]></content>
+		<author>
+			<name><![CDATA[Franck_NsunguLukanda]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=10117</uri>
+		</author>
+		<updated>2022-03-23T08:17:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33324#p33324</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Ligne manquante?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33323#p33323"/>
+		<content type="html"><![CDATA[<p>Vous avez sans doute fait une erreur de manip. C&#039;est facile à tester, créer une table vide avec juste les 2 colonnes requêtées</p><div class="codebox"><pre><code>CREATE TABLE film(film_id int, length int);</code></pre></div><p>Lancer la&#160; requête copié-collée. Effectivement elle sort l&#039;erreur mentionnée.</p><div class="codebox"><pre><code>select case
+        when length between 0 and 59 then &#039;Less then 1 hour&#039;
+        when length between 60 and 119 then &#039;1 to 2 hours&#039;
+        when length between 120 and 179 then &#039;2 to 3 hours&#039;
+        else &#039;over 3 hours&#039;
+        end as FilmLengthCategory
+    , count (film_id) as CountofFilms
+from film
+group by case
+        when length between 0 and 59 then &#039;Less then 1 hour&#039;
+        when length between 60 and 119 then &#039;1 to 2 hours&#039;
+        when length between 120 and 179 then &#039;2 to 3 hours&#039;
+        else &#039;Over 3 hours&#039;
+        end
+order by CountOfFilms desc
+
+ERREUR:  la colonne « film.length » doit apparaître dans la clause GROUP BY ou doit être utilisé dans une fonction d&#039;agrégat
+LIGNE 2 :         when length between 0 and 59 then &#039;Less then 1 hour&#039;</code></pre></div><p>Changer le &#039;over&#039; en &#039;Over&#039;, relancer, résultat: plus d&#039;erreur:</p><div class="codebox"><pre><code>select case
+        when length between 0 and 59 then &#039;Less then 1 hour&#039;
+        when length between 60 and 119 then &#039;1 to 2 hours&#039;
+        when length between 120 and 179 then &#039;2 to 3 hours&#039;
+        else &#039;Over 3 hours&#039;
+        end as FilmLengthCategory
+    , count (film_id) as CountofFilms
+from film
+group by case
+        when length between 0 and 59 then &#039;Less then 1 hour&#039;
+        when length between 60 and 119 then &#039;1 to 2 hours&#039;
+        when length between 120 and 179 then &#039;2 to 3 hours&#039;
+        else &#039;Over 3 hours&#039;
+        end
+order by CountOfFilms desc
+
+filmlengthcategory | countoffilms 
+--------------------+--------------
+(0 ligne)</code></pre></div><p>PS: on peut aussi écrire GROUP BY 1 avec PostgreSQL pour grouper par la première colonne sans répéter toute l&#039;expression mais c&#039;est non-standard.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2022-03-22T19:24:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33323#p33323</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Ligne manquante?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33322#p33322"/>
+		<content type="html"><![CDATA[<p>J&#039;ai essayé; pas de changement.</p><p>Malheureusement je ne sais pas ajouter de capture d&#039;écran en pièce jointe...</p><p>Le message que j&#039;ai est le suivant:<br />&quot;la colonne « film.length » doit apparaître dans la clause GROUP BY ou doit être utilisé dans une fonction d&#039;agrégat&quot;</p>]]></content>
+		<author>
+			<name><![CDATA[Franck_NsunguLukanda]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=10117</uri>
+		</author>
+		<updated>2022-03-22T16:03:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33322#p33322</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Ligne manquante?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33321#p33321"/>
+		<content type="html"><![CDATA[<p>Le seul problème que je vois est le &#039;over 3 hours&#039; et &#039;Over 3 hours&#039; (le o minuscule puis O majuscule). Si ce n&#039;est pas ça, il va falloir donner un exemple complet.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2022-03-22T15:55:35Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33321#p33321</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Ligne manquante?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33320#p33320"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;utilise le programme pgAdmin4, postgreSQL 12 pour apprendre à utiliser SQL, en parallèle avec une série de vidéos.</p><p>J&#039;aimerais obtenir un tableau de 2 colonnes, avec:</p><p>1) la première colonne qui contient 4 catégories de durée de films: &quot;Less than 1 hour&quot;, &quot;1 and 2 hours&quot;, &quot;2 and 3 hours&quot;, &quot;Over 3 hours&quot;<br />2) la deuxième colonne qui contient le nombre de films pour chacune des catégories de durée.</p><p>J&#039;insère la requête suivante pour obtenir le résultat désiré - la même que le formateur dans les vidéos. Lui obtient le résultat souhaité, mais pas moi:</p><p>select case<br />&#160; &#160; &#160; &#160; when length between 0 and 59 then &#039;Less then 1 hour&#039;<br />&#160; &#160; &#160; &#160; when length between 60 and 119 then &#039;1 to 2 hours&#039;<br />&#160; &#160; &#160; &#160; when length between 120 and 179 then &#039;2 to 3 hours&#039;<br />&#160; &#160; &#160; &#160; else &#039;over 3 hours&#039;<br />&#160; &#160; &#160; &#160; end as FilmLengthCategory<br />&#160; &#160; , count (film_id) as CountofFilms<br />from film<br />group by case<br />&#160; &#160; &#160; &#160; when length between 0 and 59 then &#039;Less then 1 hour&#039;<br />&#160; &#160; &#160; &#160; when length between 60 and 119 then &#039;1 to 2 hours&#039;<br />&#160; &#160; &#160; &#160; when length between 120 and 179 then &#039;2 to 3 hours&#039;<br />&#160; &#160; &#160; &#160; else &#039;Over 3 hours&#039;<br />&#160; &#160; &#160; &#160; end<br />order by CountOfFilms desc</p><p>Pourriez-vous svp m&#039;aider?</p>]]></content>
+		<author>
+			<name><![CDATA[Franck_NsunguLukanda]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=10117</uri>
+		</author>
+		<updated>2022-03-22T15:15:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33320#p33320</id>
+	</entry>
+</feed>

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Supprimer des doublons dans une table (avec jointures)]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2052&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2052"/>
+	<updated>2012-05-16T11:11:17Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2052</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Supprimer des doublons dans une table (avec jointures)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13817#p13817"/>
+		<content type="html"><![CDATA[<p>En gros oui, sauf que l’agrégation se fait indépendamment pour chaque ligne et non globalement.<br />Pour plus de détails vous pouvez voir la doc : <a href="http://docs.postgresqlfr.org/9.0/tutorial-window.html" rel="nofollow">http://docs.postgresqlfr.org/9.0/tutorial-window.html</a></p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2012-05-16T11:11:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13817#p13817</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Supprimer des doublons dans une table (avec jointures)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13816#p13816"/>
+		<content type="html"><![CDATA[<p>Si je comprends bien, le PARTITION BY est similaire à un GROUP BY?</p><p>Merci beaucoup et bonne journée</p>]]></content>
+		<author>
+			<name><![CDATA[charleydc5]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1194</uri>
+		</author>
+		<updated>2012-05-16T11:02:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13816#p13816</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Supprimer des doublons dans une table (avec jointures)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13812#p13812"/>
+		<content type="html"><![CDATA[<p>Bonjour.<br />Si ces données sont présentes et ne doivent pas l&#039;être, il faudrait corriger le problème lors de la saisie des données, sinon la suppression corrigera le problème mais il reviendra.<br />Sinon, un moyen simple d&#039;éliminer les doublons est d&#039;utiliser la fonction window row_number().<br />Par exemple, pour trouver toutes les lignes en doublon sur votre table, il faudrait faire quelque chose comme :</p><div class="codebox"><pre><code>SELECT intcheminementid, num FROM (
+SELECT intcheminementid, row_number() OVER (PARTITION BY intinterventionid,intcheminementtypeid,datecheminement) AS num
+FROM cheminement
+)src
+WHERE num &gt; 1</code></pre></div><p>Pour avoir les identifiants des lignes en doublon. Il suffit ensuite de supprimer ces lignes.<br />Précision : je n&#039;ai pas testé la requête, et il faudra peut-être la modifier (au niveau du partition by) selon vos critères de doublon.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2012-05-15T20:01:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13812#p13812</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Supprimer des doublons dans une table (avec jointures)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13810#p13810"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous,</p><p>Je fais face à un problème de doublons et j&#039;aimerais avoir vos conseils à propos de cela.</p><p>Voici en premier lieu la structure des tables touchées par mon problème :<br />Table : cas<br />pk intcasid : integer</p><p>Table : intervention<br />pk intinterventionid : integer<br />fk intcasid : integer<br />strnom : character varying</p><p>Table : interventiontype<br />pk intinterventiontypeid : integer<br />strnom : character varying</p><p>Table : cheminement<br />pk intcheminementid : integer<br />fk intinterventionid : integer<br />fk intcheminementtypeid : integer<br />datcheminement : timestamp<br />inttemps : integer</p><p>Table : cheminementtype<br />pk intfiletypeid<br />strnom : character varying</p><p>En gros, un cas peut être vu comme un dossier sur lequel un employé travail. Dans le dossier, on y retrouve des interventions de divers types (conseils, encadrement, coaching, etc... Vous comprendrez donc que chaque intervention est reliée à un type). Dans chaque interventions, on des cheminements, autrement dit, des actions portées dans le cadre de l&#039;intervention. Chaque cheminement est également relié à un type (suivi, séance d&#039;information, formation, etc.). C&#039;est au niveau du cheminement que l&#039;employée saisit la date du cheminement ainsi que le temps passé pour l&#039;ensemble du cheminement.</p><p>C&#039;est ici que mon doublon se situe. J&#039;aimerais être capable de supprimer les cheminements qui sont pour la même date avec le même temps, pour n&#039;en conserver qu&#039;un seul (peu importe, le MIN ou le MAX intcheminementid).</p><p>Voici un exemple de doublon qui rèflète bien ma situation :</p><p>intcasid; intervention.strnom; cheminementtype.strnom; datcheminement; inttemps; nombre d&#039;occurences<br />3194;&#160; &#160; &#160; &#160; &#160;&quot;Coaching&quot;;&#160; &#160; &#160; &#160; &#160; &quot;Séance&quot;;&#160; &#160; &#160; &#160; &#160; &quot;2011-10-27&quot;;&#160; &#160; &#160; &#160; &#160; 180;&#160; &#160; &#160; &#160; &#160; 23<br />3194;&#160; &#160; &#160; &#160; &#160;&quot;Coaching&quot;;&#160; &#160; &#160; &#160; &#160; &quot;Séance&quot;;&#160; &#160; &#160; &#160; &#160; &quot;2011-10-17&quot;;&#160; &#160; &#160; &#160; &#160; 150;&#160; &#160; &#160; &#160; &#160; 119<br />3194;&#160; &#160; &#160; &#160; &#160;&quot;Coaching&quot;;&#160; &#160; &#160; &#160; &#160; &quot;Séance&quot;;&#160; &#160; &#160; &#160; &#160; &quot;2011-10-25&quot;;&#160; &#160; &#160; &#160; &#160; 180;&#160; &#160; &#160; &#160; &#160; 55<br />3194;&#160; &#160; &#160; &#160; &#160; &quot;Coaching&quot;;&#160; &#160; &#160; &#160; &#160; &quot;Séance&quot;;&#160; &#160; &#160; &#160; &#160; &quot;2011-11-07&quot;;&#160; &#160; &#160; &#160; &#160; 75;&#160; &#160; &#160; &#160; &#160; &#160;7</p><p>La requête qui donne ce résultat : </p><div class="codebox"><pre><code>    SELECT cas.intcasid, intervention.strnom, cheminementtype.strnom, datcheminement, inttemps, COUNT(*)
+    FROM cas 
+
+    INNER JOIN intervention ON
+    cas.intcasid = intervention.intcasid 
+
+    INNER JOIN interventiontype ON
+    intervention.intactivitenomid = interventiontype.intinterventiontypeid
+
+    INNER JOIN cheminement ON
+    intervention.intinterventionid = cheminement.intinterventionid
+ 
+    INNER JOIN cheminementtype ON
+    cheminement.intcheminementtypeid = cheminementtype.intcheminementtypeid 
+
+    WHERE cas.intcasid = 3194
+    
+    GROUP BY cas.intcasid, interventiontype.strnom, cheminementtype.strnom, datcheminement, inttemps
+    HAVING count(*) &gt; 1;</code></pre></div><p>J&#039;aimerais donc vous lire par rapport à cela, à savoir s&#039;il existe une façon éprouvée dans PostgreSQL pour supprimer le tout proprement. La façon dont je pensais procéder est avec une table temporaire, mais ce n&#039;est pas la plus facile à concevoir et la plus efficace pour un grand ensemble de données.</p><p>Je vous remercie à l&#039;avance pour votre aide habituelle.</p><p>Bonne journée à tous</p><p>Charles</p>]]></content>
+		<author>
+			<name><![CDATA[charleydc5]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1194</uri>
+		</author>
+		<updated>2012-05-15T16:23:54Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13810#p13810</id>
+	</entry>
+</feed>

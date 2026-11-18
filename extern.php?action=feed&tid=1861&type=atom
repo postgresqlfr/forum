@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / prendre en compte un time zone spécifique]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1861&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1861"/>
+	<updated>2012-02-01T12:44:05Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1861</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  prendre en compte un time zone spécifique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12677#p12677"/>
+		<content type="html"><![CDATA[<p>Oui. Toutefois, si c&#039;est encore possible, passez le champ en timestamp avec time zone, ça permet de résoudre beaucoup de problèmes sur les dates, sans effort.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2012-02-01T12:44:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12677#p12677</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  prendre en compte un time zone spécifique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12674#p12674"/>
+		<content type="html"><![CDATA[<p>Bonjour</p><p>à priori la solution la plus intéressante est d&#039;utiliser la syntaxe que vous avez mentionné</p><p>select ((date at time zone &#039;UTC&#039;) at time zone &#039;TIMEZONE&#039;) </p><p>merci pour votre précieuse contribution</p><p>Jean-Marie</p>]]></content>
+		<author>
+			<name><![CDATA[Jean-Marie]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1154</uri>
+		</author>
+		<updated>2012-02-01T09:42:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12674#p12674</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  prendre en compte un time zone spécifique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12630#p12630"/>
+		<content type="html"><![CDATA[<p>Ok. le AT TIME ZONE n&#039;a pas le même sens sur une donnée sans timezone. Pour une donnée sans time zone, il retourne une donnée avec timezone, en considérant que la donnée sans timezone est dans la timezone indiquée (comme expliqué par dverite plus haut). Je redétaille un peu plus…</p><p>Par exemple:<br />SELECT &#039;2012-01-30 15:04:40.514083&#039;::timestamp without time zone at time zone &#039;CET&#039;;<br />&#160; &#160; &#160; &#160; &#160; &#160;timezone&#160; &#160; &#160; &#160; &#160; &#160; <br />-------------------------------<br /> 2012-01-30 15:04:40.514083+01</p><p>(Normal, c&#039;est la timezone dans laquelle je suis…)</p><br /><p>SELECT &#039;2012-01-30 15:04:40.514083&#039;::timestamp without time zone at time zone &#039;MST&#039;;<br />&#160; &#160; &#160; &#160; &#160; &#160;timezone&#160; &#160; &#160; &#160; &#160; &#160; <br />-------------------------------<br /> 2012-01-30 23:04:40.514083+01</p><p>(le timestamp est indiqué comme étant en Mountain, donc à l&#039;affichage, puisque PostgreSQL me l&#039;affiche dans mon timestamp local, ça devient 23:04 +1)</p><br /><p>Après, on peut appliquer la notation AT TIME ZONE sur le timestamp avec time zone qu&#039;on vient de récupérer:</p><br /><p>SELECT &#039;2012-01-30 15:04:40.514083&#039;::timestamp without time zone at time zone &#039;CET&#039; at time zone &#039;MST&#039;;<br />&#160; &#160; &#160; &#160; &#160; timezone&#160; &#160; &#160; &#160; &#160; <br />----------------------------<br /> 2012-01-30 07:04:40.514083<br />(1 ligne)</p><p>=&gt; 15:04 CET (temps standard en france, avec les passages heure d&#039;été/heure d&#039;hiver) correspond à 7:04 le même jour en MST. Il suffit ensuite de rajouter du formatage…</p><p>Le plus simple aurait été, évidemment, de stocker les données directement avec la timezone… Parce que là, on a une ambiguité au passage à l&#039;heure d&#039;hiver (de quel 1h30 du matin parle-t-on ?)</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2012-01-30T15:22:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12630#p12630</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  prendre en compte un time zone spécifique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12629#p12629"/>
+		<content type="html"><![CDATA[<p>le chanp date est un timestamp sans time zone :</p><p> Column&#160; |&#160; &#160; &#160; &#160; &#160; &#160; Type&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;| Modifiers <br />--------------------------------------------------------------<br /> date&#160; &#160; &#160; &#160;| timestamp without time zone | not null<br />...</p>]]></content>
+		<author>
+			<name><![CDATA[Jean-Marie]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1154</uri>
+		</author>
+		<updated>2012-01-30T14:13:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12629#p12629</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  prendre en compte un time zone spécifique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12605#p12605"/>
+		<content type="html"><![CDATA[<p>Pour commencer, le champ «date» est un timestamp avec ou sans timezone ? On peut voir la définition de la table ?</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2012-01-30T08:00:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12605#p12605</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  prendre en compte un time zone spécifique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12598#p12598"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>Jean-Marie a écrit&#160;:</cite><blockquote><div><p>dans le cas où je remplace CET par UTC+1, j&#039;obtiens pourtant le résultat attendu soit :</p><p>26/01/2012 14:39:15 | 13.485&#160; | 52.276</p></div></blockquote></div><p>C&#039;est à mon avis un problème d&#039;interprétation de ce que désigne réellement UTC+1.<br />Voir ce passage de la doc de postgresql:<br /><a href="http://www.postgresql.org/docs/9.1/static/datatype-datetime.html" rel="nofollow">http://www.postgresql.org/docs/9.1/stat … etime.html</a></p><div class="quotebox"><blockquote><div><p>Another issue to keep in mind is that in POSIX time zone names, positive offsets are used for locations west of Greenwich. Everywhere else, PostgreSQL follows the ISO-8601 convention that positive timezone offsets are east of Greenwich.</p></div></blockquote></div><p>Donc UTC+1 dans ce contexte bien précis ne désignerait pas l&#039;heure d&#039;hiver à Paris, mais un fuseau de l&#039;autre côté du méridien de Greenwich, pas du tout équivalent à CET.</p><div class="quotebox"><blockquote><div><p>vous avez dit qu&#039;il faut que le temps de départ ait un time zone</p><p>comment puis-je préciser cette information</p></div></blockquote></div><p>Si je comprends la situation de départ, la colonne date serait du type timestamp without time zone, et la timezone de la session postgres serait UTC. <br />Il faut voir que:<br />1) AT TIME ZONE &#039;zone&#039; appliqué à un timestamp without time zone produit un timestamp with time zone.<br />2) tout timestamp with time zone est présenté à l&#039;utilisateur en étant converti au vol dans le fuseau horaire de la session.</p><p>Donc, SELECT date AT TIME ZONE &#039;CET&#039; va certes convertir la valeur de date dans le fuseau CET mais le reconvertir aussitôt&#160; dans le fuseau UTC avant présentation à l&#039;utilisateur.</p><p>Si je ne trompe pas dans le raisonnement, le résultat recherché s&#039;obtiendrait plutôt par:<br />select ((date at time zone &#039;UTC&#039;) at time zone &#039;CET&#039;)<br />Peut-être aussi que &#039;Europe/Paris&#039; serait un meilleur choix que CET pour être valide toute l&#039;année.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2012-01-27T16:56:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12598#p12598</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  prendre en compte un time zone spécifique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12591#p12591"/>
+		<content type="html"><![CDATA[<p>merci pour ces indications</p><p>mais apparemment j&#039;ai le souci suivant :<br />quand j&#039;utilise le time zone CET ou &quot;Europe/Paris&quot; j&#039;obtiens 1 heure de - qu&#039;en UTC (au lieu d&#039;1 heure de plus)</p><p>ainsi </p><p>SELECT to_char(date at time zone &#039;CET&#039;,&#039;dd/mm/YYYY HH24:MI:SS&#039;), to_char(x(coord),&#039;FM990D999&#039;), to_char(y(coord),&#039;FM990D999&#039;) ...where date between &#039;2012-01-26 12:15:18&#039; and &#039;2012-01-26 14:15:18&#039;...</p><p>me donne</p><p>26/01/2012 12:39:15 | 13.485&#160; | 52.276</p><p>dans le cas où je remplace CET par UTC+1, j&#039;obtiens pourtant le résultat attendu soit :</p><p>26/01/2012 14:39:15 | 13.485&#160; | 52.276</p><p>je précise que mes dates de début et de fin &#039;2012-01-26 12:15:18&#039; et &#039;2012-01-26 14:15:18&#039; sont en UTC</p><p>peut-être le problème vient-il de là </p><p>vous avez dit qu&#039;il faut que le temps de départ ait un time zone</p><p>comment puis-je préciser cette information</p><p>merci d&#039;avance</p><p>Jean-Marie</p>]]></content>
+		<author>
+			<name><![CDATA[Jean-Marie]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1154</uri>
+		</author>
+		<updated>2012-01-26T17:08:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12591#p12591</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  prendre en compte un time zone spécifique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12590#p12590"/>
+		<content type="html"><![CDATA[<p>Au passage, il faut que le temps de départ ait une timezone pour que la conversion se passe bien…</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2012-01-26T16:14:39Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12590#p12590</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  prendre en compte un time zone spécifique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12589#p12589"/>
+		<content type="html"><![CDATA[<p>En fait, avant de faire le to_char, il faut passer la date dans la bonne timezone. Par exemple:</p><br /><p>marc=# SELECT now();&#160; &#160;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; now&#160; &#160; &#160; &#160; &#160; &#160; &#160; <br />-------------------------------<br /> 2012-01-26 17:10:46.698873+01<br />(1 row)</p><p>marc=# SELECT now() at time zone &#039;MST&#039;;<br />&#160; &#160; &#160; &#160; &#160; timezone&#160; &#160; &#160; &#160; &#160; <br />----------------------------<br /> 2012-01-26 09:10:47.871987<br />(1 row)</p><br /><p>On peut donc faire un to_char dessus:</p><br /><p>marc=# SELECT to_char(now() at time zone &#039;MST&#039;,&#039;dd/mm/YYYY HH24:MI:SS&#039;);<br />&#160; &#160; &#160; &#160;to_char&#160; &#160; &#160; &#160;<br />---------------------<br /> 26/01/2012 09:11:24</p><p>Pour la liste des timezones: </p><br /><p>SELECT * from pg_timezone_names ;</p><p>(MST c&#039;est le Mountain Standard Time…)</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2012-01-26T16:12:39Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12589#p12589</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[prendre en compte un time zone spécifique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12585#p12585"/>
+		<content type="html"><![CDATA[<p>Bonjour</p><p>je fais actuellement des requêtes sur des dates en UTC<br />je souhaiterais pouvoir spécifier un time zone différent au niveau du format de sortie</p><p>par exemple j&#039;ai une requête du genre :</p><p>select to_char(date,&#039;dd/mm/YYYY HH24:MI:SS&#039;), to_char(x(coord),&#039;FM990D999&#039;), to_char(y(coord),&#039;FM990D999&#039;) ...where date between &#039;2012-01-26 12:15:18&#039; and &#039;2012-01-26 14:15:18&#039;...</p><p>j&#039;obtiens :<br />26/01/2012 13:39:15 | 13.485&#160; | 52.276</p><p>le time zone est par défaut en UTC</p><p>je voudrais pouvoir afficher cette date dans un time zone différent de UTC (exemple CET) ce qui donnerait</p><p>26/01/2012 14:39:15 | 13.485&#160; | 52.276</p><p>quelle la manière la plus simple de m&#039;y prendre sachant que le time zone est fourni par une requête http<br />et varie suivant le pays d&#039;où provient cette requête </p><p>merci beaucoup</p><p>Jean-Marie</p>]]></content>
+		<author>
+			<name><![CDATA[Jean-Marie]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1154</uri>
+		</author>
+		<updated>2012-01-26T15:53:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12585#p12585</id>
+	</entry>
+</feed>

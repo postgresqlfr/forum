@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / configuration minimale pour une VM]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4493&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4493"/>
+	<updated>2017-12-28T12:51:24Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4493</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  configuration minimale pour une VM]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26603#p26603"/>
+		<content type="html"><![CDATA[<p>Merci Guillaume,<br />Je vais gonfler la config de la VM pour un bon fonctionnement des deux instances.</p><p>Cordialement</p>]]></content>
+		<author>
+			<name><![CDATA[cecile]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7413</uri>
+		</author>
+		<updated>2017-12-28T12:51:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26603#p26603</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  configuration minimale pour une VM]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26576#p26576"/>
+		<content type="html"><![CDATA[<p>Ce qu&#039;on appelle la partie active d&#039;une base est la partie fréquemment utilisée et qu&#039;il convient de garder en mémoire pour avoir des accès rapides. Sur certaines bases, on va avoir besoin de peu de données en RAM parce qu&#039;une bonne proportion de la base consiste en des données historiques peu fréquemment accédées. Sur d&#039;autres, on va faire fréquemment des calculs sur l&#039;intégralité des données, auquel cas il vaudra mieux avoir beaucoup de mémoire pour accéder rapidement à toutes les données. Donc la partie active, ce sont les informations fréquemment utilisées, en lecture comme en écriture. Savoir quel place elles prennent permet de configurer au mieux le cache disque de PostgreSQL et donc le paramètre shared_buffers.</p><p>Pour reprendre votre cas particulier, vous me dites une base de 700 Go et une base de 300 Go. C&#039;est déjà deux belles bases volumineuses et je doute qu&#039;une VM avec seulement 4 Go vont suffire pour répondre rapidement aux requêtes. Ça suffira pour avoir un SGBD stable, mais pas forcément pour avoir un SGBD performant. Sans compter que les 4 Go de mémoire sont pour le cache mais aussi pour l&#039;activité et on n&#039;a pas du tout parlé de l&#039;activité sur cette base (quel type de requêtes ? plutôt des requêtes simples de lecture unitaire via des clé primaires ou plutôt des requêtes avec de gros calculs statistiques ou géographiques ? des requêtes facilement indexables ou des requêtes qui vont ramener la totalité de certaines tables en mémoire ? etc).</p><p>Et pour l&#039;instant, on n&#039;a abordé que la question de la mémoire. Vous indiquez 2 vCPU, je suppose donc que le nombre de requêtes exécutées en même temps sera assez petit ? et du coup qu&#039;il y aura peu de connexions en même temps ?</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2017-12-23T10:21:33Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26576#p26576</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  configuration minimale pour une VM]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26575#p26575"/>
+		<content type="html"><![CDATA[<p>Merci.<br />Quelles informations dois-je fournir pour votre compréhension ?<br />Mais qu&#039;entendez-vous par&#160; La RAM fait 4 Go mais quel est la partie active des bases de chaque instance ?<br />En fait, les deux instances sont indépendantes avec aucune interaction. Sur une la base fait 700Go (données de prod) et sur l&#039;autre 300Go (données de développement).</p><p>Cordialement</p>]]></content>
+		<author>
+			<name><![CDATA[cecile]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7413</uri>
+		</author>
+		<updated>2017-12-23T07:36:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26575#p26575</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  configuration minimale pour une VM]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26574#p26574"/>
+		<content type="html"><![CDATA[<p>Il manque tellement d&#039;informations que c&#039;est impossible de vous répondre. Je ne sais pas ce que font vos instances, donc je ne peux pas dire si ça ira très bien ou si ça sera l&#039;enfer au niveau des performances. Tout ce que je peux dire, c&#039;est que PostgreSQL fonctionnera. Lentement ou rapidement, aucune idée, mais il fonctionnera.</p><p>Même chose pour le shared_buffers. La RAM fait 4 Go mais quel est la partie active des bases de chaque instance ? si vous n&#039;avez qu&#039;une base de 20 Mo, je dirais que mettre 1 Go de shared_buffers ne sert à rien, c&#039;est beaucoup trop. Si vos bases font 500 Go, ce serait le minimum de mettre 1 Go (mais je dirais aussi que mettre seulement 4 Go de RAM, c&#039;est trop peu).</p><p>Si on estime que vous avez les mêmes instances (par exemple, elles sont en réplication, l&#039;une est primaire, l&#039;autre secondaire), il faudrait qu&#039;elles aient chacune la moitié des 25%, soit 512 Mo chacune.</p><p>Mais encore une fois, il y a trop peu d&#039;informations pour donner une réponse cohérente.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2017-12-23T07:04:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26574#p26574</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  configuration minimale pour une VM]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26573#p26573"/>
+		<content type="html"><![CDATA[<p>Bonjour Guillaume,</p><p>Merci pour votre réponse.<br />Si je comprends bien le fonctionnement des instances sera difficile ?</p><p>Une petite question.<br />La RAM fait 4Go, donc la shared_buffers est de 1Go.<br />Faut il mettre 1Go pour chaque instance ou 512Mo pour chaque instance afin de respecter le ratio de 25% de la RAM ?</p><p>Merci d&#039;avance</p><p>Cecile</p>]]></content>
+		<author>
+			<name><![CDATA[cecile]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7413</uri>
+		</author>
+		<updated>2017-12-23T05:51:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26573#p26573</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  configuration minimale pour une VM]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26572#p26572"/>
+		<content type="html"><![CDATA[<p>Ce sera suffisant pour les démarrer. Au délà de ça, difficile à dire.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2017-12-22T14:02:33Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26572#p26572</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[configuration minimale pour une VM]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26570#p26570"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>j&#039;ai une VM avec<br />OS : RHEL5<br />CPU : 2<br />RAM : 4<br />Postgresql 9.3</p><p>Je souhaiterai créer deux instances sur cette VM. Chaque instance aura son FS. Est-ce cette configuration est suffisante ?<br />Pourriez-vous me suggérer une configuration minimale pour la VM ?</p><p>Merci d&#039;avance</p>]]></content>
+		<author>
+			<name><![CDATA[cecile]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7413</uri>
+		</author>
+		<updated>2017-12-22T13:31:55Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26570#p26570</id>
+	</entry>
+</feed>

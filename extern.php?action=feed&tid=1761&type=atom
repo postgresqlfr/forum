@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Incompréhention au niveau de certain plan d'execution]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1761&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1761"/>
+	<updated>2011-11-29T08:59:35Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1761</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Incompréhention au niveau de certain plan d'execution]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11936#p11936"/>
+		<content type="html"><![CDATA[<p>Tant qu&#039;ils sont en cache, ça restera vrai. Par contre, si les données ne sont plus en cache, il est probable que les autres plans seront plus performants.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-11-29T08:59:35Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11936#p11936</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Incompréhention au niveau de certain plan d'execution]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11935#p11935"/>
+		<content type="html"><![CDATA[<p>bonjour,</p><br /><p>non.</p><div class="codebox"><pre><code>&quot;enable_bitmapscan&quot;;&quot;on&quot;
+&quot;enable_hashagg&quot;;&quot;on&quot;
+&quot;enable_hashjoin&quot;;&quot;on&quot;
+&quot;enable_indexscan&quot;;&quot;on&quot;
+&quot;enable_material&quot;;&quot;on&quot;
+&quot;enable_mergejoin&quot;;&quot;on&quot;
+&quot;enable_nestloop&quot;;&quot;on&quot;
+&quot;enable_seqscan&quot;;&quot;on&quot;
+&quot;enable_sort&quot;;&quot;on&quot;
+&quot;enable_tidscan&quot;;&quot;on&quot;</code></pre></div><p>Ceci étant dit je préfère les plans avec les merge join sur index vu qu&#039;ils sont, dans ce cas, beaucoup plus rapide que des table scan.</p>]]></content>
+		<author>
+			<name><![CDATA[punkoff]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1454</uri>
+		</author>
+		<updated>2011-11-29T08:04:54Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11935#p11935</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Incompréhention au niveau de certain plan d'execution]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11933#p11933"/>
+		<content type="html"><![CDATA[<p>Avec ces paramètres là, j&#039;ai du mal à comprendre les plans… il devrait privilégier les parcours de table. À moins qu&#039;il y ait des enable_* qui aient été passés à off ?</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-11-28T17:25:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11933#p11933</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Incompréhention au niveau de certain plan d'execution]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11931#p11931"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><div class="quotebox"><blockquote><div><p>ALTER TABLE t_scalaire CLUSTER ON idx_scal_1;</p></div></blockquote></div><p>Hmm oui pardon j&#039;ai recopier le code de pgadmin bêtement pour la création de la table, j&#039;avais effectivement fait un &quot;cluster .... using ...&quot; à la base.</p><br /><br /><p>Concernant les paramètres, j&#039;ai ceux par défaut (les seuls que j&#039;ai changé sont indiqués dans le poste initial) :</p><div class="codebox"><pre><code># - Planner Cost Constants -
+
+#seq_page_cost = 1.0			# measured on an arbitrary scale
+#random_page_cost = 4.0			# same scale as above
+#cpu_tuple_cost = 0.01			# same scale as above
+#cpu_index_tuple_cost = 0.005		# same scale as above
+#cpu_operator_cost = 0.0025		# same scale as above
+effective_cache_size = 512MB</code></pre></div><p>Sinon, merci pour l&#039;explication elle est très claire.</p><p>Du coup mon 2eme exemple (poste n°2) doit être de cause identique</p>]]></content>
+		<author>
+			<name><![CDATA[punkoff]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1454</uri>
+		</author>
+		<updated>2011-11-28T16:19:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11931#p11931</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Incompréhention au niveau de certain plan d'execution]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11930#p11930"/>
+		<content type="html"><![CDATA[<p>Tiens, déjà (je suis en train de regarder de plus près): «ALTER TABLE t_scalaire CLUSTER ON idx_scal_1;» ne clusterise pas la table. Ça ne fait que déclarer l&#039;index comme clusterisant la table. Il faut encore faire un «cluster t_scalaire» pour que ça soit vraiment en cluster.</p><p>Ensuite, pour arriver aux mêmes plans que les vôtres, j&#039;ai du abaisser random_page_cost et seq_page_cost à des valeurs &lt; 1 (ce qui n&#039;est valable que si les tables sont dans le cache). Comment avez-vous fait de votre côté?</p><p>Pour ce qui est de votre exemple, on est dans un cas un peu «tordu»…</p><p>On a un «merge join», qui va récupérer les clés des deux jeux de données en même temps (ce sont des scans d&#039;index, ils fournissent donc les enregistrements en continu, pas d&#039;un coup à la fin comme des sort ou hash): «a where a.id&lt; 50000» d&#039;un côté, «select id, string_agg(cast(col_a as varchar), &#039;;&#039;) from t_scalaire group by id» de l&#039;autre. C&#039;est un algo de fusion tri. Ce qui fait que si une clé récupérée dans le premier jeu n&#039;a pas d&#039;équivalent dans le jeu b, ce n&#039;est même pas la peine d&#039;aller calculer son string_agg (on saute ce morceau du plan). Ce qui explique le nombre plus faible d&#039;enregistrements récupérés dans l&#039;index scan (en espérant être clair, c&#039;est un peu dur à expliquer sans faire de dessin, je trouve <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /> ).</p><p>On obtient d&#039;ailleurs un résultat du même genre avec </p><div class="codebox"><pre><code>select a.id, a.nom, string_agg(cast(col_a as varchar), &#039;;&#039;)
+from t_scalaire_mere a
+inner join t_scalaire  b on a.id = b.id
+where a.id &lt; 50000
+group by a.id, a.nom;</code></pre></div><p>à partir du moment où on met des random_page_cost et seq_page_cost assez bas, et qu&#039;on repart sur un merge join avec scans d&#039;index.</p><p>Mais il n&#039;a pas déduit de b.id&lt;50000 et a.id=b.id que a.id&lt;50000. Il a éliminé les enregistrements de b et évité des calculs inutiles d&#039;aggrégat simplement parce qu&#039;il n&#039;a pas trouvé les enregistrements dans a, et que ce n&#039;était donc pas la peine d&#039;aller plus loin dans b.</p><p>La solution la plus simple reste à mon avis d&#039;écrire explicitement a.id&lt;50000 et b.id&lt;50000 (je n&#039;ai pas testé). C&#039;est un peu agaçant, mais c&#039;est un choix volontaire dans PostgreSQL (pour ne pas alourdir la planification avec ça, il se contente de la transitivité des égalités).</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-11-28T16:05:09Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11930#p11930</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Incompréhention au niveau de certain plan d'execution]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11926#p11926"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Dans ce cas pourquoi dans la requête 3 du 1er poste, la sous-requête ne fait qu&#039;une sélection de 300 007 ligne pour le group agrégate ?</p><div class="codebox"><pre><code>&quot;  -&gt;  GroupAggregate  (cost=0.00..259378.97 rows=890087 width=8) (actual time=0.025..270.598 rows=50001 loops=1)&quot;
+&quot;        Output: t_scalaire.id, string_agg(((t_scalaire.col_a)::character varying)::text, &#039;;&#039;::text)&quot;
+&quot;        -&gt;  Index Scan using idx_scal_1 on public.t_scalaire  (cost=0.00..188252.89 rows=5999999 width=8) (actual time=0.011..102.634 rows=300007 loops=1)&quot;
+&quot;              Output: t_scalaire.id, t_scalaire.col_a, t_scalaire.col_b&quot;</code></pre></div><p>Cette table dispose de 6m de ligne à raison de 6 occurance par id.</p><p>S&#039;il ne gérai pas la transitivité sur ce genre de condition il aurai dû traiter d&#039;une façon global la table t_scalaire afin de pouvoir réaliser ensuite son merge (comme dans les exemple 1 &amp; 2 en fait, on vois bien l&#039;index scan sur 1m de ligne de la table t_scalaire_mere pour la 1ere requete, et le seq scan de 6m de ligne sur la table t_scalaire pour la 2eme)</p><p>Là on voit bien qu&#039;il ne sélectionne que 300 000 occurences, ce qui correspond parfaitement à la condition a.id &lt; 50 000 (a.id étant l&#039;id de la table t_scalaire_mere sur lequel on fait la jointure).</p><p>Ou alors j&#039;interprète mal le plan ?</p>]]></content>
+		<author>
+			<name><![CDATA[punkoff]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1454</uri>
+		</author>
+		<updated>2011-11-28T12:35:09Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11926#p11926</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Incompréhention au niveau de certain plan d'execution]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11918#p11918"/>
+		<content type="html"><![CDATA[<p>Il y a une différence de plan parce que PostgreSQL ne déduit pas de a.id=b.id et b.id&lt;50000 que a.id&lt;50000 aussi. Il ne s&#039;occupe de la transitivité de ce genre de conditions que pour les égalités.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-11-25T12:56:03Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11918#p11918</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Incompréhention au niveau de certain plan d'execution]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11917#p11917"/>
+		<content type="html"><![CDATA[<p>Un autre exemple que j&#039;avais remonté à un de vos membre :</p><p>Tables :</p><div class="codebox"><pre><code>CREATE TABLE t1
+(
+  t_id integer NOT NULL,
+  t_nom character varying(32),
+  CONSTRAINT t1_pkey PRIMARY KEY (t_id )
+);
+ 
+CREATE TABLE t2
+(
+  t_id integer,
+  CONSTRAINT t2_t_id_fkey FOREIGN KEY (t_id)
+      REFERENCES t1 (t_id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION
+);
+ 
+CREATE TABLE t3
+(
+  t_id integer,
+  CONSTRAINT t3_t_id_fkey FOREIGN KEY (t_id)
+      REFERENCES t1 (t_id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION
+);</code></pre></div><p>insert :</p><div class="codebox"><pre><code>INSERT INTO t1 
+(SELECT cnt, &#039;code&#039; || cnt
+FROM (SELECT generate_series AS cnt
+FROM generate_series(1, 1000)) AS a);
+ 
+INSERT INTO t2
+(SELECT mod(generate_series, 1000) + 1 
+FROM generate_series(1, 2000000));
+ 
+INSERT INTO t3
+(SELECT mod(generate_series, 1000) + 1 
+FROM generate_series(1, 3000000));</code></pre></div><p>index + stat :</p><div class="codebox"><pre><code>CREATE INDEX idx_2 ON t2(t_id);
+CREATE INDEX idx_3 ON t3(t_id);
+analyze t1;
+analyze t2;
+analyze t3;</code></pre></div><p>alors la requête qui marche bien :</p><div class="codebox"><pre><code>SELECT t1.*, cnt2, cnt3
+FROM t1
+LEFT OUTER JOIN (SELECT t2.t_id, count(*) AS cnt2 FROM t2 GROUP BY t_id) AS b ON b.t_id = T1.t_id
+LEFT OUTER JOIN (SELECT t3.t_id, count(*) AS cnt3 FROM t3 GROUP BY t_id) AS c ON c.t_id = T1.t_id
+WHERE t1.t_id =5</code></pre></div><p>l&#039;explain :</p><div class="codebox"><pre><code>&quot;Nested Loop Left Join  (cost=94.30..11772.18 rows=1 width=27) (actual time=58.995..59.001 rows=1 loops=1)&quot;
+&quot;  Join Filter: (t3.t_id = t1.t_id)&quot;
+&quot;  -&gt;  Nested Loop Left Join  (cost=39.36..4712.64 rows=1 width=19) (actual time=29.058..29.062 rows=1 loops=1)&quot;
+&quot;        Join Filter: (t2.t_id = t1.t_id)&quot;
+&quot;        -&gt;  Index Scan using t1_pkey on t1  (cost=0.00..8.27 rows=1 width=11) (actual time=0.020..0.024 rows=1 loops=1)&quot;
+&quot;              Index Cond: (t_id = 5)&quot;
+&quot;        -&gt;  GroupAggregate  (cost=39.36..4704.35 rows=1 width=4) (actual time=29.023..29.023 rows=1 loops=1)&quot;
+&quot;              -&gt;  Bitmap Heap Scan on t2  (cost=39.36..4694.74 rows=1921 width=4) (actual time=1.136..27.686 rows=2000 loops=1)&quot;
+&quot;                    Recheck Cond: (t_id = 5)&quot;
+&quot;                    -&gt;  Bitmap Index Scan on idx_t2  (cost=0.00..38.88 rows=1921 width=0) (actual time=0.673..0.673 rows=2000 loops=1)&quot;
+&quot;                          Index Cond: (t_id = 5)&quot;
+&quot;  -&gt;  GroupAggregate  (cost=54.94..7059.51 rows=1 width=4) (actual time=29.919..29.919 rows=1 loops=1)&quot;
+&quot;        -&gt;  Bitmap Heap Scan on t3  (cost=54.94..7045.08 rows=2885 width=4) (actual time=1.067..28.713 rows=3000 loops=1)&quot;
+&quot;              Recheck Cond: (t_id = 5)&quot;
+&quot;              -&gt;  Bitmap Index Scan on idx_t3  (cost=0.00..54.22 rows=2885 width=0) (actual time=0.643..0.643 rows=3000 loops=1)&quot;
+&quot;                    Index Cond: (t_id = 5)&quot;
+&quot;Total runtime: 59.183 ms&quot;</code></pre></div><p>et là où le plan devrait être identique mais ne l&#039;est pas ...</p><div class="codebox"><pre><code>SELECT t1.*, cnt2, cnt3
+FROM t1
+LEFT OUTER JOIN (SELECT t2.t_id, count(*) AS cnt2 FROM t2 GROUP BY t_id) AS b ON b.t_id = T1.t_id
+LEFT OUTER JOIN (SELECT t3.t_id, count(*) AS cnt3 FROM t3 GROUP BY t_id) AS c ON c.t_id = T1.t_id
+WHERE t1.t_id BETWEEN 5 AND 10;</code></pre></div><p>explain :</p><div class="codebox"><pre><code>&quot;Hash Right Join  (cost=97208.35..97232.16 rows=6 width=27) (actual time=1789.122..1789.384 rows=6 loops=1)&quot;
+&quot;  Hash Cond: (t3.t_id = t1.t_id)&quot;
+&quot;  -&gt;  HashAggregate  (cost=58275.00..58285.00 rows=1000 width=4) (actual time=1027.616..1027.823 rows=1000 loops=1)&quot;
+&quot;        -&gt;  Seq Scan on t3  (cost=0.00..43275.00 rows=3000000 width=4) (actual time=0.007..355.825 rows=3000000 loops=1)&quot;
+&quot;  -&gt;  Hash  (cost=38933.27..38933.27 rows=6 width=19) (actual time=761.424..761.424 rows=6 loops=1)&quot;
+&quot;        Buckets: 1024  Batches: 1  Memory Usage: 1kB&quot;
+&quot;        -&gt;  Merge Left Join  (cost=38919.83..38933.27 rows=6 width=19) (actual time=761.398..761.409 rows=6 loops=1)&quot;
+&quot;              Merge Cond: (t1.t_id = b.t_id)&quot;
+&quot;              -&gt;  Index Scan using t1_pkey on t1  (cost=0.00..8.37 rows=6 width=11) (actual time=0.022..0.028 rows=6 loops=1)&quot;
+&quot;                    Index Cond: ((t_id &gt;= 5) AND (t_id &lt;= 10))&quot;
+&quot;              -&gt;  Sort  (cost=38919.83..38922.33 rows=1000 width=12) (actual time=761.366..761.366 rows=11 loops=1)&quot;
+&quot;                    Sort Key: b.t_id&quot;
+&quot;                    Sort Method: quicksort  Memory: 71kB&quot;
+&quot;                    -&gt;  Subquery Scan on b  (cost=38850.00..38870.00 rows=1000 width=12) (actual time=760.667..760.949 rows=1000 loops=1)&quot;
+&quot;                          -&gt;  HashAggregate  (cost=38850.00..38860.00 rows=1000 width=4) (actual time=760.665..760.841 rows=1000 loops=1)&quot;
+&quot;                                -&gt;  Seq Scan on t2  (cost=0.00..28850.00 rows=2000000 width=4) (actual time=0.073..251.489 rows=2000000 loops=1)&quot;
+&quot;Total runtime: 1789.700 ms&quot;</code></pre></div><p>Pour moi l&#039;optimiseur n&#039;arrive pas à gérer les stats dans ce cas là.</p><p>Le simple fait d&#039;utiliser un BETWEEN ou IN lui force le scanange de table alors qu&#039;il devrait, avec les stats, choisir entre un seq scan ou attaquer avec les indexs.</p>]]></content>
+		<author>
+			<name><![CDATA[punkoff]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1454</uri>
+		</author>
+		<updated>2011-11-25T12:35:55Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11917#p11917</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Incompréhention au niveau de certain plan d'execution]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11916#p11916"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><p>Plus je test pgsql et plus je rencontre des cas un peu farfelu qui concerne des requêtes pourtant assez simple.</p><p>Je me demandais donc si je n&#039;avais pas un problème de conf, ou autre, qui permetrai à l&#039;optimiseur de ne pas dérailler.</p><br /><p>pgsql 9.1<br />windows 32-bits, sur poste de travaille.<br />&quot;effective_cache_size&quot;;&quot;512MB&quot;<br />&quot;maintenance_work_mem&quot;;&quot;16MB&quot;<br />&quot;shared_buffers&quot;;&quot;512MB&quot;<br />&quot;work_mem&quot;;&quot;1MB&quot;</p><br /><p>Dernier exemple en date :</p><p>création des tables :</p><div class="codebox"><pre><code>CREATE TABLE t_scalaire_mere
+(
+  id integer NOT NULL,
+  nom character varying(32),
+  CONSTRAINT t_scalaire_mere_pkey PRIMARY KEY (id )
+)
+WITH (
+  OIDS=FALSE
+);
+
+
+CREATE TABLE t_scalaire
+(
+  id integer NOT NULL,
+  col_a integer,
+  col_b integer
+)
+WITH (
+  OIDS=FALSE
+);
+
+
+CREATE INDEX idx_scal_1
+  ON t_scalaire
+  USING btree
+  (id );</code></pre></div><p>Donnée :</p><div class="codebox"><pre><code>with tmp (cnt) as (
+select * from generate_series(0, 1000000))
+insert into t_scalaire_mere (select cnt, cnt from tmp);
+
+
+with tmp (cnt) as (
+select * from generate_series(0, 5))
+insert into t_scalaire (select id, id, id from t_scalaire_mere, tmp);</code></pre></div><p>clusterisation de la table fille :</p><div class="codebox"><pre><code>ALTER TABLE t_scalaire CLUSTER ON idx_scal_1;</code></pre></div><p>Analyze des tables :</p><div class="codebox"><pre><code>analyze t_scalaire;
+analyze t_scalaire_mere;</code></pre></div><p>bon maintenant ce qui nous interesse, une aggrégation sur la table fille afin de pouvori rapatrier en ligne les données de la col_a ou col_b (émulation d&#039;une table de téléphone).</p><br /><p>J&#039;ai de grosse disparité avec les plans dès que l&#039;on travaille avec un peu de donnée :</p><p>1ere requete :</p><div class="codebox"><pre><code>select a.id, a.nom, string_agg(cast(col_a as varchar), &#039;;&#039;)
+from t_scalaire_mere a
+inner join t_scalaire  b on a.id = b.id
+where b.id &lt; 50000
+group by a.id, a.nom;</code></pre></div><p>explain :</p><div class="codebox"><pre><code>&quot;GroupAggregate  (cost=82455.70..91084.08 rows=313759 width=14) (actual time=792.290..1052.650 rows=50000 loops=1)&quot;
+&quot;  Output: a.id, a.nom, string_agg(((b.col_a)::character varying)::text, &#039;;&#039;::text)&quot;
+&quot;  -&gt;  Sort  (cost=82455.70..83240.10 rows=313759 width=14) (actual time=792.271..874.166 rows=300000 loops=1)&quot;
+&quot;        Output: a.id, a.nom, b.col_a&quot;
+&quot;        Sort Key: a.id, a.nom&quot;
+&quot;        Sort Method: external sort  Disk: 7600kB&quot;
+&quot;        -&gt;  Merge Join  (cost=2.00..48445.11 rows=313759 width=14) (actual time=0.023..308.454 rows=300000 loops=1)&quot;
+&quot;              Output: a.id, a.nom, b.col_a&quot;
+&quot;              Merge Cond: (a.id = b.id)&quot;
+&quot;              -&gt;  Index Scan using t_scalaire_mere_pkey on public.t_scalaire_mere a  (cost=0.00..31388.37 rows=1000001 width=10) (actual time=0.008..17.888 rows=50001 loops=1)&quot;
+&quot;                    Output: a.id, a.nom&quot;
+&quot;              -&gt;  Index Scan using idx_scal_1 on public.t_scalaire b  (cost=0.00..10635.69 rows=313759 width=8) (actual time=0.012..120.384 rows=300000 loops=1)&quot;
+&quot;                    Output: b.id, b.col_a, b.col_b&quot;
+&quot;                    Index Cond: (b.id &lt; 50000)&quot;
+&quot;Total runtime: 1064.040 ms&quot;</code></pre></div><p>La &quot;presque même requête&quot; (la colonne de restriction du where change) :</p><div class="codebox"><pre><code>select a.id, a.nom, string_agg(cast(col_a as varchar), &#039;;&#039;)
+from t_scalaire_mere a
+inner join t_scalaire  b on a.id = b.id
+where a.id &lt; 50000
+group by a.id, a.nom;</code></pre></div><p>explain :</p><div class="codebox"><pre><code>&quot;GroupAggregate  (cost=237402.77..242510.04 rows=49827 width=14) (actual time=4558.865..4849.538 rows=50000 loops=1)&quot;
+&quot;  Output: a.id, a.nom, string_agg(((b.col_a)::character varying)::text, &#039;;&#039;::text)&quot;
+&quot;  -&gt;  Sort  (cost=237402.77..238150.17 rows=298962 width=14) (actual time=4558.821..4667.590 rows=300000 loops=1)&quot;
+&quot;        Output: a.id, a.nom, b.col_a&quot;
+&quot;        Sort Key: a.id, a.nom&quot;
+&quot;        Sort Method: external merge  Disk: 7592kB&quot;
+&quot;        -&gt;  Hash Join  (cost=2560.17..205102.77 rows=298962 width=14) (actual time=36.205..4088.923 rows=300000 loops=1)&quot;
+&quot;              Output: a.id, a.nom, b.col_a&quot;
+&quot;              Hash Cond: (b.id = a.id)&quot;
+&quot;              -&gt;  Seq Scan on public.t_scalaire b  (cost=0.00..92432.99 rows=5999999 width=8) (actual time=0.009..1672.420 rows=6000006 loops=1)&quot;
+&quot;                    Output: b.col_a, b.id&quot;
+&quot;              -&gt;  Hash  (cost=1693.33..1693.33 rows=49827 width=10) (actual time=36.159..36.159 rows=50000 loops=1)&quot;
+&quot;                    Output: a.id, a.nom&quot;
+&quot;                    Buckets: 4096  Batches: 2  Memory Usage: 828kB&quot;
+&quot;                    -&gt;  Index Scan using t_scalaire_mere_pkey on public.t_scalaire_mere a  (cost=0.00..1693.33 rows=49827 width=10) (actual time=0.013..19.607 rows=50000 loops=1)&quot;
+&quot;                          Output: a.id, a.nom&quot;
+&quot;                          Index Cond: (a.id &lt; 50000)&quot;
+&quot;Total runtime: 4861.120 ms&quot;</code></pre></div><p>Pouf on passe en scannage de table + hash join !</p><p>Et la je dois dire que je ne comprend pas pourquoi il y a une telle différence.</p><br /><p>Bon ceci dit, pour ce cas j&#039;ai trouvé la parade, vu que le plan est meilleur ...</p><div class="codebox"><pre><code>select a.id, a.nom, b.string_agg 
+from t_scalaire_mere a
+inner join (select id, string_agg(cast(col_a as varchar), &#039;;&#039;) from t_scalaire group by id) b on a.id = b.id
+where a.id &lt; 50000</code></pre></div><p>explain :</p><div class="codebox"><pre><code>&quot;Merge Join  (cost=0.00..272766.46 rows=44350 width=42) (actual time=0.041..335.088 rows=50000 loops=1)&quot;
+&quot;  Output: a.id, a.nom, (string_agg(((t_scalaire.col_a)::character varying)::text, &#039;;&#039;::text))&quot;
+&quot;  Merge Cond: (t_scalaire.id = a.id)&quot;
+&quot;  -&gt;  GroupAggregate  (cost=0.00..259378.97 rows=890087 width=8) (actual time=0.025..270.598 rows=50001 loops=1)&quot;
+&quot;        Output: t_scalaire.id, string_agg(((t_scalaire.col_a)::character varying)::text, &#039;;&#039;::text)&quot;
+&quot;        -&gt;  Index Scan using idx_scal_1 on public.t_scalaire  (cost=0.00..188252.89 rows=5999999 width=8) (actual time=0.011..102.634 rows=300007 loops=1)&quot;
+&quot;              Output: t_scalaire.id, t_scalaire.col_a, t_scalaire.col_b&quot;
+&quot;  -&gt;  Index Scan using t_scalaire_mere_pkey on public.t_scalaire_mere a  (cost=0.00..1693.33 rows=49827 width=10) (actual time=0.013..19.027 rows=50000 loops=1)&quot;
+&quot;        Output: a.id, a.nom&quot;
+&quot;        Index Cond: (a.id &lt; 50000)&quot;
+&quot;Total runtime: 343.798 ms&quot;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[punkoff]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1454</uri>
+		</author>
+		<updated>2011-11-25T12:30:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11916#p11916</id>
+	</entry>
+</feed>

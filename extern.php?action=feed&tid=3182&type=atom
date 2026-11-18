@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Comprendre une fonction]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3182&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3182"/>
+	<updated>2014-06-05T21:36:17Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3182</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Comprendre une fonction]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20144#p20144"/>
+		<content type="html"><![CDATA[<p>Ça ne fait que confirmer ce que j&#039;ai dit plus haut, à savoir que la fonction semble rechercher le projet parent le plus éloigné d&#039;un projet donné. Cela étant dit, il vaudrait mieux poser la question à celui qui a écrit cette fonction et qui connaît le contexte de cette application.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-06-05T21:36:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20144#p20144</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Comprendre une fonction]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20143#p20143"/>
+		<content type="html"><![CDATA[<p>Enfaite la fonction est reliée à l&#039;extrait du script de création d&#039;une base de données suivant :</p><p>CREATE TABLE PROJECT<br />&#160; &#160; &#160; (<br />&#160; &#160; &#160; PROJECTID serial NOT NULL ,<br />&#160; &#160; &#160; PROJECTNAME varchar(128) NOT NULL ,<br />&#160; &#160; &#160; PROJECTENDDATE date NULL ,<br />&#160; &#160; &#160; PROJECTPARENTID int4 NULL<br />,&#160; &#160; &#160;CONSTRAINT PK_PROJECT PRIMARY KEY (PROJECTID)<br />&#160; &#160; &#160;);<br />ALTER TABLE PROJECT ADD<br />&#160; &#160; &#160; &#160; CONSTRAINT FK_PROJECT_PROJECT<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160;FOREIGN KEY (PROJECTPARENTID)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;REFERENCES PROJECT (PROJECTID);</p><p>Peut-être est-ce plus claire ainsi ?</p>]]></content>
+		<author>
+			<name><![CDATA[Jolie]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3661</uri>
+		</author>
+		<updated>2014-06-05T18:54:00Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20143#p20143</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Comprendre une fonction]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20141#p20141"/>
+		<content type="html"><![CDATA[<p>Difficile à dire sans connaître le contexte. À priori la fonction semble renvoyer l&#039;identifiant de projet père (principal ?) pour un projet donné.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-06-05T14:43:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20141#p20141</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Comprendre une fonction]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20118#p20118"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Voilà je suis débutante et j&#039;essaie de comprendre la fonction suivante :</p><p>create or replace function mystere(integer) returns integer as<br />$$<br />declare<br />&#160; &#160;prj integer;<br />&#160; &#160;prjp integer;<br />begin<br />&#160; select projectid,projectparentid into prj,prjp from project where projectid=$1;<br />&#160; if prj is null then return NULL;<br />&#160; end if;<br />&#160; if prjp is null then return prj;<br />&#160; end if;<br />&#160; return find_main_project(prjp);<br />end ;<br />$$<br />language &#039;plpgsql&#039; ;</p><p>Je veux comprendre précisément le but de cette fonction, et le rôle des lignes de code qui la compose. Afin de lui donner un meilleur nom que &quot;mystère&quot;. </p><p>Merci d&#039;avance</p>]]></content>
+		<author>
+			<name><![CDATA[Jolie]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3661</uri>
+		</author>
+		<updated>2014-06-04T17:47:38Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20118#p20118</id>
+	</entry>
+</feed>

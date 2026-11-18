@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / mise à jour buffer table1 depuis geometrie table 2]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1645&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1645"/>
+	<updated>2011-09-26T08:53:00Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1645</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  mise à jour buffer table1 depuis geometrie table 2]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11047#p11047"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous,</p><p>Finalement j&#039;ai opté pour la solution : je met les buffer dans la même table, et le code donne ceci :</p><div class="codebox"><pre class="vscroll"><code>CREATE OR REPLACE FUNCTION update_buffer()
+  RETURNS trigger AS $BODY$
+  
+BEGIN
+          IF NEW.contrainte1 IS NOT NULL
+
+          THEN
+		  
+            NEW.buffer1=buffer(NEW.wkb_geometry,NEW.contrainte1);
+			
+          END IF;
+		  
+		  IF NEW.contrainte2 IS NOT NULL
+
+          THEN
+		  
+            NEW.buffer2=buffer(NEW.wkb_geometry,NEW.contrainte2);
+			
+          END IF;
+
+          RETURN NEW;
+END;
+
+$BODY$
+  LANGUAGE &#039;plpgsql&#039; VOLATILE;
+ALTER FUNCTION update_buffer() OWNER TO postgres;
+
+CREATE TRIGGER update_buffer
+  BEFORE INSERT OR UPDATE
+  ON table
+  FOR EACH ROW
+  EXECUTE PROCEDURE update_buffer();</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[Geo-x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1346</uri>
+		</author>
+		<updated>2011-09-26T08:53:00Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11047#p11047</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  mise à jour buffer table1 depuis geometrie table 2]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11002#p11002"/>
+		<content type="html"><![CDATA[<p>Pour le 2 : pourquoi table1,table2 ? Ça fait un produit cartésien entre les deux tables. Je présume que c&#039;est juste table1 que vous voulez.<br />3: Je ne vois pas le problème: on peut avoir autant de géométries qu&#039;on veut dans une table:<br />CREATE TABLE test (data int);<br />SELECT AddGeometryColumn(&#039;public&#039;, &#039;test&#039;, &#039;geom_1&#039;, 3819, &#039;LINESTRING&#039;, 2);<br />SELECT AddGeometryColumn(&#039;public&#039;, &#039;test&#039;, &#039;geom_2&#039;, 3906 , &#039;MULTIPOINT&#039;, 2);<br />4: de toutes façons, si c&#039;est sur la même base, oubliez dblink, ça n&#039;a aucun intérêt dans votre cas, à part compliquer le code et réduire les performances.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-09-23T07:52:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11002#p11002</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  mise à jour buffer table1 depuis geometrie table 2]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10999#p10999"/>
+		<content type="html"><![CDATA[<p>Bonjour tout le monde,</p><p>1- Gleu j&#039;ai testé votre fonction et j&#039;ai eu comme retour le même message d&#039;erreur que la dernière fois : Record &#039;new&#039; has no field &#039;buffer1&#039;</p><p>2- Je pensais que le dblink servait à interroger d&#039;autres tables (y compris dans la même BDD) donc dans ce cas préçis, ou les deux tables sont dans la même BDD il suffit que je fasse quelque chose du style :</p><div class="codebox"><pre><code>SELECT INTO buff contrainte,wkb_geometry,buffer1
+	FROM table1,table2;</code></pre></div><p>3-Par rapport aux géométries, quand je dis que je ne peux pas en avoir plusieurs dans la même table je dis ça puisqu&#039;il s&#039;agit de type de géométries différentes à savoir LINESTRING pour le réseau et POLYGON pour le buffer. Par conséquent ma table2 (réseau) est déclaré dans le geometry_columns en LINESTRING et la table 1 en POLYGON.</p><p>4-Marc, j&#039;ai essayé de faire cette fonction sur une même talbe et ça fonctionne oui, c&#039;est juste la liaison entre deux tables différentes que je n&#039;arrive pas à faire...</p>]]></content>
+		<author>
+			<name><![CDATA[Geo-x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1346</uri>
+		</author>
+		<updated>2011-09-23T06:25:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10999#p10999</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  mise à jour buffer table1 depuis geometrie table 2]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10994#p10994"/>
+		<content type="html"><![CDATA[<p>Avez-vous essayé de créer une fonction &#039;normale&#039; (pas trigger) pour voir si vous arrivez à récupérer la géométrie avec ce code ?</p><p>Sinon, oui, vous pouvez avoir autant de colonnes geometry que vous voulez dans une table. C&#039;est d&#039;ailleurs quelquefois fait quand par exemple on veut stocker la même information dans plusieurs projections différentes, pour éviter de recalculer les projections à tout bout de champ.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-09-22T15:21:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10994#p10994</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  mise à jour buffer table1 depuis geometrie table 2]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10993#p10993"/>
+		<content type="html"><![CDATA[<p>Ohn et pour répondre à la dernière question, je ne vois pas pourquoi on ne pourrait pas avoir plusieurs géométries dans la même table.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-09-22T15:19:00Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10993#p10993</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  mise à jour buffer table1 depuis geometrie table 2]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10992#p10992"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Mais toujours pas de sucés...c&#039;est désespérant</p></div></blockquote></div><p>Avez-vous essayé mon code ? Et si oui, quel en est le résultat ?</p><div class="quotebox"><blockquote><div><p>En fait le dblink est un peu obligatoire, puisque la géométrie d&#039;un buffer et celle d&#039;un réseau sont différentes. Du coup j&#039;ai une table contenant le réseau et l&#039;autre contenant le buffer associé au réseau.</p></div></blockquote></div><p>dblink n&#039;a un intérêt que lorsqu&#039;il s&#039;agit d&#039;exécuter une requête sur un autre serveur PostgreSQL. Et je n&#039;ai pas l&#039;impression que ce soit le cas là.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-09-22T15:18:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10992#p10992</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  mise à jour buffer table1 depuis geometrie table 2]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10991#p10991"/>
+		<content type="html"><![CDATA[<p>Bonjour gleu,</p><p>J&#039;ai testé un truc comme ça :</p><div class="codebox"><pre class="vscroll"><code>CREATE OR REPLACE FUNCTION update_buffer1()
+  RETURNS trigger AS $BODY$
+
+  DECLARE
+  buff RECORD;
+  
+BEGIN
+	
+	SELECT INTO buff contrainte,wkb_geometry 
+	FROM table2;
+	
+	SELECT foo.geom_buffer1
+	FROM dblink(&#039;hostaddr=xxx.x.x.x port=xxxx dbname=name user=xxxxx password=xxxx&#039;, 
+	&#039;SELECT geom_buffer1 FROM table1&#039;) AS foo(geom_buffer1 geometry);
+	
+	NEW.geom_buffer1=buffer(buff.wkb_geometry,buff.contrainte);
+
+	RETURN NEW;
+
+END;
+
+$BODY$
+  LANGUAGE &#039;plpgsql&#039; VOLATILE;
+ALTER FUNCTION update_buffer1() OWNER TO postgres;
+
+CREATE TRIGGER update_buffer1
+  BEFORE INSERT OR UPDATE
+  ON table2
+  FOR EACH ROW
+  EXECUTE PROCEDURE update_buffer1();</code></pre></div><p>Mais toujours pas de sucés...c&#039;est désespérant</p><p>En fait le dblink est un peu obligatoire, puisque la géométrie d&#039;un buffer et celle d&#039;un réseau sont différentes. Du coup j&#039;ai une table contenant le réseau et l&#039;autre contenant le buffer associé au réseau. </p><p>A moins qu&#039;on puisse mettre des géométries différentes dans une même table?!</p>]]></content>
+		<author>
+			<name><![CDATA[Geo-x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1346</uri>
+		</author>
+		<updated>2011-09-22T15:05:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10991#p10991</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  mise à jour buffer table1 depuis geometrie table 2]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10947#p10947"/>
+		<content type="html"><![CDATA[<p>Concernant l&#039;erreur sur le record, oui, c&#039;est vrai, le record new n&#039;a aucun champ buffer1. Si j&#039;essaie d&#039;avoir qqc à partir des deux fonctions, ça me donnerait qqc comme ça :</p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION update_buffer1()
+  RETURNS trigger AS $BODY$
+DECLARE
+  buff RECORD;
+BEGIN
+    SELECT INTO buff foo.contrainte,foo.wkb_geometry
+    FROM table1 ,dblink(&#039;hostaddr=xxx.x.x.x port=xxxx dbname=name user=xxxxx password=xxxx&#039;, 
+    &#039;SELECT wkb_geometry,contrainte_emprise1 FROM table2&#039;)
+    AS foo(wkb_geometry geometry,contrainte double precision);
+    
+    NEW.geom_buffer1=buffer(buff.wkb_geometry,buff.contrainte);
+
+    RETURN NEW;
+END;
+
+$BODY$
+  LANGUAGE &#039;plpgsql&#039; VOLATILE;
+ALTER FUNCTION update_buffer1() OWNER TO postgres;</code></pre></div><p>Quant à dblink, aucune idée, étant donné que je ne sais pas du tout ce que vous cherchez à faire.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-09-21T07:31:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10947#p10947</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  mise à jour buffer table1 depuis geometrie table 2]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10944#p10944"/>
+		<content type="html"><![CDATA[<p>Bonjour Gleu,</p><p>merci pour votre piste, j&#039;ai essayé quelque chose mai sans plus de succès :</p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION update_buffer1()
+  RETURNS trigger AS $BODY$
+  
+  DECLARE
+  buff RECORD;
+
+BEGIN
+	
+	SELECT INTO buff foo.contrainte,foo.wkb_geometry,buffer1
+	FROM table1 ,dblink(&#039;hostaddr=xxx.x.x.x port=xxxx dbname=name user=xxxxx password=xxxx&#039;, 
+	&#039;SELECT wkb_geometry,contrainte_emprise1 FROM table2&#039;)
+	AS foo(wkb_geometry geometry,contraintedouble precision);
+	
+	buff.buffer1=buffer(buff.wkb_geometry,buff.contrainte);
+	NEW.buffer1=buff.buffer1;
+
+	RETURN NEW;
+
+END;
+
+$BODY$
+  LANGUAGE &#039;plpgsql&#039; VOLATILE;
+ALTER FUNCTION update_buffer1() OWNER TO postgres;
+
+CREATE TRIGGER update_buffer1
+  BEFORE INSERT OR UPDATE
+  ON table2
+  FOR EACH ROW
+  EXECUTE PROCEDURE update_buffer1();</code></pre></div><p>En message d&#039;erreur il me met : Record &#039;new&#039; has no field &#039;buffer1&#039;, alors j&#039;ai essayé entre la fin de la première requête et le return new de mettre quelque chose comme ça (j&#039;ai essayé différentes variantes):</p><div class="codebox"><pre><code>SELECT buffer1 FROM buffer_reseau
+NEW.buffer1=buff.buffer1;</code></pre></div><p>Mais ça ne marche pas plus...<br />concernant le dblink, y a-t-il une autre alternative à moins de modifier la structure des tables?</p><p>Merci d&#039;avance.</p>]]></content>
+		<author>
+			<name><![CDATA[Geo-x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1346</uri>
+		</author>
+		<updated>2011-09-21T06:53:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10944#p10944</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  mise à jour buffer table1 depuis geometrie table 2]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10941#p10941"/>
+		<content type="html"><![CDATA[<p>Deux choses :<br />#1: dans &quot;NEW.geom_buffer1=buffer(foo.wkb_geometry,foo.contrainte);&quot;, PostgreSQL ne sait pas ce que veut dire foo.wkb_geometry et foo.contrainte (la requête précédente serait apparemment celle qui récupère ces infos, mais elle ne les stocke pas dans une variable... voir la clause INTO en PL/pgsql)<br />#2: un dblink dans un trigger, certainement le meilleur moyen pour avoir les pires lenteurs</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-09-20T15:16:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10941#p10941</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[mise à jour buffer table1 depuis geometrie table 2]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10937#p10937"/>
+		<content type="html"><![CDATA[<p>Et une impasse ne venant jamais seule,</p><p>je viens vers vous parce que j&#039;essaie de mettre en place une mise à jour automatique d&#039;un buffer (dans table1) à partir de la géométrie d&#039;un reseau (table2)</p><p>En clair j&#039;aimerais lors de la mise à jour et et/ou l&#039;insertion d&#039;un reseau, le buffer associé se mette à jour dans l&#039;autre table.</p><p>table1 (geom_buffer1 geometry)<br />table2 (wkb_geometry geometry, contrainte integer)</p><p>Voici pour le moment le code que j&#039;ai développé :</p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION update_buffer1()
+  RETURNS trigger AS $BODY$
+
+BEGIN
+	
+	SELECT foo.contrainte,foo.wkb_geometry,geom_buffer1
+	FROM table1 ,dblink(&#039;hostaddr=xxx.x.x.x port=xxxx dbname=name user=xxxxx password=xxxx, 
+	&#039;SELECT wkb_geometry,contrainte FROM table2&#039; )
+	AS foo(wkb_geometry geometry,contrainte integer);
+	
+	NEW.geom_buffer1=buffer(foo.wkb_geometry,foo.contrainte);
+
+	RETURN NEW;
+
+END;
+
+$BODY$
+  LANGUAGE &#039;plpgsql&#039; VOLATILE;
+ALTER FUNCTION update_buffer1() OWNER TO postgres;
+
+CREATE TRIGGER update_buffer1
+  BEFORE INSERT OR UPDATE
+  ON table2 
+  FOR EACH ROW
+  EXECUTE PROCEDURE update_buffer1();</code></pre></div><p>Là c&#039;est (une fois de plus) le vide absolu après avoir essayé une dizaine de choses différentes. A chaque fois j&#039;ai l&#039;impression de pas être loin mais je ne trouve pas le truc qu&#039;il manque :-(</p><p>Merci de votre aide si vous avez une idée.</p>]]></content>
+		<author>
+			<name><![CDATA[Geo-x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1346</uri>
+		</author>
+		<updated>2011-09-20T15:09:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10937#p10937</id>
+	</entry>
+</feed>

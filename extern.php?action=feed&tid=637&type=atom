@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / ERREUR : la valeur d'une clé dupliquée rompt la contrainte unique]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=637&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=637"/>
+	<updated>2010-02-16T08:42:31Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=637</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ERREUR : la valeur d'une clé dupliquée rompt la contrainte unique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=3941#p3941"/>
+		<content type="html"><![CDATA[<p>Bonjour Marc,</p><p>Merci beaucoup, c&#039;est exactement ça. Je ne savais juste pas comment réinitialiser la séquence ... Maintenant, si ;-)</p><p>Merci encore,</p><p> Will</p>]]></content>
+		<author>
+			<name><![CDATA[will]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=579</uri>
+		</author>
+		<updated>2010-02-16T08:42:31Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=3941#p3941</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ERREUR : la valeur d'une clé dupliquée rompt la contrainte unique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=3939#p3939"/>
+		<content type="html"><![CDATA[<p>Que vaut la valeur courante de votre sequence ? Est-ce que cette valeur n&#039;existe pas déjà dans la table ?</p><p>À mon avis, qui rejoint celui de SAS, vous avez une séquence qui n&#039;est pas initialisée avec une valeur supérieure à la valeur la plus élevée déjà définie dans votre clé primaire.</p><p>Pour résoudre le problème, faites :<br />SELECT max(iddocument) FROM documents;<br />Vous récupérerez la plus grande valeur de document.</p><p>puis<br />ALTER SEQUENCE documents_iddocument_seq RESTART la_valeur_que_vous_avez_recupere_plus_un</p><p>Ca permettra de définir des ids de documents qui ne seront pas en confilt.</p><p>Par ailleurs,&#160; CONSTRAINT documents_iddocument_key UNIQUE (iddocument) ne sert à rien : iddocument est déjà une Primary Key, donc unique et not null par définition.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-02-15T16:58:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=3939#p3939</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ERREUR : la valeur d'une clé dupliquée rompt la contrainte unique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=3937#p3937"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Voici les détails :</p><div class="codebox"><pre><code>CREATE TABLE documents
+(
+  iddocument serial NOT NULL,
+  titre text NOT NULL,
+  sstitre text,
+  auteur character varying(100) NOT NULL,
+  CONSTRAINT documents_pkey PRIMARY KEY (iddocument),
+  CONSTRAINT documents_iddocument_key UNIQUE (iddocument)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE documents OWNER TO will;</code></pre></div><p>La clé primaire est donc iddocument, de type serial.</p><p>Dans mon INSERT, je ne mentionne pas cette colonne, de sorte que la valeur retenue soit celle par défaut, à savoir nextval(&#039;documents_iddocument_seq&#039;::regclass)</p><p>Merci beaucoup.</p><p> Will</p>]]></content>
+		<author>
+			<name><![CDATA[will]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=579</uri>
+		</author>
+		<updated>2010-02-15T16:46:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=3937#p3937</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ERREUR : la valeur d'une clé dupliquée rompt la contrainte unique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=3935#p3935"/>
+		<content type="html"><![CDATA[<p>Bonjour, </p><p>Ne s&#039;agirait-il pas simplement d&#039;un problème de valeur de la séquence ?</p><p>Pourriez-vous nous donner des informations sur la table, la colonne, le type de la colonne utilisée comme clé primaire ?</p>]]></content>
+		<author>
+			<name><![CDATA[SAS]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=23</uri>
+		</author>
+		<updated>2010-02-15T16:30:31Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=3935#p3935</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[ERREUR : la valeur d'une clé dupliquée rompt la contrainte unique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=3934#p3934"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous,</p><p>J&#039;ai récemment importé un certain nombre d&#039;enregistrements dans ma table avec un COPY d&#039;un fichier CSV</p><p>Dans cette table, chaque enregistrement a un identifiant unique de type SERIAL.</p><p>Depuis mon import, lorsque j&#039;essaie d&#039;insérer un nouvel enregistrement (via une interface PHP), j&#039;ai le message d&#039;erreur suivant : </p><div class="codebox"><pre><code>Query failed: ERREUR: la valeur d&#039;une clé dupliquée rompt la contrainte unique « documents_pkey »</code></pre></div><p>J&#039;ai tenté un FULL VACUUM sur ma table, ainsi qu&#039;un REINDEX, mais rien n&#039;y fait ...</p><p>Merci d&#039;avance pour votre aide.</p><p> Will</p>]]></content>
+		<author>
+			<name><![CDATA[will]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=579</uri>
+		</author>
+		<updated>2010-02-15T15:15:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=3934#p3934</id>
+	</entry>
+</feed>

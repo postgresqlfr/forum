@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Récupération d'une base sur un ancien disque dur]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2579&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2579"/>
+	<updated>2013-03-29T15:28:53Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2579</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Récupération d'une base sur un ancien disque dur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16987#p16987"/>
+		<content type="html"><![CDATA[<p>Oui effectivement j&#039;ai oublié de préciser qu&#039;il faut lancer l&#039;invite de commande (ou le fichier bat) en tant qu&#039;utilisateur système postgres, afin de se retrouver dans le comportement &quot;standard&quot;.</p><p>Bonne nouvelle en tout cas <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2013-03-29T15:28:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16987#p16987</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Récupération d'une base sur un ancien disque dur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16986#p16986"/>
+		<content type="html"><![CDATA[<p>Merci pour vos précisions !</p><p>J&#039;y suis parvenu, non sans mal....</p><br /><p>Je ne suis pas très doué....</p><br /><p>J&#039;ai mis 5430 comme port (dans le fichier &quot;postgresql.conf&quot; du disque K:)</p><p>En lançant la commande, j&#039;ai obtienu ce message :<br /><strong><em>K:\Program Files\WeatherProfessional\database\bin&gt;postgres.exe -D ..\data\<br />2013-03-29 12:17:35 PANIC:&#160; could not open control file &quot;global/pg_control&quot;: Permission denied<br />This application has requested the Runtime to terminate it in an unusual way.<br />Please contact the application&#039;s support team for more information.</em></strong></p><br /><p>Pourtant le fichier &quot;pg_control&quot; est bien dans &quot;K:\Program Files\WeatherProfessional\database\data\global&quot;</p><p>Il m&#039;a fallu changé les permissions.</p><p>Mais à chaque tentative, le problème provenait d&#039;un nouveau fichier...</p><br /><p>J&#039;ai fini par copier l&#039;intégralité via un support physique (pour le mettre sur un autre PC)<br />J&#039;ai pu lancer le service sur le port 5430 en arrêtant celui qui tournait sur le port 5432.</p><br /><p>La sauvegarde n&#039;a signalé aucune erreur.<br />La restauration s&#039;est bien passée !</p><br /><p>Merci encore !<br /><img src="http://forums.postgresql.fr/img/smilies/big_smile.png" width="15" height="15" alt="big_smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[Lenka]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2181</uri>
+		</author>
+		<updated>2013-03-29T15:11:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16986#p16986</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Récupération d'une base sur un ancien disque dur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16985#p16985"/>
+		<content type="html"><![CDATA[<p>Vous pouvez lancer postgres.exe directement depuis le disque K. Le seul paramètre à changer obligatoirement est le port, pour qu&#039;il soit différent de celui en 9.2 (5432 par défaut). Vous pouvez lancer postgres directement en ligne de commande, par exemple :</p><p>k:\program files\postgres\bin\postgres.exe -D ..\data\</p><p>Si cela vous rassure vous pouvez faire la même manip en copiant les données sur un autre pc ou même un machine virtuelle.</p><p>Pour l&#039;export, il faut le faire avec les binaires de la 9.2. Si les utilisateurs sont déjà présents, il suffit de sauvegarder la base voulue, ou les tables voulues et cela peut se faire avec pgAdmin. Si vous choisissez le format Custom (ou compress à priori ?), vous pourrez le restaurer avec pgAdmin sur le nouveau serveur.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2013-03-29T10:08:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16985#p16985</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Récupération d'une base sur un ancien disque dur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16984#p16984"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><p>et merci pour votre réponse.</p><br /><p>Sur l&#039;ancien disque dur (K:), c&#039;est PostGreSQL 8.2.4 avec PgAdminIII 1.6.3 (logiciels fournis avec la station météo).<br />La base contient l&#039;historique que je souhaite récupérer.</p><p>Sur le nouveau PC (W8 64 bits), sur C:, c&#039;est PostGreSQL 9.2.2 (64 bits) avec PgAdminIII 1.16.1 (Driver 64 bits et logiciels fournis par l&#039;éditeur du soft de la station). La station y est connectée.<br />La base reçoit tous les jours de nouvelles données.</p><br /><p>Puis-je lancer PostGres.exe directement du disque K: ?<br />Dois-je, au préalable, modifier certains paramètres de la config pour éviter les conflits avec la version 9.2.2 qui tourne en permanence ?<br />Ou bien, est-il préférable que je fasse les manips sur un autre PC (copie du répertoire &quot;Data&quot;, install de PostGreSQL, export des données) ?<br />Je préfère la dernière solution, j&#039;ai eu quelques difficultés à l&#039;installation sur le nouveau PC et j&#039;appréhende de créer des conflits...</p><br /><p>Comment fait-on l&#039;export ?<br />J&#039;ai testé sur un autre PC la commande pg_dump.<br />Je ne connais pas la syntaxe de cette commande !<br />Ca me demande un mot de passe mais ça utilise mon user Windows... (vu dans la log)<br />L&#039;accès est donc refusé.</p><br /><p>Peut-on faire cet export avec PgAdmin ?<br />En me positionnant sur la base, dans &quot;Outils&quot;, il y a &quot;Sauvegarde&quot;.<br />Peut-on faire l&#039;export avec ?<br />(Je préfère utiliser l&#039;interface graphique que les lignes de commandes...)</p><p>Et quel est le format (Compress, Tar, Plain) et les paramètres à utiliser (cases à cocher) ?</p><p>Et ensuite, pour l&#039;import, même question :<br />Si on peut utiliser PgAdmin, quels paramètres dans &quot;Restauration&quot; ?</p><br /><p>Merci d&#039;avance.</p>]]></content>
+		<author>
+			<name><![CDATA[Lenka]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2181</uri>
+		</author>
+		<updated>2013-03-29T10:02:54Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16984#p16984</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Récupération d'une base sur un ancien disque dur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16979#p16979"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>je suppose que&#160; vous voulez parler de postgresql 8.3 ou 9.2, la version 9.3 n&#039;étant toujours pas stable. Si le schéma de données n&#039;a pas changé avec la nouvelle version de l&#039;application, il faut d&#039;abord installer un postgres version 8.2, en lui définissant le répertoire data vers celui de votre disque K (et en modifiant éventuelle le port d&#039;écoute). Vous pourrez alors exporter vos données (pg_dump.exe ou pg_dumpall.exe) pour les restaurer sur la la nouvelle base (pg_restore.exe ou psql.exe)</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2013-03-28T19:42:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16979#p16979</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Récupération d'une base sur un ancien disque dur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16977#p16977"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><p>J&#039;utilisais une base PostGreSQL 8.2 sur un PC (en XP 32 bits) avec une station météo.</p><p>La carte mère a laché. <img src="http://forums.postgresql.fr/img/smilies/sad.png" width="15" height="15" alt="sad" /></p><br /><p>J&#039;ai récupéré le disque dur (avec PostGreSQL 8.2 et la base) et l&#039;ai installé dans mon nouveau PC (W8 64 Bits) en disque K:.</p><p>J&#039;ai installé une nouvelle version du soft pour la station (avec PostGreSQL 9.3), un nouveau driver, et PgAdmin.</p><p>Tout fonctionne correctement.</p><br /><p>Je souhaite récupérer l&#039;historique (les données qui sont dans la base sur le disque K:)</p><p>Comment faire ? <img src="http://forums.postgresql.fr/img/smilies/roll.png" width="15" height="15" alt="roll" /></p><br /><p>D&#039;avance, merci de votre aide !</p>]]></content>
+		<author>
+			<name><![CDATA[Lenka]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2181</uri>
+		</author>
+		<updated>2013-03-28T15:01:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16977#p16977</id>
+	</entry>
+</feed>

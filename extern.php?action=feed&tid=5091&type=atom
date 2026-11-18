@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / plan du maintenance postgres sous windows]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5091&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5091"/>
+	<updated>2019-01-19T13:36:48Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5091</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  plan du maintenance postgres sous windows]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28967#p28967"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><p>Je ne connais rien à powershell, mais déjà à priori vous utiliser un fichier texte pour spécifier la liste des bases à sauvegarder, ce qui me parait une mauvaise idée.&#160; Vous devriez requête pg_database pour obtenir la liste des bases.&#160; De plus, vous faites ici une sauvegarde logique, peut être qu&#039;une sauvegarde physique (ou PITR) serait nécessaire.&#160; Sans connaître les contraintes, il est impossible de le savoir.&#160; Je ne sais pas non plus si un REINDEX, qui bloquera les écritures sur toutes les tables successivement est acceptable.&#160; Ensuite, vous ne sauvegardez ni les objets globaux (roles, tablespaces), ni les différents fichiers de configuration.&#160; Il n&#039;y a non plus aucun test sur le retour de chacune des commandes, donc à priori aucun moyen de savoir si les sauvegarde ont fonctionné ou non.&#160; Finalement, il n&#039;y a non plus aucune documentation sur la restauration, ni aucun test de validité des sauvegardes.</p><br /><p>Mon conseil serait d&#039;utiliser un outil de sauvegarde déjà existant plutôt que tenter de le faire vous même.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2019-01-19T13:36:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28967#p28967</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[plan du maintenance postgres sous windows]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28966#p28966"/>
+		<content type="html"><![CDATA[<p>bonjour a tous </p><p>je doit procéder a mettre en place un plan du maintenance qui s’occupe de sauvegarder les base de données on une format bien définit </p><p>puis faire des opération vaccum&#160; et reindex</p><p>j&#039;ai essayer de faire ce script e Powershell aprés j&#039;ai besoin de l&#039;avis de nos experts car je doit le mettre sur un environement du production </p><p>de plus c&#039;est mon premier jour du travaille chez le client donc je doit le faite sans erreur </p><div class="codebox"><pre><code>$date=get-date -Format &quot;dd_MM_yyyy&quot;
+Set-Location &quot;C:\Program Files\PostgreSQL\11\bin\&quot;
+$path = &quot;C:\backup\&quot;
+$list=&quot;C:\database.txt&quot;
+$databases=get-content -path $list
+$databases=$databases.split(&#039; &#039;)
+foreach ($database in $databases)
+{
+If(!(test-path $path\$database))
+{
+
+      New-Item -ItemType Directory -Force -Path $path\$database
+}
+./pg_dump -U postgres -d $database &gt;$path\$database\$database&#039;_&#039;$date.sql
+./psql -U postgres -d $database -e -a -c &quot;VACUUM;&quot;
+.\reindexdb -d $database -U postgres
+}</code></pre></div><p>merci pour vos remarque et vos corrections</p>]]></content>
+		<author>
+			<name><![CDATA[abdallah007]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7882</uri>
+		</author>
+		<updated>2019-01-18T16:11:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28966#p28966</id>
+	</entry>
+</feed>

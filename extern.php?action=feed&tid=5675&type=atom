@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Quelles pistes pour investiguer une erreur de connexion SSL]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5675&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5675"/>
+	<updated>2020-01-24T14:07:48Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5675</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Quelles pistes pour investiguer une erreur de connexion SSL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30600#p30600"/>
+		<content type="html"><![CDATA[<p>J&#039;ai testé 2 mode : sslmode=disable &amp; sslmode=allow.</p><p>ça ne change rien au problème de connection.</p><p>Je continu à investiguer les éventuelles différences de configuration entre les 2 serveurs.</p>]]></content>
+		<author>
+			<name><![CDATA[pheugene]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8785</uri>
+		</author>
+		<updated>2020-01-24T14:07:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30600#p30600</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Quelles pistes pour investiguer une erreur de connexion SSL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30598#p30598"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>jdbc:postgresql://localhost:5432/XXXXX?ssl=true&amp;sslmode=disable</p></div></blockquote></div><p>D&#039;après <a href="https://jdbc.postgresql.org/documentation/head/ssl-client.html" rel="nofollow">https://jdbc.postgresql.org/documentati … lient.html</a><br />sslmode=disable est contradictoire avec ssl=true. Pourquoi utiliser cette combinaison d&#039;options?</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2020-01-24T09:16:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30598#p30598</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Quelles pistes pour investiguer une erreur de connexion SSL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30592#p30592"/>
+		<content type="html"><![CDATA[<p>Je viens de recevoir les logs du serveur et j&#039;ai un peu plus d&#039;informations :</p><p>Voici un extrait du log :</p><p>L&#039;utilisateur USER_XXXX se connecte sur la base que je veux migrer DB_XXXX en mode SSL</p><div class="codebox"><pre><code>2020-01-21 09:40:52 CET 5e26b914.70c [inconnu] LOG:  connexion reçue : hôte=127.0.0.1 port=57405
+2020-01-21 09:40:52 CET 5e26b914.70c USER_XXX LOG:  connexion autorisée : utilisateur=USER_XXXXXX, 
+base de données=DB_XXXX, 
+SSL activé (protocole=TLSv1.2, chiffrement=EDH-RSA-DES-CBC3-SHA, compression=désactivé)</code></pre></div><p>L&#039;utilisateur postgres se connecte à la base postgres en mode SSL :</p><div class="codebox"><pre><code>2020-01-21 14:03:48 CET 5e26f6b4.258 postgres LOG:  connexion autorisée : utilisateur=postgres, 
+base de données=postgres, 
+SSL activé (protocole=TLSv1.2, chiffrement=EDH-RSA-DES-CBC3-SHA, compression=désactivé)</code></pre></div><p>Mais lorsque l&#039;utilisateur postgres veut se connecter sur la base DB_XXXX</p><div class="codebox"><pre><code>2020-01-21 13:58:31 CET 5e26f577.208 [inconnu] LOG:  connexion reçue : hôte=127.0.0.1 port=57645
+2020-01-21 13:58:31 CET 5e26f577.208 postgres FATAL:  aucune entrée dans pg_hba.conf pour l&#039;hôte « 127.0.0.1 », utilisateur « postgres »,
+	base de données « DB_XXX », SSL inactif
+2020-01-21 14:01:35 CET 5e26f62f.d2c [inconnu] LOG:  connexion reçue : hôte=127.0.0.1 port=57649
+2020-01-21 14:01:35 CET 5e26f62f.d2c postgres FATAL:  aucune entrée dans pg_hba.conf pour l&#039;hôte « 127.0.0.1 », utilisateur « postgres »,
+	base de données « DB_XXX », SSL inactif
+2020-01-21 14:03:16 CET 5e26f694.a5c [inconnu] LOG:  connexion reçue : hôte=127.0.0.1 port=57650
+2020-01-21 14:03:17 CET 5e26f694.a5c [inconnu] LOG:  n&#039;a pas pu accepter la connexion SSL : no shared cipher
+2020-01-21 14:03:42 CET 5e26f6ae.d7c [inconnu] LOG:  connexion reçue : hôte=127.0.0.1 port=57651
+2020-01-21 14:03:48 CET 5e26f6b4.258 [inconnu] LOG:  connexion reçue : hôte=127.0.0.1 port=57652
+2020-01-21 14:03:48 CET 5e26f6b4.258 postgres LOG:  connexion autorisée : utilisateur=postgres, 
+base de données=postgres, 
+SSL activé (protocole=TLSv1.2, chiffrement=EDH-RSA-DES-CBC3-SHA, compression=désactivé)</code></pre></div><p>Je fais des recherches sur cette erreur : <strong>LOG:&#160; n&#039;a pas pu accepter la connexion SSL : no shared cipher</strong></p>]]></content>
+		<author>
+			<name><![CDATA[pheugene]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8785</uri>
+		</author>
+		<updated>2020-01-23T07:53:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30592#p30592</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Quelles pistes pour investiguer une erreur de connexion SSL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30591#p30591"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;ai un serveur PostgreSQL 9.6 tournant dans une VM sous un Windows Server 2012.<br />Ce serveur est configuré pour accepter les connexions SSL :</p><p>La configuration ssl dans le fichier pg_hba_conf.</p><div class="codebox"><pre><code>host 	   all		all	       0.0.0.0/0	 md5
+hostssl    all          postgres,X,X   127.0.0.1/32      md5</code></pre></div><p>Le configuration ssl dans le fichier postgresql.conf</p><div class="codebox"><pre><code>ssl = on				# (change requires restart)
+ssl_ciphers = &#039;EDH-RSA-DES-CBC3-SHA:XXXXXXXXXXXXXXXXX&#039;
+ssl_cert_file = &#039;.\\tls\\server-postgresql.crt&#039;	# (change requires restart)
+ssl_key_file = &#039;.\\tls\\server-postgresql.key&#039;	# (change requires restart)
+ssl_ca_file = &#039;.\\tls\\ca-postgresql.crt&#039;	# (change requires restart)
+password_encryption = on</code></pre></div><p>Dans le répertoire tls les 2 fichiers crt et le fichier key sont present. L&#039;utilisateur qui lance le service windows postgres a un contrôle total sur ces trois fichiers.</p><p>Pour faire une migration de base de donnée j&#039;utilise un outil flyway qui cherche à se connecter à la base avec l&#039;url :</p><div class="codebox"><pre><code>jdbc:postgresql://localhost:5432/XXXXX?ssl=true&amp;sslmode=disable</code></pre></div><p><strong>Tout marche bien.</strong> La migration de base de donnée se fait correctement.</p><br /><p>Par contre, sur un site distant, avec la même configuration, la migration ne marche plus :</p><div class="codebox"><pre><code>Unable to obtain connection from database (jdbc:postgresql://localhost:5432/XXXX?ssl=true&amp;sslmode=disable) 
+for user &#039;postgres&#039;: FATAL: aucune entrée dans pg_hba.conf pour l&#039;hôte « 127.0.0.1 », 
+utilisateur « postgres », base de données « XXXX », SSL inactif 
+(pgjdbc: autodetected server-encoding to be ISO-8859-1, if the message is not readable, please check database logs and/or host, port, dbname, user, password, pg_hba.conf)</code></pre></div><p>Pour l&#039;instant j&#039;ai fait les vérifications suivantes sur le site distant :</p><p>- vérification du fichier pg_hba.conf<br />- vérification du fichier posgtgresql.conf<br />- vérification de la présence des certificats ssl<br />- vérification des droits sur les 3 certificats ssl.<br />- connection de l&#039;utilisateur postgres via psql : message de la console SSL ACTIF.<br />- essayer une connexion avec cette url : jdbc:postgresql://localhost:5432/XXXX =&gt; erreur hanshake failure.</p><br /><p>J&#039;avais pensé qu&#039;au démarrage de Postgres une erreur aurait empêché l&#039;activation de SSL.<br />La connection via psql montre bien que le SSL est actif sur le serveur PostgreSQL.</p><br /><p>Là je me retrouve un peu dans une impasse, je ne sais plus trop quoi aller vérifier.<br />Ce qui m&#039;interpelle dans le message d&#039;erreur c&#039;est SSL inactif. Et pourtant la connexion via psql<br />inqique bien que le SSL est actif.</p><br /><p>Si vous avez la moindre idée je suis preneur.<br />En vous remerciant.</p><p>--<br />Philippe</p>]]></content>
+		<author>
+			<name><![CDATA[pheugene]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8785</uri>
+		</author>
+		<updated>2020-01-23T06:52:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30591#p30591</id>
+	</entry>
+</feed>

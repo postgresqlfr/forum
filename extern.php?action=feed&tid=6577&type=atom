@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / pg_basebackup et sspi]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=6577&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=6577"/>
+	<updated>2023-07-10T12:22:44Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=6577</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pg_basebackup et sspi]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34399#p34399"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Problème résolu. Merci beaucoup</p>]]></content>
+		<author>
+			<name><![CDATA[drytux]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=11428</uri>
+		</author>
+		<updated>2023-07-10T12:22:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34399#p34399</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pg_basebackup et sspi]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34398#p34398"/>
+		<content type="html"><![CDATA[<p>pg_basebackup utilise le protocole de réplication, qui sollicite des règles à part dans le pg_hba.conf.</p><p>Pour activer l&#039;authentification voulue, Il faudrait dans les lignes ci-dessous, remplacer <strong>scram-sha-256</strong> par <strong>sspi map=MapForSSPI</strong></p><div class="codebox"><pre><code>host    replication     all             127.0.0.1/32            scram-sha-256
+host    replication     all             ::1/128                 scram-sha-256</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2023-07-10T09:59:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34398#p34398</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pg_basebackup et sspi]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34395#p34395"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />Voici les éléments :</p><p>=&gt; pg_ident.conf</p><div class="codebox"><pre><code># MAPNAME       SYSTEM-USERNAME         PG-USERNAME
+MapForSSPI	Administrateur@MonServeurPostgres	postgres</code></pre></div><p>=&gt; pg_hba.conf</p><div class="codebox"><pre><code># TYPE  DATABASE        USER            ADDRESS                 METHOD
+host    all             postgres        127.0.0.1/32            sspi map=MapForSSPI
+host    all             postgres        ::1/128            		sspi map=MapForSSPI
+# IPv4 local connections:
+host    all             all             127.0.0.1/32            scram-sha-256
+# IPv6 local connections:
+host    all             all             ::1/128                 scram-sha-256
+# Allow replication connections from localhost, by a user with the
+# replication privilege.
+local   replication     all                                     scram-sha-256
+host    replication     all             127.0.0.1/32            scram-sha-256
+host    replication     all             ::1/128                 scram-sha-256</code></pre></div><p>=&gt; Résultats des différentes commandes cmd avec et sans élévation de droits : </p><div class="codebox"><pre><code>C:\Users\Ut&gt;pg_basebackup -U postgres -Ft -z -P -c fast -v -D E:\PostgreSQL\15\HOTBACKUP\backup2
+Mot de passe :
+^C
+C:\Users\Ut&gt;pg_basebackup -U postgres -w -Ft -z -P -c fast -v -D E:\PostgreSQL\15\HOTBACKUP\backup2
+pg_basebackup: erreur : la connexion au serveur sur « localhost » (::1), port 5432 a échoué : fe_sendauth: no password supplied
+
+C:\Users\Ut&gt;psql -U postgres
+psql (15.3)
+Attention : l&#039;encodage console (850) diffère de l&#039;encodage Windows (1252).
+            Les caractères 8 bits peuvent ne pas fonctionner correctement.
+            Voir la section « Notes aux utilisateurs de Windows » de la page
+            référence de psql pour les détails.
+Saisissez « help » pour l&#039;aide.
+
+postgres=# \q
+
+C:\Users\Ut&gt;pg_dump -h localhost -U postgres -F c -b -f E:\PostgreSQL\15\HOTBACKUP\backup2\dumpDB.out DBPORTAIL
+
+C:\Users\Ut&gt;pg_dump -h localhost -U postgres -F c -b -f E:\PostgreSQL\15\HOTBACKUP\backup2\dumpDB.out postgres
+
+C:\Users\Ut&gt;pg_dumpall -h localhost -U postgres -f E:\PostgreSQL\15\HOTBACKUP\backup2\dumpDBAll.out
+
+C:\Users\Ut&gt;</code></pre></div><br /><p>Merci,</p>]]></content>
+		<author>
+			<name><![CDATA[drytux]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=11428</uri>
+		</author>
+		<updated>2023-07-07T13:56:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34395#p34395</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pg_basebackup et sspi]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34392#p34392"/>
+		<content type="html"><![CDATA[<p>L&#039;authentifcation n&#039;est pas gérée par les outils mais par le serveur. Donc le problème ne vient pas de pg_basebackup.</p><p>Pour qu&#039;on puisse vous aider, il serait bien de fournir le fichier pg_hba.conf, les commandes complètes pg_dump (qui fonctionne comme vous l&#039;espérez si j&#039;ai bien compris) et pg_basebackup (qui ne fonctionne pas comme vous l&#039;espérez), ainsi que les messages d&#039;erreur.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2023-07-07T06:40:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34392#p34392</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[pg_basebackup et sspi]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34389#p34389"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;ai configuré la connexion postgres (v15.3) avec sspi (sous Windows) tout fonctionne bien (psql/pg_dump) sauf pg_basebackup. Ce dernier ne semble pas tenir compte de ce mécanisme &quot;d&#039;authentification&quot;. Je suis obligé de passer le mot de passe dans l&#039;url de ma commande.</p><p>Y a t&#039;il une solution à ce problème ou est-ce que ce n&#039;est pas encore mis en place avec pg_basebackup ?</p><p>Merci,</p>]]></content>
+		<author>
+			<name><![CDATA[drytux]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=11428</uri>
+		</author>
+		<updated>2023-07-06T13:06:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34389#p34389</id>
+	</entry>
+</feed>

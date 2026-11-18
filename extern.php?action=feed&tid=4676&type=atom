@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Failover JDBC et risque de split brain]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4676&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4676"/>
+	<updated>2018-04-18T17:05:56Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4676</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Failover JDBC et risque de split brain]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27330#p27330"/>
+		<content type="html"><![CDATA[<p>Le problème n&#039;est pas la chaîne de connexion. Le problème est que l&#039;ancien maître ne doit surtout pas re-devenir opérationnel. Le moyen moins risqué est de ne JAMAIS faire de bascule automatique.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2018-04-18T17:05:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27330#p27330</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Failover JDBC et risque de split brain]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27329#p27329"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Il faut effectivement éviter que l&#039;ancien maître ne soit à nouveau actif. L&#039;idéal serait de l&#039;isoler (via le firewall par exemple) jusqu&#039;à ce qu&#039;il soit remis en réplication par exemple.</p><p>Sans utiliser cette possibilité de la chaîne de connexion, une ip virtuelle que vous basculez sur le nouveau maître après bascule devrait faire l&#039;affaire.</p>]]></content>
+		<author>
+			<name><![CDATA[stefan]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7897</uri>
+		</author>
+		<updated>2018-04-18T15:08:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27329#p27329</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Failover JDBC et risque de split brain]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27328#p27328"/>
+		<content type="html"><![CDATA[<p>Merci pour ta réponse</p><p>Du coup ça peut être dangereux finalement ce genre de chaîne de connexion : jdbc:postgresql://serveur_master:5432,serveur_slave:5432/accounting?targetServerType=master</p><p>Si après un failover, les connexions se font sur le slave (devenu master), il faut bien faire attention à ce que le master ne redevienne pas opérationnel et accessible ?<br />Il y a un moyen moins risqué de faire ça ?<br />Avec un alias DNS qu&#039;on modifierait manuellement ou bien un outil tierce pour pooler les connexions ? (pgpool, pgbouncer, ...) ?</p>]]></content>
+		<author>
+			<name><![CDATA[scheu.postgresql]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=888</uri>
+		</author>
+		<updated>2018-04-18T12:36:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27328#p27328</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Failover JDBC et risque de split brain]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27327#p27327"/>
+		<content type="html"><![CDATA[<p>Toujours le premier serveur.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2018-04-18T07:41:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27327#p27327</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Failover JDBC et risque de split brain]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27326#p27326"/>
+		<content type="html"><![CDATA[<p>Bonjour</p><p>J&#039;ai un master et 1 slave en Streaming replication<br />Le slave sert juste pour le PRA, toutes les connexions lecture et écriture de l&#039;application se font uniquement sur le master</p><p>L&#039;URL JDBC paramétrée au niveau du driver JDBC de l&#039;application :</p><p>jdbc:postgresql://serveur1:5432,serveur2:5432/accounting?targetServerType=master</p><p>Si je comprends bien, avec &quot;targetServerType=master&quot;, toutes les connexions lecture et écriture se feront uniquement sur le serveur qui est le master</p><p>Ma question est la suivante :<br />Si après un PRA failover où le slave devient master, mais que l&#039;ancien master est redémarré et redevient opérationnel, je peux me retrouver dans la situation où les 2 serveurs sont master (chacun en standalone). Dans cette situation, les connexions applicatives lecture et écriture vont-elles être faites aléatoirement sur l&#039;un ou l&#039;autre serveur, ou bien toujours sur le premier serveur de la liste trouvé à l&#039;état master (serveur1 dans mon exemple) ?<br />Avec les risques de split brain qui en découlent ...</p><p>Merci d&#039;avance</p>]]></content>
+		<author>
+			<name><![CDATA[scheu.postgresql]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=888</uri>
+		</author>
+		<updated>2018-04-18T07:33:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27326#p27326</id>
+	</entry>
+</feed>

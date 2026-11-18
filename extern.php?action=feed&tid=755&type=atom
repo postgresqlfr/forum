@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / suivi d'intervention pour des techniciens sélectionnés auparavent]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=755&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=755"/>
+	<updated>2010-04-28T14:06:43Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=755</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  suivi d'intervention pour des techniciens sélectionnés auparavent]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4811#p4811"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Merci beaucoup pour votre aide.</p><p>En fait j&#039;ai trouvé une autre solution qui fonctionne bien. En fait, j&#039;ai ajouté un champ &#039;suivi_bot&#039; dans ma table intervention et dés qu&#039;une intervention est suivi je lui affecte &#039;1&#039; dans le champ &#039;suivi_bot&#039; et pour l&#039;affichage je fais appel aux interventions qui ont 1 dans le champ &#039;suivi_bot&#039;.</p><p>En tout cas merci d&#039;avoir pris de votre temps.</p><p>Cordialement.</p>]]></content>
+		<author>
+			<name><![CDATA[loicDu28]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=735</uri>
+		</author>
+		<updated>2010-04-28T14:06:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4811#p4811</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[suivi d'intervention pour des techniciens sélectionnés auparavent]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4721#p4721"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p><strong><span class="bbu">But du projet</span></strong> : Mon projet c&#039;est de faire un outil permettant de suivre les interventions que réalise les techniciens sélectionnés auparavant.</p><p><strong><span class="bbu">Objectif de la requête</span></strong> : Afficher la liste des interventions prise en charge par les IPCA concerné par le suivi. Ces interventions sont validés par des hotliner si tout est OK(cette validation est enregistrée dans la base de données, lorsquelle est validée on ne l&#039;affiche plus dans la liste). Ces interventions doivent être suivi la semaine après la sélection de l&#039;IPCA mais également après la semaine si cette dernière (l&#039;intervention) n&#039;a pas été validé par le BOT.</p><p><strong><span class="bbu">Problème</span></strong> : Si cette intervention n&#039;a pas été validé alors qu&#039;on lance une autre sélection (c&#039;est à dire à la fin de la semaine du suivi) le numéro d&#039;intervention est enregistrée dans la même table que la validation (mais sans date de validation) et je voit pas comment faire pour afficher les interventions qui ont une date de validation vide, et d&#039;afficher également les interventions des nouveaux techniciens sélectionnés et ne pas afficher celle qui ont une date de validation.</p><p><strong><span class="bbu">Table intervention</span></strong> : </p><div class="codebox"><pre><code>CREATE TABLE intervention
+(
+  id_ca character varying(9) NOT NULL,  -- numéro intervention 
+  int_refinst character varying(4), -- numéro ipca(tech)
+  CONSTRAINT intervention_pkey PRIMARY KEY (id_ca)
+)</code></pre></div><p><strong><span class="bbu">Table histo_suivi_bot (table pour l&#039;historisation des interventions surveillées)</span></strong> :</p><div class="codebox"><pre><code>CREATE TABLE histo_suivi_bot
+(
+  hsb_inter character varying(9) NOT NULL,
+  hsb_date_validation character varying(14),
+  hsb_ipca character varying(4),
+  hsb_tech integer,
+  hsb_tech_bot integer,
+  CONSTRAINT histo_suivi_bot_pkey PRIMARY KEY (hsb_inter)
+)</code></pre></div><p><strong><span class="bbu">Table ticket_enoff (table dans laquelle j&#039;enregistre la liste des tchniciens(IPCA) qui sont sélectionnés)</span></strong> :</p><div class="codebox"><pre><code>CREATE TABLE ticket_enoff
+(
+  teo_date character varying(12),
+  teo_ipca character varying(4),
+  teo_typo integer[]
+)
+WITH (OIDS=TRUE);
+ALTER TABLE ticket_enoff OWNER TO postgres;</code></pre></div><p><strong><span class="bbu">Donc j&#039;ai essayer de faire ceci</span></strong> :</p><div class="codebox"><pre><code>SELECT int_refinst AS ipca, int_ig, int_refinst_tech AS ipca_tech, id_ca, int_statut, histo_pec_dt AS dt_pec, 
+int_date_rdv AS dt_planif, int_date_debut AS dt_cloture, teo_typo AS typologie
+FROM intervention AS inter
+JOIN ticket_enoff AS teo ON teo.teo_ipca = inter.int_refinst
+JOIN histo_pec AS hpec ON hpec.histo_pec_id = inter.id_ca
+WHERE to_date(histo_pec_dt, &#039;DD/MM/YYYY&#039;) BETWEEN &#039;20091220&#039; AND &#039;20091226&#039;
+AND histo_pec_action = &#039;1&#039;
+AND teo.teo_date = &#039;20091220&#039; 
+AND (id_ca NOT IN (SELECT hsb_inter FROM histo_suivi_bot WHERE hsb_date_validation IS NOT NULL)
+     AND id_ca IN (SELECT hsb_inter FROM histo_suivi_bot WHERE hsb_date_validation IS NULL)
+)
+ORDER BY int_refinst</code></pre></div><p><strong><span class="bbu">En gros, dans l&#039;exemple de la requête</span></strong> : <br />de la semaine du 20/12/2009 au 26/12/2009, j&#039;ai 1 interventions à afficher(interventions de la nouvelle semaine donc des nouveaux techniciens sélectionnées) et j&#039;ai 42 interventions de la semaine précédente qui sont dans la table &#039;histo_suivi_bot&#039; sans date de validation donc je devrais obtenir 43 lignes mais avec ma requête, j&#039;en obtiens aucune.</p><p>Comment puis-je faire??</p><p>Merci d&#039;avance.</p>]]></content>
+		<author>
+			<name><![CDATA[loicDu28]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=735</uri>
+		</author>
+		<updated>2010-04-23T13:10:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4721#p4721</id>
+	</entry>
+</feed>

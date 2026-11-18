@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / PG_STANDBY]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=168&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=168"/>
+	<updated>2009-05-29T14:27:39Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=168</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  PG_STANDBY]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1567#p1567"/>
+		<content type="html"><![CDATA[<p>Une fois la base ouverte en prod, on ne peut plus la remettre en recovery à ma connaissance (puisqu&#039;on risque d&#039;avoir fait des transactions pendant que la base était ouverte). C&#039;est d&#039;ailleurs la raison de l&#039;augmentation du premier nombre dans le fichier WAL, il sert à montrer que la base n&#039;est plus dans la même ligne de temps que la base de départ (et donc qu&#039;on ne peut pas balancer tels quels les journaux de la nouvelle base de prod sur l&#039;ancienne base de prod en faisant un recover).</p><p>C&#039;est un peu dur à expliquer sans faire de dessins (qui ressemblent fortement à Doc Brawn en train d&#039;expliquer le 1985 alternatif dans retour vers le futur, au passage <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /> ).</p><br /><p>Par contre, effectivement, on doit pouvoir refaire une synchro de la base de prod vers celle de backup via rsync, histoire de ne pas tout retransférer.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2009-05-29T14:27:39Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1567#p1567</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  PG_STANDBY]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1562#p1562"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>ldiaz a écrit&#160;:</cite><blockquote><div><p>20672 ?&#160; &#160; &#160; &#160; Ss&#160; &#160; &#160;0:00 postgres: startup process&#160; &#160;waiting for 00000004000000000000001C<br />20679 ?&#160; &#160; &#160; &#160; S&#160; &#160; &#160; 0:00 sh -c /usr/bin/pg_standby -d -t /tmp/stoprestore.file /var/lib/pgsql/dcns01_wals/ 00000004000000000000001C pg_xlog/RECOVERYXLOG 00020680 ?&#160; &#160; &#160; &#160; S&#160; &#160; &#160; 0:00 /usr/bin/pg_standby -d -t /tmp/stoprestore.file /var/lib/pgsql/dcns01_wals/ 00000004000000000000001C pg_xlog/RECOVERYXLOG 00000000021611 ?&#160; &#160; &#160; &#160; Ss&#160; &#160; &#160;0:00 sshd: root@pts/2</p><p>on dirais qu&#039;il attend apres ce fichier...<br />Comment je peux faire car ce fichier n&#039;est pas dans le repertoire (j&#039;ai du l&#039;effacer)<br />Tu crois que je dois recommencer du debut?</p></div></blockquote></div><p>Bonjour</p><p>Je viens de m&#039;inscrire puisque en ce moment je fais des tests de réplication et après différents essais<br />j&#039;ai constaté le comportement suivant :</p><p>Au début tout fonctionne, nous avons les segments WAL de type <strong>00000001</strong>000000000000001C<br />qui sont bien recopié sur le SLAVE et bien pris en compte<br />Et nous avons bien le process<br />sh -c pg_standby -d -t /tmp/stoprestore /var/postgresl/backup_wals/ 00000001000000000000001C</p><p>Puis quand on arrête le RECOVERY par le fichier /tmp/stoprestore<br />Le serveur sur SLAVE devient autonome, la base de donnée devient accessible<br />Des segments WALL apparaît dans pg_xlog avec pour nom <strong>00000002</strong>000000000000001C (Incrémentation du TimeLineID)<br />Un 2 apparaît à la place du 1<br />Du coup quand on arrête la base de donnée, on remet recovery.conf et on relance la base de donnée en mode recovery<br />j&#039;ai le process suivant :<br />sh -c pg_standby -d -t /tmp/stoprestore /var/postgresl/backup_wals/ <strong>00000002</strong>000000000000001C<br />Le SLAVE ne peut plus synchronisé puisqu&#039;il attend <strong>00000002</strong>... alors que le Master continue à envoyer les <strong>00000001</strong>...</p><p><strong>Remède:</strong><br />La seule solution que j&#039;ai trouvé est de réinitialiser le SLAVE à chaque fois que l&#039;on veut redémarrer le mode RECOVERY<br />Si la base est volumineux, on peut utiliser sync -a pour recopier le delta du MASTER vers le SLAVE</p>]]></content>
+		<author>
+			<name><![CDATA[goupil]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=383</uri>
+		</author>
+		<updated>2009-05-29T09:59:33Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1562#p1562</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  PG_STANDBY]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=770#p770"/>
+		<content type="html"><![CDATA[<p>Les deux <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>archive_timeout indique le délai à partir duquel le journal peut être archivé, mais il ne le sera réellement que quand un checkpoint sera survenu. Il convient donc de les bouger ensemble.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2009-02-17T14:18:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=770#p770</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  PG_STANDBY]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=767#p767"/>
+		<content type="html"><![CDATA[<p>Alors les dernieres nouvelles,<br />En refaisant les steps que tu explique (dans ton site web) ca remarche bien.<br />Cool<br />Maintenant je voudrait controler 2 choses:<br />1 la frequence de creation dea WALL du serveur MASTER<br />2 verifier que l&#039;option %r dans le restore command fonctionne bien.</p><p>Pour la question 1, je dois modifier quel parametre entre ces 2 la?</p><p>checkpoint_timeout = 1min&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;# range 30s-1h<br />archive_timeout = 300&#160; &#160; &#160; &#160; &#160; &#160;# force a logfile segment switch after this</p><p>D&#039;avance merci</p>]]></content>
+		<author>
+			<name><![CDATA[ldiaz]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=130</uri>
+		</author>
+		<updated>2009-02-17T09:49:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=767#p767</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  PG_STANDBY]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=766#p766"/>
+		<content type="html"><![CDATA[<p>ok, je recommence le slave<br />que faire avec le master? je le laisse tel que?</p>]]></content>
+		<author>
+			<name><![CDATA[ldiaz]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=130</uri>
+		</author>
+		<updated>2009-02-17T09:02:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=766#p766</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  PG_STANDBY]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=765#p765"/>
+		<content type="html"><![CDATA[<p>Mouais. Moi, je recommencerais l&#039;install du serveur esclave en faisant bien attention à tout supprimer avant, notamment les traces, les fichiers triggers, etc.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2009-02-16T18:12:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=765#p765</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  PG_STANDBY]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=763#p763"/>
+		<content type="html"><![CDATA[<p>Ou llaaaa<br />non attends, actuellement ce fichier (le trigger) n&#039;ai plus dans /tmp<br />en fais j&#039;avais fait le touch /tmp/trigger avec l&#039;utilisateur root...<br />et en voyant l&#039;erreur je l&#039;ai effacé.<br />Donc la y&#039;a plus le trigger. (j&#039;ai copié une tonne de log, donc ca remonte a ce matin)</p><p>D&#039;ailleur il se passe un truc etrange.<br />Si je cré le trigger avec l&#039;user postgres...</p><p>-bash-3.2$ touch /tmp/stoprestore.file</p><p>-bash-3.2$ tail -f reco.log</p><p>Trigger file&#160; &#160; &#160; &#160; &#160; &#160; : /tmp/stoprestore.file<br />Waiting for WAL file&#160; &#160; : 00000004000000000000001C<br />WAL file path&#160; &#160; &#160; &#160; &#160; &#160;: /var/lib/pgsql/dcns01_wals//00000004000000000000001C<br />Restoring to...&#160; &#160; &#160; &#160; &#160;: pg_xlog/RECOVERYXLOG<br />Sleep interval&#160; &#160; &#160; &#160; &#160; : 5 seconds<br />Max wait interval&#160; &#160; &#160; &#160;: 0 forever<br />Command for restore&#160; &#160; &#160;: cp &quot;/var/lib/pgsql/dcns01_wals//00000004000000000000001C&quot; &quot;pg_xlog/RECOVERYXLOG&quot;<br />Keep archive history&#160; &#160; : 000000000000000000000000 and later<br />WAL file not present yet. Checking for trigger file...<br />WAL file not present yet. Checking for trigger file...<br />WAL file not present yet. Checking for trigger file...<br />WAL file not present yet. Checking for trigger file...</p><p>Tu vois il fait le recover et hop au lieu de s&#039;arreter, il continu a attendre les wals.</p>]]></content>
+		<author>
+			<name><![CDATA[ldiaz]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=130</uri>
+		</author>
+		<updated>2009-02-16T16:05:55Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=763#p763</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  PG_STANDBY]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=761#p761"/>
+		<content type="html"><![CDATA[<p>Attends, tu as un message d&#039;erreur et tu ne le dis même pas <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><div class="quotebox"><blockquote><div><p>ERROR: could not remove &quot;/tmp/stoprestore.file&quot;: Operation not permitted</p></div></blockquote></div><p>Autrement dit, il a détecté le fichier trigger donc il a arrêté la restauration mais il n&#039;arrive pas à le supprimer.</p><p>Bref, arrête le serveur PostgreSQL en attente (ton secondaire). Supprime le fichier /tmp/stoprestore.file. Et reconstruis ton secondaire.</p><p>Le fichier trigger ne doit exister qu&#039;au moment où tu veux arrêter la restauration.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2009-02-16T15:57:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=761#p761</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  PG_STANDBY]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=760#p760"/>
+		<content type="html"><![CDATA[<p>S&#039;il recherche le 00000004000000000000001C alors la oui...il n&#039;est pas dans le server...<br />tiens regarde j&#039;ai fait un ps ax:</p><p>20671 ?&#160; &#160; &#160; &#160; Ss&#160; &#160; &#160;0:00 postgres: logger process<br />20672 ?&#160; &#160; &#160; &#160; Ss&#160; &#160; &#160;0:00 postgres: startup process&#160; &#160;waiting for 00000004000000000000001C<br />20679 ?&#160; &#160; &#160; &#160; S&#160; &#160; &#160; 0:00 sh -c /usr/bin/pg_standby -d -t /tmp/stoprestore.file /var/lib/pgsql/dcns01_wals/ 00000004000000000000001C pg_xlog/RECOVERYXLOG 00020680 ?&#160; &#160; &#160; &#160; S&#160; &#160; &#160; 0:00 /usr/bin/pg_standby -d -t /tmp/stoprestore.file /var/lib/pgsql/dcns01_wals/ 00000004000000000000001C pg_xlog/RECOVERYXLOG 00000000021611 ?&#160; &#160; &#160; &#160; Ss&#160; &#160; &#160;0:00 sshd: root@pts/2</p><p>on dirais qu&#039;il attend apres ce fichier...<br />Comment je peux faire car ce fichier n&#039;est pas dans le repertoire (j&#039;ai du l&#039;effacer)<br />Tu crois que je dois recommencer du debut?</p>]]></content>
+		<author>
+			<name><![CDATA[ldiaz]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=130</uri>
+		</author>
+		<updated>2009-02-16T15:50:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=760#p760</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  PG_STANDBY]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=759#p759"/>
+		<content type="html"><![CDATA[<p>mmmm<br />le log dont tu parle c&#039;est celui que je cré avec cette commande?<br />restore_command = &#039;/usr/bin/pg_standby -d -t /tmp/stoprestore.file /var/lib/pgsql/dcns01_wals/ %f %p %r 2&gt;&gt; /var/lib/pgsql/data/pg_log/reco.log&#039;<br />donc reco.log ??<br />ou existe t&#039;il un autre log?</p><p>pour le moment j&#039;ai ceci dans le log:<br />WAL file not present yet. Checking for trigger file...<br />WAL file not present yet. Checking for trigger file...<br />WAL file not present yet. Checking for trigger file...<br />WAL file not present yet. Checking for trigger file...<br />WAL file not present yet. Checking for trigger file...<br />WAL file not present yet. Checking for trigger file...trigger file found</p><p> ERROR: could not remove &quot;/tmp/stoprestore.file&quot;: Operation not permitted<br />Trigger file&#160; &#160; &#160; &#160; &#160; &#160; : /tmp/stoprestore.file<br />Waiting for WAL file&#160; &#160; : 00000004.history<br />WAL file path&#160; &#160; &#160; &#160; &#160; &#160;: /var/lib/pgsql/dcns01_wals//00000004.history<br />Restoring to...&#160; &#160; &#160; &#160; &#160;: pg_xlog/RECOVERYHISTORY<br />Sleep interval&#160; &#160; &#160; &#160; &#160; : 5 seconds<br />Max wait interval&#160; &#160; &#160; &#160;: 0 forever<br />Command for restore&#160; &#160; &#160;: cp &quot;/var/lib/pgsql/dcns01_wals//00000004.history&quot; &quot;pg_xlog/RECOVERYHISTORY&quot;<br />Keep archive history&#160; &#160; : 000000000000000000000000 and later<br />running restore&#160; &#160; &#160; &#160; &#160;:cp: cannot stat `/var/lib/pgsql/dcns01_wals//00000004.history&#039;: No such file or directory<br />cp: cannot stat `/var/lib/pgsql/dcns01_wals//00000004.history&#039;: No such file or directory<br />cp: cannot stat `/var/lib/pgsql/dcns01_wals//00000004.history&#039;: No such file or directory<br />not restored&#160; &#160; &#160; &#160; &#160; &#160; : history file not found</p><p>Trigger file&#160; &#160; &#160; &#160; &#160; &#160; : /tmp/stoprestore.file<br />Waiting for WAL file&#160; &#160; : 00000004000000000000001C<br />WAL file path&#160; &#160; &#160; &#160; &#160; &#160;: /var/lib/pgsql/dcns01_wals//00000004000000000000001C<br />Restoring to...&#160; &#160; &#160; &#160; &#160;: pg_xlog/RECOVERYXLOG<br />Sleep interval&#160; &#160; &#160; &#160; &#160; : 5 seconds<br />Max wait interval&#160; &#160; &#160; &#160;: 0 forever<br />Command for restore&#160; &#160; &#160;: cp &quot;/var/lib/pgsql/dcns01_wals//00000004000000000000001C&quot; &quot;pg_xlog/RECOVERYXLOG&quot;<br />Keep archive history&#160; &#160; : 000000000000000000000000 and later<br />WAL file not present yet. Checking for trigger file...<br />WAL file not present yet. Checking for trigger file...<br />WAL file not present yet. Checking for trigger file...<br />WAL file not present yet. Checking for trigger file...<br />WAL file not present yet. Checking for trigger file...<br />WAL file not present yet. Checking for trigger file...<br />WAL file not present yet. Checking for trigger file...<br />WAL file not present yet. Checking for trigger file...<br />WAL file not present yet. Checking for trigger file...<br />WAL file not present yet. Checking for trigger file...</p><p>et la ca change plus ca reste tel que...</p><p>Dans le repertoire&#160; /var/lib/pgsql/dcns01_wals j&#039;ai plein de WAL qui proviennent du server master.</p><p>drwxr-xr-x&#160; 2 postgres postgres&#160; &#160; 4096 Feb 16 16:44 dcns01_wals<br />contenu:</p><p>-rw------- 1 postgres postgres 16777216 Feb 16 16:14 00000001000000000000006F<br />-rw------- 1 postgres postgres 16777216 Feb 16 16:19 000000010000000000000070<br />-rw------- 1 postgres postgres 16777216 Feb 16 16:24 000000010000000000000071<br />-rw------- 1 postgres postgres 16777216 Feb 16 16:29 000000010000000000000072<br />-rw------- 1 postgres postgres 16777216 Feb 16 16:34 000000010000000000000073<br />-rw------- 1 postgres postgres 16777216 Feb 16 16:39 000000010000000000000074<br />-rw------- 1 postgres postgres 16777216 Feb 16 16:44 000000010000000000000075<br />-bash-3.2$ ll | wc -l<br />60</p><p>tu vois y&#039;en a 60...<br />Ca voudrais dire que pg_standby attend un fichier mais qui n&#039;est pas ...ou plus dans ce repoertoire?</p>]]></content>
+		<author>
+			<name><![CDATA[ldiaz]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=130</uri>
+		</author>
+		<updated>2009-02-16T15:48:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=759#p759</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  PG_STANDBY]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=757#p757"/>
+		<content type="html"><![CDATA[<p>Non, surtout pas. Les logs de pgstandby doivent t&#039;indiquer le WAL qu&#039;il cherche. Est-il présent dans /var/lib/pgsql/dcns01_wals ? quel est le fichier qu&#039;il cherche et quells sont les fichiers présents dans le répertoire /var/lib/pgsql/dcns01_wals ?</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2009-02-16T15:38:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=757#p757</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  PG_STANDBY]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=755#p755"/>
+		<content type="html"><![CDATA[<p>Lorsque tu dis: est il present?? tu fais refetrence au fichier wal??<br />alors je te file plus de details:<br />1 le server master a le mode archive activé, il envoie via scp les wals vers un repertoire qui se trouve ici:&#160; /var/lib/pgsql/dcns01_wals/<br />ca marche bien...tout les n minutes le server 1 envoie les wal verde server 2<br />2 le server 2 est en mode standby, avec le fichier recovery.conf (pas .done)<br />avec ce parametre: restore_command = &#039;/usr/bin/pg_standby -d -t /tmp/stoprestore.file /var/lib/pgsql/dcns01_wals/ %f %p %r 2&gt;&gt; /var/lib/pgsql/data/pg_log/reco.log&#039;<br />dans le fichier reco.log tu as ceci:</p><p>WAL file not present yet. Checking for trigger file...<br />WAL file not present yet. Checking for trigger file...<br />WAL file not present yet. Checking for trigger file...<br />WAL file not present yet. Checking for trigger file...</p><p>et lorsqu&#039;un nouveau fichier arrive il ne le traite pas..<br />Ca ressemble a qu&#039;il est en trai d&#039;attendre un fichier qui ne lui arrive pas....<br />peut etre attend t&#039;il un 0000000000000001 et comme les wals maintenant on des numeros diferrents..<br />Tu crois que je pourrais renommer un des wals sur le server slave voir s&#039;il le charge et se debloque?</p>]]></content>
+		<author>
+			<name><![CDATA[ldiaz]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=130</uri>
+		</author>
+		<updated>2009-02-16T13:39:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=755#p755</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  PG_STANDBY]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=754#p754"/>
+		<content type="html"><![CDATA[<p>Non, ça m&#039;étonnerait. Il cherche quel fichier WAL ? est-t-il présent sur le serveur en standby ?</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2009-02-16T13:17:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=754#p754</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  PG_STANDBY]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=753#p753"/>
+		<content type="html"><![CDATA[<p>Oui les WAL arrivent bien sur le server SLAVE, mais si tu regarde le LOG, ya&#039; rien, il dit juste ca: <br />WAL file not present yet. Checking for trigger file...<br />WAL file not present yet. Checking for trigger file...<br />mais pourtant les walls arrivent.<br />Y&#039;a pas de messages d&#039;erreurs dans les log.<br />Curieux non?<br />ca pourrait venir du pg_standby? mal compilé ou qq chose comme ca?</p>]]></content>
+		<author>
+			<name><![CDATA[ldiaz]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=130</uri>
+		</author>
+		<updated>2009-02-16T13:15:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=753#p753</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  PG_STANDBY]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=751#p751"/>
+		<content type="html"><![CDATA[<p>Difficile de dire comme ça. Tu as des messages d&#039;erreur ? que se passe-t&#039;il ? les journaux arrivent-ils bien sur le secondaire ? ne sont-ils pas découverts par pgstandby ?</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2009-02-16T12:34:50Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=751#p751</id>
+	</entry>
+</feed>

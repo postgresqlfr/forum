@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Importer une base de donnée]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1117&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1117"/>
+	<updated>2010-12-30T07:44:20Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1117</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Importer une base de donnée]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7179#p7179"/>
+		<content type="html"><![CDATA[<p>Vous exécutez le \g avec quoi ? ça ne peut fonctionner qu&#039;avec psql. D&#039;autre part, une commande \ quelque chose ne peut s&#039;exécuter que si le \ est le premier caractère, or je vois un point-virgule devant.</p><p>Quant au mot de passe demandé par psql, si vous n&#039;avez pas utilisé l&#039;option -U, psql utilise votre nom d&#039;utilisateur Windows pour se connecter sur PostgreSQL. Par exemple, si je suis connecté en tant qu&#039;utilisateur guillaume et si je fais un &quot;psql b1&quot;, il peut me demander un mot de passe correspondant à mon utilisateur guillaume sous PostgreSQL. De toute façon, il vous indique le nom de l&#039;utilisateur qu&#039;il considère. Sous Windows, l&#039;utilisateur postgres a le mot de passe indiqué lors de l&#039;installation. Ensuite, pour les autres utilisateurs que vous pourriez avoir créé, il faut leur ajouter un mot de passe, sinon l&#039;accès ne fonctionnera pas.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-12-30T07:44:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7179#p7179</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Importer une base de donnée]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7178#p7178"/>
+		<content type="html"><![CDATA[<p>Merci, j&#039;ai recrée une base de donnée et avec cette commande ça à bien marché, il y avait aussi le problème avec claquette, l&#039;utilisateur de la base de donnée n&#039;était pas le même que la mienne, maintenant ça fonctionne <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>j&#039;ai une autre question pour enregistré le resultat de la requete sql j&#039;ai rajouté dans le fichier après la requete:</p><p>;\g C:\Users\moi\Desktop</p><p>j&#039;ai essayé aussi avec </p><p>;\g C:\Users\moi\Desktop\fichier.txt</p><p>mais ça n&#039;enregistre pas, dans les 2 cas ça me renvoie C:</p><p>permission denied alors que je suis en admin ... et <br />commande \Users invalide</p><p>et si je vais dans le dossier bin et que j&#039;ouvre psql.exe (en admin) dans la console il me demande un mot de passe, j&#039;ai essayer les mot de passe que j&#039;ai mis pour mon utilisateur et ça ne marche pas, y aurait -t-il un mot de passe par defaut? J&#039;ai essayer pas mal de truc sans resultat.</p>]]></content>
+		<author>
+			<name><![CDATA[Epiliptik]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1025</uri>
+		</author>
+		<updated>2010-12-30T03:14:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7178#p7178</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Importer une base de donnée]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7147#p7147"/>
+		<content type="html"><![CDATA[<p>Une base de données n&#039;est ni bonne ni mauvaise. Là, l&#039;erreur que vous attrapez (enfin, d&#039;après les trois messages que vous donnez) indique que le script essaie de créer des tables qui existent déjà. Ce qui laisse supposer que vous essayez de restaurer votre base de données dans une base de données qui contient déjà les objets, ce qui ne peut pas fonctionner.</p><p>Commencez plutôt par créer une base de données (avec la commande createdb ou avec pgAdmin), puis lancez la commande psql de restauration en précisant le nom de la nouvelle base. Par exemple :</p><div class="codebox"><pre><code>psql -U postgres -f &quot;C:\app.sql&quot; ma_nouvelle_base</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-12-27T22:41:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7147#p7147</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Importer une base de donnée]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7146#p7146"/>
+		<content type="html"><![CDATA[<p>Au debut ça m&#039;affiche <br />SET<br />SET<br />etc..</p><p>puis ça m&#039;envoie plein d&#039;erreur du style</p><p>ERREUR: la relation &quot;claquette&quot; existe deja<br />ERREUR: la relation &quot;category&quot; existe deja<br />ERREUR: le rôle &quot;claquette&quot; n&#039;existe pas</p><p>puis à la fin:<br />REVOKE<br />REVOKDE <br />GRANT<br />GRANT</p><p>j&#039;ai l&#039;impression que la base de donnée est mauvaise pourtant elle est censé être bonne :s</p>]]></content>
+		<author>
+			<name><![CDATA[Epiliptik]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1025</uri>
+		</author>
+		<updated>2010-12-27T21:34:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7146#p7146</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Importer une base de donnée]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7138#p7138"/>
+		<content type="html"><![CDATA[<p>C&#039;est bien la bonne commande. Faudrait donner les messages d&#039;erreur pour qu&#039;on en sache un peu plus.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-12-27T12:45:38Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7138#p7138</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Importer une base de donnée]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7137#p7137"/>
+		<content type="html"><![CDATA[<p>Merci, pourais -tu m&#039;indiquer la commande à executer pour importer la base de donnée?<br />J&#039;ai essayer pas mal de commande&#160; du style psql -U postgres -f &quot;C:\app.sql&quot; dans le terminal windows dans le repertoire bin de postgresql et ça me renvoie des erreurs ...<br />Ou si tu as un tuto interessant pour windows, j&#039;ai pas trouvé grand chose sur l&#039;importation de base de donnée.</p>]]></content>
+		<author>
+			<name><![CDATA[Epiliptik]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1025</uri>
+		</author>
+		<updated>2010-12-27T12:32:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7137#p7137</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Importer une base de donnée]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7130#p7130"/>
+		<content type="html"><![CDATA[<p>Si c&#039;est un fichier SQL, ça ne sera pas avec pgAdmin. Il faut utiliser l&#039;outil psql.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-12-26T19:41:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7130#p7130</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Importer une base de donnée]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7127#p7127"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je souhaite importer une base de donnée sur postgresql avec pgadmin3 ou si ce n&#039;est pas possible en ligne de commande (sous windows7) et je ne trouve pas comment faire, il n&#039;y a pas l&#039;air d&#039;avoir cette fonctionalité dans pgadmin3, si quelqu&#039;un peut m&#039;expliquer comment faire.</p><p>La base de donnée est un fichier .sql et j&#039;ai deja creer le serveur et un &quot;superutilisateur&quot;.</p><p>Codrialement.</p>]]></content>
+		<author>
+			<name><![CDATA[Epiliptik]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1025</uri>
+		</author>
+		<updated>2010-12-26T15:54:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7127#p7127</id>
+	</entry>
+</feed>

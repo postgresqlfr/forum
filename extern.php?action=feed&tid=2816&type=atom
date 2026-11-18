@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / [RESOLU] Enregistrer toutes les actions liés aux comptes utilisateur]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2816&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2816"/>
+	<updated>2013-10-25T09:33:44Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2816</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] Enregistrer toutes les actions liés aux comptes utilisateur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18546#p18546"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><p>C&#039;est dommage qu&#039;on ne puisse pas choisir son caractère de &quot;séparation&quot; pour le csvlog, heureusement que la commande COPY permet de définir le type de séparateur lors d&#039;un import/export.</p><br /><p>En tout cas je vous remercie pour toutes vos réponses. Je considère ce topic comme résolu et espère qu&#039;il apportera des réponses aux personnes qui se posent les mêmes questions.</p><br /><p><span class="bbu">PS:</span> Pas de question 11 <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /> , c&#039;était juste une petite remarque. D&#039;ailleurs j&#039;aurais deux nouvelles remarques :<br />* Dans le dossier <em>pg_log</em> j&#039;ai maintenant un fichier &quot;postgresql-2013-10-25_000000.csv&quot; et un fichier &quot;postgresql-2013-10-25_000000.log&quot;, et pourtant j&#039;ai bien défini &quot;<strong>log_destination = &#039;csvlog&#039;</strong>&quot; et pas &quot;<strong>log_destination = &#039;stderr, csvlog&#039;</strong>&quot;. Le fichier d&#039;extension &quot;.log&quot; reste vide donc pas de double enregistrement. Aussi, lors d&#039;un redémarrage du serveur, un nouveau fichier &quot;.log&quot; est créé 3-4 secondes avant un nouveau fichier &quot;.csv&quot;.<br />PostgreSQL version: 9.2</p><br /><p>* J&#039;ai testé &quot;<strong>log_statement = &#039;ddl&#039;</strong>&quot; et &quot;<strong>log_statement = &#039;mod&#039;</strong>&quot;, rien à faire, cela n&#039;enregistre pas les SELECT, il faut passer par &quot;<strong>log_statement = &#039;all&#039;</strong>&quot;. Dommage que l&#039;option &quot;dml&quot; n&#039;existe pas !</p><br /><p>Cordialement,</p>]]></content>
+		<author>
+			<name><![CDATA[guk92]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1398</uri>
+		</author>
+		<updated>2013-10-25T09:33:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18546#p18546</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] Enregistrer toutes les actions liés aux comptes utilisateur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18531#p18531"/>
+		<content type="html"><![CDATA[<p>9. Non.</p><p>10. Vous ne pouvez pas. Le format CSV (Comma Separated Value) a une séparation par virgule.</p><p>11? En format CSV, vous avez déjà tout. Rien ne sert d&#039;indiquer le log_line_prefix.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2013-10-24T21:51:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18531#p18531</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] Enregistrer toutes les actions liés aux comptes utilisateur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18512#p18512"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><br /><p>Merci pour vos réponses gleu. </p><br /><p>J&#039;ai donc modifié le fichier postgresql.conf en indiquant les paramètres suivants :</p><div class="codebox"><pre><code>log_destination = &#039;csvlog&#039;
+logging_collector = on # Celui-ci était déjà à ON
+log_connections = on
+log_line_prefix = &#039;%t, %a, %u, %d, %r, %i, %e&#039;
+log_statement = &#039;all&#039;</code></pre></div><br /><br /><p>La première chose que je remarque est que le fichier enregistre <strong>toutes les actions possibles</strong>, c&#039;est très confus. D&#039;après la documentation :</p><div class="quotebox"><blockquote><div><p>log_statement (enum)</p><p>Controls which SQL statements are logged. Valid values are none (off), ddl, mod, and all (all statements). ddl logs all data definition statements, such as CREATE, ALTER, and DROP statements. mod logs all ddl statements, plus data-modifying statements such as INSERT, UPDATE, DELETE, TRUNCATE, and COPY FROM. PREPARE, EXECUTE, and EXPLAIN ANALYZE statements are also logged if their contained command is of an appropriate type. For clients using extended query protocol, logging occurs when an Execute message is received, and values of the Bind parameters are included (with any embedded single-quote marks doubled).</p></div></blockquote></div><p><strong>9.</strong> Serait-t-il possible de le limiter aux requêtes de type SELECT + UPDATE + INSERT ? Si oui comment car je voudrais juste me limiter aux requêtes de type DML (Data Manipulation Language -&gt; SELECT | INSERT | UPDATE | DELETE).</p><br /><br /><br /><p><strong>10.</strong> Le CSV généré a pour séparateur une virgule, comment préciser que je veux un &quot;point-vigule&quot; à la place d&#039;une virgule ? (ce sera plus pratique pour ouvrir avec des outils comme Excel).</p><br /><br /><br /><p><span class="bbu">PS:</span> J&#039;ai remarqué que le paramètre log_line_prefix n&#039;est pas pris en compte lorsqu&#039;on choisit <strong>log_destination = &#039;csvlog&#039;</strong>, d&#039;après la doc, par défaut avec csvlog :</p><div class="codebox"><pre><code>CREATE TABLE postgres_log
+(
+  log_time timestamp(3) with time zone,
+  user_name text,
+  database_name text,
+  process_id integer,
+  connection_from text,
+  session_id text,
+  session_line_num bigint,
+  command_tag text,
+  session_start_time timestamp with time zone,
+  virtual_transaction_id text,
+  transaction_id bigint,
+  error_severity text,
+  sql_state_code text,
+  message text,
+  detail text,
+  hint text,
+  internal_query text,
+  internal_query_pos integer,
+  context text,
+  query text,
+  query_pos integer,
+  location text,
+  application_name text,
+  PRIMARY KEY (session_id, session_line_num)
+);</code></pre></div><br /><br /><p>Je vous remercie <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[guk92]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1398</uri>
+		</author>
+		<updated>2013-10-24T11:52:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18512#p18512</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] Enregistrer toutes les actions liés aux comptes utilisateur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18502#p18502"/>
+		<content type="html"><![CDATA[<p>3. Oui. stderr, mais c&#039;est purement personnel (ie, subjectif).</p><p>4. Non, et ça n&#039;aurait aucun sens. Stocker deux fois les mêmes traces, c&#039;est juste pour perdre en performances ? <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>5. Il va créer des .csv.</p><p>6. Oui.</p><p>7. Oui. Rien (il n&#039;est pas possible d&#039;avoir la date d&#039;exécution, vous n&#039;avez que la date de la trace ; quant à la durée, il faut configurer le log_min_duration_statement).</p><p>8. On ne peut pas (à moins de changer le titre du thread).</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2013-10-23T22:36:35Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18502#p18502</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] Enregistrer toutes les actions liés aux comptes utilisateur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18494#p18494"/>
+		<content type="html"><![CDATA[<p>Merci pour les réponses gleu <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><br /><p><strong>3</strong>. Si <strong>stderr</strong>, <strong>csvlog</strong>, <strong>syslog</strong>, et <strong>eventlog</strong> sont tous des fichiers, est-ce que c&#039;est juste la mise en forme du texte à l&#039;intérieur du fichier qui change ? Quel serait votre préférence et pourquoi ?</p><br /><p><strong>4.</strong> Est-t-il possible de choisir plusieurs de ces formats comme ceci : <em>log_destination = &#039;stderr, syslog, csvlog&#039;</em> ? </p><br /><p><strong>5.</strong> J&#039;ai vu que le contenu du dossier <em>pg_log</em> contenait déjà des des fichiers d&#039;extension .log, donc si je met juste <em>log_destination = &#039;csvlog&#039;</em> aurais-je des fichiers avec le nom : <em>postgresql-%Y-%m-%d_%H%M%S.csv</em> ? Ou bien dois-je paramétrer l&#039;attribut <strong>log_filename</strong> pour l&#039;extension ? Oui parce que comment faire la différence entre stderr et csvlog s&#039;ils ont tout les deux la même extension et le même nom de fichier (ce qui n&#039;est pas possible) ?</p><br /><p><strong>6.</strong> Pensez-vous que pour ce que je souhaite faire (<em>&quot;enregistrer de façon continu les logs dans une table de la base&quot;</em>), mieux vaut passer par un fichier CSV (<strong>csvlog</strong>) puis charger dans une base de la table à partir d&#039;une tâche planifié ?</p><br /><p><strong>7.</strong> Puis-je définir le log_line_prefix comme ceci : log_line_prefix = &#039;%t, %a, %u, %d, %r, %i, %e&#039; . Aussi lequel de ces lettre représente la <strong>date d&#039;exécution</strong> et la <strong>durée de la requête</strong> ?</p><br /><p><strong>8.</strong> Comment faire pour mettre un sujet en statut &quot;Résolu&quot; dans le forum ?</p><br /><p>PS: Je sais qu&#039;il n&#039;est pas bien d&#039;avoir deux PosgtreSQL sur la même machine, mais c&#039;est au cas où je n&#039;aurais pas le choix (et c&#039;est une &quot;mini prod&quot;).</p><br /><p>Je vous remercie <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[guk92]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1398</uri>
+		</author>
+		<updated>2013-10-23T09:51:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18494#p18494</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] Enregistrer toutes les actions liés aux comptes utilisateur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18489#p18489"/>
+		<content type="html"><![CDATA[<p>1A. Tous sous forme de fichiers.</p><p>1B. Non. Le seul moyen simple est d&#039;avoir un job cron qui intègre le contenu d&#039;un fichier de traces dans une table. Et encore, simple, pas si sûr.</p><p>2A. Non. Il est possible de créer une extension qui le fait mais ça demande des connaissances en langage C.</p><p>2B. Oui.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2013-10-22T22:24:07Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18489#p18489</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] Enregistrer toutes les actions liés aux comptes utilisateur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18476#p18476"/>
+		<content type="html"><![CDATA[<p>ça serait moi, je monterai un serveur syslog et j&#039;enverrais les logs la bas et c&#039;est ce serveur qui ferait les traitements que vous souhaitez.</p><p>mettre 2 serveurs pg sur la meme machine pour traiter les logs c&#039;est pas viable dans le future ou alors c&#039;est une mini prod</p>]]></content>
+		<author>
+			<name><![CDATA[kenrio]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=964</uri>
+		</author>
+		<updated>2013-10-22T10:01:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18476#p18476</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] Enregistrer toutes les actions liés aux comptes utilisateur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18475#p18475"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><br /><p>Je vous remercie pour votre réponse Arthurr. Ce que je souhaiterais, c&#039;est enregistrer de façon continu les logs dans une table de la base.</p><br /><br /><p>Du coup j&#039;aurais quelques questions :<br /><strong>1.</strong> J&#039;ai vu qu&#039;il existait plusieurs façon d&#039;enregistrer le log (<strong>stderr</strong>, <strong>csvlog</strong>, <strong>syslog</strong>, and <strong>eventlog</strong>). Sauf qu&#039;on ne dit pas exactement à quoi correspondent ces 4 types d&#039;enregistrement dans la doc (même si on se doute bien que pour <strong>csvlog</strong> il va enregistrer dans un fichier au format CSV).<br />&#160; &#160; <strong>a.</strong> A quoi correspondent chacun de ces 4 types d&#039;enregistrement ?&#160; Lesquels enregistrent sous forme de fichier, et d&#039;autres directement dans la table d&#039;une base ?<br />&#160; &#160; <strong>b.</strong> N&#039;y a-t-il pas un moyen d&#039;enregistrer le log dans une base à part comme &quot;base_pg_des_logs&quot; avec une table &quot;table_des_logs&quot; ? Si oui comment faire ?</p><br /><p><strong>2.</strong> Je suis conscient pour les ressources (perfs) que cela demande, mais ce qui m&#039;inquiète c&#039;est surtout l&#039;enregistrement des logs de mes scripts d&#039;automatisation journalière. Du coup est-t-il possible d&#039;indiquer dans postgresql.conf le nom des comptes dont il ne faut pas enregistrer les logs ? (ex: le compte admin <strong>postgres</strong>).<br />&#160; &#160; <strong>a.</strong> Si oui, comment l&#039;indiquer dans le postgresql.conf ?<br />&#160; &#160; <strong>b.</strong> Si non, est-t-il possible d&#039;installer 2 SGBDR PostgreSQL sur la même machine ? (le premier aura pour but d&#039;effectuer les traitements journaliers, le second récupère les résultats du premier serveur pour servir de consultation + enregistrement des logs utilisateurs).</p><br /><br /><br /><br /><br /><p>Voici le contenu de mon postgresql.conf, partie &quot;Error Reporting and Logging&quot; (aucune modification apporté pour le moment):</p><div class="codebox"><pre class="vscroll"><code>#------------------------------------------------------------------------------
+# ERROR REPORTING AND LOGGING
+#------------------------------------------------------------------------------
+
+# - Where to Log -
+
+log_destination = &#039;stderr&#039;        # Valid values are combinations of
+                    # stderr, csvlog, syslog, and eventlog,
+                    # depending on platform.  csvlog
+                    # requires logging_collector to be on.
+
+# This is used when logging to stderr:
+logging_collector = on        # Enable capturing of stderr and csvlog
+                    # into log files. Required to be on for
+                    # csvlogs.
+                    # (change requires restart)
+
+# These are only used if logging_collector is on:
+#log_directory = &#039;pg_log&#039;        # directory where log files are written,
+                    # can be absolute or relative to PGDATA
+#log_filename = &#039;postgresql-%Y-%m-%d_%H%M%S.log&#039;    # log file name pattern,
+                    # can include strftime() escapes
+#log_file_mode = 0600            # creation mode for log files,
+                    # begin with 0 to use octal notation
+#log_truncate_on_rotation = off        # If on, an existing log file with the
+                    # same name as the new log file will be
+                    # truncated rather than appended to.
+                    # But such truncation only occurs on
+                    # time-driven rotation, not on restarts
+                    # or size-driven rotation.  Default is
+                    # off, meaning append to existing files
+                    # in all cases.
+#log_rotation_age = 1d            # Automatic rotation of logfiles will
+                    # happen after that time.  0 disables.
+#log_rotation_size = 10MB        # Automatic rotation of logfiles will
+                    # happen after that much log output.
+                    # 0 disables.
+
+# These are relevant when logging to syslog:
+#syslog_facility = &#039;LOCAL0&#039;
+#syslog_ident = &#039;postgres&#039;
+
+# This is only relevant when logging to eventlog (win32):
+#event_source = &#039;PostgreSQL&#039;
+
+# - When to Log -
+
+#client_min_messages = notice        # values in order of decreasing detail:
+                    #   debug5
+                    #   debug4
+                    #   debug3
+                    #   debug2
+                    #   debug1
+                    #   log
+                    #   notice
+                    #   warning
+                    #   error
+
+#log_min_messages = warning        # values in order of decreasing detail:
+                    #   debug5
+                    #   debug4
+                    #   debug3
+                    #   debug2
+                    #   debug1
+                    #   info
+                    #   notice
+                    #   warning
+                    #   error
+                    #   log
+                    #   fatal
+                    #   panic
+
+#log_min_error_statement = error    # values in order of decreasing detail:
+                     #   debug5
+                    #   debug4
+                    #   debug3
+                    #   debug2
+                    #   debug1
+                     #   info
+                    #   notice
+                    #   warning
+                    #   error
+                    #   log
+                    #   fatal
+                    #   panic (effectively off)
+
+#log_min_duration_statement = -1    # -1 is disabled, 0 logs all statements
+                    # and their durations, &gt; 0 logs only
+                    # statements running at least this number
+                    # of milliseconds
+
+
+# - What to Log -
+
+#debug_print_parse = off
+#debug_print_rewritten = off
+#debug_print_plan = off
+#debug_pretty_print = on
+#log_checkpoints = off
+#log_connections = off
+#log_disconnections = off
+#log_duration = off
+#log_error_verbosity = default        # terse, default, or verbose messages
+#log_hostname = off
+log_line_prefix = &#039;%t &#039;            # special values:
+                    #   %a = application name
+                    #   %u = user name
+                    #   %d = database name
+                    #   %r = remote host and port
+                    #   %h = remote host
+                    #   %p = process ID
+                    #   %t = timestamp without milliseconds
+                    #   %m = timestamp with milliseconds
+                    #   %i = command tag
+                    #   %e = SQL state
+                    #   %c = session ID
+                    #   %l = session line number
+                    #   %s = session start timestamp
+                    #   %v = virtual transaction ID
+                    #   %x = transaction ID (0 if none)
+                    #   %q = stop here in non-session
+                    #        processes
+                    #   %% = &#039;%&#039;
+                    # e.g. &#039;&lt;%u%%%d&gt; &#039;
+#log_lock_waits = off            # log lock waits &gt;= deadlock_timeout
+#log_statement = &#039;none&#039;            # none, ddl, mod, all
+#log_temp_files = -1            # log temporary files equal or larger
+                    # than the specified size in kilobytes;
+                    # -1 disables, 0 logs all temp files
+log_timezone = &#039;Europe/Brussels&#039;</code></pre></div><br /><br /><p>Je vous remercie, cordialement,</p>]]></content>
+		<author>
+			<name><![CDATA[guk92]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1398</uri>
+		</author>
+		<updated>2013-10-22T09:54:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18475#p18475</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] Enregistrer toutes les actions liés aux comptes utilisateur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18365#p18365"/>
+		<content type="html"><![CDATA[<p>bonjour,</p><p><a href="http://docs.postgresql.fr/9.3/runtime-config-logging.html" rel="nofollow">http://docs.postgresql.fr/9.3/runtime-c … gging.html</a></p><p>vous pouvez paramétrer postgresql avec log_statement = &#039;all&#039; + log_connection = on (attention aux perfs !).<br />vous devez modifier également log_line_prefix pour avoir les infos que vous voulez (IP, date, base, utilisateur ...)<br />il est églament possible de logger au format csv : chapitre 18.8.4. &quot;Utiliser les journaux au format CSV&quot;</p>]]></content>
+		<author>
+			<name><![CDATA[arthurr]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=62</uri>
+		</author>
+		<updated>2013-10-09T09:33:09Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18365#p18365</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[[RESOLU] Enregistrer toutes les actions liés aux comptes utilisateur]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18363#p18363"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><p>J&#039;ai connaissance de &quot;pg_stat_activity&quot;, mais je souhaiterais savoir s&#039;il est possible d&#039;enregistrer dans une table de log :<br />- le compte utilisateur<br />- l&#039;adresse IP de la machine via laquelle a été exécutée l&#039;action<br />- le datetime d&#039;exécution<br />- la requête qui a été exécutée</p><br /><p>... à chaque fois qu&#039;un utilisateur <strong>exécute une requête</strong>. Est-ce que quelque chose est prévue pour ce type d&#039;opération ou faut-t-il utiliser une couche d&#039;abstraction au niveau logiciel pour effectuer cette opération soi-même ?</p><br /><p>Merci <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[guk92]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1398</uri>
+		</author>
+		<updated>2013-10-09T08:57:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18363#p18363</id>
+	</entry>
+</feed>

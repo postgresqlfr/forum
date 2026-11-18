@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Tris naturel des string]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=527&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=527"/>
+	<updated>2010-01-08T17:24:32Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=527</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Tris naturel des string]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=3545#p3545"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>Martin Flahault a écrit&#160;:</cite><blockquote><div><p>Où peut-on poster pour faire part de ce genre de problème ?</p></div></blockquote></div><p>Si c&#039;est un problème Mac OS X comme je le pense, je suppose qu&#039;il faut voir avec Apple.</p><p>Si vous croyez à un problème de PostgreSQL, vous pouvez toujours demander sur la liste pgsql-general mais la réponse que je vous ai donné vient de là. Si vous voulez les détails, c&#039;est sur <a href="http://archives.postgresql.org/message-id/20BC5D30-5677-4E0F-A9EB-A05DBC2CE866@revolversoft.com" rel="nofollow">http://archives.postgresql.org/message- … ersoft.com</a> . À noter que la dernière réponse vient d&#039;un codeur PostgreSQL expérimenté.</p><div class="quotebox"><cite>Martin Flahault a écrit&#160;:</cite><blockquote><div><p>Y&#039;a t&#039;il un correctif possible à attendre ?</p></div></blockquote></div><p>Comme à mon avis le problème ne vient pas de PostgreSQL, il ne faut pas s&#039;attendre à un correctif sur PostgreSQL même.</p><p>Et comme je ne crois pas à un correctif d&#039;Apple...</p><br /><div class="quotebox"><cite>Martin Flahault a écrit&#160;:</cite><blockquote><div><p>Si rien, j&#039;irai voir vers d&#039;autres SGBD mais Postgres à l&#039;air vraiment bien sur pleins de points.</p></div></blockquote></div><p>Ce serait bien dommage.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-01-08T17:24:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=3545#p3545</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Tris naturel des string]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=3544#p3544"/>
+		<content type="html"><![CDATA[<p>J&#039;ai déjà un parc installé d&#039;une centaine de serveur fonctionnant sur un autre SGBD avec des bases en UTF8. Le changement d&#039;encodage ou de plateforme est donc délicat.</p><p>Où peut-on poster pour faire part de ce genre de problème ?<br />Y&#039;a t&#039;il un correctif possible à attendre ?</p><p>Si rien, j&#039;irai voir vers d&#039;autres SGBD mais Postgres à l&#039;air vraiment bien sur pleins de points.</p>]]></content>
+		<author>
+			<name><![CDATA[Martin Flahault]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=600</uri>
+		</author>
+		<updated>2010-01-08T17:09:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=3544#p3544</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Tris naturel des string]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=3540#p3540"/>
+		<content type="html"><![CDATA[<p>Il semble que les locales UTF-8 ne sont pas correctes sous les BSD. Or Mac est un BSD. Donc soit vous choisissez une autre locale (lors de l&#039;initdb), soit vous changez de système d&#039;exploitation.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-01-08T12:56:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=3540#p3540</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Tris naturel des string]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=3539#p3539"/>
+		<content type="html"><![CDATA[<p>@gleu</p><p>Je viens de refaire ton exemple sur ma machine. C&#039;est bien ce que je craignais, ça ne fonctionne pas sur mon installation. Pour info, voici ce que j&#039;obtiens :</p><p>Martin:bin martin$ ./createdb b3<br />Martin:bin martin$ ./psql b3<br />psql (8.4.1)<br />Type &quot;help&quot; for help.</p><p>b3=# show lc_collate;<br /> lc_collate&#160; <br />-------------<br /> fr_FR.UTF-8<br />(1 row)</p><p>b3=# create table t1 (contenu text);<br />CREATE TABLE<br />b3=# insert into t1 values (&#039;b&#039;), (&#039;a&#039;), (&#039;c&#039;), (&#039;à&#039;), (&#039;E&#039;), (&#039;A&#039;), (&#039;e&#039;);<br />INSERT 0 7<br />b3=# select * from t1;<br /> contenu <br />---------<br /> b<br /> a<br /> c<br /> à<br /> E<br /> A<br /> e<br />(7 rows)</p><p>b3=# select * from t1 order by contenu;<br /> contenu <br />---------<br /> A<br /> E<br /> a<br /> b<br /> c<br /> e<br /> à<br />(7 rows)</p><br /><br /><p>Certes, mon install est une 8.4.1 et pas une 8.4.2 mais je ne crois pas que cela fasse vraiment de différence. En revanche, mon install est faite sur un Mac OS 10.6.2 et quand je passe le &quot;SHOW LC_COLLATE&quot; j&#039;obtiens &quot;1 row&quot; et toi &quot;1 ligne&quot;. Y&#039;a t&#039;il une différence de localisation entre nos 2 installations qui aurait un rapport avec mon problème ?</p><p>Merci d&#039;avance,</p><p>Martin</p>]]></content>
+		<author>
+			<name><![CDATA[Martin Flahault]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=600</uri>
+		</author>
+		<updated>2010-01-08T11:45:02Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=3539#p3539</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Tris naturel des string]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=3538#p3538"/>
+		<content type="html"><![CDATA[<p>Bonjour.<br />Pour commencer, merci d&#039;éviter d&#039;utiliser une discussion déjà en cours pour poser une question, la prochaine fois créez en un neuf.</p><p>Si vous voulez un type de chaîne insensible à la casse, ce que vous recherchez s&#039;appelle citext (case insensitive text) <a href="http://docs.postgresql.fr/8.4/citext.html" rel="nofollow">http://docs.postgresql.fr/8.4/citext.html</a><br />Par contre, je ne connais pas de façon pour trier en ignorant les accents.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-01-08T10:41:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=3538#p3538</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Tris naturel des string]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=3537#p3537"/>
+		<content type="html"><![CDATA[<p>Et pour vous donner un exemple avec un autre ordre de tri:</p><div class="codebox"><pre class="vscroll"><code>guillaume@laptop:~$ createdb b4  --locale C --template template0
+guillaume@laptop:~$ psql b4
+psql (8.4.2)
+Saisissez « help » pour l&#039;aide.
+
+b4=# show lc_collate;
+ lc_collate 
+------------
+ C
+(1 ligne)
+
+b4=# create table t1 (contenu text);
+CREATE TABLE
+b4=# insert into t1 values (&#039;b&#039;), (&#039;a&#039;), (&#039;c&#039;), (&#039;à&#039;), (&#039;E&#039;), (&#039;A&#039;), (&#039;e&#039;);
+INSERT 0 7
+b4=# select * from t1;
+ contenu 
+---------
+ b
+ a
+ c
+ à
+ E
+ A
+ e
+(7 lignes)
+
+b4=# select * from t1 order by contenu;
+ contenu 
+---------
+ A
+ E
+ a
+ b
+ c
+ e
+ à
+(7 lignes)</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-01-08T10:36:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=3537#p3537</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Tris naturel des string]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=3536#p3536"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>J&#039;aimerai un système qui me permette de typer la colonne pour que je n&#039;ai pas à modifier toutes mes requêtes existantes.</p></div></blockquote></div><p>Ça n&#039;existe pas sous PostgreSQL.</p><p>Avant la 8.4, l&#039;ordre de tri était défini au niveau de l&#039;instance. Donc chaque base avait le même ordre de tri.</p><p>En 8.4, vous pouvez définir l&#039;ordre du tri sur la base. Donc toutes les colonnes des tables de cette base auront ce même type de tri.</p><p>Ce qui me donne:</p><div class="codebox"><pre class="vscroll"><code>guillaume@laptop:~$ createdb b3
+guillaume@laptop:~$ psql b3
+psql (8.4.2)
+Saisissez « help » pour l&#039;aide.
+
+b3=# show lc_collate;
+ lc_collate  
+-------------
+ fr_FR.UTF-8
+(1 ligne)
+
+b3=# create table t1 (contenu text);
+CREATE TABLE
+b3=# insert into t1 values (&#039;b&#039;), (&#039;a&#039;), (&#039;c&#039;), (&#039;à&#039;), (&#039;E&#039;), (&#039;A&#039;), (&#039;e&#039;);
+INSERT 0 7
+b3=# select * from t1;
+ contenu 
+---------
+ b
+ a
+ c
+ à
+ E
+ A
+ e
+(7 lignes)
+
+b3=# select * from t1 order by contenu;
+ contenu 
+---------
+ a
+ A
+ à
+ b
+ c
+ e
+ E
+(7 lignes)</code></pre></div><p>Donc, j&#039;ai bien un tri ne prenant pas en compte accents et majuscules.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-01-08T10:33:55Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=3536#p3536</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Tris naturel des string]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=3535#p3535"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>je suis en train de tester postgres et je n&#039;arrive absolument pas à recréer un comportement facile à obtenir sur MySQL ou Primebase.</p><p>J&#039;ai une table &quot;bidule&quot; avec une colonne &quot;libelle&quot; de type char(40) dans une base &quot;salutlesmickeys&quot;.<br />J&#039;aimerai que les ORDER BY sur cette colonne soient insensibles à la casse et aux accents. Or, pour l&#039;instant, ce n&#039;est pas le cas. Mon serveur est en version 8.4.2. Toute l&#039;install est en UTF8 :</p><p>salutlesmickeys=# \encoding<br />UTF8</p><p>salutlesmickeys=# SHOW LC_COLLATE;<br />lc_collate&#160; <br />-------------<br />fr_FR.UTF-8<br />(1 row)</p><p>salutlesmickeys=# SHOW LC_CTYPE;<br />lc_ctype&#160; &#160;<br />-------------<br />fr_FR.UTF-8<br />(1 row)</p><br /><p>J&#039;aimerai un système qui me permette de typer la colonne pour que je n&#039;ai pas à modifier toutes mes requêtes existantes.<br />En MySQL, ça marche tout seul... Sur Primebase, qui est le SGBD que j&#039;utilise pour l&#039;instant, j&#039;avais créé une &quot;COLLATING SEQUENCE&quot; qui définissait l&#039;ordre de tri des caractères, puis des domaines de données char() utilisant cet ordre de tri prédéfini :<br />CREATE DOMAIN petiteString CHAR[10],&#160; ORDER AS COLLATING SEQUENCE maSequenceDeTri;</p><p>Ce système permet de n&#039;utiliser que des ORDER BY simples dans les requêtes.</p><p>Je n&#039;ai pas trouvé de réponse (ou je ne les ai pas comprises) dans les échanges précédents sur le sujet.</p><p>Merci pour votre aide,</p><p>Martin</p>]]></content>
+		<author>
+			<name><![CDATA[Martin Flahault]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=600</uri>
+		</author>
+		<updated>2010-01-08T10:04:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=3535#p3535</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Tris naturel des string]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=3273#p3273"/>
+		<content type="html"><![CDATA[<p>En fait, je suis occupé à réaliser un systeme d&#039;indexation de fichiers, j&#039;ai donc une table directory avec les noms des repertoires et une table files avec le nom des fichiers.<br />Il y a peu de modification sur les tables directory, files; soit c&#039;est des ajouts soit des suppressions, mais tout le reste se fait sur les tables liées (commentaires, données exif, droits d&#039;acces,...)<br />quel serait la meilleur méthode pour avoir un temps de reponse acceptable et un tris possible comme cité au premier post?<br />Est ce que si je fait:</p><p>directory (id, name ,...)<br />directory_name_sorting (id, name)</p><p>file (id, filename, ...)<br />file_filename_sorting (id, filename)</p><p>Lorsque j&#039;ajoute un record dans file, j&#039;ajoute un record dans file_filename_sorting avec un formatage (suppression des blancs, uppercase, transformation des nombres,...)</p><p>Et j&#039;ai plus qu&#039;a faire un select * from file LEFT JOIN file_filename_sorting fls ON&#160; fls.id = file.id ORDER BY fls.filename</p><p>Est ce que ça serait une solution envisageable et pas trop gourmande?</p><p>Merci pour votre aide<br />Christophe</p>]]></content>
+		<author>
+			<name><![CDATA[comicway]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=578</uri>
+		</author>
+		<updated>2009-12-15T12:39:38Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=3273#p3273</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Tris naturel des string]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=3272#p3272"/>
+		<content type="html"><![CDATA[<p>Ça dépend surtout du nombre de caractères à trier, plutôt que du nombre de lignes. Avoir une table annexe ralentira les opérations de modification sur la table principale. Donc tout dépend si vous avez beaucoup de modifications sur celle-ci.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2009-12-15T12:26:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=3272#p3272</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Tris naturel des string]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=3261#p3261"/>
+		<content type="html"><![CDATA[<p>Sur quel volumétrie ca peut devenir lent? est ce que tu as des articles ou je peux me documenter?<br />J&#039;ai testé hier sur 50000 entrées.</p><p>Est ce que la solution ne serait pas de créer 1 table annexe et lorsque j&#039;insere les données dans ma table j&#039;ajoute dans la table annexe avec le traitement sur le string (suppression des blancs, uppercase, transformation des nombres,...)<br />Et je fait une recherche sur la table annexe et une jointure sur la table avec toutes les données</p>]]></content>
+		<author>
+			<name><![CDATA[comicway]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=578</uri>
+		</author>
+		<updated>2009-12-15T09:27:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=3261#p3261</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Tris naturel des string]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=3260#p3260"/>
+		<content type="html"><![CDATA[<p>Du traitement de chaîne en PL/pgsql ? c&#039;est voué à être super lent.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2009-12-14T23:05:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=3260#p3260</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Tris naturel des string]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=3259#p3259"/>
+		<content type="html"><![CDATA[<p>hello,</p><p>Je viens de trouver un natural sort basé sur des fonctions<br /><a href="http://drupalcode.org/viewvc/drupal/contributions/modules/natsort/natsort.install.pgsql?revision=1.3.2.1&amp;view=markup" rel="nofollow">http://drupalcode.org/viewvc/drupal/con … iew=markup</a><br />je viens d&#039;essayer et c&#039;est assez rapide...</p>]]></content>
+		<author>
+			<name><![CDATA[comicway]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=578</uri>
+		</author>
+		<updated>2009-12-14T21:22:03Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=3259#p3259</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Tris naturel des string]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=3247#p3247"/>
+		<content type="html"><![CDATA[<p>Je n&#039;ai pas essayé les lettres accentuées, mais pour le reste cela fonctionne plutôt bien, y compris les décimaux. Cela dépend peut être de la configuration, aussi.</p>]]></content>
+		<author>
+			<name><![CDATA[FNo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=518</uri>
+		</author>
+		<updated>2009-12-14T15:38:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=3247#p3247</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Tris naturel des string]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=3246#p3246"/>
+		<content type="html"><![CDATA[<p>Ça ne fonctionnera pas sur les lettres accentuées. Je ne suis pas sûr que ça fonctionne non plus pour les nombres.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2009-12-14T15:23:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=3246#p3246</id>
+	</entry>
+</feed>

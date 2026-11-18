@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / affinage de la section EXCEPTION d'une fonction PL/pgSQL]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1444&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1444"/>
+	<updated>2011-06-05T15:34:54Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1444</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  affinage de la section EXCEPTION d'une fonction PL/pgSQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9656#p9656"/>
+		<content type="html"><![CDATA[<p>ah bah oui, des sous-blocs, fallait y penser. merci !!!</p>]]></content>
+		<author>
+			<name><![CDATA[bebert73]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1062</uri>
+		</author>
+		<updated>2011-06-05T15:34:54Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9656#p9656</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  affinage de la section EXCEPTION d'une fonction PL/pgSQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9655#p9655"/>
+		<content type="html"><![CDATA[<p>On peut faire ça avec 2 blocs distincts. Quelque chose du genre:</p><p>CREATE OR REPLACE FUNCTION concatener (IN sous_classe INTEGER) RETURNS VARCHAR AS $$<br />DECLARE<br />v_test1&#160; &#160; VARCHAR(32);<br />v_test2&#160; &#160; VARCHAR(32);<br />BEGIN<br />&#160; &#160; BEGIN<br />&#160; &#160; &#160; SELECT&#160; &#160; &#160; &#160; nom INTO STRICT v_test1<br />&#160; &#160; &#160; &#160; &#160; FROM&#160; &#160; test1<br />&#160; &#160; &#160; &#160; &#160;WHERE&#160; &#160; test1.sous_classe = $1;<br />&#160; &#160; EXCEPTION<br />&#160; &#160; &#160; &#160; WHEN TOO_MANY_ROWS (dans premiere requete) THEN<br />&#160; &#160; &#160; &#160; &#160; &#160; RAISE EXCEPTION &#039;erreur de conception dans la base dans la table test1&#039;;&#160; &#160; &#160; <br />&#160; &#160; END;<br />&#160; &#160; BEGIN<br />&#160; &#160; &#160; SELECT&#160; &#160; &#160; &#160; nom INTO STRICT v_test2<br />&#160; &#160; &#160; &#160; &#160; FROM&#160; &#160; test2<br />&#160; &#160; &#160; &#160; &#160; WHERE&#160; &#160; test2.sous_classe = $1;<br />&#160; &#160;EXCEPTION<br />&#160; &#160; &#160; &#160; WHEN TOO_MANY_ROWS (dans deuxieme requete) THEN<br />&#160; &#160; &#160; &#160; &#160; &#160; RAISE EXCEPTION &#039;erreur de conception dans la base dans la table test2&#039;;<br />&#160; &#160; RETURN v_test1 || v_test2;<br />&#160; &#160; END;<br />END;<br />$$ LANGUAGE PLPGSQL;</p><p>Ça a un défaut: on a deux sous-transactions (une par sous-bloc begin-end), ce qui a un coût non négligeable (à mesurer).</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-06-05T15:31:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9655#p9655</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[affinage de la section EXCEPTION d'une fonction PL/pgSQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9652#p9652"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>ci-dessous un bout de code, qui fonctionne bien, il me renvoie un message d&#039;erreur personnalisé quand la fonction déclenche l&#039;exception TOO_MANY_ROWS (dans la fonction je fais des SELECT ... INTO STRICT ...)</p><p>ma question est de savoir si on peut affiner un peu plus la section EXCEPTION, pour que le message d&#039;erreur indique plus précisément à quel endroit l&#039;exception s&#039;est déclenchée</p><p>Nota : on est bien d&#039;accord que si je fais un SELECT ... INTO STRICT ..., c&#039;est que normalement les tables sont conçues avec des contraintes de telles manière que le SELECT ne peut ramener qu&#039;une seule ligne. L&#039;EXCEPTION ne devrait donc jamais se déclencher, et à la limite on pourrait même s&#039;en passer. Mon but en la mettant est juste de refaire une nouvelle vérification, au cas où il y a une erreur de conception des tables, ou encore au cas où ma requête est mal construite. Bref, c&#039;est un peu la ceinture et les bretelles...</p><p>Alors, voilà le code :</p><p>CREATE TABLE test1 (<br />&#160; &#160; classe&#160; &#160; &#160; &#160; INTEGER&#160; &#160; &#160; &#160; PRIMARY KEY,<br />&#160; &#160; sous_classe&#160; &#160; INTEGER,<br />&#160; &#160; nom&#160; &#160; &#160; &#160; &#160; &#160; VARCHAR(32)<br />);</p><p>CREATE TABLE test2 (<br />&#160; &#160; classe&#160; &#160; &#160; &#160; INTEGER&#160; &#160; PRIMARY KEY,<br />&#160; &#160; sous_classe&#160; &#160; INTEGER,<br />&#160; &#160; nom&#160; &#160; &#160; &#160; &#160; &#160; VARCHAR(32)<br />);</p><p>INSERT INTO test1 (classe, sous_classe, nom) VALUES &#160; &#160; (1, 1, &#039;toto&#039;),<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; (2, 1, &#039;titi&#039;);<br />INSERT INTO test2 (classe, sous_classe, nom) VALUES &#160; &#160; (1, 1, &#039;tata&#039;),<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; (2, 1, &#039;tutu&#039;);<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; <br />CREATE OR REPLACE FUNCTION concatener (IN sous_classe INTEGER) RETURNS VARCHAR AS $$<br />DECLARE<br />v_test1&#160; &#160; VARCHAR(32);<br />v_test2&#160; &#160; VARCHAR(32);<br />BEGIN<br />&#160; &#160; SELECT&#160; &#160; &#160; &#160; nom INTO STRICT v_test1<br />&#160; &#160; &#160; &#160; FROM&#160; &#160; test1<br />&#160; &#160; &#160; &#160; WHERE&#160; &#160; test1.sous_classe = $1;<br />&#160; &#160; SELECT&#160; &#160; &#160; &#160; nom INTO STRICT v_test2<br />&#160; &#160; &#160; &#160; FROM&#160; &#160; test2<br />&#160; &#160; &#160; &#160; WHERE&#160; &#160; test2.sous_classe = $1;<br />&#160; &#160; <br />&#160; &#160; RETURN v_test1 || v_test2;<br />&#160; &#160; <br />&#160; &#160; EXCEPTION<br />&#160; &#160; &#160; &#160; WHEN TOO_MANY_ROWS THEN<br />&#160; &#160; &#160; &#160; &#160; &#160; RAISE EXCEPTION &#039;erreur de conception dans la base&#039;;<br />END;<br />$$ LANGUAGE PLPGSQL;</p><p>Cela fonctionne bien. En lançant&#160; &#160; &#160;select concatener(1);&#160; &#160; &#160;il m&#039;affiche bien&#160; &#160; &#160;ERREUR:&#160; erreur de conception dans la base</p><br /><p>Ma question : est-il possible d&#039;affiner le code pour savoir si l&#039;erreur s&#039;est produite dans la 1ère requête (celle sur la table test1) ou la seconde (sur la table test2).</p><p>En gros, d&#039;avoir une fonction un peu comme suit :</p><p>CREATE OR REPLACE FUNCTION concatener (IN sous_classe INTEGER) RETURNS VARCHAR AS $$<br />DECLARE<br />v_test1&#160; &#160; VARCHAR(32);<br />v_test2&#160; &#160; VARCHAR(32);<br />BEGIN<br />&#160; &#160; SELECT&#160; &#160; &#160; &#160; nom INTO STRICT v_test1<br />&#160; &#160; &#160; &#160; FROM&#160; &#160; test1<br />&#160; &#160; &#160; &#160; WHERE&#160; &#160; test1.sous_classe = $1;<br />&#160; &#160; SELECT&#160; &#160; &#160; &#160; nom INTO STRICT v_test2<br />&#160; &#160; &#160; &#160; FROM&#160; &#160; test2<br />&#160; &#160; &#160; &#160; WHERE&#160; &#160; test2.sous_classe = $1;<br />&#160; &#160; <br />&#160; &#160; RETURN v_test1 || v_test2;<br />&#160; &#160; <br />&#160; &#160; EXCEPTION<br />&#160; &#160; &#160; &#160; WHEN TOO_MANY_ROWS (dans premiere requete) THEN<br />&#160; &#160; &#160; &#160; &#160; &#160; RAISE EXCEPTION &#039;erreur de conception dans la base dans la table test1&#039;;<br />&#160; &#160; &#160; &#160; WHEN TOO_MANY_ROWS (dans deuxieme requete) THEN<br />&#160; &#160; &#160; &#160; &#160; &#160; RAISE EXCEPTION &#039;erreur de conception dans la base dans la table test2&#039;;<br />END;<br />$$ LANGUAGE PLPGSQL;</p><br /><p>Possible ? Pas possible ?</p>]]></content>
+		<author>
+			<name><![CDATA[bebert73]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1062</uri>
+		</author>
+		<updated>2011-06-05T14:44:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9652#p9652</id>
+	</entry>
+</feed>

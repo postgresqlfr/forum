@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / [RESOLU] - Equivalent "over (PARTITION BY..." pour la version 8.3.19]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2922&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2922"/>
+	<updated>2014-01-02T15:22:14Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2922</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] - Equivalent "over (PARTITION BY..." pour la version 8.3.19]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18871#p18871"/>
+		<content type="html"><![CDATA[<p>Merci pour vos précieuses réponse et bonne suite !</p>]]></content>
+		<author>
+			<name><![CDATA[CHR]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3017</uri>
+		</author>
+		<updated>2014-01-02T15:22:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18871#p18871</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] - Equivalent "over (PARTITION BY..." pour la version 8.3.19]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18870#p18870"/>
+		<content type="html"><![CDATA[<p>Vous pouvez réécrire la requête ainsi (non testé sur une 8.3) :</p><br /><p>SELECT staff_id, extract(month from payment_date),<br />count(*) AS totmois,<br />(SELECT count(*) FROM payment where staff_id = p.staff_id) AS total,<br />(SELECT count(*) FROM payment) as totgeneral<br />FROM payment p<br />GROUP BY staff_id, extract(month from payment_date)<br />ORDER BY staff_id, extract(month from payment_date);</p><br /><p>Seulement cette requête sera vraiment beaucoup moins performante qu&#039;avec des fonctions de fenêtrage.</p><p>Il n&#039;y a pas énormément de régressions depuis la version 8.3 (le pire étant le passage en 8.3, du à la suppression des casts implicites). La version 8.3 n&#039;étant plus supportée, vous devriez prévoir une migration assez rapidement vers une 9.2 ou 9.3.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2014-01-02T12:52:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18870#p18870</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[[RESOLU] - Equivalent "over (PARTITION BY..." pour la version 8.3.19]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18869#p18869"/>
+		<content type="html"><![CDATA[<p>Je viens de réaliser que le serveur sur lequel je voulais utiliser les solutions que vous m&#039;avez proposées est dans la version 8.3.19 et que cette&#160; version n&#039;inclut pas le fenêtrage... les over (PARTITION BY sont donc inutilisables, je ne sais pas si nous avons prévu de migrer et vu les soucis annoncés pour passer la 8.3, bref, auriez-vous une alternative à cette solution qui soit utilisable dans la 8.3.19 ?<br />D&#039;avance merci,<br />chr</p>]]></content>
+		<author>
+			<name><![CDATA[CHR]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3017</uri>
+		</author>
+		<updated>2014-01-02T12:24:54Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18869#p18869</id>
+	</entry>
+</feed>

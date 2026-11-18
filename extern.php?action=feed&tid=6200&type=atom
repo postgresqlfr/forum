@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Perte de donnée après exécution d'une requête invalide]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=6200&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=6200"/>
+	<updated>2022-01-26T20:52:40Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=6200</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Perte de donnée après exécution d'une requête invalide]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33152#p33152"/>
+		<content type="html"><![CDATA[<p>La question est posée tellement fréquemment que c&#039;est devenu un élément de la FAQ de PostgreSQL : <a href="https://wiki.postgresql.org/wiki/FAQ#Why_doesn.27t_PostgreSQL_report_a_column_not_found_error_when_using_the_wrong_name_in_a_subquery.3F" rel="nofollow">https://wiki.postgresql.org/wiki/FAQ#Wh … ubquery.3F</a></p><p>Et donc pour les paraphraser :</p><p>Cependant, selon la norme SQL - et pour de bonnes raisons de facilité d&#039;utilisation - la référence à growingsystem dans la sous-sélection se trouve dans la portée &quot;référence externe&quot; où growingsystem_networks existe et qui a en effet une colonne growingsystem. Étant donné que l&#039;expression growingsystem = growingsystem va toujours être évaluée à true, la clause where elle-même renverra toujours true - tant que la sous-requête (dans ce cas ps_to_remove) renvoie au moins une ligne (c&#039;est-à-dire que ps_to_remove WHERE false produira un résultat vide).</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2022-01-26T20:52:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33152#p33152</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Perte de donnée après exécution d'une requête invalide]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33151#p33151"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />j&#039;ai une table</p><div class="quotebox"><cite>lutin11 a écrit&#160;:</cite><blockquote><div><p>\d ps_to_remove <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Table « pg_temp_3.ps_to_remove »<br /> Colonne |&#160; &#160; &#160; &#160; &#160; Type&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;| Collationnement | NULL-able | Par défaut <br />&#160; &#160; ---------+-----------------------------+----------------------+---------------+------------<br />&#160; &#160;ps_id&#160; &#160;| character varying(255) |&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; |&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;| <br />&#160; ps_gs&#160; &#160;| character varying(255) |&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; |&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;|</p></div></blockquote></div><p>créée comme ceci</p><div class="quotebox"><cite>lutin11 a écrit&#160;:</cite><blockquote><div><p>CREATE TEMPORARY TABLE ps_to_remove AS (<br />&#160; SELECT ps.topiaid ps_id, gs.topiaid ps_gs<br />&#160; FROM practicedsystem ps<br />&#160; INNER JOIN growingsystem gs ON ps.growingsystem = gs.topiaid<br />&#160; INNER JOIN growingplan gp ON gp.topiaid = gs.growingplan<br />&#160; INNER JOIN domain d ON d.topiaid = gp.domain<br />&#160; LEFT JOIN plot p ON p.growingsystem = gs.topiaid<br />&#160; LEFT JOIN zone z ON z.plot = p.topiaid<br />&#160; WHERE d.campaign &lt; 2000 OR d.campaign &gt;= 2025<br />&#160; AND d.active IS false<br />&#160; AND ps.active IS false<br />&#160; GROUP BY ps_id, ps_gs<br />);</p></div></blockquote></div><p>Le requête suivante reourne une erreur:</p><br /><div class="quotebox"><cite>lutin11 a écrit&#160;:</cite><blockquote><div><p>SELECT growingsystem FROM ps_to_remove;<br />ERROR:&#160; column &quot;growingsystem&quot; does not exist<br />LIGNE 1 : SELECT growingsystem FROM ps_to_remove;</p></div></blockquote></div><p>Normal la colonne <strong>&#039;growingsystem&#039;</strong> n&#039;existe pas mais alors pourquoi celle-ci fonctionne ?</p><div class="quotebox"><cite>lutin11 a écrit&#160;:</cite><blockquote><div><p>inra-agrosyst-latest=# SELECT COUNT(*) FROM growingsystem_networks WHERE growingsystem IN (SELECT growingsystem FROM ps_to_remove);<br /> count <br />-------<br /> 29365<br />(1 ligne)</p></div></blockquote></div><p>La bonne requête devrait être:</p><div class="quotebox"><cite>lutin11 a écrit&#160;:</cite><blockquote><div><p>inra-agrosyst-latest=# SELECT COUNT(*) FROM growingsystem_networks WHERE growingsystem IN (SELECT ps_gs FROM ps_to_remove);<br /> count <br />-------<br />&#160; &#160; &#160;7<br />(1 ligne)</p></div></blockquote></div><p>Ça m&#039;a posé un gros problème car </p><div class="quotebox"><cite>lutin11 a écrit&#160;:</cite><blockquote><div><p>DELETE FROM growingsystem_networks WHERE growingsystem IN (<br />&#160; SELECT growingsystem FROM ps_to_remove<br />);</p></div></blockquote></div><p>vide entièrement la table growingsystem_networks !</p><p>Quelqu&#039;un pourrait-il m&#039;expliquer la raison d&#039;un tel fonctionnement ?<br />Merci</p>]]></content>
+		<author>
+			<name><![CDATA[lutin11]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9985</uri>
+		</author>
+		<updated>2022-01-26T16:15:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33151#p33151</id>
+	</entry>
+</feed>

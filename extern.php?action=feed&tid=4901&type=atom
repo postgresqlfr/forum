@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Passage de paramètre dynamique dans le Crosstab?]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4901&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4901"/>
+	<updated>2018-10-09T15:05:34Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4901</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Passage de paramètre dynamique dans le Crosstab?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28395#p28395"/>
+		<content type="html"><![CDATA[<p>Ok je vais bosser dessus et revoir mon code sql si possible.</p><br /><p>Merci</p>]]></content>
+		<author>
+			<name><![CDATA[Douk V5]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=6110</uri>
+		</author>
+		<updated>2018-10-09T15:05:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28395#p28395</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Passage de paramètre dynamique dans le Crosstab?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28394#p28394"/>
+		<content type="html"><![CDATA[<p>Le ORDER BY n&#039;a pas le droit d&#039;être à cette place (dans la clause where), et la partie $$ OR $$ ,$P{Customer_ID} IS NULL , $$ doit aussi être découpée pour que $P{Customer_ID}&#160; soit tout seul en dehors de la chaîne de caractères.</p><p>Ce qui serait intéressant c&#039;est d&#039;avoir toute la requête telle qu&#039;elle arrive à postgres, elle doit être dans le log postgresql si elle n&#039;est pas dans le message d&#039;erreur.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2018-10-09T14:49:09Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28394#p28394</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Passage de paramètre dynamique dans le Crosstab?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28393#p28393"/>
+		<content type="html"><![CDATA[<p>Erreur de syntaxe:</p><br /><div class="codebox"><pre><code>Caused by: org.postgresql.util.PSQLException: ERROR: Argument of AND must have type boolean, not type sh.invoice</code></pre></div><p>Même avec les parathèse</p><div class="codebox"><pre><code>concat($$ SELECT ... WHERE to_char(DateAcct,&#039;YYYY&#039;) = $$ , $P{YEAR}, $$  ORDER BY ... $$
+                     AND (Customer_ID= $$ , $P{Customer_ID} , $$ OR $$ ,$P{Customer_ID} IS NULL , $$) ORDER BY ... $$)
+ </code></pre></div><br /><p>Cordialement,</p>]]></content>
+		<author>
+			<name><![CDATA[Douk V5]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=6110</uri>
+		</author>
+		<updated>2018-10-09T14:22:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28393#p28393</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Passage de paramètre dynamique dans le Crosstab?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28392#p28392"/>
+		<content type="html"><![CDATA[<p>Mais quelle est l&#039;erreur qui se produit avec la combinaison OR....AND ? C&#039;est une erreur de syntaxe ou c&#039;est pas le bon résultat?<br />Quel est le message d&#039;erreur s&#039;il y en a un?</p><p>Si c&#039;est syntaxiquement correct il doit manquer des parenthèses puisque le AND précède le OR dans l&#039;ordre d&#039;évaluation.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2018-10-09T13:51:21Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28392#p28392</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Passage de paramètre dynamique dans le Crosstab?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28391#p28391"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>dverite a écrit&#160;:</cite><blockquote><div><p>Le problème est que si $P{Customer_ID} se présente comme une chaîne vide, le résultat SQL va ressembler à<br /> ...Customer_ID = OR IS NULL...<br />ce qui est syntaxiquement doublement faux du point de vue de l&#039;interpréteur SQL.</p><p>Mais est-ce que c&#039;est ça qui se produit? Par quoi exactement $P{Customer_ID}&#160; est remplacé?<br />Par &#039;&#039; (chaîne vide mais litéral SQL valide)?<br />Par rien du tout? <br />Par le mot-clef NULL?</p></div></blockquote></div><p>Salut @dverite,</p><br /><p>D&#039;après ma compréhension mon parametre $P{Customer_ID} doit être remplacé par NULL.<br />Cmt je pourai donc l&#039;écrire stp??</p><br /><p>C&#039;est vraiment la première fois que je suis confronté à ce type de problème.</p><br /><p>Merci pr ton assistance.</p>]]></content>
+		<author>
+			<name><![CDATA[Douk V5]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=6110</uri>
+		</author>
+		<updated>2018-10-09T12:29:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28391#p28391</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Passage de paramètre dynamique dans le Crosstab?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28390#p28390"/>
+		<content type="html"><![CDATA[<p>Le problème est que si $P{Customer_ID} se présente comme une chaîne vide, le résultat SQL va ressembler à<br /> ...Customer_ID = OR IS NULL...<br />ce qui est syntaxiquement doublement faux du point de vue de l&#039;interpréteur SQL.</p><p>Mais est-ce que c&#039;est ça qui se produit? Par quoi exactement $P{Customer_ID}&#160; est remplacé?<br />Par &#039;&#039; (chaîne vide mais litéral SQL valide)?<br />Par rien du tout? <br />Par le mot-clef NULL?</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2018-10-09T11:52:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28390#p28390</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Passage de paramètre dynamique dans le Crosstab?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28389#p28389"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>dverite a écrit&#160;:</cite><blockquote><div><p>Du point de vue du SQL toute la partie entre $$ et $$ est une chaîne de caractères en dur. S&#039;il y&#160; un paramètre $P{YEAR} il est doit être interprété par l&#039;outil côté client et sa valeur doit être injectée dans la chaîne avant de la passer au moteur SQL.</p><br /><p>Au vu de l&#039;erreur ce n&#039;est pas comme ça que l&#039;outil procède, il semble vouloir un &quot;vrai&quot; paramètre au sens des requêtes paramétrées au niveau SQL.</p><br /><p>Il est possible d&#039;en faire un vrai paramètre mais il faudrait le sortir de la chaîne litérale et la découper en 3 parties avec un syntaxe du style:</p><div class="codebox"><pre><code>concat($$ SELECT ... WHERE to_char(DateAcct,&#039;YYYY&#039;) = $$ , $P{YEAR}, $$ ORDER BY ... $$)</code></pre></div></div></blockquote></div><p>Salut,<br /> Encore un peu coincé. J&#039;essais de gérer un paramètre optionnel <strong>$P{Customer_ID}</strong> avec la même procédure et je n&#039;y arrive pas.<br />Du genre <strong>AND Customer_ID= $P{Customer_ID} OR $P{Customer_ID}&#160; IS NULL</strong></p><div class="codebox"><pre><code>concat($$ SELECT ... WHERE to_char(DateAcct,&#039;YYYY&#039;) = $$ , $P{YEAR}, $$  ORDER BY ... $$
+                     AND Customer_ID= $$ , $P{Customer_ID} , $$ OR $$ ,$P{Customer_ID} IS NULL , $$ ORDER BY ... $$)</code></pre></div><p>Une idée svp ?</p><br /><p>Cordialement</p>]]></content>
+		<author>
+			<name><![CDATA[Douk V5]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=6110</uri>
+		</author>
+		<updated>2018-10-09T09:40:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28389#p28389</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Passage de paramètre dynamique dans le Crosstab?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28331#p28331"/>
+		<content type="html"><![CDATA[<p>Merci @dverite</p><br /><br /><p>Sa marche</p>]]></content>
+		<author>
+			<name><![CDATA[Douk V5]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=6110</uri>
+		</author>
+		<updated>2018-09-26T11:57:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28331#p28331</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Passage de paramètre dynamique dans le Crosstab?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28304#p28304"/>
+		<content type="html"><![CDATA[<p>Du point de vue du SQL toute la partie entre $$ et $$ est une chaîne de caractères en dur. S&#039;il y&#160; un paramètre $P{YEAR} il est doit être interprété par l&#039;outil côté client et sa valeur doit être injectée dans la chaîne avant de la passer au moteur SQL.</p><br /><p>Au vu de l&#039;erreur ce n&#039;est pas comme ça que l&#039;outil procède, il semble vouloir un &quot;vrai&quot; paramètre au sens des requêtes paramétrées au niveau SQL.</p><br /><p>Il est possible d&#039;en faire un vrai paramètre mais il faudrait le sortir de la chaîne litérale et la découper en 3 parties avec un syntaxe du style:</p><div class="codebox"><pre><code>concat($$ SELECT ... WHERE to_char(DateAcct,&#039;YYYY&#039;) = $$ , $P{YEAR}, $$ ORDER BY ... $$)</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2018-09-24T16:03:21Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28304#p28304</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Passage de paramètre dynamique dans le Crosstab?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28303#p28303"/>
+		<content type="html"><![CDATA[<p>Salut,</p><p>J&#039;ai un souci. Ma requête fonction très bien quand la valeur de mon param est passé en dûr mais me renvoie cette erreur <br />quand je place le paramètre pour la dynamiser.</p><p>C vrai que suis dans un outil de reporting(JasperReports) donc je suis un peu habitué.</p><br /><p><strong>L&#039;indice de la colonne est hors limite : 5, nombre de colonnes : 4.</strong></p><p>Le probleme viens de là.</p><br /><p>Juste le squelette du SQL</p><br /><div class="codebox"><pre><code>SELECT
+....
+FROM CROSSTAB (
+$$ SELECT 
+...
+FROM sh.invoice
+WHERE
+to_char(DateAcct,&#039;YYYY&#039;) =$P{YEAR}
+ORDER by invoice_id $$,
+...</code></pre></div><br /><p>Comment le resoudre svp?</p><br /><br /><p>Cordialement,<br />Douk V5</p>]]></content>
+		<author>
+			<name><![CDATA[Douk V5]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=6110</uri>
+		</author>
+		<updated>2018-09-24T13:05:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28303#p28303</id>
+	</entry>
+</feed>

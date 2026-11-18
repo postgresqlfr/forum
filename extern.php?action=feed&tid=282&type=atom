@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Hibernate]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=282&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=282"/>
+	<updated>2009-05-28T08:55:28Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=282</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Hibernate]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1546#p1546"/>
+		<content type="html"><![CDATA[<p>En fait l&#039;erreur venait de l&#039;application et pas de Hibernate... j&#039;ai corrigé tout ça et l&#039;appli se lance à présent.<br />Merci pour votre aide!</p>]]></content>
+		<author>
+			<name><![CDATA[Rabbit]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=351</uri>
+		</author>
+		<updated>2009-05-28T08:55:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1546#p1546</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Hibernate]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1533#p1533"/>
+		<content type="html"><![CDATA[<div class="codebox"><pre><code>%t STATEMENT:  alter session set nls_date_format=&#039;DD/MM/YYYY&#039;</code></pre></div><p>Ah ça, c&#039;est de l&#039;Oracle pur jus! Ton Hibernate pense avoir affaire à une base Oracle.<br />Tu devrais sans doute vérifier le paramétrage d&#039;Hibernate.</p>]]></content>
+		<author>
+			<name><![CDATA[flo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=216</uri>
+		</author>
+		<updated>2009-05-27T19:37:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1533#p1533</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Hibernate]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1531#p1531"/>
+		<content type="html"><![CDATA[<p>Oui, les erreurs se produisent au démarrage.<br />Je pense que l&#039;erreur qui fait planter est celle-ci:</p><div class="codebox"><pre><code>%t ERROR:  syntax error at or near &quot;session&quot; at character 7
+%t STATEMENT:  alter session set nls_date_format=&#039;DD/MM/YYYY&#039;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[Rabbit]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=351</uri>
+		</author>
+		<updated>2009-05-27T12:44:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1531#p1531</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Hibernate]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1530#p1530"/>
+		<content type="html"><![CDATA[<p>C&#039;est le même problème. Je m&#039;explique : il y a en fait 2 choses dans ton problème :</p><p>1 : une première erreur a eu lieu dans la transaction (elle devrait apparaître dans la log). Tu n&#039;as pas fourni cette erreur, donc impossible de t&#039;aider là-dessus...</p><p>2 : l&#039;erreur n&#039;est pas gérée, ce qui entraîne les erreurs &quot;current transaction is aborted...&quot;</p><p>En cherchant un peu on trouve une explication très simple :<br /><a href="http://archives.postgresql.org/pgsql-general/2008-07/msg00513.php" rel="nofollow">http://archives.postgresql.org/pgsql-ge … g00513.php</a></p><p>Au fait, c&#039;est au démarrage que se produit la série d&#039;erreurs, non?</p><p>En conclusion, trouve la toute première erreur et poste-là avec l&#039;ordre SQL qui l&#039;a&#160; causée.</p>]]></content>
+		<author>
+			<name><![CDATA[flo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=216</uri>
+		</author>
+		<updated>2009-05-27T12:33:50Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1530#p1530</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Hibernate]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1529#p1529"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je n&#039;arrive toujours pas à lancer Hibernate avec PostgreSQL.<br />Quand je regarde le log de PostgreSQL, j&#039;ai une erreur qui se répète:</p><div class="codebox"><pre><code>%t ERROR:  current transaction is aborted, commands ignored until end of transaction block
+%t STATEMENT:  SELECT NULL AS TABLE_CAT, n.nspname AS TABLE_SCHEM, c.relname AS TABLE_NAME,  CASE n.nspname ~ &#039;^pg_&#039; OR n.nspname = 
+&#039;information_schema&#039;  WHEN true THEN CASE  WHEN n.nspname = &#039;pg_catalog&#039; OR n.nspname = &#039;information_schema&#039; THEN CASE c.relkind   WHEN &#039;r&#039; THEN &#039;SYSTEM 
+TABLE&#039;   WHEN &#039;v&#039; THEN &#039;SYSTEM VIEW&#039;   WHEN &#039;i&#039; THEN &#039;SYSTEM INDEX&#039;   ELSE NULL   END  WHEN n.nspname = &#039;pg_toast&#039; THEN CASE c.relkind   WHEN &#039;r&#039; THEN 
+&#039;SYSTEM TOAST TABLE&#039;   WHEN &#039;i&#039; THEN &#039;SYSTEM TOAST INDEX&#039;   ELSE NULL   END  ELSE CASE c.relkind   WHEN &#039;r&#039; THEN &#039;TEMPORARY TABLE&#039;   WHEN &#039;i&#039; THEN 
+&#039;TEMPORARY INDEX&#039;   ELSE NULL   END  END  WHEN false THEN CASE c.relkind  WHEN &#039;r&#039; THEN &#039;TABLE&#039;  WHEN &#039;i&#039; THEN &#039;INDEX&#039;  WHEN &#039;S&#039; THEN &#039;SEQUENCE&#039;  WHEN &#039;v&#039; 
+THEN &#039;VIEW&#039;  ELSE NULL  END  ELSE NULL  END  AS TABLE_TYPE, d.description AS REMARKS  FROM pg_catalog.pg_namespace n, pg_catalog.pg_class c  LEFT JOIN 
+pg_catalog.pg_description d ON (c.oid = d.objoid AND d.objsubid = 0)  LEFT JOIN pg_catalog.pg_class dc ON (d.classoid=dc.oid AND dc.relname=&#039;pg_class&#039;)  LEFT JOIN 
+pg_catalog.pg_namespace dn ON (dn.oid=dc.relnamespace AND dn.nspname=&#039;pg_catalog&#039;)  WHERE c.relnamespace = n.oid  AND c.relname LIKE &#039;PROBABLYNOT&#039;  
+AND (false  OR ( c.relkind = &#039;r&#039; AND n.nspname !~ &#039;^pg_&#039; AND n.nspname &lt;&gt; &#039;information_schema&#039; ) )  ORDER BY TABLE_TYPE,TABLE_SCHEM,TABLE_NAME</code></pre></div><p>Je ne sais pas d&#039;où elle provient...</p>]]></content>
+		<author>
+			<name><![CDATA[Rabbit]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=351</uri>
+		</author>
+		<updated>2009-05-27T10:15:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1529#p1529</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Hibernate]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1470#p1470"/>
+		<content type="html"><![CDATA[<p>Par ailleurs, vu le message (current transaction is aborted), la session n&#039;est pas en autocommit : ce message n&#039;arrive que dans les transactions manuelles à ma connaissance.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2009-05-19T11:34:00Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1470#p1470</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Hibernate]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1468#p1468"/>
+		<content type="html"><![CDATA[<p>Ne serait-ce pas parce que tu as eu une erreur précédemment dans ta transaction?<br />Avec Oracle, il me semble que tu peux très bien ignorer une erreur et continuer ta transaction (ce qui est sale, soit dit en passant...). Avec PostgreSQL, non. Il faut donc que tu cherches l&#039;erreur précédente pour connaître la cause de ton problème. Idéalement, il faudrait aussi que tu revoie la gestion des erreurs dans ta transaction...<br />(il est plus simple de regarder dans la log de PostgreSQL, j&#039;ai déjà eu quelques soucis avec Hibernate, j&#039;ai l&#039;impression qu&#039;il ne reporte pas toujours correctement les erreurs, en plus il est très bavard)<br />Pour le fait d&#039;être en autocommit ou non, ça doit se régler dans Hibernate.</p>]]></content>
+		<author>
+			<name><![CDATA[flo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=216</uri>
+		</author>
+		<updated>2009-05-19T09:53:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1468#p1468</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Hibernate]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1467#p1467"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous,</p><p>J&#039;ai actuellement un problème pour faire fonctionner mon application avec hibernate.</p><p>lorsque je lance l&#039;appli, je trouve dans le fichier stdout l&#039;erreur suivante:</p><div class="codebox"><pre><code>ERROR org.hibernate.util.JDBCExceptionReporter - ERROR: current transaction is aborted, commands ignored until end of transaction block</code></pre></div><p>Je pense que ça vient de l&#039;autocommit de Postgre mais je n&#039;arrive pas à le désactiver. J&#039;ai lu quelque part que c&#039;était impossible sur les dernières versions...<br />J&#039;aimerais bien pouvoir faire fonctionner tout ça sans modifier le code de mon appli qui fonctionnait sous Oracle...</p><p>Merci par avance de votre aide.</p>]]></content>
+		<author>
+			<name><![CDATA[Rabbit]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=351</uri>
+		</author>
+		<updated>2009-05-19T09:25:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1467#p1467</id>
+	</entry>
+</feed>

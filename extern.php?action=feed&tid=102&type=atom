@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / condition dans la creation de la vue]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=102&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=102"/>
+	<updated>2012-11-21T21:13:59Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=102</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  condition dans la creation de la vue]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15864#p15864"/>
+		<content type="html"><![CDATA[<p>À moins que je n&#039;ai pas compris ce que vous vouliez faire, il faudrait placer le CASE au niveau du sum.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-11-21T21:13:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15864#p15864</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  condition dans la creation de la vue]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15857#p15857"/>
+		<content type="html"><![CDATA[<p>Bonjour. J&#039;ai un soucis sur une requête conditionnelle que je ne parviens pas à réaliser. Voici mon cas : Je souhaite créer une vue qui contient des information de plusieurs tables, dans 2 bases de données (avec un dblink). <br />Tout fonctionne, sauf que le résultat n&#039;est pas celui que j’attends : j&#039;ai 40 communes, dans lesquelles je souhaite faire apparaitre, pour l&#039;ensemble des communes, les informations souhaitées. Dans cet exemple, je veux faire apparaitre la somme des longueurs de tronçon d&#039;autoroute, par commune. Seulement, toutes mes communes ne sont pas traversées par l&#039;autoroute. Résultat lorsque j&#039;applique cette requête, apparaissent seulement les information sur les communes qui ont une longueur totale &gt; 0. Pour els autres communes, je perd tous les enregistrements. </p><div class="codebox"><pre><code>CREATE OR REPLACE VIEW view_test3
+AS SELECT 
+	id, 
+	geom, 
+	code_insee, 
+	long_voirie_a
+FROM 
+	info_com, 
+	dblink(&#039;hostaddr=xxx port=xxx dbname=xxx user=xxx password=xxx&#039;, &#039;select code_insee, sum(&quot;long_carto_troncon&quot;) FROM bd_adresse WHERE &quot;domanialite&quot; = &#039;&#039;Autoroute&#039;&#039; GROUP BY code_insee ORDER BY code_insee&#039;)as foo (code integer, long_voirie_a double precision )
+
+WHERE 
+	code_insee=foo.code
+		
+GROUP BY 
+	code_insee, id, geom, commune, long_voirie_a
+;</code></pre></div><p>J&#039;ai donc essayé avec un SELECT CASE, de la manière suivante : </p><div class="codebox"><pre><code>CREATE OR REPLACE VIEW view_test3
+AS SELECT 
+	id, 
+	geom, 
+	code_insee, 
+	long_voirie_a,
+		CASE 
+			WHEN long_voirie_a &lt;&gt; 0 THEN long_voirie_a
+                        ELSE long_voirie_a = NULL
+		END
+FROM 
+	info_com, 
+	dblink(&#039;hostaddr=xxx port=xxx dbname=xxx user=xxx password=xxx&#039;, &#039;select code_insee, sum(&quot;long_carto_troncon&quot;) FROM bd_adresse WHERE &quot;domanialite&quot; = &#039;&#039;Autoroute&#039;&#039; GROUP BY code_insee ORDER BY code_insee&#039;)as foo (code integer, long_voirie_a double precision )
+
+WHERE 
+	code_insee=foo.code
+		
+GROUP BY 
+	code_insee, id, geom, commune, long_voirie_a
+;</code></pre></div><p>Mais rien à faire, j&#039;ai toujours ce champ qui me contraint à ne garder que les enregistrements qui sont traversés par une autoroute. <br />Voyez-vous ou j&#039;ai pu commettre une erreur ? Merci beaucoup.</p>]]></content>
+		<author>
+			<name><![CDATA[Christof]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1903</uri>
+		</author>
+		<updated>2012-11-21T11:03:06Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15857#p15857</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  condition dans la creation de la vue]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=475#p475"/>
+		<content type="html"><![CDATA[<p>non vous n&#039;avez pas à vous excusé , je ne prends pas en mal , quand on est à la recherche du savoir on se plie ; <br />je suis assez étonné aussi par le résultat , mais peut être , comme je joins&#160; la vue calculée à la vue qui a permis à son calcul, l&#039;erreur doit se trouver à ce niveau , car , si je crée une table simple de 6 enregistrement et appliquer la requête , il renvoie 6 enregistrement comme vous l&#039;avez dit .<br />je suis encore désolé <br />merci pour vos assistances</p>]]></content>
+		<author>
+			<name><![CDATA[bennkabazz]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=20</uri>
+		</author>
+		<updated>2008-12-22T15:55:45Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=475#p475</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  condition dans la creation de la vue]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=473#p473"/>
+		<content type="html"><![CDATA[<p>Excuse-moi, mais tes questions commencent à devenir du grand n&#039;importe quoi. Tu as six éléments dans ta table, la vue en renvoie 36 et t&#039;imagines que PostgreSQL multiplie les enregistrements par 6. Moi, je crois qu&#039;il en a ajouté 30, juste pour se marrer. Merde, c&#039;est n&#039;importe quoi.</p><p>Le nombre d&#039;enregistrements renvoyés par la vue correspond au nombre d&#039;enregistrements de la table. Point.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2008-12-22T14:31:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=473#p473</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  condition dans la creation de la vue]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=470#p470"/>
+		<content type="html"><![CDATA[<p>bonjour <br />il marche bien cette requête de création de la vue car il renvoi le résultat désireux , mais parcontre il renvoie 36 enregistrements étant donné que j&#039;en ai 6 dans ma table , j&#039;ai l&#039;impression qu&#039;il multiplie les 6 enregistrements par 6 pour en faire à 36 ; aidez moi s&#039;il vous plait .<br />voici la requête : </p><div class="quotebox"><blockquote><div><p>CREATE VIEW mavue (colonne1) AS<br />&#160; &#160; SELECT<br />&#160; &#160; &#160; &#160;CASE WHEN a=1 THEN 1<br />&#160; &#160; &#160; &#160; &#160; &#160; ELSE 0<br />&#160; &#160; &#160; &#160;END<br />&#160; &#160; FROM matable;</p></div></blockquote></div>]]></content>
+		<author>
+			<name><![CDATA[bennkabazz]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=20</uri>
+		</author>
+		<updated>2008-12-22T10:07:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=470#p470</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  condition dans la creation de la vue]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=466#p466"/>
+		<content type="html"><![CDATA[<p>Juste une remarque...</p><p>Lorsque vous posez une question sur les forums, ne vous attendez pas systématiquement à obtenir la réponse idéale à votre question. La réponse qui fera que vous n&#039;avez même pas à réfléchir un tantinet pour l&#039;adapter à votre besoin.</p><p>Lorsque vous utilisez les forums ou les listes de discussion, ou irc, on attend de vous que vous posiez une question qui explique clairement votre besoin et votre problème, et quand retour vous sachiez analysez une réponse et l&#039;adapter à votre besoin.</p><p>Il ne faut pas croire que les gens qui donnent de leur temps pour vous aider sont à votre service.</p>]]></content>
+		<author>
+			<name><![CDATA[SAS]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=23</uri>
+		</author>
+		<updated>2008-12-19T08:34:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=466#p466</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  condition dans la creation de la vue]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=462#p462"/>
+		<content type="html"><![CDATA[<p>merci beaucoup&#160; à&#160; vous tous ; il fait mon affaire .<br />très sympa</p>]]></content>
+		<author>
+			<name><![CDATA[bennkabazz]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=20</uri>
+		</author>
+		<updated>2008-12-18T21:41:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=462#p462</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  condition dans la creation de la vue]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=454#p454"/>
+		<content type="html"><![CDATA[<p>Il suffisait d&#039;utiliser la première réponse de luddic et de l&#039;adapter à ton besoin :</p><div class="codebox"><pre><code>CREATE VIEW mavue (colonne1) AS
+    SELECT
+       CASE WHEN a=1 THEN 1
+            ELSE 0
+       END
+    FROM matable;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2008-12-18T08:09:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=454#p454</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  condition dans la creation de la vue]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=442#p442"/>
+		<content type="html"><![CDATA[<p>bonjour <br />merci d&#039;abord pour votre assistance.<br />c&#039;est à dire je veux un truc comme ça :<br />colonne A de ma table ={1, 3,7,9,0,1,5,1,6,1}<br />si&#160; je fais</p><div class="quotebox"><blockquote><div><p>create view mavue (colonne1) as select colonne2 from matable machin ...............;</p></div></blockquote></div><p>et en plus&#160; si&#160; je fais </p><div class="quotebox"><blockquote><div><p>select * from mavue;</p></div></blockquote></div><p>je veux avoir colonne1={1,0,0,0,0,1,0,1,0,1}&#160; &#160; <br />partout où y avait 1 dans la colonne2 de ma table&#160; reste à 1 , mais partout où y avait autre valeur sont transformé à 0.<br />merci d&#039;avance</p>]]></content>
+		<author>
+			<name><![CDATA[bennkabazz]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=20</uri>
+		</author>
+		<updated>2008-12-17T11:38:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=442#p442</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  condition dans la creation de la vue]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=441#p441"/>
+		<content type="html"><![CDATA[<div class="codebox"><pre class="vscroll"><code>postgres=# CREATE TABLE test (id SERIAL PRIMARY KEY, a INT, b INT);
+NOTICE:  CREATE TABLE will create implicit sequence &quot;test_id_seq&quot; for serial column &quot;test.id&quot;
+NOTICE:  CREATE TABLE / PRIMARY KEY will create implicit index &quot;test_pkey&quot; for table &quot;test&quot;
+CREATE TABLE
+
+postgres=# INSERT INTO test (a, b) SELECT ROUND(RANDOM() * 3), ROUND(RANDOM() * 10) FROM generate_series(0, 9);
+INSERT 0 10
+
+postgres=# SELECT * FROM test;
+ id | a | b 
+----+---+---
+  1 | 0 | 4
+  2 | 2 | 5
+  3 | 1 | 6
+  4 | 0 | 3
+  5 | 1 | 3
+  6 | 2 | 7
+  7 | 1 | 1
+  8 | 0 | 3
+  9 | 2 | 9
+ 10 | 2 | 8
+(10 rows)
+
+postgres=# CREATE VIEW test_computed AS SELECT id, CASE a WHEN 1 THEN 1 ELSE 0 END as a, b FROM test;
+CREATE VIEW
+
+postgres=# SELECT * FROM test_computed ;
+ id | a | b 
+----+---+---
+  1 | 0 | 4
+  2 | 0 | 5
+  3 | 1 | 6
+  4 | 0 | 3
+  5 | 1 | 3
+  6 | 0 | 7
+  7 | 1 | 1
+  8 | 0 | 3
+  9 | 0 | 9
+ 10 | 0 | 8
+(10 rows)</code></pre></div><p>Et si ça ne répond toujours pas à la question, il faudrait nous donner quelques exemples réels: données en entrée, et résultats voulus en sortie.</p>]]></content>
+		<author>
+			<name><![CDATA[luddic]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5</uri>
+		</author>
+		<updated>2008-12-17T09:26:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=441#p441</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  condition dans la creation de la vue]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=440#p440"/>
+		<content type="html"><![CDATA[<p>votre exemple est vraiment parlant , mais malhereusement il traite pas trop ma question;<br />je ne veux avoir dans ma colonne résulat que des 1 et des 0 selon que la colonne sur laquelle porte la vue, contient 1 ou autre valeur . 1 pour les lignes qui contiennent 1 et 0 pour les lignes qui contiennent autre valeur.<br />j&#039;ai besoin de votre aide encore si possibles s&#039;il vous plait</p>]]></content>
+		<author>
+			<name><![CDATA[bennkabazz]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=20</uri>
+		</author>
+		<updated>2008-12-16T23:49:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=440#p440</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  condition dans la creation de la vue]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=439#p439"/>
+		<content type="html"><![CDATA[<p><a href="http://docs.postgresqlfr.org/8.3/functions-conditional.html" rel="nofollow">http://docs.postgresqlfr.org/8.3/functi … ional.html</a><br /><a href="http://www.postgresql.org/docs/8.3/interactive/functions-conditional.html" rel="nofollow">http://www.postgresql.org/docs/8.3/inte … ional.html</a></p><p>Avec un exemple assez parlant:</p><div class="codebox"><pre><code>SELECT * FROM test;
+
+ a
+---
+ 1
+ 2
+ 3
+
+
+SELECT a,
+       CASE WHEN a=1 THEN &#039;one&#039;
+            WHEN a=2 THEN &#039;two&#039;
+            ELSE &#039;other&#039;
+       END
+    FROM test;
+
+ a | case
+---+-------
+ 1 | one
+ 2 | two
+ 3 | other</code></pre></div><p>Donc ici un simple CASE nom_colonne WHEN 1 THEN 1 ELSE 0 END fait l&#039;affaire.</p>]]></content>
+		<author>
+			<name><![CDATA[luddic]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5</uri>
+		</author>
+		<updated>2008-12-16T22:55:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=439#p439</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[condition dans la creation de la vue]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=438#p438"/>
+		<content type="html"><![CDATA[<p>bonjour à tous <br />je veux creer une vue qui n&#039;amène que 1 et&#160; 0 comme valeur ; 1 pour toutes les lignes où la colonne concernée de la table contient 1 et&#160; 0 dans tous les autres cas ,pour toutes les lignes de la table . c&#039;est à dire , ma vue portera sur une colonne A de ma table , elle amènera 1 pour toutes les lignes où A = 1 et&#160; 0 pour toutes autres valeurs contenant A . j&#039;ai fait assez de tentative pour cette&#160; requette , car j&#039;ai tenté d&#039;utiliser &quot;si&quot; , mais ça marche pas ; aidez moi s&#039;il vous plait .<br />merci d&#039;avance</p>]]></content>
+		<author>
+			<name><![CDATA[bennkabazz]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=20</uri>
+		</author>
+		<updated>2008-12-16T22:31:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=438#p438</id>
+	</entry>
+</feed>

@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / ACCESS - REQUETES verrouillées lecture seule & lignes verrouillées]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2231&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2231"/>
+	<updated>2012-09-05T14:32:09Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2231</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ACCESS - REQUETES verrouillées lecture seule & lignes verrouillées]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15052#p15052"/>
+		<content type="html"><![CDATA[<p>Bonjour rjuju,<br />Je vous confirme que mon problème de verrou provenait de la définition de mes variables numériques au format FLOAT8...<br />C&#039;est incroyable mais je suis passé avec NUMERIC 24/5 est les réservations des enregistrement pas d&#039;autres utrilisateurs virtuels n&#039;apparaissent plus...<br />Je vous remercie de vos recherches...</p><p>A cela, je dois rajouter que le driver ODBC utilisé, la toute dernière version téléchargée, pose quelques problèmes de fonctionnement avec ACCESS. il nous oblige à des aménagements des formulaires et requêtes, avec des paramètres trop contraignants comme ceux que j&#039;évoquais dans mon message du 1/9/12 - 18H15<br />Nous quittons alors les formidables facilités que nous offre ACCESS pour la mise à jour de données...<br />A présent, je jongle, et j&#039;applique des commandes SQL directes pour passer outre certains verrous d&#039;enregistrements lors de mises à jour de requêtes en cascade avec des tables liées...</p>]]></content>
+		<author>
+			<name><![CDATA[nexeg]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1920</uri>
+		</author>
+		<updated>2012-09-05T14:32:09Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15052#p15052</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ACCESS - REQUETES verrouillées lecture seule & lignes verrouillées]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14988#p14988"/>
+		<content type="html"><![CDATA[<p>Je vais néanmoins exécuter votre requête système au moment où je lance ma requête telle que je l&#039;avais initialement... Si quelques chose pouvait en ressortir...</p>]]></content>
+		<author>
+			<name><![CDATA[nexeg]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1920</uri>
+		</author>
+		<updated>2012-09-01T16:19:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14988#p14988</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ACCESS - REQUETES verrouillées lecture seule & lignes verrouillées]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14987#p14987"/>
+		<content type="html"><![CDATA[<p>Cela signifie que je permets au système de modifier toutesl les tables rattachées dans la requete, et non plus la seule table primaire...<br />C&#039;est dangereux... Et je me bloque les multiples possibilités offertes par Access qui pilote lui même ce type de possibilité</p>]]></content>
+		<author>
+			<name><![CDATA[nexeg]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1920</uri>
+		</author>
+		<updated>2012-09-01T16:17:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14987#p14987</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ACCESS - REQUETES verrouillées lecture seule & lignes verrouillées]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14986#p14986"/>
+		<content type="html"><![CDATA[<p>J&#039;ai pu avancer dans mes blocages... Figurez-vous que j&#039;utilisais FLOAT8 dans la définition de mes variables numériques au lieu de NUMERIC...<br />Dés lors, je n&#039;ai plus d&#039;ENREGISTREMENT RESERVES PAR 1 AUTRE UTILISATEUR...</p><p>Il me reste à présent seulement la gestion de mes REQUETES, qui continuent d&#039;être en LECTURE SEULE...</p><p>Si vous connaissez ACCESS, je suis obligé pour passer de décrire mes formulaires avec le paramètre TYPE DE RECORDSET à <br />Feuille rép.dyn.(MAJ globale)</p><p>Au lieu de :<br />Feuille de réponse dynamique</p>]]></content>
+		<author>
+			<name><![CDATA[nexeg]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1920</uri>
+		</author>
+		<updated>2012-09-01T16:15:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14986#p14986</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ACCESS - REQUETES verrouillées lecture seule & lignes verrouillées]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14985#p14985"/>
+		<content type="html"><![CDATA[<p>Cela ne remonte toujours pas de requête bloquée. Il faut la lancer durant le blocage car cela ne prend en compte que l&#039;activité au moment de l&#039;exécution.</p><p>Essayez :</p><p>select * from pg_stat_activity a join pg_locks l on a.procpid = l.pid where procpid &lt;&gt; pg_backend_pid();</p><br /><p>pour n&#039;afficher que les requêtes et verrous autre que ceux liés à la requête en cours, lorsque des requêtes sont bloquées</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2012-09-01T16:09:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14985#p14985</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ACCESS - REQUETES verrouillées lecture seule & lignes verrouillées]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14984#p14984"/>
+		<content type="html"><![CDATA[<p>Blocage à l&#039;entrée d&#039;1 formulaire...<br />Exécution de votre requête systeme :<br /><a href="http://pastebin.com/gsS3L4ku" rel="nofollow">http://pastebin.com/gsS3L4ku</a></p>]]></content>
+		<author>
+			<name><![CDATA[nexeg]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1920</uri>
+		</author>
+		<updated>2012-09-01T13:49:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14984#p14984</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ACCESS - REQUETES verrouillées lecture seule & lignes verrouillées]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14983#p14983"/>
+		<content type="html"><![CDATA[<p>Le protocol ne peut pas aller au delà de la v7</p><p><a href="http://www.hostingpics.net/viewer.php?id=939695Capture.jpg" rel="nofollow"><span class="postimg"><img src="http://img11.hostingpics.net/pics/939695Capture.jpg" alt="939695Capture.jpg" /></span></a></p>]]></content>
+		<author>
+			<name><![CDATA[nexeg]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1920</uri>
+		</author>
+		<updated>2012-09-01T12:19:39Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14983#p14983</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ACCESS - REQUETES verrouillées lecture seule & lignes verrouillées]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14982#p14982"/>
+		<content type="html"><![CDATA[<p>J&#039;ai donc exécuté ma requête qui passe en mode verrouillé...<br />Voici mle résultat...<br /><a href="http://pastebin.com/R5BykGUB" rel="nofollow">http://pastebin.com/R5BykGUB</a></p>]]></content>
+		<author>
+			<name><![CDATA[nexeg]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1920</uri>
+		</author>
+		<updated>2012-09-01T12:12:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14982#p14982</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ACCESS - REQUETES verrouillées lecture seule & lignes verrouillées]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14981#p14981"/>
+		<content type="html"><![CDATA[<p>D&#039;après le résultat de la requête, il n&#039;y a aucune activité sur le serveur à part la requête que vous avez lancé. Il faudrait avoir le résultat de cette requête lorsque le problème est présent pour savoir ce qui bloque.</p><p>Pour l&#039;odbc, je ne connais pas plus que ça. Je remarque cependant que &quot;Protocol&quot; vaut 7.4-1, vous pourriez essayer avec 9.0 ou 9.1 si cela améliore les choses.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2012-09-01T12:00:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14981#p14981</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ACCESS - REQUETES verrouillées lecture seule & lignes verrouillées]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14980#p14980"/>
+		<content type="html"><![CDATA[<p>Mon fichier de connexion DSN :<br />-----------------------------------<br />[ODBC]<br />DRIVER=PostgreSQL Unicode<br />Uid=xxxxx<br />PORT=5432<br />DATABASE=xxxxx<br />SERVER=192.168.0.120<br />XaOpt=1<br />LowerCaseIdentifier=0<br />UseServerSidePrepare=0<br />ByteaAsLongVarBinary=0<br />BI=0<br />TrueIsMinus1=1<br />DisallowPremature=0<br />UpdatableCursors=0<br />LFConversion=1<br />ExtraSysTablePrefixes=dd_<br />CancelAsFreeStmt=0<br />Parse=0<br />BoolsAsChar=0<br />UnknownsAsLongVarchar=0<br />TextAsLongVarchar=1<br />UseDeclareFetch=0<br />Ksqo=1<br />Optimizer=1<br />CommLog=0<br />Debug=0<br />MaxLongVarcharSize=8190<br />MaxVarcharSize=255<br />UnknownSizes=0<br />Socket=4096<br />Fetch=1024<br />ConnSettings=<br />ShowSystemTables=0<br />RowVersioning=0<br />ShowOidColumn=0<br />FakeOidIndex=0<br />Protocol=7.4-1<br />ReadOnly=0<br />SSLmode=disable</p>]]></content>
+		<author>
+			<name><![CDATA[nexeg]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1920</uri>
+		</author>
+		<updated>2012-09-01T11:44:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14980#p14980</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ACCESS - REQUETES verrouillées lecture seule & lignes verrouillées]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14979#p14979"/>
+		<content type="html"><![CDATA[<p>Merci de votre réponse. 1 première pierre enfin...<br />Je crois à fond que PostgreSQL est l&#039;alternative dont nous avons besoin, pour ce projet et bien d&#039;autres que nous avons en cours de réalisation...</p><p>Mon programme fonctionne d&#039;abord dans 1 environnement Windows 2003 serveur.<br />Nous allons migrer sous peu, sur 1 nouveau serveur de type Windows v2008</p><p>PostgreSQL fonctionne sous Ubuntu 12.04 LTS 64 bits</p><p>La version de PostgreSQL est la v9.1 en 32 bits</p><p>La version du connecteur ODBC :<br />PostgreSQL UNICODE&#160; &#160; 9.01.02.00&#160; &#160; PSQLODBC35W.DLL&#160; &#160; 20/08/2012 </p><p>Le résultat de votre requête :<br /><a href="http://pastebin.com/aMc0FqnU" rel="nofollow">http://pastebin.com/aMc0FqnU</a> </p><p>Merci de votre concours</p>]]></content>
+		<author>
+			<name><![CDATA[nexeg]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1920</uri>
+		</author>
+		<updated>2012-09-01T11:40:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14979#p14979</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ACCESS - REQUETES verrouillées lecture seule & lignes verrouillées]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14978#p14978"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>difficile de répondre sans plus de détails. C&#039;est tout de même assez étonnant car le principe du moteur postgres fait qu&#039;il y a normalement peu de verrous. Les problèmes de verrouillage sont ils constant ou ponctuels ? Si vous avez plus d&#039;informations sur la volumétrie de la base, le nombre d&#039;utilisateurs connectés, la version de postgresql, la version des drivers odbc ...</p><p>Pour avoir plus de détails sur les verrous en cours, pouvez vous dire ce que renvoie cette requête :</p><br /><p>select * from pg_stat_activity a join pg_locks l on a.procpid = l.pid</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2012-09-01T11:04:52Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14978#p14978</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ACCESS - REQUETES verrouillées lecture seule & lignes verrouillées]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14977#p14977"/>
+		<content type="html"><![CDATA[<p>Ai-je positionné ma demande au bon endroit ODBC, car il n&#039;y pas de rubriques concernant spécifiquement ACCESS ?</p><p>J&#039;ai choisi ODBC parce que je me dis que je dois rencontrer 1 problème lié à l&#039;attachement de mes tables à mon programme...</p>]]></content>
+		<author>
+			<name><![CDATA[nexeg]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1920</uri>
+		</author>
+		<updated>2012-09-01T08:22:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14977#p14977</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ACCESS - REQUETES verrouillées lecture seule & lignes verrouillées]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14976#p14976"/>
+		<content type="html"><![CDATA[<p>Complément :<br />Des requêtes de ce type, simples, qui fonctionnaient même avec MySQL, se retrouvernt en lecture seule à présent...<br />----------------------------------------------------------------------------------------------------------------------------------<br />SELECT DISTINCT ComptaBolero_Mvts.nummvt, ComptaBolero_Mvts.codeanalbudg, ComptaBolero_Mvts.codejournal, ComptaBolero_Mvts.dateecriture, ComptaBolero_Mvts.libelle, ComptaBolero_Mvts.datetransfert, ComptaBolero_Mvts.ecritureattente, dossiers.ndos, dossiers.dossier<br />FROM (ComptaBolero_Mvts INNER JOIN rq_EcrComptable_MVTS ON ComptaBolero_Mvts.nummvt = rq_EcrComptable_MVTS.ecr_nummvt) INNER JOIN dossiers ON ComptaBolero_Mvts.codeanalbudg = dossiers.ndos<br />WHERE (((ComptaBolero_Mvts.codeanalbudg) Like &quot;*&quot;) AND ((ComptaBolero_Mvts.datetransfert) Is Null))<br />ORDER BY ComptaBolero_Mvts.nummvt DESC;<br />---------------------------------------------------------</p><p>Il s&#039;agit d&#039;1 requête que j&#039;appelle ensuite pour compléter les champs :<br />ComptaBolero_Mvts.datetransfert et ComptaBolero_Mvts.ecritureattente</p><p>Tout est verrouillé désormais...</p><p>Mon problème viendrait il des paramètres d&#039;attachement de la table en question ?<br />1 base de données du type de celle de PostgreSQL permet de prendre 1 bonne dimension, sans être prisonnier d&#039;1 solution TOUT Microsoft... Avec SQL Server, ce type d&#039;anomalie ne se produit pas...<br />Le verrouillage de ma requête ne se faisait pas non plus avec MySQL...</p>]]></content>
+		<author>
+			<name><![CDATA[nexeg]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1920</uri>
+		</author>
+		<updated>2012-09-01T08:15:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14976#p14976</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[ACCESS - REQUETES verrouillées lecture seule & lignes verrouillées]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14975#p14975"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;utilise 1 grosse application développée depuis des années sous ACCESS (DAO).<br />J&#039;ai migré 1 partie de ma base de données sous PostgreSQL...<br />Au fur et à mesure de l&#039;utilisation de mon programme et peut-être de l&#039;adaptation de quelques structures de champs, ma base s&#039;est peu à peu bloquée :<br />- Verrouillage de requêtes en lecture seule<br />- Enregistrements dans des tables verrouillées par des réservations (inexistantes) de la part d&#039;autres utilisateurs...</p><p>Actuellement, mon application est à 2 doigts de s&#039;écrouler du fait des verrous que je rencontre...</p><p>Je me demande donc si ma base est correctement déclarée lors e l&#039;attachement de mes tables via ma connexion ODBC, ou elle le serait de manière incomplète avec ACCESS...<br />Sinon, à quel stade puis-je intervenir pour débloquer ces lignes, et faire en sorte que des requêtes, qui fonctionnaient parfaitement avec MySQL ou SQL Serveur, fonctionnent normalement avec PostgreSQL...</p><p>J&#039;ai besoin d&#039;1 éclairage rapidement...<br />Je souhaite m&#039;appuyer sur PostgreSQL à l&#039;avenir, qui est rapide et dont tout le monde semble enchanté...</p><p>Merci par avance</p>]]></content>
+		<author>
+			<name><![CDATA[nexeg]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1920</uri>
+		</author>
+		<updated>2012-09-01T01:04:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14975#p14975</id>
+	</entry>
+</feed>

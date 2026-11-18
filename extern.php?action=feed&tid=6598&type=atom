@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Problèmes en transférant ma base de donnée Postgres]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=6598&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=6598"/>
+	<updated>2023-08-16T01:57:22Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=6598</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problèmes en transférant ma base de donnée Postgres]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34461#p34461"/>
+		<content type="html"><![CDATA[<p>Ce message indique une corruption dans le fichier global/pg_control, fichier qui contient des informations critiques sur l&#039;instance et notamment à partir d&#039;où rejouer les données en cas d&#039;arrêt brutal.</p><br /><p>Si ce fichier est corrompu il n&#039;est pas possible de démarrer l&#039;instance sans perdre ou corrompre des données.&#160; Mais plus grave que ça, ce fichier est tellement critique qu&#039;il contient moins de 512 octets, c&#039;est-à-dire suffisament petit pour tenir sur un bloc physique d&#039;un disque et donc garantir des écritures atomiques.&#160; Si ce fichier est corrompu, il est à peu près sûr qu&#039;il y a eu un gros problème sur les disques et que le reste des données a également souffert, et qu&#039;il n&#039;y a pas grand chose à récupérer.&#160; Votre meilleur espoir est de repartir depuis votre sauvegarde la plus récente.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2023-08-16T01:57:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34461#p34461</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problèmes en transférant ma base de donnée Postgres]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34460#p34460"/>
+		<content type="html"><![CDATA[<p>bonsoir !</p><p>Bon, j&#039;ai pris du temps à revenir avec mes logs, mais voici les logs après avoir remis la backup :<br />2023-08-15 19:53:25.461 UTC [4143969] FATAL:&#160; incorrect checksum in control file<br />2023-08-15 19:53:25.461 UTC [4143969] LOG:&#160; database system is shut down<br />pg_ctl: could not start server<br />Examine the log output.</p>]]></content>
+		<author>
+			<name><![CDATA[cocam123]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=11522</uri>
+		</author>
+		<updated>2023-08-15T19:55:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34460#p34460</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problèmes en transférant ma base de donnée Postgres]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34459#p34459"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>rjuju a écrit&#160;:</cite><blockquote><div><p>Pouvez-vous préciser la version de postgres (version 13 j&#039;imagine, mais quelle version mineure ?)</p></div></blockquote></div><p>La version que j&#039;utilise jusqu&#039;à présent c&#039;est la version 13.11. </p><p>Concernant la liste de répertoires utilisés par postgres, j&#039;ai réussi à récupérer uniquement le /var/lib/postgresql. Pour des raisons que je ne connais pas encore, le rescue mode n&#039;avais pas la permission de télécharger tous les dossiers de configuration sur le /etc (ce que j&#039;ai clairement indiqué à mon opérateur).</p><p>En ce qui concerne le système disque, je n&#039;ai aucune précision par rapport au fsync.</p><p>(je vais envoyer les fichiers logs plus tard dans la journée car je suis pas chez moi)</p>]]></content>
+		<author>
+			<name><![CDATA[cocam123]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=11522</uri>
+		</author>
+		<updated>2023-08-15T09:59:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34459#p34459</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problèmes en transférant ma base de donnée Postgres]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34457#p34457"/>
+		<content type="html"><![CDATA[<p>Il nous faut plus de détail que &quot;il y avais un problème avec le checksum data&quot; pour pouvoir vous aider.&#160; Pouvez-vous préciser la version de postgres (version 13 j&#039;imagine, mais quelle version mineure ?), la liste des répertoires utilisés par postgres (répertoire data, répertoire pg_wal, tablespace etc) que vous avez récupérés, la commande utilisée pour démarrer postgres ainsi que toutes les erreurs apparaissant dans la logs.&#160; Si vous avez également des précisions sur le système disque associé à votre serveur vps, notamment si vous avez la garantie qu&#039;un fsync est bien durable et résiste à un crash de l&#039;OS.</p><br /><p>De plus, avec le packaging debian la majorité des fichiers de configuration se trouver dans /etc et non /var, avez-vous également récupérés ceux-ci?</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2023-08-15T06:31:29Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34457#p34457</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problèmes en transférant ma base de donnée Postgres]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34456#p34456"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>rjuju a écrit&#160;:</cite><blockquote><div><p>Bonjour,</p><br /><p>Le service postgres était-il démarré lors de l&#039;accès FTP en &quot;rescue mode&quot; ?&#160; Si oui, la copie est inutile et la base est corrompue.&#160; Sinon, la copie aurait du fonctionner, pour peu que vous ayez bien sauvegardé toutes les données (répertoire pg_wal s&#039;il était ailleurs, tablespaces ...).</p><br /><div class="quotebox"><blockquote><div><p>l y avais un problème avec le checksum data (problème que j&#039;ai réussi à régler avec la commande pg_resetwal)</p></div></blockquote></div><p>Vous n&#039;avez pas réglé le problème, vous avez définitivement corrompu les données.&#160; Si vous avez toujours la copie originale il est possible de voir quel était le problème et peut être le régler, sinon il n&#039;y a pas grand chose à faire.</p><br /><p>Il est également possible que soit postgres soit l&#039;OS étaient mal configurés et ne garantissaient pas qu&#039;un fsync écrivait bien les données sur disque de manière durable.&#160; Si c&#039;est le cas, il est fort probable que le crash ait définitivement corrompu les données.</p></div></blockquote></div><p>Bonjour !</p><p>Tout d&#039;abord, pour répondre au ftp, non. Le &quot;rescue mode&quot; est une fonctionnalité permettant d&#039;accéder aux fichiers de la machine sans que cette dernière soit allumé. C&#039;est vraiment à utiliser en cas de dernière nécessité, comme je l&#039;ai fait. </p><p>Aussi, concernant pg_resetwall j&#039;ai vue les conséquences de cette commande mais j&#039;ai quand même pris soin de garder une backup avant toute modification.</p><p>Je reste donc ouvert à toute information sur cette dernière.</p>]]></content>
+		<author>
+			<name><![CDATA[cocam123]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=11522</uri>
+		</author>
+		<updated>2023-08-15T06:19:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34456#p34456</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problèmes en transférant ma base de donnée Postgres]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34455#p34455"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><p>Le service postgres était-il démarré lors de l&#039;accès FTP en &quot;rescue mode&quot; ?&#160; Si oui, la copie est inutile et la base est corrompue.&#160; Sinon, la copie aurait du fonctionner, pour peu que vous ayez bien sauvegardé toutes les données (répertoire pg_wal s&#039;il était ailleurs, tablespaces ...).</p><br /><div class="quotebox"><blockquote><div><p>l y avais un problème avec le checksum data (problème que j&#039;ai réussi à régler avec la commande pg_resetwal)</p></div></blockquote></div><p>Vous n&#039;avez pas réglé le problème, vous avez définitivement corrompu les données.&#160; Si vous avez toujours la copie originale il est possible de voir quel était le problème et peut être le régler, sinon il n&#039;y a pas grand chose à faire.</p><br /><p>Il est également possible que soit postgres soit l&#039;OS étaient mal configurés et ne garantissaient pas qu&#039;un fsync écrivait bien les données sur disque de manière durable.&#160; Si c&#039;est le cas, il est fort probable que le crash ait définitivement corrompu les données.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2023-08-14T23:51:35Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34455#p34455</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Problèmes en transférant ma base de donnée Postgres]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34454#p34454"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous !</p><p>Je suis nouveau sur cette communauté et Postgres en général donc j&#039;aimerais avoir un peu d&#039;aide sur quelque chose d&#039;assez préoccupant de mon côté.</p><p>Hier, l&#039;OS de mon serveur (vps) a crash. Mon opérateur propose un mode appelé &quot;rescue mode&quot; mais ce dernier propose uniquement un accès FTP aux fichiers du serveur.</p><p>J&#039;ai donc pu télécharger les fichiers de ma db en brut sans pouvoir télécharger de sauvegarde (car le rescue mode est trop restreint) ce qui m&#039;a obligé de télécharger le dossier /var/lib/postgresql/13/main directement.</p><p>Je tiens à préciser que c&#039;est un serveur matrix (pour donner plus d&#039;informations)</p><p>J&#039;ai donc réinstallé mon OS (avec les mêmes spécificité que l&#039;ancien. Debian 11, 64 bits, même nombre de GB en stockage et en RAM)</p><p>Tout s&#039;installe correctement sauf que pour Postgres, quand j&#039;upload ma db, il y avais un problème avec le checksum data (problème que j&#039;ai réussi à régler avec la commande pg_resetwal)</p><p>mais le problème qui survient c&#039;est qu&#039;il n&#039;y a plus aucun role. Même le rôle Postgres (créé par défaut) ne fonctionne plus et la commande psql indique que le role n&#039;existe pas.</p><p>Est-ce que des manipulations ou des commandes existent afin de pouvoir réutiliser correctement la db ?</p><p>Merci d&#039;avance pour vos réponses !</p>]]></content>
+		<author>
+			<name><![CDATA[cocam123]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=11522</uri>
+		</author>
+		<updated>2023-08-14T13:05:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34454#p34454</id>
+	</entry>
+</feed>

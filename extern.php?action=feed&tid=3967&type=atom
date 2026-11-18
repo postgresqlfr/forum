@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Probleme pg_dump [programme d'archivage (db)]]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3967&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3967"/>
+	<updated>2016-10-10T07:01:36Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3967</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Probleme pg_dump [programme d'archivage (db)]]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24109#p24109"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Merci pour vos reponses. Je suis en pg 9.5.3. <br />Oui l&#039;applicatif supprime des schemas, alors je pense qu&#039;au debut du dump le schema est present et il serait supprimer ensuite.</p><p>La notation&#160; &#039;&quot;DE_&quot;*&#039;&#160; semble fonctionner.</p><p>A+</p>]]></content>
+		<author>
+			<name><![CDATA[k13]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=6966</uri>
+		</author>
+		<updated>2016-10-10T07:01:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24109#p24109</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Probleme pg_dump [programme d'archivage (db)]]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24108#p24108"/>
+		<content type="html"><![CDATA[<p>Le schéma DE_17 n&#039;est pas exclu du dump malgré l&#039;option -N &#039;DE_*&#039; parce que les règles de mise en minuscule du SQL s&#039;appliquent sur cette option.</p><p>La doc de pg_dump ramène à celle de psql au sujet de ces &quot;motifs&quot;, et cette dernière doc dit:</p><p><a href="http://docs.postgresqlfr.org/9.6/app-psql.html" rel="nofollow">http://docs.postgresqlfr.org/9.6/app-psql.html</a></p><div class="quotebox"><blockquote><div><p>Les caractères à l&#039;intérieur du motif sont normalement mis en minuscule comme pour les noms SQL ;<br /> par exemple, \dt FOO affichera la table nommée foo.<br /> Comme pour les noms SQL, placer des guillemets doubles autour d&#039;un motif empêchera la mise en minuscule</p></div></blockquote></div><p>Donc pour exclure ces schémas en majuscules, il faudrait ajouter des guillemets autour de la partie fixe du motif, soit </p><div class="codebox"><pre><code>pg_dump -N &#039;&quot;DE_&quot;*&#039;  [...autres options]...</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2016-10-08T17:40:39Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24108#p24108</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Probleme pg_dump [programme d'archivage (db)]]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24104#p24104"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>De quelle version de postgres s&#039;agit-il ? (serveur et binaire pg_dump).&#160; Est-ce que votre applicatif créé et supprime de très nombreux schéma ? Il est possible qu&#039;un dump échoue ainsi, mais c&#039;est plutôt improbable.&#160; Sauf si votre catalogue système est extrêmement fragmenté et que récupérer la liste des tables prend un temps non négligeable. Quelle est la taille des objets pg_class, pg_attribute et pg_namespace sur la base que vous sauvegardez ?</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2016-10-07T14:26:09Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24104#p24104</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Probleme pg_dump [programme d'archivage (db)]]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24103#p24103"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je me permets de creer un sujet car j&#039;ai un soucis avec pg_dump. J&#039;ai l&#039;erreur suivante :</p><p># pg_dump --username=postgres --no-password --verbose -N &#039;DE_*&#039; --compress=2 --file=mydum.dump --format=custom MyBase<br />pg_dump: lecture des extensions<br />pg_dump: identification des membres d&#039;extension<br />pg_dump: lecture des schémas<br />pg_dump: lecture des tables utilisateur<br />pg_dump: [programme d&#039;archivage (db)] échec de la requête : ERROR:&#160; schema &quot;DE_17&quot; does not exist<br />pg_dump: [programme d&#039;archivage (db)] la requête était : LOCK TABLE &quot;DE_17&quot;.&quot;dataLineIn&quot; IN ACCESS SHARE MODE</p><p>Le probleme n&#039;est pas systematique, par moment ca fonctionne sans erreur. J&#039;avais ajouter l&#039;option -N pour ne plus avoir de probleme avec les schemas mais cela ne semble pas regler le probleme</p><p>Avez vous une idee ?</p><p>Bonne apres midi</p>]]></content>
+		<author>
+			<name><![CDATA[k13]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=6966</uri>
+		</author>
+		<updated>2016-10-07T13:54:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24103#p24103</id>
+	</entry>
+</feed>

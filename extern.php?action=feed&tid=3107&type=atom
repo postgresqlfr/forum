@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / problème de droit sur pg_class pour runMTK]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3107&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3107"/>
+	<updated>2014-05-16T11:11:44Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3107</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  problème de droit sur pg_class pour runMTK]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19905#p19905"/>
+		<content type="html"><![CDATA[<p>Je crois que j&#039;ai réussi : </p><div class="codebox"><pre class="vscroll"><code>perl -MCPAN -e shell
+get DBD::Oracle
+quit
+
+cd /home/Xavier/.cpan/build/DBD-Oracle-1.74-Vp3xUv/
+perl Makefile.PL
+......
+OCI directory not found, please install OCI in /cygdrive/c/Program Files/Common Files/Microsoft Shared/Windows Live at Makefile.PL line 324.
+
+
+ORACLE_HOME=/cygdrive/c/app/Xavier/product/11.2.0/dbhome_1/
+export ORACLE_HOME
+
+perl Makefile.PL
+....
+
+make
+...........
+/bin/sh: gcc-4 : commande introuvable
+Makefile:407: recipe for target &#039;Oracle.o&#039; failed
+make: *** [Oracle.o] Error 127
+
+ln -s /usr/bin/gcc.exe /usr/bin/gcc-4
+ln -s /usr/bin/gcc.exe /usr/bin/g++-4
+
+make 
+....
+
+make install
+...</code></pre></div><p>Ca a l&#039;air ok, mais j&#039;ai des problème de conf Oracle à régler (SID).</p>]]></content>
+		<author>
+			<name><![CDATA[Xav1er]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2945</uri>
+		</author>
+		<updated>2014-05-16T11:11:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19905#p19905</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  problème de droit sur pg_class pour runMTK]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19898#p19898"/>
+		<content type="html"><![CDATA[<p>D&#039;après le message de gilles : </p><div class="quotebox"><blockquote><div><p>La meilleur solution dans ce cas, si linux ne peux pas être utilisé bien sur, c&#039;est d&#039;installer le Perl d&#039;ActiveState, ils ont un module DBD::Oracle précompilé ce qui simplifie grandement l&#039;installation.</p></div></blockquote></div>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2014-05-15T21:23:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19898#p19898</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  problème de droit sur pg_class pour runMTK]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19895#p19895"/>
+		<content type="html"><![CDATA[<p>Oui, il faut le connecteur Oracle pour Perl. Ainsi que les instantclients Oracle. C&#039;est déjà passablement compliqué à installer sous Linux... alors sous Windows, c&#039;est clairement hors de ma portée <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-05-15T19:44:29Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19895#p19895</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  problème de droit sur pg_class pour runMTK]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19894#p19894"/>
+		<content type="html"><![CDATA[<p>En fait non ...<br />J&#039;ai mis un fichier de conf et ora2pg donne :<br />Can&#039;t locate DBD/Oracle.pm <br />Sauf qu&#039;il n&#039;y a pas de package tout préparé comme pour d&#039;autres produits dans cygwin ...</p>]]></content>
+		<author>
+			<name><![CDATA[Xav1er]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2945</uri>
+		</author>
+		<updated>2014-05-15T14:56:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19894#p19894</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  problème de droit sur pg_class pour runMTK]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19883#p19883"/>
+		<content type="html"><![CDATA[<p>bonjour,</p><p>En fait, j&#039;avais déjà Cygwin installé sur ma machine. Site à vos remarques, j&#039;ai regardé dans la liste des packages disponibles, ora2pg n&#039;y est pas (dommage), mais dans la cathégorie databases, je vois perl:DBI (il est aussi accessible depuis la cathégorie perl). Je l&#039;ai installé, et plus d&#039;erreur :-)<br />Enfin, je ne l&#039;ai pas encore utilisé pour transférer des données, mais au moins, quand je tape ora2pg, j&#039;ai bien un rappel de l&#039;usage.<br />Donc, pour ceux que ça interresse de faire fonctionner ora2pg avec cygwin, c&#039;est très simple : <br />installer cygwin avec make (qui n&#039;est pas par defaut !), perl et perl:DBI.<br />Puis les commandes pour unix/linux :</p><div class="codebox"><pre><code>            tar xzf ora2pg-10.x.tar.gz
+            cd ora2pg-10.x/
+            perl Makefile.PL
+            make &amp;&amp; make install</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[Xav1er]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2945</uri>
+		</author>
+		<updated>2014-05-14T08:23:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19883#p19883</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  problème de droit sur pg_class pour runMTK]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19844#p19844"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Il n&#039;est pas nécessaire d&#039;utiliser cygwin pour installer Ora2Pg. La procédure d&#039;installation est décrite dans le fichier README du paquet ora2pg. Il faut prendre soins de lire la rubrique INSTALLATION en entier, les infos sur l&#039;installation sous Windows sont éparses.</p><p>Sinon, la plupart des échecs d&#039;installation sous Windows sont imputable à la partie DBD::Oracle, il est clair que si l&#039;on est pas habitué à l&#039;installation de module Perl et la compilation cela peut être rébarbatif. La meilleur solution dans ce cas, si linux ne peux pas être utilisé bien sur, c&#039;est d&#039;installer le Perl d&#039;ActiveState, ils ont un module DBD::Oracle précompilé ce qui simplifie grandement l&#039;installation.</p><p>Désolé pour le retard de réponse.</p><p>Cordialement,</p>]]></content>
+		<author>
+			<name><![CDATA[gilles]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=921</uri>
+		</author>
+		<updated>2014-05-09T08:43:39Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19844#p19844</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  problème de droit sur pg_class pour runMTK]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19763#p19763"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Can&#039;t locate DBI.pm</p></div></blockquote></div><p>Il a besoin de DBI (ainsi que du DBD::Oracle je suppose) pour se connecter à la base de données : se sont les lib de connexion standard en perl<br /><a href="http://search.cpan.org/~timb/DBI-1.631/DBI.pm" rel="nofollow">http://search.cpan.org/~timb/DBI-1.631/DBI.pm</a><br /><a href="http://search.cpan.org/~pythian/DBD-Oracle-1.74/lib/DBD/Oracle.pm" rel="nofollow">http://search.cpan.org/~pythian/DBD-Ora … /Oracle.pm</a></p>]]></content>
+		<author>
+			<name><![CDATA[arthurr]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=62</uri>
+		</author>
+		<updated>2014-04-28T13:00:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19763#p19763</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  problème de droit sur pg_class pour runMTK]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19762#p19762"/>
+		<content type="html"><![CDATA[<p>Je n&#039;ai pas réussi à installer correctement ora2pg.<br />Je suis sous windows avec Cygwin.<br />les commandes d&#039;installation perl, make &amp;&amp; make install se sont correctement déroulées, mais quand je lance ora2pg, j&#039;ai l&#039;erreur :</p><div class="codebox"><pre><code>Can&#039;t locate DBI.pm in @INC (@INC contains: /usr/lib/perl5/site_perl/5.14/i686-cygwin-threads-64int /usr/lib/perl5/site_perl/5.14 /usr/lib/perl5/vendor_perl/5.14/i686-cygwin-threads-64int /usr/lib/perl5/vendor_perl/5.14 /usr/lib/perl5/5.14/i686-cygwin-threads-64int /usr/lib/perl5/5.14 /usr/lib/perl5/site_perl/5.10 /usr/lib/perl5/vendor_perl/5.10 /usr/lib/perl5/site_perl/5.8 .) at /usr/lib/perl5/site_perl/5.14/Ora2Pg.pm line 29.
+BEGIN failed--compilation aborted at /usr/lib/perl5/site_perl/5.14/Ora2Pg.pm line 29.
+Compilation failed in require at /usr/local/bin/ora2pg line 30.
+BEGIN failed--compilation aborted at /usr/local/bin/ora2pg line 30.</code></pre></div><p>Du coup, je n&#039;ai pas eu envie de me battre avec ça. J&#039;ai mis les droits à mon utilisateur, et jai utilisé l&#039;outil que j&#039;avais trouvé au début ...</p>]]></content>
+		<author>
+			<name><![CDATA[Xav1er]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2945</uri>
+		</author>
+		<updated>2014-04-28T12:25:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19762#p19762</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  problème de droit sur pg_class pour runMTK]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19721#p19721"/>
+		<content type="html"><![CDATA[<p>Il semblerait que ce problème modifie le catalogue système de la base, ce qui nécessite d&#039;être super utilisateur et ce qui est généralement une mauvaise idée. Utilisez un role superutilisateur si vous avez confiance en ce logiciel, sinon rapprochez-vous du support de runMTK ou essayez ora2pg.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2014-04-24T14:16:52Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19721#p19721</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  problème de droit sur pg_class pour runMTK]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19717#p19717"/>
+		<content type="html"><![CDATA[<p>J&#039;ai ça :</p><div class="codebox"><pre><code>2014-04-24 13:58:03 CEST ERREUR:  droit refusé pour la relation pg_class
+2014-04-24 13:58:03 CEST INSTRUCTION :  update pg_catalog.pg_class set relhasindex = &#039;f&#039; where oid = &#039;monschema.table3&#039;::pg_catalog.regclass</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[Xav1er]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2945</uri>
+		</author>
+		<updated>2014-04-24T12:00:55Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19717#p19717</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  problème de droit sur pg_class pour runMTK]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19716#p19716"/>
+		<content type="html"><![CDATA[<p>Bytea est un tableau d&#039;octet, on peut donc y mettre ce qu&#039;on veut. La seule contrainte étant d&#039;avoir moins d&#039;1 Go par champ.</p><p>Quelles sont les erreurs associées dans vos logs postgres ?</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2014-04-24T10:03:55Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19716#p19716</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  problème de droit sur pg_class pour runMTK]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19715#p19715"/>
+		<content type="html"><![CDATA[<p>Merci, mais je viens de regarder un peu, et je ne suis pas sur que l&#039;outil soit en cause. En fait, c&#039;est un et un seul champ qui me pose problème : j&#039;ai dans Oracle un champ de type raw.<br />L&#039;outil m&#039;a créé une table pg avec ce champ au format bytea.<br />Mais j&#039;ai l&#039;erreur lors du transfert des données. <br />Est ce qu&#039;il y a des difficultés particulières à manipuler des champs binaires ?</p>]]></content>
+		<author>
+			<name><![CDATA[Xav1er]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2945</uri>
+		</author>
+		<updated>2014-04-24T09:21:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19715#p19715</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  problème de droit sur pg_class pour runMTK]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19714#p19714"/>
+		<content type="html"><![CDATA[<p>Pour la migration d&#039;Oracle vers Pg (données, schémas, ...) = ora2pg<br />le lien : <a href="http://ora2pg.darold.net/" rel="nofollow">http://ora2pg.darold.net/</a></p>]]></content>
+		<author>
+			<name><![CDATA[arthurr]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=62</uri>
+		</author>
+		<updated>2014-04-24T09:01:50Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19714#p19714</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  problème de droit sur pg_class pour runMTK]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19713#p19713"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Vous pouvez utiliser cet excellent outil :ora2pg<br /><a href="http://ora2pg.darold.net/" rel="nofollow">http://ora2pg.darold.net/</a></p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2014-04-24T09:00:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19713#p19713</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  problème de droit sur pg_class pour runMTK]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19712#p19712"/>
+		<content type="html"><![CDATA[<p>Ah, pardon, pardon ;-)</p><p>En fait, quand j&#039;ai cherché un outil de transfert de données d&#039;Oracle vers pg, j&#039;ai de suite trouvé EnterpriseDB Tools sur <a href="http://www.enterprisedb.com" rel="nofollow">http://www.enterprisedb.com</a>. Comme c&#039;est simple et gratuit, j&#039;ai pensé que c&#039;était l&#039;outil de référence que tout le monde utilise.<br />Je vois que non.<br />Alors quel est l&#039;outil le plus simple de transfert qui serait l&#039;outil de &quot;reférence&quot; ?</p>]]></content>
+		<author>
+			<name><![CDATA[Xav1er]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2945</uri>
+		</author>
+		<updated>2014-04-24T07:54:06Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19712#p19712</id>
+	</entry>
+</feed>

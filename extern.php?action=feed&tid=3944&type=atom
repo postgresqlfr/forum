@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / [Resolu] generate_series pour un retour sur tous les mois]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3944&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3944"/>
+	<updated>2016-09-09T14:30:39Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3944</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Resolu] generate_series pour un retour sur tous les mois]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23968#p23968"/>
+		<content type="html"><![CDATA[<p>nickel <br />merci!</p>]]></content>
+		<author>
+			<name><![CDATA[damalaan]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1000</uri>
+		</author>
+		<updated>2016-09-09T14:30:39Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23968#p23968</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Resolu] generate_series pour un retour sur tous les mois]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23967#p23967"/>
+		<content type="html"><![CDATA[<p>il vous faut générer l&#039;année et le mois. Par exemple :</p><div class="codebox"><pre><code>WITH a AS (select date_part(&#039;year&#039;, d) AS annee, date_part(&#039;month&#039;, d) AS mois from generate_series(&#039;2014-01-01&#039;::date, &#039;2016-12-01&#039;, &#039;1 month&#039;) d)
+...</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2016-09-09T13:46:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23967#p23967</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Resolu] generate_series pour un retour sur tous les mois]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23966#p23966"/>
+		<content type="html"><![CDATA[<p>j&#039;ai identifié le problème<br />j&#039;ai rajouté le coalesce pour forcer les valeurs à 0, mais en fait il me manque les années :</p><div class="codebox"><pre><code>2015;1;72.000
+2015;2;73.000
+2015;3;39.000
+2015;4;5.000
+2015;7;1.000
+2015;9;4.000
+2015;10;16.000
+2015;11;17.000
+2015;12;37.000
+;5;0
+;6;0
+;8;0</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[damalaan]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1000</uri>
+		</author>
+		<updated>2016-09-09T12:42:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23966#p23966</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Resolu] generate_series pour un retour sur tous les mois]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23965#p23965"/>
+		<content type="html"><![CDATA[<p>De visu, ça a l&#039;air bon. En testant de mon côté, ça fonctionne :</p><div class="codebox"><pre><code>postgres=# with a as (
+select generate_series(1,12) as mois),
+b as (select i, 10 as j from generate_series(1, 5) i)
+select a.mois, coalesce(b.j, 0) from a left join b on a.mois=b.i;
+ mois | coalesce 
+------+----------
+    1 |       10
+    2 |       10
+    3 |       10
+    4 |       10
+    5 |       10
+    6 |        0
+    7 |        0
+    8 |        0
+    9 |        0
+   10 |        0
+   11 |        0
+   12 |        0
+(12 rows)</code></pre></div><p>Évidemment, ce n&#039;est pas exactement le même schéma. J&#039;ai reconstitué avec ce que j&#039;ai pu.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2016-09-09T12:12:35Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23965#p23965</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[[Resolu] generate_series pour un retour sur tous les mois]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23964#p23964"/>
+		<content type="html"><![CDATA[<p>Bonjour</p><p>je veux obtenir avec la requete ci dessous des stats par mois et par an, et si le mois n&#039;existe pas (pas d&#039;activité) il faut que ça affiche 0 ou null<br />par exemple je veux<br />2014 1 25<br />2014 2 0<br />2014 3 23<br />2014 4 65<br />2014 5 0<br />etc</p><p>or actuellement j&#039;ai ce résultat <br />2014 1 25<br />2014 3 23<br />2014 4 65</p><p>j&#039;ai essayé avec une jointure left mais je dois rater qqc !</p><div class="codebox"><pre><code>with a as (
+select generate_series(1,12) as mois),
+b as (
+select 
+date_part(&#039;year&#039;, val_date)::integer as annee, 
+date_part(&#039;Month&#039;, val_date)::integer as mois,
+sum(val_valeur)as moyenne
+
+from (tbl_analyse_ana natural join tbl_stat_sta natural join tbl_valeur_val)
+
+where val_esp=2
+and ana_id =4
+and sta_id=61
+and date_part(&#039;year&#039;, val_date) between 2014 and 2016
+group by date_part(&#039;year&#039;, val_date) ,date_part(&#039;Month&#039;, val_date)
+order by date_part(&#039;year&#039;, val_date), date_part(&#039;Month&#039;, val_date))
+
+select b.annee,a.mois,b.moyenne from a left join b on a.mois=b.mois 
+order by b.annee, a.mois</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[damalaan]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1000</uri>
+		</author>
+		<updated>2016-09-09T11:21:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23964#p23964</id>
+	</entry>
+</feed>

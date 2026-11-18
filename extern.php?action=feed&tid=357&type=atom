@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Passer le nom d'un Champ comme paramètre d'une proc. stockée]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=357&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=357"/>
+	<updated>2009-07-21T10:03:08Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=357</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Passer le nom d'un Champ comme paramètre d'une proc. stockée]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2021#p2021"/>
+		<content type="html"><![CDATA[<p>Merci gleu.<br />C&#039;est un détail qui m&#039;a échappé</p>]]></content>
+		<author>
+			<name><![CDATA[zied]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=185</uri>
+		</author>
+		<updated>2009-07-21T10:03:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2021#p2021</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Passer le nom d'un Champ comme paramètre d'une proc. stockée]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2020#p2020"/>
+		<content type="html"><![CDATA[<p>N&#039;oubliez pas quote_literal. Ça vous protège des chaînes contenant par exemple des guillemets. Car là, avec votre code, si _value contient un guillemet, la fonction échouera. Sans compter que ça permet une attaque de type injection SQL du plus mauvais effet.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2009-07-21T09:50:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2020#p2020</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Passer le nom d'un Champ comme paramètre d'une proc. stockée]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2018#p2018"/>
+		<content type="html"><![CDATA[<p>Merci.<br />Voici le résultat final</p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION __searchtest3
+(
+    _key character varying,
+	_value character varying,
+	OUT prod_version bigint
+)
+RETURNS bigint
+AS $$
+DECLARE __query text DEFAULT NULL;
+BEGIN
+ 
+	__query := &#039;SELECT prod_version FROM vprod_details WHERE &quot;&#039; || _key || &#039;&quot; = \&#039;&#039; || _value || &#039;\&#039;&#039;;
+	EXECUTE __query INTO prod_version;
+ 
+	RETURN;
+	
+END $$ LANGUAGE plpgsql;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[zied]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=185</uri>
+		</author>
+		<updated>2009-07-21T09:00:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2018#p2018</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Passer le nom d'un Champ comme paramètre d'une proc. stockée]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2017#p2017"/>
+		<content type="html"><![CDATA[<p>Vous ne pouvez pas le faire en SQL. Il faut obligatoirement passer par PL/pgsql (ou un autre, plus évolué que SQL).</p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION __searchtest2(character, character)
+  RETURNS bigint AS
+$BODY$
+DECLARE
+  requete text;
+  ma_valeur le_type_de_ma_valeur;
+BEGIN
+requete := &#039;SELECT prod_version FROM vprod_details WHERE &#039;||quote_ident($1)||&#039;=&#039;||quote_literal($2);
+EXECUTE requete INTO mavaleur;
+RETURN ma_valeur;
+END
+$BODY$
+LANGUAGE &#039;plpgsql&#039;;</code></pre></div><p>Quelque chose comme cela me paraît mieux. Il y a certainement moyen de mieux faire avec les dernières versions de PostgreSQL (notamment avec la 8.4 et son RETURN QUERY EXECUTE).</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2009-07-20T14:47:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2017#p2017</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Passer le nom d'un Champ comme paramètre d'une proc. stockée]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2013#p2013"/>
+		<content type="html"><![CDATA[<p>J&#039;ai essayé cette écriture</p><div class="codebox"><pre><code> 
+
+CREATE OR REPLACE FUNCTION __searchtest2(character, character)
+  RETURNS bigint AS
+$BODY$
+PREPARE  test(character,character) AS SELECT prod_version FROM vprod_details
+WHERE $1=$2;
+ 
+EXECUTE test(&#039;prod_ref&#039;,&#039;ZA01820C&#039;); 
+ 
+$BODY$
+  LANGUAGE &#039;sql&#039; VOLATILE
+  COST 100;
+ALTER FUNCTION __searchtest(character, character) OWNER TO postgres;</code></pre></div><p>J&#039;ai l&#039;erreur suivante</p><p>ERROR: return type mismatch in function declared to return bigint<br />DÉTAIL : Function&#039;s final statement must be a SELECT.<br />CONTEXTE : SQL function &quot;__searchtest2&quot;</p>]]></content>
+		<author>
+			<name><![CDATA[zied]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=185</uri>
+		</author>
+		<updated>2009-07-20T13:57:09Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2013#p2013</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Passer le nom d'un Champ comme paramètre d'une proc. stockée]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2012#p2012"/>
+		<content type="html"><![CDATA[<p>Impossible de le faire de la sorte : la fonction sql ne peut pas avoir comme variable le nom d&#039;une colonne je pense.</p><p>Il faudra passer par du plpgsql et fabriquer l&#039;ordre SQL à la volée, comme expliqué ici :<br /><a href="http://docs.postgresql.fr/8.4/plpgsql-statements.html" rel="nofollow">http://docs.postgresql.fr/8.4/plpgsql-statements.html</a> paragraphe 38.5.4.<br />Evidemment, cela aussi est pénible, puisqu&#039;il faut fabriquer l&#039;ordre SQL par concaténation</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2009-07-20T12:19:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2012#p2012</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Passer le nom d'un Champ comme paramètre d'une proc. stockée]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=2009#p2009"/>
+		<content type="html"><![CDATA[<p>Bonjour<br />Je veux créer une procédure stocké à laquelle je veux passer en paramètre 2 variables&#160; Le nom d&#039;un champ et sa valeur</p><p>J&#039;ai écrit ce code pour tester mais ça ne marche pas :</p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION __searchtest(character, character)
+  RETURNS SETOF record AS
+$BODY$
+select prod_version from vprod_details
+where $1=$2;
+
+$BODY$
+  LANGUAGE &#039;sql&#039; VOLATILE
+  COST 100
+  ROWS 1000;
+ALTER FUNCTION __searchtest(character, character) OWNER TO postgres;</code></pre></div><p>avec $1 le nom du champ et $2 est la valeur du champ.&#160; <br />Est-ce possible?<br />Si oui comment faire?</p>]]></content>
+		<author>
+			<name><![CDATA[zied]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=185</uri>
+		</author>
+		<updated>2009-07-20T11:08:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=2009#p2009</id>
+	</entry>
+</feed>

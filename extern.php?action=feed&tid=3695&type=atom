@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / [PARAMETRES] - Passer un tableau en paramètres d'une fonction]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3695&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3695"/>
+	<updated>2015-11-12T08:02:09Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3695</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [PARAMETRES] - Passer un tableau en paramètres d'une fonction]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22707#p22707"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Voici le code de ma fonction SQL:</p><div class="codebox"><pre class="vscroll"><code>CREATE OR REPLACE FUNCTION add_cmd_gen(
+    _cadences integer,
+    _orderform integer,
+    _total integer,
+    _batch integer,
+    _stardate date,
+    _date date,
+    _supplier text,
+    _sn text,
+    _quantity integer[],
+    _ptypeid integer[])
+  RETURNS boolean AS
+$BODY$DECLARE
+	i integer;
+	j integer;
+BEGIN
+	RAISE LOG &#039;Création de la commande générale...&#039;;
+	SELECT check_sn16(_orderform);
+	IF (_orderform ~ &#039;^CC[0-9]{2}(0[1-9]|1[0-2])(00[1-9]|0[1-9][0-9]|[1-9][0-9]{2})$&#039;)
+	THEN
+		IF (_supplier ~ &#039;^[A-Z]+$&#039;)
+		THEN
+			IF (_startdate ~ &#039;^(199[6-9]|[2-9][0-9]{3})-(0[1-9]|1[0-2])$&#039;)
+			THEN
+				IF (_quantity ~ &#039;^[0-9]+$&#039;)
+				THEN
+					INSERT INTO supplierorders (orderform, startdate, quantity, supplier) VALUES (_orderform, _startdate, _total, _supplier) RETURNING sorderid;
+					RAISE LOG &#039;Terminé&#039;;
+				ELSE
+					RAISE LOG &#039;La quantité n est pas correct!&#039;;
+				END IF;
+			ELSE
+				RAISE LOG &#039;La date n est pas correct!&#039;;
+			END IF;
+		ELSE
+			RAISE LOG &#039;Le nom du fournisseur n est pas correct!&#039;;
+		END IF;
+	ELSE
+		RAISE LOG &#039;La date n est pas correct!&#039;;
+	END IF;
+	RAISE LOG &#039;Création des sous-commandes...&#039;;
+	j = 0;
+	WHILE _batch[j] IS NOT NULL LOOP
+		IF (_sorderid ~ &#039;^[0-9]+$&#039;)
+		THEN
+			IF (_ptypeid[j] ~ &#039;^[0-9]+$&#039;)
+			THEN
+				IF (_batch[j] ~ &#039;^[0-9]+$&#039;)
+				THEN
+					IF (_quantity[j] ~ &#039;^[0-9]+$&#039;)
+					THEN
+						INSERT INTO supplierdeliveries (sorderid, ptypeid, batch, quantity) VALUES (_sorderid, _ptypeid[j], _batch[j], _quantity[j]);
+						i = 0;
+						FOR i IN REVERSE 0 .. _quantity LOOP
+							INSERT INTO products (sdeliveryid, ptypeid, sn, status, date) VALUES (_sdeliveryid, _ptypeid, _sn, &#039;Commandées&#039;, GETDATE());
+						END LOOP;
+				ELSE
+						RAISE LOG &#039;La quantité n est pas correcte&#039;;
+					END IF;
+				ELSE
+					RAISE LOG &#039;Le numéro de lot n est pas correcte&#039;;
+				END IF;
+			ELSE
+				RAISE LOG &#039;Le type de produit n est pas correcte&#039;;
+			END IF;
+		ELSE
+			RAISE LOG &#039;La date n est pas correcte&#039;;
+		END IF;
+		j = j + 1;
+	END LOOP;
+	RAISE LOG &#039;Terminé&#039;;
+END;$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+ALTER FUNCTION add_cmd_gen(integer, integer, integer, integer, date, date, text, text, integer[], integer[])
+  OWNER TO postgres;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[Papychampi]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5287</uri>
+		</author>
+		<updated>2015-11-12T08:02:09Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22707#p22707</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [PARAMETRES] - Passer un tableau en paramètres d'une fonction]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22705#p22705"/>
+		<content type="html"><![CDATA[<p>Il s&#039;agit d&#039;une erreur côté php. La syntaxe d&#039;un tableau dans postgres est la suivante : &#039;{&quot;elem1&quot;,&quot;elem2&quot;}&#039; pour un tableau de texte et &#039;{1,2}&#039; pour des entiers par exemple.</p><p>Avez-vous vérifié que la fonction pl/pgsql fonctionnait correctement ? Un exemple de fonction pl/pgsql qui prend un tableau en entrée :</p><div class="codebox"><pre><code>create or replace function nb_elem(a integer[]) returns integer as
+$$
+declare
+    nb integer;
+begin
+select array_upper(a,1) into nb;
+return nb;
+end;
+$$ language plpgsql;
+
+select nb_elem(&#039;{1,1,1}&#039;);
+ nb_elem 
+═════════
+       3
+(1 row)</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2015-11-10T17:36:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22705#p22705</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[[PARAMETRES] - Passer un tableau en paramètres d'une fonction]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22704#p22704"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />Je développe une application en php/postgresql et je voudrais faire passer un tableau dans une de mes procédures stockée. Seulement Php me retourne cette erreur... </p><p>Notice: Array to string conversion in [...] commandes.php on line 47</p><p>Du coup je voudrais savoir quelle est la syntaxe correcte pour passer des tableaux en paramètres de fonctions postgresql...</p><div class="codebox"><pre><code>if (isset($_POST[&#039;submit&#039;])){
+	if ($_POST[&#039;submit&#039;]){
+		$qua = array();
+		for ($i=0;$i&lt;$_POST[&#039;nb_choix&#039;];$i++){
+			$qua[$i] = $_POST[&#039;quantity&#039; . $i];
+		}
+		$bat = array();
+		for ($i=0;$i&lt;$_POST[&#039;nb_choix&#039;];$i++){
+			$bat[$i] = $_POST[&#039;batch&#039; . $i];
+		}
+		$sn = array();
+		for ($i=0;$i&lt;$_POST[&#039;nb_choix&#039;];$i++){
+			$sn[$i] = $_POST[&#039;sn&#039; . $i];
+		}
+		for ($i = 0; $i &lt; $_POST[&#039;nb_choix&#039;];$i++){
+			$res = pg_query_params($conn, &quot;SELECT * FROM product_types WHERE ptypeid = $1&quot;, array($_POST[&#039;batch&#039; . $i]));
+			$data = pg_fetch_row($res);
+			$corps = str_ireplace(&quot;V&quot;, &quot;&quot;, $data[4]); 
+			$v[$i] = str_ireplace(&quot;R&quot;, &quot;&quot;, $corps);
+			$save = ltrim($data[3], &quot;FABfab&quot;);
+			$f[$i] = str_ireplace(&quot; &quot;, &quot;&quot;, $save);
+			$d[$i] = $_POST[&#039;d&#039; . $i];
+			$n[$i] = $_POST[&#039;n&#039; . $i];
+		}
+		$sql = &quot;SELECT add_cmd_gen(&quot; . $_POST[&#039;nb_choix&#039;] . &quot;, &quot; . $_POST[&#039;orderform&#039;] . &quot;, &quot; . $_POST[&#039;total&#039;] . &quot;, &quot; . $_POST[&#039;orderform&#039;] . &quot;, &quot; . $bat . &quot;, &quot; . $_POST[&#039;startdate&#039;] . &quot;, &quot; . $_POST[&#039;startdate&#039;] . &quot;, &quot; . $_POST[&#039;supplierdeliveries&#039;] . &quot;, &quot; . $sn . &quot;, &quot; . $_POST[&#039;supplierdeliveries&#039;] . &quot;, &quot; . $qua . &quot;, &quot; . $ptypeid . &quot;)&quot;;
+		$res = pg_query($conn, $sql);</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[Papychampi]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5287</uri>
+		</author>
+		<updated>2015-11-10T16:08:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22704#p22704</id>
+	</entry>
+</feed>

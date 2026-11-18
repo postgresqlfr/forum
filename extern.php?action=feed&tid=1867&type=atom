@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Lenteur d'execution d'une requete avec la version 8.4]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1867&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1867"/>
+	<updated>2012-02-01T15:46:46Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1867</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Lenteur d'execution d'une requete avec la version 8.4]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12679#p12679"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>Le Martret a écrit&#160;:</cite><blockquote><div><p>Nous avons observé un temps de réponse de 1 à 10 pour une requête simple (select * from data limit 2000000) qui retourne 200000 enregistrements entre&#160; deux versions de postgresql&#160; 8.3 et 8.4 avec la même base de données.</p><p>1 - ancien serveur<br />postgresql 8.3&#160; :&#160; &#160;Ubuntu 8.04 LTS server, : temps de réponse &lt;2s</p><p>2 - nouveau serveur&#160; &#160;plus puissant !!!!<br />postgresql 8.4&#160; :&#160; &#160;Ubuntu 10.04 LTS server :&#160; temps de réponse &gt;20s</p><p>Idem sur station deux autres stations de travail&#160; avec Ubuntu 10.04 et postgresql 8.4 </p><p>y-a-t-il une optimisation particulière pour régler ce problème ?<br />Est-ce un problème d&#039;optimisation ?</p></div></blockquote></div><p>Une explication possible est que par défaut les packages debian/ubuntu de postgres ont une connexion cryptée avec SSL y compris sur localhost.<br />Dans le cas d&#039;un gros select * sur un réseau très rapide, a fortiori localhost, ça peut effectivement mettre 10 fois plus de temps en crypté qu&#039;en clair pour transférer tous les résultats.<br />Et le temps en question ne se voit pas dans l&#039;explain analyze.<br />En revanche en socket du domaine unix il n&#039;y a jamais de cryptage, c&#039;est précisé dans la doc de libpq.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2012-02-01T15:46:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12679#p12679</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Lenteur d'execution d'une requete avec la version 8.4]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12656#p12656"/>
+		<content type="html"><![CDATA[<p>Pour exactement la même requête, je n&#039;y crois pas du tout. Il y a forcément quelque chose de différent, au niveau matériel, au niveau système d&#039;exploitation, au niveau configuration de PostgreSQL, ou encore ailleurs.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-01-31T16:05:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12656#p12656</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Lenteur d'execution d'une requete avec la version 8.4]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12655#p12655"/>
+		<content type="html"><![CDATA[<p>La conclusion me semble un peu trop rapide, vu le peu de diagnostic effectué…</p><p>On n&#039;a pas le détail de la fonction, on ne sait pas ce qui prend du temps dedans, bref, on n&#039;a aucune information à part &#039;ça marche en 8.3, ça marche pas en 8.4, ça marche en 9.1&#039;.</p><p>=&gt; On peut avoir le code de la fonction pour commencer ? (le explain ne nous renseigne en rien, quand on a une fonction, puisque c&#039;est une boîte noire).</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2012-01-31T16:05:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12655#p12655</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Lenteur d'execution d'une requete avec la version 8.4]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12651#p12651"/>
+		<content type="html"><![CDATA[<p>Pour affiner les tests, j&#039;ai une fonction PL/PGSQL identique, base identiques sur ces deux versions de postgresql avec très peu<br />de d&#039;enregistrements en retour (max 112 enregistrements).</p><p>La fonction balaie une première table de 600 enregistrements pour extraire toutes les variables associées au point 531 et construit<br />un tableau pour ces variables trouvées à partir des données de la table data.<br />ancien serveur :<br />explain analyse <br />select * from extrac_intervalleforlocation(531)<br />&quot;Function Scan on extrac_intervalleforlocation&#160; (cost=0.00..260.00 rows=1000 width=68) (actual time=8357.165..8357.205 rows=112 loops=1)&quot;<br />&quot;Total runtime: 8357.263 ms&quot;</p><p>nouveau serveur<br />select * from extrac_intervalleforlocation(531)<br />&quot;Function Scan on extrac_intervalleforlocation&#160; (cost=0.00..260.00 rows=1000 width=68) (actual time=21074.153..21074.156 rows=112 loops=1)&quot;<br />&quot;Total runtime: 21074.182 ms&quot;</p><p>Ici c&#039;est le temps d&#039;execution de la fonction qui est plus du double pour notre nouveau serveur en 8.4 !!!</p><p>Dernier test; passage au postgres9.1&#160; sur nouveau serveur et lancement des mêmes tests:<br />&#160; &#160; - temps d&#039;execution &lt; 1 seconde pour le select * from data limit 200000;<br />&#160; &#160; - temps d&#039;execution proche de la seconde pour le select * from extrac_intervalleforlocation(531)</p><p>Conclusion : version 8.4 pose réellement un probleme.</p>]]></content>
+		<author>
+			<name><![CDATA[Le Martret]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1543</uri>
+		</author>
+		<updated>2012-01-31T15:16:21Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12651#p12651</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Lenteur d'execution d'une requete avec la version 8.4]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12643#p12643"/>
+		<content type="html"><![CDATA[<p>Ok. Donc la différence de temps d&#039;exécution est simplement due au fait qu&#039;à certains moments, les données que vous récupérez sont en cache, et pas à d&#039;autres, je pense.</p><p>57ms pour lire 200 000 enregistrements, on est dans le cas où les données sont en cache, probablement.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2012-01-31T10:43:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12643#p12643</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Lenteur d'execution d'une requete avec la version 8.4]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12642#p12642"/>
+		<content type="html"><![CDATA[<p>La table data contient 13 millions d&#039;enregistrements, <br />11 champs dont 1 champ date et des integer</p><p>la requete sur cette table data : <br />select * from data limit 200000</p><p>Le temps est proportionnel aux nombre d&#039;enregistrements retournés et dans un rapport de 1 à 10 toujours<br />explain analyse select * from data limit 200000 ne me renseigne pas beaucoup !!!<br />&quot;Limit&#160; (cost=0.00..4270.96 rows=200000 width=49) (actual time=0.022..45.561 rows=200000 loops=1)&quot;<br />&quot;&#160; -&gt;&#160; Seq Scan on data&#160; (cost=0.00..280496.44 rows=13135044 width=49) (actual time=0.021..23.217 rows=200000 loops=1)&quot;<br />&quot;Total runtime: 57.002 ms&quot;</p>]]></content>
+		<author>
+			<name><![CDATA[Le Martret]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1543</uri>
+		</author>
+		<updated>2012-01-31T10:38:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12642#p12642</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Lenteur d'execution d'une requete avec la version 8.4]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12641#p12641"/>
+		<content type="html"><![CDATA[<p>Il faut davantage d&#039;informations pour vous aider:<br />- La requête<br />- La définition des tables impliquées (et leur taille)<br />- Un EXPLAIN ANALYZE de la requête (EXPLAIN ANALYSE ma_requête)</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2012-01-31T10:25:06Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12641#p12641</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Lenteur d'execution d'une requete avec la version 8.4]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12639#p12639"/>
+		<content type="html"><![CDATA[<p>Nous avons observé un temps de réponse de 1 à 10 pour une requête simple (select * from data limit 2000000) qui retourne 200000 enregistrements entre&#160; deux versions de postgresql&#160; 8.3 et 8.4 avec la même base de données.</p><p>1 - ancien serveur<br />postgresql 8.3&#160; :&#160; &#160;Ubuntu 8.04 LTS server, : temps de réponse &lt;2s</p><p>2 - nouveau serveur&#160; &#160;plus puissant !!!!<br />postgresql 8.4&#160; :&#160; &#160;Ubuntu 10.04 LTS server :&#160; temps de réponse &gt;20s</p><p>Idem sur station deux autres stations de travail&#160; avec Ubuntu 10.04 et postgresql 8.4 </p><p>y-a-t-il une optimisation particulière pour régler ce problème ?<br />Est-ce un problème d&#039;optimisation ?</p>]]></content>
+		<author>
+			<name><![CDATA[Le Martret]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1543</uri>
+		</author>
+		<updated>2012-01-31T10:23:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12639#p12639</id>
+	</entry>
+</feed>

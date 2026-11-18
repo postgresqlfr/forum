@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Probleme : SQL Error [42601]: Unterminated dollar quote]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=6674&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=6674"/>
+	<updated>2023-10-14T19:41:49Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=6674</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Probleme : SQL Error [42601]: Unterminated dollar quote]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34608#p34608"/>
+		<content type="html"><![CDATA[<p>Il y a plein d&#039;erreurs dans ce code. On peut commencer avec les guillemets doubles qui doivent être remplacés par des guillemets simples mais doublés. Ceci n&#039;est peut être pas à faire car la présence du format me parait très douteuse. Pour moi, c&#039;est &quot;EXECUTE INSERT... USING...&quot;.</p><p>Et enfin, le &quot;Unterminated dollar quote&quot; me paraît peu croyable pour cette fonction.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2023-10-14T19:41:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34608#p34608</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Probleme : SQL Error [42601]: Unterminated dollar quote]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34606#p34606"/>
+		<content type="html"><![CDATA[<p>Bonjour, </p><p>Je m&#039;y connais pas du tout en pl/pgsql et j&#039;ai eu un travail à faire.<br />J&#039;ai créé une fonction pl/pgsql et au moment de l&#039;exécuter j&#039;ai une erreur &quot;SQL Error [42601]: Unterminated dollar quote at position 93 in SQL -- (tout mon code) &quot;.<br />Je ne comprends pas pourquoi j&#039;ai cette erreur et en cherchant sur internet, je n&#039;arrive pas à résoudre ce problème.</p><p>Voilà mon code, mon principal problème est cette histoire de &#039;$$&#039; mais si vous voyez d&#039;autres problèmes n&#039;hésitez pas à les montrer ! :</p><div class="codebox"><pre class="vscroll"><code>create or replace function GenUnifCatal() returns void as $$
+	declare 
+		-- Curseur pour parcourir la table META
+		meta_cursor cursor for select table_name, trans_code from META;
+		-- Variables pour stocker les données de chaque catalogue
+		catalog_name VARCHAR(255);
+		transformation_code VARCHAR(10);
+		-- Variables pour stocker les attributs de catalogue
+		name_attribute VARCHAR(50);
+		price_attribute numeric(8, 2);
+		-- Variables pour stocker les données à charger dans C_ALL
+		product_name VARCHAR(50);
+		product_price NUMERIC(8, 2);
+	begin
+		-- detruit C_ALL si existe
+		drop table if exists C_ALL;
+		-- crée la table C_ALL
+		create table C_ALL (pid serial primary key,
+							pname varchar,
+							pprice numeric);
+		-- Ouvre le curseur
+    	open meta_cursor;
+		-- Boucle pour parcourir la table META
+        fetch meta_cursor into catalog_name, transformation_code;
+    	
+       	while found loop
+		
+	    	-- Recherche dynamique des attributs &quot;name&quot; et &quot;price&quot; dans le catalogue
+        	select column_name into name_attribute from information_schema.columns where table_name = catalog_name and column_name LIKE &#039;%name%&#039;;
+        	select column_name into price_attribute from information_schema.columns where table_name = catalog_name and column_name LIKE &#039;%price%&#039;;
+       	 	
+        	-- Dynamiquement charge les données de chaque catalogue
+        	EXECUTE format(&quot;insert into C_ALL (pname, pprice)
+                        values( case when %I like &#039;%CAP%&#039; then upper(%I) 
+                                else %I
+                            	end, 
+                            	case when %I like &#039;%CUR%&#039; then (%I * 1.05)
+                                else %I
+								end);&quot;) using transformation_code, name_attribute, name_attribute, transformation_code, price_attribute, price_attribute);
+			fetch meta_cursor into catalog_name, transformation_code;
+    	end loop;
+
+    	-- Ferme le curseur
+    	close meta_cursor;
+	end;
+$$ language plpgsql;</code></pre></div><p>Et le code pour les tables:</p><div class="codebox"><pre class="vscroll"><code>CREATE TABLE C1(
+  product_id NUMERIC(5) PRIMARY KEY,
+  product_name VARCHAR(50),
+  product_price NUMERIC(8,2)
+);
+  
+INSERT INTO C1 VALUES(1, &#039;COMPUTER&#039;, 799.9);  
+INSERT INTO C1 VALUES(2, &#039;MONITOR&#039;, 349.9); 
+
+CREATE TABLE C2(
+  id NUMERIC(5) PRIMARY KEY,
+  price NUMERIC(8,2),
+  name VARCHAR(50)
+);  
+  
+INSERT INTO C2 VALUES(10, 299.9, &#039;Printer&#039;);  
+INSERT INTO C2 VALUES(20, 149.9, &#039;Scanner&#039;);   
+  
+CREATE TABLE C3(
+  pname VARCHAR(50),
+  pprice NUMERIC(8,2)
+);  
+  
+INSERT INTO C3 VALUES(&#039;mouse&#039;, 29.9);  
+INSERT INTO C3 VALUES(&#039;webcam&#039;, 19.9);     
+  
+CREATE TABLE meta(
+  table_name VARCHAR(255),
+  trans_code VARCHAR(10)
+);
+  
+INSERT INTO meta VALUES(&#039;C1&#039;, NULL);  
+INSERT INTO meta VALUES(&#039;C2&#039;, &#039;CAP&#039;);  
+INSERT INTO meta VALUES(&#039;C3&#039;, &#039;CAP+CUR&#039;); 
+
+COMMIT;</code></pre></div><p>Merci pour toute aide apportée !</p>]]></content>
+		<author>
+			<name><![CDATA[fridom]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=11717</uri>
+		</author>
+		<updated>2023-10-14T16:30:54Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34606#p34606</id>
+	</entry>
+</feed>

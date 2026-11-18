@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / [résolu] Requête sur un champs HSTORE ( mot clé "IN" )]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3135&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3135"/>
+	<updated>2014-05-16T10:01:05Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3135</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [résolu] Requête sur un champs HSTORE ( mot clé "IN" )]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19904#p19904"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>arthurr a écrit&#160;:</cite><blockquote><div><p>Bonjour,</p><div class="quotebox"><blockquote><div><p>je souhaiterai donc pouvoir caster en string</p></div></blockquote></div><div class="codebox"><pre><code>postgres=# select 42::text;
+ text 
+------
+ 42
+(1 row)</code></pre></div><p>Par contre, aucune idée de savoir si le IN va fonctionner avec le Hstore</p></div></blockquote></div><p>J&#039;ai tenté ta solution et donc la requête suivante :</p><div class="codebox"><pre><code>select list_attributes from client_data where client_data_type_id=2 and list_attributes-&gt;&#039;10&#039; IN (select id::text from client_data where client_data_type_id=3);
+-[ RECORD 1 ]---+--------------------------------------------------------------------------------------
+list_attributes | &quot;4&quot;=&gt;&quot;Science fiction&quot;, &quot;5&quot;=&gt;&quot;tout ce qui est livres de sciences fiction&quot;, &quot;10&quot;=&gt;&quot;23&quot;
+-[ RECORD 2 ]---+--------------------------------------------------------------------------------------
+list_attributes | &quot;4&quot;=&gt;&quot;Combats&quot;, &quot;5&quot;=&gt;&quot;tout ce qui est jeux vidéos de combats&quot;, &quot;10&quot;=&gt;&quot;24&quot;
+-[ RECORD 3 ]---+--------------------------------------------------------------------------------------
+list_attributes | &quot;4&quot;=&gt;&quot;Aventure&quot;, &quot;5&quot;=&gt;&quot;tout ce qui est jeux vidéos de aventure&quot;, &quot;10&quot;=&gt;&quot;24&quot;
+-[ RECORD 4 ]---+--------------------------------------------------------------------------------------
+list_attributes | &quot;4&quot;=&gt;&quot;Romans historiques&quot;, &quot;5&quot;=&gt;&quot;tout ce qui est romans historiques&quot;, &quot;10&quot;=&gt;&quot;23&quot;
+-[ RECORD 5 ]---+--------------------------------------------------------------------------------------
+list_attributes | &quot;4&quot;=&gt;&quot;Récits de voyage&quot;, &quot;5&quot;=&gt;&quot;tout ce qui est récit de voyage&quot;, &quot;10&quot;=&gt;&quot;23&quot;</code></pre></div><p>Ca fonctionne, merci beaucoup !</p>]]></content>
+		<author>
+			<name><![CDATA[DjangoPuccino]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3561</uri>
+		</author>
+		<updated>2014-05-16T10:01:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19904#p19904</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [résolu] Requête sur un champs HSTORE ( mot clé "IN" )]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19902#p19902"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><div class="quotebox"><blockquote><div><p>je souhaiterai donc pouvoir caster en string</p></div></blockquote></div><div class="codebox"><pre><code>postgres=# select 42::text;
+ text 
+------
+ 42
+(1 row)</code></pre></div><p>Par contre, aucune idée de savoir si le IN va fonctionner avec le Hstore</p>]]></content>
+		<author>
+			<name><![CDATA[arthurr]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=62</uri>
+		</author>
+		<updated>2014-05-16T09:57:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19902#p19902</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[[résolu] Requête sur un champs HSTORE ( mot clé "IN" )]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19900#p19900"/>
+		<content type="html"><![CDATA[<p>Bonjour à vous,</p><p>J&#039;utilise postgresql 9.1. J&#039;ai une table avec un client hstore, dont voici la description : </p><div class="codebox"><pre><code>Table &quot;dev.client_data&quot;
+       Column        |           Type           |                        Modifiers                         
+---------------------+--------------------------+----------------------------------------------------------
+ id                  | integer                  | not null default nextval(&#039;client_data_id_seq&#039;::regclass)
+ description         | character varying(255)   | not null
+ long_description    | text                     | not null
+ client_id           | integer                  | 
+ parent_id           | integer                  | 
+ created_date        | timestamp with time zone | not null
+ last_updated_date   | timestamp with time zone | not null
+ deleted             | smallint                 | not null
+ list_attributes     | hstore                   | 
+ form_id             | integer                  | not null
+ client_data_type_id | integer                  | not null</code></pre></div><p>Je souhaiterais requêter dans le hstore de la manière suivante :</p><div class="codebox"><pre><code>planeterh=&gt; select list_attributes from client_data where client_data_type_id=2 and list_attributes-&gt;&#039;10&#039; IN (select id from client_data where client_data_type_id=3);
+ERROR:  operator does not exist: text = integer
+LINE 1: ...e client_data_type_id=2 and list_attributes-&gt;&#039;10&#039; IN (select...
+                                                             ^
+HINT:  No operator matches the given name and argument type(s). You might need to add explicit type casts.</code></pre></div><p>Sachant que le résultat de la sous requête &quot;select id from client_data where client_data_type_id=3&quot; me donne comme résultat une liste de INT, je souhaiterai donc pouvoir caster en string.</p><p>Sachant que la requête suivante passe correctement : </p><div class="codebox"><pre><code>planeterh=&gt; select list_attributes from client_data where client_data_type_id=2 and list_attributes-&gt;&#039;10&#039;=&#039;23&#039;;
+-[ RECORD 1 ]---+--------------------------------------------------------------------------------------
+list_attributes | &quot;4&quot;=&gt;&quot;Science fiction&quot;, &quot;5&quot;=&gt;&quot;tout ce qui est livres de sciences fiction&quot;, &quot;10&quot;=&gt;&quot;23&quot;
+-[ RECORD 2 ]---+--------------------------------------------------------------------------------------
+list_attributes | &quot;4&quot;=&gt;&quot;Romans historiques&quot;, &quot;5&quot;=&gt;&quot;tout ce qui est romans historiques&quot;, &quot;10&quot;=&gt;&quot;23&quot;
+-[ RECORD 3 ]---+--------------------------------------------------------------------------------------
+list_attributes | &quot;4&quot;=&gt;&quot;Récits de voyage&quot;, &quot;5&quot;=&gt;&quot;tout ce qui est récit de voyage&quot;, &quot;10&quot;=&gt;&quot;23&quot;</code></pre></div><p>J&#039;ai compris que le HSTORE attends une donnée de type string mais comment faire pour requêter sur une liste de valeurs comme avec le mot clé IN ??</p><p>Merci par avance pour votre aide.<br />Si vous avez des sources renseignant un peu plus que la documentation officielle sur les requetages possibles avec exemple sur hstore, je veux bien.</p><p>Merci beaucoup!</p>]]></content>
+		<author>
+			<name><![CDATA[DjangoPuccino]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3561</uri>
+		</author>
+		<updated>2014-05-16T09:34:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19900#p19900</id>
+	</entry>
+</feed>

@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Clé primaire auto-incrémentée]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=209&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=209"/>
+	<updated>2009-06-05T15:18:15Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=209</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Clé primaire auto-incrémentée]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1666#p1666"/>
+		<content type="html"><![CDATA[<p>Par contre, l&#039;histoire de concaténation, je ne suis pas sur que ca soit une bonne idée. Un identifiant unique (primary key) peut très bien être fait sur plusieurs colonnes.<br />A moins qu&#039;il y ait vraiment une raison fonctionnelle forte, au niveau base de données, ce n&#039;est pas une bonne idée (si il faut redécouper le champ composé par concaténation).</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2009-06-05T15:18:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1666#p1666</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Clé primaire auto-incrémentée]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1665#p1665"/>
+		<content type="html"><![CDATA[<p>Si tu veux forcer le format 3 chiffres, autant le stocker directement dans un char/varchar(3), puisqu&#039;il ne s&#039;agit plus vraiment d&#039;un nombre <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /><br />Voici un exemple qui je pense devrait t&#039;aider à obtenir ce que tu veux</p><div class="codebox"><pre><code>test=# CREATE SEQUENCE seqtest minvalue 0 maxvalue 999 start 0;
+CREATE SEQUENCE
+test=# CREATE TABLE test (machinauto varchar(3) default to_char(nextval(&#039;seqtest&#039;::regclass),&#039;FM000&#039;),valeur varchar);
+CREATE TABLE
+test=# ALTER SEQUENCE seqtest OWNED BY test.machinauto;
+ALTER SEQUENCE
+test=# INSERT INTO test (valeur) values (&#039;toto&#039;);
+INSERT 0 1
+test=# INSERT INTO test (valeur) values (&#039;titi&#039;);
+INSERT 0 1
+test=# SELECT * from test;
+ machinauto | valeur
+------------+--------
+ 000        | toto
+ 001        | titi
+(2 lignes)</code></pre></div><p>Le principe est le suivant : on crée un objet séquence, qu&#039;on limite à 999 (ça veut dire que ça plantera après).<br />Ensuite on crée la table avec comme valeur par défaut de la colonne le to_char(nextval()), qui fait le formatage au passage.<br />Tant qu&#039;on y est pour plus de rigueur, on lie la séquence à la colonne (pour que la séquence soit droppée avec la colonne ou la table).<br />En espérant que cela résolve ton problème.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2009-06-05T15:16:35Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1665#p1665</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Clé primaire auto-incrémentée]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1664#p1664"/>
+		<content type="html"><![CDATA[<p>Re<br />merci pour la réponse rapide!<br />cette colonne doit comporter trois chiffre exactement, ceux-ci peuvent aller de 001 à 999 ou de 100 à 999, ça n&#039;a pas trop d&#039;importance à part que ça va limiter un peut le nombre de combinaisons possibles. Ce qui est important pour moi c&#039;est de garder ce nombre de chiffre fixe car dans ma table mère ce numéro auto vient se concaténer avec deux autres codes, un comportant un caractère, et un autre avec deux. Ceci me permet d&#039;avoir au final un identifiant unique avec bcp de combinaisons possibles (assez du moins).<br />j&#039;espère avoir donné assez de renseignements!<br />Merci encore!!!</p>]]></content>
+		<author>
+			<name><![CDATA[papafigus]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=397</uri>
+		</author>
+		<updated>2009-06-05T14:42:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1664#p1664</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Clé primaire auto-incrémentée]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1660#p1660"/>
+		<content type="html"><![CDATA[<p>On ne peut effectivement pas le faire directement avec du SERIAL ou BIGSERIAL.</p><p>J&#039;aurais besoin de davantage de précisions :<br />- Est ce juste le besoin de limiter le nombre dans cette colonne à trois chiffre ?<br />- Faut il qu&#039;il fasse exactement trois chiffres ?<br />- Si oui, de 100 à 999 ou de 001 à 999 (doit on compléter avec des 0 devant) ?<br />- Faut il pouvoir réutiliser les chiffres manquants ? (on arrive très vite à 1000 enregistrements dans une table. Et avec une sequence, par défaut, c&#039;est auto incrémenté jusqu&#039;à la limite d&#039;un chiffre bigint, soit beaucoup trop dans l&#039;exemple qui nous concerne:) ).</p><p>Il y a probablement une solution, mais merci de préciser donc exactement la forme attendue pour le nombre, et comment on se comporte quand on arrive à 999.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2009-06-05T11:19:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1660#p1660</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Clé primaire auto-incrémentée]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1659#p1659"/>
+		<content type="html"><![CDATA[<p>Vous ne pouvez pas le fixer à trois chiffres. Par contre, après coup, vous pouvez utiliser la fonction to_char pour transformer le nombre en nombre de trois caractères.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2009-06-05T11:19:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1659#p1659</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Clé primaire auto-incrémentée]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1656#p1656"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />nouveau venu dans le monde des géomaticiens, je suis actuellement en projet avec une asso pour organiser une base de donnée postgres/postgis en ligne, et c&#039;est pas tout simple pour une première expérience!!!<br />voila pour me situer, à présent je passe à l&#039;appel au secours!!! :-)<br />Dans mes tables j&#039;ai une clé auto incrémentée pour chaque enregistrement qui doit être de trois chiffres et malheuresement je ne trouve pas la solution pour activer le paramétrage de la longueur d&#039;un type de champs tel que SERIAL ou BIGSERIAL.je suis obligé de le fixer à trois chiffre car cet ID est ensuite concaténé avec trois autres caractères pour former un code unique final.<br />Voila, j&#039;espère avoir été assez explicite,bravo à tous ceux qui font vivre ce forum!<br />Et surtout MERCI à ceux qui m&#039;aideront à résoudre mon problème...</p>]]></content>
+		<author>
+			<name><![CDATA[papafigus]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=397</uri>
+		</author>
+		<updated>2009-06-05T10:58:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1656#p1656</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Clé primaire auto-incrémentée]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=949#p949"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>gleu a écrit&#160;:</cite><blockquote><div><div class="quotebox"><blockquote><div><p>Pourquoi faire simple quand on peut faire compliqué chez PostgreSQL !</p></div></blockquote></div><p>Sans vouloir polémiquer, pourquoi faire standard quand on peut l&#039;éviter chez MySQL ?</p></div></blockquote></div><p>Sans vouloir polémiquer, je ne pense pas que </p><div class="codebox"><pre><code>nextval(&#039;&quot;CineDoc&quot;.&quot;Festivals_Fe_Id_seq&quot;&#039;::regclass),</code></pre></div><p>soit du standard SQL non plus ! Quitte à faire une fonction pour implémenter un truc qui n&#039;est pas prévu par la norme SQL, autant faire simple comme MySQL avec son AUTO_INCREMENT !</p><div class="quotebox"><blockquote><div><p>serial est un pseudo type. Ce n&#039;est pas un vrai type car il est remplacé par int (si serial) et bigint (si bigserial) et il va causer l&#039;ajout d&#039;une séquence et d&#039;une valeur par défaut. Il n&#039;est donc disponible que pour un ajout de colonne, mais pas pour une modification.</p></div></blockquote></div><p>Et il manque la possibilité SMALLINT.</p><div class="quotebox"><blockquote><div><div class="quotebox"><blockquote><div><p>Du coup je me demande si c&#039;est correctement implanté et si l&#039;auto-incrémentation va bien s&#039;effectuer.</p></div></blockquote></div><p>Le meilleur moyen de le savoir est d&#039;insérer une donnée dans la table et de vérifier si la colonne s&#039;est bien incrémentée automatiquement.</p></div></blockquote></div><p>Bon ben on verra ça quand j&#039;aurai fait l&#039;interface alors.</p>]]></content>
+		<author>
+			<name><![CDATA[CinePhil]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=301</uri>
+		</author>
+		<updated>2009-03-22T06:52:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=949#p949</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Clé primaire auto-incrémentée]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=947#p947"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Pourquoi faire simple quand on peut faire compliqué chez PostgreSQL !</p></div></blockquote></div><p>Sans vouloir polémiquer, pourquoi faire standard quand on peut l&#039;éviter chez MySQL ?</p><div class="quotebox"><blockquote><div><p>Malheureusement, il semble qu&#039;il soit impossible de MODIFIER le type de la colonne en &#039;serial&#039; une fois la table créée ; je me suis tapé un joli message d&#039;erreur quand j&#039;ai essayé de le faire en SQL et le type n&#039;est pas dans la liste proposée dans pgAdmin !</p></div></blockquote></div><p>serial est un pseudo type. Ce n&#039;est pas un vrai type car il est remplacé par int (si serial) et bigint (si bigserial) et il va causer l&#039;ajout d&#039;une séquence et d&#039;une valeur par défaut. Il n&#039;est donc disponible que pour un ajout de colonne, mais pas pour une modification.</p><div class="quotebox"><blockquote><div><p>Du coup je me demande si c&#039;est correctement implanté et si l&#039;auto-incrémentation va bien s&#039;effectuer.</p></div></blockquote></div><p>Le meilleur moyen de le savoir est d&#039;insérer une donnée dans la table et de vérifier si la colonne s&#039;est bien incrémentée automatiquement.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2009-03-21T14:38:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=947#p947</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Clé primaire auto-incrémentée]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=944#p944"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />J&#039;ai créé il y a quelques jours ma première BDD PostgreSQL à partir de requêtes DDL générées par le logiciel de modélisation Open ModelSphere et que j&#039;ai dû adapter.</p><p>J&#039;ai vu quelque part que pour CREER une table avec une clé primaire auto-incrémentée, il fallait utiliser, à la place du très pratique AUTO_INCREMENT de MySQL, le type &#039;serial&#039;, lequel entraîne la création automatique d&#039;une séquence et le paramétrage de la colonne en DEFAULT nextval(&#039;nom_sequence&#039;::regclass). Pourquoi faire simple quand on peut faire compliqué chez PostgreSQL !</p><p>Le problème est que j&#039;ai pensé à ce détail pour la première table mais, corrigeant les bugs de mes requêtes DDL au fur et à mesure (character varying au lieu de variable character par exemple), je l&#039;ai oublié pour les autres tables issues des entités de mon MCD.</p><p>Ces tables ont donc une clé primaire de type INTEGER ou SMALLINT mais ne sont pas auto-incrémentées.</p><p>Malheureusement, il semble qu&#039;il soit impossible de MODIFIER le type de la colonne en &#039;serial&#039; une fois la table créée ; je me suis tapé un joli message d&#039;erreur quand j&#039;ai essayé de le faire en SQL et le type n&#039;est pas dans la liste proposée dans pgAdmin !</p><p>Alors j&#039;ai fait l&#039;effort :<br />- de créer une séquence sur le modèle de celle qui avait été créée automatiquement ;<br />- de changer la valeur par défaut de la colonne clé primaire de la table.</p><p>Pas de message d&#039;erreur cette fois mais j&#039;ai des doutes quand je regarde pgAdmin...</p><p>Pour la table où la clé primaire auto-incrémentée a été faite automatiquement grâce au type serial, je vois que le paramètre Séquence affiche bien le nom de la séquence et l&#039;onglet &quot;Objets dépendants&quot; affiche bien le nom de la séquence.</p><p>Pour la table où j&#039;ai voulu faire de même manuellement, ces informations n&#039;apparaissent pas !</p><p>Du coup je me demande si c&#039;est correctement implanté et si l&#039;auto-incrémentation va bien s&#039;effectuer.</p>]]></content>
+		<author>
+			<name><![CDATA[CinePhil]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=301</uri>
+		</author>
+		<updated>2009-03-21T10:52:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=944#p944</id>
+	</entry>
+</feed>

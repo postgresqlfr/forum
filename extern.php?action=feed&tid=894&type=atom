@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / pgbouncer datestyle]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=894&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=894"/>
+	<updated>2010-07-08T13:45:20Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=894</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pgbouncer datestyle]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5565#p5565"/>
+		<content type="html"><![CDATA[<p>Marc, </p><p>c&#039;était tout à fait ca, après avoir redémarré pgbouncer, il a effectivement récupéré les paramètres de postgresql.</p><p>Merci pour ta réactivité.</p>]]></content>
+		<author>
+			<name><![CDATA[gngassam]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=785</uri>
+		</author>
+		<updated>2010-07-08T13:45:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5565#p5565</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pgbouncer datestyle]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5562#p5562"/>
+		<content type="html"><![CDATA[<p>Ok, merci marc, </p><p>je fais un ticket à l&#039;exploit pour le redémarrage de pgbouncer et je te tiens informé.</p>]]></content>
+		<author>
+			<name><![CDATA[gngassam]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=785</uri>
+		</author>
+		<updated>2010-07-08T08:05:09Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5562#p5562</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pgbouncer datestyle]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5559#p5559"/>
+		<content type="html"><![CDATA[<p>Très possible : je ne pense pas que le reload modifie le datestyle des sessions déjà montées. Ce qui entraîne que les sessions que pgbouncer a déjà dans son pool garderaient leur paramétrage.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-07-08T06:43:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5559#p5559</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pgbouncer datestyle]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5558#p5558"/>
+		<content type="html"><![CDATA[<p>Merci marc,</p><p>peut etre est-ce parceque j&#039;ai modifié le datestyle dans le postgresql.conf et que j&#039;ai reloadé la conf de postgresql sans relancer pgbouncer. Qu&#039;en pense tu, pgbouncer a t&#039;il besoin d&#039;être redémarré pour prendre en compte la nouvelle conf de postgresql? </p><p> je ne peux pas faire ces essais en prod.</p>]]></content>
+		<author>
+			<name><![CDATA[gngassam]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=785</uri>
+		</author>
+		<updated>2010-07-07T19:18:52Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5558#p5558</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pgbouncer datestyle]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5555#p5555"/>
+		<content type="html"><![CDATA[<p>Je viens de tenter de reproduire ce problème sans succès. Je n&#039;ai jamais eu MDY, sauf à le forcer explicitement.</p><p>Si tu veux éviter tout problème, tu peux toujours forcer datestyle=ISO,DMY dans la ligne de déclaration de base dans pgbouncer.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-07-07T14:04:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5555#p5555</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pgbouncer datestyle]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5548#p5548"/>
+		<content type="html"><![CDATA[<p>si, juste que: </p><p>Il sagissait de faire une migration du serveur de production (postgresql 8.1.15 sur redhat el5 linux). Le temps de reprise d&#039;activité accordé était de 5mn (perte de données à 0%). Cependant une migration complète des bases de prod m&#039;aurait pris pas moins de 4 heures.</p><p>Alors, j&#039;ai dumpé les bases 8.1.15, et je les ai restaurées sur un serveur de PRA en 8.4. </p><p>J&#039;ai ensuite configurer pgbouncer sur le serveur de prod en utilisant le port de l&#039;ancienne 8.1.15 (5436) en le redirigent vers le serveur de PRA (8.4). Ma durée d&#039;indisponibilité a ainsi pris le temps de stopper l&#039;instance 8.1.15 et de démarrer pgbouncer (soit 1mn). Ainsi je n&#039;ai pas été forcé de reparamétrer et de recompiler mes applis.</p><p>Au final, j&#039;ai pu reinstaller en toute quietude la 8.4 en prod et le mettre a jour avec slony (master: serveur de PRA, slave:serveur de prod), et ensuite j&#039;ai fait la bascule en prod (en arretant pgbouncer, et desactivant slony), ceci sans toucher à mes applis, la restauration de plusieurs centaines de GIGA de données a donc semblé prendre 3mn (au vu des utilisateurs).</p><p>OK, maintenant que tout est claire le soucis qu&#039;ont rencontré les applis pendant que pgbouncer était actif (sur la prod), est que, lorsque je me connectais sur la prod, donc à partir du port de pgbouncer (comme le font les applis), j&#039;avais un problème d&#039;INSERT des dates (incompatibilité de format). Show datestyle me donnait ISO,MDY, et à partir du serveur de PRA(configuré en ISO,European) SHOW datestyle me donnait ISO,DMY. Pourquoi ces différences pour une meme base?&#160; sachant que le datestyle de pgbouncer était ISO (je ne sais pas comment en configurer d&#039;autre)?</p><p>Voila Marc, </p><p>c&#039;est important pour moi de comprendre vu que j&#039;ai quatre autre migration à faire!</p>]]></content>
+		<author>
+			<name><![CDATA[gngassam]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=785</uri>
+		</author>
+		<updated>2010-07-06T20:58:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5548#p5548</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pgbouncer datestyle]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5547#p5547"/>
+		<content type="html"><![CDATA[<p>Ce n&#039;est pas ce que vous dites dans le premier post. Vous dites que les bases sont en MDY. Pouvez vous reexpliquer l&#039;ensemble ?</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-07-06T16:16:52Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5547#p5547</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pgbouncer datestyle]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5546#p5546"/>
+		<content type="html"><![CDATA[<p>c&#039;est la valeur par defaut quant je me connecte à la base par le port de pgbouncer.</p>]]></content>
+		<author>
+			<name><![CDATA[gngassam]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=785</uri>
+		</author>
+		<updated>2010-07-06T16:07:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5546#p5546</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pgbouncer datestyle]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5545#p5545"/>
+		<content type="html"><![CDATA[<p>datestyle=ISO n&#039;est pas pris en compte non plus ?</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-07-06T15:40:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5545#p5545</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pgbouncer datestyle]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5544#p5544"/>
+		<content type="html"><![CDATA[<p>datestyle=ISO, ce pendant quant je change datestyle=ISO,European (ex:&#160; mydb= host=10.1.132.39 dbname=mydb port=5436 datestyle=ISO,European), ca ne change pas en base. Je me demande si c&#039;est la bonne notation?</p>]]></content>
+		<author>
+			<name><![CDATA[gngassam]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=785</uri>
+		</author>
+		<updated>2010-07-06T15:24:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5544#p5544</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pgbouncer datestyle]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5543#p5543"/>
+		<content type="html"><![CDATA[<p>Quel datestyle avez vous positionné dans la conf de pgbouncer ?</p><p>Dans la doc, ils donnent un exemple. rien ne vous interdit de positionner datestyle à ce que vous voulez.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-07-06T14:15:52Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5543#p5543</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pgbouncer datestyle]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5542#p5542"/>
+		<content type="html"><![CDATA[<p>Si , cependant dans la doc on donne comme exemple &quot;datestyle=ISO&quot;, or je souhaiterai plutot avoir un format ISO, European. Le soucis est que le datestyle diffère selon que je me connecte via le port pgbouncer ou directement sur le port d&#039;une instance postgresql pour une meme base de données.</p>]]></content>
+		<author>
+			<name><![CDATA[gngassam]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=785</uri>
+		</author>
+		<updated>2010-07-06T13:55:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5542#p5542</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pgbouncer datestyle]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5541#p5541"/>
+		<content type="html"><![CDATA[<p>Le datestyle n&#039;est pas forcé dans la configuration de pgbouncer ?</p><p>C&#039;est un des principaux exemples donnés dans la doc : <a href="http://pgbouncer.projects.postgresql.org/doc/config.html" rel="nofollow">http://pgbouncer.projects.postgresql.or … onfig.html</a></p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-07-06T12:16:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5541#p5541</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[pgbouncer datestyle]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5540#p5540"/>
+		<content type="html"><![CDATA[<p>bonjour,</p><p>j&#039;ai un soucis avec pgbouncer: le datestyle par defaut de mon serveur postgresql 8.4 est ISO, Europeen. en connexion directe sur le port de postgresql (sans pgbouncer) j&#039;ai la bonne date. cependant, lorsque je passe en connexion via pgbouncer, j&#039;ai la date de toute mes base au format americain (MDY). Le date style change. </p><p>J&#039;ai l&#039;impression que pgbouncer impose son datestyle (ISO).</p><p>Comment faire pour le changer?</p><p>Merci d&#039;avance</p><p>ps: je suis sous linux, redhat.</p>]]></content>
+		<author>
+			<name><![CDATA[gngassam]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=785</uri>
+		</author>
+		<updated>2010-07-06T10:06:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5540#p5540</id>
+	</entry>
+</feed>

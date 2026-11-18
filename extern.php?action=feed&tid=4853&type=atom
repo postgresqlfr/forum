@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / [RESOLUE] Load balancing / Failover PGPool2 et Master/Slave Pg10]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4853&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4853"/>
+	<updated>2018-08-02T11:30:21Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4853</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLUE] Load balancing / Failover PGPool2 et Master/Slave Pg10]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28110#p28110"/>
+		<content type="html"><![CDATA[<p>Bonjour Guillaume,</p><p>En effet je viens de voir que je n&#039;étais pas en dernière version....Maintenant cela fonctionne bien.<br />Merci beaucoup <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>Cordialement</p><p>Cali</p>]]></content>
+		<author>
+			<name><![CDATA[calimero]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8214</uri>
+		</author>
+		<updated>2018-08-02T11:30:21Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28110#p28110</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLUE] Load balancing / Failover PGPool2 et Master/Slave Pg10]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28109#p28109"/>
+		<content type="html"><![CDATA[<p>Utiliser une version à jour de pgpool semble la solution la plus simple. Ce problème a été corrigé le 19 juin 2017. Quelque chose me dit que vous n&#039;avez pas la dernière version <img src="http://forums.postgresql.fr/img/smilies/wink.png" width="15" height="15" alt="wink" /></p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2018-08-02T09:37:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28109#p28109</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[[RESOLUE] Load balancing / Failover PGPool2 et Master/Slave Pg10]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28108#p28108"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;ai monté un cluster Master/Slave en utilisant PGPool2 et PostgreSql10. La configuration est faite ainsi</p><p>2 Serveurs Postgres <br />1 Master<br />1 Slave<br />La réplication est faite directement par Postgresql par l&#039;application des logs sur le slave.</p><p>2 serveurs PgPool2 <br />1 Master<br />1 Slave<br />Activation de heartbeat / watchdog + mise en place d&#039;une IP virtuelle pour le load balancing et le failover</p><p>Le cluster fonctionne bien, si je stoppe le pgpool master, le slave prend le relais, quand je redémarre le master il devient bien slave. Si la base postgres Master tombe j&#039;ai mis en place le FailOver qui promeut la base Slave en Master. Je n&#039;ai pas encore mis en place la reconstruction du cluster Postgres suite au passage du Slave en Master.</p><p>Je voulais aller plus loin dans le load balancing en jouant sur les paramètres de Pgpool dans la section&#160; MASTER/SLAVE MODE</p><p>Le paramètre sr_check_period à se que je comprends permet d&#039;activer la vérification de la synchro entre le master et le slave. Si la Synchro n&#039;est pas &quot;bonne&quot; alors Pgpool envoie toutes les demandes sur le master.</p><p>Quand j&#039;active ce paramètre je me prends des erreurs liées au changement de nom de fonctions entre Postgres 9 et postgres 10.<br />Pgpool2 fais encore appel aux fonctions pg_current_xlog_insert_location(), pg_last_xlog_replay_location().... mais celles si n&#039;existent plus sur postgres 10.<br />J&#039;ai tenté de contourner le pb en créant ces fonctions mais cela n&#039;a rien changé. J&#039;utilise bien le user postgres pour faire la vérification et j&#039;ai bien créé les fonctions avec ce user.</p><p>CREATE FUNCTION pg_catalog.pg_current_xlog_location() RETURNS pg_lsn AS $$<br />BEGIN<br />&#160; &#160; RETURN pg_current_wal_lsn();<br />END;<br />$$ LANGUAGE plpgsql;</p><br /><p>Dans les logs pgpool je vois cela :</p><p>Aug&#160; 2 09:28:07 PGPool2-INS01 pgpool[27005]: 2018-08-02 09:28:07: pid 21004:CONTEXT:&#160; while checking replication time lag<br />Aug&#160; 2 09:28:07 PGPool2-INS01 pgpool[27005]: 2018-08-02 09:28:07: pid 27005:LOG:&#160; worker child process with pid: 21004 exits with status 256<br />Aug&#160; 2 09:28:07 PGPool2-INS01 pgpool[27005]: 2018-08-02 09:28:07: pid 27005:LOG:&#160; fork a new worker child process with pid: 21005<br />Aug&#160; 2 09:28:07 PGPool2-INS01 pgpool[27005]: 2018-08-02 09:28:07: pid 21005:FATAL:&#160; Backend throw an error message<br />Aug&#160; 2 09:28:07 PGPool2-INS01 pgpool[27005]: 2018-08-02 09:28:07: pid 21005:DETAIL:&#160; Exiting current session because of an error from backend<br />Aug&#160; 2 09:28:07 PGPool2-INS01 pgpool[27005]: 2018-08-02 09:28:07: pid 21005:HINT:&#160; BACKEND Error: &quot;la fonction pg_current_xlog_location() n&#039;existe pas&quot;</p><p>J&#039;ai tenté de voir comment changer cela directement dans pgpool mais impossible car c&#039;est compilé dans le binaire.</p><p>Auriez-vous des idées pour solutionner/contourner ce soucis s&#039;il vous plaît ?</p><p>Merci d&#039;avance pour vos commentaires</p><p>Cali</p>]]></content>
+		<author>
+			<name><![CDATA[calimero]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8214</uri>
+		</author>
+		<updated>2018-08-02T09:09:29Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28108#p28108</id>
+	</entry>
+</feed>

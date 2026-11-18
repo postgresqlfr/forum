@@ -1,0 +1,542 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr" lang="fr" dir="ltr">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>SELECT FOR UPDATE : problème de performance entre  8.4 et 9.3 / Général / Forums PostgreSQL.fr</title>
+<link rel="stylesheet" type="text/css" href="style/Postgresql.css" />
+<link rel="canonical" href="viewtopic.php%3Fid=3380.html" title="Page 1" />
+<link rel="alternate" type="application/atom+xml" href="extern.php%3Faction=feed&amp;tid=3380&amp;type=atom" title="Flux Atom de la discussion" />
+</head>
+
+<body>
+
+<div id="top">
+  <div id="pgHeader">
+    <span id="pgHeaderLogoLeft">
+      <a href="index.html" title="PostgreSQL"><img src="https://www.postgresql.fr/lib/tpl/tortoise/images/hdr_left.png" width="230" height="80" alt="PostgreSQL" /></a>
+    </span>
+    <span id="pgHeaderLogoRight">
+      <a href="index.html" title="La base de donnees la plus sophistiquee au monde."><img src="https://www.postgresql.fr/lib/tpl/tortoise/images/hdr_right.png" width="210" height="80" alt="La base de donnees la plus sophistiquee au monde." /></a>
+    </span>
+  </div>
+</div>
+
+<div class="pgTopNav">
+  <div class="pgTopNavLeft"> 
+    <img src="https://www.postgresql.fr/lib/tpl/tortoise/images/nav_lft.png" width="7" height="23" alt="" />
+  </div>
+  <div class="pgTopNavRight">
+    <img src="https://www.postgresql.fr/lib/tpl/tortoise/images/nav_rgt.png" width="7" height="23" alt="" />
+  </div>
+  <ul class="pgTopNavList">
+    <li><a href="https://www.postgresql.fr/" title="Accueil">Accueil</a></li>
+    <li><a href="https://blog.postgresql.fr/" title="Lire les actualités">Actualit&eacute;s</a></li>
+    <li><a href="https://docs.postgresql.fr/" title="Lire la documentation officielle">Documentation</a></li>
+    <li><a href="https://forums.postgresql.fr/" title="Pour poser des questions">Forums</a></li>
+    <li><a href="https://www.postgresql.fr/asso/" title="La vie de l'association">Association</a></li>
+    <li><a href="https://www.postgresql.fr/entreprises:accueil" title="Groupe de Travail PostgreSQL Entreprises">Entreprises</a></li>
+    <li><a href="https://www.postgresql.fr/devel:accueil" title="Informations pour les d&eacute;veloppeurs/traducteurs">D&eacute;veloppeurs</a></li>
+    <li><a href="https://planete.postgresql.fr" title="La plan&egrave;te francophone sur PostgreSQL">Plan&egrave;te</a></li>
+    <li><a href="https://www.postgresql.fr/support/" title="Support sur PostgreSQL">Support</a></li>
+  </ul>
+
+
+</div>
+<div id="punviewtopic" class="pun">
+<div class="top-box"><div><!-- Top Corners --></div></div>
+<div class="punwrap">
+
+<div id="brdheader" class="block">
+	<div class="box">
+		<div id="brdtitle" class="inbox">
+			<h1><a href="index.php.html">Forums PostgreSQL.fr</a></h1>
+			<div id="brddesc">Le forum officiel de la communauté francophone de PostgreSQL</div>
+		</div>
+		<div id="brdmenu" class="inbox">
+			<ul>
+				<li id="navindex" class="isactive"><a href="index.php.html">Accueil</a></li>
+				<li id="navuserlist"><a href="userlist.php.html">Liste des membres</a></li>
+				<li id="navsearch"><a href="search.php.html">Recherche</a></li>
+				<li id="navregister"><a href="register.php.html">Inscription</a></li>
+				<li id="navlogin"><a href="login.php.html">Identification</a></li>
+			</ul>
+		</div>
+		<div id="brdwelcome" class="inbox">
+			<p class="conl">Vous n'êtes pas identifié(e).</p>
+			<ul class="conr">
+				<li><span>Contributions&#160;: <a href="search.php%3Faction=show_recent.html" title="Trouver les discussions comportant des messages récents.">Récentes</a> | <a href="search.php%3Faction=show_unanswered.html" title="Trouver les discussions sans réponse.">Sans réponse</a></span></li>
+			</ul>
+			<div class="clearer"></div>
+		</div>
+	</div>
+</div>
+
+
+
+<div id="brdmain">
+<div class="linkst">
+	<div class="inbox crumbsplus">
+		<ul class="crumbs">
+			<li><a href="index.php.html">Accueil</a></li>
+			<li><span>»&#160;</span><a href="viewforum.php%3Fid=6.html">Général</a></li>
+			<li><span>»&#160;</span><strong><a href="viewtopic.php%3Fid=3380.html">SELECT FOR UPDATE : problème de performance entre  8.4 et 9.3</a></strong></li>
+		</ul>
+		<div class="pagepost">
+			<p class="pagelink conl"><span class="pages-label">Pages&#160;: </span><strong class="item1">1</strong></p>
+		</div>
+		<div class="clearer"></div>
+	</div>
+</div>
+
+<div id="p21027" class="blockpost rowodd firstpost blockpost1">
+	<h2><span><span class="conr">#1</span> <a href="viewtopic.php%3Fpid=21027.html#p21027">29/11/2014 10:20:14</a></span></h2>
+	<div class="box">
+		<div class="inbox">
+			<div class="postbody">
+				<div class="postleft">
+					<dl>
+						<dt><strong><a href="profile.php%3Fid=4439.html">krile</a></strong></dt>
+						<dd class="usertitle"><strong>Membre</strong></dd>
+					</dl>
+				</div>
+				<div class="postright">
+					<h3>SELECT FOR UPDATE : problème de performance entre  8.4 et 9.3</h3>
+					<div class="postmsg">
+						<p>Bonjour</p><p>Nous constatons une déperdition importante de performance entre la 8.4 et la 9.3 sur le lock explicite</p><p>Nous travaillons sur une table nommée &quot;chrono&quot; pour l&#039;exemple, qui contient moins de 50 lignes</p><p>Le code concerné est le suivant :<br />-----------------------------------------------------<br />begin<br />for 1 to 1000<br />&#160; &#160; select * from chrono&#160; where [where_condition] FOR UPDATE<br />&#160; &#160; do stuff (or not…..)<br />&#160; &#160; update chrono set [set_clause] where [where_condition]<br />end for<br />commit<br />--------------------------------------------------------<br />En 8.4, no problem: le temps de chaque boucle reste homogène, du début à la fin.<br />En 9.3, il y a une déperdition exponentielle ! </p><p>Nos tests montrent qu&#039;une façon &quot;simple&quot; de résoudre le problème serait de faire un commit après chaque update de chrono, afin de &quot;libréer&quot; le lock.<br />Mais, mais, mais: faire cela a d&#039;énormes conséquences par ailleurs, sur notre application (pour faire simple, une réécriture très lourde, chronophage et impactante)</p><p>Une idée ou une explication ?</p><p>Merci</p>
+						<p class="postedit"><em>Dernière modification par krile (29/11/2014 11:09:03)</em></p>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="inbox">
+			<div class="postfoot clearb">
+				<div class="postfootleft"><p><span>Hors ligne</span></p></div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="p21030" class="blockpost roweven">
+	<h2><span><span class="conr">#2</span> <a href="viewtopic.php%3Fpid=21030.html#p21030">29/11/2014 19:12:57</a></span></h2>
+	<div class="box">
+		<div class="inbox">
+			<div class="postbody">
+				<div class="postleft">
+					<dl>
+						<dt><strong><a href="profile.php%3Fid=3.html">gleu</a></strong></dt>
+						<dd class="usertitle"><strong>Administrateur</strong></dd>
+					</dl>
+				</div>
+				<div class="postright">
+					<h3>Re&#160;: SELECT FOR UPDATE : problème de performance entre  8.4 et 9.3</h3>
+					<div class="postmsg">
+						<p>Un test très rapide de mon côté indique les mêmes durées entre une 8.4 et une 9.3. 600ms dans le cas de la transaction globale, et 9s dans le cas des transactions unitaires. Bref, rien de bien nouveau. Il doit y avoir quelque chose de spécifique à votre application que vous n&#039;avez pas partagé avec nous.</p>
+					</div>
+					<div class="postsignature postmsg"><hr /><p>Guillaume.</p></div>
+				</div>
+			</div>
+		</div>
+		<div class="inbox">
+			<div class="postfoot clearb">
+				<div class="postfootleft"><p><span>Hors ligne</span></p></div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="p21031" class="blockpost rowodd">
+	<h2><span><span class="conr">#3</span> <a href="viewtopic.php%3Fpid=21031.html#p21031">01/12/2014 11:19:01</a></span></h2>
+	<div class="box">
+		<div class="inbox">
+			<div class="postbody">
+				<div class="postleft">
+					<dl>
+						<dt><strong><a href="profile.php%3Fid=4439.html">krile</a></strong></dt>
+						<dd class="usertitle"><strong>Membre</strong></dd>
+					</dl>
+				</div>
+				<div class="postright">
+					<h3>Re&#160;: SELECT FOR UPDATE : problème de performance entre  8.4 et 9.3</h3>
+					<div class="postmsg">
+						<p>Bonjour, et merci pour cette réponse,</p><p>La déperdition se manifeste avec une nombre d&#039;itérations &gt; 1000, voire &gt; 10 000. La déperdition semble alors exponentielle.</p><p>Voici le code utilisé, et exécuté directement via pgadmin, sur une base identique 8.4 et 9.3. <br />La procédure est lancée via un &quot;select * from jpi_test_perf_chronos()&quot; tout simple<br />A noter que les tables etablissement et&#160; param_chrono contiennent moins de 50 enreg :</p><p>---------------------------------------------------------</p><p>CREATE OR REPLACE FUNCTION jpi_test_perf_chronos()<br />&#160; RETURNS VOID AS<br />$BODY$<br />DECLARE<br />&#160; x INTEGER := 0; <br />&#160; y INTEGER;</p><p>&#160; <br />BEGIN</p><p>&#160; LOOP<br />&#160; &#160; &#160; &#160;select 1 from param_chrono into y where chron_table = &#039;facture&#039; for UPDATE;</p><br /><p>&#160; &#160; select 1 into y from etablissement limit 1;</p><p>&#160; &#160; <br />&#160; &#160; update param_chrono set chron_chrono = chron_chrono where chron_table = &#039;facture&#039;;</p><p>&#160; &#160; x := x +1 ;<br />&#160; &#160; <br />&#160; &#160; IF x &gt;= 9999 THEN&#160; <br />&#160; &#160; &#160; &#160; EXIT;<br />&#160; &#160;&#160; END iF ;<br />&#160; &#160; <br />&#160; END LOOP;</p><p>RETURN;</p><p>END<br />$BODY$<br />&#160; LANGUAGE plpgsql VOLATILE<br />&#160; COST 100;<br />------------------------------------------------------------------------------</p><p>En 8.4 =&gt;&#160; 4300 ms<br />En 9.3 =&gt;&#160; 19 500 ms&#160; &#160;(...)</p>
+						<p class="postedit"><em>Dernière modification par krile (01/12/2014 11:41:13)</em></p>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="inbox">
+			<div class="postfoot clearb">
+				<div class="postfootleft"><p><span>Hors ligne</span></p></div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="p21032" class="blockpost roweven">
+	<h2><span><span class="conr">#4</span> <a href="viewtopic.php%3Fpid=21032.html#p21032">01/12/2014 12:57:29</a></span></h2>
+	<div class="box">
+		<div class="inbox">
+			<div class="postbody">
+				<div class="postleft">
+					<dl>
+						<dt><strong><a href="profile.php%3Fid=3.html">gleu</a></strong></dt>
+						<dd class="usertitle"><strong>Administrateur</strong></dd>
+					</dl>
+				</div>
+				<div class="postright">
+					<h3>Re&#160;: SELECT FOR UPDATE : problème de performance entre  8.4 et 9.3</h3>
+					<div class="postmsg">
+						<p>J&#039;ai fait de nouveau un test sur mon portable avec ce script :</p><div class="codebox"><pre class="vscroll"><code>create database test;
+
+\c test
+
+create language plpgsql;
+CREATE TABLE param_chrono (chron_table text, chron_chrono integer);
+INSERT INTO param_chrono SELECT &#039;facture&#039;, i FROM generate_series(1, 10) AS i;
+CREATE TABLE etablissement ();
+
+CREATE OR REPLACE FUNCTION f1()
+  RETURNS VOID AS
+$BODY$
+DECLARE
+  x INTEGER := 0;
+  y INTEGER;
+BEGIN
+  LOOP
+    select 1 from param_chrono into y where chron_table = &#039;facture&#039; for UPDATE;
+    select 1 into y from etablissement limit 1;
+
+    update param_chrono set chron_chrono = chron_chrono where chron_table = &#039;facture&#039;;
+
+    x := x +1 ;
+   
+    IF x &gt;= 9999 THEN 
+      EXIT;
+    END IF;
+  END LOOP;
+
+  RETURN;
+END
+$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+\timing
+SELECT f1();
+SELECT f1();
+SELECT f1();</code></pre></div><p>Les résultats en 8.4 :<br />Time: 28289.002 ms<br />Time: 33390.830 ms<br />Time: 24323.990 ms</p><p>Les résultats en 9.3 :<br />Time: 30775.129 ms<br />Time: 43561.052 ms<br />Time: 39700.712 ms</p>
+					</div>
+					<div class="postsignature postmsg"><hr /><p>Guillaume.</p></div>
+				</div>
+			</div>
+		</div>
+		<div class="inbox">
+			<div class="postfoot clearb">
+				<div class="postfootleft"><p><span>Hors ligne</span></p></div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="p21035" class="blockpost rowodd">
+	<h2><span><span class="conr">#5</span> <a href="viewtopic.php%3Fpid=21035.html#p21035">01/12/2014 17:47:18</a></span></h2>
+	<div class="box">
+		<div class="inbox">
+			<div class="postbody">
+				<div class="postleft">
+					<dl>
+						<dt><strong><a href="profile.php%3Fid=4439.html">krile</a></strong></dt>
+						<dd class="usertitle"><strong>Membre</strong></dd>
+					</dl>
+				</div>
+				<div class="postright">
+					<h3>Re&#160;: SELECT FOR UPDATE : problème de performance entre  8.4 et 9.3</h3>
+					<div class="postmsg">
+						<p>De mon côté, en utilisant le même code que vous (et les mêmes tables)</p><p>8.4 :<br />--27 550<br />--36 318<br />--32 589<br />--33 010<br />--38 720<br />--56 379<br />--43 696<br />--28 704<br />--29 031<br />--34 710</p><p>9.3 :<br />--53 758<br />--44 179<br />--39 110<br />--37 503<br />--51 059<br />--68 345<br />--62 526<br />--41 372<br />--43 275</p><p>Je ne suis pas sur que l&#039;on puisse en tirer quoi que ce soit. Éventuellement que cela est quand-même plus long en 9.3.</p><br /><p>Ceci étant dit, nous avons trouvé l&#039;explication à la dégradation exponentielle que nous constations en 9.3. Il s&#039;agissait d&#039;une différence entre les deux postgres.conf</p><p>Bref, pour conclure sur la batterie de tests du jour :<br />- la 9.3 reste plus lente sur la gestion de slock explicite<br />- la dégradation exponentielle se corrige via &quot;bon&quot; paramétrage du postgres.conf</p>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="inbox">
+			<div class="postfoot clearb">
+				<div class="postfootleft"><p><span>Hors ligne</span></p></div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="p21037" class="blockpost roweven">
+	<h2><span><span class="conr">#6</span> <a href="viewtopic.php%3Fpid=21037.html#p21037">01/12/2014 20:06:59</a></span></h2>
+	<div class="box">
+		<div class="inbox">
+			<div class="postbody">
+				<div class="postleft">
+					<dl>
+						<dt><strong><a href="profile.php%3Fid=4452.html">nterrien</a></strong></dt>
+						<dd class="usertitle"><strong>Membre</strong></dd>
+					</dl>
+				</div>
+				<div class="postright">
+					<h3>Re&#160;: SELECT FOR UPDATE : problème de performance entre  8.4 et 9.3</h3>
+					<div class="postmsg">
+						<p>Pour compléter ce qui a été dit plus haut (étant un collègue de krile) : <br />Nos tests ont été faits sur Windows (7, 64 bits), avec des version 9.3 32 bits et 64 bits, ainsi que 9.4 RC1 (64 bits).</p>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="inbox">
+			<div class="postfoot clearb">
+				<div class="postfootleft"><p><span>Hors ligne</span></p></div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="p21038" class="blockpost rowodd">
+	<h2><span><span class="conr">#7</span> <a href="viewtopic.php%3Fpid=21038.html#p21038">01/12/2014 20:48:34</a></span></h2>
+	<div class="box">
+		<div class="inbox">
+			<div class="postbody">
+				<div class="postleft">
+					<dl>
+						<dt><strong><a href="profile.php%3Fid=3.html">gleu</a></strong></dt>
+						<dd class="usertitle"><strong>Administrateur</strong></dd>
+					</dl>
+				</div>
+				<div class="postright">
+					<h3>Re&#160;: SELECT FOR UPDATE : problème de performance entre  8.4 et 9.3</h3>
+					<div class="postmsg">
+						<p>Il serait intéressant de savoir quelle était la mauvaise configuration, et quelle était la bonne configuration...</p>
+					</div>
+					<div class="postsignature postmsg"><hr /><p>Guillaume.</p></div>
+				</div>
+			</div>
+		</div>
+		<div class="inbox">
+			<div class="postfoot clearb">
+				<div class="postfootleft"><p><span>Hors ligne</span></p></div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="p21039" class="blockpost roweven">
+	<h2><span><span class="conr">#8</span> <a href="viewtopic.php%3Fpid=21039.html#p21039">02/12/2014 03:47:58</a></span></h2>
+	<div class="box">
+		<div class="inbox">
+			<div class="postbody">
+				<div class="postleft">
+					<dl>
+						<dt><strong><a href="profile.php%3Fid=4439.html">krile</a></strong></dt>
+						<dd class="usertitle"><strong>Membre</strong></dd>
+					</dl>
+				</div>
+				<div class="postright">
+					<h3>Re&#160;: SELECT FOR UPDATE : problème de performance entre  8.4 et 9.3</h3>
+					<div class="postmsg">
+						<p>Finalement, fausse joie !<br />Les derniers tests n&#039;étaient pas probants, notamment concernant la perte exponentielle que nous ne constations plus.<br />En effet, nous n&#039;avions plus, dans notre jeu de test, de ligne concernée par le select for update (sic)</p><p>Le problème reste donc entier.</p>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="inbox">
+			<div class="postfoot clearb">
+				<div class="postfootleft"><p><span>Hors ligne</span></p></div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="p21043" class="blockpost rowodd">
+	<h2><span><span class="conr">#9</span> <a href="viewtopic.php%3Fpid=21043.html#p21043">02/12/2014 15:21:49</a></span></h2>
+	<div class="box">
+		<div class="inbox">
+			<div class="postbody">
+				<div class="postleft">
+					<dl>
+						<dt><strong><a href="profile.php%3Fid=4452.html">nterrien</a></strong></dt>
+						<dd class="usertitle"><strong>Membre</strong></dd>
+					</dl>
+				</div>
+				<div class="postright">
+					<h3>Re&#160;: SELECT FOR UPDATE : problème de performance entre  8.4 et 9.3</h3>
+					<div class="postmsg">
+						<p>@Gleu : le problème n&#039;est pas résolu mais la cause est trouvée : il s&#039;agit du pilote ODBC.</p><p>En accès direct : pas de problème (que nous ne pouvons pas utiliser dans notre application, je passe les détails).</p><p>Avec le pilote ODBC (unicode, version 8.4.2 et 9.3.4) vs PG 8.4 : pas de problème.</p><p>Même application, même pilotes ODBC (v8.4.2 ou v9.3.4) vs PG 9.3 ou 9.4 RC1 : augmentation exponentielle du temps de traitement dans le cas décrit ci-dessus.</p>
+						<p class="postedit"><em>Dernière modification par nterrien (02/12/2014 15:22:26)</em></p>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="inbox">
+			<div class="postfoot clearb">
+				<div class="postfootleft"><p><span>Hors ligne</span></p></div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="p21045" class="blockpost roweven">
+	<h2><span><span class="conr">#10</span> <a href="viewtopic.php%3Fpid=21045.html#p21045">02/12/2014 15:58:31</a></span></h2>
+	<div class="box">
+		<div class="inbox">
+			<div class="postbody">
+				<div class="postleft">
+					<dl>
+						<dt><strong><a href="profile.php%3Fid=3.html">gleu</a></strong></dt>
+						<dd class="usertitle"><strong>Administrateur</strong></dd>
+					</dl>
+				</div>
+				<div class="postright">
+					<h3>Re&#160;: SELECT FOR UPDATE : problème de performance entre  8.4 et 9.3</h3>
+					<div class="postmsg">
+						<p>Là, il faudrait voir directement avec les développeurs de psqlodbc. Je ne connais pas assez pou rêtre d&#039;une quelconque aide.</p>
+					</div>
+					<div class="postsignature postmsg"><hr /><p>Guillaume.</p></div>
+				</div>
+			</div>
+		</div>
+		<div class="inbox">
+			<div class="postfoot clearb">
+				<div class="postfootleft"><p><span>Hors ligne</span></p></div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="p21047" class="blockpost rowodd">
+	<h2><span><span class="conr">#11</span> <a href="viewtopic.php%3Fpid=21047.html#p21047">02/12/2014 17:10:40</a></span></h2>
+	<div class="box">
+		<div class="inbox">
+			<div class="postbody">
+				<div class="postleft">
+					<dl>
+						<dt><strong><a href="profile.php%3Fid=4452.html">nterrien</a></strong></dt>
+						<dd class="usertitle"><strong>Membre</strong></dd>
+					</dl>
+				</div>
+				<div class="postright">
+					<h3>Re&#160;: SELECT FOR UPDATE : problème de performance entre  8.4 et 9.3</h3>
+					<div class="postmsg">
+						<p>Oui, c&#039;est que l&#039;on s&#039;est dit aussi.<br />Merci pour le coup de main en tout cas !</p>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="inbox">
+			<div class="postfoot clearb">
+				<div class="postfootleft"><p><span>Hors ligne</span></p></div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="p21108" class="blockpost roweven">
+	<h2><span><span class="conr">#12</span> <a href="viewtopic.php%3Fpid=21108.html#p21108">05/12/2014 22:39:10</a></span></h2>
+	<div class="box">
+		<div class="inbox">
+			<div class="postbody">
+				<div class="postleft">
+					<dl>
+						<dt><strong><a href="profile.php%3Fid=3.html">gleu</a></strong></dt>
+						<dd class="usertitle"><strong>Administrateur</strong></dd>
+					</dl>
+				</div>
+				<div class="postright">
+					<h3>Re&#160;: SELECT FOR UPDATE : problème de performance entre  8.4 et 9.3</h3>
+					<div class="postmsg">
+						<p>Donc le problème a été rapporté sur la liste psqlodbc : <a href="http://www.postgresql.org/message-id/52dd07051f6b42b09328c339c7b9c5d4@EXCH2013.mustinformatique.fr" rel="nofollow">http://www.postgresql.org/message-id/52 … matique.fr</a></p><p>La solution a été trouvée par Heikki, suite à une idée d&#039;Alvaro : <a href="http://www.postgresql.org/message-id/54819FAC.7030103@vmware.com" rel="nofollow">http://www.postgresql.org/message-id/54 … vmware.com</a> (passé en protocole 7.4-0 pour éviter l&#039;ajout de SAVEPOINT qui ont un coût assez fort dans l&#039;exécution d&#039;une transaction).</p>
+					</div>
+					<div class="postsignature postmsg"><hr /><p>Guillaume.</p></div>
+				</div>
+			</div>
+		</div>
+		<div class="inbox">
+			<div class="postfoot clearb">
+				<div class="postfootleft"><p><span>Hors ligne</span></p></div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="postlinksb">
+	<div class="inbox crumbsplus">
+		<div class="pagepost">
+			<p class="pagelink conl"><span class="pages-label">Pages&#160;: </span><strong class="item1">1</strong></p>
+		</div>
+		<ul class="crumbs">
+			<li><a href="index.php.html">Accueil</a></li>
+			<li><span>»&#160;</span><a href="viewforum.php%3Fid=6.html">Général</a></li>
+			<li><span>»&#160;</span><strong><a href="viewtopic.php%3Fid=3380.html">SELECT FOR UPDATE : problème de performance entre  8.4 et 9.3</a></strong></li>
+		</ul>
+		<div class="clearer"></div>
+	</div>
+</div>
+</div>
+
+<div id="brdfooter" class="block">
+	<h2><span>Pied de page des forums</span></h2>
+	<div class="box">
+		<div id="brdfooternav" class="inbox">
+			<div class="conl">
+				<form id="qjump" method="get" action="http://forum.postgresql.fr/viewforum.php">
+					<div><label><span>Atteindre<br /></span>
+					<select name="id" onchange="window.location=('viewforum.php?id='+this.options[this.selectedIndex].value)">
+						<optgroup label="PostgreSQL.fr">
+							<option value="2">Site PostgreSQL.fr</option>
+							<option value="3">Association PostgreSQLfr</option>
+							<option value="18">Événements</option>
+							<option value="17">Publications</option>
+						</optgroup>
+						<optgroup label="Technique">
+							<option value="6" selected="selected">Général</option>
+							<option value="7">Installation</option>
+							<option value="26">Migration</option>
+							<option value="8">Optimisation</option>
+							<option value="9">Sécurité</option>
+							<option value="19">Réplication</option>
+						</optgroup>
+						<optgroup label="Logiciels">
+							<option value="30">pgAdmin4</option>
+							<option value="27">PgAdmin3</option>
+							<option value="29">phpPgAdmin</option>
+							<option value="28">PSQL</option>
+						</optgroup>
+						<optgroup label="Langages procéduraux">
+							<option value="20">PL/pgSQL</option>
+							<option value="22">PL/Tcl</option>
+							<option value="23">PL/Perl</option>
+							<option value="24">PL/Python</option>
+							<option value="25">Autres langages</option>
+						</optgroup>
+						<optgroup label="Interfaces">
+							<option value="10">PHP</option>
+							<option value="11">Perl</option>
+							<option value="12">Python</option>
+							<option value="13">C et C++</option>
+							<option value="14">.NET</option>
+							<option value="15">Java</option>
+							<option value="16">ODBC</option>
+						</optgroup>
+						<optgroup label="Emploi">
+							<option value="4">Offres</option>
+							<option value="5">Demandes</option>
+						</optgroup>
+					</select></label>
+					<input type="submit" value="Aller" accesskey="g" />
+					</div>
+				</form>
+			</div>
+			<div class="conr">
+				<p id="feedlinks"><span class="atom"><a href="extern.php%3Faction=feed&amp;tid=3380&amp;type=atom">Flux Atom de la discussion</a></span></p>
+				<p id="poweredby">Propulsé par <a href="http://fluxbb.org/">FluxBB</a></p>
+			</div>
+			<div class="clearer"></div>
+		</div>
+	</div>
+</div>
+
+</div>
+<div class="end-box"><div><!-- Bottom corners --></div></div>
+</div>
+
+</body>
+</html>

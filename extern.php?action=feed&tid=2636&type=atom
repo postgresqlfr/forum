@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / [v9.2] Performances en lecture faible sur 25M de lignes, étrange ?]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2636&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2636"/>
+	<updated>2013-05-24T17:38:05Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2636</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [v9.2] Performances en lecture faible sur 25M de lignes, étrange ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17263#p17263"/>
+		<content type="html"><![CDATA[<p>Les vues matérialisées de la 9.3 ne sont pas synchrones en effet. Par contre, à ma connaissance, elles ne posent pas de verrous exclusifs.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2013-05-24T17:38:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17263#p17263</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [v9.2] Performances en lecture faible sur 25M de lignes, étrange ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17259#p17259"/>
+		<content type="html"><![CDATA[<p>Les vues matérialisées arrivent dans la version 9.3, mais elle ne sont pas synchrone ce qui revient donc au même que la requête de base dans ce cas précis. De plus elles posent un verrou exclusif sur l&#039;intégralité de la table si j&#039;ai bien compris.... Bref, pas génial ! En pour les rendre synchrone (eager... donc pas tout à fait synchrone, mais &quot;au plus tôt&quot;) PG nous dit qu&#039;il faut faire des triggers !!! On tourne en rond....</p><p>A +</p>]]></content>
+		<author>
+			<name><![CDATA[SQLpro]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1054</uri>
+		</author>
+		<updated>2013-05-24T14:00:02Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17259#p17259</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [v9.2] Performances en lecture faible sur 25M de lignes, étrange ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17257#p17257"/>
+		<content type="html"><![CDATA[<p>Cela peut être pénalisant pour les performances. Mais c&#039;est une piste à suivre. Tout dépend de la charge actuelle, du travail de l&#039;application, etc. Bref, testez par vous-même, vous verrez bien si c&#039;est intéressant ou pas.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2013-05-24T13:46:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17257#p17257</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [v9.2] Performances en lecture faible sur 25M de lignes, étrange ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17256#p17256"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Quelles seraient les solutions alors pour obtenir de meilleurs résultats ?<br />Pré-calculer les résultats ?</p></div></blockquote></div><p>Oui, mais comme PostGreSQL ne dispose ni des vues indexées (MS SQL Server) ou des vues matérialisées (Oracle), il faut faire cela à la main par des triggers ce qui est très pénalisant pour les performances et le verrouillage. Pour info SQL Server le fait de manière synchrone, mais en différentiel, ce qui impacte peu les performances. Or reproduire ce type de fonctionnement à la main, par des déclencheurs, est assez complexe...</p><p>A +</p>]]></content>
+		<author>
+			<name><![CDATA[SQLpro]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1054</uri>
+		</author>
+		<updated>2013-05-24T13:33:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17256#p17256</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [v9.2] Performances en lecture faible sur 25M de lignes, étrange ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17239#p17239"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>SAS a écrit&#160;:</cite><blockquote><div><p>Bonjour, </p><p>L&#039;index ne sert à rien dans ce cas précis, puisque vous récupérez l&#039;intégralité des données, pour les regrouper par année.<br />Vous lisez 25M de lignes pour n&#039;en afficher que 15.</p></div></blockquote></div><p>Bonjour,</p><p>Oui effectivement, c&#039;est logique que l&#039;index ne soit pas utilisé.<br />(J&#039;ai confondu avec la première requête qui effectue un SELECT DISTINCT annee_episode FROM episode, où là l&#039;index n&#039;est pas utilisé. Mais il semblerait, après recherche que le &quot;DISTINCT&quot; chez PostgreSQL ne se contente pas de lire les valeurs de l&#039;index et fonctionne différemment de certains autres SGBD qui peuvent être plus rapide sur ce genre de requêtes).</p><div class="quotebox"><cite>gleu a écrit&#160;:</cite><blockquote><div><p>Cette requête demande deux choses : du CPU (pour le calcul du hachage, noeud HashAggregate) et des IO pour la lecture de la table (SeqScan).</p><p>Malgré que la majorité soit lue en dehors du cache de PostgreSQL, cela ne provoque aucune lecture sur disque (colonne bi à 0 dans la sortie du vmstat). Autrement dit, le cache du système contient toute la table. Donc, de ce côté, on ne peut pas faire mieux.</p><p>Au niveau CPU, on ne peut rien faire de particulier à ma connaissance. À la rigueur, le hachage peut se faire sur disque mais ça n&#039;a pas l&#039;air d&#039;être le cas ici. D&#039;ailleurs la colonne bo du vmstat est à 0.</p><p>Pour cette requête précise, sur votre système, je crois que vous arrivez au mieux de ce que vous pouvez espérer.</p></div></blockquote></div><p>Bonjour gleu,<br />Merci pour ces précisions. Effectivement j&#039;étais assez surpris de voir qu&#039;il n&#039;y ait aucun accès disque, donc tout se fait au niveau du cache.</p><p>Quelles seraient les solutions alors pour obtenir de meilleurs résultats ?<br />Pré-calculer les résultats ?</p>]]></content>
+		<author>
+			<name><![CDATA[PommePote]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2247</uri>
+		</author>
+		<updated>2013-05-17T08:12:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17239#p17239</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [v9.2] Performances en lecture faible sur 25M de lignes, étrange ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17237#p17237"/>
+		<content type="html"><![CDATA[<p>Cette requête demande deux choses : du CPU (pour le calcul du hachage, noeud HashAggregate) et des IO pour la lecture de la table (SeqScan).</p><p>Malgré que la majorité soit lue en dehors du cache de PostgreSQL, cela ne provoque aucune lecture sur disque (colonne bi à 0 dans la sortie du vmstat). Autrement dit, le cache du système contient toute la table. Donc, de ce côté, on ne peut pas faire mieux.</p><p>Au niveau CPU, on ne peut rien faire de particulier à ma connaissance. À la rigueur, le hachage peut se faire sur disque mais ça n&#039;a pas l&#039;air d&#039;être le cas ici. D&#039;ailleurs la colonne bo du vmstat est à 0.</p><p>Pour cette requête précise, sur votre système, je crois que vous arrivez au mieux de ce que vous pouvez espérer.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2013-05-16T21:30:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17237#p17237</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [v9.2] Performances en lecture faible sur 25M de lignes, étrange ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17234#p17234"/>
+		<content type="html"><![CDATA[<p>Bonjour, </p><p>L&#039;index ne sert à rien dans ce cas précis, puisque vous récupérez l&#039;intégralité des données, pour les regrouper par année.<br />Vous lisez 25M de lignes pour n&#039;en afficher que 15.</p>]]></content>
+		<author>
+			<name><![CDATA[SAS]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=23</uri>
+		</author>
+		<updated>2013-05-16T13:03:39Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17234#p17234</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [v9.2] Performances en lecture faible sur 25M de lignes, étrange ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17231#p17231"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />Tout d&#039;abord, je tiens à vous remercier pour cette réponse. <br />Il est clair que ces résultats me semblaient étrange.</p><p>Je viens d&#039;exécuter un VACUUM FULL sur la table en question. Et les résultats se sont <strong>nettement</strong> amélioré, bien qu&#039;encore en dessous de ce que j&#039;attendais. <br />Je comprends bien le principe du VACUUM, <span class="bbu">mais j&#039;ai du mal à comprendre comment une requête peut passer de 1451904ms à 14794ms suite à un VACUUM FULL ?</span> (c&#039;est un point à étudier aussi de mon côté)</p><br /><p>Pour la version de PostgreSQL, c&#039;est un PostgreSQL v9.2.3.<br />(Plus précisement: PostgreSQL 9.2.3 on x86_64-unknown-linux-gnu, compiled by gcc-4.4.real (Debian 4.4.5-8) 4.4.5, 64-bit)</p><br /><p>Concernant la seconde requête :</p><div class="quotebox"><cite>Requete SQL a écrit&#160;:</cite><blockquote><div><p>SELECT annee_episode, COUNT (*) AS nombre_episode FROM episode GROUP BY annee_episode ;</p></div></blockquote></div><p>Cette requête s&#039;exécute en ~<strong>14794ms</strong>.</p><p>Le plan d&#039;exécution est le suivant :</p><div class="quotebox"><cite>Plan d&#039;execution a écrit&#160;:</cite><blockquote><div><p>HashAggregate&#160; (cost=708330.08..708330.23 rows=15 width=4) (actual time=19333.123..19333.130 rows=15 loops=1)<br />&#160; Buffers: shared hit=1944 read=331388<br />&#160; -&gt;&#160; Seq Scan on episode&#160; (cost=0.00..583330.72 rows=24999872 width=4) (actual time=0.100..6677.270 rows=24999871 loops=1)<br />&#160; &#160; &#160; &#160; Buffers: shared hit=1944 read=331388<br />Total runtime: 19333.739 ms</p></div></blockquote></div><p>Il semblerait que l&#039;index ne soit pas utilisé pour cette requête, il doit être trop couteux pour ce cas de figure.</p><p>J&#039;ai également monté le shared_buffer à 2GB, mais il semblerait que ce n&#039;est pas là que se trouve le ralentissement (pour cette requête en tout cas).</p><p>Enfin, voici un aperçu du vmstat durant l&#039;exécution de la requête :<br /><span class="postimg"><img src="http://img546.imageshack.us/img546/6083/20130516vmstat.png" alt="VM stat" /></span><br />Si je ne me trompe pas, le processeur est utilisé à 25% maximum, ça ne swap pas.</p><p>Est-t&#039;il possible d&#039;améliorer le temps d&#039;exécution de cette requête ? <br />Est-ce qu&#039;un paramètre (BDD, système, environnement) limite les performances d&#039;une manière ou d&#039;une autre ?</p><p>Merci,<br />PommePote</p>]]></content>
+		<author>
+			<name><![CDATA[PommePote]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2247</uri>
+		</author>
+		<updated>2013-05-16T11:00:29Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17231#p17231</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [v9.2] Performances en lecture faible sur 25M de lignes, étrange ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17222#p17222"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>postgres gère sans problème ce genre de volumétrie, pour peu qu&#039;on lui donne assez de ressources. Vous parlez d&#039;une vm dans le cloud, il faut savoir que toutes les bases de données sont très gourmandes en terme de ressources disque. Avez-vous une idée des performances des disques utilisés ? Cela risque d&#039;être votre point le plus pénalisant.</p><br /><p>Si votre vm est dédiée à postgres, vous pouvez augmenter le shared_buffers jusqu&#039;à 2GB. Pour votre seconde requête, je suppose que les données sont triées sur disque ce qui est très couteux. Vous pouvez allouer plus de work_mem pour cette requête spécifiquement par exemple.</p><p>En ce qui concerne le cpu, c&#039;est sans doute normal si le point de contention est le système disque. Si vous voulez plus d&#039;aide, il faudrait la version de postgres utilisée, les explain analyze des requêtes, plus d&#039;informations sur le système et par exemple un échantillon de la sortie de vmstat durant une des requêtes.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2013-05-15T11:01:39Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17222#p17222</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[[v9.2] Performances en lecture faible sur 25M de lignes, étrange ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17221#p17221"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous,</p><p>A la suite de plusieurs jours de test de PostgreSQL sur une base de données relativement &quot;volumineuse&quot; (25 millions de lignes), j&#039;obtiens des performances assez moyenne en lecture. <br />J&#039;aurai aimé obtenir de l&#039;aide pour comprendre ces performances relativement faible, sachant que PostgreSQL est en phase de passer au pétabyte (<a href="http://www.postgresqlfr.org/pgday2013:vers_le_peta_byte_avec_postgresql" rel="nofollow">http://www.postgresqlfr.org/pgday2013:v … postgresql</a>) et surtout comment optimiser la configuration de mon PostgreSQL/Machine/Requête/Données pour améliorer ces performances.</p><p>La machine utilisée (VM dans le Cloud) est une Linux en 64bits avec 8Go de RAM &amp; 8 cœurs cadencé à 2GHz.<br />La configuration PostgreSQL a été modifiée comme suit :</p><div class="quotebox"><cite>postgresql.conf a écrit&#160;:</cite><blockquote><div><p>effective_cache_size = 5GB<br />shared_buffers = 300MB<br />work_mem = 10MB<br />maintenance_work_mem = 256MB<br />max_connections = 50<br />checkpoint_segments = 32<br />checkpoint_completion_target = 0.9<br />random_page_cost = 3.0</p></div></blockquote></div><p>Pour vous donner un exemple des performances que l&#039;on obtient :<br />Pour la table suivante, comprenant 25 millions de lignes, dont la structure est :</p><div class="quotebox"><cite>table_episode a écrit&#160;:</cite><blockquote><div><p>CREATE TABLE episode<br />(<br />&#160; id_episode serial NOT NULL,<br />&#160; ...<br />&#160; annee_episode integer,<br />&#160; CONSTRAINT episode_pk PRIMARY KEY (id_episode)<br />)<br />WITH ( OIDS=FALSE );</p><br /><p>CREATE INDEX annee_idx ON episode USING btree (annee_episode);</p></div></blockquote></div><p>La requête suivante met plus de <strong>772074ms</strong>: </p><div class="quotebox"><cite>La requete a écrit&#160;:</cite><blockquote><div><p>SELECT DISTINCT annee_episode FROM episode ;</p></div></blockquote></div><p>De même que la requête suivante s&#039;exécute en plus de <strong>1451904ms</strong>: </p><div class="quotebox"><cite>La requete a écrit&#160;:</cite><blockquote><div><p>SELECT annee_episode, COUNT (*) AS nombre_episode FROM episode GROUP BY annee_episode ;</p></div></blockquote></div><p>Ce qui reste étrange, c&#039;est que lorsque je scrute les processus système, je remarque que le CPU n&#039;est utilisé au maximum qu&#039;à 5% de sa capacité...<br />Est-ce que ces performances vous semble &quot;normales&quot; vis-à-vis du nombre de lignes ? <br />(Quand on sait que leboncoin.fr utilise PostgreSQL, je pense que notre volumétrie à côté est minuscule et nos performances bien moindres...)</p><p>Peut-être est-ce lié aux performances de la machine (accès au disque ?, ... ?) ?</p><p>Merci de votre aide, </p><p>PommePote</p>]]></content>
+		<author>
+			<name><![CDATA[PommePote]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2247</uri>
+		</author>
+		<updated>2013-05-15T10:41:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17221#p17221</id>
+	</entry>
+</feed>

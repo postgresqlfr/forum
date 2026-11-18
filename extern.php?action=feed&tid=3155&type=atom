@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / [9.3] nommer les récursions d'une requête récursive]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3155&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3155"/>
+	<updated>2014-05-23T15:20:56Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3155</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [9.3] nommer les récursions d'une requête récursive]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19985#p19985"/>
+		<content type="html"><![CDATA[<p>Et voilà la réponse :</p><div class="codebox"><pre><code>WITH RECURSIVE en_aval(profondeur, code_zone, id_nd_ini, id_nd_fin, geom) AS (
+SELECT  MAX(code_zone) OVER () AS  profondeur, code_zone, id_nd_ini, id_nd_fin, geom FROM essai_pl
+    UNION ALL
+        SELECT  MAX(e.code_zone)  OVER () AS  profondeur, e.code_zone, e.id_nd_ini, e.id_nd_fin, e.geom
+        FROM    en_aval  AS ea
+        INNER JOIN essai_pl AS e 
+        ON  e.id_nd_fin = ea.id_nd_ini)
+SELECT  ROW_NUMBER() OVER()::integer AS gid, profondeur, code_zone, id_nd_ini, id_nd_fin, geom FROM en_aval;</code></pre></div><p>Bon week-end !</p>]]></content>
+		<author>
+			<name><![CDATA[Géronimo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3575</uri>
+		</author>
+		<updated>2014-05-23T15:20:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19985#p19985</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[[9.3] nommer les récursions d'une requête récursive]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19979#p19979"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous,</p><p>Voici ma requête :</p><div class="codebox"><pre><code>WITH RECURSIVE en_aval(profondeur, code_zone, id_nd_ini, id_nd_fin, geom) AS (
+ SELECT 1, code_zone, id_nd_ini, id_nd_fin, geom
+  FROM essai_pl
+UNION ALL
+  SELECT ea.profondeur + 1, e.code_zone, e.id_nd_ini, e.id_nd_fin, e.geom
+  FROM en_aval  AS ea, essai_pl AS e 
+  WHERE e.id_nd_fin = ea.id_nd_ini
+)
+SELECT row_number()OVER()::integer AS gid, * FROM en_aval</code></pre></div><p>Dans la colonne &quot;profondeur&quot; de cette requête, il m&#039;est indiquer un numéro pour chaque récursion (1 pour la première, 2 pour la seconde, 3 pour la troisième,...). J&#039;aimerais remplacer ce numéro par l&#039;identifiant de la zone où est pratiquée chaque récursion (code_zone). Il s&#039;agit d&#039;une chaîne de caractère sous la forme : lettre numéro numéro numéro.</p><p>Je vous remercie pour vos futures réponses.</p><p>Géronimo</p>]]></content>
+		<author>
+			<name><![CDATA[Géronimo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3575</uri>
+		</author>
+		<updated>2014-05-23T14:26:29Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19979#p19979</id>
+	</entry>
+</feed>

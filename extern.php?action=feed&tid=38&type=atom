@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Fonctions variables et arguments]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=38&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=38"/>
+	<updated>2008-10-29T19:38:36Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=38</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Fonctions variables et arguments]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=260#p260"/>
+		<content type="html"><![CDATA[<p>Chouette <img src="http://forums.postgresql.fr/img/smilies/wink.png" width="15" height="15" alt="wink" /></p>]]></content>
+		<author>
+			<name><![CDATA[frost242]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=24</uri>
+		</author>
+		<updated>2008-10-29T19:38:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=260#p260</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Fonctions variables et arguments]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=259#p259"/>
+		<content type="html"><![CDATA[<p>Pour claure le sujet :</p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION ri_ajoute_fils(nom_table character, nom character, pk_parent integer)
+  RETURNS boolean AS
+$BODY$
+DECLARE
+Bornes RECORD;
+BEGIN
+EXECUTE &#039;SELECT &quot;BordDroit&quot; FROM &quot;&#039;|| nom_table ||&#039;&quot; WHERE id= &#039; || pk_parent || &#039;&#039; INTO Bornes;
+
+EXECUTE &#039;UPDATE &#039;|| quote_ident (nom_table)||&#039;
+SET &quot;BordDroit&quot; = &quot;BordDroit&quot; + 2 
+WHERE &quot;BordDroit&quot; &gt;= &#039;||Bornes||&#039;;&#039;;
+ 
+EXECUTE &#039;UPDATE &#039;|| quote_ident (nom_table)||&#039;
+SET &quot;BordGauche&quot; = &quot;BordGauche&quot; + 2 
+WHERE &quot;BordGauche&quot; &gt;= &#039;||Bornes||&#039;;&#039;;
+ 
+EXECUTE &#039;INSERT INTO &#039;|| quote_ident (nom_table)||&#039; (&quot;BordDroit&quot;, &quot;BordGauche&quot;, nom) 
+VALUES (&#039;||Bornes||&#039;, (&#039;||Bornes||&#039;+1), &#039;&#039;&#039;||nom||&#039;&#039;&#039;);&#039;;
+RETURN TRUE;
+END;
+$BODY$
+  LANGUAGE &#039;plpgsql&#039; VOLATILE;</code></pre></div><p>Merci à tous de votre aide</p>]]></content>
+		<author>
+			<name><![CDATA[Katagoto]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=107</uri>
+		</author>
+		<updated>2008-10-29T17:20:07Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=259#p259</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Fonctions variables et arguments]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=254#p254"/>
+		<content type="html"><![CDATA[<p>Ca marche mieu, du moins, ça appel ma fonction, mais il y a un bug dans ma fonction :</p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION ri_ajoute_fils(nom_table character, nom character, pk_parent integer)
+  RETURNS boolean AS
+$BODY$
+DECLARE
+Bornes RECORD;
+BEGIN
+EXECUTE &#039;SELECT &#039;&#039;BordDroite&#039;&#039; INTO Bornes FROM &#039;|| quote_ident (nom_table)||&#039; WHERE id=&#039;||pk_parent||&#039;;&#039;;
+
+EXECUTE &#039;UPDATE &#039;|| quote_ident (nom_table)||&#039;
+SET &#039;&#039;BordDroit&#039;&#039; = &#039;&#039;BordDroit&#039;&#039; + 2 
+WHERE &#039;&#039;BordDroit&#039;&#039; &gt;= Bornes;&#039;;
+ 
+EXECUTE &#039;UPDATE &#039;|| quote_ident (nom_table)||&#039;
+SET &#039;&#039;BordGauche&#039;&#039; = &#039;&#039;BordGauche&#039;&#039; + 2 
+WHERE &#039;&#039;BordGauche&#039;&#039; &gt;= &#039;&#039;Bornes&#039;&#039;;&#039;;
+ 
+EXECUTE &#039;INSERT INTO &#039;|| quote_ident (nom_table)||&#039; (&#039;&#039;BordDroit&#039;&#039;, &#039;&#039;BordGauche&#039;&#039;, nom) 
+VALUES (Bornes, Bornes+1, &#039;&#039;&#039;||nom||&#039;&#039;&#039;);&#039;;
+RETURN TRUE;
+END;
+$BODY$
+  LANGUAGE &#039;plpgsql&#039; VOLATILE;</code></pre></div><p>Lorsque je fais :</p><div class="codebox"><pre><code>SELECT ri_ajoute_fils(&#039;ri&#039;, &#039;smart&#039;, 14);</code></pre></div><p>J&#039;ai le droit à :</p><div class="quotebox"><blockquote><div><p>ERREUR:&#160; EXECUTE of SELECT ... INTO is not implemented yet<br />CONTEXTE : PL/pgSQL function &quot;ri_ajoute_fils&quot; line 4 at EXECUTE statement</p><p>********** Erreur **********</p><p>ERREUR: EXECUTE of SELECT ... INTO is not implemented yet<br />État SQL :0A000<br />Contexte : PL/pgSQL function &quot;ri_ajoute_fils&quot; line 4 at EXECUTE statement</p></div></blockquote></div><p>Qu&#039;est-ce que cela signifie ?</p><p>Par avance merci de votre aide</p>]]></content>
+		<author>
+			<name><![CDATA[Katagoto]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=107</uri>
+		</author>
+		<updated>2008-10-29T12:55:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=254#p254</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Fonctions variables et arguments]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=252#p252"/>
+		<content type="html"><![CDATA[<p>Bien bien d&#039;utiliser les quote_ident, mais il manque toujours les doubles-quotes (&quot;) autour des noms de colonnes contenant des lettres capitales (BordDroit par exemple).</p><p>Il manque également l&#039;ordre EXECUTE devant les ordres UPDATE et INSERT, il est aussi nécessaire car ce sont des ordres générés dynamiquement.</p><p>En fait, il y a aussi un truc assez sympa avec PostgreSQL, c&#039;est le debugger pas à pas PL/pgSQL: pgAdmin III le supporte depuis sa version 1.8 il me semble, et le module est fournie avec PostgreSQL 8.3 pour Windows. Sinon il est disponible à cette adresse: <a href="http://pgfoundry.org/projects/edb-debugger/" rel="nofollow">http://pgfoundry.org/projects/edb-debugger/</a>.</p>]]></content>
+		<author>
+			<name><![CDATA[frost242]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=24</uri>
+		</author>
+		<updated>2008-10-28T22:30:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=252#p252</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Fonctions variables et arguments]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=251#p251"/>
+		<content type="html"><![CDATA[<div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION ri_ajoute_fils(nom_table character, nom character, pk_parent integer)
+  RETURNS boolean AS
+$BODY$
+DECLARE
+Bornes RECORD;
+BEGIN
+EXECUTE &#039;SELECT BordDroite INTO Bornes FROM &#039;|| quote_indent (nom_table)||&#039; WHERE id=pk_parent;
+ 
+UPDATE &#039;|| quote_indent (nom_table)||&#039;
+SET BordDroit = BordDroit + 2 
+WHERE BordDroit &gt;= Bornes;
+ 
+UPDATE &#039;|| quote_indent (nom_table)||&#039;
+SET BordGauche = BordGauche + 2 
+WHERE BordGauche &gt;= Bornes;
+ 
+INSERT INTO &#039;|| quote_indent (nom_table)||&#039; (BordDroit, BordGauche, nom) 
+VALUES (Bornes, Bornes+1, &#039;&#039;&#039;||nom||&#039;&#039;&#039;);&#039;;
+RETURN TRUE;
+END;
+$BODY$
+  LANGUAGE &#039;plpgsql&#039; VOLATILE
+  COST 100;
+ALTER FUNCTION ri_ajoute_fils(character, character, integer) OWNER TO katagoto;</code></pre></div><p>Ca marche, mais quand j&#039;essaye de l&#039;appeler ça plante, comment faire ?</p><p>Par avance merci de votre aide</p><p>PS : votre code n&#039;a pas marché <img src="http://forums.postgresql.fr/img/smilies/hmm.png" width="15" height="15" alt="hmm" /></p>]]></content>
+		<author>
+			<name><![CDATA[Katagoto]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=107</uri>
+		</author>
+		<updated>2008-10-28T19:25:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=251#p251</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Fonctions variables et arguments]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=250#p250"/>
+		<content type="html"><![CDATA[<p>Et avec ça :</p><div class="codebox"><pre><code>CREATE FUNCTION ri_ajoute_fils(IN nomtable character, IN nom character, IN pk_parent integer) RETURNS void AS
+$$
+DECLARE
+  Bornes integer;
+BEGIN
+  EXECUTE SELECT &quot;BordDroite&quot; FROM nomtable WHERE id=pk_parent INTO Bornes ;
+
+  EXECUTE UPDATE nomtable
+    SET &quot;BordDroit&quot; = &quot;BordDroit&quot; + 2
+  WHERE &quot;BordDroit&quot; &gt;= Bornes;
+
+  EXECUTE UPDATE nomtable
+  SET &quot;BordGauche&quot; = &quot;BordGauche&quot; + 2
+  WHERE &quot;BordGauche&quot; &gt;= Bornes;
+
+  EXECUTE INSERT INTO nomtable (&quot;BordDroit&quot;, &quot;BordGauche&quot;, nom)
+  VALUES (Bornes, Bornes+1, nom);
+END;
+$$LANGUAGE &#039;plpgsql&#039; VOLATILE;</code></pre></div><p>Merci de lire le commentaire de SAS à propos de la capitalisation des noms de tables et de colonnes. PostgreSQL &quot;minusculise&quot; les noms des objets, sauf s&#039;ils sont protégés par des doubles-quotes.</p>]]></content>
+		<author>
+			<name><![CDATA[frost242]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=24</uri>
+		</author>
+		<updated>2008-10-28T14:22:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=250#p250</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Fonctions variables et arguments]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=233#p233"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>gleu a écrit&#160;:</cite><blockquote><div><p>Les paramètres de la fonction ne peuvent pas figurer au niveau de la clause FROM. En fait, ils ne sont pas utilisables pour remplacer un nom d&#039;objet (nom de table, nom de colonne, etc.).</p><p>Le seul moyen pour faire cela est d&#039;utiliser le langage PL/pgsql.</p></div></blockquote></div><p>?</p>]]></content>
+		<author>
+			<name><![CDATA[Katagoto]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=107</uri>
+		</author>
+		<updated>2008-10-26T18:43:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=233#p233</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Fonctions variables et arguments]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=227#p227"/>
+		<content type="html"><![CDATA[<p>Je pense que la casse n&#039;est pas en cause, après la lecture du chapitre sur PL/pgsql j&#039;arrive au code suivant :</p><p>CREATE FUNCTION ri_ajoute_fils(IN nomtable character, IN nom character, IN pk_parent integer) RETURNS void AS<br />$$<br />DECLARE<br />Bornes RECORD;<br />BEGIN<br />SELECT BordDroite INTO Bornes FROM nomtable WHERE id=pk_parent;</p><p>UPDATE nomtable<br />SET BordDroit = BordDroit + 2 <br />WHERE BordDroit &gt;= Bornes;</p><p>UPDATE nomtable<br />SET BordGauche = BordGauche + 2 <br />WHERE BordGauche &gt;= Bornes;</p><p>INSERT INTO nomtable (BordDroit, BordGauche, nom) <br />VALUES (Bornes, Bornes+1, nom);<br />END;<br />$$LANGUAGE &#039;plpgsql&#039; VOLATILE;</p><p>Et donc à l&#039;erreur suivante :</p><p>ERREUR:&#160; erreur de syntaxe sur ou prÃ¨s de Â« $1 Â»<br />LIGNE 1 : SELECT BordDroite FROM&#160; $1&#160; WHERE id= $2 <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; ^<br />REQUÊTE : SELECT BordDroite FROM&#160; $1&#160; WHERE id= $2 <br />CONTEXTE : SQL statement in PL/PgSQL function &quot;ri_ajoute_fils&quot; near line 4</p><br /><p>********** Erreur **********</p><p>ERREUR: erreur de syntaxe sur ou près de « $1 »<br />État SQL :42601<br />Contexte : SQL statement in PL/PgSQL function &quot;ri_ajoute_fils&quot; near line 4</p><p>Il me semblait que Pl/pgslq permettait les variable à la clause FROM, ai-je mal lu ? </p><p>Par avance merci de votre aide</p>]]></content>
+		<author>
+			<name><![CDATA[Katagoto]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=107</uri>
+		</author>
+		<updated>2008-10-25T09:50:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=227#p227</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Fonctions variables et arguments]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=219#p219"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>Katagoto a écrit&#160;:</cite><blockquote><div><p>Voilà mon nouveau code :<br />CREATE FUNCTION ri_ajoute_fils(IN nomtable character, IN nom character, IN pk_parent integer) RETURNS void AS<br />$$<br />DECLARE<br />Bornes integer := SELECT BordDroite FROM $1 WHERE id=$3</p></div></blockquote></div><p>Une affectation de variable ne se fait pas de cette façon.</p><p>SELECT &quot;BordDroite&quot; into Bornes.</p><p>Pour commencer, je vous invite à modifier votre schéma pour supprimer la capitalisation des tables. Ca simpliefera grandement la suite.</p><p>Un certain nombre de vos erreurs viennent de problèmes entre des noms de tables à majuscules et des requêtes qui ne les utilisent pas.</p>]]></content>
+		<author>
+			<name><![CDATA[SAS]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=23</uri>
+		</author>
+		<updated>2008-10-23T15:34:06Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=219#p219</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Fonctions variables et arguments]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=206#p206"/>
+		<content type="html"><![CDATA[<p>Voilà mon nouveau code :<br />CREATE FUNCTION ri_ajoute_fils(IN nomtable character, IN nom character, IN pk_parent integer) RETURNS void AS<br />$$<br />DECLARE<br />Bornes integer := SELECT BordDroite FROM $1 WHERE id=$3<br />BEGIN<br />UPDATE $1<br />SET BordDroit = BordDroit + 2 <br />WHERE BordDroit &gt;= Bornes;</p><p>UPDATE $1<br />SET BordGauche = BordGauche + 2 <br />WHERE BordGauche &gt;= Bornes;</p><p>INSERT INTO $1 (BordDroit, BordGauche, nom) <br />VALUES (Bornes, Bornes+1, $2);<br />END;<br />$$LANGUAGE &#039;plpgsql&#039; VOLATILE;</p><p>Voilà mon nouveau problème :</p><p>ERREUR:&#160; erreur de syntaxe sur ou prÃ¨s de Â« SELECT Â»<br />LIGNE 1 : SELECT&#160; SELECT BordDroite FROM&#160; $1&#160; WHERE id= $2&#160; BEGIN UPDA...<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; ^<br />REQUÊTE : SELECT&#160; SELECT BordDroite FROM&#160; $1&#160; WHERE id= $2&#160; BEGIN UPDATE&#160; $1&#160; SET BordDroit = BordDroit + 2 WHERE BordDroit &gt;= Bornes<br />CONTEXTE : SQL statement in PL/PgSQL function &quot;ri_ajoute_fils&quot; near line 6</p><p>********** Erreur **********</p><p>ERREUR: erreur de syntaxe sur ou près de « SELECT »<br />État SQL :42601<br />Contexte : SQL statement in PL/PgSQL function &quot;ri_ajoute_fils&quot; near line 6</p><p>Où est-ce que j&#039;ai planté encore ?</p><p>Par avance merci de votre aide</p>]]></content>
+		<author>
+			<name><![CDATA[Katagoto]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=107</uri>
+		</author>
+		<updated>2008-10-22T12:41:07Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=206#p206</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Fonctions variables et arguments]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=205#p205"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je ne lâcherais rien, voilà mon code :</p><p>CREATE FUNCTION ri_ajoute_fils(IN integer, IN character) RETURNS void AS<br />$BODY$<br />UPDATE ri AS A<br />SET BordDroit = BordDroit + 2 <br />FROM ri AS B<br />WHERE B.id = $1 AND A.BordDroit &gt;= B.BordDroit;</p><p>UPDATE ri AS C<br />SET BordGauche = BordGauche + 2 <br />FROM ri AS D<br />WHERE D.id = $1 AND C.BordDroit &gt;= D.BordDroit;</p><p>INSERT INTO ri (BordDroite, BordGauche, nom) <br />VALUES ((SELECT BordDroite FROM ri WHERE id=$1)-2, (SELECT BordGauche FROM ri WHERE id=$1)-1, $2);<br />$BODY$<br />LANGUAGE &#039;sql&#039; VOLATILE;</p><p>Ma Table :<br />-- Table: ri</p><p>-- DROP TABLE ri;</p><p>CREATE TABLE ri<br />(<br />&#160; id serial NOT NULL,<br />&#160; &quot;BordDroit&quot; integer,<br />&#160; &quot;BordGauche&quot; integer,<br />&#160; nom character(64),<br />&#160; CONSTRAINT ri_pkey PRIMARY KEY (id),<br />&#160; CONSTRAINT ri_id_key UNIQUE (id)<br />)<br />WITH (OIDS=FALSE);<br />ALTER TABLE ri OWNER TO katagoto;</p><p>Mon Erreur :</p><p>ERREUR:&#160; la colonne « borddroit » n&#039;existe pas<br />LIGNE 4 : SET BordDroit = BordDroit + 2 <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; ^</p><p>********** Erreur **********</p><p>ERREUR: la colonne « borddroit » n&#039;existe pas<br />État SQL :42703<br />Caractère : 112</p><p>Comment faire pour que ça marche ?</p><p>Par avance merci de votre aide</p>]]></content>
+		<author>
+			<name><![CDATA[Katagoto]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=107</uri>
+		</author>
+		<updated>2008-10-21T16:05:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=205#p205</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Fonctions variables et arguments]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=191#p191"/>
+		<content type="html"><![CDATA[<p>Même si je le met pas, ça plante...</p>]]></content>
+		<author>
+			<name><![CDATA[Katagoto]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=107</uri>
+		</author>
+		<updated>2008-10-18T16:59:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=191#p191</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Fonctions variables et arguments]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=190#p190"/>
+		<content type="html"><![CDATA[<p>Lire la documentation d&#039;UPDATE semble une bonne idée pour commencer (<a href="http://docs.postgresql.fr/8.1/sql-update.html" rel="nofollow">http://docs.postgresql.fr/8.1/sql-update.html</a>). Dans la section Paramètres, à colonne, il est indiqué :</p><div class="quotebox"><blockquote><div><p>Le nom d&#039;une colonne dans table. Le nom de la colonne peut être qualifié avec un nom de sous-champ ou un indice de tableau, si nécessaire. Ne pas inclure le nom de la table dans la spécification d&#039;une colonne cible -- par exemple, UPDATE tab SET tab.col = 1 est invalide.</p></div></blockquote></div>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2008-10-18T16:45:29Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=190#p190</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Fonctions variables et arguments]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=189#p189"/>
+		<content type="html"><![CDATA[<p>Ok, il est donc mieu de faire une fonction par table, ce code plante :</p><p>CREATE FUNCTION ri_ajoute_fils(IN integer, IN character) RETURNS void AS<br />$BODY$SELECT * FROM ri AS C WHERE C.id=$1;</p><p>UPDATE ri AS A<br />SET A.BordDroit = A.BordDroit + 2 <br />WHERE A.BordDroit &gt;= C.BordDroit; </p><p>UPDATE ri AS B<br />SET B.BordGauche = B.BordGauche + 2<br />WHERE B.BordGauche &gt;= C.BordGauche;</p><p>INSERT INTO ri (BordDroit, BordGauche, nom) VALUES (C.BordDroit, C.BordDroit+1, $2);$BODY$<br />LANGUAGE &#039;sql&#039; VOLATILE;</p><p>Erreur :</p><p>ERREUR:&#160; la colonne a.borddroit n&#039;existe pas<br />LIGNE 5 : SET A.BordDroit = A.BordDroit + 2 <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; ^</p><p>********** Erreur **********</p><p>ERREUR: la colonne a.borddroit n&#039;existe pas<br />État SQL :42703<br />Caractère : 151</p><p>Table :<br />-- Table: ri</p><p>-- DROP TABLE ri;</p><p>CREATE TABLE ri<br />(<br />&#160; id serial NOT NULL,<br />&#160; &quot;BordDroit&quot; integer,<br />&#160; &quot;BordGauche&quot; integer,<br />&#160; nom character(64),<br />&#160; CONSTRAINT ri_pkey PRIMARY KEY (id)<br />)<br />WITH (OIDS=FALSE);<br />ALTER TABLE ri OWNER TO katagoto;</p><p>Je comprend pas d&#039;où ça vient...</p><p>Si quelqu&#039;un à une idée...</p><p>Par avance merci de votre aide</p>]]></content>
+		<author>
+			<name><![CDATA[Katagoto]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=107</uri>
+		</author>
+		<updated>2008-10-18T15:46:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=189#p189</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Fonctions variables et arguments]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=187#p187"/>
+		<content type="html"><![CDATA[<p>Les paramètres de la fonction ne peuvent pas figurer au niveau de la clause FROM. En fait, ils ne sont pas utilisables pour remplacer un nom d&#039;objet (nom de table, nom de colonne, etc.).</p><p>Le seul moyen pour faire cela est d&#039;utiliser le langage PL/pgsql.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2008-10-18T10:08:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=187#p187</id>
+	</entry>
+</feed>

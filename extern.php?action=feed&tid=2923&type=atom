@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Taille totale base]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2923&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2923"/>
+	<updated>2014-01-06T13:09:11Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2923</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Taille totale base]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18890#p18890"/>
+		<content type="html"><![CDATA[<p>Merci de votre réponse guillaume<br />La transaction s&#039;est arrêtée car j&#039;ai renseigné le paramètre statement_timeout=1800000 sur la base (30 mns), et que la transaction a duré ce temps la.</p><p>Il n&#039;y a a priori pas de fichiers temporaires sur la base, c&#039;est bein le dossier dans &#039;base&#039; qui fait cette taille la (j&#039;ai créé un tablespace temporaire sur un autre volume, il est vide)<br />De plus, ils auraient du se supprimer après restart de la base dans ce cas, non ?<br />J’avais peut etre pensé à une table temporaire, amis lorsque je trie les tables par tailles, je ne voit rien qui correspond à ça...</p>]]></content>
+		<author>
+			<name><![CDATA[tsn77130]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1906</uri>
+		</author>
+		<updated>2014-01-06T13:09:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18890#p18890</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Taille totale base]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18874#p18874"/>
+		<content type="html"><![CDATA[<p>Lorsque vous mettez une valeur par défaut à une nouvelle colonne, PostgreSQL est obligé de réécrire toute la table. D&#039;où le temps que ça a pris. Sans le default, PostgreSQL ne fait que changer quelques méta-données et du coup, c&#039;est immédiat.</p><p>Concernant les 30 Go pris, ce doit être un fichier temporaire qui est resté lors de la réécriture de la table. Difficile d&#039;en dire plus, surtout que rien n&#039;indique dans votre message comment la requête &quot;ne s&#039;est pas terminée&quot;.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-01-03T21:57:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18874#p18874</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Taille totale base]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18872#p18872"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous,</p><p>Il y a peu, nous avons tenté sur notre base une requête d&#039;ajout de colonne dans une table de 20 Go avec un default false. (base en production)<br />La requête a mis énormément de temps a se faire, ne s&#039;est pas terminée, et à surtout fait grimper la taille totale de la base de 170 à 200Go environ.</p><p>Suite au plantage, nous avons refait le même requête, sans le default false, et la cela a fonctionné nickel, en quelques secondes la requête s&#039;était terminée, la base n&#039;a pas bougé niveau taille.</p><p>Bref.<br />Ce qui est étrange, c&#039;est que lorsque je regarde la taille des tables une à une, je ne vois aucune table qui a grossi, et je ne comprend pas ou sont passés ces 30 Go !</p><p>Pour tenter de regagner cet espace , j&#039;ai effectué un vacuum full, mais malgré cela, je ne retrouve toujours pas mes 30 GO <img src="http://forums.postgresql.fr/img/smilies/hmm.png" width="15" height="15" alt="hmm" /></p><br /><p>Différences vues : </p><p>psql db<br />\l+<br /> db&#160; &#160; &#160; | toto&#160; &#160; &#160; | UTF8&#160; &#160; &#160;| en_GB.UTF-8 | en_GB.UTF-8 |&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;| 131 GB&#160; &#160;| pg_default | </p><br /><br /><p>Et la requête que je lance pour voir le détail de ma base : </p><p>select sum(pg_table_size(table_schema || &#039;.&#039; || table_name)) as data,<br />sum(pg_indexes_size(table_schema || &#039;.&#039; || table_name)) as index,<br />sum(pg_total_relation_size(table_schema || &#039;.&#039; || table_name)) As total<br />FROM information_schema.tables;</p><p>Résultat : 99 Go<br /> 65117700096 | 33858953216 | 98976653312</p><br /><p>Quand je fais le cumul des tailles de toutes les tables (data + index + toast), je tombe aussi sur 99 Go.</p><br /><p>Sauriez vous pourquoi j&#039;ai ce soucis ?</p><p>ps : Je suis en version 9.0</p>]]></content>
+		<author>
+			<name><![CDATA[tsn77130]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1906</uri>
+		</author>
+		<updated>2014-01-03T13:14:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18872#p18872</id>
+	</entry>
+</feed>

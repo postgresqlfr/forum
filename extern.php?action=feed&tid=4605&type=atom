@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / pg_basebackup:   pg_stop_backup still waiting for all required WAL]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4605&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4605"/>
+	<updated>2018-03-01T16:23:20Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4605</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pg_basebackup:   pg_stop_backup still waiting for all required WAL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27012#p27012"/>
+		<content type="html"><![CDATA[<p>S&#039;il a bien été archivé, je pense que c&#039;est le mieux. Je ne vois pas d&#039;autres solutions.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2018-03-01T16:23:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27012#p27012</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pg_basebackup:   pg_stop_backup still waiting for all required WAL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27010#p27010"/>
+		<content type="html"><![CDATA[<p>oui, je dois le virer?</p>]]></content>
+		<author>
+			<name><![CDATA[albourg]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7029</uri>
+		</author>
+		<updated>2018-03-01T14:32:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27010#p27010</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pg_basebackup:   pg_stop_backup still waiting for all required WAL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27008#p27008"/>
+		<content type="html"><![CDATA[<p>Il est possible que le crash soit survenu juste après l&#039;archivage mais avant la suppression du fichier .ready. Avez-vous un fichier 00000001000000060000007F.ready dans /var/lib/pgsql/9.6/wal/archive_status ?</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2018-03-01T14:06:31Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27008#p27008</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[pg_basebackup:   pg_stop_backup still waiting for all required WAL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27004#p27004"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>pg 9.6<br />nous avons eu un disque plein sur un serveur postgres (vm).<br />Nous avons augmenté l&#039;espace disque. postgres a l&#039;air de re-fonctionner mais lorsque l&#039;on lance un pg_basebackup on a le message d&#039;erreur:<br />---<br />WARNING:&#160; pg_stop_backup still waiting for all required WAL segments to be archived (1920 seconds elapsed)<br />HINT:&#160; Check that your archive_command is executing properly.&#160; pg_stop_backup can be canceled safely, but the database backup will not be usable without all the WAL segments.<br />---</p><p>le log répète:<br />2018-03-01 13:28:55 UTCLOG:&#160; archive command failed with exit code 1<br />2018-03-01 13:28:55 UTCDETAIL:&#160; The failed archive command was: test ! -f /var/lib/pgsql/9.6/wal/00000001000000060000007F &amp;&amp; cp pg_xlog/00000001000000060000007F /var/lib/pgsql/9.6/wal/00000001000000060000007F<br />2018-03-01 13:28:55 UTCWARNING:&#160; archiving transaction log file &quot;00000001000000060000007F&quot; failed too many times, will try again later</p><br /><p>Ce fichier ne se trouve plus dans pg_xlog et se trouve dans /var/lib/pgsql/9.6/wal. postgres essaie néanmois de l&#039;archiver, alors que ça a été fait.<br />De plus, il a créé d&#039;autres fichers dans pg_xlog (et dans le /var/lib/pgsql/9.6/wal):</p><p>bash-4.2$ ls -altr pg_xlog<br />total 81980<br />-rw-------.&#160; 1 postgres postgres 16777216 Mar&#160; 1 11:27 000000010000000600000092<br />-rw-------.&#160; 1 postgres postgres&#160; &#160; &#160; 305 Mar&#160; 1 11:30 00000001000000060000008E.00000028.backup<br />-rw-------.&#160; 1 postgres postgres 16777216 Mar&#160; 1 11:30 00000001000000060000008E<br />drwx------. 22 postgres postgres&#160; &#160; &#160;4096 Mar&#160; 1 12:41 ..<br />-rw-------.&#160; 1 postgres postgres 16777216 Mar&#160; 1 12:42 00000001000000060000008F<br />drwx------.&#160; 2 postgres postgres&#160; &#160; &#160;4096 Mar&#160; 1 12:46 archive_status<br />-rw-------.&#160; 1 postgres postgres&#160; &#160; &#160; 305 Mar&#160; 1 12:46 000000010000000600000090.00000028.backup<br />-rw-------.&#160; 1 postgres postgres 16777216 Mar&#160; 1 12:46 000000010000000600000090<br />drwx------.&#160; 3 postgres postgres&#160; &#160; &#160;4096 Mar&#160; 1 12:46 .<br />-rw-------.&#160; 1 postgres postgres 16777216 Mar&#160; 1 13:32 000000010000000600000091</p><p>ls -altr /var/lib/pgsql/9.6/wal<br />...<br />-rw-------. 1 postgres postgres 16777216 Feb 26 19:54 00000001000000060000007E<br />-rw-------. 1 postgres postgres 16777216 Mar&#160; 1 11:15 00000001000000060000007F<br />-rw-------. 1 postgres postgres 16777216 Mar&#160; 1 11:26 000000010000000600000087<br />-rw-------. 1 postgres postgres 16777216 Mar&#160; 1 11:26 000000010000000600000086<br />-rw-------. 1 postgres postgres 16777216 Mar&#160; 1 11:26 000000010000000600000085<br />-rw-------. 1 postgres postgres 16777216 Mar&#160; 1 11:26 000000010000000600000084<br />-rw-------. 1 postgres postgres 16777216 Mar&#160; 1 11:26 000000010000000600000083<br />-rw-------. 1 postgres postgres 16777216 Mar&#160; 1 11:26 000000010000000600000082<br />-rw-------. 1 postgres postgres 16777216 Mar&#160; 1 11:26 000000010000000600000081<br />-rw-------. 1 postgres postgres 16777216 Mar&#160; 1 11:26 000000010000000600000080<br />-rw-------. 1 postgres postgres 16777216 Mar&#160; 1 11:26 00000001000000060000008C<br />-rw-------. 1 postgres postgres 16777216 Mar&#160; 1 11:26 00000001000000060000008B<br />-rw-------. 1 postgres postgres 16777216 Mar&#160; 1 11:26 00000001000000060000008A<br />-rw-------. 1 postgres postgres 16777216 Mar&#160; 1 11:26 000000010000000600000089<br />-rw-------. 1 postgres postgres 16777216 Mar&#160; 1 11:26 000000010000000600000088<br />-rw-------. 1 postgres postgres 16777216 Mar&#160; 1 11:27 00000001000000060000008D</p><p>Il a l&#039;air coincé quelque part sur le 00000001000000060000007F .<br />Un conseil?</p>]]></content>
+		<author>
+			<name><![CDATA[albourg]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7029</uri>
+		</author>
+		<updated>2018-03-01T13:23:35Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27004#p27004</id>
+	</entry>
+</feed>

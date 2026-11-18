@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Performance d'une base / regex sur texte]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1513&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1513"/>
+	<updated>2011-06-28T09:33:47Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1513</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Performance d'une base / regex sur texte]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10106#p10106"/>
+		<content type="html"><![CDATA[<p>Non, pas sur toute la table, voilà la structure :</p><p>Table COMPTE :</p><p>id | nom | prenom | ... | liste</p><p>Le champs LISTE est en type TEXT, ça donne à peu près cela :</p><p>&lt;id58&gt;&lt;1&gt;nom&lt;/1&gt;&lt;2&gt;prenom&lt;/2&gt;&lt;/id58&gt;<br />&lt;id256&gt;&lt;1&gt;nom&lt;/1&gt;&lt;2&gt;prenom&lt;/2&gt;&lt;/id256&gt;<br />&lt;id9542&gt;&lt;1&gt;nom&lt;/1&gt;&lt;2&gt;prenom&lt;/2&gt;&lt;/id95428&gt;<br />&lt;id19&gt;&lt;1&gt;nom&lt;/1&gt;&lt;2&gt;prenom&lt;/2&gt;&lt;/id19&gt;<br />...</p><p>le numéro dans la balise globale est celui de l&#039;ID du contact du client (contact qui est aussi un client).</p><p>Par conséquent, quand j&#039;applique une regex pour supprimer un contact de la liste du client par exemple, je sais exactement dans quel compte client il faut appliquer la regex, par exemple le compte client ayant pour ID = 654, puis, dans son champs liste je cherche avec la regex la balise globale contenant l&#039;ID de son contact. La liste peut faire jusqu&#039;à 60 ko soit environ 300 contacts listés en XML.</p><p>Les regexp sont donc appliquées sur un champs d&#039;une ligne précise, déterminée par un ID précis : celui du compte client. Par contre au sein du champs LISTE de ce compte c&#039;est un bloc de texte en XML donc la regex peut parcourir tout le texte de 60 ko (environ 300 lignes XML).</p>]]></content>
+		<author>
+			<name><![CDATA[debutant_24]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1290</uri>
+		</author>
+		<updated>2011-06-28T09:33:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10106#p10106</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Performance d'une base / regex sur texte]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10105#p10105"/>
+		<content type="html"><![CDATA[<p>Sauf que vous dites : &quot;sur lesquels j&#039;applique souvent des regex pour retrouver des phrases.&quot;<br />Et la clairement ça va être mauvais... enfin si c&#039;est bien sur l&#039;ensemble de la table que vous cherchez. Parce que là encore ce n&#039;est pas clair dans votre explication. Si vous êtes certains de toujours rechercher sur la clé primaire, c&#039;est différent. Mais dans ce cas, je ne comprends pas votre question initiale. Votre dernier post et le premier me semblent absolument contradictoires (d&#039;où j&#039;en déduis qu&#039;il y en a 1 que je n&#039;ai pas compris, mais lequel?)</p>]]></content>
+		<author>
+			<name><![CDATA[flo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=216</uri>
+		</author>
+		<updated>2011-06-28T06:20:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10105#p10105</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Performance d'une base / regex sur texte]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10103#p10103"/>
+		<content type="html"><![CDATA[<p>D&#039;accord, mais je me suis dit qu&#039;à l&#039;affichage, il était plus simple pour le SGBD de faire une simple requête en SELECT sur le champs, pour ressortir toute la liste d&#039;un coup, comme un bloc de texte, plutôt que d&#039;utiliser les index pour rechercher chaque ligne une à une. Par contre dès qu&#039;il faut ajouter, supprimer ou modifier un contact dans la liste, là c&#039;est effectivement plus lourd à gérer à cause des regex.</p><p>Le fait est est qu&#039;il y aura toujours plus d&#039;affichage de liste que de modifications sur celle-ci, donc je voulais ménager l&#039;affichage...</p>]]></content>
+		<author>
+			<name><![CDATA[debutant_24]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1290</uri>
+		</author>
+		<updated>2011-06-27T21:08:55Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10103#p10103</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Performance d'une base / regex sur texte]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10102#p10102"/>
+		<content type="html"><![CDATA[<p>A mon avis, votre solution (tout mettre sur la même ligne) est idéale... dans un fichier texte. Dans une base de données relationnelles, certainement pas... En fait, je suis tout à fait d&#039;accord avec gleu.<br />Vous faites aussi une erreur en supposant que les données sont triées dans la table. Ce n&#039;est pas comme cela que ça fonctionne dans une base de données. Les index sont disposés en général suivant un arbre balancé. Les données... euh je ne suis pas assez calée pour expliquer comment c&#039;est dans PostgreSQL, mais ce qu&#039;il faut retenir, c&#039;est qu&#039;on s&#039;en moque éperdument (en tant que développeur, je veux dire, moi ce qui m&#039;intéresse c&#039;est que cela fonctionne <img src="http://forums.postgresql.fr/img/smilies/big_smile.png" width="15" height="15" alt="big_smile" />&#160; ). Donc ajouter des données n&#039;est pas un problème, ce n&#039;est pas comme dans un beau fichier trié (où là c&#039;est vite le bazar).<br />Donc (tant pis si je me répète), écoutez gleu, il a raison <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /> Cela ne veut pas dire que vous n&#039;aurez pas de souci, mais c&#039;est sans doute la meilleure solution. Et puis 50 millions de lignes, de nos jours, c&#039;est presque courant...</p>]]></content>
+		<author>
+			<name><![CDATA[flo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=216</uri>
+		</author>
+		<updated>2011-06-27T20:27:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10102#p10102</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Performance d'une base / regex sur texte]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10101#p10101"/>
+		<content type="html"><![CDATA[<p>50 millions de lignes dans une table, c&#039;est une somme, mais c&#039;est pas énorme non plus.</p><p>De toute façon, dans une base de données relationnelles, le plus important n&#039;est pas le nombre de lignes mais la façon dont la base est structurée. PostgreSQL sera bien plus rapide avec la table que je proposais, même si elle fait 50 millions de lignes qu&#039;avec la table que vous proposez. Autant dans mon cas, les index pourront facilement être utilisés, autant dans la votre, il y a de fortes chances que non.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-06-27T18:36:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10101#p10101</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Performance d'une base / regex sur texte]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10100#p10100"/>
+		<content type="html"><![CDATA[<p>J&#039;essaie de simplifier pour présenter mon problème, mais chaque client a une liste d&#039;autres clients, une liste de contacts. C&#039;est pour faire un réseau social.</p><p>L&#039;énorme texte est situé dans un champs du compte client, c&#039;est la liste de contacts du client, avec une mise en forme XML. Pourquoi ? Pour avoir tout dans la même ligne, pour éviter que les éléments de la liste de chaque client soient éparpillés dans une même table. A chaque ajout d&#039;un contact sur la liste d&#039;un client, il faudrait tout recalculer les index si la liste était présentée sous forme d&#039;occurrences dans une autre table, alors que dans mon champs text avec la liste en XML dans la table compte,&#160; je n&#039;ai qu&#039;à rajouter des balises à la fin de la liste pour ajouter un nouveau contact.</p><p>Voilà donc, il y a sans doute plusieurs solutions, mais difficile de trouver la plus optimale. Imaginez que sur 1 000 000 de clients, chacun dispose d&#039;une liste de 50 contacts, cela ferait 50 000 000 de lignes dans la même table, c&#039;est beaucoup ! Alors qu&#039;avec la liste en XML dans un champs du compte du client, il y a toujours 1 000 000 de lignes. Mais bon, la présentation sous forme de balises XML demande sans arrêt des regexp sur champs text pour récupérer les informations sur un contact de la liste.</p><p>J&#039;espère que je me suis pas trop mal expliqué <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[debutant_24]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1290</uri>
+		</author>
+		<updated>2011-06-27T16:57:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10100#p10100</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Performance d'une base / regex sur texte]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10099#p10099"/>
+		<content type="html"><![CDATA[<p>Et si vous nous expliquiez vraiment ce que vous voulez faire? Je n&#039;ai toujours pas compris quel était le but de l&#039;énorme texte dont vous parliez au début : pourquoi ne pouvez-vous pas faire des tables en forme normale? Pourquoi chaque compte client a-t-il des informations de structure différente? Chaque client possède une liste, d&#039;accord, mais une liste de QUOI? <br />Il y a peut-être une solution simple à votre problème, pour peu que vous l&#039;exprimiez complètement.</p>]]></content>
+		<author>
+			<name><![CDATA[flo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=216</uri>
+		</author>
+		<updated>2011-06-27T16:26:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10099#p10099</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Performance d'une base / regex sur texte]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10098#p10098"/>
+		<content type="html"><![CDATA[<p>Il place les lignes là où il a de la place, donc généralement à la fin du fichier. En soi, ça n&#039;est pas un problème. Avec de bons index, ça devrait bien fonctionner. En tout cas, bien mieux que le gros champ de données sérialisées.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-06-27T15:51:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10098#p10098</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Performance d'une base / regex sur texte]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10095#p10095"/>
+		<content type="html"><![CDATA[<p>Oui c&#039;est sur quoi j&#039;étais parti au départ, mais le problème c&#039;est que les lignes de tous les clients sont mélangées entre elles, donc il faut à chaque fois les trier.</p><p>En fait j&#039;aimerai bien savoir comment le SGBD s&#039;y prend à ce niveau, est-ce qu&#039;il ajoute systématiquement les nouvelles occurrences à la fin du fichier de la table, puis il remet seulement à jour l&#039;index, ou bien est-ce qu&#039;il réécrit la ligne au bon endroit ? Et s&#039;il écrit la ligne au bon endroit, j&#039;imagine qu&#039;il est obligé de recopier toutes les lignes en dessous pour les décaler sinon il risque d&#039;écraser les lignes suivantes.</p><p>Sinon j&#039;ai pensé aussi à faire une table par client, mais je sais pas combien de tables au maximum peut gérer postgresql, et s&#039;il est pas plus difficile de retrouver les tables après, quand il y en a 1 000 000.</p>]]></content>
+		<author>
+			<name><![CDATA[debutant_24]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1290</uri>
+		</author>
+		<updated>2011-06-27T15:35:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10095#p10095</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Performance d'une base / regex sur texte]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10094#p10094"/>
+		<content type="html"><![CDATA[<p>Si vous voulez des performances, quelque soit le moteur de bases de données, oubliez les tableaux associatifs multidimensionnels en base. Ça ne peut pas marcher.</p><p>Vous pouvez par contre créer une table avec au moins trois colonnes : l&#039;id du client, le nom de la propriété et la valeur de la propriété pour ce client. En espérant que j&#039;ai bien compris ce que vous cherchez à faire.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-06-27T15:17:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10094#p10094</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Performance d'une base / regex sur texte]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10091#p10091"/>
+		<content type="html"><![CDATA[<p>Le problème, c&#039;est qu&#039;il me faudrait une table imbriquée dans le champs d&#039;une table, pour pouvoir gérer une liste propre à chaque client (chaque client possède une liste), mais on ne peut pas faire de table imbriquée.<br />Une solution serait de créer un tableau dans un champs, mais postgresql ne gère pas les array associatifs multidimensionnels.<br />Il reste l&#039;ancienne solution : tout mettre dans une seule table, avec une clé qui serait l&#039;ID du client pour chaque ligne de sa liste. Le problème c&#039;est qu&#039;à chaque fois qu&#039;il rajoute une ligne à sa liste, il faut re-trier la table et recalculer les index pour placer l’occurrence au bon endroit dans la table, pour que ça donne à peu près ça :</p><p>ID|détails</p><p>26|aaaa<br />26|zzzz<br />26|cccc<br />26|rrrr<br />42|yyyy<br />42|cccc<br />99|zzzz<br />99|mmmm<br />...</p><p>Ça doit être assez lourd de tout re-trier à chaque fois, donc j&#039;ai pensé mettre la liste de chaque client dans son occurrence dans la table compte, dans un champs, sous forme de XML :<br />&lt;1&gt;blabla&lt;/1&gt;&lt;2&gt;blibli&lt;/2&gt;&lt;3&gt;bloblo&lt;/3&gt;</p><p>Donc en ce moment je cherche la technique qui soit la plus performante...</p>]]></content>
+		<author>
+			<name><![CDATA[debutant_24]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1290</uri>
+		</author>
+		<updated>2011-06-27T14:45:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10091#p10091</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Performance d'une base / regex sur texte]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10090#p10090"/>
+		<content type="html"><![CDATA[<p>Les regexp ne pouvant pas utiliser d&#039;index, oui, ça va forcément ne pas être performant.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-06-27T14:25:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10090#p10090</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Performance d'une base / regex sur texte]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10087#p10087"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>En ce moment je crée une base de données avec une table listant les comptes clients. Dans chaque compte j&#039;ai 3 champs avec un gros texte de 60 ko chacun (26 000 caractères environ) , sur lesquels j&#039;applique souvent des regex pour retrouver des phrases.</p><p>A votre avis,&#160; pensez-vous que cela va trop ralentir le système, ou bien c&#039;est jouable avec par exemple 1 000 000 de comptes ?</p><p>Merci !</p>]]></content>
+		<author>
+			<name><![CDATA[debutant_24]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1290</uri>
+		</author>
+		<updated>2011-06-27T14:07:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10087#p10087</id>
+	</entry>
+</feed>

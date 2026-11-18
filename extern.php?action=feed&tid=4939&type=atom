@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Impossible de mettre un LOCK TABLE ou un SELECT FOR UPDATE]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4939&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4939"/>
+	<updated>2018-10-28T18:02:52Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4939</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Impossible de mettre un LOCK TABLE ou un SELECT FOR UPDATE]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28467#p28467"/>
+		<content type="html"><![CDATA[<p>Et on a même des réponses le dimanche ... alors là, respect (et merci !).</p><br /><p>OK je commence à comprendre l&#039;utilité de n&#039;avoir qu&#039;un seul utilisateur en Login. Je trouve que c&#039;est dommage de ne pas profiter de la gestion des droits de la base, mais le boulot peut être fait sans trop de problème dans l&#039;application (sous réserve de s&#039;y atteler <img src="http://forums.postgresql.fr/img/smilies/roll.png" width="15" height="15" alt="roll" />) et si c&#039;est pour soulager la base... Je vire donc le SET ROLE <img src="http://forums.postgresql.fr/img/smilies/big_smile.png" width="15" height="15" alt="big_smile" /></p><br /><p>Merci encore de votre aide, je devrais maintenant m&#039;en sortir <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>Bonne fin de weekend !</p>]]></content>
+		<author>
+			<name><![CDATA[ramirez22]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8315</uri>
+		</author>
+		<updated>2018-10-28T18:02:52Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28467#p28467</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Impossible de mettre un LOCK TABLE ou un SELECT FOR UPDATE]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28466#p28466"/>
+		<content type="html"><![CDATA[<p>par définition un SELECT FOR UPDATE ne bloque pas un SELECT.&#160; Si vous voulez que vos deux ordres se bloquent mutuellement, il faut un FOR UPDATE pour chaque.</p><br /><p>Pour pgAdmin, je ne sais pas ce que vous entendez par session. </p><br /><p>Pour votre problème 3, comme l&#039;a dit Daniel les verrous sont automatiquement libérés à la fin de la transaction.&#160; Du coup rollback, fermeture brutale de la connexion, crash ou redémarrage l&#039;effet est le même : la transaction est annulée et les verrous sont relachés.&#160; À la seule exception d&#039;une transaction préparée, qui elle survit tant qu&#039;elle n&#039;est pas explicitement validée ou annulée.</p><br /><br /><p>Concernant vos problème de droit, oui c&#039;est très courant de n&#039;avoir qu&#039;un seul role postgres pour l&#039;applicatif.&#160; Votre méthode de SET ROLE fonctionne effectivement, mais cela n&#039;est pas recommandé pour beaucoup de raisons.&#160; Les premières qui me viennent à l&#039;esprit :</p><br /><p>- en cas d&#039;installation sur une plateforme mutualisée, on n&#039;a en général qu&#039;un seul utilisateur à dispo<br />- on peut également avoir un utilisateur qui n&#039;a pas le droit de créer d&#039;autres utilisateurs<br />- il est bien plus compliqué de générer tous les GRANT et REVOKE sur tous les objets (y compris à la colonne dans certains cas), voire de générer des clause de ROW LEVEL SECURITY que de gérer cela dans l&#039;applicatif<br />- pour une application fortement sollicitée, le fait d&#039;avoir un utilisateur dédié par utilisateur final ne scale pas.&#160; Vous devrez créer des milliers d&#039;utilisateurs ce qui ralentira globalement la base, et cela sera relativement incompatible avec un pooler de connexion</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2018-10-28T10:57:31Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28466#p28466</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Impossible de mettre un LOCK TABLE ou un SELECT FOR UPDATE]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28465#p28465"/>
+		<content type="html"><![CDATA[<p>Bonjour à vous 2 et merci de vos réponses.</p><br /><p>Je ne devais pas être réveillé lors de mon premier message : j&#039;ai un peu tout mélangé. Je suis navré de cette confusion, elle vous a forcément mal orientée.<br />Lorsque je parlais de </p><div class="codebox"><pre><code>SELECT * FROM matable WHERE colonne1 = &#039;quelque chose&#039; FOR UPDATE NOWAIT;
+
+et
+
+SELECT * FROM matable WHERE colonne1 = &#039;quelque chose d&#039;autre&#039;;</code></pre></div><p>Je voulais plutôt dire que si je fais depuis la session 1:</p><div class="codebox"><pre><code>SELECT * FROM matable WHERE colonne1 = &#039;quelque chose&#039; FOR UPDATE NOWAIT;</code></pre></div><p>et sur la session 2</p><div class="codebox"><pre><code>UPDATE matable SET colonne2 = &quot;blabla&quot; WHERE colonne1 = &#039;quelque choe&#039;</code></pre></div><p>La modification de la session 2 passait quand même.</p><br /><p>Mais comme je l&#039;ai dit dans l&#039;EDIT1, je pense que je me suis fait &quot;duper&quot; par pgAdmin : la session ouverte est la même quel que soit le nombre de page de l&#039;explorateur ouverte. Je pensais avoir ouvert plusieurs session mais non.</p><br /><p>Du coup, j&#039;ai fais l’essai avec une session sur pgAdmin et une via mon application : ça fonctionne bien ! Problème 2 : Résolu.<br />Par extension, j&#039;imagine que le problème 3 est du même tonneau; Je n&#039;ai cependant pas encore eu le temps de tester. A titre de question subsidiaire, qu&#039;advient-il des verrous (via LOCK ou SELECT FOR UPDATE) en cas de coupure brutale des processus (genre coupure de jus sur la machine cliente...) ?</p><br /><div class="quotebox"><cite>Rjuju a écrit&#160;:</cite><blockquote><div><p> 1.&#160; Il est en général préférable de gérer les autorisations dans l&#039;applicatif et de ne se connecter qu&#039;avec un seul utilisateur. De toutes façon, étant donné vos contraintes votre solution actuelle ne peut pas fonctionner à priori.</p></div></blockquote></div><p>Désolé, j&#039;ai pas tout compris <img src="http://forums.postgresql.fr/img/smilies/tongue.png" width="15" height="15" alt="tongue" /> <br />Ce mode de connexion (1 seul utilisateur avec LOGIN) est donc courant ? J&#039;en suis surpris avec une base qui gère les droits d&#039;accès, je pensais m&#039;appuyer dessus. Mais bon, du coup j&#039;ai pas le choix donc <img src="http://forums.postgresql.fr/img/smilies/roll.png" width="15" height="15" alt="roll" /><br />Mais pour la gestion des droits ? J&#039;ai testé un SET ROLE pour &quot;revenir&quot; à des droits utilisateur plus restreints et ça semble fonctionner. Est-ce que je me fourvoie ?</p><br /><p>En tout cas, je vous remercie pour vos retour. Je me sens moins seul <img src="http://forums.postgresql.fr/img/smilies/big_smile.png" width="15" height="15" alt="big_smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[ramirez22]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8315</uri>
+		</author>
+		<updated>2018-10-28T07:24:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28465#p28465</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Impossible de mettre un LOCK TABLE ou un SELECT FOR UPDATE]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28458#p28458"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>A titre de test, j&#039;ai essayé de me connecter avec 2 utilisateurs différents (avec le privilège LOGIN) pour vérifier si les verrous sont appliqués en fonction du current_user ou du session_user</p></div></blockquote></div><p>On peut vous donner tout de suite la réponse: ce lien entre utilisateur et verrouillage est une mauvaise direction.<br />Le verrouillage et les exclusions qui s&#039;ensuivent s&#039;entendent entre transactions.</p><p>Deux transactions concurrentes sont forcément dans des sessions différentes, mais qu&#039;elles soient ouvertes par le même login ou pas n&#039;a pas d&#039;importance particulière par rapport à toutes les questions relatives aux verrous.</p><p>Un autre fait structurant important est que les verrous acquis dans une transaction sont libérés automatiquement à la fin de la transaction, et ne peuvent pas être libérés avant.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2018-10-26T12:41:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28458#p28458</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Impossible de mettre un LOCK TABLE ou un SELECT FOR UPDATE]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28457#p28457"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><br /><p>1.&#160; Il est en général préférable de gérer les autorisations dans l&#039;applicatif et de ne se connecter qu&#039;avec un seul utilisateur.&#160; De toutes façon, étant donné vos contraintes votre solution actuelle ne peut pas fonctionner à priori.</p><br /><p>2. un SELECT ne modifie pas un enregistrement.&#160; Vous voulez à priori empêcher une lecture concurrente car vous allez modifier la ligne, mais il s&#039;agit d&#039;un problème différent.&#160; Pour cela il faudrait systématiquement mettre des clause FOR UPDATE aux select.&#160; Mais votre exemple ne marcherait pas car les clauses WHERE concernent deux lignes différentes.</p><br /><p>3. Un LOCK TABLE verrouille la table pour tout le monde excepté la connexion courate, quelquesoit l&#039;utilisateur connecté.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2018-10-26T10:37:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28457#p28457</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Impossible de mettre un LOCK TABLE ou un SELECT FOR UPDATE]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28456#p28456"/>
+		<content type="html"><![CDATA[<p>Bonjour.</p><p>Pour commencer, je suis autodidacte dans SQL, la programmation et évidemment PostgreSQL, ce qui risque de compliquer un peu vos réponses car il va falloir me parler dans un langage assez simpliste, désolé <img src="http://forums.postgresql.fr/img/smilies/tongue.png" width="15" height="15" alt="tongue" /></p><br /><p><span class="bbu">Le contexte :</span><br />PostgreSQL 10 installé sur une machine virtuelle Ubuntu Mate 18.04.1, elle même installée sur un windows 10 pro<br />Echanges avec la base via pgAdmin4, soit sur ubuntu, soit depuis la session windows (les 2 sont fonctionnels).<br />Une seule base de donnée créée dans le schéma PUBLIC, 12 tables, une vingtaines de fonctions pré-enregistrées.<br />Une vingtaine de personnes seront amenées à se connecter à la base, avec des fonctions différentes qui peuvent être résumées comme suit:<br />- Lecteur : accès en ... lecture <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /> + insertion dans une table (journal des erreurs)<br />- contributeur : lecture + modification de certaines tables + insertion dans d&#039;autres<br />- administrateur : full acces (il s&#039;agit de l&#039;administrateur de l&#039;application cliente, et non celui de la base PostgreSQL)<br />Si besoin de plus d&#039;infos, n&#039;hésitez pas à demander.</p><br /><p><span class="bbu">Les contraintes :</span><br />Il s&#039;agit d&#039;une version de test/dev avec laquelle je peux faire n&#039;importe quoi. Par contre, une fois la base déverminée, il faudra la transférer sur un serveur avec lequel j&#039;ai des contraintes impossible à faire fléchir. Je n&#039;ai droit qu&#039;à un seul utilisateur avec LOGIN (qu&#039;on va appeler LOGIN ci-dessous pour des raisons évidentes).</p><br /><p><span class="bbu">Le(s) problème(s) :</span></p><p>1 - Afin de ne pas donner non plus la totalité des droits aux futurs utilisateurs, j&#039;ai créé plusieurs rôle (avec les privilèges NOLOGIN et INHERIT). Afin de faciliter également la gestion des droits, j&#039;ai également créé des rôle &quot;groupe&quot; admin, contrib et lecteur auxquels j&#039;ai paramétré les autorisations (GRANT) et dont les membres sont les rôles utilisateur. Cependant, la connexion au serveur se fait toujours via l&#039;utilisateur LOGIN. <br />Donc pour réaliser l&#039;identification de mes utilisateurs, j&#039;ai pensé faire la connexion via l&#039;utilisateur LOGIN, contrôler dans une table &#039;utilisateur&#039; le login et le mot de passe de l&#039;accédant et si tout est OK, de faire un </p><div class="codebox"><pre><code>SET ROLE</code></pre></div><p>J&#039;ai fais le test, le current_user change bien (le session_user est toujours l&#039;utilisateur LOGIN) et les droits liés au rôle groupe sont bien appliqués (je perds par exemple le droit DELETE sur toutes les tables) donc tout va bien !<br />Est-ce que cela semble cohérent pour vous ou y a t&#039;il une meilleure méthode ?</p><br /><p>2 - Certaines modifications ne doivent pas pouvoir être concurrentes : un utilisateur ne doit pas pouvoir modifier un enregistrement pendant qu&#039;un autre le fait (c&#039;est à mon humble avis la priorité sur les SGBD). Or quand j&#039;ouvre 2 session avec LOGIN puis que je SET un rôle différent à chaque session (les current_user changent bien), et si je fais sur une session un</p><div class="codebox"><pre><code>SELECT * FROM matable WHERE colonne1 = &#039;quelque chose&#039; FOR UPDATE NOWAIT;</code></pre></div><p>je peux malgré tout faire, avec l&#039;autre session</p><div class="codebox"><pre><code>SELECT * FROM matable WHERE colonne1 = &#039;quelque chose d&#039;autre&#039;;</code></pre></div><p>L&#039;enregistrement est bien modifié par la deuxième session alors que j&#039;ai normalement un verrou sur l&#039;enregistrement.</p><br /><p>3 - Je ne vais pas détailler, mais j&#039;ai le même problème avec un LOCK TABLE.</p><br /><p>Comme si le verrou était posé non pas par le current_user, mais par le session_user.<br />J&#039;ai eu l&#039;occasion de voir avec un collègue qui lui travaille sur une base Oracle, chaque session est indépendante. En se connectant avec le même user et mot de passe, Oracle se base sur la session pour les verrous.<br />Toute aide pour m&#039;empêcher de m&#039;arracher les cheveux est la bienvenue</p><br /><p>[EDIT] A titre de test, j&#039;ai essayé de me connecter avec 2 utilisateurs différents (avec le privilège LOGIN) pour vérifier si les verrous sont appliqués en fonction du current_user ou du session_user, mais je n&#039;arrive pas à créer 2 sessions différents de pgadmin : à chaque fois, la modification de la connexion sur une page de pgAdmin entraine la modification de l&#039;autre page ... au secours !</p><p>[EDIT 2] Bon j&#039;avance&#160; un peu. A priori, il n&#039;est pas possible de faire un SELECT FOR UPDATE en dehors d&#039;une transaction BEGIN - COMMIT/ROLLBACK. Je vais creuser cette piste.</p>]]></content>
+		<author>
+			<name><![CDATA[ramirez22]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8315</uri>
+		</author>
+		<updated>2018-10-26T07:19:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28456#p28456</id>
+	</entry>
+</feed>

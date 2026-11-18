@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Optimisation filtre géo distance avec PostGIS]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=6134&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=6134"/>
+	<updated>2021-10-05T20:14:36Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=6134</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Optimisation filtre géo distance avec PostGIS]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32886#p32886"/>
+		<content type="html"><![CDATA[<p>Une vue matérialisée a un sens quand on veut précalculer certaines données, sans avoir besoin de les rafraichir fréquemment.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2021-10-05T20:14:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32886#p32886</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Optimisation filtre géo distance avec PostGIS]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32885#p32885"/>
+		<content type="html"><![CDATA[<p>Effectivement le jit=off améliore beaucoup les performances merci.</p><p>Dans quel contexte la vue matérialisée aurait-elle eu du sens ?</p>]]></content>
+		<author>
+			<name><![CDATA[andarius]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9404</uri>
+		</author>
+		<updated>2021-10-05T19:01:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32885#p32885</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Optimisation filtre géo distance avec PostGIS]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32884#p32884"/>
+		<content type="html"><![CDATA[<p>Ce qui vous coûte sur la première requête, c&#039;est l&#039;exécution de JIT. Il prend 819,9 ms pour une requête de 956,9 ms. Désactivez-le (jit=off) et ça devrait déjà aller mieux.</p><p>Et du coup, oubliez la vue matérialisée.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2021-10-05T16:37:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32884#p32884</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Optimisation filtre géo distance avec PostGIS]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32883#p32883"/>
+		<content type="html"><![CDATA[<p>Optimisation filtre géo distance avec PostGIS</p><br /><p>Bonjour! <br />Je suis en train d&#039;essayer d&#039;optimiser une requête PostGIS et j&#039;aurais voulu avoir quelques conseils/indications sur comment améliorer encore les performances.<br />Le but est de filtrer une table avec environ 800k items, afin d&#039;obtenir les éléments à moins de X km d&#039;un point (tous en France), et de calculer leur distance par rapport à ce point.</p><p>La table ressemble à ça:</p><div class="codebox"><pre><code>CREATE TABLE IF NOT EXISTS general.worker
+(
+    id        varchar(20) PRIMARY KEY,
+    location  point
+    ...
+);</code></pre></div><br /><p>Dans ce cas d&#039;exemple, j&#039;essaie de récupérer tous les éléments à moins de 5km d&#039;un point donné.</p><p><strong>=&gt; 1ère requête: </strong></p><div class="codebox"><pre><code>    select 
+    	id,
+    	ST_Distance(location::geometry, ST_Point(2.34, 48.85)) as distance
+	from general.worker
+	where ST_DWithin(
+		ST_Transform(ST_SetSRID(location::geometry, 4326), 2154),
+		ST_Transform(ST_SetSRID(ST_Point(2.34, 48.85), 4326), 2154),
+		5000) is True</code></pre></div><br /><p>Ce qui me donne l&#039;EXPLAIN suivant</p><div class="codebox"><pre class="vscroll"><code>&quot;Gather  (cost=1000.00..10204378.61 rows=88 width=8) (actual time=199.272..952.684 rows=32183 loops=1)&quot;
+&quot;  Output: (st_distance((location)::geometry, &#039;0101000000B81E85EB51B80240CDCCCCCCCC6C4840&#039;::geometry))&quot;
+&quot;  Workers Planned: 2&quot;
+&quot;  Workers Launched: 2&quot;
+&quot;  JIT for worker 0:&quot;
+&quot;    Functions: 4&quot;
+&quot;    Options: Inlining true, Optimization true, Expressions true, Deforming true&quot;
+&quot;    Timing: Generation 1.469 ms, Inlining 155.731 ms, Optimization 110.002 ms, Emission 67.503 ms, Total 334.705 ms&quot;
+&quot;  JIT for worker 1:&quot;
+&quot;    Functions: 4&quot;
+&quot;    Options: Inlining true, Optimization true, Expressions true, Deforming true&quot;
+&quot;    Timing: Generation 1.506 ms, Inlining 143.655 ms, Optimization 109.081 ms, Emission 49.523 ms, Total 303.766 ms&quot;
+&quot;  Buffers: shared hit=791 read=13298&quot;
+&quot;  -&gt;  Parallel Seq Scan on general.worker  (cost=0.00..10203369.81 rows=37 width=8) (actual time=317.516..861.207 rows=10728 loops=3)&quot;
+&quot;        Output: st_distance((location)::geometry, &#039;0101000000B81E85EB51B80240CDCCCCCCCC6C4840&#039;::geometry)&quot;
+&quot;        Filter: (st_dwithin(st_transform(st_setsrid((worker.location)::geometry, 4326), 2154), &#039;01010000206A08000021C9F8845FE223416E6108347F2C5A41&#039;::geometry, &#039;5000&#039;::double precision) IS TRUE)&quot;
+&quot;        Rows Removed by Filter: 283335&quot;
+&quot;        Buffers: shared hit=791 read=13298&quot;
+&quot;        Worker 0: actual time=415.216..832.513 rows=8414 loops=1&quot;
+&quot;          Buffers: shared hit=385 read=3708&quot;
+&quot;        Worker 1: actual time=338.313..828.633 rows=9486 loops=1&quot;
+&quot;          Buffers: shared hit=352 read=3946&quot;
+&quot;Planning Time: 19.797 ms&quot;
+&quot;JIT:&quot;
+&quot;  Functions: 12&quot;
+&quot;  Options: Inlining true, Optimization true, Expressions true, Deforming true&quot;
+&quot;  Timing: Generation 4.590 ms, Inlining 320.388 ms, Optimization 330.759 ms, Emission 164.167 ms, Total 819.903 ms&quot;
+&quot;Execution Time: 956.960 ms&quot;</code></pre></div><p><a href="https://ibb.co/WtkH31s" rel="nofollow"><span class="postimg"><img src="https://i.ibb.co/16r0nxb/query-1.png" alt="query-1.png" /></span></a></p><br /><p><strong>=&gt; 2e requête: </strong></p><p>Pour optimiser j&#039;ai tenté de créer une materialized view avec des indexes sur la location et de CLUSTER le tout.</p><div class="codebox"><pre><code>CREATE MATERIALIZED VIEW general.worker_geo AS
+(
+ select
+    id,
+    location,
+    ST_Transform(ST_SetSRID(location::geometry, 4326), 2154) as location_geom
+    from general.worker
+ );
+
+CREATE INDEX worker_geo_location_geom_index
+    ON general.worker_geo USING GIST(location_geom);
+
+CREATE UNIQUE INDEX worker_geo_worker_id_index
+    ON general.worker_geo (id);
+
+CLUSTER general.worker_geo USING worker_geo_location_geom_index;</code></pre></div><br /><p>Pour ensuite faire</p><div class="codebox"><pre><code>select 
+ST_Distance(location_geom, ST_Transform(ST_SetSRID(ST_Point(2.34, 48.85), 4326), 2154))
+from general.worker_geo w
+where ST_DWithin(
+	location_geom,
+	ST_Transform(ST_SetSRID(ST_Point(2.34, 48.85), 4326), 2154),
+	5000) is True</code></pre></div><p>Ce qui me donne l&#039;EXPLAIN suivant</p><div class="codebox"><pre class="vscroll"><code>Gather  (cost=1000.00..8740426.28 rows=84 width=8) (actual time=153.547..505.123 rows=29478 loops=1)
+&quot;  Output: (st_distance(location_geom, &#039;01010000206A08000021C9F8845FE223416E6108347F2C5A41&#039;::geometry))&quot;
+  Workers Planned: 2
+  Workers Launched: 2
+  JIT for worker 0:
+    Functions: 4
+&quot;    Options: Inlining true, Optimization true, Expressions true, Deforming true&quot;
+&quot;    Timing: Generation 1.156 ms, Inlining 118.552 ms, Optimization 94.700 ms, Emission 43.580 ms, Total 257.987 ms&quot;
+  JIT for worker 1:
+    Functions: 4
+&quot;    Options: Inlining true, Optimization true, Expressions true, Deforming true&quot;
+&quot;    Timing: Generation 1.289 ms, Inlining 117.147 ms, Optimization 90.090 ms, Emission 42.265 ms, Total 250.791 ms&quot;
+  Buffers: shared read=9115 written=1
+  -&gt;  Parallel Seq Scan on general.worker_geo w  (cost=0.00..8739417.88 rows=35 width=8) (actual time=220.390..403.979 rows=9826 loops=3)
+&quot;        Output: st_distance(location_geom, &#039;01010000206A08000021C9F8845FE223416E6108347F2C5A41&#039;::geometry)&quot;
+&quot;        Filter: (st_dwithin(w.location_geom, &#039;01010000206A08000021C9F8845FE223416E6108347F2C5A41&#039;::geometry, &#039;5000&#039;::double precision) IS TRUE)&quot;
+        Rows Removed by Filter: 269404
+        Buffers: shared read=9115 written=1
+        Worker 0: actual time=257.416..364.960 rows=8246 loops=1
+          Buffers: shared read=2163
+        Worker 1: actual time=250.417..363.704 rows=8226 loops=1
+          Buffers: shared read=2272
+Planning Time: 40.821 ms
+JIT:
+  Functions: 12
+&quot;  Options: Inlining true, Optimization true, Expressions true, Deforming true&quot;
+&quot;  Timing: Generation 3.848 ms, Inlining 248.722 ms, Optimization 269.845 ms, Emission 140.212 ms, Total 662.626 ms&quot;
+Execution Time: 508.428 ms</code></pre></div><br /><p><a href="https://ibb.co/5nscG1M" rel="nofollow"><span class="postimg"><img src="https://i.ibb.co/vQLzVcw/query-2.png" alt="query-2.png" /></span></a></p><br /><p>Est-il possible d&#039;améliorer encore les performances ?</p><p>Merci!</p>]]></content>
+		<author>
+			<name><![CDATA[andarius]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9404</uri>
+		</author>
+		<updated>2021-10-05T15:57:38Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32883#p32883</id>
+	</entry>
+</feed>

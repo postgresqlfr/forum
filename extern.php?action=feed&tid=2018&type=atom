@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / problème d'insertion avec RETURNING rowid]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2018&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2018"/>
+	<updated>2012-05-11T08:07:53Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2018</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  problème d'insertion avec RETURNING rowid]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13741#p13741"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>flo a écrit&#160;:</cite><blockquote><div><p>Mais pourquoi donc supprimer les trous? En avez-vous réellement besoin?<br />Comme dit rjuju, dans 99% des cas, on laisse la séquence faire son travail (elle garantit l&#039;unicité, pas l&#039;absence de trous)<br />Si on a vraiment besoin de ne pas avoir de trous, on fait autrement (mais attention alors à bien gérer la concurrence, et ne pas oublier la possibilité d&#039;un rollback)</p></div></blockquote></div><p>Non, pas du tout si ce n&#039;est que j&#039;ai le sentiment que la séquence automatique a buggé au moins une fois justement en remplaçant un trou.</p>]]></content>
+		<author>
+			<name><![CDATA[unbewusst]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1641</uri>
+		</author>
+		<updated>2012-05-11T08:07:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13741#p13741</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  problème d'insertion avec RETURNING rowid]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13721#p13721"/>
+		<content type="html"><![CDATA[<p>Mais pourquoi donc supprimer les trous? En avez-vous réellement besoin?<br />Comme dit rjuju, dans 99% des cas, on laisse la séquence faire son travail (elle garantit l&#039;unicité, pas l&#039;absence de trous)<br />Si on a vraiment besoin de ne pas avoir de trous, on fait autrement (mais attention alors à bien gérer la concurrence, et ne pas oublier la possibilité d&#039;un rollback)</p>]]></content>
+		<author>
+			<name><![CDATA[flo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=216</uri>
+		</author>
+		<updated>2012-05-10T08:07:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13721#p13721</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  problème d'insertion avec RETURNING rowid]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13720#p13720"/>
+		<content type="html"><![CDATA[<p>Un vacuum permettra de réutiliser de l&#039;espace vide dans la table mais ne changera jamais les données de la table.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2012-05-10T07:53:02Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13720#p13720</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  problème d'insertion avec RETURNING rowid]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13719#p13719"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>Postgres.0 a écrit&#160;:</cite><blockquote><div><p>Pour quoi tu ne fais pas un VACUUM.</p></div></blockquote></div><p>Ben, je viens de le faire :</p><div class="codebox"><pre><code>      $sql=&#039;VACUUM VERBOSE ANALYZE items;&#039;;
+      echo &quot;$sql&lt;br /&gt;&quot;;
+      $ret=$db-&gt;exec($sql);
+      if($ret){
+        while($row=$ret-&gt;fetch()){
+          print_r($row);
+      	  echo &quot;&lt;br /&gt;&quot;;
+        }
+      }</code></pre></div><p>J&#039;y ai même ajouté une réindexation :</p><div class="codebox"><pre><code>      $sql=&#039;REINDEX TABLE items;&#039;;
+      echo &quot;$sql&lt;br /&gt;&quot;;
+      $ret=$db-&gt;exec($sql);
+      if($ret){
+        while($row=$ret-&gt;fetch()){
+          print_r($row);
+      	  echo &quot;&lt;br /&gt;&quot;;
+        }
+      }</code></pre></div><p>Résultat décevant : rien de neuf, j&#039;ai toujours des trous, mon &quot;rowid&quot; passe de 26 à 40...</p>]]></content>
+		<author>
+			<name><![CDATA[unbewusst]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1641</uri>
+		</author>
+		<updated>2012-05-10T07:27:45Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13719#p13719</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  problème d'insertion avec RETURNING rowid]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13659#p13659"/>
+		<content type="html"><![CDATA[<p>Bonne idée, je vais regarder ça !<br />Merci !</p>]]></content>
+		<author>
+			<name><![CDATA[unbewusst]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1641</uri>
+		</author>
+		<updated>2012-05-03T13:44:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13659#p13659</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  problème d'insertion avec RETURNING rowid]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13658#p13658"/>
+		<content type="html"><![CDATA[<p>Pour quoi tu ne fais pas un VACUUM.</p>]]></content>
+		<author>
+			<name><![CDATA[Postgres.0]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1310</uri>
+		</author>
+		<updated>2012-05-03T13:11:38Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13658#p13658</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  problème d'insertion avec RETURNING rowid]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13580#p13580"/>
+		<content type="html"><![CDATA[<p>Disons que dans la liste des IDs il y avait un trou à 8.<br />Après une insertion psql avait occupé ce trou, du coup à l&#039;insertion suivante donc ID à 9, il y avait collision d&#039;ID car cet ID était occupé.<br />Donc j&#039;ai fait un setval de la séquence au max(id) et ça roule.<br />Mais aussi j&#039;utilisais la base -simultanément- par php, ou ruby ET en CLI (Command Line Interface).<br />Depuis j&#039;ai nettoyé mon code SQL qui provenait d&#039;une précédente adaptation à SQLite.</p>]]></content>
+		<author>
+			<name><![CDATA[unbewusst]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1641</uri>
+		</author>
+		<updated>2012-04-20T12:05:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13580#p13580</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  problème d'insertion avec RETURNING rowid]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13579#p13579"/>
+		<content type="html"><![CDATA[<p>Je ne comprends pas bien : quel problème avez-vous vu sur votre séquence?<br />Que veut dire que votre database était &quot;ouverte en CLI&quot;?</p>]]></content>
+		<author>
+			<name><![CDATA[flo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=216</uri>
+		</author>
+		<updated>2012-04-20T08:29:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13579#p13579</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  problème d'insertion avec RETURNING rowid]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13577#p13577"/>
+		<content type="html"><![CDATA[<p>Oui, je suis tout à fait d&#039;accord.<br />Si j&#039;ai manipulé ma &#039;items_rowid_seq&#039; c&#039;est parce que j&#039;ai cru (?) y voir un problème.<br />Maintenant, après quelques de dilétion / insertion, ça roule, même avec des trous dans le rowid.<br />Du coup, je ne pige pas pourquoi ça déconnait avant...<br />Peut-être parce que ma database était ouverte en CLI ?</p>]]></content>
+		<author>
+			<name><![CDATA[unbewusst]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1641</uri>
+		</author>
+		<updated>2012-04-19T15:37:50Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13577#p13577</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  problème d'insertion avec RETURNING rowid]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13576#p13576"/>
+		<content type="html"><![CDATA[<p>Bonjour.<br />Sauf rares exceptions, il n&#039;est pas nécessaire de modifier à la main la valeur d&#039;une séquence pour enlever les &quot;trous&quot; qui peuvent survenir à la suite d&#039;un delete dans la table associée. Ce genre de traitement amène de nombreux problèmes à cause des transactions concurrentes.</p><p>Le plus simple et le plus sur est de laisser la séquence faire son travail, et de s&#039;assurer que toutes les insertions dans cette table passent par la séquence.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2012-04-19T15:29:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13576#p13576</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[problème d'insertion avec RETURNING rowid]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13575#p13575"/>
+		<content type="html"><![CDATA[<p>j&#039;ai une base &#039;items&#039; où je supprime des lignes, ce qui crée des trous dans la succession de ma séquence rowid.<br />et je ne parviens pas à m&#039;en dépatouiller.</p><p>pourtant, je sélection le max(rowid) et je l&#039;attribue à ma séquence &#039;items_rowid_seq&#039; si et seulement si last_value de items_rowid_seq est inférieur à max(rowid).</p><p>le code PHP :</p><div class="codebox"><pre class="vscroll"><code>        $max_rowid=-1;
+        $sql=&quot;SELECT MAX(rowid) FROM items;&quot;;
+        $ret=$db-&gt;query($sql);
+        while($row=$ret-&gt;fetch()){
+          $max_rowid=$row[&#039;max&#039;];
+        }
+        $last_value=-1;
+        $sql=&quot;SELECT last_value FROM items_rowid_seq;&quot;;
+        $ret=$db-&gt;query($sql);
+        while($row=$ret-&gt;fetch()){
+          $last_value=$row[&#039;last_value&#039;];
+        }
+        if($last_value&lt;$max_rowid){
+          $sql=&quot;SELECT setval(&#039;items_rowid_seq&#039;, max(rowid)) FROM items;&quot;;
+          $ret=$db-&gt;query($sql);
+          while($row=$ret-&gt;fetch()){
+            $last_value=$row[&#039;setval&#039;];
+          }
+          if($last_value&lt;$max_rowid){
+            // générer une erreur
+          }
+        }
+        $rowid=-1;
+        $sql=&quot;INSERT INTO items (ctime, [...], infos) VALUES (
+             &#039;&quot;.$dat.&quot;&#039;, &#039;&quot;.$dat.&quot;&#039;,  [...]&#039;, &#039;&quot;.str2sql(quoteAsAre($_GET[&quot;infos&quot;])).&quot;&#039;) RETURNING rowid;&quot;;
+        $ret=$db-&gt;query($sql);
+	while($row=$ret-&gt;fetch()){
+          $rowid=$row[&#039;rowid&#039;];
+	}</code></pre></div><p>Pour PHP, c&#039;est&#160; $ret qui n&#039;est pas un objet, je ne peux donc faire $ret-&gt;fetch().</p><p>Une idée pour me dépatouiller ?<br />NB : rowid est de type :<br />CREATE TABLE items (rowid SERIAL PRIMARY KEY, ...</p>]]></content>
+		<author>
+			<name><![CDATA[unbewusst]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1641</uri>
+		</author>
+		<updated>2012-04-19T14:48:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13575#p13575</id>
+	</entry>
+</feed>

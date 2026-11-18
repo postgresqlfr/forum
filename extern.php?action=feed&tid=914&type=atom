@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Syntax error sur "CURSOR"]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=914&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=914"/>
+	<updated>2010-07-21T17:32:05Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=914</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Syntax error sur "CURSOR"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5695#p5695"/>
+		<content type="html"><![CDATA[<p>Bien, ça y est, j&#039;ai l&#039;explication&#160; : <br />La doc française n&#039;est pas à jour par rapport à la doc anglaise sur l&#039;exemple en question. <br />Dans la&#160; doc française il y a :<br />&#160; &#160; FOR referrer_key IN SELECT * FROM cs_referrer_keys ORDER BY try_order LOOP</p><p>et dans l&#039;anglaise :<br />&#160; &#160; FOR referrer_key IN referrer_keys LOOP</p>]]></content>
+		<author>
+			<name><![CDATA[flo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=216</uri>
+		</author>
+		<updated>2010-07-21T17:32:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5695#p5695</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Syntax error sur "CURSOR"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5688#p5688"/>
+		<content type="html"><![CDATA[<p>Ah ok. Oui, en 9.0 possible. J&#039;ai testé en 8.4.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-07-21T14:03:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5688#p5688</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Syntax error sur "CURSOR"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5686#p5686"/>
+		<content type="html"><![CDATA[<p>Ma première tentative :<br />(j&#039;ai juste remplacé la déclaration du curseur)</p><p>CREATE OR REPLACE FUNCTION cs_update_referrer_type_proc() RETURNS void AS $func$<br />DECLARE<br />&#160; &#160; referrer_keys CURSOR IS<br />&#160; &#160; &#160; &#160; SELECT * FROM cs_referrer_keys<br />&#160; &#160; &#160; &#160; ORDER BY try_order;<br />&#160; &#160; func_body text;<br />&#160; &#160; func_cmd text;<br />BEGIN <br />&#160; &#160; func_body := &#039;BEGIN&#039; ;</p><p>&#160; &#160; FOR referrer_key IN SELECT * FROM cs_referrer_keys ORDER BY try_order LOOP<br />&#160; &#160; &#160; &#160; func_body := func_body ||<br />&#160; &#160; &#160; &#160; &#039; IF v_&#039; || referrer_key.kind<br />&#160; &#160; &#160; &#160; || &#039; LIKE &#039; || quote_literal(referrer_key.key_string)<br />&#160; &#160; &#160; &#160; || &#039; THEN RETURN &#039; || quote_literal(referrer_key.referrer_type)<br />&#160; &#160; &#160; &#160; || &#039;; END IF;&#039; ;<br />&#160; &#160; END LOOP; </p><p>&#160; &#160; func_body := func_body || &#039; RETURN NULL; END;&#039;;</p><p>&#160; &#160; func_cmd :=<br />&#160; &#160; &#160; &#160; &#039;CREATE OR REPLACE FUNCTION cs_find_referrer_type(v_host varchar,<br />&#160; &#160; &#160; &#160; v_domain varchar,<br />&#160; &#160; &#160; &#160; v_url varchar) <br />&#160; &#160; &#160; &#160; RETURNS varchar AS &#039;<br />&#160; &#160; &#160; &#160; || quote_literal(func_body)<br />&#160; &#160; &#160; &#160; || &#039; LANGUAGE plpgsql;&#039; ;</p><p>&#160; &#160; &#160; &#160; EXECUTE func_cmd;<br />END;<br />$func$ LANGUAGE plpgsql;</p><p>Et le message : </p><p>ERREUR:&#160; la variable d&#039;une boucle sur des lignes doit être une variable de type<br />RECORD ou ROW, ou encore une liste de variables scalaires<br />LINE 11:&#160; &#160; &#160;FOR referrer_key IN SELECT * FROM cs_referrer_keys ORDER...<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;^</p><br /><p>Donc j&#039;ai modifié le FOR :</p><br /><p>FOR referrer_key IN referrer_keys LOOP</p><br /><br /><p>Je vais de ce pas voir ton patch dans l&#039;historique de la mailing-list...</p><br /><p>PS : c&#039;est sur une version 9.0 beta 3</p>]]></content>
+		<author>
+			<name><![CDATA[flo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=216</uri>
+		</author>
+		<updated>2010-07-21T13:57:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5686#p5686</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Syntax error sur "CURSOR"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5676#p5676"/>
+		<content type="html"><![CDATA[<p>Le reste du code passe, j&#039;ai réussi à créer la fonction, et la syntaxe du FOR m&#039;a l&#039;air correcte. J&#039;ai déjà posté un patch pour la déclaration du curseur.</p><p>Si tu as plus précis sur ce que tu lui reproches… <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-07-21T13:13:02Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5676#p5676</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Syntax error sur "CURSOR"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5674#p5674"/>
+		<content type="html"><![CDATA[<p>Il est même bien faux l&#039;exemple (le FOR n&#039;est pas bon non plus). Je l&#039;ai testé et réécrit, mais là je peux pas poster de patch (suis au boulot <img src="http://forums.postgresql.fr/img/smilies/sad.png" width="15" height="15" alt="sad" /> ).</p><p>Tu l&#039;as fait, Marc?</p>]]></content>
+		<author>
+			<name><![CDATA[flo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=216</uri>
+		</author>
+		<updated>2010-07-21T13:06:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5674#p5674</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Syntax error sur "CURSOR"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5672#p5672"/>
+		<content type="html"><![CDATA[<p>A vot&#039; service m&#039;sieurs !</p><p>Avec le temps que vous passez sur le forum pour nous aider, c&#039;est un minimum <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[Tinaby]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=753</uri>
+		</author>
+		<updated>2010-07-21T12:46:21Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5672#p5672</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Syntax error sur "CURSOR"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5670#p5670"/>
+		<content type="html"><![CDATA[<p>Wow. Et c&#039;est même faux dans la version originale! Bon, on n&#039;a plus qu&#039;à soumettre un patch.</p><p>Merci de l&#039;avoir relevé, soit dit en passant.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-07-21T12:34:03Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5670#p5670</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Syntax error sur "CURSOR"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5669#p5669"/>
+		<content type="html"><![CDATA[<p>Ah bah ui, mais forcément si y a des pièges dans la doc !</p><p><a href="http://docs.postgresqlfr.org/8.4/plpgsql-porting.html" rel="nofollow">http://docs.postgresqlfr.org/8.4/plpgsql-porting.html</a></p><p>--&gt;</p><p>CREATE OR REPLACE FUNCTION cs_update_referrer_type_proc() RETURNS void AS $func$<br />DECLARE<br />&#160; &#160; CURSOR referrer_keys IS<br />&#160; &#160; &#160; &#160; SELECT * FROM cs_referrer_keys<br />&#160; &#160; &#160; &#160; ORDER BY try_order;<br />&#160; &#160; func_body text;<br />&#160; &#160; func_cmd text;<br />BEGIN</p><br /><p>Ceci dit, ça marche, merci beaucoup ^^</p>]]></content>
+		<author>
+			<name><![CDATA[Tinaby]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=753</uri>
+		</author>
+		<updated>2010-07-21T12:28:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5669#p5669</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Syntax error sur "CURSOR"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5668#p5668"/>
+		<content type="html"><![CDATA[<p>la syntaxe de déclaration d&#039;une variable c&#039;est <br />variable type</p><p>Quand vous écrivez <br />CURSOR curseur, c&#039;est donc à l&#039;envers, la syntaxe est <br />curseur CURSOR</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-07-21T12:23:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5668#p5668</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Syntax error sur "CURSOR"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5664#p5664"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>j&#039;ai un soucis au niveau d&#039;une fonction. En effet, Postgres me renvoi une erreur de syntaxe au niveau de la déclaration du &quot;cursor&quot;, et ce qu&#039;il soit au début où à la fin de mon DECLARE (j&#039;en déduis donc que c&#039;est bien lui le problème).</p><p>A priori la seule chose notable que j&#039;ai faite était d&#039;ajouter le plpgsql aux languages de ma base. Ai-je oublié quelque chose ?</p><p>Voici la déclaration de la fonction et de ses variables :</p><p>CREATE OR REPLACE FUNCTION ma_fonction (var integer) RETURNS void AS $$<br />DECLARE<br />&#160; var1 integer;<br />&#160; var2 integer;<br />&#160; var3 integer;<br />&#160; CURSOR curseur IS<br />&#160; &#160; &#160;SELECT champ FROM table<br />&#160; &#160; &#160;ORDER BY champ;<br />BEGIN<br />...<br />END ma_fonction;<br />$$ language plpgsql</p><p>J&#039;ai la même erreur avec :<br />CREATE OR REPLACE FUNCTION ma_fonction (var integer) RETURNS void AS $$<br />DECLARE<br />&#160; CURSOR curseur IS<br />&#160; &#160; &#160;SELECT champ FROM table<br />&#160; &#160; &#160;ORDER BY champ;<br />&#160; var1 integer;<br />&#160; var2 integer;<br />&#160; var3 integer;<br />BEGIN<br />...<br />END ma_fonction;<br />$$ language plpgsql</p><p>Je précise que la fonction est créée dans un script shell sous la forme :</p><p>psql ma_base &lt;&lt; %<br />[plpgsql]<br />%</p><p>Merci d&#039;avance !</p>]]></content>
+		<author>
+			<name><![CDATA[Tinaby]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=753</uri>
+		</author>
+		<updated>2010-07-21T12:10:45Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5664#p5664</id>
+	</entry>
+</feed>

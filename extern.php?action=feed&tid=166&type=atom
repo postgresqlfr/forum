@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / [PL/PGSQL] Fonction qui crée une fonction, gestion des Dollars...]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=166&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=166"/>
+	<updated>2009-02-12T13:58:25Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=166</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [PL/PGSQL] Fonction qui crée une fonction, gestion des Dollars...]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=721#p721"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>gleu a écrit&#160;:</cite><blockquote><div><p>Pour ce que ça vaut, j&#039;ai corrigé la fonction en incluant le code dans une variable de type text. Ça me donne ceci :</p><p>....</p><p>et ça fonctionne pour moi.</p></div></blockquote></div><p>Merci de t&#039;être penché sur mon problème, mais le renommage du premier record a suffit a résoudre mon problème.</p>]]></content>
+		<author>
+			<name><![CDATA[Gildas]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7</uri>
+		</author>
+		<updated>2009-02-12T13:58:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=721#p721</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [PL/PGSQL] Fonction qui crée une fonction, gestion des Dollars...]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=720#p720"/>
+		<content type="html"><![CDATA[<p>Pour ce que ça vaut, j&#039;ai corrigé la fonction en incluant le code dans une variable de type text. Ça me donne ceci :</p><div class="codebox"><pre class="vscroll"><code>CREATE FUNCTION PatchDatabase() RETURNS void AS
+$$
+DECLARE
+  record RECORD;
+  recordVersion RECORD;
+
+  create_my_function text;
+  
+  BUILD_VERSION integer :=      3321;
+  FULL_VERSION  varchar := &#039;1.0.3321&#039;;
+  
+  BEGIN    
+    SELECT * INTO record FROM versions WHERE &quot;number&quot;&gt;=BUILD_VERSION;
+    IF record IS NULL THEN
+      BEGIN
+        create_my_function := $create_my_function$
+        CREATE OR REPLACE FUNCTION my_function(channelid integer)
+          RETURNS SETOF record AS
+        $BODY$
+        DECLARE
+            chain_key INTEGER;
+            chain_id INTEGER;
+            record RECORD;
+        BEGIN
+            FOR chain_id IN SELECT id_acq_chain FROM channels, acq_chains
+WHERE channels.key_acq_chain = acq_chains.key_acq_chain and id_channel=$1
+ORDER BY channels.date_modif, acq_chains.date_modif DESC LIMIT 1
+            LOOP
+                SELECT * INTO record FROM acq_chains WHERE
+id_acq_chain=chain_id ORDER BY date_modif DESC LIMIT 1;
+                RETURN NEXT record;
+           END LOOP;
+            RETURN;
+        END
+        $BODY$
+          LANGUAGE &#039;plpgsql&#039; VOLATILE SECURITY DEFINER COST 100 ROWS 1
+        $create_my_function$;
+        EXECUTE create_my_function;
+
+        RETURN;
+        EXCEPTION WHEN unique_violation THEN
+      END;
+    END IF;
+  END;
+$$
+LANGUAGE &#039;plpgsql&#039;;</code></pre></div><p>et ça fonctionne pour moi.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2009-02-12T13:09:52Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=720#p720</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [PL/PGSQL] Fonction qui crée une fonction, gestion des Dollars...]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=718#p718"/>
+		<content type="html"><![CDATA[<p>C&#039;est bon j&#039;ai trouvé l&#039;erreur... </p><p>En fait le message renvoyé n&#039;est pas trop clair, je me suis attardé sur le fameux &#039;$1&#039; de ma fonction alors que le problème vient de la variable record de la fonction PatchDatabase qui est aussi utilisée dans la fonction my_function.</p><p>Donc on a deux fois la même variable, pas bien... J&#039;ai donc renommé la variable de la fonction PatchDatabase et cela fonctionne...</p><p>Désolé ! <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[Gildas]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7</uri>
+		</author>
+		<updated>2009-02-12T10:39:00Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=718#p718</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[[PL/PGSQL] Fonction qui crée une fonction, gestion des Dollars...]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=717#p717"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;ai de nombreuses bases de versions différentes, que je dois mettre a jour, la mise a jour se fait via l&#039;exécution d&#039;une fonction PlPgsql seulement si la version de la base est antérieure à la version du patch, ceci assure donc que les bases mises à jour aient tous les patchs passés, et ceci quelque soit la version.</p><p>Ex : J&#039;ai 3 patchs a passer sur mes bases...<br />&#160; &#160; &#160;- Base a en version 1.0 -&gt; passage des patchs 1, 2 et 3<br />&#160; &#160; &#160;- Base b en version 1.0 patch 2 -&gt; passage du patch 3 uniquement<br />&#160; &#160; &#160;- Base c en version 1.0 patch 3 -&gt; passage d&#039;aucun patch<br />&#160; &#160; &#160;- Base d en version 1.0 patch 1 -&gt; passage des patchs 2 et 3</p><p>J&#039;espere que c&#039;est clair désormais... <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>Bon maintenant, je vais exposer le réel problème rencontré. Le patch est réalisé via une fonction PlPgsql, qui elle meme peut mettre a jour ou créer des fonctions PlPgsql... Les fonctions Plpgsql contentant des paramètres ne sont pas gérables du fait que le Dollar ($) utilisé pour les parametres dans les fonctions ne passe pas lors de l&#039;exécution du patch...</p><p>Coment utiliser le Dollar dans une fonction PlPgsql qui se trouve dans une fonction PlPgsqL ?</p><p>Comment reproduire la chose ?</p><p>Tout d&#039;abord créer la table permettant de gérer le versionning...</p><div class="codebox"><pre><code>CREATE TABLE versions
+(
+  id_version character varying(16) NOT NULL,
+  commands character varying,
+  &quot;number&quot; integer,
+  CONSTRAINT versions_pkey PRIMARY KEY (id_version)
+)
+WITH (OIDS=FALSE);
+
+INSERT INTO versions(id_version, commands, &quot;number&quot;) VALUES (&#039;1.0.3211&#039;, &#039;&#039;, 3211);</code></pre></div><p>On voit que cette bases est versionnée 1.0.3211</p><p>Ensuite essayer de passer le patch 1.0.3221... bonne chance... <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><div class="codebox"><pre class="vscroll"><code>---------------------------------------------------------
+---                DROP PREVIOUS PATCH                ---
+---------------------------------------------------------
+DROP FUNCTION IF EXISTS PatchDatabase();
+
+---------------------------------------------------------
+---                   PREPARE PATCH                   ---
+---------------------------------------------------------
+CREATE FUNCTION PatchDatabase() RETURNS void AS
+$$
+DECLARE
+  record RECORD;
+  recordVersion RECORD;
+  
+  BUILD_VERSION integer :=      3321;
+  FULL_VERSION  varchar := &#039;1.0.3321&#039;;
+  
+  BEGIN	
+    SELECT * INTO record FROM versions WHERE &quot;number&quot;&gt;=BUILD_VERSION;
+    IF record IS NULL THEN
+      BEGIN
+	    CREATE OR REPLACE FUNCTION my_function(channelid integer)
+          RETURNS SETOF record AS
+        $BODY$
+        DECLARE
+            chain_key INTEGER;
+            chain_id INTEGER;
+            record RECORD;
+        BEGIN
+            FOR chain_id IN SELECT id_acq_chain FROM channels, acq_chains WHERE channels.key_acq_chain = acq_chains.key_acq_chain and id_channel=$1 ORDER BY channels.date_modif, acq_chains.date_modif DESC LIMIT 1
+            LOOP
+                SELECT * INTO record FROM acq_chains WHERE id_acq_chain=chain_id ORDER BY date_modif DESC LIMIT 1;
+                RETURN NEXT record;
+           END LOOP;
+            RETURN;
+        END
+        $BODY$
+          LANGUAGE &#039;plpgsql&#039; VOLATILE SECURITY DEFINER COST 100 ROWS 1;
+
+	    RETURN;
+	    EXCEPTION WHEN unique_violation THEN
+	  END;
+    END IF;
+  END;
+$$
+LANGUAGE &#039;plpgsql&#039;;
+
+---------------------------------------------------------
+---                   LAUNCH PATCH                    ---
+---------------------------------------------------------
+SELECT * FROM PatchDatabase();</code></pre></div><p>Le résultat de l&#039;exécution de ce patch est</p><div class="codebox"><pre><code>ERROR: syntax error at or near &quot;$1&quot;
+État SQL :42601
+Contexte : SQL statement in PL/PgSQL function &quot;patchdatabase&quot; near line 28</code></pre></div><p>Donc pas top... Comment utiliser le dollar ?</p><p>D&#039;avance Merci...</p>]]></content>
+		<author>
+			<name><![CDATA[Gildas]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7</uri>
+		</author>
+		<updated>2009-02-12T09:46:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=717#p717</id>
+	</entry>
+</feed>

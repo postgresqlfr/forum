@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Utilisation d'un retour fonction dans un array qui ne fonctionne pas]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4452&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4452"/>
+	<updated>2017-11-20T19:38:53Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4452</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Utilisation d'un retour fonction dans un array qui ne fonctionne pas]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26389#p26389"/>
+		<content type="html"><![CDATA[<p>Le problème vient du fait que la fonction n&#039;est pas complète, et que votre gestion de la variable i est fausse: si vous voulez accéder aux éléments de v_test2, il faut dans le LOOP boucler sur les indices du tableau.</p><div class="codebox"><pre><code>create or replace function test() returns void language plpgsql as
+$$
+DECLARE
+v_test2 text[];
+tab_couple varchar[] := ARRAY[&#039;A&#039;,&#039;B&#039;,&#039;C&#039;];
+i int;
+
+BEGIN
+      FOR v_test2
+        IN 
+        SELECT * FROM &quot;powerset&quot;(tab_couple)
+        
+        LOOP
+                IF array_length(v_test2,1) IS NOT NULL -- not empty array
+                THEN
+                        FOR i IN 1 .. array_length(v_test2,1)
+                        LOOP
+                                RAISE NOTICE &#039;%:TEST : %&#039;, i,v_test2[i];
+                        END LOOP;
+                ELSE
+                        RAISE NOTICE &#039;Empty array&#039;;
+                END IF;
+        
+        END LOOP;
+
+END;
+$$;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2017-11-20T19:38:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26389#p26389</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Utilisation d'un retour fonction dans un array qui ne fonctionne pas]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26388#p26388"/>
+		<content type="html"><![CDATA[<p>Bonjour à toutes et à tous,</p><p>Je cherche à utiliser une fonction recursive qui fonctionne correctement lorsque je fais un simple select, mais pas quand je l&#039;insère dans un bloc de fonction.</p><p>La fonction est powerset trouvé sur : <a href="https://www.postgresql.org/message-id/20060924054759.GA71934%40winnie.fuhr.org" rel="nofollow">https://www.postgresql.org/message-id/2 … e.fuhr.org</a></p><br /><br /><div class="codebox"><pre><code>SELECT * FROM powerset2(ARRAY[&#039;A&#039;,&#039;B&#039;,&#039;C&#039;]);</code></pre></div><div class="codebox"><pre><code>...
+DECLARE
+v_test2 text[];
+tab_couple varchar[] := ARRAY[&#039;A&#039;,&#039;B&#039;,&#039;C&#039;];
+
+BEGIN
+      FOR v_test2
+	IN 
+	SELECT * FROM &quot;powerset2&quot;(tab_couple)
+	
+	LOOP
+		RAISE NOTICE &#039;%:TEST : %&#039;, i,v_test2[i];
+		i := i + 1;
+	
+	END LOOP;
+
+END;</code></pre></div><p>Cela fonctionne très bien en SELECT standard, mais lors de l&#039;intégration dans un bloc pgSQL cela ne fonctionne plus : je n&#039;arrive pas à avoir l&#039;ensemble des résultats, j&#039;ai juste :</p><div class="codebox"><pre><code>NOTICE:  1:TEST : A
+NOTICE:  2:TEST : &lt;NULL&gt;
+NOTICE:  3:TEST : &lt;NULL&gt;
+NOTICE:  4:TEST : &lt;NULL&gt;
+NOTICE:  5:TEST : &lt;NULL&gt;
+NOTICE:  6:TEST : &lt;NULL&gt;
+NOTICE:  7:TEST : &lt;NULL&gt;</code></pre></div><p>Au lieu de :</p><div class="codebox"><pre><code>&quot;{A}&quot;
+&quot;{B}&quot;
+&quot;{A,B}&quot;
+&quot;{C}&quot;
+&quot;{A,C}&quot;
+&quot;{B,C}&quot;
+&quot;{A,B,C}&quot;</code></pre></div><p>Je demande donc votre aide, car je suis sec sur le sujet... ! J&#039;ai l&#039;impression qu&#039;il y a un problème de déclaration de variable et d&#039;affectation... !</p><p>Merci d&#039;avance ...</p>]]></content>
+		<author>
+			<name><![CDATA[Soni03]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7819</uri>
+		</author>
+		<updated>2017-11-20T16:43:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26388#p26388</id>
+	</entry>
+</feed>

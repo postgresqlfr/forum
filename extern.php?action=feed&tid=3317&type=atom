@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Gérer par le serveur PostgreSQL des fichiers stockés sur disque]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3317&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3317"/>
+	<updated>2015-01-22T21:22:28Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3317</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Gérer par le serveur PostgreSQL des fichiers stockés sur disque]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21393#p21393"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Il est exact qu&#039;Oracle offre ces fonctionnalités avec les BFILE, avec PostgreSQL on avait l&#039;habitude de gérer cela avec les LO (Larges Object) qui offrent toutes les fonctionnalités permettant d&#039;implémenter ce que vous voulez faire. Comme sous Oracle, leur manipulation nécessite beaucoup de code. Le jour où les DATALINK de la norme SQL/MED seront implémentés il y a des chances qu&#039;on ai quelque chose de plus simple mais en attendant il n&#039;y a que ça pour du stockage externe géré en base.</p><p>Reste que l&#039;idée ici n&#039;est pas d&#039;orienter vers des solutions propriétaires mais d&#039;essayer de proposer des solutions. Alors certes cela demande un peu de travail mais au moins on avance. En voyant votre demande, cela m&#039;a rappelé le travail qu&#039;un contributeur d&#039;Ora2Pg m&#039;avait soumis à commentaire il y a quelque temps, Dominique Legendre pour ne pas le citer. C&#039;est donc justement ce genre de travail que je vous invite à tester pour implémenter votre solution.</p><p>Ce code est sous forme d&#039;une extension PostgreSQL intitulée external_file (Allow access to &quot;external files&quot; from PostgreSQL server file systems). J&#039;ai eu l&#039;autorisation de publier ce code sous mon dépôt github, vous pouvez donc le télécharger ici : <a href="https://github.com/darold/external_file/" rel="nofollow">https://github.com/darold/external_file/</a> . </p><p>N&#039;hésitez pas à faire des remarque et à remonter les dysfonctionnements éventuels, toute contribution est aussi la bienvenue. Le fonctionnement est assez simple et il y a des exemples dans le README. L&#039;idée c&#039;est de créer des &quot;DIRECTORY&quot; dans lequel seront stockées les données passées sous forme de bytea et sous le nom de fichier donné en paramètre. Pour reprendre les exemples :</p><br /><p>Création d&#039;un DIRECTORY:</p><div class="codebox"><pre><code>    INSERT INTO directories(directory_name,directory_path) VALUES (&#039;temporary&#039;,&#039;/tmp/&#039;);</code></pre></div><p>ici on créé un emplacement de stockage nommé temporary avec comme emplacement physique /tmp/&#160; (notez qu&#039;il faut le / en fin de path).</p><p>Puis on donne des droits d&#039;accès aux différent utilisateurs dans ce directory (ici lecture/écriture à user1) :</p><div class="codebox"><pre><code>    INSERT INTO directory_roles(directory_name,directory_role,directory_read,directory_write) VALUES (&#039;temporary&#039;, &#039;user1&#039;, true, true);</code></pre></div><p>Cet utilisateur peut maintenant créer un fichier dans ce DIRECTORY :</p><div class="codebox"><pre><code>    SELECT writeEfile(&#039;\x48656c6c6f2c0a0a596f75206172652072656164696e67206120746578742066696c652e0a0a526567617264732c0a&#039;, (&#039;temporary&#039;, &#039;blahblah.txt&#039;));</code></pre></div><p>On peut vérifier que le fichier est bien créé sur disque :</p><div class="codebox"><pre><code> 
+    $ ls -la /tmp/blahblah.txt
+    -rw-r--r-- 1 postgres postgres 47 janv. 22 19:16 /tmp/blahblah.txt
+    $ cat /tmp/blahblah.txt
+Hello,
+
+You are reading a text file.</code></pre></div><p>Création d&#039;une table qui va utiliser ces fichiers externes :</p><div class="codebox"><pre><code>    CREATE TABLE efile_test ( id smallint primary key, the_file efile);</code></pre></div><p>Ajout du fichier que l&#039;on vient d&#039;enregistrer :</p><div class="codebox"><pre><code>    INSERT INTO efile_test VALUES (1,(&#039;temporary&#039;,&#039;blahblah.txt&#039;));</code></pre></div><p>Pour lire ce fichier externe depuis la table :</p><div class="codebox"><pre><code>    file=# SELECT id, readefile(the_file) FROM efile_test;
+     id |                                            readefile
+    ----+--------------------------------------------------------------------------------------------------
+      1 | \x48656c6c6f2c0a0a596f75206172652072656164696e67206120746578742066696c652e0a0a526567617264732c0a
+ </code></pre></div><p>Voilà, vous avez à peu près les BFILE d&#039;Oracle dans PostgreSQL. Reportez vous au README pour plus d&#039;explications.</p><br /><p>Ne pensez pas qu&#039;avez des solutions propriétaires ce soit plus simple, voici comment on implémente la même fonction readEfile() sous Oracle :</p><div class="codebox"><pre><code>CREATE OR REPLACE DIRECTORY DOCUMENT_DIR AS &#039;/tmp&#039;;
+
+CREATE OR REPLACE FUNCTION readEfile (src_file BFILE := bfilename(&#039;DOCUMENT_DIR&#039;, &#039;image.gif&#039;) )
+ RETURN BLOB IS
+    dst_file BLOB;
+    lgh_file BINARY_INTEGER;
+BEGIN
+ 
+  -- open the file
+  dbms_lob.fileopen(src_file, dbms_lob.file_readonly);
+
+  -- determine length
+  lgh_file := dbms_lob.getlength(src_file);
+
+  -- read the file
+  dbms_lob.loadfromfile(dst_file, src_file, lgh_file);
+
+  -- close file
+  dbms_lob.fileclose(src_file);
+
+  RETURN dst_file;
+
+EXCEPTION
+  [...]
+END readEfile;</code></pre></div><p>Voilà, j&#039;espère que cela aura aidé.</p><p>--<br />Gilles Darold<br /><a href="http://www.dalibo.com" rel="nofollow">http://www.dalibo.com</a></p>]]></content>
+		<author>
+			<name><![CDATA[gilles]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=921</uri>
+		</author>
+		<updated>2015-01-22T21:22:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21393#p21393</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Gérer par le serveur PostgreSQL des fichiers stockés sur disque]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21381#p21381"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>rjuju a écrit&#160;:</cite><blockquote><div><p>Tout simplement, postgres (comme la plupart des autres moteurs de données) ne vont pas bien gérer le stockage d&#039;objets volumineux en base, car c&#039;est n&#039;est pas prévu pour. Vous pouvez cependant le faire, vous n&#039;aurez aucun problème de fiabilité, juste portentiellement des problèmes de performances différents.</p><p>Au passage, le standard SQL/MED (et plus particulièrement la partie datalink, voir <a href="https://wiki.postgresql.org/wiki/DATALINK" rel="nofollow">https://wiki.postgresql.org/wiki/DATALINK</a>) permet de s&#039;affranchir du problème en utilisant le stockage disque standard pour cela, avec le même principe que pour la base(ACID), mais très peu de moteurs l&#039;implémentent (ce n&#039;est pas le cas de postgres).</p></div></blockquote></div><p>Désolé de vous contredire, mais la plupart des SGBD Relationnels comme Oracle ou SQL Server proposent une méthode identique ou similaire pour ce faire. Oracle avec BFile et SQL Server avec FILESTREAM (depuis le version 2005, soit 10 ans)...</p><p>A +</p>]]></content>
+		<author>
+			<name><![CDATA[SQLpro]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1054</uri>
+		</author>
+		<updated>2015-01-22T10:05:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21381#p21381</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Gérer par le serveur PostgreSQL des fichiers stockés sur disque]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21181#p21181"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>rjuju a écrit&#160;:</cite><blockquote><div><p>Pour finir, comme je l&#039;ai dit précédemment postgres ne gère pas les datalink.</p></div></blockquote></div><p>Ah ok, j&#039;avais mal lu.</p><p>Merci encore pour ces précisions.</p><p>Arnaud.</p>]]></content>
+		<author>
+			<name><![CDATA[abenhamdine]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1534</uri>
+		</author>
+		<updated>2014-12-14T14:09:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21181#p21181</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Gérer par le serveur PostgreSQL des fichiers stockés sur disque]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21180#p21180"/>
+		<content type="html"><![CDATA[<p>J&#039;ai corrigé le problème du lien, c&#039;est un bug de fluxbb qui parse mal les URL.</p><p>Je ne connais personnellement pas de lien concernant les problèmes de performances et le stockage de fichiers volumineux. En vrac, vous pourrez avoir des soucis de shared_buffers, de work_mem, de compression par postgres de fichier déjà compressés, de fragmentation excessive etc etc.</p><p>Pour finir, comme je l&#039;ai dit précédemment postgres ne gère pas les datalink. Il implémente par contre une bonne partie de la partie &quot;foreign table&quot; au fur et à mesure des nouvelles versions.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2014-12-14T11:06:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21180#p21180</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Gérer par le serveur PostgreSQL des fichiers stockés sur disque]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21179#p21179"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>rjuju a écrit&#160;:</cite><blockquote><div><p>Tout simplement, postgres (comme la plupart des autres moteurs de données) ne vont pas bien gérer le stockage d&#039;objets volumineux en base, car c&#039;est n&#039;est pas prévu pour. Vous pouvez cependant le faire, vous n&#039;aurez aucun problème de fiabilité, juste portentiellement des problèmes de performances différents.</p><p>Au passage, le standard SQL/MED (et plus particulièrement la partie datalink, voir <a href="https://wiki.postgresql.org/wiki/DATALINK)" rel="nofollow">https://wiki.postgresql.org/wiki/DATALINK)</a> permet de s&#039;affranchir du problème en utilisant le stockage disque standard pour cela, avec le même principe que pour la base(ACID), mais très peu de moteurs l&#039;implémentent (ce n&#039;est pas le cas de postgres).</p></div></blockquote></div><br /><p>Merci de ces informations.</p><br /><p>NB : il y une parenthèse indésirable en fin de votre lien, le bon lien est <a href="https://wiki.postgresql.org/wiki/DATALINK" rel="nofollow">https://wiki.postgresql.org/wiki/DATALINK</a></p><br /><p>Je précise que je n&#039;affirme pas que cela ne pose pas de problèmes de stocker des fichiers volumineux en base, mais uniquement que je n&#039;ai pas encore lu d&#039;argumentaire convainquant étayant ce point.</p><br /><p>Vous dites &quot;potentiellement des problèmes de performance différents&quot;, mais pouvez vous préciser ? (ce n&#039;est pas une critique, simplement avez vous des éléments factuels ou un lien mettant en évidence ces problèmes ?).</p><br /><p>Concernant les fonctionnalités DATALINK, je n&#039;arrive pas à trouver la partie correspondante dans la documentation officielle Posgtres. Est ce implémenté ?</p><br /><p>Arnaud.</p>]]></content>
+		<author>
+			<name><![CDATA[abenhamdine]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1534</uri>
+		</author>
+		<updated>2014-12-14T10:43:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21179#p21179</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Gérer par le serveur PostgreSQL des fichiers stockés sur disque]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21176#p21176"/>
+		<content type="html"><![CDATA[<p>Tout simplement, postgres (comme la plupart des autres moteurs de données) ne vont pas bien gérer le stockage d&#039;objets volumineux en base, car c&#039;est n&#039;est pas prévu pour. Vous pouvez cependant le faire, vous n&#039;aurez aucun problème de fiabilité, juste portentiellement des problèmes de performances différents.</p><p>Au passage, le standard SQL/MED (et plus particulièrement la partie datalink, voir <a href="https://wiki.postgresql.org/wiki/DATALINK" rel="nofollow">https://wiki.postgresql.org/wiki/DATALINK</a>) permet de s&#039;affranchir du problème en utilisant le stockage disque standard pour cela, avec le même principe que pour la base(ACID), mais très peu de moteurs l&#039;implémentent (ce n&#039;est pas le cas de postgres).</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2014-12-13T20:58:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21176#p21176</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Gérer par le serveur PostgreSQL des fichiers stockés sur disque]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21175#p21175"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>lepinard a écrit&#160;:</cite><blockquote><div><p>Bonjour et merci de l&#039;intérêt porté à ce sujet.</p><p>L&#039;idée de stocker les images hors de la base est liée à la lecture d&#039;autres discutions dans lesquelles il est déconseillé de stocker un grand nombre d&#039;image dans une base SQL pour des raison de fiabilité.</p><p>Je vais néanmoins continuer à le faire, les autres possibilités étant assez complexes à priori.</p><p>Merci à tous.</p></div></blockquote></div><br /><p>Si j&#039;ai fait cette remarque, c&#039;est que j&#039;ai effectivement lu à plusieurs reprises des posts déconseillant de stocker dans la base (et ce concernant différents SGBD), mais j&#039;y ai rarement vu associées des argumentations techniques pertinentes.</p><br /><p>De mémoire, les principaux arguments avancés étaient :<br />- &quot;ne pas alourdir la base&quot; (qu&#039;est ce que cela veut dire ?)<br />- &quot;la base devient trop volumineuse et les sauvegardes aussi&quot; (ben de toutes façons ça occupera de l&#039;espace de stockage. On ne souhaite pas les sauvegarder ? hé bien donc les exclure dans pg_dump)</p><br /><p>Arnaud.</p>]]></content>
+		<author>
+			<name><![CDATA[abenhamdine]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1534</uri>
+		</author>
+		<updated>2014-12-13T18:31:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21175#p21175</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Gérer par le serveur PostgreSQL des fichiers stockés sur disque]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21163#p21163"/>
+		<content type="html"><![CDATA[<p>Je ne vois pas en quoi la fiabilité à quoi que ce soit à faire dans cette discussion. Quoi que vous stockiez dans une base PostgreSQL, la fiabilité n&#039;est pas remise en cause.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-12-12T10:14:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21163#p21163</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Gérer par le serveur PostgreSQL des fichiers stockés sur disque]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21152#p21152"/>
+		<content type="html"><![CDATA[<p>Bonjour et merci de l&#039;intérêt porté à ce sujet.</p><p>L&#039;idée de stocker les images hors de la base est liée à la lecture d&#039;autres discutions dans lesquelles il est déconseillé de stocker un grand nombre d&#039;image dans une base SQL pour des raison de fiabilité.</p><p>Je vais néanmoins continuer à le faire, les autres possibilités étant assez complexes à priori.</p><p>Merci à tous.</p>]]></content>
+		<author>
+			<name><![CDATA[lepinard]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=4118</uri>
+		</author>
+		<updated>2014-12-12T07:36:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21152#p21152</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Gérer par le serveur PostgreSQL des fichiers stockés sur disque]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21149#p21149"/>
+		<content type="html"><![CDATA[<p>C&#039;est surtout pour pouvoir les rechercher. Autant chercher des informations sur les métadonnées d&#039;un document est possible, autant chercher des informations dans le document lui-même est rare (sauf pour des fichiers textes... pensez à des images, que peut-on chercher là-dedans ? cette utilisation, quoique possible, est assez rare).</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-12-11T21:48:00Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21149#p21149</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Gérer par le serveur PostgreSQL des fichiers stockés sur disque]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21148#p21148"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><p>Par curiosité, pourquoi cette volonté de ne pas stocker les documents directement dans la base ?</p><br /><p>Si l&#039;on utilise une base de données, c&#039;est pour y stocker des données, non ?</p><br /><p>Cdlt, Arnaud.</p>]]></content>
+		<author>
+			<name><![CDATA[abenhamdine]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1534</uri>
+		</author>
+		<updated>2014-12-11T21:34:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21148#p21148</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Gérer par le serveur PostgreSQL des fichiers stockés sur disque]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20692#p20692"/>
+		<content type="html"><![CDATA[<p>Pour la faisabilité, un langage &quot;untrusted&quot; comme plpythonu ou plperlu permet de créer facilement un fichier dans l&#039;arborescence du serveur. Bien évidemment, ça permet aussi d&#039;effacer n&#039;importe quel fichier accessible avec l&#039;utilisateur système postgres, comme par exemple le contenu entier de la base de données.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2014-09-26T23:20:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20692#p20692</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Gérer par le serveur PostgreSQL des fichiers stockés sur disque]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20691#p20691"/>
+		<content type="html"><![CDATA[<p>La sécurité doit être pensée dans un premier temps, sinon elle ne sert pas à grand-chose.</p><p>Je ne connais pas d&#039;extension déjà écrite pour gérer cela.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-09-26T20:35:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20691#p20691</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Gérer par le serveur PostgreSQL des fichiers stockés sur disque]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20690#p20690"/>
+		<content type="html"><![CDATA[<p>Merci Guillaume,<br />Mon problème est de savoir quelles commandes utiliser dans les fonctions, et je me demandais si, éventuellement, quelqu&#039;un n&#039;avait pas déjà écrit ce genre de fonction.<br />Pour les problèmes de sécurité, je suis d&#039;accord mais j&#039;avais prévu d&#039;y réfléchir dans un second temps, en fonction de la faisabilité.</p>]]></content>
+		<author>
+			<name><![CDATA[lepinard]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=4118</uri>
+		</author>
+		<updated>2014-09-26T15:11:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20690#p20690</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Gérer par le serveur PostgreSQL des fichiers stockés sur disque]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20689#p20689"/>
+		<content type="html"><![CDATA[<p>PostgreSQL ne propose pas de fonctions de ce type. Cependant, il est tout à fait possible de créer des fonctions utilisateurs pour le faire. Évidemment, cela amène toutes sortes de problèmes de sécurité mais, techniquement, c&#039;est possible.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-09-26T14:46:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20689#p20689</id>
+	</entry>
+</feed>

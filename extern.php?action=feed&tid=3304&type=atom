@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Ecriture d'integer dans une base de données à partir d'un code C]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3304&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3304"/>
+	<updated>2014-09-20T14:47:24Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3304</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Ecriture d'integer dans une base de données à partir d'un code C]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20660#p20660"/>
+		<content type="html"><![CDATA[<p>Il vous faut aussi transformer la valeur entière suivant le &quot;network byte order&quot;, autrement dit :</p><p>compteurI = htonl(1);</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-09-20T14:47:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20660#p20660</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Ecriture d'integer dans une base de données à partir d'un code C]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20616#p20616"/>
+		<content type="html"><![CDATA[<p>Bonjour, </p><br /><p>Merci pour votre aide ! J&#039;ai retesté le code sans la ligne <br /><span style="color: #FF0000">binaryVal = (uint32_t) compteurI; //compteurI est un int</span></p><br /><p>Soit le code suivant : <br /><span style="color: #FF0000">//binaryVal = (uint32_t) compteurI; //compteurI est un int<br />paramValues[0] = (char *) &amp;compteurI;<br />paramLengths[0] = sizeof(compteurI);<br />paramFormats[0] = 1;&#160; &#160; &#160; &#160; /* binary */</span></p><br /><p><span style="color: #FF0000">res=PQexecParams(conn,&quot;insert into input(\&quot;T1\&quot;) values ($1::integer)&quot;,<br />1, // number parameters<br />NULL, // let the backend deduce param type<br />paramValues, //<br />paramLengths, //<br />paramFormats, //<br />1);</span></p><br /><p>Et le codage persiste &quot;1&quot; correspond à 16777216 dans la base de données... ?! Est-ce que ça peut être lié à l&#039;affichage des colonnes de ma base de données ?</p>]]></content>
+		<author>
+			<name><![CDATA[efluence]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=4086</uri>
+		</author>
+		<updated>2014-09-17T09:34:31Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20616#p20616</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Ecriture d'integer dans une base de données à partir d'un code C]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20613#p20613"/>
+		<content type="html"><![CDATA[<p>Pourquoi transformez-vous la valeur en uint ? les entiers PostgreSQL sont des entiers signés.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-09-17T09:14:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20613#p20613</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Ecriture d'integer dans une base de données à partir d'un code C]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20610#p20610"/>
+		<content type="html"><![CDATA[<p>Bonjour, </p><br /><p>J&#039;ai installé PostgreSQL 9.3 et souhaite à partir d&#039;un code C communiquer (écrire et lire) dans ma base de donnée. La connexion avec la base de données fonctionne et je suis capable d&#039;écrire dans la base de données mais une question subsiste : je cherche à écrire un &quot;integer&quot; (genre 1, 2, 3, 4...) et dans ma base de données, surprise j&#039;obtiens : 16777216 (=2^24), 33554432 (=2^25), 50331648 (=2^24 + 2^25), 67108864 (=2^26)...</p><br /><p>J&#039;ai lu dans la doc de PostgreSQL que les integer sont associés au uint32, mais pourquoi le chiffre &quot;1&quot; est-il associé au 24ème bit ? Comment puis-je procéder pour effectivement lire le &quot;1,2,3,4...&quot; dans ma base de données et non &quot;16777216&quot;, etc. ?</p><br /><p>La partie de code que j&#039;utilise : <br /><span style="color: #FF0000">binaryVal = (uint32_t) compteurI; //compteurI est un int</span></p><p><span style="color: #FF0000">paramValues[0] = (char *) &amp;binaryVal;<br />paramLengths[0] = sizeof(binaryVal);<br />paramFormats[0] = 1;&#160; &#160; &#160; &#160; /* binary */</span></p><br /><p><span style="color: #FF0000">res=PQexecParams(conn,&quot;insert into input(\&quot;T1\&quot;) values ($1::integer)&quot;,<br />1, // number parameters<br />NULL, // let the backend deduce param type<br />paramValues, //<br />paramLengths, //<br />paramFormats, //<br />1);</span></p><br /><p>Je vous remercie par avance pour toute aide que vous pourrez me fournir !<br />Bonne journée !</p>]]></content>
+		<author>
+			<name><![CDATA[efluence]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=4086</uri>
+		</author>
+		<updated>2014-09-17T08:22:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20610#p20610</id>
+	</entry>
+</feed>

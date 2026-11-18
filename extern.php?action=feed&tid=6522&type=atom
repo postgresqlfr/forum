@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Contrainte d'unicité]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=6522&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=6522"/>
+	<updated>2023-04-28T16:41:53Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=6522</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Contrainte d'unicité]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34262#p34262"/>
+		<content type="html"><![CDATA[<p>Les valeurs de cette table proviennent d&#039;une importation d&#039;une ancienne table en Access et effectivement, il y avait bien un caractère en plus dans certaines lignes&#160; valeur (je n&#039;ai pas pensé à &quot;trimmer&quot; les champs et après vérification sur les champs code_ds et no_lot (qui sont des string) j&#039;ai effectivement certains endroit où il y a un espace à la fin du champs. Heureusement après vérification il y a seulement 22 doublons dus à cet espace. Je vais donc d&#039;abord régler les doublons (changer l&#039;id dans les tables liées et enlever les lignes qui ont un espace), puis je vais faire une requete update pour supprimer les espaces.<br />Ça devrait résoudre mon problème.<br />Merci beaucoup.</p>]]></content>
+		<author>
+			<name><![CDATA[Jean-Marc68]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8715</uri>
+		</author>
+		<updated>2023-04-28T16:41:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34262#p34262</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Contrainte d'unicité]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34261#p34261"/>
+		<content type="html"><![CDATA[<p>La collation influe sur le résultat de la comparaison des chaînes de caractères.</p><p>Ici la contrainte d&#039;unicité sur (code_cad, code_ds, no_lot) implique qu&#039;à l&#039;insertion ou MAJ d&#039;une ligne, le moteur vérifie qu&#039;il n&#039;y a pas déjà une valeur pour laquelle il y aurait code_cad=nouveau code_cad ET code_ds=nouveau code ds ET no_lot=nouveau no_lot.</p><br /><p>Comme il y a une collation personnalisée affectée à la colonne no_lot, la comparaison no_lot=nouveau no_lot se fait avec cette collation. Sans savoir comment est définie cette collation (ça peut se voir avec select * from pg_collation WHERE collname=&#039;numeric&#039;) et quelle est la valeur de no_lot qu&#039;il ne reconnait pas comme un doublon alors que c&#039;en serait un, difficile de dire si c&#039;est la faute de la collation.</p><br /><p>Surtout dans ce sens là d&#039;ailleurs. Si c&#039;était une valeur différente qui était égale d&#039;après la collation, ce serait plus compréhensible (par exemple abc=ABC pour une collation case-insensitive). Mais deux valeurs réellement identiques à l&#039;octet près dont la collation dit qu&#039;elle sont différentes, là je ne vois pas bien quelle collation pourrait dirait ça. Une autre piste pourrait être plus simplement des caractères invisibles dans les valeurs, avec Unicode ça arrive. Dans ce cas, le fait qu&#039;il y a une collation personnalisée serait une coïncidence.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2023-04-28T16:01:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34261#p34261</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Contrainte d'unicité]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34258#p34258"/>
+		<content type="html"><![CDATA[<p>Merci de l&#039;info rjuju,</p><p>Toutefois quand j&#039;ai posé la question j&#039;étais à la maison (ça me travaille le soir), et arrivé au bureau, en faisant la correction que tu me donnes, je me suis demandé pourquoi cette colonne avait un collate différent des autres (ça ne pouvais pas être venu tout seul). En fouillant dans mes dossiers, j&#039;ai retrouvé que j&#039;ai mis ce collate pour avoir un tri &quot;naturel&quot;. Mais vu que ça pose problème, je vais le laisser à défault (de toute manière je suis le seul à travailler dans postgresql. Les autres utilisateurs utilisent des applications qui font appel à PostgreSQL (il faudra &quot;simplement&quot; que je vérifie que les tris se fassent dans les applications et pas dans les appels sql)).</p><p>Merci beaucoup à vous deux.</p>]]></content>
+		<author>
+			<name><![CDATA[Jean-Marc68]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8715</uri>
+		</author>
+		<updated>2023-04-28T12:12:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34258#p34258</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Contrainte d'unicité]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34257#p34257"/>
+		<content type="html"><![CDATA[<p>Vous pouvez utiliser</p><br /><p>ALTER TABLE nom_table ALTER COLUMN nom_colonne TYPE nom_type COLLATE &quot;default&quot;;</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2023-04-28T02:46:55Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34257#p34257</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Contrainte d'unicité]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34256#p34256"/>
+		<content type="html"><![CDATA[<p>Bonjour dverite,<br />J&#039;avais créé cette table avec PgAdmin4 et je n&#039;ai pas remarqué ce collate (et honnêtement je ne sais pas ce que c&#039;est ni à quoi ça sert).<br />Mon attention attirée, je constate qu&#039;il y en a un sur le code_ds aussi, comme dans beaoucoup de colonnes d&#039;autres tables que j&#039;ai créées avec PgAdmin4.</p><div class="quotebox"><blockquote><div><p>Est-ce qu&#039;une requête SELECT avec un GROUP BY sur les colonnes de la contrainte et HAVING count(*)&gt;1 renvoie effectivement des lignes?</p></div></blockquote></div><p>Dès que je me suis rendu compte qu&#039;il prenait une ligne qu&#039;il n&#039;aurait pas du, j&#039;ai fait la vérification et, une fois cette nouvelle ligne erronée supprimée, il n&#039;y a pas de doublon dans la table.</p><p>Comment puis-je enlever ces collate en m&#039;assurant de ne pas perdre de donnée ?<br />Merci de votre attention et de votre aide.</p>]]></content>
+		<author>
+			<name><![CDATA[Jean-Marc68]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8715</uri>
+		</author>
+		<updated>2023-04-27T20:22:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34256#p34256</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Contrainte d'unicité]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34255#p34255"/>
+		<content type="html"><![CDATA[<p>On voit que cette collation non standard intervient dans la contrainte unique:</p><br /><div class="codebox"><pre><code>no_lot character varying(255) COLLATE public.&quot;numeric&quot; NOT NULL,</code></pre></div><br /><p>Quelle est la définition de cette collation?</p><p>Est-ce qu&#039;une requête SELECT avec un GROUP BY sur les colonnes de la contrainte et HAVING count(*)&gt;1 renvoie effectivement des lignes?</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2023-04-27T20:09:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34255#p34255</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Contrainte d'unicité]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34254#p34254"/>
+		<content type="html"><![CDATA[<p>Bonjour Julien,</p><p>Merci de votre attention et de votre proposition mais non, le réindex n&#039;a donné aucune erreur :</p><p>REINDEX</p><p>Query returned successfully in 1 secs 161 msec.</p>]]></content>
+		<author>
+			<name><![CDATA[Jean-Marc68]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8715</uri>
+		</author>
+		<updated>2023-04-27T11:33:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34254#p34254</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Contrainte d'unicité]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34253#p34253"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><p>Avez-vous une erreur si vous faites un REINDEX de cette table ?&#160; C&#039;est probablement un problème de mise à jour de glibc / ICU, cf <a href="https://wiki.postgresql.org/wiki/Locale_data_changes" rel="nofollow">https://wiki.postgresql.org/wiki/Locale_data_changes</a></p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2023-04-27T07:42:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34253#p34253</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Contrainte d'unicité]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34252#p34252"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />Je viens de me rendre compte qu&#039;une contrainte d&#039;unicité que j&#039;avais établie pour une table ne fonctionne pas (ou plutôt j&#039;imagine que j&#039;ai dû mal la faire).<br />Je m&#039;en suis rendu compte parce que j&#039;ai créé par erreur un anc_lot qui existait déjà (sauf pour le id_anc_lot et le code_circ qui étaient différents mais vu la contrainte code_cad_code_ds_no_lot_key selon moi ça n&#039;aurait pas dû passer) et c&#039;est passé.</p><p>Qu&#039;est-ce que j&#039;ai mal fait (et donc comment dois-je le corriger ?)<br />Merci.</p><br /><p>Le SQL de ma table est :<br />-- Table: greffe.anc_lots</p><p>-- DROP TABLE greffe.anc_lots;</p><p>CREATE TABLE greffe.anc_lots<br />(<br />&#160; &#160; id_anc_lot integer NOT NULL DEFAULT nextval(&#039;greffe.anc_lots_id_seq&#039;::regclass),<br />&#160; &#160; code_circ smallint NOT NULL,<br />&#160; &#160; code_cad integer NOT NULL,<br />&#160; &#160; code_ds character varying(255) COLLATE pg_catalog.&quot;default&quot; NOT NULL,<br />&#160; &#160; no_lot character varying(255) COLLATE public.&quot;numeric&quot; NOT NULL,<br />&#160; &#160; CONSTRAINT anc_lots_pkey PRIMARY KEY (id_anc_lot),<br />&#160; &#160; CONSTRAINT code_cad_code_ds_no_lot_key UNIQUE (code_cad, code_ds, no_lot)<br />)</p><p>TABLESPACE pg_default;</p><p>ALTER TABLE greffe.anc_lots<br />&#160; &#160; OWNER to jm;</p><p>GRANT DELETE, INSERT, SELECT, UPDATE ON TABLE greffe.anc_lots TO application_greffe;</p><p>GRANT ALL ON TABLE greffe.anc_lots TO jm;<br />-- Index: anc_lots_code_cad_idx</p><p>-- DROP INDEX greffe.anc_lots_code_cad_idx;</p><p>CREATE INDEX anc_lots_code_cad_idx<br />&#160; &#160; ON greffe.anc_lots USING btree<br />&#160; &#160; (code_cad ASC NULLS LAST)<br />&#160; &#160; TABLESPACE pg_default;<br />-- Index: anc_lots_code_circ_idx</p><p>-- DROP INDEX greffe.anc_lots_code_circ_idx;</p><p>CREATE INDEX anc_lots_code_circ_idx<br />&#160; &#160; ON greffe.anc_lots USING btree<br />&#160; &#160; (code_circ ASC NULLS LAST)<br />&#160; &#160; TABLESPACE pg_default;<br />-- Index: anc_lots_code_ds_idx</p><p>-- DROP INDEX greffe.anc_lots_code_ds_idx;</p><p>CREATE INDEX anc_lots_code_ds_idx<br />&#160; &#160; ON greffe.anc_lots USING btree<br />&#160; &#160; (code_ds COLLATE pg_catalog.&quot;default&quot; ASC NULLS LAST)<br />&#160; &#160; TABLESPACE pg_default;<br />-- Index: anc_lots_code_lot_idx</p><p>-- DROP INDEX greffe.anc_lots_code_lot_idx;</p><p>CREATE INDEX anc_lots_code_lot_idx<br />&#160; &#160; ON greffe.anc_lots USING btree<br />&#160; &#160; (no_lot COLLATE public.&quot;numeric&quot; ASC NULLS LAST)<br />&#160; &#160; TABLESPACE pg_default;</p>]]></content>
+		<author>
+			<name><![CDATA[Jean-Marc68]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8715</uri>
+		</author>
+		<updated>2023-04-27T01:52:38Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34252#p34252</id>
+	</entry>
+</feed>

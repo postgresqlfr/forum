@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / COPY FROM et COPY FROM STDIN]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2542&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2542"/>
+	<updated>2013-03-08T08:22:23Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2542</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  COPY FROM et COPY FROM STDIN]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16774#p16774"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Merci de votre intervention. Je suis complètement dépanné.</p><p>Pour ceux que ça intéresse, voici le détail, sous Unix : <br />cat MonFichierAuMemeFormatQueLaTable.csv | psql -c &quot;copy MaTable from stdin delimiter &#039;;&#039; -p 5432 -U NomLogin&#160; NomBase -h NomServeur</p><p>Dans le cas ou le nb de colonne dans le fichier est inférieur au nb de colonne dans la table, il faut ajouter la description du nom des colonnes. La commande devient : <br />cat MonFichierAuMemeFormatQueLaTable.csv | psql -c &quot;copy MaTable (Colonne1, Colonne2, Colonne3) from stdin delimiter &#039;;&#039; -p 5432 -U NomLogin&#160; NomBase -h NomServeur</p><p>Cordialement</p><p>Carmichael</p>]]></content>
+		<author>
+			<name><![CDATA[Carmichael_fr]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1662</uri>
+		</author>
+		<updated>2013-03-08T08:22:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16774#p16774</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  COPY FROM et COPY FROM STDIN]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16769#p16769"/>
+		<content type="html"><![CDATA[<p>stdin s&#039;utilise de la manière habituelle :</p><div class="codebox"><pre><code>$ echo &quot;1,&#039;test&#039;&quot; | psql -c &quot;copy test from stdin delimiter &#039;,&#039;&quot;
+$ psql -c &quot;select * from test&quot;
+ id |  val
+----+--------
+  1 | &#039;test&#039;
+(1 ligne)</code></pre></div><p>Vous avez sinon la méta commande \copy de psql qui permet de faire un COPY depuis un fichier sur le poste client et non sur le serveur.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2013-03-07T18:51:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16769#p16769</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[COPY FROM et COPY FROM STDIN]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16765#p16765"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Cette demande fait suite à une lecture attentive de la documentation, dans laquelle à mon avis, il manque un exemple pour bien comprendre.<br />Voici donc la situation : Je travaille sous Unix avec un client Postgres 8.4 qui adresse ses requetes à un serveur distant (qui héberge effectivement la base).</p><p>Je voulais faire un chargement de fichier en base de cette façon en me connectant avec le client :</p><p>MaBase=# copy MaTable<br />MaBase-# from &#039;MonFichierAuMemeFormatQueLaTable.csv&#039;<br />MaBase-# delimiter &#039;;&#039;<br />MaBase-# null &#039;&#039;;</p><p>Ce qui retourne : <br />ERROR:&#160; could not open file &#039;MonFichierAuMemeFormatQueLaTable.csv&quot; for reading: No such file or directory</p><p>J&#039;ai bien compris que l&#039;erreur provenait du fait que le serveur ne parvenait pas à accéder au fichier.<br />Comme alternative, il est mentionné dans la documentation d&#039;utiliser STDIN pour une utilisation dans un script (ce sera le cas). Dans ce cas le client enverra les requetes au serveur.<br />Ce que je ne vois pas bien, c&#039;est, quelle est la syntaxe exacte à utiliser pour mettre en oeuvre STDIN ?</p><p>Si j&#039;écris : <br />MaBase=# copy MaTable<br />MaBase-# from STDIN<br />MaBase-# delimiter &#039;;&#039;<br />MaBase-# null &#039;&#039;;<br />Je ne fais plus de référence à mon fichier csv. Donc ça ne marchera pas.</p><p>Si j&#039;écris :<br />MaBase=# copy MaTable<br />MaBase-# from &#039;MonFichierAuMemeFormatQueLaTable.csv&#039; |STDIN<br />MaBase-# delimiter &#039;;&#039;<br />MaBase-# null &#039;&#039;;</p><p>c&#039;est syntaxiquement incorrect.</p><p>Pour le moment, le fichier &#039;MonFichierAuMemeFormatQueLaTable.csv contient :<br />Champ11; Champ21; Champ31<br />Champ11; Champ22; Champ32<br />Champ13; Champ23; Champ33<br />Champ14; Champ24; Champ34</p><p>Dois-je modifier le contenu du fichier csv ?</p><p>Donc mes questions sont : <br />- quelle est la syntaxe exacte à utiliser pour mettre en oeuvre STDIN ?<br />- dois-je modifier mon fichier dcsv ?</p><p>Cordialement</p><p>Carmichael</p>]]></content>
+		<author>
+			<name><![CDATA[Carmichael_fr]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1662</uri>
+		</author>
+		<updated>2013-03-07T17:58:52Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16765#p16765</id>
+	</entry>
+</feed>

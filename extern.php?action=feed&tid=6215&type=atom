@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Foreign Keys dans information_schema]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=6215&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=6215"/>
+	<updated>2022-02-16T10:45:21Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=6215</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Foreign Keys dans information_schema]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33196#p33196"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>rjuju a écrit&#160;:</cite><blockquote><div><p>Bonjour,</p><p>Vous avez l&#039;information dans information_schema.key_column_usage.position_in_unique_constraint, mais il faut pour cela utiliser la contrainte unique utilisée par la clé étrangère.</p><br /><p>Le catalogue postgres est peut être plus adapté pour ça, voir <a href="https://www.postgresql.org/docs/current/catalog-pg-constraint.html" rel="nofollow">https://www.postgresql.org/docs/current … raint.html</a>.</p></div></blockquote></div><br /><p>Oui effectivement, je suis finalement&#160; passé par pg_catalog et ça fonctionne ; mais j&#039;ai toujours un peu la trouille que pg_catalog change lors d&#039;un upgrade de version majeure...</p><p>Edit : Pour ceux qui rencontreraient ce genre de problème, ça fait du code qui ressemble à ça :</p><div class="codebox"><pre><code>DECLARE
+...
+colcur_f CURSOR (cname text, carr INT[]) FOR 
+        select column_name,ordinal_position from information_schema.columns t, unnest(carr) WITH ORDINALITY a(elem, nr) where t.ordinal_position = a.elem AND t.table_name = cname and t.table_schema = &#039;public&#039; order by a.nr;
+...
+BEGIN
+...
+
+        -- On récupère le tableau des colonnes sources de la FK
+        select c.confkey,c.conname INTO l_colarray,l_table_cible from pg_catalog.pg_constraint c , pg_catalog.pg_namespace n 
+        where n.oid = c.connamespace  AND n.nspname=&#039;public&#039; and conname=lfkcur.constraint_name;
+        RAISE NOTICE &#039;Clefs trouvées % sur % &#039;,l_colarray,l_table_cible;
+...
+        FOR lcolcur IN colcur_f(l_table_cible, l_colarray) LOOP
+
+...</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[herve.lefebvre]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=506</uri>
+		</author>
+		<updated>2022-02-16T10:45:21Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33196#p33196</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Foreign Keys dans information_schema]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33194#p33194"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Vous avez l&#039;information dans information_schema.key_column_usage.position_in_unique_constraint, mais il faut pour cela utiliser la contrainte unique utilisée par la clé étrangère.</p><br /><p>Le catalogue postgres est peut être plus adapté pour ça, voir <a href="https://www.postgresql.org/docs/current/catalog-pg-constraint.html" rel="nofollow">https://www.postgresql.org/docs/current … raint.html</a>.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2022-02-16T08:02:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33194#p33194</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Foreign Keys dans information_schema]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33193#p33193"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Dans du code PL, j&#039;ai besoin d&#039;aller parcourir des clés étrangère dans le information_schema.</p><p>Les colonnes &quot;sources&quot; de la clé peuvent être trouvées dans information_schema.key_column_usage où il y a bien un ordinal_position qui me dit dans quel ordre prendre les colonnes dans la définition de la clé.</p><p>Les colonnes &quot;cibles&quot; peuvent être trouvées dans information_schema.constraint_column_usage mais là je n&#039;ai pas de &quot;ordinal_position&quot;.</p><p>À quel endroit je peux trouver l&#039;ordre des colonnes de la table vers laquelle pointe la FK ?</p>]]></content>
+		<author>
+			<name><![CDATA[herve.lefebvre]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=506</uri>
+		</author>
+		<updated>2022-02-15T10:53:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33193#p33193</id>
+	</entry>
+</feed>

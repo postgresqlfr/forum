@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Existe-t-il un outils pour suivre la réplication interne en postgres9?]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1728&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1728"/>
+	<updated>2011-11-04T09:14:18Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1728</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Existe-t-il un outils pour suivre la réplication interne en postgres9?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11662#p11662"/>
+		<content type="html"><![CDATA[<p>Ah oui, ça doit être un bon indicateur.<br />Je vais pouvoir m&#039;amuser avec tout ça!!!!</p>]]></content>
+		<author>
+			<name><![CDATA[lolotte35]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1425</uri>
+		</author>
+		<updated>2011-11-04T09:14:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11662#p11662</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Existe-t-il un outils pour suivre la réplication interne en postgres9?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11661#p11661"/>
+		<content type="html"><![CDATA[<p>J&#039;allais oublier : en 9.1, il existe aussi maintenant la fonction pg_last_xact_replay_timestamp(). Elle pourrait aussi vous intéresser.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-11-04T09:08:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11661#p11661</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Existe-t-il un outils pour suivre la réplication interne en postgres9?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11660#p11660"/>
+		<content type="html"><![CDATA[<p>Merci je regarde tout de suite!</p>]]></content>
+		<author>
+			<name><![CDATA[lolotte35]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1425</uri>
+		</author>
+		<updated>2011-11-04T08:43:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11660#p11660</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Existe-t-il un outils pour suivre la réplication interne en postgres9?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11650#p11650"/>
+		<content type="html"><![CDATA[<p>Comme vous êtes en 9.1, facilitez-vous la vie en utilisant la table système pg_stat_replication. pg_last_xlog_receive_location() correspond à la colonne write_location, et pg_last_xlog_replay_location() à la colonne replay_location.</p><p>Le calcul est en effet un peu complexe. Le mieux est certainement d&#039;utiliser l&#039;outil check_postgres.pl avec l&#039;action hot_standby_delay (voir <a href="http://bucardo.org/check_postgres/check_postgres.pl.html#hot_standby_delay)" rel="nofollow">http://bucardo.org/check_postgres/check … dby_delay)</a>.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-11-03T17:05:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11650#p11650</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Existe-t-il un outils pour suivre la réplication interne en postgres9?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11649#p11649"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je suis sur des tests entres 3 bases de données postgres9.1, dont 1 maitre qui est au Mans, 1 Standby qui est au Mans et 1 Standby qui est à Paris.</p><p>Pour ne pas saturer le réseau lors de mes tests je lance tout la nuit.<br />Donc par exemple, je ne sais pas combien ma sauvergarde mets à remonter du Mans vers Paris.<br />Je vois environ les temps en suivant le traffic réseau entre nos 2 sites.</p><br /><p>Mais quand on passera en production, je sais qu&#039;il faudra définir le retard du Standby de Paris par exemple, le temps lors d&#039;un reindex de la base maitre, etc....</p><br /><p>J&#039;ai bien noté que l&#039;on pouvait faire ça:<br />Pour un suivi des standbys, ils existent les fonctions pg_last_xlog_receive_location() et<br />pg_last_xlog_replay_location() qui indiquent respectivement la dernière position reçue et<br />la dernière position rejouée dans les journaux de transactions sur un serveur en Hot Standby.<br />Cette information est à comparer au résultat fourni par l&#039;exécution de la fonction<br />pg_current_xlog_location() sur le serveur maître. C&#039;est par exemple ce que fait pgPool-II<br />pour savoir si un esclave accuse un retard trop important.</p><br /><p>Mais bon, comparer un &quot;2A/2E07D1B0&quot; et un &quot;2A/2E07E380&quot; c&#039;est assez abstrait pour moi... àpart dire que c&#039;est pas le même....</p><p>J&#039;aimerai avoir un&#160; outils pour savoir si les standbys sont à jour et surtout savoir s&#039;ils sont tombés....</p><br /><p>Charlotte</p>]]></content>
+		<author>
+			<name><![CDATA[lolotte35]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1425</uri>
+		</author>
+		<updated>2011-11-03T16:41:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11649#p11649</id>
+	</entry>
+</feed>

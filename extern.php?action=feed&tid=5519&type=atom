@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Lag de réplication et requête longue sur standby]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5519&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5519"/>
+	<updated>2019-05-13T13:19:26Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5519</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Lag de réplication et requête longue sur standby]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29837#p29837"/>
+		<content type="html"><![CDATA[<p>Non, c&#039;est un peu plus compliqué que ça. Quand on fait un update sous PostgreSQL, on n&#039;écrase pas l&#039;enregistrement, on en fait une autre version dans la même table. Donc on a les deux versions simultanément, et les ordres SQL choisissent ce qu&#039;ils veulent. Cette seconde version est répliquée, pas de problème. C&#039;est les VACUUM qui posent problème, puisqu&#039;ils veulent supprimer les vieilles versions d&#039;enregistrement, qui ne sont plus nécessaires sur le primaire. Le hot_standby_feedback permet justement aux standby de prévenir le maître des enregistrement dont ils ont encore besoin.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2019-05-13T13:19:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29837#p29837</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Lag de réplication et requête longue sur standby]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29835#p29835"/>
+		<content type="html"><![CDATA[<p>Il me reste quand même des questions au sujet de la réplication.</p><p>De ce que je comprends donc, quand un select est lancé côté standby, PG ne réapplique plus les wal si une modification (update/delete/insert) altère la vue du début du sélect (pour gérer la cohérence). Il attend&#160; max_standby_streaming_delay ou alors, c&#039;est géré par hot_standby_feedback.</p><p>C&#039;est bien cela ?</p>]]></content>
+		<author>
+			<name><![CDATA[pitpoule]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=636</uri>
+		</author>
+		<updated>2019-05-13T12:27:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29835#p29835</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Lag de réplication et requête longue sur standby]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29834#p29834"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>Marc Cousin a écrit&#160;:</cite><blockquote><div><p>pg_is_in_recovery va être à true, normal. Par contre, pg_is_wal_replay_paused, c&#039;est savoir si y aurait pas un petit malin qui met la réplication en pause... je le sais, parce que je l&#039;ai déjà fait (pour passer des pg_dump parallélisé sur un standby par exemple <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /> )</p><p>Sinon, le replay est toujours plus lent que la génération: sur le serveur primaire, il y a plusieurs processus qui insèrent en même temps dans le WAL. Sur le standby, il y a un seul processus qui rejoue le tout. On peut aussi avoir les disques qui ont du mal à suivre ou d&#039;autres choses. Donc vérifiez que la réplication n&#039;est pas effectivement en pause ou bloquée par quelque chose, et si elle avance, il faut trouver la source de contention... cpu ou disque probablement</p></div></blockquote></div><br /><p>Je vais chercher... merci pour le retour <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[pitpoule]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=636</uri>
+		</author>
+		<updated>2019-05-10T14:23:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29834#p29834</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Lag de réplication et requête longue sur standby]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29833#p29833"/>
+		<content type="html"><![CDATA[<p>pg_is_in_recovery va être à true, normal. Par contre, pg_is_wal_replay_paused, c&#039;est savoir si y aurait pas un petit malin qui met la réplication en pause... je le sais, parce que je l&#039;ai déjà fait (pour passer des pg_dump parallélisé sur un standby par exemple <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /> )</p><p>Sinon, le replay est toujours plus lent que la génération: sur le serveur primaire, il y a plusieurs processus qui insèrent en même temps dans le WAL. Sur le standby, il y a un seul processus qui rejoue le tout. On peut aussi avoir les disques qui ont du mal à suivre ou d&#039;autres choses. Donc vérifiez que la réplication n&#039;est pas effectivement en pause ou bloquée par quelque chose, et si elle avance, il faut trouver la source de contention... cpu ou disque probablement</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2019-05-10T14:17:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29833#p29833</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Lag de réplication et requête longue sur standby]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29832#p29832"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>Marc Cousin a écrit&#160;:</cite><blockquote><div><p>Tant que j&#039;y pense, vérifiez aussi pg_is_wal_replay_paused() sur le standby quand ça se produit… sait on jamais, un développeur retors <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p></div></blockquote></div><p>J&#039;ai eu le doute aussi...et j&#039;ai lancé <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>postgres=# select pg_is_in_recovery();<br /> pg_is_in_recovery <br />-------------------<br /> t<br />(1 row)</p>]]></content>
+		<author>
+			<name><![CDATA[pitpoule]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=636</uri>
+		</author>
+		<updated>2019-05-10T14:14:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29832#p29832</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Lag de réplication et requête longue sur standby]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29831#p29831"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>Marc Cousin a écrit&#160;:</cite><blockquote><div><p>Etes vous sûr que la réplication est en pause, pas juste très ralentie? Sans connaître votre serveur, il se peut que la sur-consommation de ressources par la requête en écriture ralentisse simplement l&#039;application des journaux... Vous pouvez déjà surveiller pg_last_wal_replay_lsn() sur le standby pour vérifier que c&#039;est en pause et pas très ralenti...</p></div></blockquote></div><p>C&#039;est possible qu&#039;elle soit ralentie, nous avons une forte charge en écriture sur le serveur primaire, la quantité de wal absorbée n&#039;arrivait surement pas à compenser ce qui arrivaient. Et du coup, le lag montait constamment.</p>]]></content>
+		<author>
+			<name><![CDATA[pitpoule]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=636</uri>
+		</author>
+		<updated>2019-05-10T14:12:39Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29831#p29831</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Lag de réplication et requête longue sur standby]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29830#p29830"/>
+		<content type="html"><![CDATA[<p>Tant que j&#039;y pense, vérifiez aussi pg_is_wal_replay_paused() sur le standby quand ça se produit… sait on jamais, un développeur retors <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2019-05-10T13:51:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29830#p29830</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Lag de réplication et requête longue sur standby]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29829#p29829"/>
+		<content type="html"><![CDATA[<p>Etes vous sûr que la réplication est en pause, pas juste très ralentie? Sans connaître votre serveur, il se peut que la sur-consommation de ressources par la requête en écriture ralentisse simplement l&#039;application des journaux... Vous pouvez déjà surveiller pg_last_wal_replay_lsn() sur le standby pour vérifier que c&#039;est en pause et pas très ralenti...</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2019-05-10T13:50:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29829#p29829</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Lag de réplication et requête longue sur standby]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29828#p29828"/>
+		<content type="html"><![CDATA[<p>postgres=# show hot_standby_feedback ;<br /> hot_standby_feedback <br />----------------------<br /> off<br />(1 row)</p><p>postgres=# show max_standby_streaming_delay ;<br /> max_standby_streaming_delay <br />-----------------------------<br /> 30s<br />(1 row)</p><br /><p>Vu le paramétrage, je ne comprends pas comment je peux avoir du lag</p>]]></content>
+		<author>
+			<name><![CDATA[pitpoule]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=636</uri>
+		</author>
+		<updated>2019-05-10T13:45:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29828#p29828</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Lag de réplication et requête longue sur standby]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29827#p29827"/>
+		<content type="html"><![CDATA[<p>Ça peut., ça dépend de votre paramétrage:<br />- est-ce que le standby a hot_standby_feedback activé ? (sinon le primaire va supprimer des enregistrements lors de vacuum qui pourraient encore être nécessaires au standby... et donc le standby va devoir arrêter la réplication le temps que ces requetes se terminent)<br />- que vaut max_standby_streaming_delay ? c&#039;est le temps maximum que le standby va accepter d&#039;attendre avant de commencer à tuer les requêtes qui bloquent la réapplication des journaux</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2019-05-10T13:28:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29827#p29827</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Lag de réplication et requête longue sur standby]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29826#p29826"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Nous rencontrons régulièrement des pics de lag entre notre serveur primaire et notre standby (hot standby en pg 9.6). J&#039;ai l’impression que ce lag est créé par des requêtes &quot;SELECT&quot; très longues qui tournent sur la standby (plusieurs dizaines de minutes). Pendant tout le temps où ces requêtes s&#039;exécutent,les wal ne semblent pas appliqués par la standby.</p><br /><p>Extrait du pg_stat_replication sur le primaire. Tout est ok mais le &quot;replay&quot; ne consomment pas les wals.</p><p>&#160; usename&#160; &#160;| application_name | client_addr | delta_sent_mb | delta_write_mb | delta_flush_mb | delta_replay_mb <br />-------------+------------------+-------------+---------------+----------------+----------------+-----------------<br />&#160; replication | walreceiver&#160; &#160; &#160; | ************&#160; |&#160; &#160; &#160; &#160; &#160; 0.00 |&#160; &#160; &#160; &#160; &#160; &#160;0.00 |&#160; &#160; &#160; &#160; &#160; &#160;0.00 |&#160; &#160; &#160; &#160; 91167.93</p><br /><p>Est ce que c&#039;est &quot;normal&quot; ?</p><p>Merci</p>]]></content>
+		<author>
+			<name><![CDATA[pitpoule]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=636</uri>
+		</author>
+		<updated>2019-05-10T12:51:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29826#p29826</id>
+	</entry>
+</feed>

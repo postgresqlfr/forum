@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / [résolu] compter les fronts montants de valeur de reférence d'articles]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5811&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5811"/>
+	<updated>2020-08-13T14:25:28Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5811</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [résolu] compter les fronts montants de valeur de reférence d'articles]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31398#p31398"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>rjuju a écrit&#160;:</cite><blockquote><div><p>Vous devriez pouvoir faire ça avec des window functions: <a href="https://www.postgresql.org/docs/current/tutorial-window.html" rel="nofollow">https://www.postgresql.org/docs/current … indow.html</a></p></div></blockquote></div><p>Bonjour,</p><p>désolé, j&#039;ai trouvé une solution. Je vais suivre votre lien pour en apprendre plus sur les windows functions.</p><p>Merci</p>]]></content>
+		<author>
+			<name><![CDATA[oles67]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8702</uri>
+		</author>
+		<updated>2020-08-13T14:25:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31398#p31398</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [résolu] compter les fronts montants de valeur de reférence d'articles]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31397#p31397"/>
+		<content type="html"><![CDATA[<p>Finalement j&#039;ai trouvé une solution.<br />Si vous avez des commentaires sur mon code, je suis preneur.</p><div class="codebox"><pre class="vscroll"><code>select 
+	evtProduit,
+	DateOfDay,
+	count(DateOfDay)
+from 
+	(
+	SELECT 
+		evtProduit,
+		evtdatetime,
+		evtAction,
+		lag(evtProduit) over(order by evtProduit,evtdatetime) as prev_evtProduit,
+		lag(evtAction) over(order by evtProduit,evtdatetime) as prev_evtAction,
+	 	to_char(evtdatetime, &#039;YYYYMMDD&#039;) as DateOfDay 
+	 	
+	FROM 
+		public.MaTable
+	where
+		DATE_PART(&#039;year&#039;, evtdatetime)=&#039;2020&#039;
+	Order by 
+		evtProduit,
+		evtdatetime,
+		evtAction 
+			asc
+	) table2
+where
+	(evtProduit&lt;&gt;prev_evtProduit and evtProduit&gt;0) 
+or 
+	(evtAction&lt;&gt;prev_evtAction and evtAction&gt;0) 
+or 
+	(evtAction&gt;0 and prev_evtAction is null)
+	
+group by evtProduit, DateOfDay
+order by evtProduit, dateofday</code></pre></div><p>Le résultat (j&#039;ai vérifié). <br />RefProduit&#160; &#160; Date&#160; &#160; Count<br />253897&#160; &#160; 20200105&#160; &#160; 1<br />253899&#160; &#160; 20200105&#160; &#160; 1<br />254205&#160; &#160; 20200105&#160; &#160; 1<br />254205&#160; &#160; 20200430&#160; &#160; 1<br />254224&#160; &#160; 20200105&#160; &#160; 1<br />254224&#160; &#160; 20200121&#160; &#160; 1<br />254224&#160; &#160; 20200122&#160; &#160; 2<br />254224&#160; &#160; 20200123&#160; &#160; 93<br />254224&#160; &#160; 20200124&#160; &#160; 106<br />254224&#160; &#160; 20200126&#160; &#160; 1<br />254224&#160; &#160; 20200206&#160; &#160; 1<br />254224&#160; &#160; 20200207&#160; &#160; 2<br />254224&#160; &#160; 20200430&#160; &#160; 1<br />256409&#160; &#160; 20200105&#160; &#160; 1<br />259251&#160; &#160; 20200105&#160; &#160; 1<br />265451&#160; &#160; 20200105&#160; &#160; 1<br />266896&#160; &#160; 20200101&#160; &#160; 1</p>]]></content>
+		<author>
+			<name><![CDATA[oles67]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8702</uri>
+		</author>
+		<updated>2020-08-13T14:24:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31397#p31397</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [résolu] compter les fronts montants de valeur de reférence d'articles]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31396#p31396"/>
+		<content type="html"><![CDATA[<p>Vous devriez pouvoir faire ça avec des window functions: <a href="https://www.postgresql.org/docs/current/tutorial-window.html" rel="nofollow">https://www.postgresql.org/docs/current … indow.html</a></p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2020-08-13T11:34:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31396#p31396</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[[résolu] compter les fronts montants de valeur de reférence d'articles]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31393#p31393"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>En général j&#039;arrive à mes fin grâce aux recherche sur le forum, mais là, j&#039;ai un problème de noeud au cerveau.<br />J&#039;aimerai compter le nombre de fois où &quot;valeur&quot; augmente pour chaque article. Et ça, je n&#039;ai pas trouvé comment faire.</p><p>La première colonne est la date et l&#039;heure (trié dans l&#039;ordre du plus ancien en premier vers le plus récent en dernier)<br />La colonne &quot;Ref&quot; c&#039;est la référence article<br />La &quot;valeur&quot; peut-être de 0 à 9 ou des NON/OUI, FAUX/VRAI (sachant que 0, NON, Faux,... sera toujours 0)<br />La colonne &quot;incrémente&quot; est uniquement là pour vous montrer quand la valeur doit incrémenté (Voir résultat table plus bas)</p><br /><p>Table origine&#160; &#160; &#160; &#160; &#160; &#160; <br />Date&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Ref&#160; &#160; &#160; &#160; Valeur&#160; &#160; Incremente (pour comprehension)<br />01/01/2020 01:00:00&#160; &#160; Ref1&#160; &#160; &#160; &#160; 1&#160; &#160; &#160; &#160; Ref 1 ++<br />01/01/2020 02:00:00&#160; &#160; Ref1&#160; &#160; &#160; &#160; 1&#160; &#160; <br />01/01/2020 03:00:00&#160; &#160; Ref1&#160; &#160; &#160; &#160; 0&#160; &#160; <br />01/01/2020 04:00:00&#160; &#160; Ref2&#160; &#160; &#160; &#160; 0&#160; &#160; <br />01/01/2020 05:00:00&#160; &#160; Ref2&#160; &#160; &#160; &#160; 5&#160; &#160; &#160; &#160; Ref 2 ++<br />01/01/2020 06:00:00&#160; &#160; Ref2&#160; &#160; &#160; &#160; 0&#160; &#160; <br />01/01/2020 07:00:00&#160; &#160; Ref2&#160; &#160; &#160; &#160; 5&#160; &#160; &#160; &#160; Ref 2 ++<br />01/01/2020 08:00:00&#160; &#160; Ref2&#160; &#160; &#160; &#160; 0&#160; &#160; <br />01/01/2020 08:00:00&#160; &#160; Ref1&#160; &#160; &#160; &#160; 0&#160; &#160; <br />01/01/2020 10:00:00&#160; &#160; Ref1&#160; &#160; &#160; &#160; 0&#160; &#160; <br />01/01/2020 11:00:00&#160; &#160; Ref2&#160; &#160; &#160; &#160; 5&#160; &#160; &#160; &#160; Ref 2 ++<br />01/01/2020 12:00:00&#160; &#160; Ref1&#160; &#160; &#160; &#160; 1&#160; &#160; &#160; &#160; Ref 1 ++<br />01/01/2020 13:00:00&#160; &#160; Ref1&#160; &#160; &#160; &#160; 1&#160; &#160; <br />01/01/2020 14:00:00&#160; &#160; Ref2&#160; &#160; &#160; &#160; 5&#160; &#160; <br />01/01/2020 15:00:00&#160; &#160; Ref2&#160; &#160; &#160; &#160; 5&#160; &#160; <br />01/01/2020 16:00:00&#160; &#160; Ref2&#160; &#160; &#160; &#160; 0&#160; &#160; <br />01/01/2020 17:00:00&#160; &#160; Ref2&#160; &#160; &#160; &#160; 0&#160; &#160; <br />01/01/2020 18:00:00&#160; &#160; Ref2&#160; &#160; &#160; &#160; 0&#160; &#160; <br />01/01/2020 19:00:00&#160; &#160; Ref1&#160; &#160; &#160; &#160; 0&#160; &#160; <br />01/01/2020 20:00:00&#160; &#160; Ref1&#160; &#160; &#160; &#160; 1&#160; &#160; &#160; &#160; Ref 1 ++<br />01/01/2020 21:00:00&#160; &#160; Ref2&#160; &#160; &#160; &#160; 5&#160; &#160; &#160; &#160; Ref 2 ++<br />01/01/2020 22:00:00&#160; &#160; Ref2&#160; &#160; &#160; &#160; 0&#160; &#160; <br />02/01/2020 01:00:00&#160; &#160; Ref2&#160; &#160; &#160; &#160; 0&#160; &#160; <br />02/01/2020 02:00:00&#160; &#160; Ref2&#160; &#160; &#160; &#160; 5&#160; &#160; &#160; &#160; Ref 2 ++<br />02/01/2020 03:00:00&#160; &#160; Ref1&#160; &#160; &#160; &#160; 0&#160; &#160; <br />02/01/2020 04:00:00&#160; &#160; Ref2&#160; &#160; &#160; &#160; 0&#160; &#160; <br />02/01/2020 05:00:00&#160; &#160; Ref2&#160; &#160; &#160; &#160; 5&#160; &#160; &#160; &#160; Ref 2 ++<br />02/01/2020 06:00:00&#160; &#160; Ref2&#160; &#160; &#160; &#160; 0&#160; &#160; <br />02/01/2020 07:00:00&#160; &#160; Ref1&#160; &#160; &#160; &#160; 1&#160; &#160; &#160; &#160; Ref 1 ++<br />02/01/2020 08:00:00&#160; &#160; Ref1&#160; &#160; &#160; &#160; 0&#160; &#160; <br />02/01/2020 09:00:00&#160; &#160; Ref2&#160; &#160; &#160; &#160; 5&#160; &#160; &#160; &#160; Ref 2 ++<br />02/01/2020 10:00:00&#160; &#160; Ref2&#160; &#160; &#160; &#160; 0&#160; &#160; <br />02/01/2020 11:00:00&#160; &#160; Ref1&#160; &#160; &#160; &#160; 1&#160; &#160; &#160; &#160; Ref 1 ++<br />02/01/2020 12:00:00&#160; &#160; Ref1&#160; &#160; &#160; &#160; 0&#160; &#160; </p><br /><p>Table résultat :&#160; &#160; <br />Date&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Ref&#160; &#160; &#160; &#160; Count<br />01/01/2020&#160; &#160; Ref1&#160; &#160; &#160; &#160; 3<br />01/01/2020&#160; &#160; Ref2&#160; &#160; &#160; &#160; 4<br />02/01/2020&#160; &#160; Ref1&#160; &#160; &#160; &#160; 2<br />02/01/2020&#160; &#160; Ref2&#160; &#160; &#160; &#160; 3</p><br /><br /><p>C&#039;est un exemple, l&#039;ordre de tri/période(jour, mois, année) ne devraient pas être un problème.</p><p>Merci de votre aide.<br />Si vous avez des questions, n&#039;hésitez pas.</p>]]></content>
+		<author>
+			<name><![CDATA[oles67]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8702</uri>
+		</author>
+		<updated>2020-08-12T12:17:50Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31393#p31393</id>
+	</entry>
+</feed>

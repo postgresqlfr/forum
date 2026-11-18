@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / PL/pgSQL]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;fid=20&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/index.php"/>
+	<updated>2024-09-25T13:47:40Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/index.php</id>
+	<entry>
+		<title type="html"><![CDATA[Lister les lignes de toutes les tables ayant une valeur spécifique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?id=6904&amp;action=new"/>
+		<summary type="html"><![CDATA[<p>Bonjour,<br />j&#039;ai mis le temps (j&#039;ai fait d&#039;autres choses quand même entre temps <img src="http://forums.postgresql.fr/img/smilies/lol.png" width="15" height="15" alt="lol" />) mais j&#039;ai réussi à faire la fonction que je voulais.<br />Ci-dessous, le code final de la fonction (les noms de variables ont changés) avec un exemple de select correspondant.<br />Merci.</p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION get_table_row_ids(sch text, prj text)
+RETURNS TABLE (tablename text, row_id int) LANGUAGE plpgsql AS $$
+BEGIN
+    -- Boucle sur les tables du schéma spécifié
+    FOR tablename IN
+        SELECT table_name
+        FROM information_schema.columns
+        WHERE table_schema = sch 
+          AND column_name = &#039;PRJ_UUID&#039;
+          AND table_name NOT LIKE &#039;SYS_%&#039;
+        ORDER BY table_name
+    LOOP
+        -- Requête dynamique pour récupérer les IDs
+        FOR row_id IN
+            EXECUTE format(&#039;SELECT id FROM %I.%I WHERE &quot;PRJ_UUID&quot; = %L&#039;, sch, tablename, prj)
+        LOOP
+            -- Retourner chaque ligne trouvée
+            RETURN NEXT;
+        END LOOP;
+    END LOOP;
+END $$;
+SELECT * FROM get_table_row_ids(&#039;route&#039;, &#039;fc06279b-121b-463e-9409-87bb5eb6cc0b&#039;); -- sch et prj à modifier</code></pre></div>]]></summary>
+		<author>
+			<name><![CDATA[Arnaud_CX]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9755</uri>
+		</author>
+		<updated>2024-09-25T13:47:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?id=6904&amp;action=new</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[trigger update concatenation]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?id=6837&amp;action=new"/>
+		<summary type="html"><![CDATA[<p>Merci beaucoup pour votre aide.</p>]]></summary>
+		<author>
+			<name><![CDATA[Nyldan]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=10198</uri>
+		</author>
+		<updated>2024-02-22T13:09:03Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?id=6837&amp;action=new</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Probleme : SQL Error [42601]: Unterminated dollar quote]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?id=6674&amp;action=new"/>
+		<summary type="html"><![CDATA[<p>Il y a plein d&#039;erreurs dans ce code. On peut commencer avec les guillemets doubles qui doivent être remplacés par des guillemets simples mais doublés. Ceci n&#039;est peut être pas à faire car la présence du format me parait très douteuse. Pour moi, c&#039;est &quot;EXECUTE INSERT... USING...&quot;.</p><p>Et enfin, le &quot;Unterminated dollar quote&quot; me paraît peu croyable pour cette fonction.</p>]]></summary>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2023-10-14T19:41:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?id=6674&amp;action=new</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Gestion de la nullabilite dans un select]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?id=6583&amp;action=new"/>
+		<summary type="html"><![CDATA[<p>Pour information, le lien que vous postez est pour la version 8.1, j&#039;espère que vous utiliser une version toujours supportée.</p><br /><p>La documentation est précise, et spécifie ce qui est conservé et non l&#039;inverse.&#160; De la même manière toutes les autres contraintes, indexes, trigger etc ne sont pas récupérés.</p><br /><div class="quotebox"><blockquote><div><p>car, sauf erreur de ma part, Oracle ou DB2 notamment, le font.</p></div></blockquote></div><p>Que se passe-t-il lorsqu&#039;un attribut déclaré NOT NULL est rendu possiblement NULL, type LEFT JOIN etc?</p><br /><div class="quotebox"><blockquote><div><p>Durant le runtime, j&#039;ai des warnings indiquant que les données lues (select) sont null alors que déclarés not null dans le flux ... bien que le select porte sur des colonnes not null.</p></div></blockquote></div><p>Le warning n&#039;est pas très clair.&#160; S&#039;agit-il d&#039;un NULL dans les données, ou d&#039;une colonne dans une table déclarée NULL alors que l&#039;ETL indique NOT NULL?</p>]]></summary>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2023-07-24T23:55:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?id=6583&amp;action=new</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Update en utilisant la fonction round]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?id=6469&amp;action=new"/>
+		<summary type="html"><![CDATA[<p>Bonjour,</p><p>SELECT round(tx_uti_sch::numeric*100,1)</p>]]></summary>
+		<author>
+			<name><![CDATA[jmarsac]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7302</uri>
+		</author>
+		<updated>2023-03-06T16:38:00Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?id=6469&amp;action=new</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Vue modifiable sur vue matérialisée pour compléter autre table général]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?id=6436&amp;action=new"/>
+		<summary type="html"><![CDATA[<p>Dans le trigger:</p><div class="codebox"><pre><code>    RETURN NEW;
+
+    -- mettre à jour la vue matérialisée
+    
+    REFRESH MATERIALIZED VIEW schema_1.v_mat_1_utilisateur1; </code></pre></div><p>Le RETURN NEW fait sortir du trigger donc le REFRESH n&#039;est pas exécuté. Le RETURN NEW doit se faire en dernier.</p><br /><p>Sinon d&#039;un point de vue conception, ça paraît extrêmement lourd de rafraîchir une vue matérialisée à chaque mise à jour de ligne.</p><p>Peut-être qu&#039;il serait intéressant de creuser les raisons pour lesquelles les vues non matérialisées limitant les données exposées à QGIS ne donnent pas satisfaction. Est-ce que c&#039;est les requêtes qui sont lentes ou c&#039;est QGIS?<br />Si c&#039;est les requêtes, il faudrait faire des EXPLAIN ANALYZE pour voir où le temps est consommé et pourquoi. Il y a des conseils à ce sujet dans <a href="https://wiki.postgresql.org/wiki/Slow_Query_Questions" rel="nofollow">https://wiki.postgresql.org/wiki/Slow_Query_Questions</a></p>]]></summary>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2022-12-30T19:51:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?id=6436&amp;action=new</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Nom colonne dans fonction de suivi de modification de table]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?id=6392&amp;action=new"/>
+		<summary type="html"><![CDATA[<p>Bonjour, merci Daniel pour ta solution JSONB, j&#039;ai chercher un moment comment l&#039;utiliser car je ne maîtrise pas encore le JSON mais je suis ravie du résultat.<br />J&#039;ai cherché compliqué alors qu&#039;il fallait l&#039;utiliser comme elle était mais ça m&#039;a fait découvrir ce type de données que je trouve très pratique.</p><p>Du coup voici ma fonction modifiée :</p><div class="codebox"><pre class="vscroll"><code>BEGIN
+
+IF (TG_OP = &#039;UPDATE&#039;) THEN
+
+identifiant := OLD.id_tableA;
+
+INSERT INTO  test_suivi_tables.suivi_modif_tables (
+   
+    nom_schema ,
+    nom_table ,
+    utilisateur ,
+    action ,
+    id_objet_modifie ,
+    date_derniere_modif,
+    colonne_modif
+
+    )
+
+    VALUES (
+        TG_TABLE_SCHEMA::TEXT,
+        TG_TABLE_NAME::TEXT,
+        session_user::TEXT,
+        substring(TG_OP,1,1),
+        identifiant,
+        now(),
+        ((  select (array_agg(k2)) nom_colonne
+            from (select * from jsonb_each_text(row_to_json(OLD)::jsonb)) as r1(k1,v1)
+            join (select * from jsonb_each_text(row_to_json(NEW)::jsonb)) as r2(k2,v2)
+            on k1=k2
+            where v1 is distinct from v2)::TEXT) 
+        
+    );
+    -- pour enlever les parenthèses qui restent après changement de format de type JSON en TEXT
+update tables_de_suivi.suivi_modif_tables 
+      set colonne_modif = trim(both &#039;{}&#039; FROM &quot;colonne_modif&quot;);
+       
+    );</code></pre></div><br /><p>J&#039;ai effectué le test avec plusieurs champs modifiés sur la même ligne, je récupère bien tous les noms des champs modifiés séparés par une virgule et sans les parenthèses</p>]]></summary>
+		<author>
+			<name><![CDATA[sab31]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=10350</uri>
+		</author>
+		<updated>2022-12-14T11:24:00Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?id=6392&amp;action=new</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Fonction déclencheur et utilisation de TG_TABLE_XXXX]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?id=6365&amp;action=new"/>
+		<summary type="html"><![CDATA[<p>Très bonne nouvelle, bon weekend également <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></summary>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2022-10-07T15:09:50Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?id=6365&amp;action=new</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Mise à jour de table distante]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?id=6332&amp;action=new"/>
+		<summary type="html"><![CDATA[<p>ah je vois.<br />merci beaucoup dverite</p>]]></summary>
+		<author>
+			<name><![CDATA[Lamethode]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9925</uri>
+		</author>
+		<updated>2022-09-01T15:37:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?id=6332&amp;action=new</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Division/split d'1 table en x tables, fct de x val uniques d' 1 champ]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?id=6316&amp;action=new"/>
+		<summary type="html"><![CDATA[<p>Merci beaucoup rjuju/Julien pour toutes ces informations et surtout pour m&#039;avoir débloqué au début de l&#039;ensemble de cette discussion avec le &quot;RETURN void&quot;.<br />Bien cordialement,<br />Philippe</p>]]></summary>
+		<author>
+			<name><![CDATA[philippe_schitter]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=10453</uri>
+		</author>
+		<updated>2022-07-29T11:55:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?id=6316&amp;action=new</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[multi update in one query jsonb postgres]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?id=6312&amp;action=new"/>
+		<summary type="html"><![CDATA[<p>I want to modify color and title with same data for specified items with this keys {0024dd81-db96-4a87-863b-e6ca9dd69d91,0024dd81-db96-4a87-863b-e6ca9dd69d92,0024dd81-db96-4a87-863b-e6ca9dd69d93} in one query the result must be like this all in one query<br />````<br />{<br />&#160; &quot;designation&quot;: &quot;test&quot;<br />&#160; &quot;items&quot;: {<br />&#160; &#160; &quot;0024dd81-db96-4a87-863b-e6ca9dd69d90&quot;: {<br />&#160; &#160; &#160; &quot;id&quot;: 71,<br />&#160; &#160; &#160; &quot;color&quot;: &quot;#FFFFFF&quot;,<br />&#160; &#160; &#160; &quot;title&quot;: &quot;item1&quot;,<br />&#160; &#160; }, <br />&#160; &quot;0024dd81-db96-4a87-863b-e6ca9dd69d91&quot;: {<br />&#160; &#160; &#160; &quot;id&quot;: 72,<br />&#160; &#160; &#160; &quot;color&quot;: &quot;#FFFFFF&quot;,<br />&#160; &#160; &#160; &quot;title&quot;: &quot;item2&quot;,<br />&#160; &#160; },<br />&#160; &#160; &quot;0024dd81-db96-4a87-863b-e6ca9dd69d92&quot;: {<br />&#160; &#160; &#160; &quot;id&quot;: 73,<br />&#160; &#160; &#160; &quot;color&quot;: &quot;#FFFFFF&quot;,<br />&#160; &#160; &#160; &quot;title&quot;: &quot;item3&quot;,<br />&#160; &#160; },<br />&#160; &#160; &quot;0024dd81-db96-4a87-863b-e6ca9dd69d93&quot;: {<br />&#160; &#160; &#160; &quot;id&quot;: 74,<br />&#160; &#160; &#160; &quot;color&quot;: &quot;#FFFFFF&quot;,<br />&#160; &#160; &#160; &quot;title&quot;: &quot;item4&quot;,<br />&#160; &#160; }<br />&#160; }<br />}<br />````</p><p>result must me like this :</p><p>```</p><br /><p>{<br />&#160; &quot;designation&quot;: &quot;test&quot;<br />&#160; &quot;items&quot;: {<br />&#160; &#160; &quot;0024dd81-db96-4a87-863b-e6ca9dd69d90&quot;: {<br />&#160; &#160; &#160; &quot;id&quot;: 71,<br />&#160; &#160; &#160; &quot;color&quot;: &quot;#FFFFFF&quot;,<br />&#160; &#160; &#160; &quot;title&quot;: &quot;item1&quot;,<br />&#160; &#160; }, <br />&#160; &quot;0024dd81-db96-4a87-863b-e6ca9dd69d91&quot;: {<br />&#160; &#160; &#160; &quot;id&quot;: 72,<br />&#160; &#160; &#160; &quot;color&quot;: &quot;#FFFFFF&quot;,<br />&#160; &#160; &#160; &quot;title&quot;: &quot;item2&quot;,<br />&#160; &#160; },<br />&#160; &#160; &quot;0024dd81-db96-4a87-863b-e6ca9dd69d92&quot;: {<br />&#160; &#160; &#160; &quot;id&quot;: 73,<br />&#160; &#160; &#160; &quot;color&quot;: &quot;#FFFFFF&quot;,<br />&#160; &#160; &#160; &quot;title&quot;: &quot;item3&quot;,<br />&#160; &#160; },<br />&#160; &#160; &quot;0024dd81-db96-4a87-863b-e6ca9dd69d93&quot;: {<br />&#160; &#160; &#160; &quot;id&quot;: 74,<br />&#160; &#160; &#160; &quot;color&quot;: &quot;#FFFFFF&quot;,<br />&#160; &#160; &#160; &quot;title&quot;: &quot;item4&quot;,<br />&#160; &#160; }<br />&#160; }<br />}<br />{<br />&#160; &quot;designation&quot;: &quot;test&quot;<br />&#160; &quot;items&quot;: {<br />&#160; &#160;&quot;items&quot;: {<br />&#160; &#160; &quot;0024dd81-db96-4a87-863b-e6ca9dd69d90&quot;: {<br />&#160; &#160; &#160; &quot;id&quot;: 71,<br />&#160; &#160; &#160; &quot;color&quot;: &quot;#FFFFFF&quot;,<br />&#160; &#160; &#160; &quot;title&quot;: &quot;item1&quot;,<br />&#160; &#160; }, <br />&#160; &quot;0024dd81-db96-4a87-863b-e6ca9dd69d91&quot;: {<br />&#160; &#160; &#160; &quot;id&quot;: 72,<br />&#160; &#160; &#160; &quot;color&quot;: &quot;#FFFFFF&quot;,<br />&#160; &#160; &#160; &quot;title&quot;: &quot;updated&quot;,<br />&#160; &#160; },<br />&#160; &#160; &quot;0024dd81-db96-4a87-863b-e6ca9dd69d92&quot;: {<br />&#160; &#160; &#160; &quot;id&quot;: 73,<br />&#160; &#160; &#160; &quot;color&quot;: &quot;#FFFFFF&quot;,<br />&#160; &#160; &#160; &quot;title&quot;: &quot;updated&quot;,<br />&#160; &#160; },<br />&#160; &#160; &quot;0024dd81-db96-4a87-863b-e6ca9dd69d93&quot;: {<br />&#160; &#160; &#160; &quot;id&quot;: 74,<br />&#160; &#160; &#160; &quot;color&quot;: &quot;#FFFFFF&quot;,<br />&#160; &#160; &#160; &quot;title&quot;: &quot;updated&quot;,<br />&#160; &#160; }<br />&#160; }<br />}</p><p>```</p>]]></summary>
+		<author>
+			<name><![CDATA[R00t_Killer]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=10441</uri>
+		</author>
+		<updated>2022-07-25T08:34:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?id=6312&amp;action=new</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Calcul récursif / boucle]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?id=6274&amp;action=new"/>
+		<summary type="html"><![CDATA[<p>Hello , </p><p>Finalement , J&#039;ai trouvé la solution :&#160; </p><p>CREATE OR REPLACE FUNCTION UPDATE_KPI03() RETURNS BOOLEAN<br />&#160; &#160; LANGUAGE PLPGSQL<br />AS<br />$$<br />DECLARE<br />&#160; &#160; TABLE_RECORD RECORD;<br />&#160; &#160; CALC_BP_YEAR VARCHAR;<br />&#160; &#160; CALC_KPI_03 NUMERIC;<br />BEGIN<br />&#160; &#160; FOR TABLE_RECORD IN SELECT BP_YEAR ,KPI_02,KPI_03&#160; FROM VALO_IT ORDER BY BP_YEAR&#160; </p><p>&#160; &#160; &#160; &#160; LOOP<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160;SELECT BP_YEAR ,<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;&#160; &#160;SUM(CASE<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;&#160; &#160; &#160; &#160;WHEN KPI_01 IS NULL AND KPI_02 IS NOT NULL THEN KPI_02<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;&#160; &#160; &#160; &#160;WHEN KPI_01 &lt; 0 THEN KPI_02<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;&#160; &#160;ELSE <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;&#160; &#160;CASE WHEN KPI_02 &lt; (SELECT -SUM(KPI_03) FROM VALO_IT WHERE BP_YEAR &lt; TABLE_RECORD.BP_YEAR)&#160; THEN KPI_02<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;&#160; &#160;ELSE <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; (SELECT -SUM(KPI_03) FROM VALO_IT WHERE BP_YEAR &lt; TABLE_RECORD.BP_YEAR) <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;&#160; &#160;END <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;&#160; &#160;END ) AS KPI_03<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;&#160; &#160;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;&#160; &#160;INTO CALC_BP_YEAR, CALC_KPI_03<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;&#160; &#160;<br />&#160; &#160;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; FROM VALO_IT<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;&#160; &#160; WHERE&#160; BP_YEAR = TABLE_RECORD.BP_YEAR <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;&#160; &#160; GROUP BY BP_YEAR ;</p><p>&#160; &#160; &#160; &#160; &#160; &#160; &#160;UPDATE VALO_IT<br />&#160; &#160; &#160; &#160; &#160; &#160;&#160; SET KPI_03 = CALC_KPI_03<br />&#160; &#160; &#160; &#160; &#160; &#160;&#160; WHERE BP_YEAR = CALC_BP_YEAR ;&#160; <br />&#160; &#160; &#160; &#160; END LOOP;</p><p>&#160; &#160; RETURN TRUE;<br />END<br />$$;</p><p>SELECT UPDATE_KPI03();</p><p>Ibrahim</p>]]></summary>
+		<author>
+			<name><![CDATA[ichelly]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=10255</uri>
+		</author>
+		<updated>2022-05-19T09:49:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?id=6274&amp;action=new</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[syntaxe après le FROM pour une "table variable"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?id=6239&amp;action=new"/>
+		<summary type="html"><![CDATA[<div class="quotebox"><cite>rjuju a écrit&#160;:</cite><blockquote><div><p>L&#039;erreur est due au fait que vous essayez d&#039;acquérir trop de verrous en même temps.&#160; En effet les verrous ne sont relachés qu&#039;à la fin de la transaction, et apparemment vous avez une boucle infinie, vu que la variable c n&#039;est jamais décrémentée.&#160; Par conséquent, vous allez supprimer et recréer la même table (mais avec un oid différent) en boucle jusqu&#039;à saturation des verrous.</p></div></blockquote></div><p>oui c&#039;était bien une boucle infinie <br />dès hier soir en enlevant le &quot;while&quot; c&#039;était bon<br />merci</p><br /><div class="quotebox"><cite>dverite a écrit&#160;:</cite><blockquote><div><p>Au-delà de l&#039;erreur de la boucle infinie, conceptuellement le fait de créer N tables qui ont une structure identique est anti-relationnel.<br />Même si ça vous parait plus simple de raisonner sur des tables séparées, en BDD relationnelle on fera une seule table avec une colonne supplémentaire contenant le numéro derrière le &quot;bp&quot; des noms de tables actuels.<br />Accessoirement, en faisant comme ça, il n&#039;y a plus besoin de SQL dynamique.<br />Indépendamment de ça, la boucle dans le code en #7 supprime et créé une table temporaire &quot;temp&quot;, toujours la même. Il faudrait à la place créer la table une seule fois en dehors de la boucle, et faire un TRUNCATE dans la boucle si on veut la vider de son contenu à chaque itération.</p></div></blockquote></div><p>et oui ! optimisations, optimisations..</p><p>Effectivement, sans le sql dynamique <br />j&#039;ai repris le code et ça me donne ceci :&#160; <br />il fonctionne correctement<br />merci pour votre aide !</p><br /><div class="codebox"><pre class="vscroll"><code>DECLARE 
+x INTEGER; 
+C INTEGER;
+bp TEXT;
+
+BEGIN
+
+
+x:=1;
+C := (SELECT count(*) FROM ebp WHERE code_bpe IN (SELECT origine FROM pm919.cb)AND niveau= 1);
+
+WHILE C &gt; 0 LOOP
+		
+		FOR bp IN (SELECT DISTINCT code_bpe FROM ebp WHERE niveau=x) LOOP
+		INSERT INTO ebp (code_bpe, cb_entrant) (SELECT extremite, code_cb FROM pm919.cb WHERE bp=origine) ;
+		
+		END LOOP;
+		
+	UPDATE ebp SET type_fonc= bpe.type_fonc, reference= bpe.reference, niveau = x+1 FROM pm919.bpe 
+	WHERE bpe.code_bpe=ebp.code_bpe AND ebp.niveau IS NULL  ;
+	
+	C := (SELECT count(*) FROM ebp WHERE code_bpe IN (SELECT origine FROM pm919.cb) AND niveau= x+1);
+	x:=x+1;
+
+END LOOP;
+END;</code></pre></div>]]></summary>
+		<author>
+			<name><![CDATA[cllemendavvid]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=10093</uri>
+		</author>
+		<updated>2022-05-05T18:32:31Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?id=6239&amp;action=new</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Problème de stabilité]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?id=6257&amp;action=new"/>
+		<summary type="html"><![CDATA[<p>Merci beaucoup. <br />J&#039;y avais pas pensé.<br />Résolu</p>]]></summary>
+		<author>
+			<name><![CDATA[Lamethode]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9925</uri>
+		</author>
+		<updated>2022-04-27T17:33:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?id=6257&amp;action=new</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Update avec requête récursive]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?id=6246&amp;action=new"/>
+		<summary type="html"><![CDATA[<p>Merci Daniel pour ce gros coup de pouce, ça fonctionne aux petits oignons. J&#039;ai un peu exploré la fonction over, mais pas très facile à appréhender.</p>]]></summary>
+		<author>
+			<name><![CDATA[Tioneb]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=10136</uri>
+		</author>
+		<updated>2022-04-04T15:00:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?id=6246&amp;action=new</id>
+	</entry>
+</feed>

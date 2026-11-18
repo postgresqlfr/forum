@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Optimisation particulière pour statistique]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=686&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=686"/>
+	<updated>2010-03-22T10:00:22Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=686</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Optimisation particulière pour statistique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4304#p4304"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>Marc Cousin a écrit&#160;:</cite><blockquote><div><p>Quelles nouvelles ?</p></div></blockquote></div><p>Ca a bien marché :-)&#160; je suis tombé selon les cas sur des temps de moins d&#039;1 ms par insert.</p><p>En ce moment je reconstruit les indexs, et ça travaille depuis 10h. Sachant qu&#039;il n&#039;y aura dorénavant plus d&#039;insert, je peux en mettre plein ! <img src="http://forums.postgresql.fr/img/smilies/wink.png" width="15" height="15" alt="wink" /></p>]]></content>
+		<author>
+			<name><![CDATA[Ontologia]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=687</uri>
+		</author>
+		<updated>2010-03-22T10:00:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4304#p4304</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Optimisation particulière pour statistique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4303#p4303"/>
+		<content type="html"><![CDATA[<p>Quelles nouvelles ?</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-03-22T09:50:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4303#p4303</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Optimisation particulière pour statistique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4291#p4291"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>Marc Cousin a écrit&#160;:</cite><blockquote><div><p>Le commit à la fin n&#039;est pas suffisant : il faut un begin au début de la série d&#039;ordres pour indiquer que vous voulez commencer une transaction.</p><p>8ms par ligne, cela ressemble au temps d&#039;écriture du journal sur votre disque dur IDE, donc au coût de la transaction.</p><p>Évitez les index hash ils ne servent à rien dans les versions actuelles : plus lents et ne supportent pas les crash.</p><p>Ne crééz que les index nécessaires : plus vous en aurez, plus il y en aura à mettre à jour. Il vous faut donc des index mais pas trop, c&#039;est l&#039;art du dba <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>Pour le moment tout s&#039;oriente sur le fait que vous avez un commit implicite à chaque ligne (à cause de l&#039;absence de begin au début de votre script).</p></div></blockquote></div><p>J&#039;ai donc supprimé les hash, ou plutôt, je les ai mis à la fin, et j&#039;ai mis des index btree (très peu) que sur les valeurs sur lesquelles je calcul ma variance.<br />J&#039;ai mis deux blocs de transaction ( begin; /*code*/ commit; si j&#039;ai bien lu la doc), avec un vacuum entre les deux.<br />Je lance ensuite le bloc de transaction avec les update dedans (le 2eme bloc).<br />On verra demain ce que ça aura donné.</p><p>Merci en tout cas :-)</p>]]></content>
+		<author>
+			<name><![CDATA[Ontologia]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=687</uri>
+		</author>
+		<updated>2010-03-19T16:39:50Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4291#p4291</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Optimisation particulière pour statistique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4289#p4289"/>
+		<content type="html"><![CDATA[<p>Le commit à la fin n&#039;est pas suffisant : il faut un begin au début de la série d&#039;ordres pour indiquer que vous voulez commencer une transaction.</p><p>8ms par ligne, cela ressemble au temps d&#039;écriture du journal sur votre disque dur IDE, donc au coût de la transaction.</p><p>Évitez les index hash ils ne servent à rien dans les versions actuelles : plus lents et ne supportent pas les crash.</p><p>Ne crééz que les index nécessaires : plus vous en aurez, plus il y en aura à mettre à jour. Il vous faut donc des index mais pas trop, c&#039;est l&#039;art du dba <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>Pour le moment tout s&#039;oriente sur le fait que vous avez un commit implicite à chaque ligne (à cause de l&#039;absence de begin au début de votre script).</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-03-19T16:00:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4289#p4289</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Optimisation particulière pour statistique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4288#p4288"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>Marc Cousin a écrit&#160;:</cite><blockquote><div><p>Rien de choquant à première vue dans la conf. Comme la plupart du temps, les problèmes de performance proviennent probablement plutôt du code ou du schéma.</p><p>Êtes vous sur de :<br />- Faire des transactions explicites (et pas une transaction par insert/update)</p></div></blockquote></div><p>Au début j&#039;ai lancé tout mon script dans pgadmin, avec juste un commit à la fin, que j&#039;ai arrêté en cours.<br />Ensuite je les ai ensuite lancé &quot;as is&quot;</p><p>Qu&#039;est-ce qui est mieux ?</p><p>Entre temps, je me suis essayé à faire un petit échantillon limité d&#039;update :<br />Cette requette d&#039;update est simple : elle calcule une variance sur 3 valeurs (donc divisions, addition soustraction, multiplications) sur chaque ligne.<br />En gros, j&#039;obtiens 8ms par lignes, soit environ 11h de calcul pour mes 5 millions de lignes.<br />ce qui est bizare, c&#039;est que le processeur ne fait pas grand chose pendant ce temps là, et que les accès disques plafonnent à 200 à 500 ko/s en lecture et écriture..</p><br /><br /><div class="quotebox"><cite>Marc Cousin a écrit&#160;:</cite><blockquote><div><p>- Que vous avez bien les index dont vous avez besoin ?</p></div></blockquote></div><p>J&#039;ai créé toutes sortes d&#039;index, en hash et Btree sur à peu près tout les champs.<br />Mais j&#039;ai un seul index Btree pour les 3 valeurs qui me servent à calculer ma variance ( l&#039;update cité plus haut).<br />peut être devrais en créer un pour chaque ?</p>]]></content>
+		<author>
+			<name><![CDATA[Ontologia]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=687</uri>
+		</author>
+		<updated>2010-03-19T15:53:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4288#p4288</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Optimisation particulière pour statistique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4284#p4284"/>
+		<content type="html"><![CDATA[<p>Rien de choquant à première vue dans la conf. Comme la plupart du temps, les problèmes de performance proviennent probablement plutôt du code ou du schéma.</p><p>Êtes vous sur de :<br />- Faire des transactions explicites (et pas une transaction par insert/update)<br />- Que vous avez bien les index dont vous avez besoin ?</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-03-19T15:08:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4284#p4284</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Optimisation particulière pour statistique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4283#p4283"/>
+		<content type="html"><![CDATA[<p>Bonjour, je travaille sur une base assez grosse, chargée une seul fois pour toute, avec pour objectif de réaliser pas mal de statistiques sur les données de celle-ci (que des select).<br />Je cherche à configurer les paramètres de postgresql.conf au mieux afin d&#039;avoir les meilleurs perfs possibles.<br />Je viens vers vous pour avoir quelques conseils issus de votre expérience éventuelle sur ce genre de cas très particulier.</p><p>Mes contraintes/caractéristiques :</p><p>Hardware : Macbook = Core Duo 1,8 Ghz , 2 Go de mémoire, DD 7200 tours (perfs honorables, pointes à 40 Mo/s en random access)<br />Base : 2 tables, l&#039;une de 300 k lignes, l&#039;autre de 5 millions.&#160; *** Tables chargée une seule et dernières fois : plus d&#039;ajout ***, <br />Objectifs : Etablir toutes sortes de statistiques sur mes données =&gt; uniquement des select ; bcp d&#039;aggrégations, calculs...</p><p>Sur ma table de 5 millions de lignes, j&#039;ai 4 données de base + un lien ident vers un autre table. <br />Lors de la construction, j&#039;essaye&#160; d&#039;updater une dizaine de champs pour chaque ligne de cette table<br />A l&#039;heure ou j&#039;en suis, les requetes d&#039;update sont extrêmement longue : Au bout d&#039;une journée, toujours pas finies !!</p><p>Ma question :<br />J&#039;ai consulté la doc pour améliorer les params dans postgresql.conf, mais je me demande s&#039;il y a qq chose à améliorer.<br />J&#039;ai senti une nette amélioration sur les requetes d&#039;insert into select.<br />Mes params postgresql.conf (j&#039;ai laissé les params désactivé avec #)</p><br /><p>Résumé : </p><p>shared_buffers = 490MB&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # min 128kB<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # (change requires restart)<br />temp_buffers = 8MB&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # min 800kB</p><p>max_connections = 3</p><p>effective_cache_size = 1024MB</p><p>J&#039;ai activé les Genetic Query Optimizer (peut être une mauvaise idée ) ?</p><br /><br /><p>Le fichier de conf (settings liés à l&#039;optim)</p><br /><br /><br /><p># - Memory -</p><p>shared_buffers = 490MB&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # min 128kB<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # (change requires restart)<br />temp_buffers = 8MB&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # min 800kB<br />#max_prepared_transactions = 0&#160; &#160; &#160; &#160; &#160; # zero disables the feature<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # (change requires restart)<br /># Note:&#160; Increasing max_prepared_transactions costs ~600 bytes of shared memory<br /># per transaction slot, plus lock space (see max_locks_per_transaction).<br /># It is not advisable to set max_prepared_transactions nonzero unless you<br /># actively intend to use prepared transactions.<br />#work_mem = 1MB&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;# min 64kB<br />#maintenance_work_mem = 16MB&#160; &#160; &#160; &#160; &#160; &#160; # min 1MB<br />#max_stack_depth = 2MB&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # min 100kB<br /># - Kernel Resource Usage -</p><p>#max_files_per_process = 1000&#160; &#160; &#160; &#160; &#160; &#160;# min 25<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # (change requires restart)<br />#shared_preload_libraries = &#039;&#039;&#160; &#160; &#160; &#160; &#160; # (change requires restart)</p><p># - Cost-Based Vacuum Delay -</p><p>#vacuum_cost_delay = 0ms&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # 0-100 milliseconds<br />#vacuum_cost_page_hit = 1&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;# 0-10000 credits<br />#vacuum_cost_page_miss = 10&#160; &#160; &#160; &#160; &#160; &#160; &#160;# 0-10000 credits<br />#vacuum_cost_page_dirty = 20&#160; &#160; &#160; &#160; &#160; &#160; # 0-10000 credits<br />#vacuum_cost_limit = 200&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # 1-10000 credits</p><p># - Background Writer -</p><p>#bgwriter_delay = 200ms&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;# 10-10000ms between rounds<br />#bgwriter_lru_maxpages = 100&#160; &#160; &#160; &#160; &#160; &#160; # 0-1000 max buffers written/round<br />#bgwriter_lru_multiplier = 2.0&#160; &#160; &#160; &#160; &#160; # 0-10.0 multipler on buffers scanned/round</p><p># - Asynchronous Behavior -</p><p>#effective_io_concurrency = 1&#160; &#160; &#160; &#160; &#160; &#160;# 1-1000. 0 disables prefetching<br />#fsync = on&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;# turns forced synchronization on or off<br />synchronous_commit = on&#160; &#160; &#160; &#160; &#160;# immediate fsync at commit<br />#wal_sync_method = fsync&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # the default is the first option <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # supported by the operating system:<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;open_datasync<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;fdatasync<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;fsync<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;fsync_writethrough<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;open_sync<br />#full_page_writes = on&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # recover from partial page writes<br />wal_buffers = 1024kB&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # min 32kB<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # (change requires restart)<br />#wal_writer_delay = 200ms&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;# 1-10000 milliseconds</p><p>#commit_delay = 0&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;# range 0-100000, in microseconds<br />#commit_siblings = 5&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # range 1-1000<br />effective_cache_size = 1024MB</p><p># - Genetic Query Optimizer -</p><p>geqo = on<br />geqo_threshold = 12<br />geqo_effort = 5&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;# range 1-10<br />geqo_pool_size = 0&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # selects default based on effort<br />geqo_generations = 0&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # selects default based on effort<br />geqo_selection_bias = 2.0&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;# range 1.5-2.0</p><br /><p>je n&#039;ai pas touché au reste...</p><br /><p>Merci !</p>]]></content>
+		<author>
+			<name><![CDATA[Ontologia]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=687</uri>
+		</author>
+		<updated>2010-03-19T14:51:31Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4283#p4283</id>
+	</entry>
+</feed>

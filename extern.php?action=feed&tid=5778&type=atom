@@ -1,0 +1,327 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Droit refusé sur une vue]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5778&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5778"/>
+	<updated>2020-06-08T14:43:25Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5778</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Droit refusé sur une vue]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31275#p31275"/>
+		<content type="html"><![CDATA[<p>Ok.<br />Merci, c&#039;est une bonne idée.<br />J&#039;en prends note et essayerai de faire le nécessaire.</p>]]></content>
+		<author>
+			<name><![CDATA[Vinz67]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8921</uri>
+		</author>
+		<updated>2020-06-08T14:43:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31275#p31275</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Droit refusé sur une vue]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31274#p31274"/>
+		<content type="html"><![CDATA[<p>Ok. Un dernier piège… un utilisateur pourrait tenter, par la vue, de changer id_reseau ¸ res_noeud.type_noeud ou res_noeud.date_suppression IS NULL. Et donc faire &quot;disparaître&quot; des données de la vue. Il vaudrait probablement mieux se prémunir de ça dans la fonction PL (un contrôle sur les insert/update dès le départ je pense)</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2020-06-08T14:40:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31274#p31274</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Droit refusé sur une vue]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31273#p31273"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>Marc Cousin a écrit&#160;:</cite><blockquote><div><p> il faut que l&#039;utilisateur propriétaire de la fonction trigger soit autorisé à manipuler les tables en dessous,</p></div></blockquote></div><p>Ok smanetagis est propriétaire de la fonction res_eau_vanne_vue_edit() et a tous les droits sur les tables res_noeud et res_ea_noeud_vanne.</p><div class="quotebox"><cite>Marc Cousin a écrit&#160;:</cite><blockquote><div><p> mais pas l&#039;utliisateur qui travaille sur les vues</p></div></blockquote></div><p>Ok grp_aep_admin n&#039;a aucun droit sur les tables res_noeud et res_ea_noeud_vanne.</p><div class="quotebox"><cite>Marc Cousin a écrit&#160;:</cite><blockquote><div><p> Lui devrait juste avoir des droits sur la vue</p></div></blockquote></div><p>Ok grp_aep_admin a les droits insert, select, update et delete sur la vue.</p><div class="quotebox"><cite>Marc Cousin a écrit&#160;:</cite><blockquote><div><p>Ça ne marche pas ?</p></div></blockquote></div><p>Si, j&#039;ai l&#039;impression que ça fonctionne. L&#039;erreur que j&#039;avais faite est de donner des droits à l&#039;utilisateur sur les deux tables.<br />Merci beaucoup !</p>]]></content>
+		<author>
+			<name><![CDATA[Vinz67]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8921</uri>
+		</author>
+		<updated>2020-06-08T14:15:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31273#p31273</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Droit refusé sur une vue]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31271#p31271"/>
+		<content type="html"><![CDATA[<p>Non, ça doit le faire, il faut que l&#039;utilisateur propriétaire de la fonction trigger soit autorisé à manipuler les tables en dessous, mais pas l&#039;utliisateur qui travaille sur les vues. Lui devrait juste avoir des droits sur la vue. Ça ne marche pas ?</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2020-06-08T13:22:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31271#p31271</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Droit refusé sur une vue]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31269#p31269"/>
+		<content type="html"><![CDATA[<p>C&#039;est nickel pour session_user.<br />Malheureusement, je crois que dans mon post précédent je me suis un peu enflammé.<br />En effet, le security definer fonctionne mais je suis pas sûre que c&#039;est ce que je souhaitais. En relisant mon premier post je crois que je n&#039;étais pas assez précis.<br />En fait, je souhaite que les utilisateurs ayant les droits puissent uniquement insert, update et delete la donnée via la vue et pas directement dans les tables sous-jacentes (res_noeud et res_ea_noeud_vanne). Ces dernières sont filtrées et conditionnées en fonction des métiers des utilisateurs.<br />En résumer, je veux que le user puisse insert, update et delete depuis la vue et pas depuis les tables sous-jacentes.</p><p>Mais là je crois que j&#039;en demande un peu trop ...</p>]]></content>
+		<author>
+			<name><![CDATA[Vinz67]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8921</uri>
+		</author>
+		<updated>2020-06-08T13:00:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31269#p31269</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Droit refusé sur une vue]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31268#p31268"/>
+		<content type="html"><![CDATA[<p>Je pense que ce que vous voulez c&#039;est session_user, pas current_user: <a href="https://www.postgresql.org/docs/current/functions-info.html" rel="nofollow">https://www.postgresql.org/docs/current … -info.html</a></p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2020-06-08T12:26:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31268#p31268</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Droit refusé sur une vue]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31267#p31267"/>
+		<content type="html"><![CDATA[<p>Ok j&#039;avance.<br />J&#039;ai du rajouter &quot;public&quot; pour le search_path parce qu&#039;il y avait d&#039;autres déclencheurs sur une table sous-jacente.<br />Le groupe grp_aep_admin est bien propriétaire de la vue et ça fonctionne comme je le souhaite … enfin presque !<br />En effet, en disant de mettre USER dans le champs user_postgis j&#039;espérais pouvoir identifier le créateur de la donnée et/ou le modificateur. Avec cette sécurité c&#039;est le groupe qui est le USER.<br />Avez vous un moyen de contourner ce problème et de connaitre quel utilisateur du groupe à fait la création/modifiaction ?</p>]]></content>
+		<author>
+			<name><![CDATA[Vinz67]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8921</uri>
+		</author>
+		<updated>2020-06-08T11:45:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31267#p31267</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Droit refusé sur une vue]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31265#p31265"/>
+		<content type="html"><![CDATA[<p>La raison pour se protéger du search_path, c&#039;est que c&#039;est une variable de session. Donc si vous ne la forcez pas dans la fonction, un utilisateur mal intentionné pourra remplacer son search_path et essayer d&#039;exploiter les noms d&#039;objets sans schéma dans votre fonction, avec les droits améliorés de la fonction, vu qu&#039;elle est security definer.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2020-06-08T08:08:06Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31265#p31265</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Droit refusé sur une vue]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31264#p31264"/>
+		<content type="html"><![CDATA[<p>C&#039;est exactement ce que dit la doc. Quand on fait une fonction security definer, il faut mettre un search_path restrictif (idéalement, uniquement pg_catalog, si on veut vraiment être sûr), et préfixer tous les objets auxquels on accède par leur schéma pour être vraiment explicite. Vu que c&#039;est déjà presque bon dans votre fonction (currval(&#039;res_noeud_id_noeud_seq&#039;::regclass) par exemple ne précise pas le schéma, il faudra le corriger), il suffit de modifier l&#039;entête de la fonction par :</p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION res_eau_vanne_vue_edit()
+RETURNS trigger SECURITY DEFINER SET search_path= &#039;&#039; AS</code></pre></div><p> ou quelque chose de très approchant.</p><p>Vous pouvez le mettre avant ou après le bloc AS, ça n&#039;a aucune importance.</p><p>Une fois que vous aurez fait ça, la fonction s&#039;exécutera en tant que son propriétaire, et non plus en tant que l&#039;utilisateur appelant. Faites donc bien attention à ce qu&#039;elle appartienne à un utilisateur (role) ayant accès aux objets en question en écriture.</p><p>Si l&#039;utilisateur n&#039;est pas bon, vous pouvez faire un ALTER FUNCTION ... OWNER TO.</p><p>Et il faudra peut-être faire un GRANT EXECUTE sur cette fonction aux utilisateurs ayant accès à la vue (par défaut ça devrait être bon).</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2020-06-08T08:06:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31264#p31264</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Droit refusé sur une vue]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31263#p31263"/>
+		<content type="html"><![CDATA[<p>La doc dit :&quot;Pour des raisons de sécurité, search_path doit être configuré pour exclure les schémas modifiables par des utilisateurs indignes de confiance.&quot;</p><div class="codebox"><pre><code>CREATE FUNCTION verifie_motdepasse(unom TEXT, motpasse TEXT)
+RETURNS BOOLEAN AS $$
+DECLARE ok BOOLEAN;
+BEGIN
+        -- Effectuer le travail sécurisé de la fonction.
+        SELECT  (motdepasse = $2) INTO ok
+        FROM    motsdepasse
+        WHERE   nomutilisateur = $1;
+
+        RETURN ok;
+END;
+$$  LANGUAGE plpgsql
+    SECURITY DEFINER
+    -- Configure un search_path sécurisée : les schémas de confiance, puis &#039;pg_temp&#039;.
+    SET search_path = admin, pg_temp;
+
+BEGIN;
+CREATE FUNCTION verifie_motdepasse(unom TEXT, motpasse TEXT) ... SECURITY DEFINER;
+REVOKE ALL ON FUNCTION verifie_motdepasse(unom TEXT, motpasse TEXT) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION verifie_motdepasse(unom TEXT, motpasse TEXT) TO admins;
+COMMIT;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[Vinz67]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8921</uri>
+		</author>
+		<updated>2020-06-08T07:46:38Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31263#p31263</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Droit refusé sur une vue]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31262#p31262"/>
+		<content type="html"><![CDATA[<p>Pour le search_path vous faites référence à la doc de security definer qui vous recommande de mettre un search_path en dur ?</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2020-06-08T07:38:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31262#p31262</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Droit refusé sur une vue]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31261#p31261"/>
+		<content type="html"><![CDATA[<p>Bonjour Marc et merci pour votre réponse.<br />Je me suis penché sur cette fonctionnalité SECURITY DEFINER mais je vous avoue que cela me dépasse un peu.<br />J&#039;ai lu la doc mais je comprends pas à quel moment il faut définir le SECURITY DEFINER.<br />Le fait de devoir configurer search_path me déstabilise aussi. J&#039;utilise le schéma PUBLIC donc celui-ci est parcouru un premier, non ?<br />Pourriez vous s&#039;il vous plait m&#039;indiquer les emplacements et la définition de ces paramètres dans mon script ?<br />Merci d&#039;avance,<br />Vincent</p>]]></content>
+		<author>
+			<name><![CDATA[Vinz67]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8921</uri>
+		</author>
+		<updated>2020-06-08T07:25:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31261#p31261</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Droit refusé sur une vue]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31256#p31256"/>
+		<content type="html"><![CDATA[<p>Je pense que le paragraphe que vous tirez de la doc, c&#039;est pour les vues qui ne nécessitent pas de trigger instead of. Le trigger, lui, il exécute la fonction en tant que la personne connectée. À mon avis, si vous définissez la fonction comme security definer, avec comme propriétaire grp_aep_admin, ça marchera, puisque la fonction s&#039;exécutera en tant que grp_aep_admin</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2020-06-05T15:51:35Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31256#p31256</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Droit refusé sur une vue]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31255#p31255"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;utilise Postrgre/Postgis avec QGis pour lire la donnée géographique.</p><p>J&#039;ai créé une vue modifiable avec deux tables sous-jacentes.<br />Je suis propriétaire des tables et de la vue.<br />J&#039;ai donné les droits select, update, insert et delete à un groupe d&#039;utilisateur pour la vue.</p><p>Lorsque j&#039;utilise mon compte tout se passe comme je le souhaite. Par contre lorsque j&#039;utilise le compte utilisateur le message suivant s&#039;affiche ; &quot;Erreur PostGIS lors de l&#039;ajout d&#039;entité : ERREUR:&#160; droit refusé pour la relation res_noeud&quot;.<br />Dans la doc j&#039;ai bien vu que : &quot;Notez que l&#039;utilisateur réalisant l&#039;insertion, la mise à jour ou la suppression sur la vue doit avoir les droits correspondants sur la vue. De plus, le propriétaire de la vue doit avoir les droits correspondants sur les relations sous-jacentes mais l&#039;utilisateur réalisant la mise à jour n&#039;a pas besoin de droits sur les relations sous-jacentes.&quot;</p><p>J&#039;ai besoin d&#039;aide, svp.<br />Je vous joins mon script SQL pour la création de la vue, de la fonction et du trigger.</p><div class="codebox"><pre class="vscroll"><code> -- View: public.vue_res_eau_vanne
+
+DROP VIEW public.vue_res_eau_vanne CASCADE;
+
+CREATE OR REPLACE VIEW public.vue_res_eau_vanne
+WITH (security_barrier=false)
+ AS
+ SELECT res_noeud.id_noeud,
+	res_noeud.the_geom,
+    res_ea_noeud_vanne.numero,
+    res_ea_noeud_vanne.type,
+    res_ea_noeud_vanne.code_insee,
+    res_ea_noeud_vanne.adresse,
+    res_ea_noeud_vanne.reseau,
+    res_ea_noeud_vanne.reseau_type,
+    res_ea_noeud_vanne.diametre,
+    res_ea_noeud_vanne.materiau,
+    res_ea_noeud_vanne.nbre_tours,
+    res_ea_noeud_vanne.sens,
+    res_ea_noeud_vanne.etat_normal,
+    res_ea_noeud_vanne.implantation,
+    res_ea_noeud_vanne.annee_pose,
+    res_ea_noeud_vanne.date_controle,
+    res_ea_noeud_vanne.commentaire,
+    res_noeud.angle_lib
+   FROM  res_noeud
+   JOIN res_ea_noeud_vanne ON res_noeud.id_noeud = res_ea_noeud_vanne.id_noeud_vanne
+  WHERE res_noeud.id_reseau = 5 AND res_noeud.type_noeud = 203 AND res_noeud.date_suppression IS NULL;
+
+ALTER VIEW public.vue_res_eau_vanne
+    OWNER TO smanetagis;
+
+GRANT ALL ON TABLE public.vue_res_eau_vanne TO smanetagis;
+GRANT INSERT, SELECT, UPDATE, DELETE ON TABLE public.vue_res_eau_vanne TO grp_aep_admin;
+
+
+
+-- Crée la fonction utilisée par le déclencheur pour rendre modifiable la vue 
+--DROP FUNCTION res_eau_vanne_vue_edit() CASCADE;
+
+CREATE OR REPLACE FUNCTION res_eau_vanne_vue_edit()
+RETURNS trigger AS
+$BODY$
+
+BEGIN	
+
+    IF TG_OP = &#039;INSERT&#039; THEN
+        INSERT INTO public.res_noeud (
+									  type_noeud,
+									  id_reseau, 
+									  the_geom, 
+									  angle, 
+									  angle_lib, 
+									  date_creation, 
+									  user_postgis) 
+               					 VALUES (
+									     203,
+									 	 5, 
+										 NEW.the_geom,  
+										 180-NEW.angle_lib, 
+										 NEW.angle_lib, 
+										 CURRENT_TIMESTAMP, 
+										 USER);
+		INSERT INTO res_ea_noeud_vanne (id_noeud_vanne, 
+										numero, 
+										type, 
+										code_insee, 
+										adresse, 
+										reseau, 
+										reseau_type, 
+										diametre, 
+										materiau, 
+										nbre_tours, 
+										sens, 
+										etat_normal, 
+										implantation, 
+										annee_pose, 
+										date_controle, 
+										commentaire)
+								VALUES  (currval(&#039;res_noeud_id_noeud_seq&#039;::regclass), 
+										 new.numero, 
+										 new.type, 
+										 new.code_insee,
+										 new.adresse, 
+										 new.reseau, 
+										 new.reseau_type, 
+										 new.diametre, 
+										 new.materiau, 
+										 new.nbre_tours,
+										 new.sens, 
+										 new.etat_normal,
+										 new.implantation,
+										 new.annee_pose, 
+										 new.date_controle,
+										 new.commentaire);
+        RETURN NEW;
+	
+    ELSIF TG_OP = &#039;UPDATE&#039; THEN
+		UPDATE public.res_noeud 
+								SET the_geom = new.the_geom, 
+								angle = 180-NEW.angle_lib, 
+								angle_lib = new.angle_lib, 
+								date_modification = CURRENT_TIMESTAMP, 
+								user_postgis = USER
+  					WHERE old.id_noeud = res_noeud.id_noeud;
+					
+		UPDATE public.res_ea_noeud_vanne 
+								SET numero = new.numero, 
+								type = new.type, 
+								code_insee = new.code_insee, 
+								adresse = new.adresse, 
+								reseau = new.reseau, 
+								reseau_type = new.reseau_type, 
+								diametre = new.diametre, 
+								materiau = new.materiau, 
+								nbre_tours = new.nbre_tours, 
+								sens = new.sens, 
+								etat_normal = new.etat_normal, 
+								implantation = new.implantation, 
+								annee_pose = new.annee_pose, 
+								date_controle = new.date_controle, 
+								commentaire = new.commentaire
+  					WHERE  res_ea_noeud_vanne.id_noeud_vanne = old.id_noeud ;
+        RETURN NEW;
+		
+    ELSIF TG_OP = &#039;DELETE&#039; THEN
+        DELETE FROM public.res_noeud WHERE  old.id_noeud = res_noeud.id_noeud;
+        DELETE FROM public.res_ea_noeud_vanne WHERE  res_ea_noeud_vanne.id_noeud_vanne = old.id_noeud ;
+        RETURN NULL;
+    END IF;
+END
+$BODY$
+LANGUAGE plpgsql;
+
+-- Crée le déclencheur qui rend modifiable la vue.
+-- Une vue utilisant plusieurs tables n&#039;est pas directement modifiable.
+-- Il est donc obligatoire de créer ce déclencheur pour rendre ce type de vue modifiable. 
+
+--DROP TRIGGER res_eau_vanne_vue_edit_trig ON public.vue_res_eau_vanne;
+CREATE TRIGGER res_eau_vanne_vue_trig
+INSTEAD OF INSERT OR UPDATE OR DELETE 
+ON public.vue_res_eau_vanne
+FOR EACH ROW 
+EXECUTE PROCEDURE res_eau_vanne_vue_edit(); </code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[Vinz67]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8921</uri>
+		</author>
+		<updated>2020-06-05T14:30:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31255#p31255</id>
+	</entry>
+</feed>

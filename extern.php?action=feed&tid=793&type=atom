@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Autovacuum endormi ?]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=793&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=793"/>
+	<updated>2014-09-10T19:31:50Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=793</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Autovacuum endormi ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20553#p20553"/>
+		<content type="html"><![CDATA[<p>La colonne relpages de la table pg_class pour la table indique 5774704. Ce sont des blocs de 8 Ko par défaut. Ce qui nous fait 44 Go. C&#039;est évidemment une estimation mais elle devrait être assez proche de la réalité.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-09-10T19:31:50Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20553#p20553</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Autovacuum endormi ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20551#p20551"/>
+		<content type="html"><![CDATA[<p>Bonjour gleu,</p><p>comment pouvez vous savoir que la table fait 44GB.<br />Pouriez vous expliquer un peu plus votre estimation ( surtout la division )</p>]]></content>
+		<author>
+			<name><![CDATA[Postgres.0]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1310</uri>
+		</author>
+		<updated>2014-09-10T15:44:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20551#p20551</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Autovacuum endormi ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5021#p5021"/>
+		<content type="html"><![CDATA[<p>Merci pour votre explication.</p>]]></content>
+		<author>
+			<name><![CDATA[panou]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=725</uri>
+		</author>
+		<updated>2010-05-17T11:37:52Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5021#p5021</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Autovacuum endormi ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5020#p5020"/>
+		<content type="html"><![CDATA[<p>Il n&#039;y a pas de moyen pour estimer le temps que va prendre le VACUUM lui-même. Par contre, le délai supplémentaire imparti par les paramètres de coût du VACUUM est quantifiable sur une fourchette (meilleur cas, pire cas). Le calcul se fait en multipliant le délai par le coût de trouver un bloc en cache&#160; multiplié par le nombre de blocs (ie vacuum_cost_delay * vacuum_cost_page_hit / vacuum_cost_page_limit * nb blocs pour le meilleur cas). Si je reprends l&#039;exemple ci-dessus 20 * 1 / 200 * (44 * 1024 * 1024 / 8), soit 576 secondes, soit un peu plus de 9h d&#039;attente. Auquel il faut ajouter le temps de réaliser le VACUUM qui lui est difficilement quantifiable.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-05-17T10:14:07Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5020#p5020</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Autovacuum endormi ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5019#p5019"/>
+		<content type="html"><![CDATA[<p>Bonjour, </p><p>Pouvez-vous m&#039;expliquer comment vous estimez le temps que prend un vacuum ?</p><p>Cordialement,</p>]]></content>
+		<author>
+			<name><![CDATA[panou]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=725</uri>
+		</author>
+		<updated>2010-05-17T10:07:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5019#p5019</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Autovacuum endormi ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4996#p4996"/>
+		<content type="html"><![CDATA[<p>La table semble faire 44 Go. Avec un cost_delay à 20ms et en considérant que la table est entièrement en mémoire, le VACUUM va attendre 9h à ne rien faire, juste pour laisser les autres programmes accéder au disque. Le VACUUM durera 9h plus tout le temps nécessaire pour parcourir et traiter les 44 Go de cette table.</p><p>Dans le pire des cas (table sur disque), l&#039;attente sera plutôt de 90h, soit pratiquement 4 jours.</p><p>Bref, un cost_delay à 20ms avec un cost_limit à 200 pour cette table, c&#039;est du suicide. Deux possibilités, virer le cost_delay ou avoir un cost_limit beaucoup plus gros.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-05-12T21:28:09Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4996#p4996</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Autovacuum endormi ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4988#p4988"/>
+		<content type="html"><![CDATA[<p>Voici qqs paramètres. <br />J&#039;aimerai avoir un peu plus d&#039;infos sur le calibrage du paramètre cost_limit ?</p><br /><p>postgres=# show vacuum_cost_delay;<br /> vacuum_cost_delay<br />-------------------<br /> 0</p><p>postgres=# show autovacuum_vacuum_cost_delay ;<br /> autovacuum_vacuum_cost_delay<br />------------------------------<br /> 20ms</p><p>postgres=# show autovacuum_vacuum_cost_limit<br />postgres-# ;<br /> autovacuum_vacuum_cost_limit<br />------------------------------<br /> -1<br />(1 row)</p><p>postgres=# show vacuum_cost_limit<br />;<br /> vacuum_cost_limit<br />-------------------<br /> 200<br />(1 row)</p>]]></content>
+		<author>
+			<name><![CDATA[David]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=626</uri>
+		</author>
+		<updated>2010-05-12T13:51:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4988#p4988</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Autovacuum endormi ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4987#p4987"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Il y-a-t-il un moyen de savoir l&#039;état de progression du process ?</p></div></blockquote></div><p>Non, aucun.</p><div class="quotebox"><blockquote><div><p>Je n&#039;ai aucun retour dans la log pour savoir si le process a été endormi par le postmaster ? A-t-il dépassé un seuil ?</p></div></blockquote></div><p>Sur une semaine, ce serait étonnant. Vérifiez néanmoins vos paramètres vacuum_cost_delay et autovacuum_vacuum_vost_delay.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-05-12T13:33:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4987#p4987</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Autovacuum endormi ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4986#p4986"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous.<br />J&#039;ai quelques problèmes avec le process autovacuum sur une de mes tables. Je m&#039;explique ...</p><p>Depuis une semaine, j&#039;ai reconstruit la totalité de ma base de données. <br />En effet, j&#039;avais jusque là laissé les paramètres par défaut concernant les paramètres autovacuum.<br />Or vu le volume de certaines d&#039;entre elles (3 culminent à 600, 300 et 120 millions de lignes) et la quantité de lignes modifiées quotidiennement, le process autovaccum n&#039;était jamais passé !<br />Au bout de qqs semaines d&#039;utilisation j&#039;ai noté des dégradations sur les performances, notamment en écriture.</p><p>Ainsi, j&#039;ai fait des stats quotidiennes (en scrutant la table pg_stats_user_tables) et ai modifié en conséquence, pour les 3 tables citées, les paramètres autovacuum_vacuum_scale_factor et autovacuum_analyze_scale_factor afin d&#039;obtenir un passage quasi-quotidien des process de nettoyage et d&#039;analyse.</p><p>Depuis une semaine, 2 des 3 trois tables ont été analysées puis nettoyées. Sur la dernière H_V1, le quota vacuum fixé (scale_factor modifié, threshold laissé par défaut) a bien été dépassé (n_tup_upd +n_tup_del =728.538&#160; contre 140.000 pour le seuil) , le process autovaccum est lancé mais semble être inactif depuis qqs jours (cf listing).</p><br /><br /><br /><p>LISTING1 : table H_V1 - 280M lignes - autovaccum réglé pour 140.000 lignes env.<br />=============================================================<br />postgres=# select * from pg_stat_activity ;<br /> datid | datname&#160; | procpid | usesysid | usename&#160; |&#160; &#160; &#160; &#160; &#160; current_query&#160; &#160; &#160; &#160; &#160; &#160;| waiting |&#160; &#160; &#160; &#160; &#160; xact_start&#160; &#160; &#160; &#160; &#160; &#160;|&#160; &#160; &#160; &#160; &#160; query_start&#160; &#160; &#160; &#160; &#160; |&#160; &#160; &#160; &#160; &#160;backend_start&#160; &#160; &#160; &#160; &#160;| client_addr | client_port<br />-------+----------+---------+----------+----------+----------------------------------+---------+-------------------------------+-------------------------------+-------------------------------+-------------+-------------<br /> 16385 | bdcp&#160; &#160; &#160;|&#160; &#160; 3018 |&#160; &#160; &#160; &#160;10 | postgres | autovacuum: VACUUM obs.h_v1&#160; &#160; &#160; | f&#160; &#160; &#160; &#160;| 2010-05-06 10:33:27.627509+00 | 2010-05-06 10:33:27.627509+00 | 2010-05-06 .........&#160; &#160;<br /> 11564 | postgres |&#160; &#160;24920 |&#160; &#160; &#160; &#160;10 | postgres | select * from pg_stat_activity ; | f&#160; &#160; &#160; &#160; &#160; &#160;| 2010-05-12 13:01:04.16843+00&#160; | 2010-05-12 13:01:04.16843+00&#160; | 2010-05-12 .......</p><br /><p>bdcp=&gt; select schemaname,relname,n_tup_ins,n_tup_upd,n_tup_del,n_dead_tup,last_vacuum,last_autovacuum,last_analyze,last_autoanalyze<br />from pg_stat_user_tables where relname like &#039;h_v%&#039;;<br />schemaname | relname&#160; &#160; &#160; &#160; &#160; &#160;| n_tup_ins | n_tup_upd | n_tup_del | n_dead_tup | last_vacuum | last_autovacuum | last_analyze |&#160; &#160; &#160; &#160;last_autoanalyze<br />-------------------------+-----------+-----------+-----------+------------+-------------+-----------------+--------------+-------------------------------<br /> obs&#160; &#160; &#160; &#160; &#160; &#160; &#160; | h_v1&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;| 288157136 |&#160; &#160; &#160; &#160; &#160;0&#160; &#160; &#160;|&#160; &#160; 728538 |&#160; &#160; &#160;686634&#160; &#160; |&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; |&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; |&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; | 2010-05-06 10:29:51.321024+00<br />(1 row)</p><br /><p>bdcp=&gt; select relname,reltype,relpages,reltuples,relacl,reloptions from pg_class where relname like &#039;h_v%&#039;;<br />&#160; relname&#160; | reltype | relpages |&#160; reltuples&#160; |&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; reloptions<br />-----------+---------+----------+-------------+---------------------------------------------------+--------------------------------------------------------------------------------<br /> h_v1&#160; &#160; &#160; |&#160; 326354 |&#160; 5774704 | 2.86477e+08 |&#160; &#160;{autovacuum_vacuum_scale_factor=0.0005,autovacuum_analyze_scale_factor=0.0005}<br />(2 rows)</p><br /><p>Il y-a-t-il un moyen de savoir l&#039;état de progression du process ?<br />Je n&#039;ai aucun retour dans la log pour savoir si le process a été endormi par le postmaster ? A-t-il dépassé un seuil ?<br />Merci de m&#039;éclairer sur le sujet si vous avez des infos.</p><p>David.</p>]]></content>
+		<author>
+			<name><![CDATA[David]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=626</uri>
+		</author>
+		<updated>2010-05-12T13:26:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4986#p4986</id>
+	</entry>
+</feed>

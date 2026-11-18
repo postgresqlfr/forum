@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / table nombreux champs peu d' enr vs table peu de champs nombreux enr.]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1864&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1864"/>
+	<updated>2012-02-03T17:04:31Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1864</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  table nombreux champs peu d' enr vs table peu de champs nombreux enr.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12704#p12704"/>
+		<content type="html"><![CDATA[<p>Avec le contrib hstore, vous aurez moins d&#039;enregistrement. Au lieu d&#039;un enregistrement par entité/clé/valeur, vous en aurez un par entité, contenant toutes les clés/valeurs associées. C&#039;est bien plus efficace en termes de stockage (moins volumineux), et à la récupération: il est rare qu&#039;on ne récupère qu&#039;une clé d&#039;une entité à la fois… donc autant les avoir toutes au même endroit.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2012-02-03T17:04:31Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12704#p12704</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  table nombreux champs peu d' enr vs table peu de champs nombreux enr.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12701#p12701"/>
+		<content type="html"><![CDATA[<p>bonjour,<br />je vais effectivement abandonnner cette &quot;solution&quot;. <br />mais j&#039;ai encore une question: en quoi l&#039;utilisation du&#160; &#160;contrib hstore est plus interessant?<br /> merci&#160; et bonne&#160; journée</p>]]></content>
+		<author>
+			<name><![CDATA[xavier-Pierre]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=127</uri>
+		</author>
+		<updated>2012-02-03T08:34:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12701#p12701</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  table nombreux champs peu d' enr vs table peu de champs nombreux enr.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12669#p12669"/>
+		<content type="html"><![CDATA[<p>Donc c&#039;était bien ça. Si un cluster a réduit le temps d&#039;exécution, c&#039;est bien qu&#039;il y avait énormément de buffers à consulter de façon aléatoire. Faire un cluster a permis de regrouper les données au même endroit… temporairement (tout update déplacera éventuellement les données). Ici, on voit que la version 3 colonnes lit grosso-modo 6000 buffers, de façon aléatoire (pas si aléatoire que ça, puisque pour le moment les données sont triées grâce à cluster, d&#039;où les bonnes performances). La version 150 colonnes lit 19000 blocs, mais de façon séquentielle, donc bien moins «risquée» en termes d&#039;entrées-sorties (lire 1 ou 1000 blocs séquentiellement, c&#039;est presque le même coût).</p><p>De toutes façons, les méta-schéma, en termes de performance, sont habituellement mauvais (entre autres, comme dans votre cas, parce qu&#039;ils éparpillent physiquement les données). Si vous avez vraiment besoin de stocker des données sans schéma dans PostgreSQL, préférez le contrib hstore <a href="http://docs.postgresql.fr/9.1/hstore.html" rel="nofollow">http://docs.postgresql.fr/9.1/hstore.html</a> . Évidemment, ça n&#039;est plus portable vers une autre base de données, si vous partez vers hstore.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2012-02-01T07:54:54Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12669#p12669</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  table nombreux champs peu d' enr vs table peu de champs nombreux enr.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12664#p12664"/>
+		<content type="html"><![CDATA[<p>bonsoir,<br />j&#039;ai fait un cluster de ma table &quot; 3 colonnes&quot; (on me l&#039; a suggéré) et là ma requête s&#039;est fait en 1seconde<br />je vous envoie comme demandé les explain&#160; (analyze on, buffers on)<br />sur ma table &quot;3 colonnes&quot;</p><p>&quot;Aggregate&#160; (cost=248748.18..248748.19 rows=1 width=2) (actual time=2616.215..2616.217 rows=1 loops=1)&quot;<br />&quot;&#160; Buffers: shared hit=4705&quot;<br />&quot;&#160; -&gt;&#160; Bitmap Heap Scan on t_donnees_fr1&#160; (cost=9729.42..244852.77 rows=519388 width=2) (actual time=85.904..1155.135 rows=516170 loops=1)&quot;<br />&quot;&#160; &#160; &#160; &#160; Recheck Cond: (varcod = 76)&quot;<br />&quot;&#160; &#160; &#160; &#160; Buffers: shared hit=4705&quot;<br />&quot;&#160; &#160; &#160; &#160; -&gt;&#160; Bitmap Index Scan on varcod_t_donnees_fr1_idx&#160; (cost=0.00..9599.57 rows=519388 width=0) (actual time=85.000..85.000 rows=516170 loops=1)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; Index Cond: (varcod = 76)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; Buffers: shared hit=1416&quot;<br />&quot;Total runtime: 2616.393 ms&quot;</p><br /><p>sur ma table 150 colonnes</p><p>&quot;Aggregate&#160; (cost=25457.01..25457.02 rows=1 width=8) (actual time=2941.360..2941.362 rows=1 loops=1)&quot;<br />&quot;&#160; Buffers: shared hit=18970&quot;<br />&quot;&#160; -&gt;&#160; Seq Scan on exploitations&#160; (cost=0.00..24159.61 rows=518961 width=8) (actual time=0.013..1123.156 rows=518961 loops=1)&quot;<br />&quot;&#160; &#160; &#160; &#160; Buffers: shared hit=18970&quot;<br />&quot;Total runtime: 2941.518 ms&quot;</p><p>bonsoir</p>]]></content>
+		<author>
+			<name><![CDATA[xavier-Pierre]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=127</uri>
+		</author>
+		<updated>2012-01-31T21:15:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12664#p12664</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  table nombreux champs peu d' enr vs table peu de champs nombreux enr.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12640#p12640"/>
+		<content type="html"><![CDATA[<p>Oui. C&#039;est mon avis, c&#039;est probablement plus lent. D&#039;où l&#039;explain avec les buffers, ce qui donnera le nombre de blocs lus dans les deux cas.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2012-01-31T10:23:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12640#p12640</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  table nombreux champs peu d' enr vs table peu de champs nombreux enr.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12637#p12637"/>
+		<content type="html"><![CDATA[<p>Que veux-tu dire par : &quot;Je ne suis pas persuadé quant à moi qu&#039;un des deux cas doive forcément être plus efficace que l&#039;autre&quot;.<br />J&#039;aurai pensé au contraire que comme le 2ème est une sorte de &quot;meta-schéma&quot; c&#039;était forcément moins efficace. C&#039;est le sens de la 2ème partie de ta phrase?</p>]]></content>
+		<author>
+			<name><![CDATA[flo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=216</uri>
+		</author>
+		<updated>2012-01-31T10:15:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12637#p12637</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  table nombreux champs peu d' enr vs table peu de champs nombreux enr.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12636#p12636"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Pouvez-vous essayer l&#039;explain avec la syntaxe suivante:</p><p>explain (analyze on, buffers on) ma_requête… sur les deux requêtes. Je ne suis pas persuadé quant à moi qu&#039;un des deux cas doive forcément être plus efficace que l&#039;autre, et ça ne m&#039;étonnerait pas plus que ça qu&#039;il y ait beaucoup plus de données à lire, de façon aléatoire, sur la seconde.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2012-01-31T07:19:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12636#p12636</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  table nombreux champs peu d' enr vs table peu de champs nombreux enr.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12635#p12635"/>
+		<content type="html"><![CDATA[<p>Combien de mémoire vive avez vous sur la machine ? Je suppose 4Go, vu que&#160; vous avez positionné le shared_buffers à 1Go.</p><p>Sous windows, il est généralement conseillé de ne pas dépasser les 300 à 512 Mo pour ce paramètre, sous peine d&#039;avoir une baisse conséquente des performances.</p><p>J&#039;ai déjà été confronté à ce problème et je pense qu&#039;il faudrait tester avec un shared_buffers à 256MB (et essayer d&#039;augmenter progressivement) pour voir les impacts sur votre requête.</p><p>Je&#160; vous conseille également de faire attention à votre work_mem qui est peut-être un peu haut, sauf s&#039;il n&#039;y a jamais plus d&#039;une dizaine de connexions simultanées sur votre base.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2012-01-30T20:08:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12635#p12635</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  table nombreux champs peu d' enr vs table peu de champs nombreux enr.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12634#p12634"/>
+		<content type="html"><![CDATA[<p>bonsoir rjuju,<br />voici l&#039;explain analyze</p><p>&quot;Aggregate&#160; (cost=249076.18..249076.19 rows=1 width=2) (actual time=123309.785..123309.788 rows=1 loops=1)&quot;<br />&quot;&#160; -&gt;&#160; Bitmap Heap Scan on t_donnees_fr1&#160; (cost=9729.42..245180.77 rows=519388 width=2) (actual time=1449.767..120127.916 rows=516170 loops=1)&quot;<br />&quot;&#160; &#160; &#160; &#160; Recheck Cond: (varcod = 76)&quot;<br />&quot;&#160; &#160; &#160; &#160; -&gt;&#160; Bitmap Index Scan on varcod_t_donnees_fr1_idx&#160; (cost=0.00..9599.57 rows=519388 width=0) (actual time=1257.186..1257.186 rows=516170 loops=1)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; Index Cond: (varcod = 76)&quot;<br />&quot;Total runtime: 123364.180 ms&quot;</p><p>ma version est la 9.1 je suis sur windows xp<br />shared_buffer= 1GB<br />work_mem=64MB</p><p>ce qui est étonnant c&#039;est que pour une même config&#160; on a d&#039;un coté 3s et de l&#039;autre 120 s. <br />re bonsoir</p>]]></content>
+		<author>
+			<name><![CDATA[xavier-Pierre]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=127</uri>
+		</author>
+		<updated>2012-01-30T19:26:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12634#p12634</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  table nombreux champs peu d' enr vs table peu de champs nombreux enr.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12602#p12602"/>
+		<content type="html"><![CDATA[<p>Quelle est la version de postgresql, la configuration de la machine, et les valeurs de configuration du posgresql.conf, telles que work_mem, shared_buffer ?</p><p>Il faudrait plutôt le explain analyze de la requête qui donnerait plus d&#039;information.</p><p>Postgresql s&#039;attend à trouver 525331 lignes&#160; qui correspondent au critère (varcod=76).<br />Cela vous semble-t-il correspondre à la réalité ? (A priori oui d&#039;après votre premier message)</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2012-01-29T21:11:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12602#p12602</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  table nombreux champs peu d' enr vs table peu de champs nombreux enr.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12601#p12601"/>
+		<content type="html"><![CDATA[<p>bonsoir, voici l&#039;explain </p><p>&quot;Aggregate&#160; (cost=249305.10..249305.11 rows=1 width=2)&quot;<br />&quot;&#160; -&gt;&#160; Bitmap Heap Scan on t_donnees_fr1&#160; (cost=9839.48..245365.11 rows=525331 width=2)&quot;<br />&quot;&#160; &#160; &#160; &#160; Recheck Cond: (varcod = 76)&quot;<br />&quot;&#160; &#160; &#160; &#160; -&gt;&#160; Bitmap Index Scan on varcod_t_donnees_fr1_idx&#160; (cost=0.00..9708.14 rows=525331 width=0)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; Index Cond: (varcod = 76)&quot;</p><p> pour info la table : t_donnees_fr1&#160; (ident varchar,varcod=int ,valeur varchar) <br />l&#039;index:varcod_t_donnees_fr1_idx<br />CREATE INDEX varcod_t_donnees_fr1_idx<br />&#160; ON t_donnees_fr1<br />&#160; USING btree<br />&#160; (varcod );</p>]]></content>
+		<author>
+			<name><![CDATA[xavier-Pierre]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=127</uri>
+		</author>
+		<updated>2012-01-29T20:45:52Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12601#p12601</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  table nombreux champs peu d' enr vs table peu de champs nombreux enr.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12600#p12600"/>
+		<content type="html"><![CDATA[<p>Bonjour.<br />Effectivement le temps de traitement n&#039;est pas normal.</p><p>Avez-vous regardé si l&#039;index sur nom_champs était utilisé lors de la requête avec un explain ?</p><p>Un analyze de la table table_2 peut aussi aider après sa création.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2012-01-29T17:46:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12600#p12600</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[table nombreux champs peu d' enr vs table peu de champs nombreux enr.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12599#p12599"/>
+		<content type="html"><![CDATA[<p>bonjour,<br />j&#039;ai une table &quot;table_1&quot; de plus de 500.000 enregistrements et 150 champs (dont ident qui est la pk)</p><p>j&#039;ai transformé la table_1 en une table &quot;table_2&quot; comportant 3 colonnes<br />ident,nom_champs,valeur:</p><p>ident est l&#039;ident de la table_1<br />nom_champs est l&#039;un des 150 champs de la table table_1<br />valeur est la valeur d&#039;un champs donné pour un ident donné </p><p>par ex dans la table_1<br /><strong>ident&#160; &#160; &#160; champs1&#160; &#160; &#160; champs2 .... champs150</strong><br />id01&#160; &#160; &#160; &#160; &#160;val1_1&#160; &#160; &#160; &#160; &#160;val1_2 ....&#160; &#160; &#160; val1_150<br />id02&#160; &#160; &#160; &#160; &#160;val2_1 ......</p><p>dans la table table_2 on aura</p><p><strong>ident&#160; &#160; &#160; nom_champs&#160; &#160; &#160; &#160;valeur</strong><br />id01&#160; &#160; &#160; &#160; &#160;champs1&#160; &#160; &#160; &#160; &#160; &#160;val1_1<br />id01&#160; &#160; &#160; &#160; &#160;champs2&#160; &#160; &#160; &#160; &#160; &#160;val1_2<br />...<br />id01&#160; &#160; &#160; &#160; champs150&#160; &#160; &#160; &#160; &#160;val1_150<br />id02&#160; &#160; &#160; &#160; champs1&#160; &#160; &#160; &#160; &#160; &#160; val2_1<br />...</p><p>j&#039;ai rajouté sur table_2 2 index l&#039;un sur ident l&#039;autre sur nom_champs</p><p>je réalise la requête sur la table_1 de la forme:</p><div class="codebox"><pre><code>SELECT sum(champsn) FROM table_1;</code></pre></div><p>la requête s’exécute en 3 sec</p><p>sur la table_2 j’exécute la requête équivalente qui me donnera le même résultat</p><div class="codebox"><pre><code>SELECT  sum(valeur) FROM table_2  WHERE nom_champs=&#039;champsn&#039;</code></pre></div><p>la requete s&#039;execute en 120sec<br />je pensais q&#039;un sgbd était optimisé pour des tables avec peu de colonnes même avec beaucoup d&#039;enregistrements<br />pourquoi observe t&#039;on tant de différence?</p>]]></content>
+		<author>
+			<name><![CDATA[xavier-Pierre]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=127</uri>
+		</author>
+		<updated>2012-01-29T16:52:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12599#p12599</id>
+	</entry>
+</feed>

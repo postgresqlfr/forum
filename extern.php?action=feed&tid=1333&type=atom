@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / [Hot Standby Replication] Vacuum, stats sur les slaves]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1333&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1333"/>
+	<updated>2011-04-06T13:00:34Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1333</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Hot Standby Replication] Vacuum, stats sur les slaves]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8782#p8782"/>
+		<content type="html"><![CDATA[<p>Bonjour Marc,</p><p>Merci pour ce retour rapide !<br />Effectivement tu as raison le contenu de pg_stats est bien repliqué du coup je me faisais du souci pour rien <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>J&#039;ai plus qu&#039;à chercher le pourquoi j&#039;ai l&#039;impression que mes perfs ne sont pas au top alors !</p><p>encore merci !</p>]]></content>
+		<author>
+			<name><![CDATA[ebs]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1159</uri>
+		</author>
+		<updated>2011-04-06T13:00:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8782#p8782</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Hot Standby Replication] Vacuum, stats sur les slaves]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8781#p8781"/>
+		<content type="html"><![CDATA[<p>Ces statistiques ne sont pas utilisées par l&#039;optimiseur. Ce sont des statistiques d&#039;accès, et elles ne sont effectivement pas dans une «vraie» table journalisée. Elles ne sont donc pas répliquées.<br />Les statistiques utilisées par l&#039;optimiseur sont dans pg_statistics (ou la vue pg_stats, qui est plus lisible). Celle-là est une vraie table, et je doute qu&#039;elle ne soit pas répliquée.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-04-06T12:16:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8781#p8781</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[[Hot Standby Replication] Vacuum, stats sur les slaves]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8780#p8780"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;aurai une petite question concernant les vacuum et autre analyze lorsqu&#039;on a une réplication de type hot standby sur des serveurs PostgreSQL 9.0 (installés via les backports Debian Squeeze).</p><p>Sur mon master j&#039;execute un vacuum analyze ( avec une commande de type : su postgres -c &quot;vacuumdb -U postgres -a -z&quot; ) et je peux ensuite constater qu&#039;il y a bien des stats qui sont calculées sur les tables de mes bases comme on peut le voir ici :</p><div class="codebox"><pre><code>myplopDB - master=# select * from pg_stat_all_tables where relname=&#039;paloup&#039;;
+-[ RECORD 1 ]----+------------------------------
+relid            | 37271
+schemaname       | public
+relname          | paloup
+seq_scan         | 16
+seq_tup_read     | 5537792102
+idx_scan         | 2858383
+idx_tup_fetch    | 2062859095
+n_tup_ins        | 346406962
+n_tup_upd        | 290225
+n_tup_del        | 0
+n_tup_hot_upd    | 29040
+n_live_tup       | 346852072
+n_dead_tup       | 22496
+last_vacuum      | 2011-04-06 00:48:17.670045+02
+last_autovacuum  | 
+last_analyze     | 2011-04-06 00:50:54.966283+02
+last_autoanalyze | 2011-03-23 17:03:41.917984+01</code></pre></div><p>Je sais qu&#039;on ne peut pas executer ce type de vacuum sur le slave (à cause du mode recovery comme on peut le lire dans la <a href="http://www.postgresql.org/docs/9.0/static/hot-standby.html" rel="nofollow">doc</a>), cependant j&#039;esperai que les statistiques soient répliquées sur le slave mais ce n&#039;est pas le cas comme on peut le constater ici :</p><div class="codebox"><pre><code>myplopDB - slave=# select * from pg_stat_all_tables where relname=&#039;paloup&#039;;
+-[ RECORD 1 ]----+-----------
+relid            | 37271
+schemaname       | public
+relname          | paloup
+seq_scan         | 13
+seq_tup_read     | 4501342601
+idx_scan         | 17652
+idx_tup_fetch    | 2497364528
+n_tup_ins        | 0
+n_tup_upd        | 0
+n_tup_del        | 0
+n_tup_hot_upd    | 0
+n_live_tup       | 0
+n_dead_tup       | 0
+last_vacuum      | 
+last_autovacuum  | 
+last_analyze     | 
+last_autoanalyze |</code></pre></div><p>Je pense que je suis passé à côté de qqchose mais je trouve peu de retours sur le sujet<br />Je me sers de mon slave pour toutes mes lectures et donc fatalement sans les stats je perds beaucoup en perf surtout sur des requêtes compliquées...<br />Y a t&#039;il un moyen de calculer ces stats sur les slaves ?</p><p>Si vous avez des pistes je suis preneur ! <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /><br />Merci d&#039;avance,<br />/Erwan</p>]]></content>
+		<author>
+			<name><![CDATA[ebs]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1159</uri>
+		</author>
+		<updated>2011-04-06T12:09:38Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8780#p8780</id>
+	</entry>
+</feed>

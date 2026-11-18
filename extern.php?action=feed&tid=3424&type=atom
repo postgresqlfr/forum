@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Error during online recovery avec pgpool]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3424&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3424"/>
+	<updated>2015-01-23T15:11:11Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3424</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Error during online recovery avec pgpool]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21400#p21400"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>C&#039;est pas faux, mais disons que je n&#039;avais pas eu à aller jusqu&#039;à ce niveau de détail sur le fonctionnement car cela fonctionnait auparavant sans l&#039;activation du archive_mode (Il n&#039;est d&#039;ailleurs pas précisé qu&#039;il faut l&#039;activer dans la procédure de pgpool).</p></div></blockquote></div><p>Non, ça faisait semblant de fonctionner. Sauf si vous arrêtez le serveur pendant la sauvegarde des fichiers, vous ne pouvez pas faire de sauvegarde des fichiers, serveur allumé, sans archivage. Enfin, plus exactement, vu qu&#039;on joue sur les mots, vous pouvez. Par contre, vous ne pourrez pas restaurer de façon cohérente.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2015-01-23T15:11:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21400#p21400</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Error during online recovery avec pgpool]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21395#p21395"/>
+		<content type="html"><![CDATA[<p>C&#039;est pas faux, mais disons que je n&#039;avais pas eu à aller jusqu&#039;à ce niveau de détail sur le fonctionnement car cela fonctionnait auparavant sans l&#039;activation du archive_mode (Il n&#039;est d&#039;ailleurs pas précisé qu&#039;il faut l&#039;activer dans la procédure de pgpool).</p><p>Mais bon, maintenant que je comprends un peu mieux comment fonctionne le schmilblick <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" />, j&#039;ai juste à attendre le go pour tester avec l&#039;activation de l&#039;archive_mode voir si cela règle le problème.</p><p>Merci des réponses en tout cas.</p>]]></content>
+		<author>
+			<name><![CDATA[jotheroot]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=4650</uri>
+		</author>
+		<updated>2015-01-23T13:42:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21395#p21395</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Error during online recovery avec pgpool]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21376#p21376"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Alors ce n&#039;est pas pour les backups mais pour un cluster.</p></div></blockquote></div><p>Blanc bonnet et bonnet blanc. Vous avez besoin d&#039;un backup de ce type pour créer un cluster de réplication de ce type <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><div class="quotebox"><blockquote><div><p>Est-ce normal?</p></div></blockquote></div><p>Oui, c&#039;est normal que les fichiers soient modifiés. Comme vous archivez les journaux de transactions, lors de la restauration, PostgreSQL saura corriger les incohérences.</p><p>Problème que vous avez trouvé vous-même, vous n&#039;archivez pas les journaux de transactions...</p><p>Bref, on en revient à ce que je disais : avant de coller pgpool et ses scripts dans le schmilblick, commencez par comprendre le fonctionnement du schmilblick <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2015-01-21T21:26:31Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21376#p21376</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Error during online recovery avec pgpool]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21370#p21370"/>
+		<content type="html"><![CDATA[<p>Je me demande si mon problème ne provient pas de la </p><div class="codebox"><pre><code>postgres=# show archive_mode;
+ archive_mode 
+--------------
+ off
+(1 row)</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[jotheroot]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=4650</uri>
+		</author>
+		<updated>2015-01-21T14:44:06Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21370#p21370</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Error during online recovery avec pgpool]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21369#p21369"/>
+		<content type="html"><![CDATA[<p>D&#039;ailleurs, petite question, je suis en train de faire des tests et théoriquement, lorsqu&#039;on active le mode sauvegarde à chaud:</p><div class="codebox"><pre><code>postgres=# select pg_start_backup(&#039;test&#039;);</code></pre></div><p>Toutes les modifications faites sur la base sont bien censées être uniquement écrites dans les fichiers de logs et non dans la base elle même? Si oui, je constate que j&#039;ai quand même des modifications sur des fichiers de base: </p><div class="codebox"><pre><code># ls -l /var/lib/postgresql/9.3/main/base/12035/16386
+-rw------- 1 postgres postgres 65536 janv. 21 15:14 /var/lib/postgresql/9.3/main/base/12035/16386
+# ls -l /var/lib/postgresql/9.3/main/base/12035/16386
+-rw------- 1 postgres postgres 73728 janv. 21 15:17 /var/lib/postgresql/9.3/main/base/12035/16386</code></pre></div><p>Est-ce normal?</p><p>Edit: A priori oui: </p><div class="quotebox"><blockquote><div><p>Certains outils de sauvegarde que vous souhaiteriez utiliser émettent des messages d&#039;avertissements ou d&#039;erreurs si les fichiers qu&#039;ils essaient de copier changent lors de la copie. Cette situation est normale, ce n&#039;est pas une erreur, lors de la création de la sauvegarde de base d&#039;une base de données active ; vous devez donc vous assurer que vous pouvez distinguer les messages de cette sorte des autres messages. Par exemple, certaines versions de rsync renvoient un code de sortie séparé pour des « fichiers source disparus », et vous pouvez écrire un script qui accepte ce code de sortie comme un cas normal. De plus, certaines versions de GNU tar considèrent que la modification d&#039;un fichier lors de sa copie par tar est une erreur. Il ne semble pas exister de moyen simple pour distinguer cette erreur des autres types d&#039;erreurs, autrement qu&#039;en inspectant manuellement les messages de tar. Du coup, GNU tar n&#039;est pas le meilleur outil pour réaliser des sauvegardes de base.</p></div></blockquote></div><p>Cordialement,</p>]]></content>
+		<author>
+			<name><![CDATA[jotheroot]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=4650</uri>
+		</author>
+		<updated>2015-01-21T14:26:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21369#p21369</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Error during online recovery avec pgpool]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21367#p21367"/>
+		<content type="html"><![CDATA[<p>Bonjour, </p><p>Alors ce n&#039;est pas pour les backups mais pour un cluster. Je pense aussi que le problème doit provenir d&#039;un bout de conf/script mais disons que ça fonctionnait avant et plus après <img src="http://forums.postgresql.fr/img/smilies/wink.png" width="15" height="15" alt="wink" /> sans qu&#039;il n&#039;y ai à ma connaissance eu de modification (je regarde quand même si une modification ne serait pas passée à l&#039;as).</p><p>Du coup les scripts sont lancés par pcp_recovery_node, je n&#039;ai donc pas beaucoup de marge de manœuvre pour lancer les scripts. Si je regarde les variables chargées, le wal_level n&#039;a donc pas été modifié</p><div class="codebox"><pre><code>postgres=# show wal_level;
+  wal_level  
+-------------
+ hot_standby
+(1 row)</code></pre></div><p>Du coup, je ne sais pas quelle autre variable pourrait influer la dessus. </p><p>Cordialement,</p>]]></content>
+		<author>
+			<name><![CDATA[jotheroot]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=4650</uri>
+		</author>
+		<updated>2015-01-21T12:44:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21367#p21367</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Error during online recovery avec pgpool]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21349#p21349"/>
+		<content type="html"><![CDATA[<p>Avant de tout complexifier avec pgpool, avez-vous essayé de faire ce type de sauvegarde manuellement ? puis avec les scripts, mais exécuté par vous (et pas par pgpool) ?</p><p>Parce que, qu&#039;on soit clair, il est tout à fait possible qu&#039;il y ait un bug dans PostgreSQL, mais c&#039;est assez fortement improbable. En tout cas, beaucoup plus improbable qu&#039;une erreur dans vos scripts, ou dans la configuration de pgpool ou dans pgpool lui-même <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>Là, la sortie que vous indiquez précise que l&#039;archivage des journaux de transactions n&#039;est pas activé. Ce qui sous-entend que vous avez un problème dans la configuration de PostgreSQL pour la sauvegarde PITR.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2015-01-19T16:34:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21349#p21349</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Error during online recovery avec pgpool]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21341#p21341"/>
+		<content type="html"><![CDATA[<p>Hello, </p><p>Pourtant celui-ci est bien présent dans le copy-base-backup</p><div class="codebox"><pre><code>psql -c &#039;select pg_stop_backup()&#039; postgres</code></pre></div><p>Dans les logs du pgpool il n&#039;y a pas d&#039;erreur particulière </p><div class="codebox"><pre><code>Jan 16 16:26:32 lrqpool1 pgpool[30966]: starting recovery command: &quot;SELECT pgpool_recovery(&#039;copy-base-backup&#039;, &#039;xx.xx.xx.xx&#039;, &#039;/var/lib/postgresql/9.3/main/&#039;)&quot;
+Jan 16 16:40:48 lrqpool1 pgpool[30966]: 1st stage is done
+Jan 16 16:40:48 lrqpool1 pgpool[30966]: starting 2nd stage
+Jan 16 16:41:03 lrqpool1 pgpool[30966]: starting recovery command: &quot;SELECT pgpool_recovery(&#039;pgpool_recovery_pitr&#039;, &#039;xx.xx.xx.xx&#039;, &#039;/var/lib/postgresql/9.3/main/&#039;)&quot;</code></pre></div><p>Et dans les logs du postgres sur la bdd master, je vois bien le start et le stop</p><div class="codebox"><pre><code>  pg_start_backup 
+-----------------
+ 1A/1E000028
+(1 ligne)
+
+tar: main/pg_xlog/000000090000001A0000001E : fichier modifié pendant sa lecture
+tar: main/base/16386/32566 : fichier modifié pendant sa lecture
+tar: main/base/16386/40436 : fichier modifié pendant sa lecture
+tar: main/base/16386/23899 : fichier modifié pendant sa lecture
+tar: main/base/16386/51929 : fichier modifié pendant sa lecture
+tar: main/base/16386/51927 : fichier modifié pendant sa lecture
+tar: main/base/16386/32565 : fichier modifié pendant sa lecture
+tar: main/base/16386/32562 : fichier modifié pendant sa lecture
+tar: main/base/16386/24099 : fichier modifié pendant sa lecture
+tar: main/base/16386/32504 : fichier modifié pendant sa lecture
+tar: main/base/16386/31813 : fichier modifié pendant sa lecture
+NOTICE:  L&#039;archivage des journaux de transactions n&#039;est pas activé ;
+vous devez vous assurer que tous les fichiers requis des journaux de
+transactions sont copiés par d&#039;autre moyens pour terminer la sauvegarde.
+ pg_stop_backup 
+----------------
+ 1A/1FE18D60
+(1 ligne)</code></pre></div><p>Dans la configuration, le wal_level est bien à hot_standby.</p><p>Merci,</p>]]></content>
+		<author>
+			<name><![CDATA[jotheroot]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=4650</uri>
+		</author>
+		<updated>2015-01-19T08:05:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21341#p21341</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Error during online recovery avec pgpool]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21336#p21336"/>
+		<content type="html"><![CDATA[<p>Apparemment, il n&#039;y a pas eu de pg_stop_backup().</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2015-01-16T16:54:31Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21336#p21336</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Error during online recovery avec pgpool]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21335#p21335"/>
+		<content type="html"><![CDATA[<p>Hello, </p><p>Je rencontre un petit soucis avec la remise en ligne à chaud de pgpool (PITR). Tout d&#039;abord quelques infos: </p><p>OS: Debian wheezy</p><p>pgpool version: pgpool-II version 3.3.2 (tokakiboshi)</p><p>Postgresql version (on both node): 9.3.3</p><p>replication mode: on</p><p>doc suivie: <a href="http://pgpool.projects.pgfoundry.org/pgpool-II/doc/pgpool-fr.html#online-recovery" rel="nofollow">http://pgpool.projects.pgfoundry.org/pg … e-recovery</a></p><br /><p>copy-base-backup:</p><br /><div class="codebox"><pre><code>#! /bin/sh
+DATA=$1
+RECOVERY_TARGET=$2
+RECOVERY_DATA=$3
+
+psql -c &quot;select pg_start_backup(&#039;pgpool-recovery&#039;)&quot; postgres
+echo &quot;restore_command = &#039;scp -o StrictHostKeyChecking=no $(hostname):/var/lib/postgresql/9.3/main/pg_xlog/%f %p&#039;&quot; &gt; /var/lib/postgresql/9.3/main/recovery.conf
+tar -C /var/lib/postgresql/9.3/ -zcf /var/lib/postgresql/9.3/main.tar.gz main
+psql -c &#039;select pg_stop_backup()&#039; postgres
+scp -o StrictHostKeyChecking=no /var/lib/postgresql/9.3/main.tar.gz $RECOVERY_TARGET:/var/lib/postgresql/9.3</code></pre></div><p>pgpool_recovery_pitr:</p><div class="codebox"><pre><code>#! /bin/sh
+# Online recovery 2nd stage script
+#
+datadir=$1 # master dabatase cluster
+DEST=$2 # hostname of the DB node to be recovered
+DESTDIR=$3 # database cluster of the DB node to be recovered
+port=5432 # PostgreSQL port number
+archdir=/var/lib/postgresql/9.3/main/pg_xlog/ # archive log directory
+
+# Force to flush current value of sequences to xlog
+psql -p $port -t -c &#039;SELECT datname FROM pg_database WHERE NOT datistemplate AND datallowconn&#039; template1
+while read i
+do
+  if [ &quot;$i&quot; != &quot;&quot; ];then
+    psql -p $port -c &quot;SELECT setval(oid, nextval(oid)) FROM pg_class WHERE relkind = &#039;S&#039;&quot; $i
+  fi
+done
+
+psql -p $port -c &quot;SELECT pgpool_switch_xlog(&#039;$archdir&#039;)&quot; template1</code></pre></div><p>pgpool_remote_start:</p><div class="codebox"><pre><code>#!/bin/sh
+DEST=$1
+DESTDIR=$2
+PGCTL=/usr/lib/postgresql/9.3/bin/pg_ctl
+
+# Déploiement du script de backup
+ssh -o StrictHostKeyChecking=no -T $DEST &#039;cd /var/lib/postgresql/9.3/; tar zxf main.tar.gz&#039; 2&gt;/dev/null 1&gt;/dev/null &lt; /dev/null
+# Démarrage du serveur PostgreSQL
+ssh -o StrictHostKeyChecking=no -T $DEST $PGCTL -w -D /etc/postgresql/9.3/main/ start 2&gt;/dev/null 1&gt;/dev/null &lt; /dev/null &amp;</code></pre></div><p>Lorsque j&#039;essaye de rajouter le second noeud dans le pool, cela échoue car le postgresql ne peut pas démarrer à cause de l&#039;erreur suivante: </p><br /><div class="codebox"><pre><code>Starting PostgreSQL 9.3 database server: mainThe PostgreSQL server failed to start. Please check the log output: 2015-01-06 15:57:56 CET LOG: database system was interrupted while in recovery at log time 2015-01-06 15:36:44 CET 2015-01-06 15:57:56 CET HINT: If this has occurred more than once some data might be corrupted and you might need to choose an earlier recovery target. 2015-01-06 15:57:56 CET LOG: starting archive recovery 2015-01-06 15:57:56 CET LOG: restored log file &quot;00000009.history&quot; from archive scp: /var/lib/postgresql/9.3/main/pg_xlog/00000009000000130000003A: No such file or directory 2015-01-06 15:57:56 CET LOG: redo starts at 13/3A000028 2015-01-06 15:57:56 CET LOG: record with zero length at 13/3A07D3F0 2015-01-06 15:57:56 CET LOG: redo done at 13/3A07D3C0 2015-01-06 15:57:56 CET LOG: last completed transaction was at log time 2015-01-06 15:36:52.032545+01 scp: /var/lib/postgresql/9.3/main/pg_xlog/00000009000000130000003A: No such file or directory 2015-01-06 15:57:56 CET FATAL: WAL ends before end of online backup 2015-01-06 15:57:56 CET HINT: Online backup started with pg_start_backup() must be ended with pg_stop_backup(), and all WAL up to that point must be available at recovery. 2015-01-06 15:57:56 CET LOG: startup process (PID 11150) exited with exit code 1 2015-01-06 15:57:56 CET LOG: terminating any other active server processes ... failed!</code></pre></div><p>Sur le master au moment de lancer le online recovery</p><div class="codebox"><pre><code>-rw------- 1 postgres postgres 16777216 Jan 6 15:36 000000090000001300000039
+-rw------- 1 postgres postgres 16777216 Jan 6 15:36 00000009000000130000003A
+-rw------- 1 postgres postgres 16777216 Jan 6 14:56 00000009000000130000003B
+-rw------- 1 postgres postgres 16777216 Jan 6 15:02 00000009000000130000003C
+-rw------- 1 postgres postgres 16777216 Jan 6 15:10 00000009000000130000003D
+-rw------- 1 postgres postgres 16777216 Jan 6 15:17 00000009000000130000003E
+-rw------- 1 postgres postgres 16777216 Jan 6 15:24 00000009000000130000003F
+-rw------- 1 postgres postgres 16777216 Jan 6 15:31 000000090000001300000040</code></pre></div><p>Et après au moment de l&#039;erreur</p><div class="codebox"><pre><code>-rw------- 1 postgres postgres 16777216 Jan 6 15:48 00000009000000130000003B
+-rw------- 1 postgres postgres 16777216 Jan 6 15:49 00000009000000130000003C
+-rw------- 1 postgres postgres 16777216 Jan 6 15:10 00000009000000130000003D
+-rw------- 1 postgres postgres 16777216 Jan 6 15:17 00000009000000130000003E
+-rw------- 1 postgres postgres 16777216 Jan 6 15:24 00000009000000130000003F
+-rw------- 1 postgres postgres 16777216 Jan 6 15:31 000000090000001300000040
+-rw------- 1 postgres postgres 16777216 Jan 6 15:36 000000090000001300000041
+-rw------- 1 postgres postgres 16777216 Jan 6 15:43 000000090000001300000042</code></pre></div><p>Quelqu&#039;un a t-il une idée?</p><p>Merci d&#039;avance,</p>]]></content>
+		<author>
+			<name><![CDATA[jotheroot]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=4650</uri>
+		</author>
+		<updated>2015-01-16T16:15:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21335#p21335</id>
+	</entry>
+</feed>

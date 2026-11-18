@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / effective_cache_size et multi-cluster]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2016&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2016"/>
+	<updated>2015-02-11T04:57:56Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2016</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  effective_cache_size et multi-cluster]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21463#p21463"/>
+		<content type="html"><![CDATA[<p>est: dois-je fixer effective_cache_size à:</p>]]></content>
+		<author>
+			<name><![CDATA[xboxxerr]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=4709</uri>
+		</author>
+		<updated>2015-02-11T04:57:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21463#p21463</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  effective_cache_size et multi-cluster]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13569#p13569"/>
+		<content type="html"><![CDATA[<p>Le plus logique, c&#039;est de le diviser entre le nombre d&#039;instances. Mais c&#039;est un paramètre qui sert à la très grosse louche dans l&#039;optimiseur, et seulement dans l&#039;évaluation de certaines opérations (comme le coût des tris disques).</p><p>Une erreur même d&#039;un facteur 2 ou 3 sur ce paramètre n&#039;a pas trop d&#039;impact. C&#039;est juste qu&#039;habituellement, sur un serveur moderne, la valeur par défaut est environ 100 fois trop basse, et là ça a un impact.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2012-04-19T13:39:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13569#p13569</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[effective_cache_size et multi-cluster]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13568#p13568"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je cherche à régler le paramètre effective_cache_size dans le cas d&#039;un serveur à plusieurs clusters. Dans le cas d&#039;un seul cluster, grossièrement je positionne shared_buffer à 1/4 de la RAM et effective_cache_size à 2/3 de la RAM (shared_buffer + cache disk). D&#039;après ce que je comprends, shared_buffer est &quot;inclus&quot; dans effective_cache_size.</p><p>Par exemple sur un serveur avec 36Go de RAM, je souhaite faire cohabiter 2 clusters avec le premier 2 fois plus &quot;gros&quot; que le deuxième. Je fixe:<br />shared_buffer(1): 1/4*2/3*36 = 6Go<br />shared_buffer(2): 1/4*1/3*36 = 3Go</p><p>La question que je me pose est: dois-je fixer effective_cache_size à:<br />les 2 effective_cache_size disjoints:<br />effective_cache_size(1): 2/3 * (2/3 * RAM) = 2/3*2/3*36 = 16Go<br />effective_cache_size(2): 1/3 * (2/3 * RAM) = 2/3*1/3*36 = 8Go</p><p>ou </p><p>effective_cache_size avec une partie commune (cache disk):<br />effective_cache_size(1): 2/3*1*36 - shared_buffer(2) = 21Go<br />effective_cache_size(2): 2/3*1*36 - shared_buffer(1) = 18Go</p><p>En résumé, le cache disk doit-il être définit comme commun à tous les clusters?</p>]]></content>
+		<author>
+			<name><![CDATA[saigamp]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=767</uri>
+		</author>
+		<updated>2012-04-19T11:25:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13568#p13568</id>
+	</entry>
+</feed>

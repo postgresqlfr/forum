@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Grand nombre d'insert impossible (PGQ + PgBouncer)]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3308&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3308"/>
+	<updated>2014-09-18T12:16:45Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3308</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Grand nombre d'insert impossible (PGQ + PgBouncer)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20641#p20641"/>
+		<content type="html"><![CDATA[<p>Bon, même après avoir augmenté la limite des FD sur mon serveur, toujours le même message malheureusement... <img src="http://forums.postgresql.fr/img/smilies/sad.png" width="15" height="15" alt="sad" /><br />Je vais continuer à creuser.<br />Sinon côté consumer PHP, celui-ci passe aussi par le bouncer, je pense que ça n&#039;a pas d&#039;influence sur cette erreur non ?</p><p>Edit : Tiens, après avoir jeté un oeil dans les syslog, j&#039;ai ça qui apparaît de très nombreuses fois :<br />[&#160; 586.088630] nf_conntrack: table full, dropping packet.<br />Du coup je vais essayer de désactiver le conntrack, parce que bon, si c&#039;est le kernel qui drop des paquets, je comprends mieux pourquoi mes connexions drop aussi.</p><p>Edit 2 : C&#039;était donc bien le kernel qui avait sa conntrack table pleine. J&#039;ai donc mis ce qui arrivait depuis mon réseau local en NOTRACK, et depuis plus de soucis ! Rien à voir donc avec Postgresql qui fait bien son taff comme d&#039;habitude.</p>]]></content>
+		<author>
+			<name><![CDATA[bouchigreque]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=4090</uri>
+		</author>
+		<updated>2014-09-18T12:16:45Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20641#p20641</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Grand nombre d'insert impossible (PGQ + PgBouncer)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20637#p20637"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>rjuju a écrit&#160;:</cite><blockquote><div><p>Oui, le but d&#039;un pooler est entre autres de mettre les connexions file d&#039;en attente un cours moment. Cela suppose donc qu&#039;il ne s&#039;agit pas de connexions persistantes.</p><p>Je n&#039;ai pas trop compris le fonctionnement de votre application. Quand vous parlez de log, s&#039;agit-t-il de fichier log ou d&#039;enregistrements dans une table ?</p><p>Sinon, il est possible qu&#039;avec un nombre de connexion aussi grand côté pgBouncer, il faille augmenter la limite de descripteur de fichier pour l&#039;utilisateur lançant pgBouncer. Sur une debian, cette limite est à 1024 , donc largement inférieure à vos 1500 connexions. Vous pouvez le vérifier avec » ulimit -n » en tant qu&#039;utilisateur lançant pgBouncer.</p></div></blockquote></div><p>Pour le fonctionnement de l&#039;application, en fait mon programme s&#039;occupe de parser un flux de texte pour l&#039;insérer directement dans une table sur postgres-1. Sur logs1-12 aucun serveur Postgres n&#039;est présent, seulement la libpq. <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /><br />Très bonne idée pour les file descriptors, je n&#039;y avais pas pensé ! Je teste d&#039;augmenter la limite et je vous fait un retour.</p><p>Merci !</p>]]></content>
+		<author>
+			<name><![CDATA[bouchigreque]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=4090</uri>
+		</author>
+		<updated>2014-09-18T09:31:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20637#p20637</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Grand nombre d'insert impossible (PGQ + PgBouncer)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20636#p20636"/>
+		<content type="html"><![CDATA[<p>Oui, le but d&#039;un pooler est entre autres de mettre les connexions file d&#039;en attente un cours moment. Cela suppose donc qu&#039;il ne s&#039;agit pas de connexions persistantes.</p><p>Je n&#039;ai pas trop compris le fonctionnement de votre application. Quand vous parlez de log, s&#039;agit-t-il de fichier log ou d&#039;enregistrements dans une table ?</p><p>Sinon, il est possible qu&#039;avec un nombre de connexion aussi grand côté pgBouncer, il faille augmenter la limite de descripteur de fichier pour l&#039;utilisateur lançant pgBouncer. Sur une debian, cette limite est à 1024 , donc largement inférieure à vos 1500 connexions. Vous pouvez le vérifier avec » ulimit -n » en tant qu&#039;utilisateur lançant pgBouncer.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2014-09-18T09:28:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20636#p20636</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Grand nombre d'insert impossible (PGQ + PgBouncer)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20635#p20635"/>
+		<content type="html"><![CDATA[<p>J&#039;ai essayé en passant le max_connetions à 1200, j&#039;ai restart postgres, toujours pareil. <img src="http://forums.postgresql.fr/img/smilies/sad.png" width="15" height="15" alt="sad" /><br />Après il me semble que justement pgbouncer est là pour ne pas avoir à monter le nombre max de connections trop haut dans Postgres non ?</p><p>Merci pour l&#039;aide en tout cas ! <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[bouchigreque]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=4090</uri>
+		</author>
+		<updated>2014-09-18T08:56:09Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20635#p20635</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Grand nombre d'insert impossible (PGQ + PgBouncer)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20634#p20634"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Essayez d&#039;augmenter max_connections à plus de 1000 pour voir si ça corrige votre problème.</p><p>Cordialement,</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2014-09-18T08:47:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20634#p20634</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Grand nombre d'insert impossible (PGQ + PgBouncer)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20633#p20633"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Merci pour votre réponse ! <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>Alors, au niveau de la valeur de max_connections sur le cluster, celle-ci est à 200.<br />Pour ce qui est de la libération des connexions, je close bien celles-ci après chaque requête effectuée.</p><p>Cordialement.</p>]]></content>
+		<author>
+			<name><![CDATA[bouchigreque]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=4090</uri>
+		</author>
+		<updated>2014-09-18T08:05:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20633#p20633</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Grand nombre d'insert impossible (PGQ + PgBouncer)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20631#p20631"/>
+		<content type="html"><![CDATA[<p>bonjour,</p><p>Quelle est la valeur de max_connections sur vos différents clusters ?<br />Assurez vous aussi que votre programme en C libère bien les connexions proprement.</p><p>Cordialement,</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2014-09-18T07:45:29Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20631#p20631</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Grand nombre d'insert impossible (PGQ + PgBouncer)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20630#p20630"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Alors je vous explique ce que je tente de faire.</p><p>J&#039;ai 12 serveurs (on les appellera logs1-12) sous le coude qui produisent un grand nombre de logs / sec (~800/sec/serveurs) donc 9600 requètes / sec au total.<br />J&#039;utilise un programme maison en C (libpq) pour parser ces logs et les insérer sur un autre serveur Postgres qu&#039;on appellera postgres-1.<br />Alors, sur postgres-1, j&#039;ai un PgBouncer en mode transaction qui tourne, avec un <strong>max_client_conn = 15000</strong> et un <strong>pool_size de 30</strong>, ainsi qu&#039;un consumer pgq écrit en PHP.<br />Les serveurs logs1-12 envoient tout vers le consumer postgres-1 qui à son tour insère les entrées dans la bonne table.<br />Tout à l&#039;air de bien fonctionner pendant un certain temps (quelques minutes), jusqu&#039;à ce que sur mes serveurs logs1-12 je retrouve ces messages d&#039;erreurs :</p><p>Connection to database failed: could not connect to server: Connection refused<br />&#160; &#160; Is the server running on host &quot;192.168.x.x&quot; and accepting<br />&#160; &#160; &#160; &#160; TCP/IP connections on port 6432?</p><p>Je retrouve les mêmes messages d&#039;erreur sur mon serveur postgres-1 dans les logs de pgbouncer. Pourtant je monitor le bouncer avec la console d&#039;admin, et celui-ci ne semble pas recevoir trop de connexions.<br />Quelqu&#039;un aurait une idée ?</p><p>Je précise au cas ou la config de postgres-1 qui tient quand même la route :<br />Intel Quad core Xeon L5420 (2.5 Ghz, 2 x 6 Mo cache)<br />32 Go DDR2 667 MHz<br />RAID 1 : 2 x 500 Go SATA 7200 tr/mins</p>]]></content>
+		<author>
+			<name><![CDATA[bouchigreque]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=4090</uri>
+		</author>
+		<updated>2014-09-18T07:11:38Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20630#p20630</id>
+	</entry>
+</feed>

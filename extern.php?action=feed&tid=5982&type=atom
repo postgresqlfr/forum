@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / collation database différente aprés migration]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5982&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5982"/>
+	<updated>2021-03-29T20:20:38Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5982</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  collation database différente aprés migration]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32275#p32275"/>
+		<content type="html"><![CDATA[<p>Les bases template0 et template1 de la destination étaient déjà créées avant la restauration du dump et elles avaient déjà la locale French_France.1252. Les bases nouvellement créés dans cette instance prennent par défaut le lc_collate/lc_type de la base template1 de leur propre instance.</p><br /><p>On peut se demander pourquoi ces options ne sont pas spécifiées à l&#039;intérieur du dump dans les commandes CREATE DATABASE.<br />Vraisemblablement, c&#039;est pour ne pas forcer la main si c&#039;est volontairement que le cluster de destination a des locales différentes.</p><br /><p>Pour avoir la même chose que l&#039;instance de départ, il aurait fallu initialiser le cluster destination (c.a.d le répertoire PGDATA avec initdb) avec les options --lc-collate et --lc-ctype (ou l&#039;option --locale éventuellement qui aurait été plus générale) en donnant spécifiquement &quot;English_United States.1252&quot; comme valeurs. Ou pré-créer les bases (il y a plusieurs solutions dans le détail, mais toutes reviennent à faire plus de choses à la main en gros).</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2021-03-29T20:20:38Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32275#p32275</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[collation database différente aprés migration]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32273#p32273"/>
+		<content type="html"><![CDATA[<p>Bonjour a tous ,</p><p>j&#039;ai fait une migration du serveur PostgreSQL du version 9 vers la version 11</p><p>après la migration j&#039;ai constaté que la collation au niveau du serveur source est différent au collation du serveur migré (English_United States.1252---&gt;French_France.1252)<br />j&#039;ai fait la migration a travers un simple</p><div class="codebox"><pre><code>pg_dumpall &gt;all export.sql</code></pre></div><p>Pourquoi ma commande pg-dumpall n &#039;a pas conservé la collate du serveur source </p><div class="codebox"><pre><code>                                                   List of databases
+         Name         |  Owner   | Encoding |          Collate           |           Ctype            |   Access privileges
+----------------------+----------+----------+----------------------------+----------------------------+-----------------------
+ Orchestra_TES| postgres | UTF8     | English_United States.1252 | English_United States.1252 |
+produit            | postgres | UTF8     | English_United States.1252 | English_United States.1252 |
+produit1        | postgres | UTF8     | English_United States.1252 | English_United States.1252 |
+produit22        | postgres | UTF8     | English_United States.1252 | English_United States.1252 |
+ postgres             | postgres | UTF8     | English_United States.1252 | English_United States.1252 |
+ template0            | postgres | UTF8     | English_United States.1252 | English_United States.1252 | =c/postgres          +
+                      |          |          |                            |                            | postgres=CTc/postgres
+ template1            | postgres | UTF8     | English_United States.1252 | English_United States.1252 | postgres=CTc/postgres+
+                      |          |          |                            |                            | =c/postgres
+ testoa               | postgres | UTF8     | English_United States.1252 | English_United States.1252 | </code></pre></div><br /><p>après migration </p><div class="codebox"><pre><code>                                          List of databases
+     Name     |  Owner   | Encoding |      Collate       |       Ctype        |   Access privileges
+--------------+----------+----------+--------------------+--------------------+-----------------------
+ Lyon         | postgres | UTF8     | French_France.1252 | French_France.1252 |
+ Produit22        | postgres | UTF8     | French_France.1252 | French_France.1252 |
+ produit    | postgres | UTF8     | French_France.1252 | French_France.1252 |
+produit1 | postgres | UTF8     | French_France.1252 | French_France.1252 |
+ postgres     | postgres | UTF8     | French_France.1252 | French_France.1252 |
+ template0    | postgres | UTF8     | French_France.1252 | French_France.1252 | =c/postgres          +
+              |          |          |                    |                    | postgres=CTc/postgres
+ template1    | postgres | UTF8     | French_France.1252 | French_France.1252 | =c/postgres          +
+              |          |          |                    |                    | postgres=CTc/postgres </code></pre></div><p>cordialement</p>]]></content>
+		<author>
+			<name><![CDATA[sihem_info]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7344</uri>
+		</author>
+		<updated>2021-03-29T14:02:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32273#p32273</id>
+	</entry>
+</feed>

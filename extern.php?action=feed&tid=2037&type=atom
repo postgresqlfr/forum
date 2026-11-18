@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Probleme sur une requete avec distinct et over()]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2037&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2037"/>
+	<updated>2012-05-09T07:58:55Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2037</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Probleme sur une requete avec distinct et over()]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13710#p13710"/>
+		<content type="html"><![CDATA[<p>bonjour</p><p>ce serait effectivement uine solution je pense, en fait comme je le disait precedement on utilise un framework ecri en interne pour générer nos requete de grille et pour le moment il repond à 99% des cas (le 1% etant mon cas à moi qui peut etre resolu en 2 requetes), du coup il faudrait soit faire une evolution du framework pour y inclure la gestion de la clause with soit passer en 2 requetes et le moins couteux et le plus rapide pour le moment est la 2eme solution, si j&#039;ai du temps je ferais evoluer le framework effectivement en attendant &quot;peut etre un jour&quot; un&#160; group by ou distinct dans les fonctions window <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" />.</p><p>merci beaucoup</p>]]></content>
+		<author>
+			<name><![CDATA[palex]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1399</uri>
+		</author>
+		<updated>2012-05-09T07:58:55Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13710#p13710</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Probleme sur une requete avec distinct et over()]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13698#p13698"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>palex a écrit&#160;:</cite><blockquote><div><p>presque mais du coup le count(distinct codification) from parution ne tient pas compte des conditions de la requete principal, si je rajotue des jointures</p><p>SELECT p.libelle, p.codification, p.numero, (SELECT count(DISTINCT codification) FROM parution) FROM parution p <br />join majointure1 A <br />join majointure2 B<br />join majointure3 C<br />where <br /> A.datesuppression is null<br />and B.stock &gt; 0<br />and C.libelle ilike &#039;toto&#039;;</p><p>il va falloir que je rajoute dans la sous requete les memes conditions <img src="http://forums.postgresql.fr/img/smilies/wink.png" width="15" height="15" alt="wink" /><br />mais petit a petit tu arrive exactement a rejoindre mon probleme car ta prochaine idée sera surement de faire comme j&#039;ai fait au debut avec directement :</p><p>SELECT p.libelle, p.codification, p.numero,&#160; count(DISTINCT codification)&#160; FROM parution p ....</p><p>mais vu qu il y a un limit afin de gérer la pagination et ne pas retourner au client 2000 lignes alors qu&#039;on en veut uniquement 10, j&#039;ai ajouté le mot clé over() pour ne pas s&#039;areter au limit mais dès que je met le mot clé over(), je n&#039;ai plus le droit d&#039;utiliser distinct ou group by, comme je le disais je pense qu il me faudrait :</p><p>count(distinct codification) over() ou alors peut etre un count(codification) over(group by codification)&#160; mais je ne crois pas que ce soit possible <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p></div></blockquote></div><p>Dans ce cas là pourquoi ne pas factoriser en utilisant&#160; la clause <em>WITH</em>:</p><div class="codebox"><pre><code>WITH ma_table AS(
+    SELECT libelle, codification, numero
+    FROM parution JOIN... JOIN... WHERE...
+)
+SELECT libelle, codification, numero, (SELECT count(DISTINCT codification) FROM ma_table) FROM ma_table;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[edlm]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1635</uri>
+		</author>
+		<updated>2012-05-07T16:49:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13698#p13698</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Probleme sur une requete avec distinct et over()]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13697#p13697"/>
+		<content type="html"><![CDATA[<p>en tout cas merci d&#039;avoir pris le temps de regarder mon problème <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /><br />j&#039;ai quand meme une solution qui est de revenir à 2 requetes(bon si ya moyen d&#039;en faire qu une si tu trouve je suis prenneur quand meme <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" />), une qui me retourne les données avec le limit qui va bien et la seconde qui me retourne juste les count() pour les meta données sans le limit du coup je n&#039;aurai plus besoin du mot clé over et donc plus de souci de group by ou distinct.</p><p>ce qui est dommage c&#039;est que la premiere requete sera identique en terme de jointure et condition donc postgres aura deja fait le travail et je vais devoir lui demander de refaire le meme boulot juste à cause du over qui ne gère pas le disctinct ou group by <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /> mais apres il y surement d&#039;autre contrainte qui font que cela n&#039;est pas été implémenté <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[palex]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1399</uri>
+		</author>
+		<updated>2012-05-07T16:37:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13697#p13697</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Probleme sur une requete avec distinct et over()]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13696#p13696"/>
+		<content type="html"><![CDATA[<p>presque mais du coup le count(distinct codification) from parution ne tient pas compte des conditions de la requete principal, si je rajotue des jointures</p><p>SELECT p.libelle, p.codification, p.numero, (SELECT count(DISTINCT codification) FROM parution) FROM parution p <br />join majointure1 A <br />join majointure2 B<br />join majointure3 C<br />where <br /> A.datesuppression is null<br />and B.stock &gt; 0<br />and C.libelle ilike &#039;toto&#039;;</p><p>il va falloir que je rajoute dans la sous requete les memes conditions <img src="http://forums.postgresql.fr/img/smilies/wink.png" width="15" height="15" alt="wink" /><br />mais petit a petit tu arrive exactement a rejoindre mon probleme car ta prochaine idée sera surement de faire comme j&#039;ai fait au debut avec directement :</p><p>SELECT p.libelle, p.codification, p.numero,&#160; count(DISTINCT codification)&#160; FROM parution p ....</p><p>mais vu qu il y a un limit afin de gérer la pagination et ne pas retourner au client 2000 lignes alors qu&#039;on en veut uniquement 10, j&#039;ai ajouté le mot clé over() pour ne pas s&#039;areter au limit mais dès que je met le mot clé over(), je n&#039;ai plus le droit d&#039;utiliser distinct ou group by, comme je le disais je pense qu il me faudrait :</p><p>count(distinct codification) over() ou alors peut etre un count(codification) over(group by codification)&#160; mais je ne crois pas que ce soit possible <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[palex]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1399</uri>
+		</author>
+		<updated>2012-05-07T16:22:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13696#p13696</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Probleme sur une requete avec distinct et over()]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13695#p13695"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>palex a écrit&#160;:</cite><blockquote><div><p>si tu fait un insert dans parution :</p><p>insert into parution values (tata, 5678, 4);</p><p>et que tu rejoue la requete tu auras surement une colonne count avec:</p><div class="codebox"><pre><code> libelle | codification | numero | count 
+---------+--------------+--------+-------
+ TOTO    | 3456         |      1 |     2
+ TOTO    | 3456         |      2 |     2
+ TITI    | 1234         |      6 |     2
+ TITI    | 1234         |      7 |     2
+ TATA    | 5678         |      4 |     1</code></pre></div><p>je n&#039;ai pas refait le test mais je suppose que le resultat sera celui ci car le count retourne uniquement le nombre de parution pour une codification et dans l&#039;example TOTO =&gt; 2 et TITI =2 donc ta requete fonctionne mais c&#039;est juste une question de données je pense non?</p><p>et moi j&#039;aimerai avoir pour le cas ci dessus : </p><div class="codebox"><pre><code> libelle | codification | numero | count 
+---------+--------------+--------+-------
+ TOTO    | 3456         |      1 |     3
+ TOTO    | 3456         |      2 |     3
+ TITI    | 1234         |      6 |     3
+ TITI    | 1234         |      7 |     3
+ TATA    | 5678         |      4 |     3</code></pre></div><p>si tu arrive a avoir le resultat voulu alors la je suis prenneur, je test en tout cas ta solution voir si je peux m&#039;en sortir avec au cas ou<br /> <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p></div></blockquote></div><p>Ah je commence à un peu mieux comprendre...</p><br /><p>Peut être que cela conviendrait mieux:</p><div class="codebox"><pre><code>SELECT p.libelle, p.codification, p.numero, (SELECT count(DISTINCT codification) FROM parution) FROM parution p;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[edlm]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1635</uri>
+		</author>
+		<updated>2012-05-07T16:03:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13695#p13695</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Probleme sur une requete avec distinct et over()]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13694#p13694"/>
+		<content type="html"><![CDATA[<p>mais malheureusement meme si cela peut fonctionner, ca risque de compliquer les choses car dans la requete principale j&#039;ai des conditions d&#039;exclusion sur plusieurs jointures et si je ne remet pas les memes jointures et conditions dans le sous requete le count(*) over() me fait un count sur toute la table sans tenir compte des conditions d&#039;exclusions mais en ne tenant compte que de la codification </p><p>du coup j&#039;ai realisé un test sur mon appli et je n&#039;ai pas les bon resultat, je pense que de rajouter les jointures dans la sous requetes est mission impossible car il s&#039;agit d&#039;une requete généré par un framework écrit en interne qui ajoute les jointures dynamiquement suivant les colonnes affichées et les critères de recherche défini par l&#039;utilisateur, du coup cela me ressort une requete avec le minimum requis et dans la sous requete j&#039;aipeur que de rajouter trop de jointure me plombe le plan d&#039;execution en plus.</p><p>en tout cas merci pour la solution s&#039;était dans la bonne direction <img src="http://forums.postgresql.fr/img/smilies/wink.png" width="15" height="15" alt="wink" /></p>]]></content>
+		<author>
+			<name><![CDATA[palex]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1399</uri>
+		</author>
+		<updated>2012-05-07T15:58:55Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13694#p13694</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Probleme sur une requete avec distinct et over()]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13693#p13693"/>
+		<content type="html"><![CDATA[<p>ha peut etre qu&#039;en rajoutant un over() dans la sous requete ca va peut etre fonctionner&#160; :</p><p>SELECT p.libelle, p.codification, p.numero, s.count FROM parution p INNER JOIN (SELECT codification, count(*) over() FROM parution GROUP BY codification) s ON (p.codification = s.codification);</p>]]></content>
+		<author>
+			<name><![CDATA[palex]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1399</uri>
+		</author>
+		<updated>2012-05-07T15:49:54Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13693#p13693</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Probleme sur une requete avec distinct et over()]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13692#p13692"/>
+		<content type="html"><![CDATA[<p>si tu fait un insert dans parution :</p><p>insert into parution values (tata, 5678, 4);</p><p>et que tu rejoue la requete tu auras surement une colonne count avec:</p><div class="codebox"><pre><code> libelle | codification | numero | count 
+---------+--------------+--------+-------
+ TOTO    | 3456         |      1 |     2
+ TOTO    | 3456         |      2 |     2
+ TITI    | 1234         |      6 |     2
+ TITI    | 1234         |      7 |     2
+ TATA    | 5678         |      4 |     1</code></pre></div><p>je n&#039;ai pas refait le test mais je suppose que le resultat sera celui ci car le count retourne uniquement le nombre de parution pour une codification et dans l&#039;example TOTO =&gt; 2 et TITI =2 donc ta requete fonctionne mais c&#039;est juste une question de données je pense non?</p><p>et moi j&#039;aimerai avoir pour le cas ci dessus : </p><div class="codebox"><pre><code> libelle | codification | numero | count 
+---------+--------------+--------+-------
+ TOTO    | 3456         |      1 |     3
+ TOTO    | 3456         |      2 |     3
+ TITI    | 1234         |      6 |     3
+ TITI    | 1234         |      7 |     3
+ TATA    | 5678         |      4 |     3</code></pre></div><p>si tu arrive a avoir le resultat voulu alors la je suis prenneur, je test en tout cas ta solution voir si je peux m&#039;en sortir avec au cas ou<br /> <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[palex]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1399</uri>
+		</author>
+		<updated>2012-05-07T15:42:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13692#p13692</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Probleme sur une requete avec distinct et over()]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13691#p13691"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>palex a écrit&#160;:</cite><blockquote><div><p>mais moi j&#039;aimerais avoir :</p><p>TOTO&#160; &#160; 3456&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;1&#160; &#160; &#160;3<br />TOTO&#160; &#160; 3456&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;2&#160; &#160; &#160;3<br />TITI&#160; &#160; &#160; &#160; 1234&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;4&#160; &#160; &#160;3<br />TITI&#160; &#160; &#160; &#160; 1234&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;5&#160; &#160; &#160;3<br />TITI&#160; &#160; &#160; &#160; 1234&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;6&#160; &#160; &#160;3<br />TATA&#160; &#160; &#160; 11111&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; 1&#160; &#160; &#160; 3</p><p>car a l&#039;affichage de mon resultat sur la page j&#039;ai uniquement besoin d&#039;avoir le nombre de titre unique donc dans mon cas j&#039;ai bien 3456, 1234 et 11111 donc 3 titres et dans le tableau qui est affiché en dessous je dois afficher les 6 lignes car elle dispose d&#039;un numero différent, il ne s&#039;agit pas des memes parutions.</p></div></blockquote></div><p>Une solution éventuelle avec les sous-requêtes :</p><br /><p>pour une table <em>parution</em> définie comme suit:</p><div class="codebox"><pre><code>\d parution 
+            Table « public.parution »
+   Colonne    |       Type        | Modificateurs 
+--------------+-------------------+---------------
+ libelle      | character varying | 
+ codification | character varying | 
+ numero       | integer           | </code></pre></div><p>et avec les données suivantes:</p><div class="codebox"><pre><code>SELECT * FROM parution;
+ libelle | codification | numero 
+---------+--------------+--------
+ TOTO    | 3456         |      1
+ TOTO    | 3456         |      2
+ TITI    | 1234         |      6
+ TITI    | 1234         |      7
+(4 lignes)</code></pre></div><p>On peut faire ca:</p><div class="codebox"><pre><code>SELECT p.libelle, p.codification, p.numero, s.count FROM parution p INNER JOIN (SELECT codification, count(*) FROM parution GROUP BY codification) s ON (p.codification = s.codification);
+ libelle | codification | numero | count 
+---------+--------------+--------+-------
+ TOTO    | 3456         |      1 |     2
+ TOTO    | 3456         |      2 |     2
+ TITI    | 1234         |      6 |     2
+ TITI    | 1234         |      7 |     2
+(4 lignes)</code></pre></div><p>Mais je ne suis toujours pas sûr d&#039;avoir bien compris le problème...</p>]]></content>
+		<author>
+			<name><![CDATA[edlm]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1635</uri>
+		</author>
+		<updated>2012-05-07T13:16:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13691#p13691</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Probleme sur une requete avec distinct et over()]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13684#p13684"/>
+		<content type="html"><![CDATA[<p>merci pour votre réponse, </p><p>le partition by me retourne toujours 1, j&#039;avai deja essayé effectivement cette solution mais si j&#039;ai bien compris le partition by va me retourner ce genre de chose:</p><p>titre&#160; &#160; &#160; &#160; &#160;codification&#160; &#160; &#160;numero&#160; &#160;paritionBy<br />TOTO&#160; &#160; 3456&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;1&#160; &#160; &#160; &#160; &#160; &#160; 2<br />TOTO&#160; &#160; 3456&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;2&#160; &#160; &#160; &#160; &#160; &#160; 2<br />TITI&#160; &#160; &#160; &#160; 1234&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;4&#160; &#160; &#160; &#160; &#160; &#160; 3<br />TITI&#160; &#160; &#160; &#160; 1234&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;5&#160; &#160; &#160; &#160; &#160; &#160; 3<br />TITI&#160; &#160; &#160; &#160; 1234&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;6&#160; &#160; &#160; &#160; &#160; &#160; 3<br />TATA&#160; &#160; &#160; 11111&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; 1&#160; &#160; &#160; &#160; &#160; &#160; &#160;1</p><p>mais moi j&#039;aimerais avoir :</p><p>TOTO&#160; &#160; 3456&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;1&#160; &#160; &#160;3<br />TOTO&#160; &#160; 3456&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;2&#160; &#160; &#160;3<br />TITI&#160; &#160; &#160; &#160; 1234&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;4&#160; &#160; &#160;3<br />TITI&#160; &#160; &#160; &#160; 1234&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;5&#160; &#160; &#160;3<br />TITI&#160; &#160; &#160; &#160; 1234&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;6&#160; &#160; &#160;3<br />TATA&#160; &#160; &#160; 11111&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; 1&#160; &#160; &#160; 3</p><p>car a l&#039;affichage de mon resultat sur la page j&#039;ai uniquement besoin d&#039;avoir le nombre de titre unique donc dans mon cas j&#039;ai bien 3456, 1234 et 11111 donc 3 titres et dans le tableau qui est affiché en dessous je dois afficher les 6 lignes car elle dispose d&#039;un numero différent, il ne s&#039;agit pas des memes parutions.</p><p>on peut tres bien avoir un tele Z numero 1 et un tele Z numero 2 donc je dois afficher les 2 lignes dans ma liste car je peut tres bien modifier soi l&#039;un soi l&#039;autre mais au niveau stat je doit afficher que je dispose d&#039; un seul et unique titre.</p><p>je sais que je retourne sur chaque ligne une information identique mais je prefere cela plutot que de rejouer la requete une autre fois derriere sachant que postgres a deja tout le resultat en memoire donc autant qu il fasse le calcul directement.</p><p>mon souci c&#039;est de ne pas avoir de count(distinct codification) over() ou alors peut etre un count(codification) over(group by codification) plutot que partition by je pense.</p>]]></content>
+		<author>
+			<name><![CDATA[palex]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1399</uri>
+		</author>
+		<updated>2012-05-07T09:24:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13684#p13684</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Probleme sur une requete avec distinct et over()]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13683#p13683"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>palex a écrit&#160;:</cite><blockquote><div><p>bonjour</p><p>je dispose de cette requete:</p><p>...</p><p>le souci c&#039;est que dans la table parutionpresse je peux avoir </p><p>libelle&#160; | codification | numero<br />TOTO&#160; &#160; 3456&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; 1<br />TOTO&#160; &#160; 3456&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; 2<br />TITI&#160; &#160; &#160; &#160; 1234&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;6<br />TITI&#160; &#160; &#160; &#160; 1234&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;7</p><p>donc j&#039;aimerai avoir dans mon &quot;count(parutionpr1_.codificationTitre) over() as col_2_0_&quot;&#160; &#160;2 car j&#039;ai bien 4 lignes mais qui corresponde a 2 parutions car la codification est identique.</p></div></blockquote></div><br /><p>Le <em>OVER</em> ne comporte pas de clause <em>PARTITION BY</em> donc il exécute le <em>count</em><br />sur la totalité des lignes, soit 4 dans ce cas.</p><br /><p>Enfin j&#039;imagine car je ne suis pas sûr de bien comprendre l&#039;exposé.</p><br /><p>Pour y voir plus clair commencez par enlever le <em>GROUP BY</em> et mettre à la place du <em>over</em> actuel<br />un <em>OVER(PARTITION BY produitpre0_.id, parutionpr1_.codificationTitre)</em>.</p>]]></content>
+		<author>
+			<name><![CDATA[edlm]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1635</uri>
+		</author>
+		<updated>2012-05-07T09:04:39Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13683#p13683</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Probleme sur une requete avec distinct et over()]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13682#p13682"/>
+		<content type="html"><![CDATA[<p>j&#039;ai oublié de préciser je suis sur postgres 8.4 en prod et 9.1 sur ma machine, la prod va bientot passer en 9.1 mais peut etre que je devrai trouver une solution pour la 8.4 avant ;(</p>]]></content>
+		<author>
+			<name><![CDATA[palex]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1399</uri>
+		</author>
+		<updated>2012-05-07T07:55:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13682#p13682</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Probleme sur une requete avec distinct et over()]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13681#p13681"/>
+		<content type="html"><![CDATA[<p>bonjour</p><p>je dispose de cette requete:</p><div class="codebox"><pre><code>select
+        parutionpr1_.codificationTitre as col_1_0_,
+	count(parutionpr1_.codificationTitre) over() as col_2_0_
+    from
+        public.Produit produitpre0_ 
+    left outer join
+        public.ParutionPresse parutionpr1_ 
+            on produitpre0_.fk_parutionpresse=parutionpr1_.id 
+            and (
+                parutionpr1_.groupeid=20812
+            ) 
+   
+    where
+        produitpre0_.discriminator=&#039;PRESSE&#039; 
+        and (
+            produitpre0_.groupeid in (
+                20812
+            )
+        ) 
+        and (
+            produitpre0_.datesuppression is null
+        ) 
+    group by
+        produitpre0_.id ,
+	parutionpr1_.codificationTitre  
+    limit 10</code></pre></div><p>le souci c&#039;est que dans la table parutionpresse je peux avoir </p><p>libelle&#160; | codification | numero<br />TOTO&#160; &#160; 3456&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; 1<br />TOTO&#160; &#160; 3456&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; 2<br />TITI&#160; &#160; &#160; &#160; 1234&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;6<br />TITI&#160; &#160; &#160; &#160; 1234&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;7</p><p>donc j&#039;aimerai avoir dans mon &quot;count(parutionpr1_.codificationTitre) over() as col_2_0_&quot;&#160; &#160;2 car j&#039;ai bien 4 lignes mais qui corresponde a 2 parutions car la codification est identique.</p><p>j&#039;ai tenté de faire un &quot;count(distinct parutionpr1_.codificationTitre) over()&#160; mais ce n&#039;est pas autorisé</p><p>je ne peut pas réecire la requete avec un with {} comme j&#039;ai pu le voir sur certain sujet sur le net.</p><p>existe t il un autre moyen de le faire car sinon je vais etre obligé de séparer ce count dans une autre requete et ca m&#039;embete un peu, car à l&#039;origine cette requete remonte une 10ene de champs et ensuite plusieurs requete étaient jouées pour realiser les count,&#160; j&#039;ai donc ajouté les count() over() dans la meme requete&#160; pour reussir à tout faire en une seule et unique requete, tout fonctionne sauf ce dernier cas.</p><p>merci beaucoup</p>]]></content>
+		<author>
+			<name><![CDATA[palex]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1399</uri>
+		</author>
+		<updated>2012-05-07T07:51:21Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13681#p13681</id>
+	</entry>
+</feed>

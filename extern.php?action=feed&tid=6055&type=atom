@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / procédure d'affichage.]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=6055&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=6055"/>
+	<updated>2021-07-02T03:43:00Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=6055</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  procédure d'affichage.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32650#p32650"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>Miflon a écrit&#160;:</cite><blockquote><div><p>Les deux procédures, lancées dans psql, ont le même comportement que dans phppgadmin, c&#039;est à dire affichage correct avec s_ent.display_message(msg) et pas d&#039;affichage avec s_ent.affiche_message()</p></div></blockquote></div><p>Ah, dans ce cas cela pourrait aussi être lié à une configuration de votre serveur :</p><div class="codebox"><pre><code>=# call display_message(&#039;a&#039;);
+NOTICE:  Paramètre de la procédure : a
+ msg
+-----
+ a
+(1 row)
+
+=# set client_min_messages to warning ;
+SET
+
+=# call display_message(&#039;a&#039;);
+ msg
+-----
+ a
+(1 row)</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2021-07-02T03:43:00Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32650#p32650</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  procédure d'affichage.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32649#p32649"/>
+		<content type="html"><![CDATA[<p>J&#039;utilise postgresql 11.4 installé au moyen du stack de bitnami, pour le serveur, et phppgadmin pour le client. Le tout géré par le système d&#039;exploitation W10.</p><div class="quotebox"><blockquote><div><p>Pouvez-vous vérifier que le message s&#039;affiche bien si vous utilisez psql?</p></div></blockquote></div><p>Les deux procédures, lancées dans psql, ont le même comportement que dans phppgadmin, c&#039;est à dire affichage correct avec s_ent.display_message(msg) et pas d&#039;affichage avec s_ent.affiche_message(). Je vais essayer d&#039;utiliser display_message en testant la nullité de msg dans le corps de la procédure pour le constituer à ma guise dans ce cas.<br />Rendez-vous au prochain épisode, merci pour votre aide, Michel.</p>]]></content>
+		<author>
+			<name><![CDATA[Miflon]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1343</uri>
+		</author>
+		<updated>2021-07-01T11:17:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32649#p32649</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  procédure d'affichage.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32647#p32647"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Comment savoir si le client intercepte ou pas les messages de type NOTICE?</p></div></blockquote></div><br /><p>J&#039;imagine que cela doit être documenté quelque part sur la doc/site de votre client.&#160; Mais à priori le problème vient bien de votre client.&#160; Pouvez-vous vérifier que le message s&#039;affiche bien si vous utilisez psql?</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2021-06-29T00:56:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32647#p32647</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  procédure d'affichage.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32646#p32646"/>
+		<content type="html"><![CDATA[<p>Merci pour vos réponses.</p><div class="quotebox"><cite>rjuju a écrit&#160;:</cite><blockquote><div><p>Peut être que votre client n&#039;intercepte pas les message de type NOTICE?</p></div></blockquote></div><p>Je suis en localhost. Comment savoir si le client intercepte ou pas les messages de type NOTICE?</p><div class="quotebox"><cite>ruizsebastien a écrit&#160;:</cite><blockquote><div><p>Aucun message d&#039;erreur lors de la création de la procédure mais également aucun message que la procédure est bien créé.</p></div></blockquote></div><p>Message renvoyé :<br />Pas de résultats.<br />Temps d&#039;exécution total : 11.583 ms<br />Requête SQL exécutée.</p><div class="quotebox"><cite>ruizsebastien a écrit&#160;:</cite><blockquote><div><p>Il manque un &quot;;&quot; à la fin du code de la procédure.</p></div></blockquote></div><p>Le &quot;;&quot; a été rajouté.<br />Et toujours pas d&#039;affichage. Si je passe&#160; la variable ma_table en paramètre à la procédure, la procédure l&#039;affiche!</p><div class="codebox"><pre><code>CREATE OR REPLACE PROCEDURE s_ent.display_message (INOUT msg TEXT)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+RAISE NOTICE &#039;Paramètre de la procédure : %&#039;, msg ;
+END;
+$$;</code></pre></div><p>Ce qui répond (?) à la remarque de rjuju.<br />Merci encore pour votre intérêt à mon problème.</p>]]></content>
+		<author>
+			<name><![CDATA[Miflon]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1343</uri>
+		</author>
+		<updated>2021-06-28T18:27:29Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32646#p32646</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  procédure d'affichage.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32645#p32645"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Aucun message d&#039;erreur lors de la création de la procédure mais également aucun message que la procédure est bien créé.<br />N&#039;est-ce pas ?</p><p>Il manque un &quot;;&quot; à la fin du code de la procédure.</p><br /><br /><p>exemple :</p><div class="codebox"><pre><code>postgres=# CREATE OR REPLACE PROCEDURE affiche_message ()
+postgres-# LANGUAGE plpgsql
+postgres-# AS $$
+postgres$# DECLARE
+postgres$# nom_table varchar(16) := &#039;ma_table&#039;;
+postgres$# cle_primaire varchar(8) := &#039;id&#039;;
+postgres$# suffixe varchar(8) := &#039;.mat&#039;;
+postgres$# BEGIN
+postgres$# RAISE NOTICE &#039;Nom de la table: %&#039;, nom_table;
+postgres$# END;
+postgres$# $$
+postgres-# ;
+CREATE PROCEDURE
+postgres=#
+postgres=#
+postgres=#
+postgres=#
+postgres=#
+postgres=# call affiche_message();
+NOTICE:  Nom de la table: ma_table
+CALL</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2021-06-28T15:56:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32645#p32645</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  procédure d'affichage.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32644#p32644"/>
+		<content type="html"><![CDATA[<p>Cela fonctionne comme attendu pour moi:</p><div class="codebox"><pre><code>=# call affiche_message();
+NOTICE:  Nom de la table: ma_table
+CALL</code></pre></div><br /><p>Peut être que votre client n&#039;intercepte pas les message de type NOTICE?</p><div class="quotebox"><blockquote><div><p>Lors de la création de la procédure, aucun message d&#039;erreur n&#039;est envoyé.</p></div></blockquote></div><br /><p>C&#039;est tout à fait normal, un RAISE NOTICE n&#039;est qu&#039;informatif, et le reste de la procédure ne devrait pas renvoyer d&#039;erreur non plus.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2021-06-28T15:51:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32644#p32644</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[procédure d'affichage.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32643#p32643"/>
+		<content type="html"><![CDATA[<p>Bonjour à toutes et à tous.<br />Je désire faire afficher une variable par une procédure. Voici le code :</p><div class="codebox"><pre><code>CREATE OR REPLACE PROCEDURE s_ent.affiche_message ()
+LANGUAGE plpgsql
+AS $$
+DECLARE
+	nom_table varchar(16) := &#039;ma_table&#039;;
+	cle_primaire varchar(8) := &#039;id&#039;;
+	suffixe varchar(8) := &#039;.mat&#039;;
+BEGIN
+RAISE NOTICE &#039;Nom de la table: %&#039;, nom_table;
+END;
+$$</code></pre></div><p>Rien ne s&#039;affiche lors du </p><div class="codebox"><pre><code>call s_ent.affiche_message();</code></pre></div><p>Lors de la création de la procédure, aucun message d&#039;erreur n&#039;est envoyé.<br />Un merci anticipé à celle ou celui qui me dépannera.<br />Michel.</p>]]></content>
+		<author>
+			<name><![CDATA[Miflon]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1343</uri>
+		</author>
+		<updated>2021-06-28T15:47:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32643#p32643</id>
+	</entry>
+</feed>

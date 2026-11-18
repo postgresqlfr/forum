@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Réplication logique et perte de connexion temporaire]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=6052&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=6052"/>
+	<updated>2021-07-10T12:53:32Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=6052</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Réplication logique et perte de connexion temporaire]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32674#p32674"/>
+		<content type="html"><![CDATA[<p>Hello,</p><p>J&#039;ai fini par résoudre le problème qui n&#039;était que consécutif à deux bêtises de ma part. Je les relate ici, ça pourra toujours servir à quelqu&#039;un d&#039;autre : </p><p>1) J&#039;avais créé un tablespace dans &#039;/usr/local/migration/tablespaces/&#039; et d&#039;autres dans des sous-répertoires &#039;/usr/local/migration/tablespaces/xxx/&#039; ; ce qui fait planter pg_basebackup (il a besoin de répertoires vides quand il démarre le backup pour créer le noeud esclave).</p><p>2) J&#039;ai fait une faute de frappe en définissant une clef/valeur sur la configuration dynamique (donc pas de trace dans les fichiers de conf statiques). J&#039;avais mis &quot;checkpoint: dast&quot; au lieu de &quot;checkpoint: fast&quot;. J&#039;ai vu ça en regardant dans le fichier de conf patroni JSON créé dynamiquement&#160; dans $PGDATA.</p><p>Bref, juste des trucs de ma faute.</p>]]></content>
+		<author>
+			<name><![CDATA[herve.lefebvre]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=506</uri>
+		</author>
+		<updated>2021-07-10T12:53:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32674#p32674</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Réplication logique et perte de connexion temporaire]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32668#p32668"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>herve.lefebvre a écrit&#160;:</cite><blockquote><div><p>( bon ; en fait j&#039;ai pété mon cluster ; il ne redémarre pas, j&#039;essaye de comprendre pourquoi...)</p></div></blockquote></div><p>Les logs des différents serveurs devraient vous donner des explications.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2021-07-08T17:43:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32668#p32668</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Réplication logique et perte de connexion temporaire]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32667#p32667"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Mettre les noeuds d&#039;un cluster Patroni en WAL_LEVEL=LOGICAL afin de créer des publications vers un serveur à l&#039;extérieur du cluster ; d&#039;un point de vue théorique, ça ne devrait pas poser de problème n&#039;est-ce pas ?<br />( bon ; en fait j&#039;ai pété mon cluster ; il ne redémarre pas, j&#039;essaye de comprendre pourquoi...)</p>]]></content>
+		<author>
+			<name><![CDATA[herve.lefebvre]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=506</uri>
+		</author>
+		<updated>2021-07-08T08:59:35Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32667#p32667</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Réplication logique et perte de connexion temporaire]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32638#p32638"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>ruizsebastien a écrit&#160;:</cite><blockquote><div><div class="quotebox"><cite>rjuju a écrit&#160;:</cite><blockquote><div><p>Au passage il est à noter que c&#039;est également valide pour un slot de réplication physique.</p></div></blockquote></div><p>que si la replication est synchrone (mais je me trompe peut être)</p></div></blockquote></div><p>Non, c&#039;est pareil en asynchrone.&#160; Le but d&#039;un slot de réplication est de garantir l&#039;accès aux informations nécessaires pour un serveur secondaire.&#160; Dans le cas de la réplication physique c&#039;est uniquement les WAL, pour la réplication logique cela inclue également un plugin ainsi que des informations concernant le catalogue afin de pouvoir décoder les changements.</p><br /><p>Mais dans les 2 cas, synchrone ou pas, les WAL seront conservés aussi longtemps que nécessaire, à moins d&#039;utiliser le max_slot_wal_keep_size introduit dans postgres 13.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2021-06-26T03:04:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32638#p32638</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Réplication logique et perte de connexion temporaire]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32635#p32635"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>rjuju a écrit&#160;:</cite><blockquote><div><p>Au passage il est à noter que c&#039;est également valide pour un slot de réplication physique.</p></div></blockquote></div><p>que si la replication est synchrone (mais je me trompe peut être)</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2021-06-25T12:41:33Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32635#p32635</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Réplication logique et perte de connexion temporaire]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32632#p32632"/>
+		<content type="html"><![CDATA[<p>Au passage il est à noter que c&#039;est également valide pour un slot de réplication physique.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2021-06-25T11:13:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32632#p32632</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Réplication logique et perte de connexion temporaire]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32631#p32631"/>
+		<content type="html"><![CDATA[<p>C&#039;est ce que je voulais savoir. Merci.</p>]]></content>
+		<author>
+			<name><![CDATA[herve.lefebvre]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=506</uri>
+		</author>
+		<updated>2021-06-25T10:18:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32631#p32631</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Réplication logique et perte de connexion temporaire]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32630#p32630"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>La réplication logique repose sur un slot de réplication, situé coté source (publisher) et qui permet d&#039;y conserver les WAL tant qu&#039;ils n&#039;ont pas été décodés et envoyés vers la cible (subscriber) associée.</p><br /><p>Donc, si le subscriber se déconnecte, le slot impose au publisher de conserver les WAL jusqu&#039;au retour du subscriber afin qu&#039;il rattrape son retard.</p><br /><p>L&#039;absence <strong>prolongée</strong> d&#039;un subscriber induit donc un risque sur le publisher en cas de saturation de l&#039;espace disque à cause de la rétention des WALs.</p>]]></content>
+		<author>
+			<name><![CDATA[ioguix]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=43</uri>
+		</author>
+		<updated>2021-06-25T10:15:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32630#p32630</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réplication logique et perte de connexion temporaire]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32627#p32627"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;aimerais savoir ce qui se passe dans le cadre d&#039;une réplication logique si l&#039;hôte cible est temporairement injoignable.</p><p>Les ordres logiques sont conservés et transmis lorsque la connexion est à nouveau effective, ou bien ils sont perdus ?</p>]]></content>
+		<author>
+			<name><![CDATA[herve.lefebvre]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=506</uri>
+		</author>
+		<updated>2021-06-25T09:39:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32627#p32627</id>
+	</entry>
+</feed>

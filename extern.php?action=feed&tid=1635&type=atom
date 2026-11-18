@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Recherche de doublons sur des champs texte]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1635&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1635"/>
+	<updated>2011-11-09T17:03:34Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1635</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Recherche de doublons sur des champs texte]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11762#p11762"/>
+		<content type="html"><![CDATA[<p>Tout d&#039;abord, ce n&#039;est pas du PLSQL (car c&#039;est le langage d&#039;Oracle). C&#039;est du PL/pgsql.</p><p>Les écarts de performance s&#039;expliquent par le fait qu&#039;il n&#039;est pas nécessaire d&#039;avoir un interpréteur spécial pour exécuter ce code. Dans le cas d&#039;une fonction SQL, c&#039;est du SQL bête et méchant. Dans le cas du PL/pgsql, il faut instancier des variables, interpréter les requêtes, ajouter la valeur à la variable, retourner le contenu de la variable. Tout ce travail prend du temps.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-11-09T17:03:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11762#p11762</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Recherche de doublons sur des champs texte]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11748#p11748"/>
+		<content type="html"><![CDATA[<p>Merci à toi, effectivement, en terme de perf ca n&#039;a rien à voire : pour la recherche des doublons, je passe de 30 minutes avec la première version de la fonction, à quelques secondes avec la dernière!</p><p>Mais en clair, qu&#039;est ce qui distingue une procédure stockée &quot;SQL&quot; d&#039;une procédure sotckée &quot;PLSQL&quot;?<br />La gestion des paramètres utilisées?<br />La structure de la fonction est la même, donc j&#039;ai du mal à comprendre de tels écarts de performance.</p>]]></content>
+		<author>
+			<name><![CDATA[Gold.Strike]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=865</uri>
+		</author>
+		<updated>2011-11-09T15:25:00Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11748#p11748</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Recherche de doublons sur des champs texte]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11734#p11734"/>
+		<content type="html"><![CDATA[<p>Il est possible de créer une procédure stockée en SQL. C&#039;est généralement bien plus rapide qu&#039;en PL/pgsql. L&#039;idée, c&#039;est que plutôt que de faire 15 SELECT pour ne récupérer qu&#039;une info, on n&#039;en fait qu&#039;un seul. Du coup, il agrege tous les appels. Donc ça donnerait qqc du genre :</p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION fct_format_string3(text)
+  RETURNS text AS
+$BODY$
+    SELECT replace(translate(translate(replace(replace(LOWER($1),&#039;æ&#039;,&#039;ae&#039;),&#039;œ&#039;,&#039;oe&#039;), &#039;âäàéèêëîïöôûü&#039;, &#039;aaaeeeeiioouu&#039;), &#039;&amp;$*@^#- _&#039;, &#039;&#039;),&#039;&#039;&#039;&#039;,&#039;&#039;);
+$BODY$
+  LANGUAGE &#039;sql&#039;;</code></pre></div><p>Pour rappel, test d&#039;exécution 100000 fois :<br />* la première procédure avec tous les SELECT : 9s<br />* la procédure avec le translate : 2s<br />* la procédure SQL : 54 ms</p><p>Je vous accorde que c&#039;est moins lisible. Mais c&#039;est clairement plus performant <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-11-08T19:31:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11734#p11734</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Recherche de doublons sur des champs texte]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11720#p11720"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>gleu a écrit&#160;:</cite><blockquote><div><p>Le plus simple serait de tout transformer en une seule requête et du coup de transformer la procédure PL/pgsql en procédure SQL.</p></div></blockquote></div><p>Je ne comprends pas ce que tu veux dire. Est ce ma fonction que je dois transformer en une seule requête?<br />Les procédure SQL sont elles gérées de la même façon que les procédures PLSQL?</p>]]></content>
+		<author>
+			<name><![CDATA[Gold.Strike]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=865</uri>
+		</author>
+		<updated>2011-11-08T09:12:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11720#p11720</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Recherche de doublons sur des champs texte]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11712#p11712"/>
+		<content type="html"><![CDATA[<p>Le plus simple serait de tout transformer en une seule requête et du coup de transformer la procédure PL/pgsql en procédure SQL.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-11-07T19:01:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11712#p11712</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Recherche de doublons sur des champs texte]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11711#p11711"/>
+		<content type="html"><![CDATA[<p>Alors j&#039;ai effectivement constaté une nette amélioration des performances en utilisant des &quot;translate&quot;. Pour une recherche classique, je passe de 4 secondes à 1.5 secondes.</p><p>Je voudrais cependant savoir si je peux encore optimiser d&#039;avantage ma fonction :</p><div class="quotebox"><blockquote><div><p>-- Function: fct_format_string(text)</p><p>-- DROP FUNCTION fct_format_string(text);</p><p>CREATE OR REPLACE FUNCTION fct_format_string2(stringtoformat text)<br />&#160; RETURNS text AS<br />$BODY$DECLARE formatedString text;<br />BEGIN<br />&#160; &#160; SELECT LOWER(stringToFormat) INTO formatedString ;<br />&#160; &#160; <br />-- &#160; &#160; bloc non remplacé<br />&#160; &#160; SELECT replace(formatedString,&#039;æ&#039;,&#039;ae&#039;) INTO formatedString ;<br />&#160; &#160; SELECT replace(formatedString,&#039;œ&#039;,&#039;oe&#039;) INTO formatedString ;</p><p>-- &#160; &#160; bloc &quot;accents&quot;&#160; &#160; &#160; &#160; <br />-- &#160; &#160; SELECT replace(formatedString,&#039;â&#039;,&#039;a&#039;) INTO formatedString ;<br />-- &#160; &#160; SELECT replace(formatedString,&#039;ä&#039;,&#039;a&#039;) INTO formatedString ;<br />-- &#160; &#160; SELECT replace(formatedString,&#039;à&#039;,&#039;a&#039;) INTO formatedString ;&#160; &#160; <br />-- &#160; &#160; SELECT replace(formatedString,&#039;é&#039;,&#039;e&#039;) INTO formatedString ;<br />-- &#160; &#160; SELECT replace(formatedString,&#039;è&#039;,&#039;e&#039;) INTO formatedString ;<br />-- &#160; &#160; SELECT replace(formatedString,&#039;ê&#039;,&#039;e&#039;) INTO formatedString ;<br />-- &#160; &#160; SELECT replace(formatedString,&#039;ë&#039;,&#039;e&#039;) INTO formatedString ;<br />-- &#160; &#160; SELECT replace(formatedString,&#039;î&#039;,&#039;i&#039;) INTO formatedString ;<br />-- &#160; &#160; SELECT replace(formatedString,&#039;ï&#039;,&#039;i&#039;) INTO formatedString ;<br />-- &#160; &#160; SELECT replace(formatedString,&#039;ö&#039;,&#039;o&#039;) INTO formatedString ;<br />-- &#160; &#160; SELECT replace(formatedString,&#039;ô&#039;,&#039;o&#039;) INTO formatedString ;<br />-- &#160; &#160; SELECT replace(formatedString,&#039;û&#039;,&#039;u&#039;) INTO formatedString ;<br />-- &#160; &#160; SELECT replace(formatedString,&#039;ü&#039;,&#039;u&#039;) INTO formatedString ;<br />&#160; &#160; SELECT translate(formatedString, &#039;âäàéèêëîïöôûü&#039;, &#039;aaaeeeeiioouu&#039;) INTO formatedString ;</p><p>-- &#160; &#160; bloc &quot;caractère spéciaux&quot;&#160; &#160; <br />-- &#160; &#160; SELECT replace(formatedString,&#039;&amp;&#039;,&#039;&#039;) INTO formatedString ;<br />-- &#160; &#160; SELECT replace(formatedString,&#039;$&#039;,&#039;&#039;) INTO formatedString ;<br />-- &#160; &#160; SELECT replace(formatedString,&#039;*&#039;,&#039;&#039;) INTO formatedString ;<br />-- &#160; &#160; SELECT replace(formatedString,&#039;@&#039;,&#039;&#039;) INTO formatedString ;<br />--&#160; &#160; &#160; &#160; &#160; &#160; &#160; SELECT replace(formatedString,&#039;^&#039;,&#039;&#039;) INTO formatedString ;<br />-- &#160; &#160; SELECT replace(formatedString,&#039;#&#039;,&#039;&#039;) INTO formatedString ;<br />-- &#160; &#160; SELECT replace(formatedString,&#039;-&#039;,&#039;&#039;) INTO formatedString ;<br />-- &#160; &#160; SELECT replace(formatedString,&#039; &#039;,&#039;&#039;) INTO formatedString ;<br />-- &#160; &#160; SELECT replace(formatedString,&#039;_&#039;,&#039;&#039;) INTO formatedString ;<br />&#160; &#160; SELECT translate(formatedString, &#039;&amp;$*@^#- _&#039;, &#039;&#039;) INTO formatedString ;</p><p>-- &#160; &#160; gestion du caractère simple quote (&#039;)<br />&#160; &#160; SELECT replace(formatedString,&#039;&#039;&#039;&#039;,&#039;&#039;) INTO formatedString ;<br />&#160; &#160; <br />&#160; &#160; --SELECT replace(formatedString,&#039;&#039;&quot;&#039;,&#039;&#039;) INTO formatedString ;</p><p>RETURN formatedString;<br />END;$BODY$<br />&#160; LANGUAGE &#039;plpgsql&#039; VOLATILE<br />&#160; COST 100;<br />ALTER FUNCTION fct_format_string(text) OWNER TO postgres;</p></div></blockquote></div><p>Enfin, j&#039;ai un problème avec le caractère simple quote (&#039;). En effet, je n&#039;arrive pas à trouver la méthode permettant de le prendre en compte dans le bloc des caractères spéciaux. Ai je oublié quelque chose?</p>]]></content>
+		<author>
+			<name><![CDATA[Gold.Strike]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=865</uri>
+		</author>
+		<updated>2011-11-07T17:23:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11711#p11711</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Recherche de doublons sur des champs texte]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11679#p11679"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Le fait d&#039;utiliser &quot;translate&quot; apporte t&#039;il un gain significatif?</p></div></blockquote></div><p>Le plus simple est certainement de faire le test vous-même non ? moi, en exécutant 100000 fois une requête, j&#039;obtiens 9,2 secondes avec votre fonction qui utilise un tas de replace. Et 2.2 secondes avec la mienne qui utilise un translate suivi de deux ou trois replace.</p><div class="quotebox"><blockquote><div><p>existe t&#039;il une fonction Postgre qui fasse la même chose?</p></div></blockquote></div><p>La même chose que quoi ?</p><div class="quotebox"><blockquote><div><p>Je n&#039;ai pas très bien compris l&#039;utilité ni l&#039;application de &quot;pg_trm&quot;</p></div></blockquote></div><p>pg_trgm permet de trouver des noms ressemblant (par exemple une lettre oubliée ou deux lettres inversées... ce genre de problème). Ça pourrait être utile pour trouver des doublons mais ça ne répond pas directement à votre problème.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-11-04T19:02:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11679#p11679</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Recherche de doublons sur des champs texte]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11678#p11678"/>
+		<content type="html"><![CDATA[<p>Je me permets de relancer cette discussion, car la fonction que j&#039;ai cité, est utilisé à différents endroits, notamment pour synchroniser des données entre une base MAITRE et des bases CLIENTES. Je me sers donc de la fonction pour vérifier la présence de données dans différentes tables...</p><div class="quotebox"><blockquote><div><p>-- Function: fct_format_string(text)</p><p>-- DROP FUNCTION fct_format_string(text);</p><p>CREATE OR REPLACE FUNCTION fct_format_string(stringtoformat text)<br />&#160; RETURNS text AS<br />$BODY$DECLARE formatedString text;<br />BEGIN<br />&#160; &#160; SELECT LOWER(stringToFormat) INTO formatedString ;<br />&#160; &#160; &#160; &#160; SELECT replace(formatedString,&#039;&amp;&#039;,&#039;&#039;) INTO formatedString ;<br />&#160; &#160; SELECT replace(formatedString,&#039;$&#039;,&#039;&#039;) INTO formatedString ;<br />&#160; &#160; SELECT replace(formatedString,&#039;*&#039;,&#039;&#039;) INTO formatedString ;<br />&#160; &#160; SELECT replace(formatedString,&#039;@&#039;,&#039;&#039;) INTO formatedString ;<br />&#160; &#160; &#160; &#160; SELECT replace(formatedString,&#039;^&#039;,&#039;&#039;) INTO formatedString ;<br />&#160; &#160; SELECT replace(formatedString,&#039;#&#039;,&#039;&#039;) INTO formatedString ;<br />&#160; &#160; SELECT replace(formatedString,&#039;æ&#039;,&#039;ae&#039;) INTO formatedString ;<br />&#160; &#160; SELECT replace(formatedString,&#039;â&#039;,&#039;a&#039;) INTO formatedString ;<br />&#160; &#160; SELECT replace(formatedString,&#039;ä&#039;,&#039;a&#039;) INTO formatedString ;<br />&#160; &#160; SELECT replace(formatedString,&#039;à&#039;,&#039;a&#039;) INTO formatedString ;<br />&#160; &#160; SELECT replace(formatedString,&#039;é&#039;,&#039;e&#039;) INTO formatedString ;<br />&#160; &#160; SELECT replace(formatedString,&#039;è&#039;,&#039;e&#039;) INTO formatedString ;<br />&#160; &#160; SELECT replace(formatedString,&#039;ê&#039;,&#039;e&#039;) INTO formatedString ;<br />&#160; &#160; SELECT replace(formatedString,&#039;ë&#039;,&#039;e&#039;) INTO formatedString ;<br />&#160; &#160; SELECT replace(formatedString,&#039;î&#039;,&#039;i&#039;) INTO formatedString ;<br />&#160; &#160; SELECT replace(formatedString,&#039;ï&#039;,&#039;i&#039;) INTO formatedString ;<br />&#160; &#160; SELECT replace(formatedString,&#039;œ&#039;,&#039;oe&#039;) INTO formatedString ;<br />&#160; &#160; SELECT replace(formatedString,&#039;ö&#039;,&#039;o&#039;) INTO formatedString ;<br />&#160; &#160; SELECT replace(formatedString,&#039;ô&#039;,&#039;o&#039;) INTO formatedString ;<br />&#160; &#160; SELECT replace(formatedString,&#039;û&#039;,&#039;u&#039;) INTO formatedString ;<br />&#160; &#160; SELECT replace(formatedString,&#039;ü&#039;,&#039;u&#039;) INTO formatedString ;<br />&#160; &#160; SELECT replace(formatedString,&#039;-&#039;,&#039;&#039;) INTO formatedString ;<br />&#160; &#160; SELECT replace(formatedString,&#039; &#039;,&#039;&#039;) INTO formatedString ;<br />&#160; &#160; SELECT replace(formatedString,&#039;_&#039;,&#039;&#039;) INTO formatedString ;<br />&#160; &#160; SELECT replace(formatedString,&#039;&#039;&#039;&#039;,&#039;&#039;) INTO formatedString ;<br />&#160; &#160; --SELECT replace(formatedString,&#039;&#039;&quot;&#039;,&#039;&#039;) INTO formatedString ;</p><p>RETURN formatedString;<br />END;$BODY$<br />&#160; LANGUAGE &#039;plpgsql&#039; VOLATILE<br />&#160; COST 100;<br />ALTER FUNCTION fct_format_string(text) OWNER TO postgres;</p></div></blockquote></div><p>Le fait d&#039;utiliser &quot;translate&quot; apporte t&#039;il un gain significatif?<br />Du coup existe t&#039;il une fonction Postgre qui fasse la même chose? Je n&#039;ai pas très bien compris l&#039;utilité ni l&#039;application de &quot;pg_trm&quot;...</p><p>Merci,</p>]]></content>
+		<author>
+			<name><![CDATA[Gold.Strike]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=865</uri>
+		</author>
+		<updated>2011-11-04T17:07:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11678#p11678</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Recherche de doublons sur des champs texte]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10916#p10916"/>
+		<content type="html"><![CDATA[<p>Il faudrait que je trouve le bon filtre XSLT pour ça. Et comme générer la doc met un temps fou, ça motive peu pour le faire.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-09-16T15:10:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10916#p10916</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Recherche de doublons sur des champs texte]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10913#p10913"/>
+		<content type="html"><![CDATA[<p>S&#039;il s&#039;agit comme je le pense de mettre au point un premier niveau de filtre dans la requête SQL, alors je conseillerais d&#039;utiliser pg_trgm.&#160; Bon il se trouve que sa version en 9.1 est particulièrement adaptée, mais même dans les versions précédentes cela devrait être d&#039;une grande aide.</p><p>&#160; <a href="http://docs.postgresqlfr.org/9.1/pgtrgm.html" rel="nofollow">http://docs.postgresqlfr.org/9.1/pgtrgm.html</a></p><p>Note: gleu, il est assez pénible de naviguer vers cette page depuis <a href="http://docs.postgresqlfr.org/9.1/contrib.html" rel="nofollow">http://docs.postgresqlfr.org/9.1/contrib.html</a>, ne devrait-il pas y avoir un menu des sections dans l&#039;annexe à cette URL?</p>]]></content>
+		<author>
+			<name><![CDATA[dim]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1383</uri>
+		</author>
+		<updated>2011-09-16T14:30:52Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10913#p10913</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Recherche de doublons sur des champs texte]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10901#p10901"/>
+		<content type="html"><![CDATA[<p>Une première chose à faire serait de remplacer tous les replace par un translate, du style translate(formatedString,&#039;âäàéèêë&#039;,&#039;aaaeeee&#039;&#039;). Si la base est en latin1 ou latin9, il faudrait peut-être tester utf-8.</p><p>Mais de toute façon, avec le produit cartésien que vous faites et l&#039;impossibilité d&#039;utiliser des index, vous êtes sûr d&#039;avoir un gros temps d&#039;exécution pour une grosse table.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-09-13T20:24:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10901#p10901</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Recherche de doublons sur des champs texte]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10892#p10892"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Dans ma base de données, j&#039;ai une table CONTACT qui contient des informations nominatives et personnelles (nom, prénom, sexe, date de naissance, etc...).<br />Je me suis rendu qu&#039;il y avait déja plusieurs &quot;doublons&quot; dans cette base.</p><p>Afin de pouvoir les identifier rapidement, j&#039;ai donc exécuté cette requête qui marche parfaitement bien :</p><div class="codebox"><pre><code>SELECT T1.id
+FROM contacts T1, contacts T2
+WHERE LOWER(T1.nom) = LOWER(T2.nom)
+AND LOWER(T1.prenom) = LOWER(T2.prenom)
+AND T1.id &lt;&gt; T2.id</code></pre></div><p>Comme il y d&#039;autres cas, avec des accents ou des guillemets, j&#039;ai créé une fonction intermédiaire censée gérer ces cas :</p><div class="codebox"><pre class="vscroll"><code>-- Function: fct_format_string(text)
+-- DROP FUNCTION fct_format_string(text);
+
+CREATE OR REPLACE FUNCTION fct_format_string(stringtoformat text)
+  RETURNS text AS
+$BODY$DECLARE formatedString text;
+BEGIN
+	SELECT LOWER(stringToFormat) INTO formatedString ;
+                --SELECT replace(formatedString,&#039;&amp;&#039;,&#039;&#039;) INTO formatedString ;
+                --SELECT replace(formatedString,&#039;$&#039;,&#039;&#039;) INTO formatedString ;
+	--SELECT replace(formatedString,&#039;*&#039;,&#039;&#039;) INTO formatedString ;
+	--SELECT replace(formatedString,&#039;@&#039;,&#039;&#039;) INTO formatedString ;
+                --SELECT replace(formatedString,&#039;^&#039;,&#039;&#039;) INTO formatedString ;
+	--SELECT replace(formatedString,&#039;#&#039;,&#039;&#039;) INTO formatedString ;
+	SELECT replace(formatedString,&#039;æ&#039;,&#039;ae&#039;) INTO formatedString ;
+	SELECT replace(formatedString,&#039;â&#039;,&#039;a&#039;) INTO formatedString ;
+	SELECT replace(formatedString,&#039;ä&#039;,&#039;a&#039;) INTO formatedString ;
+	SELECT replace(formatedString,&#039;à&#039;,&#039;a&#039;) INTO formatedString ;
+	SELECT replace(formatedString,&#039;é&#039;,&#039;e&#039;) INTO formatedString ;
+	SELECT replace(formatedString,&#039;è&#039;,&#039;e&#039;) INTO formatedString ;
+	SELECT replace(formatedString,&#039;ê&#039;,&#039;e&#039;) INTO formatedString ;
+	SELECT replace(formatedString,&#039;ë&#039;,&#039;e&#039;) INTO formatedString ;
+	SELECT replace(formatedString,&#039;î&#039;,&#039;i&#039;) INTO formatedString ;
+	SELECT replace(formatedString,&#039;ï&#039;,&#039;i&#039;) INTO formatedString ;
+	SELECT replace(formatedString,&#039;œ&#039;,&#039;oe&#039;) INTO formatedString ;
+	SELECT replace(formatedString,&#039;ö&#039;,&#039;o&#039;) INTO formatedString ;
+	SELECT replace(formatedString,&#039;ô&#039;,&#039;o&#039;) INTO formatedString ;
+	SELECT replace(formatedString,&#039;û&#039;,&#039;u&#039;) INTO formatedString ;
+	SELECT replace(formatedString,&#039;ü&#039;,&#039;u&#039;) INTO formatedString ;
+	SELECT replace(formatedString,&#039;-&#039;,&#039;&#039;) INTO formatedString ;
+	SELECT replace(formatedString,&#039; &#039;,&#039;&#039;) INTO formatedString ;
+	--SELECT replace(formatedString,&#039;_&#039;,&#039;&#039;) INTO formatedString ;
+	--SELECT replace(formatedString,&#039;&#039;&#039;&#039;,&#039;&#039;) INTO formatedString ;
+	--SELECT replace(formatedString,&#039;&#039;&quot;&#039;,&#039;&#039;) INTO formatedString ;
+
+RETURN formatedString;
+END;$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+ALTER FUNCTION fct_format_string(text) OWNER TO postgres;</code></pre></div><p>Malheureusement, quand j&#039;exécute la requête précédente avec cette fonction, Postgre mouline énormément et ne m&#039;a toujours pas retourné de résultat après près d&#039;une heure d&#039;exécution...</p><div class="codebox"><pre><code>WHERE C.id in (
+SELECT T1.id
+FROM contacts T1, contacts T2
+WHERE fct_format_string(T1.nom) = fct_format_string(T2.nom)
+AND fct_format_string(T1.prenom) = fct_format_string(T2.prenom)
+AND T1.id &lt;&gt; T2.id</code></pre></div><p>Y a t&#039;il une autre méthode de faire ce test?<br />Ai je oublié quelque chose?</p><p>Merci,</p>]]></content>
+		<author>
+			<name><![CDATA[Gold.Strike]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=865</uri>
+		</author>
+		<updated>2011-09-13T13:41:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10892#p10892</id>
+	</entry>
+</feed>

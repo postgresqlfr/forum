@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / COPY de CSV]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4750&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4750"/>
+	<updated>2018-05-22T15:10:07Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4750</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  COPY de CSV]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27626#p27626"/>
+		<content type="html"><![CDATA[<p>En CSV c&#039;est pas \N le null par défaut, c&#039;est chaine vide.<br />Mais vide ça ne veut pas dire une suite d&#039;espaces, ça veut dire zéro caractère.<br />Ce qu&#039;il faut faire à ce fichier CSV c&#039;est l&#039;élimination des espaces à droite de chaque ligne.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2018-05-22T15:10:07Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27626#p27626</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  COPY de CSV]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27625#p27625"/>
+		<content type="html"><![CDATA[<p>Il y a quelque chose après le \N comme le montre le message d&#039;erreur.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2018-05-22T08:49:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27625#p27625</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  COPY de CSV]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27622#p27622"/>
+		<content type="html"><![CDATA[<p>Bonjour Guillaume,<br /> et merci pour la réponse.<br />J&#039;ai modifié le CSV:</p><div class="codebox"><pre><code>START_T,       MIN,       AVG,       MAX,    MEDIAN,   PCT_DUR
+2017/12,7,63,932,18,\N      
+2017/12,41,41,41,41,0
+2017/12,7,19,4491,11,2
+2017/12,189,21501,70025,11391,14</code></pre></div><div class="codebox"><pre><code>Administrateur@cave=# copy list from &#039;C:\pgfutter\list.csv&#039; CSV HEADER FORCE NULL PCT_DUR;
+ERROR:  invalid input syntax for type numeric: &quot;\N      &quot;
+CONTEXT:  COPY list, line 2, column pct_dur: &quot;\N      &quot;
+
+Administrateur@cave=# copy import.list_vsmon from &#039;C:\pgfutter\list_vsmon.csv&#039; CSV HEADER ;
+ERROR:  invalid input syntax for type numeric: &quot;\N      &quot;
+CONTEXT:  COPY list_vsmon, line 2, column pct_dur: &quot;\N      &quot;
+Time: 16,726 ms</code></pre></div><p>Cordialement.</p>]]></content>
+		<author>
+			<name><![CDATA[big1]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7880</uri>
+		</author>
+		<updated>2018-05-22T04:17:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27622#p27622</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  COPY de CSV]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27618#p27618"/>
+		<content type="html"><![CDATA[<p>En dehors de modifier le fichier, non. Si vous voulez insérer une valeur NULL, il faut indiquer \N.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2018-05-21T15:03:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27618#p27618</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[COPY de CSV]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27617#p27617"/>
+		<content type="html"><![CDATA[<p>Bonjour ,<br />en 9.6<br />J&#039;ai créé une table</p><div class="codebox"><pre><code>Administrateur@cave=# CREATE TABLE list ( START_T varchar,MIN numeric,AVG numeric,MAX numeric,MEDIAN numeric,PCT_DUR numeric);
+CREATE TABLE
+Time: 737,962 ms</code></pre></div><p>Voici mon fichier CSV:</p><div class="codebox"><pre><code>START_T,       MIN,       AVG,       MAX,    MEDIAN,   PCT_DUR
+2017/12,7,63,932,18,       
+2017/12,41,41,41,41,0
+2017/12,7,19,4491,11,2
+2017/12,189,21501,70025,11391,14</code></pre></div><p>Je veux copier ce fichier CSV</p><div class="codebox"><pre><code>Administrateur@cave=# copy list from &#039;C:\pgfutter\list.csv&#039; CSV HEADER FORCE NULL PCT_DUR;
+ERROR:  invalid input syntax for type numeric: &quot;       &quot;
+CONTEXT:  COPY list, line 2, column pct_dur: &quot;       &quot;
+Time: 18,330 ms</code></pre></div><p>Oui le champ PCT_DUR dans la ligne juste après les entêtes est vide (null). Y a-t-il une option ou une manière pour éviter l&#039;erreur et pouvoir copier ?</p><p>D&#039;avance merci.</p>]]></content>
+		<author>
+			<name><![CDATA[big1]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7880</uri>
+		</author>
+		<updated>2018-05-21T12:32:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27617#p27617</id>
+	</entry>
+</feed>

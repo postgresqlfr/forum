@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Problème avec failover]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3232&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3232"/>
+	<updated>2014-07-22T07:41:25Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3232</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème avec failover]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20305#p20305"/>
+		<content type="html"><![CDATA[<p>bonjour,</p><p>Oui c&#039;est possible de le faire avec online recovery.<br />par contre vous devez (comme le dit Gleu plus haut) bien comprendre le processus de réplication postgresql.<br />Et en premier lieu le principe d&#039;archivage.<br />Pour info il faut donner à postgres un répertoire (pas un fichier) pour qu&#039;il puisse stocker ses archives (sur chaque serveur).</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2014-07-22T07:41:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20305#p20305</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème avec failover]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20296#p20296"/>
+		<content type="html"><![CDATA[<p>En fait je ne vois pas la procédure globale qu&#039;il faut faire après un failover : <br />Voilà ce que j&#039;ai fait et ça ne marche pas : <br />j&#039;ai un serveur pgpool et 3 serveurs postgres ( 1 master / 2 standby ) lorsque je stoppe le master, pgpool fait le failover.<br />vm3 : premier standby ( qui va devenir maitre après failover)<br />vm5:deuxieme standby <br />192.17.30.34: c&#039;est le master avant failover<br />Dans le maitre j&#039;ai </p><div class="codebox"><pre><code>archive_command = &#039;test ! -f /var/lib/postgresql/9.1/archiving_active || cp -i %p /var/lib/postgresql/9.1/archive/%f&#039;</code></pre></div><p>archiving_active est un fichier vide que j&#039;ai&#160; créer dans le répertoire&#160; /var/lib/postgresql/9.1/archive ( je n&#039;ai pas compris comment faire pour l&#039;archive ) <br />le script que sebastien&#160; m&#039;a donné je n&#039;ai pas trop compris ce qu&#039;il fallait remplacer et ou mettre le chemin dans le script : </p><div class="codebox"><pre><code>#!/bin/sh
+# Shell d&#039;archive_command standby
+CLUSTER=$1
+CHEMIN=$2
+FICHIER=$3
+ARCHIVE1=/${CLUSTER}_1/archive
+ARCHIVE2=/${CLUSTER}_2/archive
+LOGFILE=/${CLUSTER}_1/admin/${CLUSTER}_arch_process.log
+cp $CHEMIN $ARCHIVE1/$FICHIER &gt;&gt;/${LOGFILE} 2&gt;&amp;1
+ret=$?
+cp $ARCHIVE1/$FICHIER $ARCHIVE2/$FICHIER &gt;&gt;/${LOGFILE} 2&gt;&amp;1
+#mettre ici tous les noeuds primary et slaves :
+rsync -a $CHEMIN postgres@192.17.30.34:$ARCHIVE1/$FICHIER &gt;&gt;/${LOGFILE} 2&gt;&amp;1
+rsync -a $CHEMIN postgres@192.17.30.35:$ARCHIVE1/$FICHIER &gt;&gt;/${LOGFILE} 2&gt;&amp;1
+let ret=$ret+$?
+exit $ret </code></pre></div><p>Est-ce ce script là qui permet l&#039;archivage des WAL ? </p><p>Voila mon script failover.sh</p><div class="codebox"><pre><code>FAILED_NODE=$1
+OLD_MASTER=$2
+NEW_MASTER=$3
+vm3=&#039;192.17.30.35&#039;
+vm5=192.17.30.39&#039;
+if test $FAILED_NODE -eq 0
+then
+ssh -T $vm3 touch /tmp/pgsql.trigger
+ssh -T $vm3 &quot;while test ! -f /var/lib/postgresql/9.1/main/recovery.done; do sleep 1; done; scp /var/lib/postgresql/9.1/main/pg_xlog/*history* $vm5:/var/lib/postgresql/9.1/main/pg_xlog/&quot;
+ssh -T $vm5 &quot;sed -i &#039;s/192.17.30.34/192.17.30.35/&#039; /var/lib/postgresql/9.1/main/recovery.conf&quot;
+ssh -T $vm5 /etc/init.d/postgresql restart
+/usr/sbin/pcp_attach_node 10 localhost 9898 pcp pcp 2
+fi
+~        </code></pre></div><p>Sur pgpool.conf j&#039;ai :</p><div class="codebox"><pre><code> failover_command = &#039;/var/lib/postgresql/bin/failover.sh %d %M %m&#039;  </code></pre></div><p>Une fois après avoir fait ça quand je vais sur le premier standby, je remarque bien qu&#039;il est devenue maitre et que le recovery.conf est devenue recovery.done<br />donc j&#039;ai transférer le fichier de conf du standby2 a l&#039;ancien maitre et j&#039;ai créer dans l&#039;ancien maitre le recovery.conf pour qu&#039;il devienne standby après j&#039;ai un rsync du nouveau maitre avec l&#039;ancien maitre ( qui est esclave maintenant) : </p><div class="codebox"><pre><code> rsync --exclude pg_xlog -av --delete /var/lib/postgresql/9.1/main/ root@192.17.30.34:/var/lib/postgresql/9.1/main/ </code></pre></div><p>les autorisation de connexions sont bien mentionnés dans le pg_hba des 3 serveurs.<br />est-ce-qu&#039;il manque quelquechose ou bien je me suis trompé quelque part ?<br />Ce que je voudrais savoir aussi c&#039;est comment rétablir la réplication après avoir fait le failover c&#039;est a dire pouvoir répliquer a partir du nouveau master vers l&#039;ancien maitre ( qui est standby) et le standby2 ?<br />Merci pour votre aide.</p>]]></content>
+		<author>
+			<name><![CDATA[yassine199105]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3827</uri>
+		</author>
+		<updated>2014-07-21T10:38:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20296#p20296</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème avec failover]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20295#p20295"/>
+		<content type="html"><![CDATA[<p>Bonjour, </p><p>Effectivement j&#039;ai lu les docs de postgresql et j&#039;ai vu qu&#039;il fallait reconstruire entièrement l&#039;esclave, mais est-ce-possible de faire ça avec le online recovery à partir du nouveau maitre ? <br />ou bien il faut&#160; reconstruire manuellement&#160; l&#039;ancien maitre après l&#039;avoir démarré en créant le recovery.conf et postgresql.conf du standby et en synchronisant le nouveau maitre avec l&#039;ancien maitre ( qui est maitenant esclave) ?</p>]]></content>
+		<author>
+			<name><![CDATA[yassine199105]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3827</uri>
+		</author>
+		<updated>2014-07-21T09:56:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20295#p20295</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème avec failover]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20291#p20291"/>
+		<content type="html"><![CDATA[<p>Je pense qu&#039;avant même de chercher à automatiser quoi que ce soit avec pgpool, il serait bon de bien comprendre la réplication interne de PostgreSQL. Notamment le fait qu&#039;il n&#039;est pas possible de faire de switchover sans avoir à reconstruire entièrement l&#039;esclave.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-07-20T15:24:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20291#p20291</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème avec failover]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20286#p20286"/>
+		<content type="html"><![CDATA[<p>c&#039;est vous qui choisissez le chemin des archives.</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2014-07-18T14:06:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20286#p20286</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème avec failover]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20285#p20285"/>
+		<content type="html"><![CDATA[<p>Je ne sais pas ou se trouve le chemin vers les archives et je ne vois pas a quel partie du script remplacer ce chemin ! <br />Pourquoi avant que je ne fasse le failover tout marchait bien sans que je ne fasse ça ? </p><div class="codebox"><pre><code> #!/bin/sh
+# Shell d&#039;archive_command standby
+CLUSTER=$1
+CHEMIN=$2
+FICHIER=$3
+ARCHIVE1=/${CLUSTER}_1/archive
+ARCHIVE2=/${CLUSTER}_2/archive
+LOGFILE=/${CLUSTER}_1/admin/${CLUSTER}_arch_process.log
+cp $CHEMIN $ARCHIVE1/$FICHIER &gt;&gt;/${LOGFILE} 2&gt;&amp;1
+ret=$?
+cp $ARCHIVE1/$FICHIER $ARCHIVE2/$FICHIER &gt;&gt;/${LOGFILE} 2&gt;&amp;1
+#mettre ici tous les noeuds primary et slaves :
+rsync -a $CHEMIN postgres@192.17.30.34:$ARCHIVE1/$FICHIER &gt;&gt;/${LOGFILE} 2&gt;&amp;1
+rsync -a $CHEMIN postgres@192.17.30.35:$ARCHIVE1/$FICHIER &gt;&gt;/${LOGFILE} 2&gt;&amp;1
+rsync -a $CHEMIN postgres@192.17.30.39:$ARCHIVE1/$FICHIER &gt;&gt;/${LOGFILE} 2&gt;&amp;1
+let ret=$ret+$?
+exit $ret </code></pre></div><p>Je vous remercie encore une fois pour votre aide .</p>]]></content>
+		<author>
+			<name><![CDATA[yassine199105]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3827</uri>
+		</author>
+		<updated>2014-07-18T14:02:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20285#p20285</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème avec failover]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20284#p20284"/>
+		<content type="html"><![CDATA[<p>Pour le script archive_command_standby.sh :<br />il faut changer l&#039;ip et le chemin où se trouvent les archives.<br />pg_xlog et archives sont différents :<br />pg_xlog contient les journaux de transaction (wal) tandis que les archives contiennent les fichers wal archivés par la commande archive_command.<br />----------<br />autre chose dans le pg_hba.conf de l&#039;esclave il faut ajouter la ligne :<br />host&#160; &#160; replication&#160; &#160; &#160;postgres ip_du_maitre/24&#160; &#160; &#160; &#160; &#160; md5</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2014-07-18T12:32:03Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20284#p20284</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème avec failover]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20283#p20283"/>
+		<content type="html"><![CDATA[<p>j&#039;ai la même version de postgres partout , les même paquet partout , je travaille avec la version postgresql 9.1 <br />quand je fait </p><div class="codebox"><pre><code> dpkg -l |grep postgres </code></pre></div><p> je trouve les mêmes paquets partout. <br />Pour le script archive_command_standby.sh&#160; qu&#039;est ce qu&#039;il y&#039;a a changer a part les adresses IP pour le rsync ?<br />Pour les archives c&#039;est que pg_xlog ? <br />merci beaucoup pour votre aide</p>]]></content>
+		<author>
+			<name><![CDATA[yassine199105]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3827</uri>
+		</author>
+		<updated>2014-07-18T10:43:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20283#p20283</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème avec failover]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20282#p20282"/>
+		<content type="html"><![CDATA[<div class="codebox"><pre><code>root@vm2:/etc/postgresql/9.1/main# rpm -qa |grep postgres 
+-bash: rpm : commande introuvable</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[yassine199105]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3827</uri>
+		</author>
+		<updated>2014-07-18T10:36:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20282#p20282</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème avec failover]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20281#p20281"/>
+		<content type="html"><![CDATA[<p>Un point essentiel, il faut avoir la même version de postgresql partout !<br />(que donne rpm -qa |grep postgres sur vos différents serveurs ?)</p><p>déjà il est essentiel de mettre archive_mode = on sur le maître<br />ensuite il faut envoyer les archives générées par le maître sur le serveur des esclaves.<br />Par faire ça je passe par un script par exemple nommé &quot;archive_command_standby.sh (paramètres à adapter selon votre conf) :<br />(dans mon exemple, les archives sont multiplexées sur le maîtres (2 répertoires))</p><div class="quotebox"><blockquote><div><p>#!/bin/sh<br /># Shell d&#039;archive_command standby</p><p>CLUSTER=$1<br />CHEMIN=$2<br />FICHIER=$3<br />ARCHIVE1=/${CLUSTER}_1/archive<br />ARCHIVE2=/${CLUSTER}_2/archive<br />LOGFILE=/${CLUSTER}_1/admin/${CLUSTER}_arch_process.log</p><p>cp $CHEMIN $ARCHIVE1/$FICHIER &gt;&gt;/${LOGFILE} 2&gt;&amp;1<br />ret=$?<br />cp $ARCHIVE1/$FICHIER $ARCHIVE2/$FICHIER &gt;&gt;/${LOGFILE} 2&gt;&amp;1<br />#mettre ici tous les noeuds primary et slaves :<br />rsync -a $CHEMIN postgres@ip_serveur_maître:$ARCHIVE1/$FICHIER &gt;&gt;/${LOGFILE} 2&gt;&amp;1<br />rsync -a $CHEMIN postgres@ip_serveur_esclave:$ARCHIVE1/$FICHIER &gt;&gt;/${LOGFILE} 2&gt;&amp;1<br />let ret=$ret+$?<br />exit $ret</p></div></blockquote></div><p>dans le postgresql.conf du master&#160; :</p><div class="quotebox"><blockquote><div><p>archive_mode = on<br />archive_command = &#039;/chemin_vers_script/archive_command_standby.sh nom_du_cluster %p %f&#039;<br />archive_timeout = 3600<br />wal_level = hot_standby<br />max_wal_senders = 3 &#160; &#160; &#160; &#160; #mettre ici au minimum le nb de clusters slaves</p></div></blockquote></div><p>Mettez le pg_hba.conf en mode trust (sur tous les serveurs pour éviter les blocage dans un premier temps.<br />Relancer le cluster maître pour prendre en compte les paramètres.</p><br /><br /><p>Ensuite, copier le maître sur l&#039;esclave (tout copier, wal, data, admin, etc...) :</p><div class="quotebox"><blockquote><div><p>psql -p 5432 -c &quot;select pg_start_backup(&#039;sav1&#039;, true)&quot; postgres<br />rsync -azuv /chemin_des_datas_maître/* postgres@ip_esclave:/chemin_des_datas_esclave/<br />psql -p 5432 -c &quot;select pg_stop_backup()&quot; postgres</p></div></blockquote></div><br /><p>sur l&#039;esclave, effacer les fichiers suivants :</p><div class="quotebox"><blockquote><div><p>postmaster.pid<br />recovery.done<br />pg_xlog/*<br />pg_log/*</p></div></blockquote></div><p>sur l&#039;esclave, modifier le postgresql.conf :</p><div class="quotebox"><blockquote><div><p>supprimer : max_wal_senders = 3 <br />ajouter : hot_standby = on</p></div></blockquote></div><br /><p>sur l&#039;esclave, créez un fichier recovery.conf dans le repertoire admin :</p><div class="quotebox"><blockquote><div><p>restore_command = &#039;cp /chemin_vers_les_archives/%f %p&#039;<br />standby_mode = &#039;on&#039;<br />primary_conninfo = &#039;host=ip_maître port=5432 user=postgres&#039;<br />trigger_file = &#039;/tmp/stopstandby&#039;</p></div></blockquote></div><p>démarrer l&#039;esclave :</p><div class="quotebox"><blockquote><div><p>pg_ctl start -D /répertoire_démarrage/admin</p></div></blockquote></div><p>et normalement si vous avez tout suivi ça marche...</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2014-07-18T10:30:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20281#p20281</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème avec failover]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20280#p20280"/>
+		<content type="html"><![CDATA[<p>Je n &#039;ai pas mis archive_commande car avant que je ne fasse le failover je n&#039;avais pas fait ça, et la réplication marchait&#160; bien, maintenant je veux juste revenir comme avant.<br />comment je peux configurer tout ça ? je suis un peu perdu <br />sur mon premier standby je ne peux pas executer </p><div class="codebox"><pre><code>select * from pg_settings where name =&#039;hot_standby&#039;;</code></pre></div><p> car je n&#039;ai meme pas acces a la base par contre le standby 2 qui marche parfaitement et fait de la réplication avec le master voilà le resulat : </p><div class="codebox"><pre><code>postgres=# select * from pg_settings where name =&#039;hot_standby&#039;;
+    name     | setting | unit |           category            |                   short_desc                    | extra_desc |  context   | vartype |       s
+ource       | min_val | max_val | enumvals | boot_val | reset_val |                sourcefile                | sourceline 
+-------------+---------+------+-------------------------------+-------------------------------------------------+------------+------------+---------+--------
+------------+---------+---------+----------+----------+-----------+------------------------------------------+------------
+ hot_standby | on      |      | Replication / Standby Servers | Allows connections and queries during recovery. |            | postmaster | bool    | configu
+ration file |         |         |          | off      | on        | /etc/postgresql/9.1/main/postgresql.conf |        210
+(1 lig </code></pre></div><p>sur le master : </p><div class="codebox"><pre><code> 
+postgres=# select * from pg_settings where name =&#039;archive_mode&#039;;
+     name     | setting | unit |          category           |                      short_desc                      | extra_desc |  context   | vartype | sou
+rce  | min_val | max_val | enumvals | boot_val | reset_val | sourcefile | sourceline 
+--------------+---------+------+-----------------------------+------------------------------------------------------+------------+------------+---------+----
+-----+---------+---------+----------+----------+-----------+------------+------------
+ archive_mode | off     |      | Write-Ahead Log / Archiving | Allows archiving of WAL files using archive_command. |            | postmaster | bool    | def
+ault |         |         |          | off      | off       |            |           
+(1 ligne)</code></pre></div><p>je suis vraiment bloqué et perdu ( ça fait qu&#039;un mois que j&#039;ai commencer postgres ) <br />Je vous&#160; &#160;remercie de votre compréhension.<br />J&#039;ai lu beaucoup de documents mais ce n&#039;est jamais suffisant <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[yassine199105]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3827</uri>
+		</author>
+		<updated>2014-07-18T09:36:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20280#p20280</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème avec failover]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20279#p20279"/>
+		<content type="html"><![CDATA[<p>Pouvez vous me donner le résultat de :</p><p>sur le maitre :<br />select * from pg_settings where name =&#039;archive_mode&#039;;</p><p>sur l&#039;esclave :<br />select * from pg_settings where name =&#039;hot_standby&#039;;</p><p>et j&#039;ai l&#039;impression qu&#039;il manque archive_command sur le maitre.<br />sur le maitre + l&#039;esclave :<br />ps -ef |grep postgres<br />paquets installés :<br />rpm -qa |grep postgres</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2014-07-18T09:09:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20279#p20279</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème avec failover]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20278#p20278"/>
+		<content type="html"><![CDATA[<p>et sur pgpool : <br />le statut du noeud 1&#160; 192.17.30.35 est toujours 3 ( down) meme si je fais un pcp_attach_node</p>]]></content>
+		<author>
+			<name><![CDATA[yassine199105]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3827</uri>
+		</author>
+		<updated>2014-07-18T07:58:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20278#p20278</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème avec failover]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20277#p20277"/>
+		<content type="html"><![CDATA[<p>Bonjour, <br />Je vous montre ma configuration : </p><br /><p>le fichier postgresql de l&#039;esclave : <br />les différences entre les deux sont : </p><div class="codebox"><pre class="vscroll"><code>80c80
+&lt; #ssl = true                           # (change requires restart)
+---
+&gt; ssl = true                            # (change requires restart)
+154d153
+&lt; 
+166c165
+&lt; wal_buffers =-1                       # min 32kB, -1 sets based on shared_buffers
+---
+&gt; wal_buffers = -1                      # min 32kB, -1 sets based on shared_buffers
+197c196
+&lt; max_wal_senders = 3           # max number of walsender processes
+---
+&gt; max_wal_senders =3            # max number of walsender processes
+211c210
+&lt; hot_standby = on                      # &quot;on&quot; allows queries during recovery
+---
+&gt; hot_standby = off                     # &quot;on&quot; allows queries during recovery
+245c244
+&lt; #random_page_cost = 4.0                       # same scale as above
+---
+&gt; random_page_cost = 4.0                        # same scale as above
+277c276
+&lt; log_destination = &#039;stderr&#039;            # Valid values are combinations of
+---
+&gt; #log_destination = &#039;stderr&#039;           # Valid values are combinations of
+399c398&lt; log_statement = &#039;all&#039;                 # none, ddl, mod, all
+---
+&gt; log_statement = &#039;none&#039;                        # none, ddl, mod, all</code></pre></div><p>Sur le standby le fichier recovery.conf : /var/lib/postgresql/9.1/main/recovery.conf </p><div class="codebox"><pre><code> standby_mode = &#039;on&#039;
+  primary_conninfo = &#039;host=192.17.30.34 port=5432 user=replicator password=rep  &#039;
+  trigger_file = &#039;/tmp/pgsql.trigger&#039;</code></pre></div><p>Sur le fichier pg_hba du maitre et l&#039;esclave tout les autorisation de connexion sont mentionné.</p><p>Sur mon maitre je fais un rsync </p><div class="codebox"><pre><code> rsync --exclude pg_xlog -av --delete /var/lib/postgresql/9.1/main/ root@192.17.30.35:/var/lib/postgresql/9.1/main/ </code></pre></div><p>Sur les log du standby on me donne pas grand information : </p><div class="codebox"><pre class="vscroll"><code>2014-07-18 09:25:04 CEST LOG:  paquet de d?marrage incomplet
+2014-07-18 09:25:04 CEST FATAL:  le syst?me de bases de donn?es se lance
+2014-07-18 09:25:05 CEST FATAL:  le syst?me de bases de donn?es se lance
+2014-07-18 09:25:05 CEST FATAL:  le syst?me de bases de donn?es se lance
+2014-07-18 09:25:06 CEST FATAL:  le syst?me de bases de donn?es se lance
+2014-07-18 09:25:06 CEST FATAL:  le syst?me de bases de donn?es se lance
+2014-07-18 09:25:07 CEST FATAL:  le syst?me de bases de donn?es se lance
+2014-07-18 09:25:07 CEST FATAL:  le syst?me de bases de donn?es se lance
+2014-07-18 09:25:08 CEST FATAL:  le syst?me de bases de donn?es se lance
+2014-07-18 09:25:08 CEST FATAL:  le syst?me de bases de donn?es se lance
+2014-07-18 09:25:09 CEST FATAL:  l&#039;identifiant du syst?me de bases de donn?es diff?re entre le serveur principal
+        et le serveur en attente
+2014-07-18 09:25:09 CEST D?TAIL:  L&#039;identifiant du serveur principal est 6029142299729714430, l&#039;identifiant du serveur en attente
+        est 6036952324097693111.
+2014-07-18 09:25:09 CEST FATAL:  le syst?me de bases de donn?es se lance
+2014-07-18 09:25:10 CEST FATAL:  le syst?me de bases de donn?es se lance
+2014-07-18 09:25:10 CEST LOG:  paquet de d?marrage incomplet
+2014-07-18 09:25:14 CEST FATAL:  l&#039;identifiant du syst?me de bases de donn?es diff?re entre le serveur principal
+ 
+2014-07-18 09:49:00 CEST FATAL:  l&#039;identifiant du syst?me de bases de donn?es diff?re entre le serveur principal
+        et le serveur en attente
+2014-07-18 09:49:00 CEST D?TAIL:  L&#039;identifiant du serveur principal est 6029142299729714430, l&#039;identifiant du serveur en attente
+        est 6036952324097693111.
+2014-07-18 09:49:05 CEST FATAL:  l&#039;identifiant du syst?me de bases de donn?es diff?re entre le serveur principal
+        et le serveur en attente
+2014-07-18 09:49:05 CEST D?TAIL:  L&#039;identifiant du serveur principal est 6029142299729714430, l&#039;identifiant du serveur en attente
+        est 6036952324097693111.
+2014-07-18 09:49:10 CEST FATAL:  l&#039;identifiant du syst?me de bases de donn?es diff?re entre le serveur principal
+        et le serveur en attente
+2014-07-18 09:49:10 CEST D?TAIL:  L&#039;identifiant du serveur principal est 6029142299729714430, l&#039;identifiant du serveur en attente
+        est 6036952324097693111.
+2014-07-18 09:49:15 CEST FATAL:  l&#039;identifiant du syst?me de bases de donn?es diff?re entre le serveur principal
+        et le serveur en attente
+2014-07-18 09:49:15 CEST D?TAIL:  L&#039;identifiant du serveur principal est 6029142299729714430, l&#039;identifiant du serveur en attente
+        est 6036952324097693111.
+2014-07-18 09:49:20 CEST FATAL:  l&#039;identifiant du syst?me de bases de donn?es diff?re entre le serveur principal
+        et le serveur en attente
+2014-07-18 09:49:20 CEST D?TAIL:  L&#039;identifiant du serveur principal est 6029142299729714430, l&#039;identifiant du serveur en attente
+        est 6036952324097693111.
+2014-07-18 09:49:25 CEST FATAL:  l&#039;identifiant du syst?me de bases de donn?es diff?re entre le serveur principal
+        et le serveur en attente
+2014-07-18 09:49:25 CEST D?TAIL:  L&#039;identifiant du serveur principal est 6029142299729714430, l&#039;identifiant du serveur en attente
+        est 6036952324097693111.
+2014-07-18 09:49:30 CEST FATAL:  l&#039;identifiant du syst?me de bases de donn?es diff?re entre le serveur principal
+        et le serveur en attente
+2014-07-18 09:49:30 CEST D?TAIL:  L&#039;identifiant du serveur principal est 6029142299729714430, l&#039;identifiant du serveur en attente
+        est 6036952324097693111.
+2014-07-18 09:49:35 CEST FATAL:  l&#039;identifiant du syst?me de bases de donn?es diff?re entre le serveur principal
+        et le serveur en attente
+2014-07-18 09:49:35 CEST D?TAIL:  L&#039;identifiant du serveur principal est 6029142299729714430, l&#039;identifiant du serveur en attente
+        est 6036952324097693111.
+2014-07-18 09:49:40 CEST FATAL:  l&#039;identifiant du syst?me de bases de donn?es diff?re entre le serveur principal
+        et le serveur en attente
+2014-07-18 09:49:40 CEST D?TAIL:  L&#039;identifiant du serveur principal est 6029142299729714430, l&#039;identifiant du serveur en attente
+        est 6036952324097693111.
+2014-07-18 09:49:45 CEST FATAL:  l&#039;identifiant du syst?me de bases de donn?es diff?re entre le serveur principal
+        et le serveur en attente
+2014-07-18 09:49:45 CEST D?TAIL:  L&#039;identifiant du serveur principal est 6029142299729714430, l&#039;identifiant du serveur en attente
+        est 6036952324097693111.
+2014-07-18 09:49:50 CEST FATAL:  l&#039;identifiant du syst?me de bases de donn?es diff?re entre le serveur principal
+        et le serveur en attente</code></pre></div><p>Cette erreur il a fait en continue chaque 5 seconde je la voi apparaitre sur les logs</p><p>Sachant que cette même configuration marchait parfaitement avant que je ne fasse le failover !</p>]]></content>
+		<author>
+			<name><![CDATA[yassine199105]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3827</uri>
+		</author>
+		<updated>2014-07-18T07:52:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20277#p20277</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème avec failover]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20276#p20276"/>
+		<content type="html"><![CDATA[<p>dans le postgresql.conf de l&#039;esclave :<br />restore_command = &#039;cp /chemin vers archives/%f %p&#039;<br />standby_mode = &#039;on&#039;<br />primary_conninfo = &#039;host=host du maitre port=5432 user=postgres&#039;<br />trigger_file = &#039;/tmp/stopstandby&#039;<br />hot_standby = on</p><p>supprimer : max_wal_senders = xxxx&#160; et archive_mode =on</p><p>SUR LE MAITRE :<br />archive_mode = on<br />archive_command = &#039;votre commande&#039;<br />archive_timeout = 3600<br />wal_level = hot_standby<br />max_wal_senders = 3 &#160; &#160; &#160; &#160; #mettre ici au minimum le nb de clusters slaves</p><p>------<br />en complément pourrait-on avoir le contenu complet du log postgres de l&#039;esclave juste après le redémarrage (la prmière fois juste après la copie rsync) ?</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2014-07-17T14:31:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20276#p20276</id>
+	</entry>
+</feed>

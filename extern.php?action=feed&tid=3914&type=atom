@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / [Résol]Calculer le nombre de km parcourus entre deux relevés compteurs]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3914&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3914"/>
+	<updated>2016-08-05T11:22:44Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3914</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résol]Calculer le nombre de km parcourus entre deux relevés compteurs]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23790#p23790"/>
+		<content type="html"><![CDATA[<p>Je ne le fais pas non plus tous les jours, mais je suis entièrement d&#039;accord que, quand ça arrive, c&#039;est juste excellent <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2016-08-05T11:22:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23790#p23790</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résol]Calculer le nombre de km parcourus entre deux relevés compteurs]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23788#p23788"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>Alain V. a écrit&#160;:</cite><blockquote><div><p>Je reste émerveillé devant cette requête qui fourni un élément calculé.</p></div></blockquote></div><p>Je reste émerveillé devant tant d&#039;émerveillement !!<br />C&#039;est le genre de remerciement qui fait plaisir à lire !</p><p>Ce genre de requête fait appel aux fonctions de fenêtrage (window) dont la doc est ici :<br /><a href="http://docs.postgresql.fr/9.4/functions-window.html" rel="nofollow">http://docs.postgresql.fr/9.4/functions-window.html</a></p><p>C&#039;est d&#039;ailleurs sur ce forum, il y a quelques années qu&#039;elles m&#039;ont été données.</p><p>Ce n&#039;est pas forcément évident à comprendre et à assimiler, mais ça rend des services! C&#039;est plus efficace qu&#039;un curseur sur les fortes volumétries.<br />Je dois dire qu&#039;à chaque fois que je les utilise je me remets dans la doc, en même temps n&#039;étant pas informaticien, je ne fais pas ça tous les jours !</p>]]></content>
+		<author>
+			<name><![CDATA[damalaan]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1000</uri>
+		</author>
+		<updated>2016-08-05T06:21:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23788#p23788</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résol]Calculer le nombre de km parcourus entre deux relevés compteurs]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23786#p23786"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>damalaan a écrit&#160;:</cite><blockquote><div><p>bonjour,</p><p>Est-ce vraiment utile de stocker un élément calculé ?</p></div></blockquote></div><p>Bonjour,<br />Non, ce n&#039;est pas vraiment utile.<br />C&#039;est un script Bash déclenché par une tâche Cron qui va chercher cet élément.<br />Il est mis dans une page html qui est envoyée par email.</p><br /><div class="codebox"><pre><code>SELECT &quot;date&quot;, releve,
+releve - lag(releve, 1) OVER (PARTITION BY 1 ORDER BY &quot;date&quot;) as parcouru</code></pre></div><p>Voilà une structure de requête que je n&#039;avais jamais vue!</p><div class="quotebox"><cite>damalaan a écrit&#160;:</cite><blockquote><div><p>et du coup plus besoin de la colonne parcouru dans la table.</p></div></blockquote></div><p>C&#039;est exact. Je confirme.<br />J&#039;ai mis la requête dans une vue. Le script Bash va pouvoir trouver l&#039;élément calculé qu&#039;il a besoin.</p><p>Du coup, à part un copié/collé de la requête, je n&#039;ai rien eu à faire.<br />En postant ici, je n&#039;en demandais pas tant!<br />Merci beaucoup!<br />Je reste émerveillé devant cette requête qui fourni un élément calculé.<br />Je vais l&#039;étudier de près.</p>]]></content>
+		<author>
+			<name><![CDATA[Alain V.]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=30</uri>
+		</author>
+		<updated>2016-08-04T15:08:33Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23786#p23786</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résol]Calculer le nombre de km parcourus entre deux relevés compteurs]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23785#p23785"/>
+		<content type="html"><![CDATA[<p>bonjour,</p><p>Est-ce vraiment utile de stocker un élément calculé ?</p><p>Si ce n&#039;est pas le cas, pourquoi ne pas utiliser ce genre de chose :</p><div class="codebox"><pre><code>SELECT &quot;date&quot;, releve,
+releve - lag(releve, 1) OVER (PARTITION BY 1 ORDER BY &quot;date&quot;) as parcouru
+FROMcomptage
+ORDER BY &quot;date&quot;</code></pre></div><p>pour obtenir ça</p><div class="codebox"><pre><code>date;relevé;parcouru
+&quot;2001-01-01&quot;;2;
+&quot;2015-12-22&quot;;7;5
+&quot;2016-09-22&quot;;10;3</code></pre></div><p>et du coup plus besoin de la colonne parcouru dans la table.</p>]]></content>
+		<author>
+			<name><![CDATA[damalaan]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1000</uri>
+		</author>
+		<updated>2016-08-04T12:37:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23785#p23785</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résol]Calculer le nombre de km parcourus entre deux relevés compteurs]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23784#p23784"/>
+		<content type="html"><![CDATA[<p>Je vais donc me mettre aux fonctions.<br />Merci de m&#039;avoir mis sur la bonne voie car je n&#039;en étais pas sûr.</p>]]></content>
+		<author>
+			<name><![CDATA[Alain V.]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=30</uri>
+		</author>
+		<updated>2016-08-04T12:28:45Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23784#p23784</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résol]Calculer le nombre de km parcourus entre deux relevés compteurs]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23782#p23782"/>
+		<content type="html"><![CDATA[<p>Il n&#039;y a qu&#039;une seule solution à une mise à jour automatique : un trigger. Et pout ça, il vous faut coder une fonction (en PL/pgsql habituellement).</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2016-08-04T11:36:38Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23782#p23782</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résol]Calculer le nombre de km parcourus entre deux relevés compteurs]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23781#p23781"/>
+		<content type="html"><![CDATA[<p>Merci pour ce retour.<br />1)<br />Pour calculer la valeur de la colonne (parcouru) je pense qu&#039;il faut identifier la date la plus récente puis celle immédiatement avant. Je devrais m&#039;en sortir plus ou moins élégamment.</p><p>2)<br />Par contre il n&#039;y a pas à insérer de ligne puisqu&#039;il s&#039;agit d&#039;un UPDATE du champ (parcouru).<br /><strong>C&#039;est&#160; là que je butte : </strong> comment updater automatiquement ce champ si une valeur de la colonne (releve) est modifiée.</p>]]></content>
+		<author>
+			<name><![CDATA[Alain V.]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=30</uri>
+		</author>
+		<updated>2016-08-04T10:51:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23781#p23781</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résol]Calculer le nombre de km parcourus entre deux relevés compteurs]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23780#p23780"/>
+		<content type="html"><![CDATA[<p>L&#039;application doit chercher la denière valeur du relevé, puis utiliser cette information pour calculer la valeur de la colonne parcouru. Ceci fait, il ne reste plus qu&#039;à insérer la ligne.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2016-08-04T10:03:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23780#p23780</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[[Résol]Calculer le nombre de km parcourus entre deux relevés compteurs]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23778#p23778"/>
+		<content type="html"><![CDATA[<p>Bonjour le forum,</p><p>J&#039;imagine que cela doit être aussi simple avec Postgresql qu&#039;avec un tableur mais je ne sais pas par quel bout commencer car je n&#039;ai jamais fait de calculs à partir de champs disposés dans deux tuples.</p><p>Mon but c&#039;est de faire un UPDATE sur la colonne (parcouru).<br />La méthode de calcul est très simple puisqu&#039;il ne s&#039;agit que de faire une différence de relevés entre deux dates consécutives.</p><div class="codebox"><pre><code>CREATE TABLE comptage(
+        date date UNIQUE,
+        releve numeric(9,0),
+        parcouru numeric(9,0)
+);
+COPY comptage(date,releve) FROM stdin;
+2015-12-22      7
+2001-01-01      2
+2016-09-22      10
+\.</code></pre></div><p>Dans la table, les enregistrements n&#039;arrivent pas systématiquement dans l&#039;ordre chronologique de la colonne (date).<br />Si une valeur (releve) est modifiée ultérieurement, la colonne (parcouru) devra être automatiquement &quot;updatée&quot;. </p><p>Au final, voici ce que je veux obtenir :</p><div class="codebox"><pre><code>COPY comptage(date,releve,parcouru) FROM stdin;
+2015-12-22      7       5
+2001-01-01      2       0
+2016-09-22      10      3
+\.</code></pre></div><p>Je butte sur la mise à jour permanente de la colonne (parcouru) entre deux dates de relevés consécutifs.<br />Est-ce que la solution c&#039;est de faire appel à une fonction? Je ne les ai encore jamais abordées.<br />Pour surveiller ma table, j&#039;ai trouvé quelque chose qui me semble être un point de départ ici:<br /><a href="http://forums.postgresql.fr/viewtopic.php?id=3866" rel="nofollow">http://forums.postgresql.fr/viewtopic.php?id=3866</a></p><p>Merci par avance de m&#039;indiquer comment on traite d&#039;habitude ce genre de problème.</p>]]></content>
+		<author>
+			<name><![CDATA[Alain V.]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=30</uri>
+		</author>
+		<updated>2016-08-04T09:53:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23778#p23778</id>
+	</entry>
+</feed>

@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Meilleure methode pour mettre a jour une table de correspondance]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1398&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1398"/>
+	<updated>2011-05-10T19:16:40Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1398</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Meilleure methode pour mettre a jour une table de correspondance]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9279#p9279"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>ilrico a écrit&#160;:</cite><blockquote><div><p>- en terme &quot;SQL&quot;, il y a-t-il plus simple ?</p></div></blockquote></div><p>Oui, il suffirait de faire un MERGE qui permet de combiner INSERT et/ou UPDATE, DELETE...<br />Malheureusement cela n&#039;est pas encore implémenté sous PostGreSQL (encore une fonctionnalité de la norme en avance sur les réalisations.... ;-))</p><p>De toutes façon, si votre table est organisé en cluster il y a des chances que toutes les lignes manipulées figurent dans la même page de données. De ce fait il n&#039;y aura donc qu&#039;une seule écriture physique !</p><p>A +</p>]]></content>
+		<author>
+			<name><![CDATA[SQLpro]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1054</uri>
+		</author>
+		<updated>2011-05-10T19:16:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9279#p9279</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Meilleure methode pour mettre a jour une table de correspondance]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9251#p9251"/>
+		<content type="html"><![CDATA[<p>ok très clair à nouveau<br />merci &amp; bonne soirée</p>]]></content>
+		<author>
+			<name><![CDATA[ilrico]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1234</uri>
+		</author>
+		<updated>2011-05-08T20:09:06Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9251#p9251</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Meilleure methode pour mettre a jour une table de correspondance]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9250#p9250"/>
+		<content type="html"><![CDATA[<p>Ce n&#039;est pas le fait de la transaction qui fait gagner du temps, sinon un simple begin/commit encadrant les 4 inserts aurait les mêmes performances. On gagne surtout sur 2 choses avec l&#039;insert multiple:<br />- Un seul ordre SQL à analyser (et donc un seul plan d&#039;exécution à construire)<br />- Un seul dialogue client serveur</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-05-08T18:06:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9250#p9250</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Meilleure methode pour mettre a jour une table de correspondance]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9249#p9249"/>
+		<content type="html"><![CDATA[<p>Ça optimise vraiment. Une seule transaction (donc une seule synchro disque), au lieu de 3 dans votre cas.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-05-08T18:00:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9249#p9249</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Meilleure methode pour mettre a jour une table de correspondance]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9248#p9248"/>
+		<content type="html"><![CDATA[<p>On peut quand même le faire au niveau SQL, de façon pas vraiment plus compliquée que l&#039;insert multiple (par exemple pour mettre 1,2,3,4):</p><div class="codebox"><pre><code>DELETE FROM prefs WHERE user_id = 25 AND cat_id NOT IN (1,2,3,4);
+
+INSERT INTO prefs SELECT * FROM 
+    (VALUES (25,1),(25,2),(25,3),(25,4) 
+  EXCEPT 
+    SELECT user_id,cat_id FROM prefs) AS tmp;</code></pre></div><p>Mais je suis aussi partisan de la méthode simple et lisible précédente.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-05-08T17:23:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9248#p9248</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Meilleure methode pour mettre a jour une table de correspondance]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9247#p9247"/>
+		<content type="html"><![CDATA[<p>ok j&#039;ai mes réponses, claires &amp; précises.</p><p>Dernière question : en terme de performance, sur disons 15 inserts, l&#039;insert multiple est-il vraiment un plus ou c&#039;est plus une simplification syntaxique (ie PostgeSQL décompose-t-il la synthaxe de l&#039;insert multiple en une série d&#039;insert simples (pas de gain de perf dans ce cas) ou optimise-t-il vraiment ?)</p><p>merci</p>]]></content>
+		<author>
+			<name><![CDATA[ilrico]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1234</uri>
+		</author>
+		<updated>2011-05-08T17:14:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9247#p9247</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Meilleure methode pour mettre a jour une table de correspondance]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9246#p9246"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>en terme &quot;SQL&quot;, il y a-t-il plus simple ?</p></div></blockquote></div><p>Oui, faire un INSERT multiple. Si on suit ton exemple :</p><p>DELETE FROM prefs WHERE user_id = 25;<br />INSERT INTO prefs VALUES (25, 2), (25, 3), (25, 9), (25, 10);</p><div class="quotebox"><blockquote><div><p>sur une table de cette taille, la méthode &quot;DELETE&quot; puis &quot;INSERT&quot; présente-elle des inconvénients à long terme sur les performances de la table ?</p></div></blockquote></div><p>Tout dépend de la fréquence de mise à jour. Ce sera certainement une table qui sera à prendre en compte pour un VACUUM plus fréquent.</p><div class="quotebox"><blockquote><div><p>faire la différence&#160; entre le mapping actuel et le cible (ie enlever le 25,8 pour ajouter le 25,9 et 25,10) me semble beaucoup plus lourd.</p></div></blockquote></div><p>Au niveau applicatif, oui, sans aucun doute (ce n&#039;est pas non plus super compliqué à faire). Au niveau SQL, ça n&#039;est qu&#039;un gros gain.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-05-08T17:00:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9246#p9246</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Meilleure methode pour mettre a jour une table de correspondance]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9244#p9244"/>
+		<content type="html"><![CDATA[<p>bonjour,</p><p>c&#039;est un problème trivial, mais je ne suis pas certain que les réponses aux questions soient aussi triviales que je le suspecte.</p><p>j&#039;ai un univers de catégories, pour simplifier 10, numérotées de 1 à 10.<br />pour chaque utilisateur, son choix est stocké dans une table de &quot;mapping&quot; à deux colonnes (user_id, cat_id)<br />pourquoi ? car l&#039;univers de catégories est variable, donc je stocke ses préférences ici et non pas dans la table users ou chaque catégories (en colonne) aurait un flag booleen.</p><p>ainsi pour l&#039;utilisateur 25 qui a choisi 3 catégories (2,3,8) j&#039;aurais trois lignes<br />user_id cat_id<br />25 2<br />25 3<br />25 8</p><p>supposons que l&#039;utilisateur change son choix de catégories à (2, 3, 9, 10)</p><p>la méthode la plus simple est d&#039;effacer les corespondances existantes pour l&#039;utilisateur 25 et faire 4 INSERT avec les nouvelles: </p><p>DELETE FROM prefs WHERE user_id = 25;<br />INSERT INTO prefs VALUES (25, 2);<br />INSERT INTO prefs VALUES (25, 3);<br />INSERT INTO prefs VALUES (25, 9);<br />INSERT INTO prefs VALUES (25, 10);</p><p>soit 5 requetes</p><p>j&#039;ai 2 questions (en partant du principe que cette table aura quelques dizaines milliers d&#039;utilisateurs, soit en gros quelques centaines de milliers de lignes) :</p><p>- en terme &quot;SQL&quot;, il y a-t-il plus simple ?<br />- sur une table de cette taille, la méthode &quot;DELETE&quot; puis &quot;INSERT&quot; présente-elle des inconvénients à long terme sur les performances de la table ?</p><p>une autre méthode, faire la différence entre le mapping actuel et le cible (ie enlever le 25,8 pour ajouter le 25,9 et 25,10) me semble beaucoup plus lourd <br />(en PHP cela donnerait :<br />$mapdb = tableau du resultat SELECT cat_id FROM prefs WHERE user_id = 25;<br />$mapcible = tableau des nouvelles préférences<br />$remove = array_diff($mapdb, $mapcible);<br />$add = array_diff($mapcible, $mapdb);<br />boucle de DELETE FROM prefs WHERE user_id = 25 AND cat_id = $remove[$i]<br />boucle de INSERT INTO prefs VALUES (25, $add[$i])<br />)</p><br /><p>merci,</p>]]></content>
+		<author>
+			<name><![CDATA[ilrico]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1234</uri>
+		</author>
+		<updated>2011-05-08T16:44:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9244#p9244</id>
+	</entry>
+</feed>

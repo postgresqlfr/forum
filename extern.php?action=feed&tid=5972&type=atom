@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / pg_back et check_pgactivity pg_dump_backup]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5972&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5972"/>
+	<updated>2021-03-19T14:58:12Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5972</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pg_back et check_pgactivity pg_dump_backup]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32235#p32235"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Pour vérifier les dernières 24h, je ne trouve pas la bonne combinaison pour :</p></div></blockquote></div><p>C&#039;est-à-dire ?&#160; Vous voulez vérifier que vous avez bien un fichier agé de moins de 24h pour chacune des bases ?&#160; Quels paramètres utilisez vous et quel est le résultat ?</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2021-03-19T14:58:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32235#p32235</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pg_back et check_pgactivity pg_dump_backup]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32233#p32233"/>
+		<content type="html"><![CDATA[<p>Merci cela fonctionne mieux avec </p><div class="codebox"><pre><code>--pattern &#039;([a-zA-Z_-]+)_[0-9-_]+.dump&#039;</code></pre></div><p>Pour vérifier les dernières 24h, je ne trouve pas la bonne combinaison pour :</p><div class="codebox"><pre><code>The --critical and --warning thresholds are optional. They accept a list of &#039;metric=value&#039; separated by a comma. Available metrics are oldest and newest, respectively the age of the oldest and newest backups, and size, which must be the maximum variation of size since the last check, expressed as a size or a percentage. mindeltasize, expressed in B, is the minimum variation of size needed to raise an alert.</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[gounick]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9387</uri>
+		</author>
+		<updated>2021-03-19T14:38:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32233#p32233</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pg_back et check_pgactivity pg_dump_backup]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32231#p32231"/>
+		<content type="html"><![CDATA[<p>À priori cela vient de</p><div class="codebox"><pre><code>--pattern &#039;(\w+)_[0-9-_]+.dump&#039;</code></pre></div><p>Cela ne marchera pas pour les sauvegardes de bases ayant des &quot;-&quot;.&#160; En effet \w est un alias pour [a-zA-Z_].</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2021-03-19T14:07:38Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32231#p32231</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[pg_back et check_pgactivity pg_dump_backup]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32227#p32227"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />J&#039;utilise le script <a href="https://github.com/orgrim/pg_back" rel="nofollow">pg_back</a> pour réaliser mes sauvegardes logiques et j&#039;essaie de les superviser avec le service pg_dump_backup de la sonde <a href="https://github.com/OPMDG/check_pgactivity#services" rel="nofollow">check_pgactivity</a>.</p><p>Dans la documentation, il y a même un exemple pour pg_back ! Mais je n&#039;arrive pas à placer les bons arguments pour </p><div class="codebox"><pre><code>--critical</code></pre></div><p> et </p><div class="codebox"><pre><code>--warning</code></pre></div><p>, j&#039;ai toujours un retour de la sonde en CRITICAL.<br />Pourriez-vous m&#039;indiquer des exemples concrets svp ? Je souhaite contrôler la présence des backups des dernières 24h.</p><p>Voici mes fichiers sur disques :</p><div class="codebox"><pre><code>postgres@db-02:~/backups$ ll -rth
+total 43G
+-rw-r--r-- 1 postgres postgres 2.4K Mar 18 04:00 pg_global_2021-03-18_04-00-02.sql
+-rw-r--r-- 1 postgres postgres  61K Mar 18 04:00 pg_settings_2021-03-18_04-00-02.out
+-rw-r--r-- 1 postgres postgres 1.7K Mar 18 04:00 postgres_2021-03-18_04-00-02.dump
+-rw-r--r-- 1 postgres postgres  196 Mar 18 04:00 postgres_2021-03-18_04-00-02.dump.sha512
+-rw-r--r-- 1 postgres postgres 136M Mar 18 04:00 repmgr_2021-03-18_04-00-02.dump
+-rw-r--r-- 1 postgres postgres  194 Mar 18 04:00 repmgr_2021-03-18_04-00-02.dump.sha512
+-rw-r--r-- 1 postgres postgres  43G Mar 18 05:20 ab-cd_2021-03-18_04-00-19.dump
+-rw-r--r-- 1 postgres postgres  195 Mar 18 05:22 ab-cd_2021-03-18_04-00-19.dump.sha512</code></pre></div><p>Mes paramètres pg_back.conf :</p><div class="codebox"><pre><code>PGBK_BACKUP_DIR=/var/lib/postgresql/backups
+PGBK_TIMESTAMP=&#039;%Y-%m-%d_%H-%M-%S&#039;
+PGBK_PURGE=2
+PGBK_PURGE_MIN_KEEP=0
+PGBK_OPTS=(&quot;-Fc&quot;)
+PGBK_WITH_TEMPLATES=&quot;no&quot;
+PGBK_STANDBY_PAUSE_TIMEOUT=3600
+PGBK_PORT=5432
+PGBK_USERNAME=postgres
+PGBK_CONNDB=postgres</code></pre></div><p>Ma commande check_pgactivity avec les paramètres/arguments :</p><div class="codebox"><pre><code>postgres@db-02:~/backups$ /usr/lib/nagios/plugins/check_pgactivity --user postgres --port 5432 --host /run/postgresql --service pg_dump_backup --path &#039;/var/lib/postgresql/backups/*{dump,sql}&#039; --status-file /tmp/check_pgactivity.pg_dump_backup.PGSQL.5432.data --pattern &#039;(\w+)_[0-9-_]+.dump&#039; --global-pattern &#039;pg_global_[0-9-_]+.sql&#039; --dbexclude template0 --dbexclude template1  --warning &#039;oldest=2d,newest=1d,size=15,mindeltasize=5&#039; --critical &#039;oldest=3d,newest=2d,size=30,mindeltasize=5&#039;
+
+POSTGRES_PGDUMP_BACKUP CRITICAL: &#039;ab-cd_oldest&#039;=NaNs, &#039;ab-cd_newest&#039;=NaNs, &#039;ab-cd_size&#039;=NaNB, &#039;postgres_newest&#039;=1d 5h42m30s, &#039;repmgr_newest&#039;=1d 5h42m13s, &#039;globals_objects_newest&#039;=1d 5h42m30s | postgres_newest=106950s;86400;172800 postgres_oldest=106950s;172800;259200 postgres_size=1725B postgres_delta=0B;5;5 repmgr_newest=106933s;86400;172800 repmgr_oldest=106933s;172800;259200 repmgr_size=142539403B repmgr_delta=0B;5;5 ab-cd_newest=NaNs abcd_oldest=NaNs ab-cd_size=NaNB ab-cd_delta=NaNB globals_objects_newest=106950s;86400;172800 globals_objects_oldest=106950s;172800;259200 globals_objects_size=2376B globals_objects_delta=0B;5;5</code></pre></div><p>Cordialement</p>]]></content>
+		<author>
+			<name><![CDATA[gounick]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9387</uri>
+		</author>
+		<updated>2021-03-19T09:00:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32227#p32227</id>
+	</entry>
+</feed>

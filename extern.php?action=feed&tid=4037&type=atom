@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Gestion des COMMIT sous PostgreSQL]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4037&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4037"/>
+	<updated>2016-12-24T12:37:21Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4037</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Gestion des COMMIT sous PostgreSQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24465#p24465"/>
+		<content type="html"><![CDATA[<p>Mettez un ou plusieurs blocs BEGIN ... EXCEPTION autour de la ou les instructions problématiques.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2016-12-24T12:37:21Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24465#p24465</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Gestion des COMMIT sous PostgreSQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24464#p24464"/>
+		<content type="html"><![CDATA[<p>Merci de l&#039;information.</p><p>Comment alors le réaliser ?</p><p>Auriez-vous un exemple à me proposer ?</p><p>Ce que je cherche à obtenir est avoir l&#039;assurance que les 3 INSERTS soient réellement effectués avant la ligne en erreur.</p><p>Pourrait t&#039;on forcer l&#039;exécution d&#039;un bloc de code EXCEPTION dans lequel seraient enregistrées les 3 lignes d&#039;INSERT ? (RAISE ?)</p><p>Merci pour vos propositions.</p>]]></content>
+		<author>
+			<name><![CDATA[Mlan2]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5297</uri>
+		</author>
+		<updated>2016-12-23T18:07:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24464#p24464</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Gestion des COMMIT sous PostgreSQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24463#p24463"/>
+		<content type="html"><![CDATA[<p>Effectivement SAVEPOINT ne marche pas en pl/pgsql.&#160; Pour votre besoin, il faut utiliser de multiples blocs BEGIN ... EXCEPTION à la place.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2016-12-23T15:55:02Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24463#p24463</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Gestion des COMMIT sous PostgreSQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24452#p24452"/>
+		<content type="html"><![CDATA[<p>Merci de la réponse.</p><p>L&#039;instruction SAVEPOINT me parait effectivement adaptée pour mon exemple.</p><p>Je l&#039;ai mis en oeuvre, mais je constate que cette instruction n&#039;est pas autorisée dans le langage PL/pgsql.</p><p>Si une procédure stockée est considérée comme une opération atomique, peux t&#039;on imaginer que dans mon exemple, les INSERT seraient réalisés par l&#039;appel à une procédure stockée, on obtiendrait le résultat attendu ?</p><p>Je vais faire l&#039;essai dans ce sens.</p><p>D&#039;avance merci de votre retour.</p>]]></content>
+		<author>
+			<name><![CDATA[Mlan2]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5297</uri>
+		</author>
+		<updated>2016-12-23T13:22:54Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24452#p24452</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Gestion des COMMIT sous PostgreSQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24451#p24451"/>
+		<content type="html"><![CDATA[<p>Une procédure stockée est considérée comme une opération atomique, le comportement est donc normal.&#160; Vous voulez probablement la fonctionnalité de SAVEPOINT / ROLLBACK TO : <a href="http://docs.postgresql.fr/9.6/sql-savepoint.html" rel="nofollow">http://docs.postgresql.fr/9.6/sql-savepoint.html</a></p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2016-12-23T12:13:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24451#p24451</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Gestion des COMMIT sous PostgreSQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24450#p24450"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je m&#039;interroge sur un problème que je rencontre dans l&#039;écriture d&#039;une fonction.</p><p>Dans la documentation de PostgreSQL,Il est dit que PostgreSQL fonctionne en autoCommit.<br />Je comprends par là qu&#039;à chaque action sur un enregistrement (INSERT, DELETE, UPDATE), cette action est enregistrée dans la table.</p><p>Or dans mon exemple de fonction ci-dessous, je constate que, si une instruction provoque une erreur, les actions réalisées précédemment (3 INSERT) ne sont pas enregistrées dans la table, comme si un ROLLBACK aurait été fait (annulant les actions précédentes).</p><p>Dans l&#039;exemple de la fonction, 3 actions INSERT sont réalisées, puis suit une action provoquant une erreur.</p><p>Dans un bloc EXCEPTION interceptant l&#039;erreur, 2 actions INSERT différentes sont réalisées.</p><p>Quand je regarde le résultat obtenu dans la table, je constate uniquement les 2 actions INSERT effectuées dans le bloc Exception.<br />Les actions INSERT précédentes n&#039;apparaissent pas, comme si le COMMIT ne se faisait pas ou aurait été annulé par un ROLLBACK.</p><p>Quelqu&#039;un peut t&#039;il éclairer ma lanterne sur ce qui se passe réellement ?</p><p>Peut t&#039;on obtenir le résultat que je souhaite, et quel serait la méthode ?</p><p>D&#039;avance merci de votre retour.</p><br /><div class="codebox"><pre class="vscroll"><code>CREATE OR REPLACE  FUNCTION MyFunction (PAR_1  varchar,
+                                        PAR_2  varchar) RETURNS INTEGER
+AS
+
+$$
+DECLARE
+
+  C_Ret            INTEGER;                -- Code retour de fonction.
+
+BEGIN
+
+  C_Ret        := 0;
+
+  INSERT INTO TAB1   (FIELD1, FIELD2)
+              VALUES (&#039;VAL11&#039;, &#039;VAL21&#039;);
+
+  INSERT INTO TAB1   (FIELD1, FIELD2)
+              VALUES (&#039;VAL12&#039;, &#039;VAL22&#039;);
+
+  INSERT INTO TAB1   (FIELD1, FIELD2)
+              VALUES (&#039;VAL13&#039;, &#039;VAL23&#039;);
+              
+  Instruction SQL provoquant une erreur.
+
+  RETURN C_Ret;
+  
+  EXCEPTION
+
+    WHEN OTHERS THEN
+    BEGIN
+    
+      INSERT INTO TAB1   (FIELD1, FIELD2)
+              VALUES (&#039;VAL14&#039;, &#039;VAL24&#039;);
+
+      INSERT INTO TAB1   (FIELD1, FIELD2)
+              VALUES (&#039;VAL15&#039;, &#039;VAL25&#039;);
+    
+    
+      C_Ret := 2;
+      RETURN C_Ret;
+    END;
+
+END;
+$$ LANGUAGE plpgsql;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[Mlan2]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5297</uri>
+		</author>
+		<updated>2016-12-23T10:31:45Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24450#p24450</id>
+	</entry>
+</feed>

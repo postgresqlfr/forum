@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / [Débutant] Importer uniquement un type d'objets]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=6028&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=6028"/>
+	<updated>2021-05-29T09:43:12Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=6028</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Débutant] Importer uniquement un type d'objets]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32506#p32506"/>
+		<content type="html"><![CDATA[<p>Bonjour rjuju,</p><p>Merci pour la confirmation, et la réponse avec un exemple <img src="http://forums.postgresql.fr/img/smilies/wink.png" width="15" height="15" alt="wink" /><br />Cela semble plus simple que ce que j&#039;imaginais.<br />Je vais essayer ça, et je reviens vous dire.</p><p>A plus tard<br />(et bon week-end tout le monde...)</p>]]></content>
+		<author>
+			<name><![CDATA[Sunchaser]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7960</uri>
+		</author>
+		<updated>2021-05-29T09:43:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32506#p32506</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Débutant] Importer uniquement un type d'objets]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32503#p32503"/>
+		<content type="html"><![CDATA[<p>Non ce n&#039;est pas possible sans avoir à nommer les objets séparéments.&#160; Cela dit, seules les tables vont être volumineuses dans le fichier de sauvegarde et comme Daniel l&#039;a indiqué les possibilté de filtre à la restauration (en supposant qu&#039;il ne s&#039;agisse pas d&#039;un simple script sql mais une sauvegarde type custom ou directory) sont suffisante pour automatiser votre besoin. Exemple de contenu d&#039;une table des matière (sans les commentaires) :</p><div class="codebox"><pre><code>210; 1255 16732 FUNCTION public my_function(text) rjuju
+209; 1259 18768 TABLE public t1 rjuju
+3326; 0 18768 TABLE DATA public t1 rjuju
+3187; 1259 18773 INDEX public t1_id_idx rjuju</code></pre></div><p>Donc pour ne restaurer que les tables (DDL + contenu), il suffit de faire :</p><div class="codebox"><pre><code>pg_restore --list fichier.backup | grep TABLE &gt; tables_only.list
+pg_restore --use-list tables_only.list -U user...</code></pre></div><p>Vous pouvez également filtrer sur le DDL uniquement ou le contenu uniquement selon vos besoin.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2021-05-29T05:02:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32503#p32503</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Débutant] Importer uniquement un type d'objets]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32502#p32502"/>
+		<content type="html"><![CDATA[<p>Merci pour les explications.<br />Et est-ce que pg_dump peut créer un dump qui ne contienne que des tables? <br />Je n&#039;ai pas la main la dessus, j&#039;ai l&#039;impression que l&#039;on va me dire de faire avec ce que j&#039;ai mais je pourrais toujours demander a ceux qui produisent cet export, si techniquement possible.</p>]]></content>
+		<author>
+			<name><![CDATA[Sunchaser]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7960</uri>
+		</author>
+		<updated>2021-05-28T17:23:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32502#p32502</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Débutant] Importer uniquement un type d'objets]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32501#p32501"/>
+		<content type="html"><![CDATA[<p>pg_dump peut produire 3 formats:<br />- plain (un script SQL): fait pour être rejoué tel quel avec psql.<br />- custom: a une table de contenu interne que pg_restore sait exploiter sélectivement.<br />- directory: le backup n&#039;est pas un fichier mais une aborescence.</p><p>Les fichiers *.backup en question devraient en principe être produits avec le format custom pour être restaurables sélectivement.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2021-05-28T16:38:35Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32501#p32501</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Débutant] Importer uniquement un type d'objets]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32500#p32500"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Merci pour la réponse rapide.<br />Oui, désolé, je suis effectivement sur un pg_restore.<br />Au début, je pensais passer par psql, mais il semble que le type de fichiers que l&#039;on va recevoir ( des *.backup ) ne corresponds pas, si j&#039;ai bien compris.<br />Donc, on va tester cette idée de --list, je ne connais pas du tout le contenu de ce genre de fichiers et j&#039;espère juste que on va pouvoir automatiser ce genre de tâche, car cela serait pour un import quotidien.</p><p>Un peu dommage qu&#039;il n&#039;y ait pas de fonctionalité native pour choisir d&#039;importer uniquement un type d&#039;objet...</p><p>@+</p>]]></content>
+		<author>
+			<name><![CDATA[Sunchaser]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7960</uri>
+		</author>
+		<updated>2021-05-28T15:53:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32500#p32500</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Débutant] Importer uniquement un type d'objets]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32498#p32498"/>
+		<content type="html"><![CDATA[<p>pg_restore n&#039;est pas mentionné, mais on va imaginer que c&#039;est ça. L&#039;idée est de:</p><p>1. faire une liste de ce qu&#039;il y a dans l&#039;archive avec pg_restore --list<br />2. traiter cette liste manuellement ou automatiquement pour ne garder que ce qui est utile<br />3. importer le résultat avec pg_restore --use-list</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2021-05-28T13:14:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32498#p32498</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[[Débutant] Importer uniquement un type d'objets]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32497#p32497"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Tout est dans le titre: est-il possible - comme avec Oracle - de faire un import en ligne de commande et de préciser que on ne veut importer qu&#039;un seul type d&#039;objets, comme les tables par exemple (toutes les tables, sans avoir a les citer précisemment)?</p><p>Merci!<br />@+</p>]]></content>
+		<author>
+			<name><![CDATA[Sunchaser]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7960</uri>
+		</author>
+		<updated>2021-05-28T12:17:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32497#p32497</id>
+	</entry>
+</feed>

@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Remplir un champ par numérotation automatique]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1275&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1275"/>
+	<updated>2011-03-21T15:55:50Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1275</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Remplir un champ par numérotation automatique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8490#p8490"/>
+		<content type="html"><![CDATA[<p>Oui, effectivement, la numérotation va être faite avant le tri.<br />Si c&#039;est juste les numéroter au moment de l&#039;insertion, et que vous avez au moins une 8.4, pas la peine d&#039;utiliser le serial à ce moment là. Une Window Function fera l&#039;affaire.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-03-21T15:55:50Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8490#p8490</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Remplir un champ par numérotation automatique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8489#p8489"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>Marc Cousin a écrit&#160;:</cite><blockquote><div><p>Ça devrait marcher (aux erreurs de syntaxe près, je n&#039;ai pas vérifié <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /> ). Il y a juste une recopie de trop des données. Vous pourriez directement recopier dans la bonne table cible, plutôt que de recopier deux fois les données, je pense.</p></div></blockquote></div><p>Justement, c&#039;est là le problème.<br />Si je fais le tout &quot;en une seule passe&quot; le nextval(&#039;no_serie&#039;) est inséré avant le tri.<br />Du coup, il est lui même trié et perd son sens : il n&#039;est plus du tout serial.</p><p>Avec le double recopie, le serial est ajouté après le tri et correspond, dans le cas cité, au row_number().<br />Je ne suis pas fort en SQL, mais ça à l&#039;air de marcher.</p>]]></content>
+		<author>
+			<name><![CDATA[butin-matou]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1160</uri>
+		</author>
+		<updated>2011-03-21T15:51:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8489#p8489</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Remplir un champ par numérotation automatique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8488#p8488"/>
+		<content type="html"><![CDATA[<p>Le SELECT * est une chose à ne jamais utiliser en production. Il a été créé pour la mise au point des requêtes SQL lors des essais, mais il est doublement dangereux.<br />Quelques exemples : <br />- en cas de modification de la structure de la table, certaines requête vont faire planter les applications<br />- en cas d&#039;ajout d&#039;une colonne de type LOB, les performances vont devenir catastrophiques</p><p>A +</p>]]></content>
+		<author>
+			<name><![CDATA[SQLpro]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1054</uri>
+		</author>
+		<updated>2011-03-21T15:47:33Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8488#p8488</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Remplir un champ par numérotation automatique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8485#p8485"/>
+		<content type="html"><![CDATA[<p>Non, même pas quand on importe d&#039;un tableur. On peut (et il vaut mieux) préciser l&#039;ordre des colonnes. Qu&#039;on utilise un INSERT ou un COPY</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-03-21T15:25:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8485#p8485</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Remplir un champ par numérotation automatique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8484#p8484"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>Marc Cousin a écrit&#160;:</cite><blockquote><div><p>Attention tout de même à un point: l&#039;ordre des colonnes dans une table ne doit avoir aucune importance dans le développement de l&#039;application (je vous dis ça parce que ça a l&#039;air d&#039;avoir une importance pour vous).</p><p>Il faut absolument éviter que l&#039;ordre de définition des colonnes ait la moindre incidence sur le fonctionnement de l&#039;application. Ça veut entre autres dire qu&#039;il faut éviter les &#039;SELECT *&#039; dans le code, et toujours préférer nommer explicitement la liste des colonnes à récupérer.</p></div></blockquote></div><div class="quotebox"><cite>SQLpro a écrit&#160;:</cite><blockquote><div><p>Par nature dans le SGBDR il n&#039;y a aucune notion d&#039;ordre.</p></div></blockquote></div><p>Merci pour vos commentaires.</p><p>Il est vrai que ma logique sur ce point n&#039;est pas très bonne (et en général j&#039;aime assez les &#039;SELECT *&#039; ...)</p><p>Mais ? L&#039;ordre des champs a tout de même de l&#039;importance quand on importe des données issues de tableurs ?? (ou pas?!)</p><p>--<br />Elodie</p>]]></content>
+		<author>
+			<name><![CDATA[ElodieS]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1147</uri>
+		</author>
+		<updated>2011-03-21T15:16:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8484#p8484</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Remplir un champ par numérotation automatique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8481#p8481"/>
+		<content type="html"><![CDATA[<p>Ça devrait marcher (aux erreurs de syntaxe près, je n&#039;ai pas vérifié <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /> ). Il y a juste une recopie de trop des données. Vous pourriez directement recopier dans la bonne table cible, plutôt que de recopier deux fois les données, je pense.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-03-21T13:52:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8481#p8481</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Remplir un champ par numérotation automatique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8480#p8480"/>
+		<content type="html"><![CDATA[<p>J&#039;ai eu un problème similaire. <br />Je pense que je l&#039;ai résolu ainsi. <br />Me gourre-je ?</p><div class="codebox"><pre><code>DROP TABLE IF EXISTS table_b ;
+SELECT 
+INTO table_b 
+FROM table_a
+-- Faire le tri dès maintenant
+ORDER BY 
+	Is_Local_address DESC ,
+	UPPER(COUNTRY), 
+	UPPER(POSTCODE),
+	UPPER(TOWN),
+	Name
+;
+DROP TABLE IF EXISTS table_c;
+-- Drop la table avant de dropper la séquence
+
+DROP SEQUENCE IF EXISTS Serial_number;
+CREATE SEQUENCE Serial_number;
+
+SELECT 
+-- Positionner le Serial N° comme colonne 1 puis ajouter tout le rest (*)
+nextval(&#039;Serial_number&#039;) AS &quot;Serial N°&quot; , * 
+INTO table_c
+FROM table_b;
+;
+SELECT * FROM table_c</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[butin-matou]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1160</uri>
+		</author>
+		<updated>2011-03-21T13:47:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8480#p8480</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Remplir un champ par numérotation automatique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8390#p8390"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>ElodieS a écrit&#160;:</cite><blockquote><div><p>je vais opter pour la solution où le champ id_test sera en 1ère position dans la table.</p></div></blockquote></div><p>C&#039;est une idée aberrante. En effet, rien ne vous garantie que ce sera toujours le cas. Par nature dans le SGBDR il n&#039;y a aucune notion d&#039;ordre. Lisez ce que j&#039;ai écrit à ce sujet :<br /><a href="http://sqlpro.developpez.com/cours/sqlaz/erreurs/#L6" rel="nofollow">http://sqlpro.developpez.com/cours/sqlaz/erreurs/#L6</a><br /><a href="http://blog.developpez.com/sqlpro/p5867/langage-sql-norme/les-donnees-d-une-base-sql-sont-des-ense/" rel="nofollow">http://blog.developpez.com/sqlpro/p5867 … -des-ense/</a></p><p>A +</p>]]></content>
+		<author>
+			<name><![CDATA[SQLpro]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1054</uri>
+		</author>
+		<updated>2011-03-11T14:52:07Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8390#p8390</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Remplir un champ par numérotation automatique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8387#p8387"/>
+		<content type="html"><![CDATA[<p>Attention tout de même à un point: l&#039;ordre des colonnes dans une table ne doit avoir aucune importance dans le développement de l&#039;application (je vous dis ça parce que ça a l&#039;air d&#039;avoir une importance pour vous).</p><p>Il faut absolument éviter que l&#039;ordre de définition des colonnes ait la moindre incidence sur le fonctionnement de l&#039;application. Ça veut entre autres dire qu&#039;il faut éviter les &#039;SELECT *&#039; dans le code, et toujours préférer nommer explicitement la liste des colonnes à récupérer.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-03-11T07:28:21Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8387#p8387</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Remplir un champ par numérotation automatique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8386#p8386"/>
+		<content type="html"><![CDATA[<p>Un grand merci à vous deux.</p><p>je vais opter pour la solution où le champ id_test sera en 1ère position dans la table.</p><p>Et comme dans quelques temps j&#039;aurai besoin de rajouter d&#039;autres lignes dans ma table à partir d&#039;autres .csv, je pourrai alors faire :</p><div class="codebox"><pre><code>DROP TABLE IF EXISTS testserial;
+CREATE TABLE testserial (
+     id_test serial,	
+     champ1 varchar (10) );
+
+COPY testserial(champ1) FROM &#039;C:/import_data/testserial.csv&#039; WITH DELIMITER AS &#039;;&#039; CSV HEADER; 
+COPY testserial(champ1) FROM &#039;C:/import_data/testserial2.csv&#039; WITH DELIMITER AS &#039;;&#039; CSV HEADER; 
+COPY testserial(champ1) FROM &#039;C:/import_data/testserial3.csv&#039; WITH DELIMITER AS &#039;;&#039; CSV HEADER; 
+-- etc.</code></pre></div><p>Ainsi ma clé primaire id_test sera bien numérotée.</p><p>(Sauf que mes tables ont plutot une cinquantaine de champs donc la parenthèse sera longue)</p><p>(...) </p><p>Je viens de faire un test avec mes grosses tables, ça fonctionne bien.</p><p>Encore merci !</p>]]></content>
+		<author>
+			<name><![CDATA[ElodieS]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1147</uri>
+		</author>
+		<updated>2011-03-10T19:19:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8386#p8386</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Remplir un champ par numérotation automatique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8385#p8385"/>
+		<content type="html"><![CDATA[<p>Une méthode un peu différente de celle de gleu (plus proche de la version originale):</p><p>DROP TABLE IF EXISTS testserial;<br />CREATE TABLE testserial (<br />&#160; &#160; &#160;champ1 varchar (10) );<br />&#160; &#160; &#160;<br />COPY testserial FROM &#039;C:/import_data/testserial.csv&#039; WITH DELIMITER AS &#039;;&#039; CSV HEADER;</p><br /><p>CREATE SEQUENCE testserial_id_test_seq START WITH 6; -- Créer la séquence. Elle démarre à 6.</p><p>ALTER TABLE testserial ADD COLUMN id_test int DEFAULT nextval(&#039;testserial_id_test_seq&#039;); -- Ajouter la colonne. Cela numérote bien à partir de 6</p><p>ALTER SEQUENCE testserial_id_test_seq OWNED BY testserial.id_test; -- Affecter la séquence à la colonne. Cela revient à ce moment là à un type serial</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-03-10T14:32:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8385#p8385</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Remplir un champ par numérotation automatique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8384#p8384"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>chercher comment placer ce champ en 1ère position dans la table</p></div></blockquote></div><p>Impossible avec PostgreSQL, à moins de recréer la table complète.</p><p>Concernant le test, vous ne pouvez pas indiquer la valeur de départ lorsque vous ajoutez une colonne de type serial. Par contre, l&#039;exemple avec un entier peut fonctionner. Le voici au complet :</p><div class="codebox"><pre><code>DROP TABLE IF EXISTS testserial;
+CREATE TABLE testserial (champ1 varchar (10));
+COPY testserial FROM &#039;/home/guillaume/toto.csv&#039; WITH DELIMITER AS &#039;;&#039; CSV HEADER;
+ALTER TABLE  testserial ADD COLUMN id_test integer;
+CREATE SEQUENCE ma_seq START WITH 6;
+ALTER TABLE testserial ALTER COLUMN id_test SET DEFAULT nextval(&#039;ma_seq&#039;);
+ALTER SEQUENCE ma_seq OWNED BY testserial.id_test;
+UPDATE testserial SET id_test=nextval(&#039;ma_seq&#039;);</code></pre></div><p>Si vous voulez le faire avec une colonne serial directement, voici l&#039;exemple revu :</p><div class="codebox"><pre><code>DROP TABLE IF EXISTS testserial;
+CREATE TABLE testserial (id_test serial, champ1 varchar (10));
+ALTER SEQUENCE testserial_id_test_seq RESTART WITH 6;
+COPY testserial(champ1) FROM &#039;/home/guillaume/toto.csv&#039; WITH DELIMITER AS &#039;;&#039; CSV HEADER;</code></pre></div><p>Et puis comme ça, ça évite d&#039;avoir à se poser des questions sur la position des champs <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-03-10T14:27:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8384#p8384</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Remplir un champ par numérotation automatique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8383#p8383"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>gleu a écrit&#160;:</cite><blockquote><div><p>Il serait plus simple de nous indiquer l&#039;exemple complet qui ne fonctionne pas pour qu&#039;on puisse vous aider.</p></div></blockquote></div><p>En effet.</p><p>J&#039;ai donc pris un exemple pour tester mes requêtes.</p><p>Voici la table testserial, un seul champ :</p><p>champ1<br />____<br />valeur1<br />valeur2<br />valeur3<br />valeur4<br />valeur5<br />valeur6</p><div class="codebox"><pre><code>DROP TABLE IF EXISTS testserial;
+CREATE TABLE testserial (
+     champ1 varchar (10) );
+	 
+COPY testserial FROM &#039;C:/import_data/testserial.csv&#039; WITH DELIMITER AS &#039;;&#039; CSV HEADER;
+
+ALTER TABLE  testserial ADD COLUMN id_test SERIAL; -- chercher comment placer ce champ en 1ère position dans la table
+
+--Si id_test déclaré en INTEGER :
+--DROP SEQUENCE IF EXISTS ma_seq CASCADE;
+--CREATE SEQUENCE ma_seq START WITH 7;
+--ALTER TABLE testserial ALTER COLUMN id_test SET DEFAULT nextval(&#039;ma_seq&#039;);
+--ALTER SEQUENCE ma_seq OWNED BY obs_pvt.testserial.id_test;
+
+--Si id_test déclaré en SERIAL :
+ALTER SEQUENCE testserial_id_test_seq RESTART WITH 6;
+ALTER TABLE testserial ALTER COLUMN id_test SET DEFAULT nextval(&#039;testserial_id_test_seq&#039;);</code></pre></div><p>Mon champ id_test est rempli de 1 à 6 et non de 6 à 11 comme je l&#039;aurais souhaité</p>]]></content>
+		<author>
+			<name><![CDATA[ElodieS]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1147</uri>
+		</author>
+		<updated>2011-03-10T13:16:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8383#p8383</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Remplir un champ par numérotation automatique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8382#p8382"/>
+		<content type="html"><![CDATA[<p>Comment vous-êtes vous arrangé pour que les données soient quand même incrémentées ?<br />Sinon, je présume que si vous avez réussi à le générer par la séquence, il suffit de la déclarer avec une autre valeur de démarrage (soit au moment du CREATE SEQUENCE, par le paramètre start, soit ALTER SEQUENCE, par le paramètre restart).</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-03-10T12:46:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8382#p8382</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Remplir un champ par numérotation automatique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8381#p8381"/>
+		<content type="html"><![CDATA[<p>Il serait plus simple de nous indiquer l&#039;exemple complet qui ne fonctionne pas pour qu&#039;on puisse vous aider.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-03-10T12:44:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8381#p8381</id>
+	</entry>
+</feed>

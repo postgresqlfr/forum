@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Jointures avec les requêtes UPDATE sous PostgreSQL]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1683&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1683"/>
+	<updated>2011-10-10T13:19:40Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1683</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Jointures avec les requêtes UPDATE sous PostgreSQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11309#p11309"/>
+		<content type="html"><![CDATA[<p>L&#039;alias est interdit pour les SET mais absolument pas dans le WHERE.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2011-10-10T13:19:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11309#p11309</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Jointures avec les requêtes UPDATE sous PostgreSQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11307#p11307"/>
+		<content type="html"><![CDATA[<p>Un exemple : </p><div class="codebox"><pre><code>CREATE TABLE T1 (A INT, B INT, C INT);
+
+CREATE TABLE T2 (A INT, B INT, D INT);
+
+INSERT INTO T1 VALUES (10, 20, 99), (11, 21, 33);
+
+INSERT INTO T2 VALUES (10, 20, 0), (11, 21, 0);
+
+UPDATE T1
+SET    C = T2.D
+FROM   T2
+WHERE  T1.A = T2.A
+  AND  T1.B = T2.B
+  AND  C &lt; 50
+
+SELECT * FROM T1
+A     B     C
+----- ----- -----
+10    20    99
+11    21    0</code></pre></div><p>la principe est le même que dans SQL Server, mais comme la norme SQL interdit l&#039;utilisation d&#039;un alias pour la table cible d&#039;une mise à jour et que PostGreSQL respecte ceci à la lettre, il faut tout simplement reprendre intégralement le nom de la table cible. </p><p>A +</p>]]></content>
+		<author>
+			<name><![CDATA[SQLpro]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1054</uri>
+		</author>
+		<updated>2011-10-10T13:09:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11307#p11307</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Jointures avec les requêtes UPDATE sous PostgreSQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11300#p11300"/>
+		<content type="html"><![CDATA[<p>Je vous remercie pour vos réponse <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>En effet, après avoir vu la syntaxe sur la possibilité de faire une jointure avec un UPDATE sur PostgreSQL de Rjuju j&#039;en suis arrivé au même résultat que Dverite.</p><p>@Rjuju<br />La syntaxe suivante fonctionne :</p><div class="codebox"><pre><code>UPDATE table as ALIAS ....
+SET colonne = ...
+
+FROM table
+-- et JOIN si besoin</code></pre></div><p>... mais je pense qu&#039;elle est inutile car l&#039;ALIAS ne sert à rien <img src="http://forums.postgresql.fr/img/smilies/hmm.png" width="15" height="15" alt="hmm" /><br />Ceci provoque une erreur :</p><div class="codebox"><pre><code>UPDATE table as ALIAS ....
+SET [b]ALIAS.colonne[/b] = ...
+
+FROM table
+-- et JOIN si besoin</code></pre></div><p>@Dverite<br />Pour ce qui est de la version Standard, il est plus simple à comprendre certes, mais il nécessite de créer autant de requête que de champ à mettre à jour, c&#039;est très gênant quand on cherche à optimiser (c&#039;est le but recherché de cette technique en faite).</p><p>Cette &quot;technique&quot; ne fait pas parti de la norme SQL à ce que j&#039;ai compris, par contre je comprend le fait que PostgreSQL l&#039;ait ajouté, car il peut être très utile ( et fera peut-être parti du Standard SQL un jour <img src="http://forums.postgresql.fr/img/smilies/big_smile.png" width="15" height="15" alt="big_smile" /> ).</p><p>Pour finir j&#039;ai trouvé un compromis entre SQL Server et PostgreSQL, il est en effet possible d&#039;utiliser la syntaxe suivante pour les deux SGBD (copier/coller de Dverite) :</p><div class="codebox"><pre><code>UPDATE Table1
+SET colonneCount=s.monCount, colonneMax=s.monMax,  colonneMin =s.monCount
+FROM (SELECT COUNT(*) AS monCount, MAX(val) AS monMax, MIN(val) AS monMin FROM Table2) s
+WHERE Table1.id = 1;</code></pre></div><p>Pour ce qui est de SQL Server, il est possible de faire <em>&quot;UPDATE alias&quot;</em> (ce que j&#039;avais l&#039;habitude de faire) ou le nom de la table <em>&quot;UPDATE table&quot;</em> (ce que fait uniquement PostgreSQL, et c&#039;est pas plus mal <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /> ).</p>]]></content>
+		<author>
+			<name><![CDATA[guk92]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1398</uri>
+		</author>
+		<updated>2011-10-09T21:48:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11300#p11300</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Jointures avec les requêtes UPDATE sous PostgreSQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11299#p11299"/>
+		<content type="html"><![CDATA[<p>L&#039;update en question pourrait s&#039;écrire à peu près comme ça avec postgres:</p><div class="codebox"><pre><code>UPDATE Table1
+SET colonneCount=s.monCount, colonneMax=s.monMax,  colonneMin =s.monCount
+FROM (SELECT COUNT(*) AS monCount, MAX(val) AS monMax, MIN(val) AS monMin FROM Table2) s
+WHERE id = 1;</code></pre></div><p>Et la version standard passe-partout serait plutôt:</p><div class="codebox"><pre><code>UPDATE Table1
+SET colonneCount =  (SELECT COUNT(*) from Table2),
+colonneMax= (SELECT MAX(val) from Table2),
+colonneMin= (SELECT MIN(val) from Table2)
+WHERE id=1;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2011-10-09T20:47:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11299#p11299</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Jointures avec les requêtes UPDATE sous PostgreSQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11298#p11298"/>
+		<content type="html"><![CDATA[<p>Je pense que le problème vient du </p><div class="codebox"><pre><code>UPDATE alias 
+...
+FROM table AS alias</code></pre></div><p>Vous devriez plutôt faire :</p><p>UPDATE table as ALIAS ....<br />FROM<br />et JOIN si besoin<br />et ça devrait résoudre le problème.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2011-10-09T18:07:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11298#p11298</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Jointures avec les requêtes UPDATE sous PostgreSQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11297#p11297"/>
+		<content type="html"><![CDATA[<p>1. Si, c&#039;est possible. Par contre, difficile de donner un exemple sans idée particulière et j&#039;avoue que je suis plutôt sec.<br />2. Non, la partie FROM est une extension PostgreSQL. Voir <a href="http://docs.postgresql.fr/9.1/sql-update.html" rel="nofollow">http://docs.postgresql.fr/9.1/sql-update.html</a><br />3. Non, ça ne fonctionne pas. Par contre, j&#039;avoue que cette écriture me paraît alambiquée. Il est beaucoup plus simple de faire un &quot;DELETE FROM table1 AS t1...&quot;. (oui, j&#039;abandonne directement le test.dbo.Table1 qui ne fonctionne pas sous PostgreSQL). Voir <a href="http://docs.postgresql.fr/9.1/sql-delete.html" rel="nofollow">http://docs.postgresql.fr/9.1/sql-delete.html</a> .</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-10-09T17:47:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11297#p11297</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Jointures avec les requêtes UPDATE sous PostgreSQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=11296#p11296"/>
+		<content type="html"><![CDATA[<p>Bonsoir,</p><br /><p>Venant de SQL Server, je sais qu&#039;il est possible de faire des jointures sur des requêtes UPDATE, mais sous PostgreSQL mes tests n&#039;ont rien donnés.</p><p>Pour vous montrer un exemple, une requête ayant cette syntaxe fonctionne sous SQL Server :</p><div class="codebox"><pre><code>UPDATE monAliasTable1
+SET 
+monAliasTable1.colonneCount = monAliasTable2.monCount,
+monAliasTable1.colonneMax = monAliasTable2.monMax,
+monAliasTable1.colonneMin = monAliasTable2.monMin
+FROM test.dbo.Table1 AS monAliasTable1
+/* JOINTURES POSSIBLES */
+INNER JOIN (SELECT COUNT(*) AS monCount, MAX(val) AS monMax, MIN(val) AS monMin FROM test.dbo.Table2) AS monAliasTable2
+ON monAliasTable1.id = 1;</code></pre></div><p>Ceci n&#039;est qu&#039;un bref exemple, mais il est ainsi possible de faire des requêtes UPDATE avec des jointures dans SQL Server, ce qui peut-être très efficace lorsqu&#039;on souhaite <strong>regrouper un maximum de résultat à partir d&#039;une seule requête</strong>.</p><p>J&#039;ai essayé de faire la même chose sous PostgreSQL mais cela n&#039;a rien donnée, pourtant dans la documentation il est possible d&#039;ajouter FROM :</p><div class="codebox"><pre><code>UPDATE [ ONLY ] table SET colonne = { expression | DEFAULT } [, ...]
+    [ FROM liste_from ]
+    [ WHERE condition ]</code></pre></div><p><span class="bbu">J&#039;ai donc plusieurs questions qui me trottent en tête :</span><br />1. Est-ce qu&#039;il est possible de faire des requêtes UPDATE pouvant contenir des jointures comme sous SQL Server ? Si oui puis-je avoir un exemple ? <img src="http://forums.postgresql.fr/img/smilies/big_smile.png" width="15" height="15" alt="big_smile" /><br />2. Est-ce que cette technique ( que je trouve personnellement très efficace <img src="http://forums.postgresql.fr/img/smilies/cool.png" width="15" height="15" alt="cool" /> ) fait parti de la norme SQL ? <img src="http://forums.postgresql.fr/img/smilies/yikes.png" width="15" height="15" alt="yikes" /></p><br /><br /><p>Autrement sous SQL Server, il est possible d&#039;avoir cette syntaxe :</p><div class="codebox"><pre><code>DELETE t1 FROM test.dbo.Table1 AS t1 ...</code></pre></div><p>Cette forme ne fonctionne-t-elle vraiment pas sous PostgreSQL ou sinon c&#039;est moi qui m&#039;y prend mal ? <img src="http://forums.postgresql.fr/img/smilies/big_smile.png" width="15" height="15" alt="big_smile" /><br />Si cela ne fonctionne pas sous PostgreSQL je suppose que cette syntaxe ne doit pas faire parti de la norme ? (enfin je pense).</p><br /><br /><p>Merci et bonne soirée. <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[guk92]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1398</uri>
+		</author>
+		<updated>2011-10-09T17:33:45Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=11296#p11296</id>
+	</entry>
+</feed>

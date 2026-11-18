@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Migration Oracle vers PostgreSQL - procédures stockées]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3218&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3218"/>
+	<updated>2014-06-30T08:19:21Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3218</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Migration Oracle vers PostgreSQL - procédures stockées]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20224#p20224"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Merci pour vos réponses.</p><p>Pour l&#039;augmentation du volume de stockage je m&#039;en doutais, mais ce ne sera pas forcément dérangeant dans notre cas.</p><p>Par contre je n&#039;avais pas du tout pensé aux problèmes liés aux conversions... <br />Mais il me semble que les procédures n&#039;utilisent pas de fonctions d’agrégations statistiques.</p><p>Après je suis d&#039;accord sur le fait que la conversion aurait pu être réalisée en amont, coté applicatif, mais j&#039;aurais quand même dû modifier les déclarations des procédures car depuis la migration tout les paramètres de type &quot;number&quot; d&#039;oracle ont été remplacés par &quot;bigint&quot;...</p><p>En tout cas merci pour vos réponses <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[Dezqs]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3739</uri>
+		</author>
+		<updated>2014-06-30T08:19:21Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20224#p20224</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Migration Oracle vers PostgreSQL - procédures stockées]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20222#p20222"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>Dezqs a écrit&#160;:</cite><blockquote><div><p>Ce que je souhaite faire c&#039;est un alter table pour modifier mes colonnes de type &quot;real&quot; en &quot;double precision&quot; et savoir quels seraient les éventuels impacts. <br />En effet, ça me simplifierais la tâche pour la modification de mes procédures de n&#039;avoir à gérer que les types &quot;bigint&quot; et &quot;double precision&quot;...<br />Merci</p></div></blockquote></div><p>L&#039;impact est principalement applicatif, la précision change.</p><div class="codebox"><pre><code># select 1.12345::real = 1.12345::double precision; 
+renvoie false.</code></pre></div><p>Donc en appliquant des conversions vous allez potentiellement obtenir des égalités là où il ne devrait pas y en avoir. On n&#039;utilise habituellement pas ces types de données pour ce genre d&#039;opération ceci dit.<br />Si l&#039;applicatif est compatible avec ce changement, en effet, coté PostgreSQL, l&#039;impact est sur le volume de stockage, modulo ce qui suit.</p><p>Attention aussi aux fonctions d’agrégation statistique qui vont être affectées par le format de stockage initial (avg, variance, stddev, ...):</p><div class="codebox"><pre><code># create table foo 
+      as select (&#039;1.&#039;||n)::real as s,(&#039;1.&#039;||n)::double precision as d from generate_series(1,99999) g(n);
+# select avg(s),avg(d) from foo;
+       avg                   |      avg       
+------------------------+----------------
+ 1.54997749977667 | 1.549977499775
+# alter table foo alter COLUMN s type double precision;
+# select avg(s),avg(d) from foo;
+       avg        |      avg       
+------------------+----------------
+ 1.54997749977667 | 1.549977499775</code></pre></div><p>NOTE: les fonctions de stats retournent &quot;double precision&quot; dans tous les cas de paramètres flottant en entrée, on note que le résultat est différent ci-dessus alors que:</p><div class="codebox"><pre><code># truncate table foo;
+# insert into foo select (&#039;1.&#039;||n)::double precision as s,(&#039;1.&#039;||n)::double precision as d from generate_series(1,99999) g(n);
+# select avg(s),avg(d) from foo;
+      avg       |      avg       
+----------------+----------------
+ 1.549977499775 | 1.549977499775</code></pre></div><p>Donc peut-être auriez-vous intérêt à caster lors de l&#039;import initial, et pas dans un second temps.</p>]]></content>
+		<author>
+			<name><![CDATA[cedric]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=220</uri>
+		</author>
+		<updated>2014-06-28T10:48:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20222#p20222</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Migration Oracle vers PostgreSQL - procédures stockées]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20221#p20221"/>
+		<content type="html"><![CDATA[<p>real est sur 4 octets alors que double precision est sur 8 octets. Donc déjà, vous doublez la place prise pour stocker ces types de données. En dehors de cela, je ne connais aucun autre impact.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-06-27T21:57:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20221#p20221</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Migration Oracle vers PostgreSQL - procédures stockées]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20214#p20214"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Ora2Pg a déjà été utilisé. Ce que je souhaite faire c&#039;est un alter table pour modifier mes colonnes de type &quot;real&quot; en &quot;double precision&quot; et savoir quels seraient les éventuels impacts. <br />En effet, ça me simplifierais la tâche pour la modification de mes procédures de n&#039;avoir à gérer que les types &quot;bigint&quot; et &quot;double precision&quot;...</p><p>J&#039;espère être assez clair...</p><p>Merci</p>]]></content>
+		<author>
+			<name><![CDATA[Dezqs]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3739</uri>
+		</author>
+		<updated>2014-06-26T07:24:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20214#p20214</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Migration Oracle vers PostgreSQL - procédures stockées]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20213#p20213"/>
+		<content type="html"><![CDATA[<p>Vous pouvez le faire, notamment avec ora2pg.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-06-25T20:30:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20213#p20213</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Migration Oracle vers PostgreSQL - procédures stockées]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=20210#p20210"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Actuellement en pleine migration d&#039;oracle vers postgre, je suis confronté à un problème de type dans de nombreuses procédures stockées.</p><p>En effet, dans oracle, les colonnes et les procédures utilisaient le type &quot;Number&quot;...</p><p>Suite à la migration, mes colonnes sont donc maintenant du type real, bigint, double precision,... et les paramètres (numériques) des procédures de type &quot;bigint&quot;</p><p>Pour simplifier la modification des procédures stockées, je voulais savoir s&#039;il était possible de modifier les colonnes de types &quot;real&quot; afin qu&#039;elles soient de type &quot;double precision&quot; et quels seraient les éventuels impacts ?</p><p>Merci</p>]]></content>
+		<author>
+			<name><![CDATA[Dezqs]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3739</uri>
+		</author>
+		<updated>2014-06-25T14:20:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=20210#p20210</id>
+	</entry>
+</feed>

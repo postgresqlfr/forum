@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Synchronisation d'une base client avec une base maitre]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1774&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1774"/>
+	<updated>2011-12-06T10:09:40Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1774</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Synchronisation d'une base client avec une base maitre]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12052#p12052"/>
+		<content type="html"><![CDATA[<p>Vous êtes indirectement multi-maître, puisque vous avez plusieurs bases clientes qui modifient les mêmes données.</p><p>Pour les perfs, je ne peux pas vous dire. Essayez de faire les modifications par lot dans les bases, ça sera plus performant, d&#039;un point de vue réseau et base de données (vous souffrirez moins des latences par exemple).</p><p>Vous n&#039;avez probablement pas perdu votre temps, vous aurez certainement plus de souplesse avec votre solution (et plus de bugs, au début <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /> ).</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-12-06T10:09:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12052#p12052</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Synchronisation d'une base client avec une base maitre]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12051#p12051"/>
+		<content type="html"><![CDATA[<p>Mais dans mon cas, je n&#039;ai pas de multi-maître. J&#039;ai par contre une base &quot;maître&quot; qui va alimenter différentes bases &quot;clientes&quot;.<br />Du coup nous avons développé notre propre processus de synchronisation des données, avec un batch qui sera exécuté via une tâche planifiée coté client.<br />Cela nous permets justement d&#039;affiner les règles métiers, mais je me demande si nous n&#039;avons pas perdu de temps dans le développement, et si les perfs seront satisfaisantes.</p>]]></content>
+		<author>
+			<name><![CDATA[Gold.Strike]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=865</uri>
+		</author>
+		<updated>2011-12-06T10:02:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12051#p12051</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Synchronisation d'une base client avec une base maitre]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12050#p12050"/>
+		<content type="html"><![CDATA[<p>Bucardo, la différence c&#039;est qu&#039;il sait faire du multi-maître.</p><p>Pour la méthode rusée, c&#039;est plutôt générer des choses qui ne peuvent pas être en conflit au niveau applicatif sur les différents serveurs. Ça dépend bien trop de l&#039;application pour que je puisses te donner des exemples <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>Pour la gestion des doublons, je ne suis pas sûr qu&#039;il y ait des bonnes pratiques <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /><br />Il faudra définir des règles métiers, et/ou une interface de résolution des conflits.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-12-06T09:36:02Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12050#p12050</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Synchronisation d'une base client avec une base maitre]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12049#p12049"/>
+		<content type="html"><![CDATA[<p>Je ne connaissais pas Bucardo, quelle est la différence avec Slony?<br />Pour en revenir à mon problème, quand tu parles de &quot;méthode rusée&quot; ca aurait pu consister en quoi? <br />On aurait pu tester la présence d&#039;une donnée coté SERVEUR lors d&#039;un ajout coté CLIENT, mais nous sommes incapables de faire&#160; ce test dans l&#039;autre sens...<br />Du coup, nous sommes obligé de gérer des doublons. Y a t&#039;il de bonnes pratiques ou des outils sur ce sujet?<br />Merci,</p>]]></content>
+		<author>
+			<name><![CDATA[Gold.Strike]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=865</uri>
+		</author>
+		<updated>2011-12-06T08:50:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12049#p12049</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Synchronisation d'une base client avec une base maitre]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12036#p12036"/>
+		<content type="html"><![CDATA[<p>Dès que vous avez une réplication de ce type: 2 serveurs qui peuvent mettre à jour les mêmes données, de façon asynchrone, il faut soit que vous trouviez une méthode rusée pour éviter que les deux serveurs ne génèrent des données en conflits (ce n&#039;est souvent pas possible, et ça n&#039;a pas l&#039;air de l&#039;être dans votre cas), soit gérer les doublons…</p><p>Par ailleurs, si vous partez dans cette direction, jetez un coup d&#039;œil à bucardo si ce n&#039;est pas déjà fait. Il est possible qu&#039;il fasse ce que vous cherchez.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-12-05T08:01:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12036#p12036</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Synchronisation d'une base client avec une base maitre]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12020#p12020"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je souhaite synchroniser 2 bases de données ayant le même schéma :<br />- une base &quot;maître&quot; : sur laquelle&#160; nous saisissons des données &quot;communes&quot;<br />- une base &quot;client&quot; : sur laquelle le client saisi ses propres données</p><p>Ces bases de données contiennent donc 2 types de tables :<br />- les tables &quot;fermées&quot; : que nous sommes les seuls à pouvoir alimenter<br />- les tables &quot;ouvertes&quot; : sur lesquelles le client peut ajouter ses propres enregistrements</p><p>La synchronisation consiste donc à mettre à jour la base &quot;client&quot; avec les données de la base &quot;maître&quot;. Nous utilisons pour cela :<br />- une table &quot;synchronisation&quot; coté serveur, qui contient les champs suivants : id / id_serveur / nom_table / etat / date_maj_serveur =&gt; cette table est mise à jour via des triggers positionnés sur les tables impactées par la synchro<br />- une table &quot;synchronisation&quot; coté client, qui contient les champs suivants : id / id_serveur / id_client / nom_table / date_synchro / modif_client / etat / date_maj_serveur =&gt; cette table est mise à jour via le processus de synchronisation<br />- une table &quot;synchro_entites&quot; coté serveur, qui contient la liste des tables à synchroniser, avec l&#039;ordre associé : id / nom_table / ordre<br />- une table &quot;synchro_discriminants&quot; coté serveur, qui contient les champs correspondant aux discriminants pour chaque table à synchroniser : id / table_id / ordre / nom_champ / type / parametre (si le champ représente un id d&#039;une autre table)</p><p>Les discriminants sont utilisés pour vérifier si une donnée coté serveur corresponds à une donnée coté client lors de la synchronisation.</p><p>=&gt; que pensez vous de cette architecture?</p><p>J&#039;ai cependant du mal avec certaines des tables que nous synchronisons, et qui sont ouvertes aux clients :<br />- contacts : id / nom / prenom / id_typecontact / datenaissance / id_paysnaissance / id_nationalite / ...<br />- club : id / nom / adresse / telephone / id_pays / ville / nomcourt / ...<br />- competition : id / nom / id_zone / id_categorieage / nomcourt / nom5lettres / ...<br />en effet, dans ces cas la, les discriminants reposent sur des champs texte (nom/prénom) ou sur des infos qui ne seront pas forcément saisies par le client (datenaissance/id_nationalite) </p><p>=&gt; comment réduire au maximum les risques de doublons? faut il imposer aux client la saisie d&#039;informations (datenaissance/id_nationlite) dont ils ne disposeront pas forcément?<br />=&gt; la solution est elle de prévoir également une interface de gestion des doublons?</p><p>Merci,</p>]]></content>
+		<author>
+			<name><![CDATA[Gold.Strike]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=865</uri>
+		</author>
+		<updated>2011-12-02T14:45:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12020#p12020</id>
+	</entry>
+</feed>

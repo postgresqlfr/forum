@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / [RESOLU] arret et demarrage de postgres avec pg_ctl]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=762&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=762"/>
+	<updated>2010-04-27T14:55:02Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=762</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] arret et demarrage de postgres avec pg_ctl]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4791#p4791"/>
+		<content type="html"><![CDATA[<p>j&#039;ai fait :</p><div class="codebox"><pre><code>sc start &quot;postgresql-8.4&quot;</code></pre></div><p>Ca démarre maintenant.<br />Merci pour votre aide.</p>]]></content>
+		<author>
+			<name><![CDATA[fanah]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=752</uri>
+		</author>
+		<updated>2010-04-27T14:55:02Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4791#p4791</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] arret et demarrage de postgres avec pg_ctl]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4787#p4787"/>
+		<content type="html"><![CDATA[<p>Vous feriez mieux d&#039;utiliser la commande sc pour diriger le service avec les options start et stop. Je n&#039;ai pas de Windows sous la main mais la syntaxe exacte doit être facile à trouver avec un Windows sous la main.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-04-27T13:43:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4787#p4787</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] arret et demarrage de postgres avec pg_ctl]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4785#p4785"/>
+		<content type="html"><![CDATA[<p>Mon but était de créer un script de sauvegarde à froid.</p><p>- arrêt de la base<br />- copie des fichiers data dans un autre serveur<br />- démarrage de la base</p><p>Lors de l&#039;arrêt je ne spécifie par l&#039;utilisateur postgres et il &#039;n y pas d&#039;erreur, le service s&#039;arrête correctement.</p><div class="codebox"><pre><code>&quot;C:/Program Files/PostgreSQL/8.4/bin/pg_ctl.exe&quot; stop -N &quot;postgresql-8.4&quot; -D &quot;C:/Program Files/PostgreSQL/8.4/data&quot; -m fast -w
+xcopy &quot;C:\Program Files\PostgreSQL\8.4\data&quot; &quot;\\serveur\C$\data&quot;</code></pre></div><p>J&#039;ai ajouté donc dans mon ligne de commande sur le démarrage l&#039;utilisateur.</p><div class="codebox"><pre><code>&quot;C:/Program Files/PostgreSQL/8.4/bin/pg_ctl.exe&quot; start -N &quot;postgresql-8.4&quot; -U postgres -P postgres -D &quot;C:/Program Files/PostgreSQL/8.4/data&quot; -w</code></pre></div><p>Mais l&#039;erreur persiste toujours</p><div class="codebox"><pre><code>en attente du démarrage du serveur...2010-04-26 18:03:52 MSDFATAL:  n&#039;a pas pu créer le journal applicatif « pg_log/postgresql-2010-04-26_180352.log » : Permission denied</code></pre></div><p>Est ce qu&#039;il y pas d&#039;autre commande qui permet de démarrer la base à part pg_ctl ?</p>]]></content>
+		<author>
+			<name><![CDATA[fanah]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=752</uri>
+		</author>
+		<updated>2010-04-27T12:54:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4785#p4785</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] arret et demarrage de postgres avec pg_ctl]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4784#p4784"/>
+		<content type="html"><![CDATA[<p>Oui, s&#039;il a accepté de démarrer ainsi, c&#039;est qu&#039;il a accès avec tous les droits à ce répertoire.</p><p>Ce que cela signifie surtout, c&#039;est que l&#039;option start ne peut pas être utilisé en tant qu&#039;utilisateur lambda. Il faut être postgres pour utiliser cette option. Et dans les autres cas, il faut utiliser l&#039;option runservice car cette dernière exécute le service, qui lui-même est configuré pour utiliser l&#039;utilisateur postgres.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-04-27T12:15:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4784#p4784</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] arret et demarrage de postgres avec pg_ctl]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4783#p4783"/>
+		<content type="html"><![CDATA[<p>Ce qui est étonnant c&#039;est lorsque je démarre le service postgresql-8.4 via services.msc il n&#039;y a pas de message d&#039;erreur, cependant dans la propriété de ce service postgresql-8.4 sur le libellé Chemin d&#039;accès des fichiers exécutables j&#039;ai :</p><div class="codebox"><pre><code>C:/Program Files/PostgreSQL/8.4/bin/pg_ctl.exe runservice -N &quot;postgresql-8.4&quot; -D &quot;C:/Program Files/PostgreSQL/8.4/data&quot; -w</code></pre></div><p>Et le fichier log postgresql-2010-04-27_152300.log a été créé dans le path C:\Program Files\PostgreSQL\8.4\data\pg_log.</p><p>Est-ce que cela ne signifie-t-il pas que postgres a accès a ce path ?</p>]]></content>
+		<author>
+			<name><![CDATA[fanah]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=752</uri>
+		</author>
+		<updated>2010-04-27T11:30:21Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4783#p4783</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] arret et demarrage de postgres avec pg_ctl]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4782#p4782"/>
+		<content type="html"><![CDATA[<p>Il vous dit le contraire. À moins que le service n&#039;indique pas l&#039;utilisateur postgres, mais ce serait étonnant. Essayez de créer un fichier dans pg_log en tant qu&#039;utilisateur postgres, histoire de voir si vous obtenez un message d&#039;erreur.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-04-27T09:28:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4782#p4782</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[[RESOLU] arret et demarrage de postgres avec pg_ctl]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4780#p4780"/>
+		<content type="html"><![CDATA[<p>J’essaie de démarrer ma base avec la ligne de commande ci après:</p><div class="codebox"><pre><code>pg_ctl start -N &quot;postgresql-8.4&quot; -D &quot;C:/Program Files/PostgreSQL/8.4/data&quot; -w</code></pre></div><p>Et j&#039;ai le message d&#039;erreur suivante :</p><div class="codebox"><pre><code>En attente du démarrage du serveur...2010-04-26 18:03:52 MSDFATAL:  n&#039;a pas pu créer le journal applicatif « pg_log/postgresql-2010-04-26_180352.log » : Permission denied</code></pre></div><p>Pourtant, j&#039;ai déjà créé un utilisateur postgres et qui a le contrôle total sur le dossier pg_log.</p><p>Est-ce que quelqu&#039;un peut m&#039;aider ?</p>]]></content>
+		<author>
+			<name><![CDATA[fanah]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=752</uri>
+		</author>
+		<updated>2010-04-27T09:24:09Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4780#p4780</id>
+	</entry>
+</feed>

@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / problème de requêtes imbriquées]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2502&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2502"/>
+	<updated>2013-02-11T15:38:51Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2502</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  problème de requêtes imbriquées]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16527#p16527"/>
+		<content type="html"><![CDATA[<p>Oui j&#039;ai changé le type c_name au text et ça marche très bien <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /><br />Merciii infiniment pour votre aide.</p>]]></content>
+		<author>
+			<name><![CDATA[doha-i2m]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2033</uri>
+		</author>
+		<updated>2013-02-11T15:38:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16527#p16527</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  problème de requêtes imbriquées]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16525#p16525"/>
+		<content type="html"><![CDATA[<p>Oui, la requête SELECT cname FROM classofgeometry WHERE eat = &#039;&#039;-&#039;&#039; renvoie un seul champ, il ne faut donc pas utiliser un type record pour la variable c_name.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2013-02-11T14:34:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16525#p16525</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  problème de requêtes imbriquées]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16524#p16524"/>
+		<content type="html"><![CDATA[<p>le problème n&#039;est pas au niveau des enregistrements car ils sont insérés correctement. mais apparemment le type &#039;record&#039; contient les valeurs avec des parenthèses :</p><div class="quotebox"><blockquote><div><p>begin<br />FOR c_name IN SELECT cname FROM classofgeometry WHERE eat = &#039;&#039;-&#039;&#039;<br />LOOP&#160; <br />&#160; RAISE notice &#039;&#039;Table %&#039;&#039;,c_name;<br />END LOOP;</p></div></blockquote></div><p>affiche :NOTICE:&#160; Table (parc_the_geom)<br />par contre si je met la valeur c_name dans une autre variable de type text: </p><div class="quotebox"><blockquote><div><p>FOR c_name IN SELECT cname FROM classofgeometry WHERE eat = &#039;&#039;-&#039;&#039;<br />LOOP<br />&#160; &#160;SELECT cname into name FROM classofgeometry WHERE eat = &#039;&#039;-&#039;&#039;;<br />&#160; RAISE notice &#039;&#039;Table %&#039;&#039;,name;<br />END LOOP;</p></div></blockquote></div><p>affiche: NOTICE:&#160; Table parc_the_geom</p>]]></content>
+		<author>
+			<name><![CDATA[doha-i2m]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2033</uri>
+		</author>
+		<updated>2013-02-11T14:31:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16524#p16524</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  problème de requêtes imbriquées]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16522#p16522"/>
+		<content type="html"><![CDATA[<p>Je suppose que la table classofgeometry contient les enregistrements comme ça. Il faudrait voir d&#039;où provient cette table, comment elle est remplie etc.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2013-02-11T11:33:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16522#p16522</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  problème de requêtes imbriquées]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16521#p16521"/>
+		<content type="html"><![CDATA[<p>enfin l&#039;exécution marche dans le bon chemin mais le sys cherche la table ayant le nom &quot;(parc_the_geom)&quot; avec les cotes et les parenthèses pas parc_the_geom directement! pourquoi?<br />ERREUR:&#160; la relation « (parc_the_geom) » n&#039;existe pas<br />LINE 1: SELECT the_geom FROM &quot;(parc_the_geom)&quot;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;^</p>]]></content>
+		<author>
+			<name><![CDATA[doha-i2m]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2033</uri>
+		</author>
+		<updated>2013-02-11T11:24:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16521#p16521</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  problème de requêtes imbriquées]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16520#p16520"/>
+		<content type="html"><![CDATA[<p>L&#039;erreur semble plutôt provenir du format(&#039;SELECT the_geom FROM %I&#039;,c_name).</p><br /><p>Avez-vous&#160; bien mis le %I en majuscule ?</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2013-02-11T11:14:21Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16520#p16520</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  problème de requêtes imbriquées]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16519#p16519"/>
+		<content type="html"><![CDATA[<p>j&#039;ai effacé la SELECT devant le EXECUTE , mais une autre erreur apparaissent <img src="http://forums.postgresql.fr/img/smilies/hmm.png" width="15" height="15" alt="hmm" /><br />ERREUR:&#160; spécificateur de conversion « i » inconnu </p><p>je crois qu&#039;il ne comprend pas que le &quot;i&quot; est la valeur de ième c_name !</p><p>(désolé si je vous ai bcq dérangé julien)</p>]]></content>
+		<author>
+			<name><![CDATA[doha-i2m]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2033</uri>
+		</author>
+		<updated>2013-02-11T10:55:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16519#p16519</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  problème de requêtes imbriquées]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16518#p16518"/>
+		<content type="html"><![CDATA[<p>Exact, le SELECT devant le EXECUTE est en trop, j&#039;édite l&#039;exemple au dessus.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2013-02-11T10:05:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16518#p16518</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  problème de requêtes imbriquées]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16517#p16517"/>
+		<content type="html"><![CDATA[<p>Bonjour, <br />merci rjuju mais&#160; il y a une erreur de synthaxe dans votre exemple:<br />ERREUR:&#160; erreur de syntaxe sur ou près de « ( » au niveau de la ligne &quot;FOR thegeom IN SELECT EXECUTE format(&#039;SELECT the_geom FROM %I&#039;,c_name)&quot;</p><p>&quot;SELECT EXECUTE format&quot; n&#039;est pas accepté.</p>]]></content>
+		<author>
+			<name><![CDATA[doha-i2m]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2033</uri>
+		</author>
+		<updated>2013-02-11T09:37:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16517#p16517</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  problème de requêtes imbriquées]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16515#p16515"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>si vous voulez parcourir toutes les valeur de &quot;the_geom&quot; de toutes les tables qui contiennent ce champ, l&#039;utilisation de curseurs risque d&#039;avoir de très mauvaises performances. Quelle est la finalité du traitement ?</p><p>Sinon, si vous voulez utiliser le nom d&#039;une table dans votre boucle, il faut utiliser une requête dynamique. Exemple :</p><div class="codebox"><pre><code>FOR c_name IN SELECT cname FROM classofgeometry WHERE eat = &#039;-&#039;
+LOOP
+  i := 1;
+  FOR thegeom IN EXECUTE format(&#039;SELECT the_geom FROM %I&#039;,c_name)
+  LOOP
+    RAISE notice &#039;Table %, ligne % : %&#039;,c_name,i,thegeom;
+    i := i+1;
+  END LOOP;
+END LOOP;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2013-02-08T20:18:31Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16515#p16515</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  problème de requêtes imbriquées]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16514#p16514"/>
+		<content type="html"><![CDATA[<p>Moi aussi je suis pas fan des requêtes imbriquées mais c ma seule solution. J&#039;ai fait la sous-requête de la clause from&#160; pour obtenir le nom de la table (classeofgeometry contient des noms de classes), le contexte de cette requête est un boucle &quot;for&quot; chaque classe de la table classofgeometry, on veut accéder à l&#039;attribut &quot;the_geom&quot; de chaque table.(on veut parcourir tous les valeurs de &quot;the_geom&quot; de tous les tables de la bases). </p><p>voilà les 2 boucles (un boucle pour parcourir les noms de tables de la base et le 2ème pour parcourir les valeurs de l&#039;attribut &quot;the_geom&quot; que chaque table en contient) :<br />for rec1 in select cname from classofgeometry where eat=&#039;-&#039;<br />loop<br />select cname into c_name from classofgeometry where eat=&#039;-&#039;;<br />for rec2 in select the_geom from <span style="color: #FF0000"> c_name </span><br />loop<br />...</p><p>on veut les rendre dans 1 seul boucle parce que le 2ème boucle de rec2 est fausse; c_name détécté du 1er curseur n&#039;est pas un nom de table(pas accépté par le système). Donc la solution est la suivante:<br />for rec2 in select&#160; the_geom from (select cname from classofgeometry where eat=&#039;-&#039;)as c_name<br />loop<br />....<br /> je ne voit pas que cette requête est fausse, dans sql elle est accéptée, et même dans les tuto pg/sql; il est permis de faire un sous select au niveau de la clause from!</p>]]></content>
+		<author>
+			<name><![CDATA[doha-i2m]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2033</uri>
+		</author>
+		<updated>2013-02-08T14:37:33Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16514#p16514</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  problème de requêtes imbriquées]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16505#p16505"/>
+		<content type="html"><![CDATA[<p>Ben... dans ton from, tu as pas de colonnes the_geom donc... Essaye plutot :<br />select the_geom&#160; from (select cname as the_geom from classofgeometry where eat=&#039;-&#039;) ;<br />Et encore, je suis pas fan des requete imbriqués donc je peux me tromper <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>Edit : Enfait, la requete veut strictement rien dire... je l&#039;a laisse au cas ou mais je pense qu&#039;elle est strictement fausse.<br />Peux tu expliquer plutot ce que tu souhaite faire avec cette requete imbriqué ?</p>]]></content>
+		<author>
+			<name><![CDATA[barthymus]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2066</uri>
+		</author>
+		<updated>2013-02-07T11:26:38Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16505#p16505</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[problème de requêtes imbriquées]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16504#p16504"/>
+		<content type="html"><![CDATA[<p>Bonjour, <br />pg/sql n&#039;accepte pas la requête imbriquée!! <br />ma requete me parait simple : </p><p>select the_geom&#160; from (select cname from classofgeometry where eat=&#039;-&#039;) as c_name;</p><p>mais le message d&#039;erreur affiché est : &quot; ERREUR:&#160; la colonne « the_geom » n&#039;existe pas&quot;!!!</p>]]></content>
+		<author>
+			<name><![CDATA[doha-i2m]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2033</uri>
+		</author>
+		<updated>2013-02-07T10:01:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16504#p16504</id>
+	</entry>
+</feed>

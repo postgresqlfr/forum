@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Résultat query différent Windows Linux MIN() MAX()]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=6235&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=6235"/>
+	<updated>2022-03-07T08:39:44Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=6235</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Résultat query différent Windows Linux MIN() MAX()]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33273#p33273"/>
+		<content type="html"><![CDATA[<p>Merci pour cette information que je n&#039;avais pas vue par moi-même.<br />Après quelques tests, cela semble régler mon problème.</p>]]></content>
+		<author>
+			<name><![CDATA[boubou3131]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=10085</uri>
+		</author>
+		<updated>2022-03-07T08:39:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33273#p33273</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Résultat query différent Windows Linux MIN() MAX()]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33271#p33271"/>
+		<content type="html"><![CDATA[<p>Dans votre cas le tri est effectué par la libc, qui est probablement différente entre linux et windows.&#160; Si vous voulez un comportement plus stable entre différents systèmes d&#039;exploitation je vous conseille d&#039;utiliser ICU pour le tri.&#160; Malheureusement, cela ne peut pas encore être fait de manière globale mais colonne par colonne.&#160; Avec un peu de chance avoir une collation ICU par défaut sera possible en version 15.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2022-03-07T03:27:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33271#p33271</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Résultat query différent Windows Linux MIN() MAX()]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33268#p33268"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />J&#039;ai deux instances postgres <br />PROD raspberry raspy os postgres 11<br />DEV windows postgres 12</p><p>Sur chaque instance j&#039;ai une base UTF8 fr-FR.UTF8</p><p>avec les mêmes données j&#039;ai des résultats différents ave l&#039;utilisation de MIN() et MAX() GROUP BY</p><p>SQL utilisé sur les deux envionnements</p><p>-- Table: public.test</p><p>-- DROP TABLE IF EXISTS public.test;</p><p>CREATE TABLE IF NOT EXISTS public.test<br />(<br />&#160; &#160; col character varying COLLATE pg_catalog.&quot;default&quot;,<br />&#160; &#160; groupe character varying COLLATE pg_catalog.&quot;default&quot;<br />)</p><p>TABLESPACE pi_data;</p><p>interrogation</p><p>TRUNCATE TABLE test;<br />INSERT INTO public.test(col, groupe) VALUES (&#039;JBZ&#039;, &#039;UN&#039;);<br />INSERT INTO public.test(col, groupe) VALUES (&#039;#N/A!&#039;, &#039;UN&#039;);&#160; &#160; <br />INSERT INTO public.test(col, groupe) VALUES (&#039;JBZ&#039;, &#039;DEUX&#039;);<br />INSERT INTO public.test(col, groupe) VALUES (&#039;#N/A!&#039;, &#039;DEUX&#039;);&#160; &#160; <br />SELECT groupe, max(col) FROM test GROUP BY groupe;</p><br /><p>Résultat linux</p><p> groupe |&#160; max<br />--------+-------<br /> DEUX&#160; &#160;| #N/A!<br /> UN&#160; &#160; &#160;| #N/A!<br />(2 lignes)</p><p>Résultat windows</p><p> groupe | max<br />--------+-----<br /> DEUX&#160; &#160;| JBZ<br /> UN&#160; &#160; &#160;| JBZ<br />(2 lignes)</p><p>Interrogation des locales</p><p>identiques</p><p>zigbee=&gt; SHOW lc_collate;<br /> lc_collate<br />-------------<br /> fr_FR.UTF-8<br />(1 ligne)</p><p>zigbee=&gt; SHOW lc_collate;<br /> lc_collate<br />-------------<br /> fr_FR.UTF-8<br />(1 ligne)</p><p>Quelqu&#039;un aurait-il une idée ?</p><p>Merci pour votre aide.</p>]]></content>
+		<author>
+			<name><![CDATA[boubou3131]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=10085</uri>
+		</author>
+		<updated>2022-03-06T17:02:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33268#p33268</id>
+	</entry>
+</feed>

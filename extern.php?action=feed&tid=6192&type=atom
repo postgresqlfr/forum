@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / lo_compat_privileges]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=6192&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=6192"/>
+	<updated>2022-01-13T16:35:21Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=6192</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  lo_compat_privileges]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33118#p33118"/>
+		<content type="html"><![CDATA[<p>J&#039;ai trouvé...</p><p>Voici la ligne GRANT correcte.</p><div class="codebox"><pre><code>        EXECUTE &#039;GRANT SELECT ON LARGE OBJECT &#039; || oid_data.id || &#039; TO &#039; || user_for_grant;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[genamiga]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=255</uri>
+		</author>
+		<updated>2022-01-13T16:35:21Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33118#p33118</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  lo_compat_privileges]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33117#p33117"/>
+		<content type="html"><![CDATA[<p>Parfait ça fonctionne.</p><p>Merci.</p><p>Mais il faut GRANT individuellement pour chaque oid</p><p>J&#039;essaie de faire une petite fonction pour le faire sur tous les oid d&#039;un coup mais j&#039;ai une erreur de syntaxe bizarre</p><div class="codebox"><pre class="vscroll"><code>--------------- SQL ---------------
+
+CREATE OR REPLACE FUNCTION public.grant_select_oid (
+  user_for_grant text
+)
+RETURNS void AS
+$body$
+DECLARE
+	oid_data	RECORD;
+BEGIN
+	FOR oid_data IN
+    	
+	SELECT fichier_data AS &quot;id&quot;
+	FROM articles_fichiers
+        WHERE fichier_data IS NOT NULL
+	UNION
+	SELECT fichier_data_mini AS &quot;id&quot;
+	FROM articles_fichiers
+        WHERE fichier_data_mini IS NOT NULL
+        LIMIT 10
+
+	LOOP
+		GRANT SELECT ON LARGE OBJECT oid_data.id TO user_for_grant; 
+--		RAISE NOTICE &#039;user = %, oid = %&#039;, user_for_grant, oid_data.id;
+	END LOOP;
+END;
+$body$
+LANGUAGE &#039;plpgsql&#039;
+VOLATILE
+CALLED ON NULL INPUT
+SECURITY INVOKER
+PARALLEL UNSAFE
+COST 100;
+
+
+---------- MESSAGE D&#039;ERREUR --------
+
+ERREUR:  erreur de syntaxe sur ou près de « oid_data »
+LINE 15:   GRANT SELECT ON LARGE OBJECT oid_data.id TO user_for_grant...
+                                        ^</code></pre></div><p>Une idée ?</p><p>Merci d&#039;avance.</p>]]></content>
+		<author>
+			<name><![CDATA[genamiga]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=255</uri>
+		</author>
+		<updated>2022-01-13T12:28:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33117#p33117</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  lo_compat_privileges]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33116#p33116"/>
+		<content type="html"><![CDATA[<p>L&#039;alternative, c&#039;est de donner des droits de lecture à chaque large object créé, avec </p><div class="codebox"><pre><code>GRANT SELECT  ON LARGE OBJECT loid  TO role; </code></pre></div><p>C&#039;est le possesseur de l&#039;objet ou un superutilisateur qui doit donner ces droits.</p><p>L&#039;oid est juste le numéro de l&#039;objet. Le fait de pouvoir lire le numéro ou pas est complètement déconnecté du fait de pouvoir lire/écrire l&#039;objet ou pas avec les fonctions dédiées lo*</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2022-01-13T11:54:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33116#p33116</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[lo_compat_privileges]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33115#p33115"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><p>Mais je suis obligé d&#039;activer l&#039;option lo_compat_privileges pour qu&#039;un utilisateur &quot;limité&quot; puise lire les données des &quot;Large Objects&quot;. Malheureusement l&#039;activation de cette option ignore les restrictions d&#039;accès en lecture ET en écriture...</p><p>L&#039;utilisateur a pourtant le droit de lire colonnes oid correspondantes mais cela ne suffit pas.</p><p>J&#039;imagine qu&#039;il faut lui donner le droit de lire les colonnes correspondantes aux données des &quot;Large Objects&quot; dans les tables système.</p><p>Cela me permettrais de ne pas devoir activer cette option et autoriser la lecture seule des &quot;Large Objects&quot; des mais je ne vois pas comment faire...</p><br /><p>Merci d&#039;avance.</p>]]></content>
+		<author>
+			<name><![CDATA[genamiga]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=255</uri>
+		</author>
+		<updated>2022-01-13T08:12:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33115#p33115</id>
+	</entry>
+</feed>

@@ -1,0 +1,691 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Réplication qui ne fonctionne pas, mais pas d'erreurs dans la log]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1122&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1122"/>
+	<updated>2010-12-31T13:48:43Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1122</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Réplication qui ne fonctionne pas, mais pas d'erreurs dans la log]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7199#p7199"/>
+		<content type="html"><![CDATA[<p>Salut, </p><p>Ok, le problème est résolu en faisant ma connexion comme suite :</p><p>psql -p 9999 -h host1 -U postgres base_de_test</p><p>Apparemment il je suis obligé de passer par cette commmande pour que la réplication se fasse. Ca parait logique en même temps.</p><p>Merci gleu pour ton aide ++</p>]]></content>
+		<author>
+			<name><![CDATA[guilm]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1029</uri>
+		</author>
+		<updated>2010-12-31T13:48:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7199#p7199</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Réplication qui ne fonctionne pas, mais pas d'erreurs dans la log]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7194#p7194"/>
+		<content type="html"><![CDATA[<p>Par défaut, sans l&#039;option -h, il utilise une connexion par socket de domaine unix. Sous Debian, il va chercher ça dans /var/run/postgresql. Il devrait la trouver là, or ça n&#039;a pas l&#039;air d&#039;être le cas. Le mieux est certainement de lui passer l&#039;option -h en indiquant l&#039;adresse IP.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-12-30T22:34:29Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7194#p7194</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Réplication qui ne fonctionne pas, mais pas d'erreurs dans la log]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7189#p7189"/>
+		<content type="html"><![CDATA[<p>Bonjour Gleu,</p><div class="quotebox"><cite>gleu a écrit&#160;:</cite><blockquote><div><p>Quand vous dites « je crée une base de données sur un serveur et une table dans ce serveur », comment le faites vous réellement ?</p></div></blockquote></div><p>De mon serveur pgpool sur lequel postgresql est installé, je me connecte en &quot;su postgres&quot; puis je passe la commande de création d&#039;un base de données, mais lorsque je cherche à passer par le port 9999 cela me renvoi le message,</p><div class="codebox"><pre><code> psql: n&#039;a pas pu se connecter au serveur : Aucun fichier ou dossier de ce type
+        Le serveur est-il actif localement et accepte-t-il les connexions sur la
+        socket Unix « /var/run/postgresql/.s.PGSQL.9999 » ?</code></pre></div><p>ce que je ne comprend pas d&#039;ailleur. Par contre lorsque je passe par le port 5432 le port de postgresql, cela fonctionne mais la réplication ne se fait pas (je comprend maintenant pourquoi grâce à ton explication).</p><p>Je pense maintenant que c&#039;est effectivement la manière dont je me connecte qui pose problème.</p><p>Peux tu m&#039;expliquer ce que je ne fais pas correctement.</p><p>Merci</p>]]></content>
+		<author>
+			<name><![CDATA[guilm]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1029</uri>
+		</author>
+		<updated>2010-12-30T15:25:02Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7189#p7189</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Réplication qui ne fonctionne pas, mais pas d'erreurs dans la log]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7176#p7176"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Il y a t il quelque chose à faire pour corriger le&#160; &quot;incomplete startup packet&quot; ?</p></div></blockquote></div><p>À part corriger le client qui se connecte en ne fournissant pas toutes les informations, non. Mais vraiment, aucun intérêt. Ça n&#039;a aucun rapport avec votre problème de réplication.</p><p>Concernant la réplication, je ne vois pas l&#039;intérêt d&#039;avoir deux serveurs pgPool. Vous avez besoin de deux serveurs PostgreSQL et d&#039;un serveur pgpool qui peut se connecter aux deux serveurs PostgreSQL.</p><p>Quand vous dites « je crée une base de données sur un serveur et une table dans ce serveur », comment le faites vous réellement ? vous connectez-vous bien au serveur pgPool et non pas à PostgreSQL directement ? il ne faut pas oublier de passer par le port 9999, qui est le port de pgPool, sinon en effet la réplication ne peut pas fonctionner.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-12-29T22:56:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7176#p7176</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réplication qui ne fonctionne pas, mais pas d'erreurs dans la log]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7164#p7164"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous, </p><p>Je suis un nouvel utilisateur de postgresql 8.4 que je viens tout juste d&#039;installer sur deux serveurs couplé à deux pgpool II-2.2.4 dans le but de faire de la replication et du load balancing.</p><p>Après avoir terminé la configuration de pgpool et postgres pour la réplication, je démarre pour la première fois les services pgpool et postgres, afin de vérifier mon travail. Dans postgres sur le serveur1 je créer une nouvelle base de donnée avec une table, puis je vérifie si la réplication ce fait bien sur le serveur 2. Et ce n&#039;est pas le cas.</p><p>J&#039;ai donc cherché dans la log, afin de touver des indices.</p><p>Log de pgpool : </p><p>pid 639: pgpool successfully started</p><p>Tout semble normal.</p><p>Log de postgres : </p><p>UTC LOG:&#160; database system is ready to accept connections<br />UTC LOG:&#160; autovacuum launcher started<br /><strong>UTC LOG:&#160; incomplete startup packet </strong></p><p>J&#039;ai lu sur ce forum que ce n&#039;était pas une erreur et que ca n&#039;avait pas vraiment d&#039;importance. <br />Mais alors pourquoi ma réplication ne fonctionne pas ? <br />Il y a t il quelque chose à faire pour corriger le&#160; &quot;incomplete startup packet&quot; ?</p><p>En lisant des tutos ca me paraissait simple, mais la sans plus d&#039;indications dans les log je ne vois pas comment continuer.<br />J&#039;ai donc besoin d&#039;un oeil exterieur pour vérifier que rien ne manque.</p><p><strong>Voici ma configuration pgpool sur le serveur 1 : </strong></p><div class="codebox"><pre class="vscroll"><code>#
+# pgpool-II configuration file sample
+# $Header: /cvsroot/pgpool/pgpool-II/pgpool.conf.sample,v 1.26 2009/02/15 05:26:28 t-ishii Exp $
+
+
+# Host name or IP address to listen on: &#039;*&#039; for all, &#039;&#039; for no TCP/IP
+# connections
+
+listen_addresses = &#039;*&#039;
+
+
+# Port number for pgpool
+
+port = 9999
+
+
+# Port number for pgpool communication manager
+
+pcp_port = 9898
+
+
+# Unix domain socket path.  (The Debian package defaults to
+# /var/run/postgresql.)
+
+socket_dir = &#039;/var/run/postgresql&#039;
+
+
+# Unix domain socket path for pgpool communication manager.
+# (Debian package defaults to /var/run/postgresql)
+
+pcp_socket_dir = &#039;/tmp&#039;
+
+
+# Unix domain socket path for the backend. Debian package defaults to /var/run/postgresql!
+
+backend_socket_dir = &#039;/var/run/postgresql&#039;
+
+
+# pgpool communication manager timeout. 0 means no timeout, but strongly not recommended!
+
+pcp_timeout = 300
+
+
+# number of pre-forked child process
+
+num_init_children = 32
+
+
+# Number of connection pools allowed for a child process
+
+max_pool = 4
+
+
+# If idle for this many seconds, child exits.  0 means no timeout.
+
+child_life_time = 300
+
+
+# If idle for this many seconds, connection to PostgreSQL closes.
+# 0 means no timeout.
+
+connection_life_time = 360
+
+
+# If child_max_connections connections were received, child exits.
+# 0 means no exit.
+
+child_max_connections = 0
+
+
+# If client_idle_limit is n (n &gt; 0), the client is forced to be
+# disconnected whenever after n seconds idle (even inside an explicit
+# transactions!)
+# 0 means no disconnect.
+
+client_idle_limit = 0
+
+
+
+# Maximum time in seconds to complete client authentication.
+# 0 means no timeout.
+
+authentication_timeout = 60
+
+
+# Logging directory
+
+logdir = &#039;/var/log/pgpool&#039;
+
+
+# pid file name
+
+pid_file_name = &#039;/var/run/pgpool/pgpool.pid&#039;
+
+
+# Replication mode
+
+replication_mode = true
+replication_strict = true
+replication_timeout = 5000
+
+
+# Load balancing mode, i.e., all SELECTs are load balanced.
+
+# This is ignored if replication_mode is false.
+
+load_balance_mode = false
+
+
+# if there&#039;s a data mismatch between master and secondary
+# start degeneration to stop replication mode
+
+replication_stop_on_mismatch = false
+
+
+# If true, replicate SELECT statement when load balancing is disabled.
+# If false, it is only sent to the master node.
+
+replicate_select = false
+
+
+# Semicolon separated list of queries to be issued at the end of a session
+#reset_query_list = &#039;ABORT; RESET ALL; SET SESSION AUTHORIZATION DEFAULT&#039;
+# for 8.3 or newer PostgreSQL versions DISCARD ALL can be used as
+# follows. However beware that DISCARD ALL holds exclusive lock on
+# pg_listener so it will be a serious performance problem if there are
+# lots of concurrent sessions.
+
+reset_query_list = &#039;ABORT; DISCARD ALL&#039;
+
+
+# If true print timestamp on each log line.
+print_timestamp = true
+
+
+# If true, operate in master/slave mode.
+
+master_slave_mode = false
+
+
+# If true, cache connection pool.
+
+connection_cache = true
+
+
+# Health check timeout.  0 means no timeout.
+
+health_check_timeout = 20
+
+
+# Health check period.  0 means no health check.
+
+health_check_period = 30
+
+
+# Health check user
+
+health_check_user = &#039;postgres&#039;
+
+
+# Execute command by failover.
+# special values:  %d = node id
+#                  %h = host name
+#                  %p = port number
+#                  %D = database cluster path
+#                  %m = new master node id
+#                  %M = old master node id
+#                  %% = &#039;%&#039; character
+#
+
+failover_command = &#039;echo host:%h, node id:%d, port number:%p, database cluster path:%D, new master id:%m, old master id:%M &gt; /var/log/failover.log&#039;
+
+
+# Execute command by failback.
+# special values:  %d = node id
+#                  %h = host name
+#                  %p = port number
+#                  %D = database cluster path
+#                  %m = new master node id
+#                  %M = old master node id
+#                  %% = &#039;%&#039; character
+#
+
+failback_command = &#039;echo host:%h, node id:%d, port number:%p, database cluster path:%D, new master id:%m, old master id:%M &gt; /var/log/failback.log&#039;
+
+
+# If true, automatically locks a table with INSERT statements to keep
+# SERIAL data consistency.  If the data does not have SERIAL data
+# type, no lock will be issued. An /*INSERT LOCK*/ comment has the
+# same effect.  A /NO INSERT LOCK*/ comment disables the effect.
+
+insert_lock = true
+
+
+# If true, ignore leading white spaces of each query while pgpool judges
+# whether the query is a SELECT so that it can be load balanced.  This
+# is useful for certain APIs such as DBI/DBD which is known to adding an
+# extra leading white space.
+
+ignore_leading_white_space = true
+
+
+# If true, print all statements to the log.  Like the log_statement option
+# to PostgreSQL, this allows for observing queries without engaging in full
+# debugging.
+
+log_statement = true
+
+
+# If true, incoming connections will be printed to the log.
+
+log_connections = true
+
+
+# If true, hostname will be shown in ps status. Also shown in
+# connection log if log_connections = true.
+# Be warned that this feature will add overhead to look up hostname.
+
+log_hostname = true
+
+
+# if non 0, run in parallel query mode
+
+parallel_mode = false
+
+
+# if non 0, use query cache
+
+enable_query_cache = false
+
+
+#set pgpool2 hostname 
+
+pgpool2_hostname = &#039;&#039;
+
+
+# system DB info
+
+system_db_hostname = &#039;localhost&#039;
+system_db_port = 5432
+system_db_dbname = &#039;pgpool&#039;
+system_db_schema = &#039;pgpool_catalog&#039;
+system_db_user = &#039;postgres&#039;
+system_db_password = &#039;&#039;
+
+
+# backend_hostname, backend_port, backend_weight
+# here are examples
+#backend_hostname0 = &#039;host1&#039;
+#backend_port0 = 5432
+#backend_weight0 = 1
+#backend_data_directory0 = &#039;/data&#039;
+#backend_hostname1 = &#039;host2&#039;
+#backend_port1 = 5433
+#backend_weight1 = 1
+#backend_data_directory1 = &#039;/data1&#039;
+
+
+backend_hostname0 = &#039;localhost&#039;
+backend_port0 = 5432
+backend_weight0 = 1
+backend_data_directory0 = &#039;/var/lib/postgresql/8.4/main&#039;
+backend_hostname1 = &#039;pgpool2&#039;
+backend_port1 = 5432
+backend_weight1 = 1
+backend_data_directory1 = &#039;/var/lib/postgresql/8.4/main&#039;
+
+
+# - HBA -
+
+
+# If true, use pool_hba.conf for client authentication. In pgpool-II
+# 1.1, the default value is false. The default value will be true in
+# 1.2.
+
+enable_pool_hba = false
+
+
+# - online recovery -
+# online recovery user
+
+recovery_user = &#039;postgres&#039;
+
+
+# online recovery password
+
+recovery_password = &#039;&#039;
+
+
+# execute a command in first stage.
+
+recovery_1st_stage_command = &#039;copy_base_backup&#039;
+
+
+# execute a command in second stage.
+
+recovery_2nd_stage_command = &#039;pgpool_recovery_pitr&#039;
+
+
+# maximum time in seconds to wait for the recovering node&#039;s postmaster
+# start-up. 0 means no wait.
+# this is also used as a timer waiting for clients disconnected before
+# starting 2nd stage
+
+recovery_timeout = 90
+
+
+# If client_idle_limit_in_recovery is n (n &gt; 0), the client is forced
+# to be disconnected whenever after n seconds idle (even inside an
+# explicit transactions!)  0 means no disconnect. This parameter only
+# takes effect in recovery 2nd stage.
+client_idle_limit_in_recovery = 0</code></pre></div><p><strong>Voici ma configuration pgpool sur le serveur 2 : </strong></p><div class="codebox"><pre class="vscroll"><code>#
+# pgpool-II configuration file sample
+# $Header: /cvsroot/pgpool/pgpool-II/pgpool.conf.sample,v 1.26 2009/02/15 05:26:28 t-ishii Exp $
+
+
+# Host name or IP address to listen on: &#039;*&#039; for all, &#039;&#039; for no TCP/IP
+# connections
+
+listen_addresses = &#039;*&#039;
+
+
+# Port number for pgpool
+
+port = 9999
+
+
+# Port number for pgpool communication manager
+
+pcp_port = 9898
+
+
+# Unix domain socket path.  (The Debian package defaults to
+# /var/run/postgresql.)
+
+socket_dir = &#039;/var/run/postgresql&#039;
+
+
+# Unix domain socket path for pgpool communication manager.
+# (Debian package defaults to /var/run/postgresql)
+
+pcp_socket_dir = &#039;/tmp&#039;
+
+
+# Unix domain socket path for the backend. Debian package defaults to /var/run/postgresql!
+
+backend_socket_dir = &#039;/var/run/postgresql&#039;
+
+
+# pgpool communication manager timeout. 0 means no timeout, but strongly not recommended!
+
+pcp_timeout = 300
+
+
+# number of pre-forked child process
+
+num_init_children = 32
+
+
+# Number of connection pools allowed for a child process
+
+max_pool = 4
+
+
+# If idle for this many seconds, child exits.  0 means no timeout.
+
+child_life_time = 300
+
+
+# If idle for this many seconds, connection to PostgreSQL closes.
+# 0 means no timeout.
+
+connection_life_time = 360
+
+
+# If child_max_connections connections were received, child exits.
+# 0 means no exit.
+
+child_max_connections = 0
+
+
+# If client_idle_limit is n (n &gt; 0), the client is forced to be
+# disconnected whenever after n seconds idle (even inside an explicit
+# transactions!)
+# 0 means no disconnect.
+
+client_idle_limit = 0
+
+
+# Maximum time in seconds to complete client authentication.
+
+# 0 means no timeout.
+
+authentication_timeout = 60
+
+
+# Logging directory
+
+logdir = &#039;/var/log/pgpool&#039;
+
+
+# pid file name
+
+pid_file_name = &#039;/var/run/pgpool/pgpool.pid&#039;
+
+
+# Replication mode
+replication_mode = true
+replication_strict = true
+replication_timeout = 5000
+
+
+# Load balancing mode, i.e., all SELECTs are load balanced.
+# This is ignored if replication_mode is false.
+
+load_balance_mode = false
+
+
+# if there&#039;s a data mismatch between master and secondary
+# start degeneration to stop replication mode
+
+replication_stop_on_mismatch = false
+
+
+# If true, replicate SELECT statement when load balancing is disabled.
+# If false, it is only sent to the master node.
+
+replicate_select = false
+
+
+# Semicolon separated list of queries to be issued at the end of a session
+#reset_query_list = &#039;ABORT; RESET ALL; SET SESSION AUTHORIZATION DEFAULT&#039;
+# for 8.3 or newer PostgreSQL versions DISCARD ALL can be used as
+# follows. However beware that DISCARD ALL holds exclusive lock on
+# pg_listener so it will be a serious performance problem if there are
+# lots of concurrent sessions.
+
+reset_query_list = &#039;ABORT; DISCARD ALL&#039;
+
+
+# If true print timestamp on each log line.
+
+print_timestamp = true
+
+
+# If true, operate in master/slave mode.
+
+master_slave_mode = false
+
+
+# If true, cache connection pool.
+
+connection_cache = true
+
+
+# Health check timeout.  0 means no timeout.
+
+health_check_timeout = 20
+
+
+# Health check period.  0 means no health check.
+
+health_check_period = 30
+
+
+# Health check user
+
+health_check_user = &#039;postgres&#039;
+
+
+# Execute command by failover.
+
+# special values:  %d = node id
+#                  %h = host name
+#                  %p = port number
+#                  %D = database cluster path
+#                  %m = new master node id
+#                  %M = old master node id
+#                  %% = &#039;%&#039; character
+#
+
+failover_command = &#039;echo host:%h, node id:%d, port number:%p, database cluster path:%D, new master id:%m, old master id:%M &gt; /var/log/failover.log&#039;
+
+
+# Execute command by failback.
+
+# special values:  %d = node id
+#                  %h = host name
+#                  %p = port number
+#                  %D = database cluster path
+#                  %m = new master node id
+#                  %M = old master node id
+#                  %% = &#039;%&#039; character
+#
+
+failback_command = &#039;echo host:%h, node id:%d, port number:%p, database cluster path:%D, new master id:%m, old master id:%M &gt; /var/log/failover.log&#039;
+
+
+# If true, automatically locks a table with INSERT statements to keep
+# SERIAL data consistency.  If the data does not have SERIAL data
+# type, no lock will be issued. An /*INSERT LOCK*/ comment has the
+# same effect.  A /NO INSERT LOCK*/ comment disables the effect.
+
+insert_lock = true
+
+
+# If true, ignore leading white spaces of each query while pgpool judges
+# whether the query is a SELECT so that it can be load balanced.  This
+# is useful for certain APIs such as DBI/DBD which is known to adding an
+# extra leading white space.
+
+ignore_leading_white_space = true
+
+
+# If true, print all statements to the log.  Like the log_statement option
+# to PostgreSQL, this allows for observing queries without engaging in full
+# debugging.
+
+log_statement = true
+
+
+# If true, incoming connections will be printed to the log.
+
+log_connections = true
+
+
+# If true, hostname will be shown in ps status. Also shown in
+# connection log if log_connections = true.
+# Be warned that this feature will add overhead to look up hostname.
+
+log_hostname = true
+
+
+# if non 0, run in parallel query mode
+
+parallel_mode = false
+
+
+# if non 0, use query cache
+
+enable_query_cache = false
+
+
+#set pgpool2 hostname 
+
+pgpool2_hostname = &#039;&#039;
+
+
+# system DB info
+
+system_db_hostname = &#039;localhost&#039;
+system_db_port = 5432
+system_db_dbname = &#039;pgpool&#039;
+system_db_schema = &#039;pgpool_catalog&#039;
+system_db_user = &#039;postgres&#039;
+system_db_password = &#039;&#039;
+
+
+# backend_hostname, backend_port, backend_weight
+# here are examples
+#backend_hostname0 = &#039;host1&#039;
+#backend_port0 = 5432
+#backend_weight0 = 1
+#backend_data_directory0 = &#039;/data&#039;
+#backend_hostname1 = &#039;host2&#039;
+#backend_port1 = 5433
+#backend_weight1 = 1
+#backend_data_directory1 = &#039;/data1&#039;
+
+
+
+
+backend_hostname0 = &#039;pgpool1&#039;
+backend_port0 = 5432
+backend_weight0 = 1
+backend_data_directory0 = &#039;/var/lib/postgresql/8.4/main&#039;
+backend_hostname1 = &#039;localhost&#039;
+backend_port1 = 5432
+backend_weight1 = 1
+backend_data_directory1 = &#039;/var/lib/postgresql/8.4/main&#039;
+
+
+# - HBA -
+
+
+# If true, use pool_hba.conf for client authentication. In pgpool-II
+# 1.1, the default value is false. The default value will be true in
+# 1.2.
+
+enable_pool_hba = false
+
+
+# - online recovery -
+# online recovery user
+
+recovery_user = &#039;postgres&#039;
+
+
+# online recovery password
+
+recovery_password = &#039;&#039;
+
+
+# execute a command in first stage.
+
+recovery_1st_stage_command = &#039;copy_base_backup&#039;
+
+
+# execute a command in second stage.
+
+recovery_2nd_stage_command = &#039;pgpool_recovery_pitr&#039;
+
+
+# maximum time in seconds to wait for the recovering node&#039;s postmaster
+# start-up. 0 means no wait.
+# this is also used as a timer waiting for clients disconnected before
+# starting 2nd stage
+
+recovery_timeout = 90
+
+
+# If client_idle_limit_in_recovery is n (n &gt; 0), the client is forced
+# to be disconnected whenever after n seconds idle (even inside an
+# explicit transactions!)  0 means no disconnect. This parameter only
+# takes effect in recovery 2nd stage.
+client_idle_limit_in_recovery = 0</code></pre></div><p>Merci de votre aide.</p>]]></content>
+		<author>
+			<name><![CDATA[guilm]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1029</uri>
+		</author>
+		<updated>2010-12-29T13:05:06Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7164#p7164</id>
+	</entry>
+</feed>

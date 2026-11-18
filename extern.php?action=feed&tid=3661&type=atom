@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / ecpg : indicateur (variable indicatrice) et type varchar]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3661&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3661"/>
+	<updated>2015-10-05T16:06:18Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3661</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ecpg : indicateur (variable indicatrice) et type varchar]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22504#p22504"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>La réponse de la part de Michael Meskes :<br />&quot;<br />&gt; Why the indicator equals 0 (is not strictly positive) and the value is<br />&gt; truncated (modified) ?</p><p>Because according to standard C types it is not truncated. The string does<br />have more digits tha a flot can handle, but they are all valid, i.e. a<br />convesion does correctly eat them all but the internal representation is not<br />able to store them all.</p><p>You bring up an interesting point here, the data is not exactly truncated, it<br />is just rounded. Not sure what (if anything) the standard says.</p><p>&gt; Why this error message whereas an example is given in the PostgreSQL 9.4<br />&gt; documentation (see above) ?</p><p>I guess the documentation is wrong, but I have to look into it. Normally the<br />varchar type needs a length (as an array of char) or it will become a pointer<br />to char.<br />&quot;</p>]]></content>
+		<author>
+			<name><![CDATA[jacques]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1066</uri>
+		</author>
+		<updated>2015-10-05T16:06:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22504#p22504</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[ecpg : indicateur (variable indicatrice) et type varchar]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22491#p22491"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Dans le cadre de tests avec ecpg (PostgreSQL 9.4.0) 4.10.0, j&#039;ai rencontré deux difficultés :</p><br /><p>===&gt; Primo :<br />test sur valeur de l&#039;indicateur (variable indicatrice de marqueur NULL) d&#039;une variable float</p><br /><p>Le programme ecpg :<br />=================<br />...<br />connexion();</p><br /><p>EXEC SQL BEGIN DECLARE SECTION;<br />float ff;<br />int i_ff;<br />EXEC SQL END DECLARE SECTION;</p><br /><p>EXEC SQL SELECT 1256898899999885888855424885522.125666666558855555555555555555555555555554458955 INTO :ff :i_ff ;</p><br /><p>if (i_ff == 0) printf(&quot;indicateur 0 ; résultat valeur ind : %f %d \n&quot;, ff, i_ff);<br />if (i_ff &gt; 0) printf(&quot;indicateur positif (valeur tronquee) ; résultat valeur ind : %f %d \n&quot;, ff, i_ff);</p><br /><p>return 0;</p><br /><p>Le résultat du lancement de l&#039;exécutable :<br />========================================<br />indicateur 0 ; résultat valeur ind : 1256898867335759245102806990848.000000 0 </p><br /><p>La question :<br />===========<br />Pourquoi l&#039;indicateur vaut 0 (n&#039;est donc pas strictement positif) alors que la valeur est tronquée (modifiée) ?</p><br /><br /><br /><p>===&gt; Secundo :<br />test sur variable varchar</p><p>Selon <a href="http://docs.postgresqlfr.org/9.4/ecpg-variables.html" rel="nofollow">http://docs.postgresqlfr.org/9.4/ecpg-variables.html</a>, paragrahe &quot; 33.4.6. Indicateurs &quot; :<br />&quot;<br />EXEC SQL BEGIN DECLARE SECTION;<br />VARCHAR val;<br />int val_ind;<br />EXEC SQL END DECLARE SECTION:<br /> ...<br />EXEC SQL SELECT b INTO :val :val_ind FROM test1;<br />&quot;</p><br /><p>Le programme ecpg :<br />=================<br />...<br />connexion();</p><br /><p>EXEC SQL BEGIN DECLARE SECTION;<br />varchar vv;<br />int i_vv;<br />EXEC SQL END DECLARE SECTION;</p><br /><p>EXEC SQL SELECT &#039;ceci est une chaine de caracteres&#039; INTO :vv :i_vv ;</p><br /><p>return 0;</p><br /><p>A la pré-compilation ecpg :<br />=========================<br />ERREUR : les pointeurs sur des chaînes de caractères (varchar) ne sont pas implantés</p><br /><p>Question :<br />========<br />Pourquoi ce message d&#039;erreur alors qu&#039;un exemple est donné dans la doc. PostgreSQL 9.4 citée ci-avant ?</p><br /><p>Merci par avance.</p>]]></content>
+		<author>
+			<name><![CDATA[jacques]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1066</uri>
+		</author>
+		<updated>2015-10-01T11:09:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22491#p22491</id>
+	</entry>
+</feed>

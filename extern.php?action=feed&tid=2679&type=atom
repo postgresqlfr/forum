@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Ecriture de données avec PHP et clés étrangères]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2679&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2679"/>
+	<updated>2013-06-18T17:59:33Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2679</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Ecriture de données avec PHP et clés étrangères]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17509#p17509"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />un exemple&#160; : </p><div class="codebox"><pre><code>$sql = &quot;insert into licencie(id_licencie,id_identite,qualif_cartet,diplome,discipline)
+values(default,$identiter,&#039;$carte_pro&#039;,&#039;$diplome&#039;,&#039;$discipline&#039;)returning id_licencie&quot;;
+$result = pg_query($db, $sql);
+ if (!$result) {
+             die(&quot;Erreur SQL: &quot; . pg_last_error());
+   }
+$ligne = pg_fetch_row($result);
+$id_licencie = $ligne[0];</code></pre></div><br /><p>Alex</p>]]></content>
+		<author>
+			<name><![CDATA[MitsuTomoe]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1680</uri>
+		</author>
+		<updated>2013-06-18T17:59:33Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17509#p17509</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Ecriture de données avec PHP et clés étrangères]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17507#p17507"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>je pense que vous faîtes une confusion entre une clé primaire et un champ qui s&#039;incrémente automatiquement. Vous avez du utiliser un type «serial» ou «bigserial» pour ce champs, ce qui implique la création d&#039;une séquence.</p><br /><p>Donc si vous voulez affecter plusieurs agents à une intervention, il faudra récupérer la valeur renvoyée par le INSERT ... RETURNING..., et boucler sur la liste de vos agent, ou idéalement générer une seule requête. Vous pouvez également manipuler la séquence à la main si vous le préférez ( fonction nextval(&#039;nom_sequence&#039;), voir <a href="http://docs.postgresql.fr/9.2/functions-sequence.html)" rel="nofollow">http://docs.postgresql.fr/9.2/functions-sequence.html)</a>.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2013-06-18T15:02:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17507#p17507</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Ecriture de données avec PHP et clés étrangères]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17506#p17506"/>
+		<content type="html"><![CDATA[<p>Re,</p><br /><p>Après une journée de recherches, impossible de mettre le doigt sur un cas d&#039;école... Et pourtant, ça doit être une situation courante. Je tourne autour du pot avec la clause <strong>RETURNING</strong> [ colonne ] qui permet à une instruction SELECT / INSERT de renvoyer la valeur serial affectée par le SGBD. Mais je ne vois pas comment gérer ça en PHP...</p><br /><p>Si je reprends mon exemple du premier message, je peux avoir plusieurs agents pour une même intervention. Cela signifie que la création d&#039;une ligne dans la table <strong>intervention</strong> peut impliquer la création de plusieurs lignes dans la table <strong>intervention_agent</strong>...</p><br /><p>Si quelqu&#039;un a une idée, vraiment je suis en galère !</p><br /><p>Merci !</p><br /><p>Thomas</p>]]></content>
+		<author>
+			<name><![CDATA[Thomas Williamson]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2202</uri>
+		</author>
+		<updated>2013-06-18T14:47:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17506#p17506</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Ecriture de données avec PHP et clés étrangères]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17497#p17497"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><p>Je travaille sur la création d&#039;une base de données qui sera alimentée par des formulaires HTML/CSS avec du PHP pour la récupération des informations saisies et l&#039;écriture dans la base (classique, j&#039;imagine). Je m&#039;interroge sur la gestion des clés étrangères. Un exemple simple avec les tables suivantes :</p><br /><p>- <strong>intervention</strong> (<span style="color: #FF0000">int_id</span>, int_date, int_type)</p><p>- <strong>agent</strong> (<span style="color: blue">age_id</span>, age_prenom, age_nom)</p><p>- <strong>intervention_agent</strong> (<span style="color: #FF0000">int_id</span>, <span style="color: blue">age_id</span>)</p><br /><p>La table <strong>intervention_agent</strong> stocke les correspondances entre les tables <strong>intervention</strong> et <strong>agent</strong> car il peut y avoir plusieurs agents pour une même intervention.</p><br /><p>En PHP, je procède de la manière suivante (volontairement simplifiée mais c&#039;est pour le principe) :</p><br /><p>1. Récupération des informations saisies dans des variables</p><div class="codebox"><pre><code>$date = $_POST[&#039;date&#039;];
+$type = $_POST[&#039;type&#039;];
+$prenom = $_POST[&#039;prenom&#039;];
+$nom = $_POST[&#039;nom&#039;];</code></pre></div><br /><p>2. Requêtes d&#039;écriture des informations dans les tables :</p><div class="codebox"><pre><code>$rqt_intervention = $bdd-&gt;prepare(&#039;INSERT INTO intervention (int_id, int_date, int_type) VALUES (&#039;&#039;, &#039;$date&#039;, &#039;$type&#039;);&#039;);
+$rqt_intervention-&gt;execute();
+
+$rqt_intervention_agent = $bdd-&gt;prepare(&#039;INSERT INTO intervention_agent (int_id, age_id) VALUES ( ??? );&#039;);
+$rqt_intervention_agent-&gt;execute();</code></pre></div><br /><p>Comment se gère l&#039;écriture des clés étrangères dans la table <strong>intervention_agent</strong> ? En effet, j&#039;ai bien paramétré les champs <strong>int_id</strong> et <strong>age_id</strong> comme clés primaires dans PostgreSQL, donc mes requêtes d&#039;écriture laissent vides ces champs qui seront automatiquement numérotés à la suite par PostgreSQL lors de l&#039;écriture. Mais quelles valeurs dois-je indiquer dans ma requête d&#039;écriture dans la table <strong>intervention_agent</strong> (cf. mes points d&#039;interrogation dans la dernière requête ci-dessus) ? Là, je ne vois pas bien comment ça se passe, sur le principe...</p><br /><p>Merci par avance pour votre aide !</p><br /><p>Thomas</p>]]></content>
+		<author>
+			<name><![CDATA[Thomas Williamson]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2202</uri>
+		</author>
+		<updated>2013-06-18T07:51:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17497#p17497</id>
+	</entry>
+</feed>

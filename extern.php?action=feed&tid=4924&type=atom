@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / pg_clog : impossible lecture : Input/output error]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4924&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4924"/>
+	<updated>2018-10-12T13:59:00Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4924</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pg_clog : impossible lecture : Input/output error]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28412#p28412"/>
+		<content type="html"><![CDATA[<p>Merci , en fin de compte on a restauré la table sans les lignes corrompues. <br />Merci à tous</p>]]></content>
+		<author>
+			<name><![CDATA[duple]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7434</uri>
+		</author>
+		<updated>2018-10-12T13:59:00Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28412#p28412</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pg_clog : impossible lecture : Input/output error]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28409#p28409"/>
+		<content type="html"><![CDATA[<p>Je n&#039;en vois pas d&#039;autres mais c&#039;est difficile à dire sans accéder à la machine et y passer un peu de temps. Pour créer ce fichier, je vois bien cette commande :</p><div class="codebox"><pre><code>dd if=/dev/zero of=00F4 count=1 bs=8192</code></pre></div><p>Faites d&#039;abord une copie intégrale de vos fichiers PostgreSQL (donc le PGDATA et les tablespaces).</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2018-10-11T20:19:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28409#p28409</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pg_clog : impossible lecture : Input/output error]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28408#p28408"/>
+		<content type="html"><![CDATA[<p>Ca ne le fait pas il existe egalement d&#039;autre id corrompu.<br />Je reprend : donc la seule solution est elle remplacer 00f4 évoquait plus haut ? Comment cré t-on ce fichier de remplacement ?</p>]]></content>
+		<author>
+			<name><![CDATA[duple]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7434</uri>
+		</author>
+		<updated>2018-10-11T10:49:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28408#p28408</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pg_clog : impossible lecture : Input/output error]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28407#p28407"/>
+		<content type="html"><![CDATA[<p>ah une autre idée faire un select en specifiant carrément la clé, donc de prendre le max(id) et select where id in (id_corrompu+1,&#160; id_corrompu+2, .. max(id)) je teste</p>]]></content>
+		<author>
+			<name><![CDATA[duple]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7434</uri>
+		</author>
+		<updated>2018-10-11T10:30:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28407#p28407</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pg_clog : impossible lecture : Input/output error]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28406#p28406"/>
+		<content type="html"><![CDATA[<p>Je ne peux même pas faire un select * from table_corrompu where id &lt;&gt; id_corrompu ni un select * from table_corrompu where id &gt; id_corrompu.<br />Il doit faire un fullscan le truc et çà pête.</p><p>donc la seule solution est elle remplacer 00f4 évoquait plus haut ? Comment cré t-on ce fichier de remplacement ?</p>]]></content>
+		<author>
+			<name><![CDATA[duple]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7434</uri>
+		</author>
+		<updated>2018-10-11T10:23:00Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28406#p28406</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pg_clog : impossible lecture : Input/output error]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28405#p28405"/>
+		<content type="html"><![CDATA[<p>Vous ne pourrez pas faire un DELETE de la ligne et un VACUUM FULL ne changera rien à ma connaissance. Dans ce cas, le mieux est de sauvegarder toute la base, sauf la table problématique, puis sauvegarder la table avec un COPY (SELECT... WHERE filtrant la ligne qui pose problème). Comme ça, vous aurez un dump propre. Il serait bien de tester que vous pouvez restaurer ce dump. Puis remplacement du disque, création d&#039;une instance PostgreSQL et restauration du dump.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2018-10-11T09:38:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28405#p28405</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pg_clog : impossible lecture : Input/output error]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28404#p28404"/>
+		<content type="html"><![CDATA[<p>gleu &gt; Merci pour ta réponse Guillaume.</p><p>En parcourant une à une les enregistrement de la table en question, on connait maintenant la ligne (1 champs dans cette ligne) qui pose problème.<br />Si je fais un DELETE de cette ligne et que je lance ensuite un VACUUM FULL sur la table, est ce que cela pourrait résoudre le problème ?</p>]]></content>
+		<author>
+			<name><![CDATA[duple]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7434</uri>
+		</author>
+		<updated>2018-10-11T08:39:50Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28404#p28404</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pg_clog : impossible lecture : Input/output error]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28403#p28403"/>
+		<content type="html"><![CDATA[<p>Il n&#039;y a pas de solution simple. Les fichiers CLOG contiennent les informations de statut des transactions. Sans eux, PostgreSQL ne sait pas quels lignes sont visibles et quels lignes sont invisibles. Le seul truc à tester est de renommer 00F4 puis de créer un fichier 00F4 de la bonne taille et rempli d&#039;octets nuls. Vous devriez pouvoir faire un dump mais vous ne retrouverez pas toutes les données. Il est même tout à fait possible que le dump ne soit pas complètement restaurable en cas de violation de certaines contraintes.</p><p>Et du coup, il va falloir vérifier ce disque et probablement à coup sûr le remplacer.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2018-10-11T07:33:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28403#p28403</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  pg_clog : impossible lecture : Input/output error]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28402#p28402"/>
+		<content type="html"><![CDATA[<p>Petite rectification : postgresql 9.4.5 mais non 9.3.5 <br />Personne une solution ?</p>]]></content>
+		<author>
+			<name><![CDATA[duple]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7434</uri>
+		</author>
+		<updated>2018-10-11T07:05:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28402#p28402</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[pg_clog : impossible lecture : Input/output error]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28401#p28401"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je rencontre l&#039;erreur suivant lors d&#039;un dump sur une base de données particulière sur une table contenant des données binaire (ex: image, pdf,...) de type bytea.<br />Voici l&#039;erreur en question: <br />pg_dump: Error message from server: ERROR:&#160; could not access status of transaction 256212738<br />DETAIL:&#160; Could not read from file &quot;pg_clog/00F4&quot; at offset 81920: Input/output error.</p><p>En regardant dans PGDATA/pg_clog le fichier 00F4 existe bien mais ne peut être lu.<br />Ex: un less pg_clog/00F4 renvoie l&#039;erreur : read error</p><p>Environnement sous linux, version postgresql 9.3.5.</p><p>Sachant qu&#039;il n&#039;y a pas de sauvegarde dump à restaurer, est ce qu&#039;il existe un moyen pour corriger le problème svp ?</p>]]></content>
+		<author>
+			<name><![CDATA[duple]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7434</uri>
+		</author>
+		<updated>2018-10-10T16:08:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28401#p28401</id>
+	</entry>
+</feed>

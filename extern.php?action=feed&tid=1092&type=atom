@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Archivelog : Quand sont purgés les logs ?]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1092&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1092"/>
+	<updated>2010-12-10T09:48:27Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1092</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Archivelog : Quand sont purgés les logs ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6943#p6943"/>
+		<content type="html"><![CDATA[<p>Ok pour le resetxlogs. C&#039;est juste que vu que c&#039;est un forum, il vaut mieux ne pas laisser trainer de &#039;fausses bonnes idées&#039;, au cas où quelqu&#039;un ferait une recherche <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-12-10T09:48:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6943#p6943</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Archivelog : Quand sont purgés les logs ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6942#p6942"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>Marc Cousin a écrit&#160;:</cite><blockquote><div><p>Ne touchez pas à pg_resetxlog, ce n&#039;est pas fait pour ça. Vous n&#039;avez aucune garantie de cohérence des données après cette commande.</p></div></blockquote></div><p>Oui oui, j&#039;ai bien compris ^^ Mais comme dit plus haut, je ne fais que des tests, j&#039;en ai profité pour voir comment marchait resetxlog. </p><div class="quotebox"><cite>Marc Cousin a écrit&#160;:</cite><blockquote><div><p>Après y avoir regardé de plus près, êtes vous sûr de votre restore_command ?</p></div></blockquote></div><p>Gronk ! Je l&#039;avais sous les yeux mais je ne lisais que ce que j&#039;était persuadé avoir écrit, et non pas ce que j&#039;avais réellement écrit...</p><p>Merci.</p>]]></content>
+		<author>
+			<name><![CDATA[herve.lefebvre]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=506</uri>
+		</author>
+		<updated>2010-12-10T09:46:50Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6942#p6942</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Archivelog : Quand sont purgés les logs ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6941#p6941"/>
+		<content type="html"><![CDATA[<p>pg_stop_backup execute déjà un checkpoint.</p><p>Ne touchez pas à pg_resetxlog, ce n&#039;est pas fait pour ça. Vous n&#039;avez aucune garantie de cohérence des données après cette commande. Ce n&#039;est pas parce que cette commande ne vous retourne pas d&#039;erreurs que vous n&#039;aurez pas de problème.</p><p>Après y avoir regardé de plus près, êtes vous sûr de votre restore_command ?</p><p>&#039;test ! -f /data/postgresql/archlog/%f &amp;&amp; cp /data/postgresql/archlog/%f %p&#039;</p><p>=&gt; Cela teste si le chemin demandé est un fichier. Si ce n&#039;en est pas un, cela effectue la recopie. Je présume que ce n&#039;est pas vraiment ce que vous souhaitez faire.</p><p>Contentez vous du cp. Le test n&#039;a aucun intérêt de toutes façons, cp retournera une erreur que PostgreSQL interprétera, si le fichier n&#039;est pas là</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-12-10T06:44:31Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6941#p6941</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Archivelog : Quand sont purgés les logs ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6940#p6940"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>Marc Cousin a écrit&#160;:</cite><blockquote><div><p>Ok, alors point suivant à vérifier: cette archive introuvable n&#039;a t&#039;elle pas été générée pendant le backup (avant le pg_stop_backup() ) ?<br />On a besoin de toutes les archives générées PENDANT le backup (dont la dernière, qui est générée durant le pg_stop_backup() ).</p></div></blockquote></div><p>Ok ; ça doit être ça alors.</p><p>Est-ce qu&#039;un CHECKPOINT après le pg_stop_backup() me garantira du coup qu&#039;a la fin du batch de sauvegarde, il peut se passer n&#039;importe quoi dans les minutes qui suivent, on a de quoi restaurer la base ?</p><br /><p>Edit : Ben non, ça peut pas être ça en fait.</p><p>Parce que j&#039;ai fait la sauvegarde, et après j&#039;ai fait un DROP TABLE TOTO qui contenait 10 millions de lignes ; puis un CREATE TABLE TITI avec ensuite l&#039;insertion de 5 millions de lignes.</p><p>Ca m&#039;a généré une bone douzaines de WAL dont seul le dernier n&#039;a pas été archivé.</p><p>C&#039;est après ça que j&#039;ai fait mon rm -rf des fichiers data.</p><p>Finalement, j&#039;ai testé pg_resetxlog pour voir ^ ^ ; ça a bien marché, et j&#039;ai récupéré la base sans la table toto, mais avec la table titi complète (5 millions de lignes).</p><p>Bon, je vais retester ça demain matin...</p>]]></content>
+		<author>
+			<name><![CDATA[herve.lefebvre]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=506</uri>
+		</author>
+		<updated>2010-12-09T20:24:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6940#p6940</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Archivelog : Quand sont purgés les logs ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6939#p6939"/>
+		<content type="html"><![CDATA[<p>Ok, alors point suivant à vérifier: cette archive introuvable n&#039;a t&#039;elle pas été générée pendant le backup (avant le pg_stop_backup() ) ?<br />On a besoin de toutes les archives générées PENDANT le backup (dont la dernière, qui est générée durant le pg_stop_backup() ).</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-12-09T18:58:03Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6939#p6939</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Archivelog : Quand sont purgés les logs ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6938#p6938"/>
+		<content type="html"><![CDATA[<p>Ben il me semble bien que oui...</p><p>D&#039;ailleurs, il a bien généré le 0000...EF.backup qui semble correct.</p>]]></content>
+		<author>
+			<name><![CDATA[herve.lefebvre]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=506</uri>
+		</author>
+		<updated>2010-12-09T18:49:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6938#p6938</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Archivelog : Quand sont purgés les logs ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6937#p6937"/>
+		<content type="html"><![CDATA[<p>Après le backup, avez vous fait un pg_stop_backup() ?</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-12-09T17:42:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6937#p6937</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Archivelog : Quand sont purgés les logs ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6936#p6936"/>
+		<content type="html"><![CDATA[<p>Bon, je suis toujours dans mes tests d&#039;archivelog.</p><p>J&#039;ai testé le cas suivant :</p><p>1) Sauvegarde<br />2) grosse insertion dans la base<br />3) simulation de crash disk (rm -rf de toutes les données y compris pg_xlog).</p><p>Entre 1) et 3) il ne sest pas écoulé assez de temps pour qu&#039;il y ait un checkpoint. Par contre entre 1) et 3) il y a des logs qui sont partis de pg_xlog vers mon archive-log.</p><p>Le recovery plante, parce qu&#039;il ne trouve pas le dernier log (qui se trouvait dans le pg-xlog et qui a donc été perdu) :</p><p>2010-12-09 17:55:21 CET%%LOCATION:&#160; StartupXLOG, xlog.c:4819<br />2010-12-09 17:55:21 CET%%LOG:&#160; 00000: starting archive recovery<br />2010-12-09 17:55:21 CET%%LOCATION:&#160; readRecoveryCommandFile, xlog.c:4377<br />2010-12-09 17:55:21 CET%%LOG:&#160; 00000: restore_command = &#039;test ! -f /data/postgresql/archlog/%f &amp;&amp; cp /data/postgresql/archlog/%f %p&#039;<br />2010-12-09 17:55:21 CET%%LOCATION:&#160; readRecoveryCommandFile, xlog.c:4423<br />2010-12-09 17:55:21 CET%%LOG:&#160; 00000: recovery_target_time = &#039;2010-12-09 16:56:00+01&#039;<br />2010-12-09 17:55:21 CET%%LOCATION:&#160; readRecoveryCommandFile, xlog.c:4481<br />2010-12-09 17:55:21 CET%%LOG:&#160; 00000: recovery_target_inclusive = false<br />2010-12-09 17:55:21 CET%%LOCATION:&#160; readRecoveryCommandFile, xlog.c:4496<br />cp: cannot stat `/data/postgresql/archlog/00000001.history&#039;: No such file or directory<br />cp: cannot stat `/data/postgresql/archlog/000000010000003600000003&#039;: No such file or directory<br />2010-12-09 17:55:21 CET%%LOG:&#160; 58P01: could not open file &quot;pg_xlog/000000010000003600000003&quot; (log file 54, segment 3): No such file or directory<br />2010-12-09 17:55:21 CET%%LOCATION:&#160; XLogFileRead, xlog.c:2365<br />2010-12-09 17:55:21 CET%%LOG:&#160; 00000: invalid primary checkpoint record<br />2010-12-09 17:55:21 CET%%LOCATION:&#160; ReadCheckpointRecord, xlog.c:5399<br />cp: cannot stat `/data/postgresql/archlog/000000010000003600000003&#039;: No such file or directory<br />2010-12-09 17:55:21 CET%%LOG:&#160; 58P01: could not open file &quot;pg_xlog/000000010000003600000003&quot; (log file 54, segment 3): No such file or directory<br />2010-12-09 17:55:21 CET%%LOCATION:&#160; XLogFileRead, xlog.c:2365<br />2010-12-09 17:55:21 CET%%LOG:&#160; 00000: invalid secondary checkpoint record<br />2010-12-09 17:55:21 CET%%LOCATION:&#160; ReadCheckpointRecord, xlog.c:5403<br />2010-12-09 17:55:21 CET%%PANIC:&#160; XX000: could not locate a valid checkpoint record<br />2010-12-09 17:55:21 CET%%LOCATION:&#160; StartupXLOG, xlog.c:4924<br />2010-12-09 17:55:21 CET%%LOG:&#160; 00000: startup process (PID 3623) was terminated by signal 6: Aborted<br />2010-12-09 17:55:21 CET%%LOCATION:&#160; LogChildExit, postmaster.c:2540<br />2010-12-09 17:55:21 CET%%LOG:&#160; 00000: aborting startup due to startup process failure<br />2010-12-09 17:55:21 CET%%LOCATION:&#160; reaper, postmaster.c:2113</p><br /><p>Je trouve ça un peu étrange, parce que même si je mets un recovery_target_time situé entre les étapes 1 et 2, avec recovery_target_inclusive = &#039;false&#039;&#160; , le recovery plante quand même.</p><p>C&#039;est un comportement normal ?</p><p>Cela voudrait dire qu&#039;après un backup il faudrait systématiquement faire un CHECKPOINT pour être certain que la sauvegarde sera utilisable ?</p>]]></content>
+		<author>
+			<name><![CDATA[herve.lefebvre]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=506</uri>
+		</author>
+		<updated>2010-12-09T16:59:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6936#p6936</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Archivelog : Quand sont purgés les logs ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6918#p6918"/>
+		<content type="html"><![CDATA[<p>OK, effectivement un psql -c &quot;CHECKPOINT;&quot; a vidé le pg_xlog.</p><p>Merci.</p>]]></content>
+		<author>
+			<name><![CDATA[herve.lefebvre]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=506</uri>
+		</author>
+		<updated>2010-12-08T11:12:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6918#p6918</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Archivelog : Quand sont purgés les logs ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6917#p6917"/>
+		<content type="html"><![CDATA[<p>Jamais de pg_resetxlog. C&#039;est une commande à réserver aux cas désespérés de corruption.</p><p>Les fichiers vont disparaître automatiquement de pg_xlog, au prochain checkpoint (toutes les 5 minutes par défaut).</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-12-08T11:04:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6917#p6917</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Archivelog : Quand sont purgés les logs ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6915#p6915"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Petite question bête.</p><p>Je me suis mis sur un pg 8.3 en mode archivelog.</p><p>Bon, j&#039;avoue, j&#039;ai merdé dans la commande d&#039;archivage, donc du coup il signalait l&#039;erreur dans le var/log</p><p>J&#039;ai corrigé la commande, redémarré le serveur. Les anciens logs ont bien été transférés sur le FS d&#039;archivage.</p><p>Mais ils sont toujours présents également dans pg_xlog...</p><p>Ils sont supposés être purgés de pg_xlog au bout d&#039;un moment, ou bien il va falloir que je donne dans le pg_resetxlog ?</p>]]></content>
+		<author>
+			<name><![CDATA[herve.lefebvre]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=506</uri>
+		</author>
+		<updated>2010-12-08T11:02:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6915#p6915</id>
+	</entry>
+</feed>

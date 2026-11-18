@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Load balancing avec pgpool2 ne fonctionne pas...]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2904&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2904"/>
+	<updated>2015-02-03T07:41:45Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2904</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Load balancing avec pgpool2 ne fonctionne pas...]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21425#p21425"/>
+		<content type="html"><![CDATA[<p>En rajoutant l&#039;option -D dans le script pour le lancement de pgpool2, tout fonctionne normalement : les health check ont lieu sur les 2 serveurs, et les SELECT vont bien vers l&#039;esclave !</p>]]></content>
+		<author>
+			<name><![CDATA[woreirsis]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=4689</uri>
+		</author>
+		<updated>2015-02-03T07:41:45Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21425#p21425</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Load balancing avec pgpool2 ne fonctionne pas...]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18804#p18804"/>
+		<content type="html"><![CDATA[<p>J&#039;ai trouvé...<br />Je lançais pgpool2 avec la commande </p><div class="codebox"><pre><code>sudo service pgpool2 start</code></pre></div><p>Le problème venait du script de lancement du service. En rajoutant l&#039;option -D dans le script pour le lancement de pgpool2, tout fonctionne normalement : les health check ont lieu sur les 2 serveurs, et les SELECT vont bien vers l&#039;esclave !</p>]]></content>
+		<author>
+			<name><![CDATA[dt]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2928</uri>
+		</author>
+		<updated>2013-12-12T17:11:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18804#p18804</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Load balancing avec pgpool2 ne fonctionne pas...]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18803#p18803"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>j&#039;essaye de mettre en place un cluster de serveurs postgresql avec pgpool2, en mode maitre / esclave et load balancing, mais les requêtes select sont toujours envoyés au maitre, jamais à l&#039;esclave.</p><p>Pour mes tests, j&#039;utilise trois VM Ubuntu server 12.04, la première avec pgpool2 version 3.1.1, les deux autres avec postgresql 9.1. J&#039;ai mis en place la réplication par streaming entre le maitre et l&#039;esclave, ça marche impeccable, les enregistrements insérés dans le maitres apparaissent dans l&#039;esclave à peine une seconde plus tard. Pour traquer les requêtes sur les différents serveurs, j&#039;ai mis log_statement à all sur le maitre et l&#039;esclave.</p><p>Pour exécuter mes requêtes, je me connecte sur le serveur de pool avec psql, et je peux exécuter mes requêtes, sauf que quand je regarde les logs, toutes les requête sont exécutées sur le maitre, alors que je m&#039;attendais à ce que les SELECT sont envoyés à l&#039;esclave. Dans les logs du maitre, je vois bien les connexions / déconnexions toutes les 10 secondes pour les health check, mais rien du tout coté esclave. Pourtant, je peux me connecter depuis la machine de pool sur l&#039;esclave avec psql. Si je coupe le master et redémarre pgpool, au bout d&#039;un moment, je peux me connecter sur l&#039;esclave et lancer des requêtes dessus, mais je ne peux pas faire d&#039;insertion, la connexion est en read only. Et après redémarrage du maitre, on n&#039;arrive plus à s&#039;y connecter. Avec les logs pgpool en débug, le health check répond :</p><div class="codebox"><pre><code>Dec 12 17:51:52 pool pgpool[4434]: health_check: 0 th DB node status: 3
+Dec 12 17:51:52 pool pgpool[4434]: health_check: 1 th DB node status: 1</code></pre></div><p>Pourtant, psql permet de s&#039;y connecter et d&#039;exécuter des requêtes...</p><p>Voici mon fichier pgpool.conf :</p><div class="codebox"><pre class="vscroll"><code>listen_addresses = &#039;*&#039;
+port = 5432
+socket_dir = &#039;/var/run/postgresql&#039;
+
+pcp_port = 9898
+pcp_socket_dir = &#039;/var/run/postgresql&#039;
+
+# - Backend Connection Settings -
+
+backend_hostname0 = &#039;192.168.1.51&#039;
+backend_port0 = 5432
+backend_weight0 = 1
+backend_data_directory0 = &#039;/var/lib/postgresql/9.1/main&#039;
+backend_flag0 = &#039;ALLOW_TO_FAILOVER&#039;
+
+backend_hostname1 = &#039;192.168.1.52&#039;
+backend_port1 = 5432
+backend_weight1 = 1
+backend_data_directory1 = &#039;/var/lib/postgresql/9.1/main&#039;
+backend_flag1 = &#039;ALLOW_TO_FAILOVER&#039;
+
+# - Authentication -
+
+enable_pool_hba = on
+pool_passwd = &#039;pool_passwd&#039; # fichier du mot de passe
+authentication_timeout = 60
+
+# - SSL Connections -
+ssl = off
+
+#------------------------------------------------------------------------------
+# POOLS
+#------------------------------------------------------------------------------
+
+# - Pool size -
+num_init_children = 32
+max_pool = 4
+
+# - Life time -
+child_life_time = 300
+child_max_connections = 0
+connection_life_time = 0
+client_idle_limit = 0
+#------------------------------------------------------------------------------
+# LOGS
+#------------------------------------------------------------------------------
+log_destination = &#039;syslog&#039;
+print_timestamp = on
+log_connections = on
+log_hostname = off
+log_statement = on
+log_per_node_statement = on
+log_standby_delay = &#039;none&#039;
+syslog_facility = &#039;LOCAL0&#039;
+syslog_ident = &#039;pgpool&#039;
+debug_level = 0
+
+#------------------------------------------------------------------------------
+# FILE LOCATIONS
+#------------------------------------------------------------------------------
+
+pid_file_name = &#039;/var/run/postgresql/pgpool.pid&#039;
+logdir = &#039;/var/log/postgresql&#039;
+
+#------------------------------------------------------------------------------
+# CONNECTION POOLING
+#------------------------------------------------------------------------------
+
+connection_cache = on
+reset_query_list = &#039;ABORT; DISCARD ALL&#039;
+#reset_query_list = &#039;ABORT; RESET ALL; SET SESSION AUTHORIZATION DEFAULT&#039;
+
+
+#------------------------------------------------------------------------------
+# REPLICATION MODE
+#------------------------------------------------------------------------------
+
+replication_mode = off
+#replicate_select = off
+#insert_lock = on
+#lobj_lock_table = &#039;&#039;
+# - Degenerate handling -
+#replication_stop_on_mismatch = off
+#failover_if_affected_tuples_mismatch = off
+
+#------------------------------------------------------------------------------
+# LOAD BALANCING MODE
+#------------------------------------------------------------------------------
+
+load_balance_mode = on
+ignore_leading_white_space = on
+white_function_list = &#039;&#039;
+black_function_list = &#039;nextval,setval&#039;
+
+#------------------------------------------------------------------------------
+# MASTER/SLAVE MODE
+#------------------------------------------------------------------------------
+
+master_slave_mode = on
+master_slave_sub_mode = &#039;stream&#039;
+# - Streaming -
+sr_check_period = 0
+sr_check_user = &#039;&#039;
+sr_check_password = &#039;&#039;
+delay_threshold = 0
+
+# - Special commands -
+#follow_master_command = &#039;&#039;
+
+#------------------------------------------------------------------------------
+# PARALLEL MODE AND QUERY CACHE
+#------------------------------------------------------------------------------
+
+parallel_mode = off
+enable_query_cache = off
+pgpool2_hostname = &#039;&#039;
+# - System DB info -
+system_db_hostname  = &#039;localhost&#039;
+system_db_port = 5432 
+system_db_dbname = &#039;pgpool&#039;
+system_db_schema = &#039;pgpool_catalog&#039;
+system_db_user = &#039;pgpool&#039;
+system_db_password = &#039;&#039;
+
+#------------------------------------------------------------------------------
+# HEALTH CHECK
+#------------------------------------------------------------------------------
+
+health_check_period = 0
+health_check_timeout = 20
+health_check_user = &#039;nobody&#039;
+health_check_password = &#039;&#039;
+
+#------------------------------------------------------------------------------
+# FAILOVER AND FAILBACK
+#------------------------------------------------------------------------------
+
+#failover_command = &#039;&#039;
+#failback_command = &#039;&#039;
+#fail_over_on_backend_error = on
+
+#------------------------------------------------------------------------------
+# ONLINE RECOVERY
+#------------------------------------------------------------------------------
+
+recovery_user = &#039;postgres&#039;
+recovery_password = &#039;postgres&#039;
+recovery_1st_stage_command = &#039;&#039;
+recovery_2nd_stage_command = &#039;&#039;
+recovery_timeout = 90
+client_idle_limit_in_recovery = 0
+
+#------------------------------------------------------------------------------
+# OTHERS
+#------------------------------------------------------------------------------
+
+relcache_expire = 0</code></pre></div><br /><p>Je vous remercie de votre aide, ma configuration me semble correcte, je n&#039;ai pas la moindre idée pourquoi le load balancing ne fonctionne pas.</p><p>Denis</p>]]></content>
+		<author>
+			<name><![CDATA[dt]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2928</uri>
+		</author>
+		<updated>2013-12-12T16:41:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18803#p18803</id>
+	</entry>
+</feed>

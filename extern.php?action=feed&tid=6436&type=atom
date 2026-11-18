@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Vue modifiable sur vue matérialisée pour compléter autre table général]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=6436&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=6436"/>
+	<updated>2022-12-30T19:51:19Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=6436</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Vue modifiable sur vue matérialisée pour compléter autre table général]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33961#p33961"/>
+		<content type="html"><![CDATA[<p>Dans le trigger:</p><div class="codebox"><pre><code>    RETURN NEW;
+
+    -- mettre à jour la vue matérialisée
+    
+    REFRESH MATERIALIZED VIEW schema_1.v_mat_1_utilisateur1; </code></pre></div><p>Le RETURN NEW fait sortir du trigger donc le REFRESH n&#039;est pas exécuté. Le RETURN NEW doit se faire en dernier.</p><br /><p>Sinon d&#039;un point de vue conception, ça paraît extrêmement lourd de rafraîchir une vue matérialisée à chaque mise à jour de ligne.</p><p>Peut-être qu&#039;il serait intéressant de creuser les raisons pour lesquelles les vues non matérialisées limitant les données exposées à QGIS ne donnent pas satisfaction. Est-ce que c&#039;est les requêtes qui sont lentes ou c&#039;est QGIS?<br />Si c&#039;est les requêtes, il faudrait faire des EXPLAIN ANALYZE pour voir où le temps est consommé et pourquoi. Il y a des conseils à ce sujet dans <a href="https://wiki.postgresql.org/wiki/Slow_Query_Questions" rel="nofollow">https://wiki.postgresql.org/wiki/Slow_Query_Questions</a></p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2022-12-30T19:51:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33961#p33961</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Vue modifiable sur vue matérialisée pour compléter autre table général]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33959#p33959"/>
+		<content type="html"><![CDATA[<p>Il faudrait un exemple complet pour savoir ce qui ne va pas. Normalement, un trigger devrait pouvoir gérer la mise à jour.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2022-12-29T09:44:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33959#p33959</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Vue modifiable sur vue matérialisée pour compléter autre table général]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33958#p33958"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous,</p><p>Je voudrais savoir s&#039;il est possible de modifier une table &#039;A&#039; avec les données provenant d&#039;une vue modifiable &#039;v1&#039; , elle même issue d&#039;une vue matérialisée &#039;v_mat_1&#039; , elle même issue de la table &#039;A&#039;.</p><p>Je précise ma demande : <br />- j&#039;ai une table &#039;A&#039; de 2 millions de lignes d&#039;entités géographiques de type &#039;linestring&#039;<br />- j&#039;ai un certains nombres d&#039;utilisateurs ( U1,U2, U3,...) qui doivent modifier les données de cette table via QGIS en fonction des entités présentent sur leur territoire<br />- j&#039;ai une table de territoire pour chaque utilisateur mais une entité peut intersecter deux territoires différents donc les deux utilisateurs doivent pouvoir la modifier</p><p>sur QGIS l&#039;utilisation de la table A en totalité est un enfer car beaucoup trop lourde et je préfère proposer à l&#039;utilisateur une couche ne représentant que ses entités à modifier en fonction de son territoire.<br />Je veux éviter de découper la table A en plusieurs tables, je préfère diviser les données dans des vues modifiables et que celles-ci puissent recompléter la table A.</p><p>J&#039;ai testé une vue modifiable pour un utilisateur qui intersecte les entités de la table &#039;A&#039; directement avec son territoire ==&gt; la vue met beaucoup trop de temps à se charger sur QGIS et à l&#039;utilisation également<br />j&#039;ai besoin de gagner en performance pour la modification de ces données sur QGIS pour chaque utilisateur</p><br /><p>J&#039;ai donc pensé diviser ma table &#039;A&#039; en vues matérialisées&#160; &#039;v_mat_1&#039;,&#160; &#039;v_mat_2&#039;, ....&#160; et faire des vues modifiables sur ces vues matérialisées.</p><p>J&#039;ai donc créé une fonction sur ma vue modifiable et un trigger sur cette vue</p><br /><div class="codebox"><pre class="vscroll"><code>-- FUNCTION:schema1.fn_edit_v1_utilisateur1()
+
+-- DROP FUNCTION IF EXISTS schema1.fn_edit_v1_utilisateur1();
+
+CREATE OR REPLACE FUNCTION schema1.fn_edit_v1_utilisateur1()
+    RETURNS trigger
+    LANGUAGE &#039;plpgsql
+
+   BEGIN
+      IF TG_OP = &#039;UPDATE&#039; THEN
+
+      -- modifier la table A 
+
+		UPDATE schema_1.table_A SET
+				
+			nom=NEW.nom ,
+			classe=NEW.classe , 
+			categorie=NEW.categorie ,
+			gestionnaire=NEW.gestionnaire ,
+			type_gestion=NEW.type_gestion , 			
+			affichage=NEW.affichage , 
+			ordre=NEW.ordre
+
+	WHERE  schema_1.table_A.id=OLD.id ;
+    
+    RETURN NEW;
+
+    -- mettre à jour la vue matérialisée
+    
+    REFRESH MATERIALIZED VIEW schema_1.v_mat_1_utilisateur1; 
+	
+	
+	END IF;
+	END;
+	$BODY$;
+    
+    
+-- Trigger: tg_edit_v1_utilisateur1 -- sur vue modifiable
+
+DROP TRIGGER IF EXISTS tg_edit_v1_utilisateur1 ON schema1.v1_utilisateur1;
+
+CREATE TRIGGER tg_edit_v1_utilisateur1
+    INSTEAD OF UPDATE 
+    ON schema1.v1_utilisateur1
+    FOR EACH ROW
+    EXECUTE FUNCTION fdppma_19.fn_edit_v_cours_eau_fd19_oui();</code></pre></div><p>Lorsque je modifie la vue &#039;v1&#039; pour test, je n&#039;ai aucun message d&#039;erreur, la modification n&#039;est pas prise en compte sur la vue ( je suppose car elle récupère les données de la vue matérialisée qui elle même n&#039;est pas mise à jour ).</p><p>Quelqu&#039;un a t&#039;il une idée sur la façon de procéder pour faire ces déclenchements les uns à la suite des autres..si cela est possible</p><p>Merci d&#039;avance de vos lumières</p>]]></content>
+		<author>
+			<name><![CDATA[sab31]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=10350</uri>
+		</author>
+		<updated>2022-12-28T11:55:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33958#p33958</id>
+	</entry>
+</feed>

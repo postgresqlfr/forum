@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Intervalle de valeurs]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5776&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5776"/>
+	<updated>2020-06-05T07:29:11Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5776</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Intervalle de valeurs]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31254#p31254"/>
+		<content type="html"><![CDATA[<p>Merci pour vos réponses et ces explications, j&#039;ai réussi à créer ma table et mes valeurs d&#039;intervalle.<br />Bonne journée</p>]]></content>
+		<author>
+			<name><![CDATA[oliv38]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8918</uri>
+		</author>
+		<updated>2020-06-05T07:29:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31254#p31254</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Intervalle de valeurs]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31252#p31252"/>
+		<content type="html"><![CDATA[<p>USING permet de spécifier une expression pour passer d&#039;un type à un autre quand cela n&#039;est pas possible automatiquement, ce qui est bien évidemment le cas pour passer d&#039;un numeric à un numrange.&#160; Par exemple :</p><div class="codebox"><pre><code># create table numrange(deb numeric, fin numeric);
+CREATE TABLE
+
+# insert into numrange select 1, 2;
+INSERT 0 1
+
+# alter table numrange alter column deb type numrange using numrange(deb, fin, &#039;[)&#039;);
+ALTER TABLE
+
+# alter table numrange drop column fin;
+ALTER TABLE
+
+# alter table numrange rename column deb  to range;
+ALTER TABLE
+
+# table numrange ;
+ range 
+-------
+ [1,2)
+(1 row)
+
+# \d numrange 
+              Table &quot;public.numrange&quot;
+ Column |   Type   | Collation | Nullable | Default 
+--------+----------+-----------+----------+---------
+ range  | numrange |           |          | </code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2020-06-04T14:37:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31252#p31252</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Intervalle de valeurs]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31251#p31251"/>
+		<content type="html"><![CDATA[<p>Bonjour et merci pour votre réponse.<br />Comment définir un champ en NUMRANGE : j&#039;ai testé ALTER TABLE nom_table ALTER COLUMN nom_colonne type NUMRANGE mais pgsql m&#039;indique d&#039;utiliser USING ::numrange, je ne comprend pas trop.<br />Enfin qu&#039;elle est la syntaxe de la donnée à saisir dans mon champ d&#039;intervalle, j&#039;ai testé comme ceci par exemple &#039;[8.5,100)&#039; pour un intervalle entre 8,5 et 1000 qui inclut 8,5 et exclut 100.</p><p>Merci encore pour votre aide.</p>]]></content>
+		<author>
+			<name><![CDATA[oliv38]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8918</uri>
+		</author>
+		<updated>2020-06-04T12:52:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31251#p31251</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Intervalle de valeurs]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31250#p31250"/>
+		<content type="html"><![CDATA[<p>Je choisirais personellement le type numrange, vu que cela permet également de spécifier sur les bornes doivent être inclues ou exclues.&#160; Cela permet également d&#039;éviter de devoir explicitement tout typer en numrange dans les requêtes et/ou les contraintes.</p><br /><p>Les comparaisons s&#039;effectuent généralement très facilement avec les opérateurs fournis, voir <a href="https://www.postgresql.org/docs/current/functions-range.html#RANGE-OPERATORS-TABLE" rel="nofollow">https://www.postgresql.org/docs/current … TORS-TABLE</a></p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2020-06-04T12:17:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31250#p31250</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Intervalle de valeurs]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31249#p31249"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />j souhaite créer une table de référence avec des intervalles de valeurs numériques. J&#039;avais commencé à faire 2 champs &quot;bornes_inferieures&quot; et &quot;bornes_superieures&quot; et un 3è champs pour stocker les indicateurs correspondants à chaque intervalle. J&#039;ai deux questions à ce sujet : </p><p>- j&#039;ai vu l&#039;existence du type NUMRANGE mais je ne parviens pas trop à savoir comment m&#039;en servir dans mon cas, ni la syntaxe que doit avoir mes intervalles stockés ;<br />- en joignant 2 tables, une de résultat et celle de mes intervalles, je souhaite créer une requête SQL qui me retourne l&#039;indicateur en fonction de l&#039;intervalle dans lequel se trouve mon résultat.</p><p>Pourriez-vous m&#039;aiguiller pour choisir la meilleure solution entre 2 champs NUMERIC créant mon intervalle ou un seul champ NUMRANGE? ainsi que me dire si le calcul de comparaison de ma requête SQL peut-être aussi simplement positionner dans un WHERE ?</p><p>Merci d&#039;avance.</p>]]></content>
+		<author>
+			<name><![CDATA[oliv38]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8918</uri>
+		</author>
+		<updated>2020-06-04T11:14:54Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31249#p31249</id>
+	</entry>
+</feed>

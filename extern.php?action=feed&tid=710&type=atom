@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Lenteur fonction dblink_connect]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=710&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=710"/>
+	<updated>2010-04-06T09:25:48Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=710</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Lenteur fonction dblink_connect]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4436#p4436"/>
+		<content type="html"><![CDATA[<p>Merci pour ta réponse</p><p>J&#039;ai étudié la piste de la résolution DNS inverse avec notre administrateur réseau et ça ne donne rien :<br />- la résolution inverse est bien activée<br />- nous avons même fait un test en créant une entrée DNS qui à partir de l&#039;adresse IP renvoie vers le nom du serveur utilisé dans la chaîne de connexion, mais le problème apparaît toujours</p><p>J&#039;ai même désactivé le paramètre log_hostname dans le postgresql.conf au cas où ça aurait pu influer mais sans résultat ...</p><p>C&#039;est d&#039;autant plus bizarre que sur certains de nos serveurs Postgresql le problème ne se pose pas alors qu&#039;ils sont tous configurés de la même manière et sont dans le même LAN ...</p><p>Enfin bon en tout cas j&#039;ai au moins la solution de contournement consistant à déclarer dans le fichier /etc/hosts les serveurs sur lesquels Postgresql est susceptible de se connecter en dblink</p><p>Merci pour ton aide en tout cas</p>]]></content>
+		<author>
+			<name><![CDATA[scheu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=231</uri>
+		</author>
+		<updated>2010-04-06T09:25:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4436#p4436</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Lenteur fonction dblink_connect]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4424#p4424"/>
+		<content type="html"><![CDATA[<p>Un timeout de 1 minute fait penser à un problème de résolution DNS &#039;inverse&#039; : il doit y avoir un des composants dans la chaîne qui essaye de résoudre une IP en nom (par exemple à des fins de traçage).</p><p>Il faudrait aller chercher dans le code ou les appels système faits par PostgreSQL ou dblink pour repérer ce problème de résolution ?</p><p>Pour résumer ce qui se passe probablement (je n&#039;ai pas vérifié) : serveur_distant est résolu en son adresse IP (c&#039;est très rapide, c&#039;est la résolution DNS classique), puis quelque chose dans le code veut retransformer cette adresse IP en nom de machine (c&#039;est souvent fait pour des fonctions de logging par exemple), et le serveur DNS ne sait alors pas résoudre IP -&gt; nom (c&#039;est la résolution DNS inverse), et fini par partir en timeout. C&#039;est malheureusement assez fréquent que les administrateurs réseau oublient ou fassent l&#039;impasse sur cette résolution inverse.</p><p>Vous pouvez demander aux administrateurs réseau de vérifier que la résolution inverse de cette IP est renseignée pour commencer (en espérant que je ne vous envoie pas sur une fausse piste <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /> )</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-04-02T08:24:06Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4424#p4424</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Lenteur fonction dblink_connect]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4423#p4423"/>
+		<content type="html"><![CDATA[<p>Bonjour</p><p>Avec Postgresql 8.2 sous Linux, j&#039;essaie d&#039;utiliser la contrib dblink pour me connecter à une base distante. J&#039;utilise la commande suivante :</p><p>select dblink_connect(&#039;host=serveur_distant port=5432 dbname=BDD_DISTANTE user=user_distant password=le_pwd&#039;);</p><p>Le problème c&#039;est que quand le serveur_distant est déclaré dans mon fichier /etc/hosts, la connexion se fait instantanément<br />Par contre quand le serveur_distant n&#039;est pas déclaré dans mon fichier /etc/hosts, la connexion met environ 1 minute.</p><p>Pourtant, même quand le serveur_distant n&#039;est pas déclaré dans le /etc/hosts, j&#039;arrive ç faire un ping qui est instantané et une connexion du type &quot; psql -h serveur_distant -d BDD_DISTANTE&quot; est instantanée aussi donc je ne pense pas que cela puisse venir du réseau ni du temps de réponse de notre serveur DNS</p><p>Y a-t-il une particularité avec la fonction dblink_connect qui pourrait expliquait qu&#039;il mette 1 minute à m&#039;ouvrir la connexion ?</p><p>Merci d&#039;avance</p>]]></content>
+		<author>
+			<name><![CDATA[scheu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=231</uri>
+		</author>
+		<updated>2010-04-02T07:24:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4423#p4423</id>
+	</entry>
+</feed>

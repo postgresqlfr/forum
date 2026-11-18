@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / [RESOLU] pgpool online recovery failed]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3007&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3007"/>
+	<updated>2014-02-14T13:23:51Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3007</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] pgpool online recovery failed]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19257#p19257"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;ai trouvé : c&#039;était une erreur dans pgpool.conf :<br />backend_data_directory0 = &#039;xxxxxxxxxxx&#039;<br />Pour ce paramètre il faut mettre le répertoire de démarrage (celui où on trouve le postgresql.conf) et non pas le répertoire &quot;data&quot; qui contient les fichiers de données.<br />Sinon la commande pg_ctl de pgpool_remote_start ne peut pas fonctionner.</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2014-02-14T13:23:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19257#p19257</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[[RESOLU] pgpool online recovery failed]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19248#p19248"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>voici ma configuration pgpool :</p><div class="codebox"><pre><code> node_id |   hostname   | port | status | lb_weight |  role
+---------+--------------+------+--------+-----------+---------
+ 0       | 172.31.8.214 | 5432 | 2      | 0.333333  | primary
+ 1       | 172.31.8.219 | 5432 | 2      | 0.333333  | standby
+ 2       | 172.31.8.221 | 5432 | 2      | 0.333333  | standby</code></pre></div><p>J&#039;arrête le noeud 2 et je teste l&#039;online recovery&#160; avec la commande :</p><div class="codebox"><pre><code> pcp_recovery_node -d 2000 172.31.8.220  9898 postgres postgres 2</code></pre></div><p>Résultat de la commande :</p><div class="codebox"><pre><code>2014-02-13 17:54:49 LOG:   pid 26031: starting recovering node 2
+2014-02-13 17:54:49 LOG:   pid 26031: starting recovery command: &quot;SELECT pgpool_recovery(&#039;basebackup.sh&#039;, &#039;172.31.8.221&#039;, &#039;/D0TLIN50_1/data&#039;)&quot;
+2014-02-13 17:55:05 LOG:   pid 26055: statement:  DISCARD ALL
+2014-02-13 17:55:05 LOG:   pid 26055: DB node id: 0 backend pid: 7876 statement:  DISCARD ALL
+2014-02-13 17:55:05 LOG:   pid 26055: DB node id: 1 backend pid: 2289 statement:  DISCARD ALL
+2014-02-13 17:55:08 LOG:   pid 26040: connection received: host=172.31.8.214 port=38983
+2014-02-13 17:55:10 LOG:   pid 26040: statement: show pool_nodes;
+2014-02-13 17:55:12 LOG:   pid 26040: statement:  DISCARD ALL
+2014-02-13 17:55:12 LOG:   pid 26040: DB node id: 0 backend pid: 7928 statement:  DISCARD ALL
+2014-02-13 17:55:12 LOG:   pid 26040: DB node id: 1 backend pid: 2318 statement:  DISCARD ALL
+2014-02-13 17:58:14 LOG:   pid 26032: connect_inet_domain_socket: select() timed out. retrying...
+2014-02-13 17:58:34 LOG:   pid 26031: 1st stage is done
+2014-02-13 17:58:34 LOG:   pid 26031: check_postmaster_started: try to connect to postmaster on hostname:172.31.8.221 database:postgres user:postgres (retry 0 times)
+.... ETC.....
+2014-02-13 18:00:16 LOG:   pid 26031: check_postmaster_started: failed to connect to postmaster on hostname:172.31.8.221 database:template1 user:postgres
+2014-02-13 18:00:19 ERROR: pid 26031: check_postmaster_started: remote host start up did not finish in 90 sec.
+2014-02-13 18:00:19 ERROR: pid 26031: start_recovery: check start failed</code></pre></div><p>j&#039;ai un script pgpool_remote_start sur le noeud 2 (et sur le primary au cas où car je n&#039;arrive pas à savoir lequel sera utilisé par pgpool).<br />Mais la commande ne semble pas s&#039;exécuter.<br />Script pgpool_remote_start :</p><div class="codebox"><pre><code>#! /bin/sh
+
+if [ $# -ne 2 ]
+then
+    echo &quot;pgpool_remote_start remote_host remote_datadir&quot;
+    exit 1
+fi
+
+DEST=$1
+DESTDIR=$2
+PGCTL=/logiciels/postgres/product/9.2/bin/pg_ctl
+
+ssh -T $DEST $PGCTL -w -D $DESTDIR start 2&gt;/dev/null 1&gt;/dev/null &lt; /dev/null &amp;</code></pre></div><p>Toutes les fonctions online_recovery sont installées sur toutes les bases de tous les noeuds.</p><p>What is wrong ??</p><p>Cordialement</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2014-02-13T17:25:33Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19248#p19248</id>
+	</entry>
+</feed>

@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Retourner les n dernières valeurs pour chaque catégorie]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4051&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4051"/>
+	<updated>2017-01-10T13:05:37Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4051</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Retourner les n dernières valeurs pour chaque catégorie]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24548#p24548"/>
+		<content type="html"><![CDATA[<p>Il faut voir le LATERAL comme une boucle imbriquée.&#160; On demande ici pour chaque catégorie (enregistrement présent dans la table tbl_valeur_val) les 5 derniers enregistrements de la table tbl_valeur_val. Le mot clé LATERAL permet de pouvoir effectuer la jointure entre ces deux tables (la partie <strong> b.sta_id=a.sta_id</strong>) à cet endroit de la requête.&#160; Ce mode de fonctionnement est du coup beaucoup plus efficace que de calculer le rang de chaque enregistrement pour ensuite supprimer ceux dont le rang est supérieur à 5.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2017-01-10T13:05:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24548#p24548</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Retourner les n dernières valeurs pour chaque catégorie]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24547#p24547"/>
+		<content type="html"><![CDATA[<p>ça y est&#160; !<br />j&#039;ai repris le select * proposé plus haut !<br />J&#039;avoue que j&#039;ai beaucoup de mal à comprendre la logique d&#039;écriture de la requête</p><div class="codebox"><pre><code>select  *
+from tbl_stat_sta a,
+LATERAL (
+	select  
+	*	
+	from tbl_valeur_val b
+	where b.sta_id=a.sta_id
+	and b.val_date &gt;&#039;01/01/2016&#039;
+	and val_esp = 1
+	order by b.val_date desc
+	limit 5) lat
+
+order by a.sta_id, val_date</code></pre></div><p>le &quot;val_esp&quot; est un tri pour avoir les 5 dernières valeurs de val_esp=1.</p><p>J&#039;ai fait un explain analyze pour chaque méthode, je suis convaincu que LATERAL est plus efficace !! (même si je n&#039;ai pas tout compris)<br />Avec LATERAL</p><div class="codebox"><pre><code>&quot;Sort  (cost=2354.07..2355.60 rows=610 width=121) (actual time=2.722..2.734 rows=293 loops=1)&quot;
+&quot;  Sort Key: a.sta_id, b.val_date&quot;
+&quot;  Sort Method: quicksort  Memory: 82kB&quot;
+&quot;  -&gt;  Nested Loop  (cost=0.42..2325.85 rows=610 width=121) (actual time=0.074..2.125 rows=293 loops=1)&quot;
+&quot;        -&gt;  Seq Scan on tbl_stat_sta a  (cost=0.00..3.22 rows=122 width=96) (actual time=0.016..0.036 rows=76 loops=1)&quot;
+&quot;        -&gt;  Limit  (cost=0.42..18.94 rows=5 width=25) (actual time=0.022..0.025 rows=4 loops=76)&quot;
+&quot;              -&gt;  Index Scan Backward using contrainte_unique on tbl_valeur_val b  (cost=0.42..633.82 rows=171 width=25) (actual time=0.022..0.024 rows=4 loops=76)&quot;
+&quot;                    Index Cond: ((sta_id = a.sta_id) AND (val_date &gt; &#039;2016-01-01&#039;::date) AND (val_esp = 1))&quot;
+&quot;Planning time: 0.619 ms&quot;
+&quot;Execution time: 2.935 ms&quot;</code></pre></div><p>avec RANK() OVER (PARTITION BY.....)</p><div class="codebox"><pre><code>&quot;Sort  (cost=3727.75..3738.60 rows=4339 width=30) (actual time=43.054..43.062 rows=293 loops=1)&quot;
+&quot;  Sort Key: a.sta_id, a.val_date&quot;
+&quot;  Sort Method: quicksort  Memory: 47kB&quot;
+&quot;  CTE a&quot;
+&quot;    -&gt;  WindowAgg  (cost=2912.34..3172.70 rows=13018 width=13) (actual time=30.148..37.962 rows=13641 loops=1)&quot;
+&quot;          -&gt;  Sort  (cost=2912.34..2944.89 rows=13018 width=13) (actual time=30.140..30.749 rows=13641 loops=1)&quot;
+&quot;                Sort Key: tbl_valeur_val.sta_id, tbl_valeur_val.val_date DESC&quot;
+&quot;                Sort Method: quicksort  Memory: 1024kB&quot;
+&quot;                -&gt;  Seq Scan on tbl_valeur_val  (cost=0.00..2022.68 rows=13018 width=13) (actual time=0.026..20.530 rows=13641 loops=1)&quot;
+&quot;                      Filter: ((val_date &gt; &#039;2016-01-01&#039;::date) AND (val_esp = 1))&quot;
+&quot;                      Rows Removed by Filter: 71781&quot;
+&quot;  -&gt;  CTE Scan on a  (cost=0.00..292.90 rows=4339 width=30) (actual time=30.155..42.950 rows=293 loops=1)&quot;
+&quot;        Filter: (rang &lt;= 5)&quot;
+&quot;        Rows Removed by Filter: 13348&quot;
+&quot;Planning time: 0.433 ms&quot;
+&quot;Execution time: 43.467 ms&quot;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[damalaan]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1000</uri>
+		</author>
+		<updated>2017-01-10T12:58:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24547#p24547</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Retourner les n dernières valeurs pour chaque catégorie]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24546#p24546"/>
+		<content type="html"><![CDATA[<p>Parce que vous joignez la table « tbl_valeur_val » avec elle même. Votre alias a devrait être la table de référence des catégories comme indiqué dans mon message précédent, donc à priori « tbl_stat_sta ».</p><br /><p>De plus, la clause « b.val_date &gt;&#039;01/01/2016&#039; » me semble inutile, à moins que vous ne vouliez les 5 derniers <strong>depuis le début de l&#039;année 2016</strong>.&#160; Je ne sais pas non plus pourquoi vous utilisez un prédicat sur « val_esp = 1 », qui n&#039;apparaissait pas avant.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2017-01-10T09:20:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24546#p24546</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Retourner les n dernières valeurs pour chaque catégorie]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24542#p24542"/>
+		<content type="html"><![CDATA[<p>La table qui m’intéresse a la structure suivante :</p><div class="codebox"><pre><code>CREATE TABLE public.tbl_valeur_val
+(
+  val_id bigint NOT NULL DEFAULT nextval(&#039;tbl_valeur_val_val_id_seq&#039;::regclass),
+  sta_id integer NOT NULL,
+  val_date date NOT NULL,
+  val_esp integer NOT NULL,
+  val_valeur numeric(9,3),
+  CONSTRAINT tbl_valeur_val_pkey PRIMARY KEY (val_id),
+  CONSTRAINT tbl_valeur_val_sta_id_fkey FOREIGN KEY (sta_id)
+      REFERENCES public.tbl_stat_sta (sta_id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT contrainte_unique UNIQUE (sta_id, val_date, val_esp)
+)</code></pre></div><p>sta_id étant le champ categorie de l&#039;exemple</p><p>J&#039;ai essayé avec cette requete mais j&#039;ai un retour de 382000 lignes au lieu de 380 !</p><div class="codebox"><pre><code>select  a.sta_id, a.val_date, a.val_valeur
+from tbl_valeur_val a,
+LATERAL (
+	select  
+	b.sta_id	
+	from tbl_valeur_val b
+	where b.sta_id=a.sta_id
+	and b.val_date &gt;&#039;01/01/2016&#039;
+	and val_esp = 1
+	order by b.val_date desc
+	limit 5) lat
+order by a.sta_id, a.val_date</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[damalaan]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1000</uri>
+		</author>
+		<updated>2017-01-10T07:52:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24542#p24542</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Retourner les n dernières valeurs pour chaque catégorie]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24537#p24537"/>
+		<content type="html"><![CDATA[<p>Je n&#039;ai pas la définition de votre schéma, j&#039;ai supposé que vous aviez une table de référence des catégories (table «categorie» dans mon exemple, et que votre table de valeur avait une clé étrangère pointant dessus (champ «id_categorie» de la table «categorie_valeur» dans mon exemple). Remplacez le nom des tables et colonnes utilisées, et au pire utiliser un simple &quot;SELECT *&quot;.</p><br /><p>De plus LATERAL n&#039;est pas une fonction mais un mot clé pour un type de jointure.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2017-01-09T14:29:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24537#p24537</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Retourner les n dernières valeurs pour chaque catégorie]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24536#p24536"/>
+		<content type="html"><![CDATA[<p>Votre solution m’intéresse également mais je n&#039;arrive pas à reproduire la requête avec la fonction LATERAL <br />Est-ce que vous pourriez me montrer la requête complète?</p>]]></content>
+		<author>
+			<name><![CDATA[damalaan]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1000</uri>
+		</author>
+		<updated>2017-01-09T14:12:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24536#p24536</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Retourner les n dernières valeurs pour chaque catégorie]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24534#p24534"/>
+		<content type="html"><![CDATA[<p>On le fait généralement ainsi :</p><div class="codebox"><pre><code>SELECT ...
+FROM categorie c,
+LATERAL (
+    SELECT ...
+    FROM categorie_valeur cv
+    WHERE cv.id_categorie = c.id
+    ORDER BY val_date DESC
+    LIMIT 5
+) lat</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2017-01-09T13:38:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24534#p24534</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Retourner les n dernières valeurs pour chaque catégorie]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24533#p24533"/>
+		<content type="html"><![CDATA[<p>Je suis en 9.5.</p><p>Je ne connais pas LATERAL, et la doc ne m&#039;a pas inspiré.....:-(</p><p>J&#039;ai persisté avec une fonction de fenêtrage, et ça a l&#039;air d&#039;être concluant :</p><div class="codebox"><pre><code>WITH a as (
+select  
+categorie, 
+val_date,
+valeur, 
+rank () OVER (PARTITION BY categorie order by val_date desc) as rang
+from tbl_valeur_val where  val_date &gt;&#039;01/01/2016&#039;)
+
+select * from a where rang &lt;=5 order by a.categorie, a.val_date</code></pre></div><p>Si on peut le faire autrement, je suis intéressé également</p>]]></content>
+		<author>
+			<name><![CDATA[damalaan]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1000</uri>
+		</author>
+		<updated>2017-01-09T13:25:45Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24533#p24533</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Retourner les n dernières valeurs pour chaque catégorie]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24532#p24532"/>
+		<content type="html"><![CDATA[<p>Si vous êtes en 9.3 ou plus, regardez du côté de LATERAL : <a href="http://docs.postgresql.fr/9.6/sql-select.html" rel="nofollow">http://docs.postgresql.fr/9.6/sql-select.html</a> . Sinon, il faudra mettre à jour bientôt de toutes façons <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2017-01-09T13:11:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24532#p24532</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Retourner les n dernières valeurs pour chaque catégorie]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24531#p24531"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Voici un exemple de données dont je voudrais récupérer les 5 valeurs les plus récentes pour chaque catégorie (sans se baser sur la date, car je n&#039;ai pas de valeur systématiquement pour chaque catégorie et chaque jour)</p><div class="codebox"><pre><code>catégorie;date;valeur
+1;&quot;2016-12-26&quot;;0.000
+1;&quot;2016-12-27&quot;;1.000
+1;&quot;2016-12-28&quot;;23.000
+1;&quot;2016-12-29&quot;;11.000
+1;&quot;2016-12-30&quot;;2.000
+1;&quot;2017-01-03&quot;;824.000
+1;&quot;2017-01-04&quot;;803.000
+1;&quot;2017-01-05&quot;;669.000
+1;&quot;2017-01-07&quot;;204.000
+2;&quot;2016-12-27&quot;;25.000
+2;&quot;2016-12-28&quot;;30.000
+2;&quot;2016-12-29&quot;;29.000
+2;&quot;2016-12-30&quot;;18.000
+2;&quot;2017-01-03&quot;;21.000
+2;&quot;2017-01-04&quot;;26.000
+2;&quot;2017-01-05&quot;;20.000
+2;&quot;2017-01-06&quot;;20.000
+3;&quot;2016-12-27&quot;;25.000
+3;&quot;2016-12-28&quot;;14.000
+3;&quot;2016-12-29&quot;;18.000
+3;&quot;2016-12-30&quot;;18.000
+3;&quot;2017-01-03&quot;;11.000
+3;&quot;2017-01-04&quot;;11.000
+3;&quot;2017-01-05&quot;;10.000
+3;&quot;2017-01-06&quot;;9.000
+3;&quot;2017-01-07&quot;;10.000</code></pre></div><p>je veux obtenir ça</p><div class="codebox"><pre><code>1;&quot;2016-12-30&quot;;2.000
+1;&quot;2017-01-03&quot;;824.000
+1;&quot;2017-01-04&quot;;803.000
+1;&quot;2017-01-05&quot;;669.000
+1;&quot;2017-01-07&quot;;204.000
+
+2;&quot;2016-12-30&quot;;18.000
+2;&quot;2017-01-03&quot;;21.000
+2;&quot;2017-01-04&quot;;26.000
+2;&quot;2017-01-05&quot;;20.000
+2;&quot;2017-01-06&quot;;20.000
+
+3;&quot;2017-01-03&quot;;11.000
+3;&quot;2017-01-04&quot;;11.000
+3;&quot;2017-01-05&quot;;10.000
+3;&quot;2017-01-06&quot;;9.000
+3;&quot;2017-01-07&quot;;10.000</code></pre></div><p>je pensais passer par une window function mais je n&#039;arrive pas à voir comment !</p>]]></content>
+		<author>
+			<name><![CDATA[damalaan]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1000</uri>
+		</author>
+		<updated>2017-01-09T13:02:06Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24531#p24531</id>
+	</entry>
+</feed>

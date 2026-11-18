@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Conception]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=612&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=612"/>
+	<updated>2010-02-08T13:54:49Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=612</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Conception]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=3850#p3850"/>
+		<content type="html"><![CDATA[<p>Merci pour vos reponses !<br />je crois que je vais creer 3 tables (alertes_maison, ....).</p>]]></content>
+		<author>
+			<name><![CDATA[arthurr]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=62</uri>
+		</author>
+		<updated>2010-02-08T13:54:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=3850#p3850</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Conception]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=3823#p3823"/>
+		<content type="html"><![CDATA[<p>Si j&#039;ai bien compris, il y a toujours des propriétés différentes entre les tables alerte : les clés étrangères vers maison ou propriétaire ou voiture. Donc héritage (conceptuel) sur les alertes. Après il y différentes solutions pour représenter l&#039;héritage, dont l&#039;héritage de tables. Le choix doit se faire en fonction de ce que fait l&#039;application.</p><p>Sinon attention avec les exemples bidon à ne pas confondre le cas de l&#039;association (comme ici, une voiture peut changer de propriétaire) et celui de la composition (comme avec les lignes de facture par exemple, dans ce cas la première colonne de la clé primaire de la table ligne doit contenir la clé de la table facture...)<br />un lien fort intéressant là-dessus (merci Marc...)<br /><a href="http://it.toolbox.com/blogs/database-soup/normalization-performance-and-virtual-private-databases-32525" rel="nofollow">http://it.toolbox.com/blogs/database-so … ases-32525</a></p>]]></content>
+		<author>
+			<name><![CDATA[flo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=216</uri>
+		</author>
+		<updated>2010-02-05T16:23:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=3823#p3823</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Conception]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=3820#p3820"/>
+		<content type="html"><![CDATA[<p>En fait, les relations FK ne marchent pas de façon vraiment correcte sur les tables héritées : si vous déclarez une colonne de la table alerte comme ayant comme FK une colonne de objet, le code de vérification des FK n&#039;ira pas vérifier dans les tables filles que cet objet existe.</p><p>Je pense que vous avez plutôt intérêt de vous en tenir à une conception classique : une table propriétaire, une table maison avec le propriétaire et une FK vers propriétaire, une table voiture avec le propriétaire (et FK vers propriétaire) et l&#039;endroit où elle est garée (et FK vers maison).</p><p>Pour ce qui est des alertes, là effectivement vous pouvez les éclater entre plusieurs tables filles si les propriétés des alertes sont différentes entre les alertes maison et les alertes voiture, ou sinon dans des tables complètement distinctes (comme on le ferait si il n&#039;y avait pas d&#039;héritage).</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-02-05T16:01:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=3820#p3820</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Conception]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=3815#p3815"/>
+		<content type="html"><![CDATA[<p>Un truc du style :<br />table &quot;objet&quot; avec un id_objet et 3 tables heritees de cette meme table : maison, voiture, proprietaire<br />avec ca, je peux juste creer une table alerte et lier alerte avec ma table objet.</p><p>mais ca va complexifier les choses : liaisons entre proprietaire / maison / voiture.</p><p>je ne suis pas certain d&#039;etre tres clair dans mes explications ...</p>]]></content>
+		<author>
+			<name><![CDATA[arthurr]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=62</uri>
+		</author>
+		<updated>2010-02-05T10:14:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=3815#p3815</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Conception]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=3814#p3814"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>arthurr a écrit&#160;:</cite><blockquote><div><p>- j&#039;ai pense au debut travailler avec des tables heritees (sur maison/voiture/propritaire)</p></div></blockquote></div><p>Que voulez-vous dire ? quelle table hérite de quoi?</p>]]></content>
+		<author>
+			<name><![CDATA[flo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=216</uri>
+		</author>
+		<updated>2010-02-05T10:06:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=3814#p3814</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Conception]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=3813#p3813"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Heureux de travailler avec Pg, j&#039;ai une petite question de &quot;savoir faire&quot; concernant vos methodes de modelisations.<br />Dans le cadre d&#039;un nouveau projet, je dois lier un certain nombre de tables a une seul.<br />Exemple bidon :<br />une table voiture<br />une table maison (0 a n voitures garees dans une maison))<br />une table proprietaire (qui possede 0 a n voitures et 0 a n maisons)</p><p>et pour chacune de ces tables (tres differentes), je dois gerer une nouvelle info. par exemple un historique d&#039;alertes.<br />j&#039;ai donc une table alerte (avec un id_alerte, une date, un type d&#039;alerte).<br />je ne vois pas trop comment faire la liaison avec mes alertes et mes autres tables qui ont des PK differentes ...</p><p>Les solutions qui me viennent : <br />- j&#039;ai pense au debut travailler avec des tables heritees (sur maison/voiture/propritaire) , mais j&#039;ai besoin d&#039;identifier facilement le propretaire et de connaitre ses biens (dans notre exemple).<br />- creer 3 tables : alerte_maison, alerte_voiture, alerte_proprietaire<br />- creer une table alerte (avec id_alerte, date, type_alerte) puis creer trois tables heritees de celle-ci : alerte_maison (avec la fk id_maison), alerte_voiture, ....</p><p>vous avez une solution &quot;magique&quot; ??? <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>merci de votre aide</p>]]></content>
+		<author>
+			<name><![CDATA[arthurr]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=62</uri>
+		</author>
+		<updated>2010-02-05T09:05:55Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=3813#p3813</id>
+	</entry>
+</feed>

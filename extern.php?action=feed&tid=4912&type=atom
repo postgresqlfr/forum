@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / databasename\r]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4912&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4912"/>
+	<updated>2018-10-08T06:44:04Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4912</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  databasename\r]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28381#p28381"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><p>C&#039;est résolu.&#160; La base a été supprimer en suivant le conseil de dverite ci-dessous.</p><p>C&#039;est vérifiable avec une requête:</p><p>select c, ascii(c) from <br /> (select regexp_split_to_table(datname, &#039;&#039;) as c <br /> from pg_database where datname like &#039;comptable\_1%&#039;) s;<br />Cette requête sort chaque caractère du nom de la base séparément avec son code.</p><p>Si le dernier caractère est bien le code 13, on pourrait utiliser par exemple la syntaxe unicode suivante pour&#160; supprimer la base:</p><p>DROP DATABASE U&amp;&quot;comptable_1\000d&quot;;<br />ou la renommer</p><p>ALTER DATABASE U&amp;&quot;comptable_1\000d&quot; RENAME TO &quot;autre_nom&quot;;</p><p>Merci à vous</p>]]></content>
+		<author>
+			<name><![CDATA[volatianamaryse]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8288</uri>
+		</author>
+		<updated>2018-10-08T06:44:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28381#p28381</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  databasename\r]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28370#p28370"/>
+		<content type="html"><![CDATA[<p>\r peut être un retour chariot (code 13) exprimé en séquence d&#039;échappement. En fait le nom de la base serait comptable_1 suivi du caractère de code 13. Pour savoir comment/pourquoi c&#039;est arrivé il faudrait analyser avec quelle méthode/outil cette table a été créée.</p><br /><p>C&#039;est vérifiable avec une requête:</p><div class="codebox"><pre><code>select c, ascii(c) from 
+ (select regexp_split_to_table(datname, &#039;&#039;) as c 
+ from pg_database where datname like &#039;comptable\_1%&#039;) s;</code></pre></div><p>Cette requête sort chaque caractère du nom de la base séparément avec son code.</p><p>Si le dernier caractère est bien le code 13, on pourrait utiliser par exemple la syntaxe unicode suivante pour&#160; supprimer la base:</p><div class="codebox"><pre><code>DROP DATABASE U&amp;&quot;comptable_1\000d&quot;;</code></pre></div><p>ou la renommer</p><div class="codebox"><pre><code>ALTER DATABASE U&amp;&quot;comptable_1\000d&quot; RENAME TO &quot;autre_nom&quot;;</code></pre></div><p>000d étant le code Unicode hexa correspondant à 13.</p><p>Voir la doc <a href="https://docs.postgresql.fr/10/sql-syntax.html" rel="nofollow">https://docs.postgresql.fr/10/sql-syntax.html</a></p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2018-10-05T13:54:39Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28370#p28370</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  databasename\r]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28369#p28369"/>
+		<content type="html"><![CDATA[<p>Cela me fait penser à une fin de ligne Windows, copiée/collée dans un script unix.<br />Si dans psql vous faites<br />CREATE DATABASE base_1;<br />puis <br />\l<br />qu&#039;obtenez-vous ?</p>]]></content>
+		<author>
+			<name><![CDATA[jmarsac]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7302</uri>
+		</author>
+		<updated>2018-10-05T13:36:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28369#p28369</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  databasename\r]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28368#p28368"/>
+		<content type="html"><![CDATA[<p>Merci beaucoup pour votre réponse</p><p>Avant le nom de la base crée&#160; est comptable_1.<br />Mais il se passe quelque chose que je ne sais pas le nom de la base devient comptable_1\r<br />Et je ne peux pas la supprimer</p>]]></content>
+		<author>
+			<name><![CDATA[volatianamaryse]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8288</uri>
+		</author>
+		<updated>2018-10-05T12:22:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28368#p28368</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  databasename\r]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28367#p28367"/>
+		<content type="html"><![CDATA[<p>Du coup, il manque le \r.Personnellement, je testerais &quot;DROP DATABASE &quot;comptable-_1\\r;&quot;</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2018-10-05T12:15:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28367#p28367</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  databasename\r]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28366#p28366"/>
+		<content type="html"><![CDATA[<p>bonjour,</p><p>quand je fait \l pour lister les bases existants le résultat est comme ci dessous</p><p>postgres<br />comptable<br />comptable-_1\r<br />compltable_2\r</p><p>je me demande d&#039;où vient le \r&#160; en fin du nom de la base.<br />Et en plus quand je fait</p><p>drop database comptable_1</p><p>le resultat m&#039;a dit &quot;database&#160; does not exist&quot;</p><p>Merci beacoup pour votre réponse</p>]]></content>
+		<author>
+			<name><![CDATA[volatianamaryse]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8288</uri>
+		</author>
+		<updated>2018-10-05T08:32:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28366#p28366</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  databasename\r]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28365#p28365"/>
+		<content type="html"><![CDATA[<p>Quel ordre exécutez-vous ?</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2018-10-05T08:25:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28365#p28365</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[databasename\r]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28364#p28364"/>
+		<content type="html"><![CDATA[<p>Bonjour</p><p>Quand je fait \l liste la base de données, certaine base est &quot;databasename\r&quot;.<br />J&#039;essaie de le supprimer mais il y a une erreur &quot;database name does not exist&quot;</p><p>Merci à vous</p>]]></content>
+		<author>
+			<name><![CDATA[volatianamaryse]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8288</uri>
+		</author>
+		<updated>2018-10-04T13:01:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28364#p28364</id>
+	</entry>
+</feed>

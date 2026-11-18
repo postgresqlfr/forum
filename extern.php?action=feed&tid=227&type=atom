@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / ARCHIVAGE et INSTALLATION BDD]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=227&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=227"/>
+	<updated>2009-04-06T13:18:34Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=227</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ARCHIVAGE et INSTALLATION BDD]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1114#p1114"/>
+		<content type="html"><![CDATA[<p>tu as vraiment réponse à tout, faut que j&#039;arrive à te trouvé une colle !!!!</p><p>j&#039;ai pas encore le réflexe d&#039;aller voir le fichier pg_log mais ca va venir !</p><p>LOG:&#160; parameter &quot;archive_mode&quot; cannot be changed after server start; configuration file change ignored</p><p>pg_ctl restart -D /PGSQL/TEST1</p><br /><p>j&#039;ai fait ça :</p><p>insert into film (film_id, title, language_id) select generate_series(1001,2000000), &#039;RAMBO&#039; || generate_series(1001,2000000),&#160; 1;</p><br /><p>WAL remplies + archives dans /PGSQL/backups/WAL/</p><p>j&#039;essaie au maximum de &quot;jouer&quot; avec le max de paramètres</p><p>Merci beaucoup gleu !!!!!!!</p>]]></content>
+		<author>
+			<name><![CDATA[bil69]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=310</uri>
+		</author>
+		<updated>2009-04-06T13:18:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1114#p1114</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ARCHIVAGE et INSTALLATION BDD]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1113#p1113"/>
+		<content type="html"><![CDATA[<p>Si tu as passé archive_mode de off à on et si tu as seulement fait un reload, ça ne peut pas fonctionner. La modification de archive_mode demande un restart.</p><p>Si ce n&#039;est pas ça, tu dois avoir des messages d&#039;erreur dans les traces.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2009-04-06T09:36:35Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1113#p1113</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ARCHIVAGE et INSTALLATION BDD]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1112#p1112"/>
+		<content type="html"><![CDATA[<p>BONJOUR </p><p>j&#039;ai fait les manipulations que tu m&#039;as conseillé de faire et ça fonctionne parfaitement (suppression, création&#160; et requêtes)</p><p>Sous pg_xlog, j&#039;ai les 8 WAL remplient à 16ko !!!!</p><p>Sinon j&#039;ai lancé un archivage qui semble ne pas fonctionner ! </p><p># - Archiving -</p><p>archive_mode = on&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;# allows archiving to be done<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # (change requires restart)<br />archive_command =&#160; &#160;&#039;cp &quot;%p&quot; /PGSQL/backups/WAL/&quot;%f&quot;&#039;&#160; &#160;# command to use to archive a logfile segment<br />#archive_timeout = 0&#160; &#160; &#160; &#160; &#160; &#160; # force a logfile segment switch after this<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # time; 0 is off</p><p>Sous /PGSQL/backups/WAL/&#160; rien du tout</p><p>Pourtant après modification du fichier de conf, je fais relire la configuration :</p><p>pg_ctl reload -D /PGSQL/TEST1<br />server signaled</p><p>Une petite piste...</p><p>Merci d&#039;avance,</p>]]></content>
+		<author>
+			<name><![CDATA[bil69]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=310</uri>
+		</author>
+		<updated>2009-04-06T08:52:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1112#p1112</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ARCHIVAGE et INSTALLATION BDD]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1094#p1094"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Voici la requete<br />psql -U pgsql -d testdb -f /PGSQL/TEST1/pagila-0.10.1/pagila-0.10.1/pagila-schema.sql</p><p>le schema ??? il est dans le fichier texte&#160; <a href="http://pgfoundry.org/projects/dbsamples" rel="nofollow">http://pgfoundry.org/projects/dbsamples</a></p></div></blockquote></div><p>Si le psql ne fonctionne pas, c&#039;est que vous avez dajà dû l&#039;exécuter une fois. Mon conseil est de supprimer la base, de la recréer, de recréer le schéma, puis de réinsérer les données</p><div class="quotebox"><blockquote><div><p>sinon pour le insert ???</p><p>insert into matable (id, name) select generate_series(1,250000) as truc, &#039;toto&#039; || generate_series(1,250000) as machin;</p></div></blockquote></div><p>Une seule exécution de cette instruction ne suffira peut-être pas à remplir un journal. Mais deux fois cette exécution doit suffire.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2009-04-03T16:04:21Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1094#p1094</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ARCHIVAGE et INSTALLATION BDD]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1093#p1093"/>
+		<content type="html"><![CDATA[<p>Voici la requete<br />psql -U pgsql -d testdb -f /PGSQL/TEST1/pagila-0.10.1/pagila-0.10.1/pagila-schema.sql</p><p>le schema ??? il est dans le fichier texte&#160; <a href="http://pgfoundry.org/projects/dbsamples" rel="nofollow">http://pgfoundry.org/projects/dbsamples</a></p><p>sinon pour le insert ???</p><p>insert into matable (id, name) select generate_series(1,250000) as truc, &#039;toto&#039; || generate_series(1,250000) as machin;</p>]]></content>
+		<author>
+			<name><![CDATA[bil69]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=310</uri>
+		</author>
+		<updated>2009-04-03T15:44:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1093#p1093</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ARCHIVAGE et INSTALLATION BDD]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1092#p1092"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>ERROR:&#160; duplicate key value violates unique constraint &quot;country_pkey&quot;</p></div></blockquote></div><p>L&#039;erreur est une chose, mais il faudrait avoir la requête et le schéma de la table.</p><div class="quotebox"><blockquote><div><p>Sinon un ce que un insert simple sur une table (assimiler à une transaction) permettra de remplir les WAL ???</p></div></blockquote></div><p>Il faudrait un très gros insert, pour plusieurs milliers de lignes par exemple.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2009-04-03T15:15:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1092#p1092</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ARCHIVAGE et INSTALLATION BDD]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1091#p1091"/>
+		<content type="html"><![CDATA[<p>Voici l&#039;erreur :</p><p>ERROR:&#160; duplicate key value violates unique constraint &quot;country_pkey&quot;<br />ERROR:&#160; duplicate key value violates unique constraint &quot;country_pkey&quot;<br />ERROR:&#160; duplicate key value violates unique constraint &quot;country_pkey&quot;<br />ERROR:&#160; duplicate key value violates unique constraint &quot;country_pkey&quot;<br />ERROR:&#160; duplicate key value violates unique constraint &quot;country_pkey&quot;</p><p>Sinon un ce que un insert simple sur une table (assimiler à une transaction) permettra de remplir les WAL ???</p><p>quand je fais un insert dans la table actor cela ne fonctionne pas !!!</p><br /><p>Merci d&#039;avance,</p>]]></content>
+		<author>
+			<name><![CDATA[bil69]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=310</uri>
+		</author>
+		<updated>2009-04-03T15:11:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1091#p1091</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ARCHIVAGE et INSTALLATION BDD]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1090#p1090"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>j&#039;observe une erreur au niveau des clés primaires il faut les incrémenter mais de quelle façon ????</p></div></blockquote></div><p>C&#039;est-à-dire ? tout dépend leur type, leur déclaration...</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2009-04-03T14:59:50Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1090#p1090</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ARCHIVAGE et INSTALLATION BDD]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1088#p1088"/>
+		<content type="html"><![CDATA[<p>Merci beaucoup !!! la BBD est installée</p><p>Une autre petite question :</p><p>J&#039;active l&#039;archivage et je relance pg_ctl reload -D /PGSQL/TEST1</p><p>J&#039;aimerai voir si cela fonctionne, <br />Étant donné que les fichiers WAL sont de taille fixes (16Mo il faut remplir à fond...), j&#039;ai envie d&#039;insérer plusieurs fois la BDD seulement j&#039;observe une erreur au niveau des clés primaires il faut les incrémenter mais de quelle façon ????</p><br /><p>Voici mon ficher de conf :</p><p>#------------------------------------------------------------------------------<br /># WRITE AHEAD LOG<br />#------------------------------------------------------------------------------</p><p># - Settings -</p><p>#fsync = on&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # turns forced synchronization on or off<br />#synchronous_commit = on&#160; &#160; &#160; &#160; # immediate fsync at commit<br />#wal_sync_method = fsync&#160; &#160; &#160; &#160; # the default is the first option <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # supported by the operating system:<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;open_datasync<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;fdatasync<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;fsync<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;fsync_writethrough<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; #&#160; &#160;open_sync<br />#full_page_writes = on&#160; &#160; &#160; &#160; &#160; &#160; # recover from partial page writes<br />#wal_buffers = 64kB&#160; &#160; &#160; &#160; &#160; &#160; # min 32kB<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # (change requires restart)<br />#wal_writer_delay = 200ms&#160; &#160; &#160; &#160; # 1-10000 milliseconds</p><p>#commit_delay = 0&#160; &#160; &#160; &#160; &#160; &#160; # range 0-100000, in microseconds<br />#commit_siblings = 5&#160; &#160; &#160; &#160; &#160; &#160; # range 1-1000</p><p># - Checkpoints -</p><p>#checkpoint_segments = 3&#160; &#160; &#160; &#160; # in logfile segments, min 1, 16MB each<br />#checkpoint_timeout = 5min&#160; &#160; &#160; &#160; # range 30s-1h<br />#checkpoint_completion_target = 0.5&#160; &#160; # checkpoint target duration, 0.0 - 1.0<br />#checkpoint_warning = 30s&#160; &#160; &#160; &#160; # 0 is off</p><p># - Archiving -</p><p>archive_mode = on&#160; &#160; &#160; &#160; # allows archiving to be done<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # (change requires restart)<br />archive_command =&#160; &#160;&#039;cp &quot;%p&quot; /PGSQL/backups/WAL/&quot;%f&quot;&#039;&#160; &#160; # command to use to archive a logfile segment<br />#archive_timeout = 0&#160; &#160; &#160; &#160; # force a logfile segment switch after this<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; # time; 0 is off</p>]]></content>
+		<author>
+			<name><![CDATA[bil69]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=310</uri>
+		</author>
+		<updated>2009-04-03T14:54:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1088#p1088</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ARCHIVAGE et INSTALLATION BDD]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1082#p1082"/>
+		<content type="html"><![CDATA[<p>C&#039;est bien ça. Mais ça n&#039;archive réellement que les modifications binaires apportées à chaque fichier de chaque base.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2009-04-03T10:27:03Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1082#p1082</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ARCHIVAGE et INSTALLATION BDD]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1079#p1079"/>
+		<content type="html"><![CDATA[<p>MERCI INFINIMENT</p><p>Je voulais archiver toute les modification qui pourraient être réaliser au niveau de la base...</p>]]></content>
+		<author>
+			<name><![CDATA[bil69]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=310</uri>
+		</author>
+		<updated>2009-04-03T10:02:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1079#p1079</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ARCHIVAGE et INSTALLATION BDD]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1076#p1076"/>
+		<content type="html"><![CDATA[<div class="codebox"><pre><code>psql -f fichier.sql base</code></pre></div><p>ou</p><div class="codebox"><pre><code>psql base &lt; fichier.sql</code></pre></div><p>command_archive permet de conserver les journaux de transactions. Mais pas sûr que cela corresponde à ce que vous voulez. Que cherchez-vous ?</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2009-04-03T09:45:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1076#p1076</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[ARCHIVAGE et INSTALLATION BDD]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1071#p1071"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>(Je suis novice...)</p><p>Gleu m&#039;a conseillé la BDD pagila (merci) seulement étant connecté a mon serveur par l&#039;intermédiaire de Putty, j&#039;ai installé ma base sous /PGSQL/TEST1/<br />j&#039;ai crée une base testdb ( createdb testdb) et user pqsql</p><p>Je me demande comment installer les différents fichiers: pagila-data.sql pagila-insert-data.sql pagila-schema.sql (Dois je les copier dans 3 fichiers sql (&quot;vi nom.sql&quot;) et utiliser &quot;psql testdb &lt; /nom.sql&quot; )</p><p>sinon avant de faire toute cette manipulation, je voudrai observer si il y a une archive de la création de cette BDD:</p><p>Dans le fichier postgresql.conf : archive_command = ’cp &quot;%p&quot; /PGSQL/TEST/&quot;%f&quot;’</p><p>Malgré les explications pour &quot;%p&quot; et &quot;%f&quot; je n&#039;ai pas trop compris .... en tout cas j&#039;ai mis ce qui se trouve ci-dessus.</p><p>Merci d&#039;avance,</p>]]></content>
+		<author>
+			<name><![CDATA[bil69]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=310</uri>
+		</author>
+		<updated>2009-04-03T09:27:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1071#p1071</id>
+	</entry>
+</feed>

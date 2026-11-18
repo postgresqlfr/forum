@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Listen & Notify]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1280&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1280"/>
+	<updated>2011-04-12T05:26:01Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1280</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Listen & Notify]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8868#p8868"/>
+		<content type="html"><![CDATA[<p>Quand on effectue la même chose avec 2 sessions psql, les messages sont bien reçus sur la session qui fait le listen correctement.</p><p>À mon avis, vous ne recevez vos notifications que quand vous êtes hors transaction, ce qui est normal (et expliqué dans la doc de la commande notify). La raison est simple: si vous receviez vos notifications alors que vous êtes en cours de transaction, que faire quand celle-ci est annulée ? La remettre dans la liste des notifications à vous transmettre ?</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-04-12T05:26:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8868#p8868</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Listen & Notify]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8856#p8856"/>
+		<content type="html"><![CDATA[<p>Nouveau problème avec Notify</p><p>J&#039;ai placé la commande Notify dans un trigger pour chaque Insert/Update d&#039;une certaine table.<br />Lors de la mise à jour d&#039;UN record, je recois bien de facon synchrone le message de notification dans mon application, un service windows qui tourne sur la meme machine que la base postgresql donc pas de problème lié au réseau du genre Time_out, l&#039;execution coté service a été réduite au minimum, c&#039;est à dire juste enregister un trace dans un fichier.</p><p>Lors de la mise à jour de 3 records (voire plus) je recois&#160; UN message de notification en mode synchrone les 2 autres en mode asynchrone !<br />Pour une investigation plus simple je place depuis l&#039;editeur SQL de pgAdmin les commandes suivantes.<br />select pg_notify(&#039;modif_table&#039;, &#039;101&#039;);<br />select pg_notify(&#039;modif_table&#039;, &#039;102&#039;);<br />select pg_notify(&#039;modif_table&#039;, &#039;103&#039;);&#160; &#160; &#160;je lance l&#039;execution,&#160; &#160;coté application&#160; je recois&#160; &#160;101 uniquement</p><p>Maintenant je place ces 3 autres commandes<br />select pg_notify(&#039;modif_table&#039;, &#039;201&#039;);<br />select pg_notify(&#039;modif_table&#039;, &#039;202&#039;);<br />select pg_notify(&#039;modif_table&#039;, &#039;203&#039;);&#160; &#160; &#160; je lance l&#039;execution.... et je recois&#160; &#160;102, 103, 201 !</p><p>Maintenant je place ces 3 autres commandes<br />select pg_notify(&#039;modif_table&#039;, &#039;301&#039;);<br />select pg_notify(&#039;modif_table&#039;, &#039;302&#039;);<br />select pg_notify(&#039;modif_table&#039;, &#039;303&#039;);&#160; &#160; &#160;je lance l&#039;execution.... et je recois&#160; &#160;202, 203, 301 !&#160; &#160; etc...</p><p>J&#039;ai essayé de placer des pg_sleep() de 1s de 5 s...&#160; entre chaque commande, juste à la fin...etc sans un meilleur résultat.</p><p>Autre information : Version de la base 9.0.3,&#160; de pgAdmin 1.12.2</p><p>Y aurait-il une solution ?&#160; Est-ce un bug ? <br />Merci<br />Philippe</p>]]></content>
+		<author>
+			<name><![CDATA[ph_morville]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1132</uri>
+		</author>
+		<updated>2011-04-10T17:55:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8856#p8856</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Listen & Notify]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8404#p8404"/>
+		<content type="html"><![CDATA[<p>Oui. C&#039;est documenté dans l&#039;entête, mais pas dans le paragraphe sur les notifications. Un peu dommage… mais merci pour l&#039;information <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-03-14T10:28:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8404#p8404</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Listen & Notify]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8403#p8403"/>
+		<content type="html"><![CDATA[<p>Pour avoir une réponse synchrone il suffit d&#039;ajouter cette ligne dans la chaine de connexion<br />&#160; &#160;SyncNotification=true<br />Voir ce lien&#160; &#160; de Francisco Figueiredo Jr&#160; &#160; <a href="http://fxjr.blogspot.com/2006/04/synchronous-notification-explained.html" rel="nofollow">http://fxjr.blogspot.com/2006/04/synchr … ained.html</a></p><p>Thursday, April 13, 2006<br />Synchronous notification explained </p><p>Hi all,</p><p>it seems that my coined feature name &quot;synchronous notification&quot; is confusing everybody. I hope to explain it better now.<br />.....<br />It is disabled by default. You can enable it by specifying SyncNotification=true in your connection string.</p>]]></content>
+		<author>
+			<name><![CDATA[ph_morville]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1132</uri>
+		</author>
+		<updated>2011-03-14T10:20:31Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8403#p8403</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Listen & Notify]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8402#p8402"/>
+		<content type="html"><![CDATA[<p>Voila. Sinon dans l&#039;exemple, vous pouvez vous mettre en synchrone, le readline, je présume… à tester. N&#039;hésitez pas à noter les résultats des tests dans le thread, je suis sûr que ça peut intéresser des gens.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-03-14T08:54:31Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8402#p8402</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Listen & Notify]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8401#p8401"/>
+		<content type="html"><![CDATA[<p>Effectivement, c&#039;est la compréhension du mode asynchrone qu&#039;il faut assimiler,<br />Coté poste client il faut:<br />&#160; &#160; &#160;ouvrir une connexion<br />&#160; &#160; &#160;envoyer une commande listen xxx</p><p>Coté serveur <br />&#160; &#160; &#160;executer notify xxx sur l&#039;evenement de notre choix</p><p>Coté poste client à nouveau<br />&#160; &#160; &#160;envoyer une commande sql quelconque&#160; (Select,,,)<br />&#160; &#160; &#160;dans ce cas on reçoit bien la notification xxx</p>]]></content>
+		<author>
+			<name><![CDATA[ph_morville]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1132</uri>
+		</author>
+		<updated>2011-03-14T08:52:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8401#p8401</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Listen & Notify]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8398#p8398"/>
+		<content type="html"><![CDATA[<p>Je pense que le premier appel à &#039;listen modif_tables&#039; enregistre le listen. Mais comme écrit dans la doc, la notification n&#039;est réellement reçue qu&#039;à l&#039;ordre SQL suivant (un autre listen par exemple). La réception des listen est par défaut asynchrone. Si vous voulez que cela soit synchrone, je présume que c&#039;est le &#039;console.readline()&#039; de l&#039;exemple.</p><p>Quand on écrit en C, on a une fonction pour savoir s&#039;il y a quelque chose dans la file d&#039;attente : PQnotifies. Apparemment, elle n&#039;est pas accessible dans npgsql. Je présume qu&#039;il l&#039;exécute dans votre dos à chaque exécution d&#039;ordre SQL.</p><p>PS: je ne connais pas le driver npgsql, ni .net dans son ensemble, je n&#039;ai donc pas testé dans votre contexte. Mais à la lecture de la doc, et connaissant le fonctionnement habituel de LISTEN/NOTIFY, ça semble logique.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-03-14T07:16:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8398#p8398</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Listen & Notify]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8397#p8397"/>
+		<content type="html"><![CDATA[<p>Le coup du NOTIFY dans un trigger fonctionne bien, j&#039;ai déjà eu à utiliser. Maintenant, la partie Npgsql... aucune idée...</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-03-14T06:49:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8397#p8397</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Listen & Notify]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=8396#p8396"/>
+		<content type="html"><![CDATA[<p>Bonjour à Tous,</p><p>J&#039;essaie en vain d&#039;utiliser Listen et Notify dans le contexte suivant<br />Un pc (windows)&#160; sur lequel tourne une application de test avec ces quelques lignes, que j&#039;aie reprises de la doc npgsql.</p><p>&#160; &#160; &#160; &#160;conn = new NpgsqlConnection(&quot;Server=.....etc&#160; &quot;);<br />&#160; &#160; &#160; &#160;conn.Open();<br />&#160; &#160; <br />&#160; &#160; &#160; &#160; NpgsqlCommand command = new NpgsqlCommand(&quot;listen modif_table;&quot;, conn);<br />&#160; &#160; &#160; &#160; command.ExecuteNonQuery();<br />&#160; &#160; &#160; &#160; <br />&#160; &#160; &#160; &#160; conn.Notification += new NotificationEventHandler(NotificationSupportHelper);</p><p>&#160; &#160; &#160; &#160; J&#039;ai essayé ici un Select...il fonctionne, la connexion est donc bien valide<br />&#160; &#160; &#160; &#160; je ne ferme pas la connexion, l&#039;objet conn reste valide durant toute la durée du test <br />&#160; &#160; &#160; &#160; &#160;......</p><p> private void NotificationSupportHelper(Object sender, NpgsqlNotificationEventArgs args)<br />&#160; &#160; {<br />&#160; &#160; &#160; &#160; listbox.items.add(&quot;Notification recue&quot;);&#160; &#160; &#160; &#160; <br />&#160; &#160; }</p><br /><br /><p>Un serveur (Windows) distant&#160; sur lequel est installé postgresql<br />&#160; &#160; &#160; &#160;à l&#039;aide de pgAdmin avec l&#039;editeur de requete j&#039;execute:&#160; notify modif_table;&#160; &#160; et je ne recois pas la notification sur le poste client.</p><p>Notez bien que les 2 machines sont distantes.</p><p>Le but est de placer notify dans un trigger, et de recevoir une notification sur une application en cas de modification d&#039;une table bien précise.</p><p>Merci de votre aide<br />Philippe</p>]]></content>
+		<author>
+			<name><![CDATA[ph_morville]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1132</uri>
+		</author>
+		<updated>2011-03-13T20:56:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=8396#p8396</id>
+	</entry>
+</feed>

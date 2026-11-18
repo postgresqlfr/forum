@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Calcule d'une médiane sous postGreSql]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5641&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5641"/>
+	<updated>2019-11-11T21:44:22Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5641</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Calcule d'une médiane sous postGreSql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30377#p30377"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>dverite a écrit&#160;:</cite><blockquote><div><p>Pour un calcul de médiane tout fait en postgresql moderne, on peut utiliser percentile_cont ou percentile_disc.<br />Voir <a href="https://forums.postgresql.fr/viewtopic.php?id=4218" rel="nofollow">https://forums.postgresql.fr/viewtopic.php?id=4218</a></p></div></blockquote></div><p>tout simplement en fait. <br />un grand grand merci !!!</p>]]></content>
+		<author>
+			<name><![CDATA[slenoble]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8747</uri>
+		</author>
+		<updated>2019-11-11T21:44:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30377#p30377</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Calcule d'une médiane sous postGreSql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30376#p30376"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />merci beaucoup.<br />C&#039;est déjà beaucoup plus clair (et presque évident avec l&#039;explication) sur le fonctionnement du code dont je disposais.<br />Je vais tester tout cela et je vous tiens au courant.</p><p>Stéphane</p>]]></content>
+		<author>
+			<name><![CDATA[slenoble]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8747</uri>
+		</author>
+		<updated>2019-11-11T21:02:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30376#p30376</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Calcule d'une médiane sous postGreSql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30375#p30375"/>
+		<content type="html"><![CDATA[<p>Pour un calcul de médiane tout fait en postgresql moderne, on peut utiliser percentile_cont ou percentile_disc.<br />Voir <a href="https://forums.postgresql.fr/viewtopic.php?id=4218" rel="nofollow">https://forums.postgresql.fr/viewtopic.php?id=4218</a></p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2019-11-11T19:31:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30375#p30375</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Calcule d'une médiane sous postGreSql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30372#p30372"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Une fonction d&#039;agregation, c&#039;est pas vraiment ce qui se fait de plus simple pour commencer, mais bon, essayons quand même...</p><p>Ce qu&#039;on dit avec le create aggregate, c&#039;est que pour calculer cet agrégat, on a une variable d&#039;état qui est un tableau de numeric, qu&#039;à chaque nouvel élément on l&#039;ajoute à la fin du tableau (array_append), et qu&#039;une fois qu&#039;on a vu tous les enregistrements de l&#039;agrégat, on appelle _final_median pour retourner la valeur de l&#039;agrégat. initcond permet d&#039;initialiser la variable d&#039;état à un tableau vide.</p><p>La fonction est une fonction SQL (donc une simple requête). La valeur de retour de la fonction est donc le résultat de la requête. Les paramètres sont numérotés $1, $2, etc… (on peut leur donner des noms, mais là, vu qu&#039;il n&#039;y en a qu&#039;un…)</p><p>Comme $1 est un tableau, on l&#039;unnest (pour en refaire une liste d&#039;enregistrements). On trie par la sortie de l&#039;unnest (logique), et on récupère soit un soit deux enregistrements (suivant la valeur du modulo 2 de array_upper($1,1), c&#039;est à dire la taille du tableau). Donc si le tableau a un nombre impair d&#039;enregistrements, on prend 1 enregistrements, si il a un nombre pair, on en prend deux (pour calculer la moyenne). Même idée pour l&#039;offset, on prend le ceil(milieu du tableau). Donc ce subselect nous retourne le ou les deux enregistrements du «milieu». La requête principale en retourne la moyenne.</p><p>Maintenant que tout ça est posé, pourquoi on comptabilise les null? Parce qu&#039;ils sont dans le tableau. Donc pour éviter ça, deux solutions (désolé je vais dire des évidences <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /> ):<br />- ne pas les avoir dans le tableau<br />- les ignorer à la fin</p><p>Pour ne pas les avoir dans le tableau, il faut utiliser une fonction &quot;stricte&quot; d&#039;état, c&#039;est à dire une fonction déclarée comme stricte (c&#039;est un des arguments de create function). C&#039;est à dire une fonction qui retourne NULL quand on lui passe NULL. Évidemment, array_append n&#039;est pas stricte. On peut par exemple pour se sortir de votre problème déclarer une fonction stricte qui fait comme array_append, mais déclarée stricte. Quelque chose comme (je n&#039;ai pas testé):</p><div class="codebox"><pre><code>CREATE  OR REPLACE FUNCTION _strict_array_append(ANYARRAY, ANYELEMENT) RETURNS ANYARRAY STRICT AS 
+$$
+  SELECT array_append($1,$1)
+$$</code></pre></div><p>(array_append est polymorphique, autant faire pareil)</p><p>Qu&#039;il suffira d&#039;utiliser dans l&#039;agrégat à la place de l&#039;autre.</p><p>Sinon, l&#039;autre solution, c&#039;est juste d&#039;ignorer les NULL dans la fonction finale (moins bon d&#039;un point de vue algorithmique évidemment, mais peut être plus simple). Là il y a plein de solutions… je pense que le plus simple, c&#039;est une fonction intermédiaire qui supprime les null avant de les envoyer à la fonction finale... array_remove le fait très bien.</p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION _final_median(NUMERIC[])
+   RETURNS NUMERIC AS
+$$
+   SELECT _final_median_filtered(array_remove($1,NULL));
+$$
+LANGUAGE &#039;sql&#039; IMMUTABLE;
+
+CREATE OR REPLACE FUNCTION _final_median_filtered(NUMERIC[])
+   RETURNS NUMERIC AS
+$$
+   SELECT AVG(val)
+   FROM (
+     SELECT val
+     FROM unnest($1) val
+     ORDER BY 1
+     LIMIT  2 - MOD(array_upper($1, 1), 2)
+     OFFSET CEIL(array_upper($1, 1) / 2.0) - 1
+   ) sub;
+$$
+LANGUAGE &#039;sql&#039; IMMUTABLE;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2019-11-11T08:51:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30372#p30372</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Calcule d'une médiane sous postGreSql]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=30371#p30371"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous,<br />je suis confronté à un problème qui me semblait simple à la base mais qui au final me bloque depuis quelques temps.<br />J&#039;ai besoin de calculé une médiane sur un champs d&#039;une table.<br />J&#039;ai trouvé un code qui fait presque le travail (sur Postgre version au dela de 10) :</p><p>CREATE OR REPLACE FUNCTION _final_median(NUMERIC[])<br />&#160; &#160;RETURNS NUMERIC AS<br />$$<br />&#160; &#160;SELECT AVG(val)<br />&#160; &#160;FROM (<br />&#160; &#160; &#160;SELECT val<br />&#160; &#160; &#160;FROM unnest($1) val<br />&#160; &#160; &#160;ORDER BY 1<br />&#160; &#160; &#160;LIMIT&#160; 2 - MOD(array_upper($1, 1), 2)<br />&#160; &#160; &#160;OFFSET CEIL(array_upper($1, 1) / 2.0) - 1<br />&#160; &#160;) sub;<br />$$<br />LANGUAGE &#039;sql&#039; IMMUTABLE;</p><p>CREATE AGGREGATE median(NUMERIC) (<br />&#160; SFUNC=array_append,<br />&#160; STYPE=NUMERIC[],<br />&#160; FINALFUNC=_final_median,<br />&#160; INITCOND=&#039;{}&#039;<br />);</p><br /><p>Je dis que ça fait presque le job car j&#039;ai un pb de valeur manquante …. cette fonction, considère les valeurs &quot;NULL&quot; comme une modalité … je voudrais la même chose mais en ne tenant pas compte des valeurs NULL.</p><p>J&#039;ai un niveau de base en SQL, et je n&#039;ai jusque là jamais crée de fonction, du coup j&#039;avoue ne pas tout comprendre au code ci-dessus.</p><p>Est ce que quelqu&#039;un peut m&#039;aider ?</p><p>Merci beaucoup par avance,</p><p>Stéphane</p>]]></content>
+		<author>
+			<name><![CDATA[slenoble]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8747</uri>
+		</author>
+		<updated>2019-11-10T21:11:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=30371#p30371</id>
+	</entry>
+</feed>

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Index BRIN]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=6620&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=6620"/>
+	<updated>2023-08-29T02:07:21Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=6620</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Index BRIN]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34501#p34501"/>
+		<content type="html"><![CDATA[<p>Il s&#039;agit plutôt d&#039;une limitation générale dans l&#039;infrastructure de postgres.&#160; Pour l&#039;instant, les seuls moyens de récupérer un min() ou max() sont:</p><p>- renvoyer les donneés triées dans l&#039;ordre voulu et s&#039;arrêter une fois une valeur trouvée<br />- lire toutes les données et conserver la valeur maximum trouvée</p><br /><p>La première approche n&#039;est intéressante que si on peut retourner les données triées dans l&#039;ordre voulu, ce qui n&#039;est le cas que pour un index btree.</p><br /><p>Utiliser un index brin pour récupérer la valeur max sans lire toutes les données de la table serait théoriquement possible, mais nécessiterait de développer un nouveau mode d&#039;exécution.&#160; Comme discuté dans le thread pointé par pifor, le problème est également plus complexe qu&#039;il ne parait car les valeurs min/max stockées dans l&#039;index brin ne sont pas maintenues, et il n&#039;y a aucune garanties que ces valeurs soient toujours visible, ou simplement visible par la requête en cours d&#039;exécution.&#160; Cela veut dire la nécessité d&#039;avoir une approche récursive dans le cas où les ranges choisis ne contiennent aucune valeur supposées être présentes uniquement dans ceux-ci. Dans des cas extrêmes le temps d&#039;exécution pourrait devenir bien pire que lire toutes les données séquentiellement (potentiellement avec des workers parallèles).&#160; À noter qu&#039;il n&#039;y a pour l&#039;instant aucune statistique qui pourrait aider à décider si ce type de parcours serait intéressant ou non.&#160; Le cumul de tout ça explique probablement pourquoi personne n&#039;est intéressé pour travailler sur le sujet.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2023-08-29T02:07:21Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34501#p34501</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Index BRIN]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34499#p34499"/>
+		<content type="html"><![CDATA[<p>D&#039;après la discussion <a href="https://www.postgresql.org/message-id/12589.1565014830%40sss.pgh.pa.us" rel="nofollow">https://www.postgresql.org/message-id/1 … .pgh.pa.us</a>, il s&#039;agit d&#039;une limite connue des index BRIIN.<br /> Peut-être qu&#039;il s&#039;agit plus d&#039;une limite du &quot;query planner&quot; ?</p>]]></content>
+		<author>
+			<name><![CDATA[pifor]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8375</uri>
+		</author>
+		<updated>2023-08-28T18:29:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34499#p34499</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Index BRIN]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34489#p34489"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Il y a quelque chose qui me laisse perplexe, c&#039;est la non utilisation de l&#039;index BRIN sur un max() :</p><div class="codebox"><pre class="vscroll"><code>aegir=# select version();
+                                                               version                                                                
+--------------------------------------------------------------------------------------------------------------------------------------
+ PostgreSQL 14.9 (Ubuntu 14.9-0ubuntu0.22.04.1) on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0, 64-bit
+(1 row)
+aegir=# create table example (id bigint);
+CREATE TABLE
+aegir=# create index brin_example on example  using brin(id);
+CREATE INDEX
+aegir=# insert into example ( select generate_series(1,1000000));
+INSERT 0 1000000
+aegir=# select pg_size_pretty(pg_relation_size(&#039;example&#039;));
+ pg_size_pretty 
+----------------
+ 35 MB
+(1 row)
+
+aegir=# select pg_size_pretty(pg_relation_size(&#039;brin_example&#039;));
+ pg_size_pretty 
+----------------
+ 24 kB
+(1 row)
+aegir=# explain (analyze, verbose) select max(id) from example;
+                                                                   QUERY PLAN                                                                    
+-------------------------------------------------------------------------------------------------------------------------------------------------
+ Finalize Aggregate  (cost=10633.55..10633.56 rows=1 width=8) (actual time=80.798..90.351 rows=1 loops=1)
+   Output: max(id)
+   -&gt;  Gather  (cost=10633.33..10633.54 rows=2 width=8) (actual time=80.732..90.344 rows=3 loops=1)
+         Output: (PARTIAL max(id))
+         Workers Planned: 2
+         Workers Launched: 2
+         -&gt;  Partial Aggregate  (cost=9633.33..9633.34 rows=1 width=8) (actual time=55.675..55.676 rows=1 loops=3)
+               Output: PARTIAL max(id)
+               Worker 0:  actual time=43.249..43.250 rows=1 loops=1
+               Worker 1:  actual time=43.237..43.238 rows=1 loops=1
+               -&gt;  Parallel Seq Scan on public.example  (cost=0.00..8591.67 rows=416667 width=8) (actual time=0.009..26.193 rows=333333 loops=3)
+                     Output: id
+                     Worker 0:  actual time=0.011..20.722 rows=251488 loops=1
+                     Worker 1:  actual time=0.011..20.815 rows=251764 loops=1
+ Planning Time: 0.192 ms
+ Execution Time: 90.382 ms
+(16 rows)</code></pre></div><p>Pourquoi diable le BRIN n&#039;est pas utilisé ? Je pensais qu&#039;il suffisait de faire le max de toutes les bornes supérieures pour avoir le max() non ?</p><br /><p>Évidemment, avec un index btree, l&#039;index est bien utilisé :</p><div class="codebox"><pre><code>aegir=# create index bt_example on example(id);
+CREATE INDEX
+aegir=# explain (analyze, verbose) select max(id) from example;
+                                                                           QUERY PLAN                                                                            
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Result  (cost=0.45..0.46 rows=1 width=8) (actual time=0.026..0.027 rows=1 loops=1)
+   Output: $0
+   InitPlan 1 (returns $0)
+     -&gt;  Limit  (cost=0.42..0.45 rows=1 width=8) (actual time=0.024..0.025 rows=1 loops=1)
+           Output: example.id
+           -&gt;  Index Only Scan Backward using bt_example on public.example  (cost=0.42..28480.42 rows=1000000 width=8) (actual time=0.023..0.024 rows=1 loops=1)
+                 Output: example.id
+                 Index Cond: (example.id IS NOT NULL)
+                 Heap Fetches: 0
+ Planning Time: 0.165 ms
+ Execution Time: 0.039 ms
+(11 rows)</code></pre></div><p>Il y a quelque chose qui m&#039;échappe au sujet des BRIN ?</p>]]></content>
+		<author>
+			<name><![CDATA[herve.lefebvre]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=506</uri>
+		</author>
+		<updated>2023-08-25T16:30:45Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34489#p34489</id>
+	</entry>
+</feed>

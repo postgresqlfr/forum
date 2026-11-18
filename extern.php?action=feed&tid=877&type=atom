@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Probleme de message Parse]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=877&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=877"/>
+	<updated>2010-06-24T13:48:16Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=877</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Probleme de message Parse]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5473#p5473"/>
+		<content type="html"><![CDATA[<p>J&#039;aimerais bien savoir ce que ça vous fait gagner (en temps d&#039;exécution) par rapport à ce que ça vous fait perdre (en temps de codage, de maintenance, etc.).</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-06-24T13:48:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5473#p5473</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Probleme de message Parse]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5471#p5471"/>
+		<content type="html"><![CDATA[<p>Vous avez réellement de l&#039;unicode ? Sinon, c&#039;est vraiment plus simple de demander à la session d&#039;être en LATIN9 par exemple.</p><p>Aucune idée pour le BOM. Je ne sais pas comment est implémenté l&#039;UTF-8 dans le protocole bas niveau.</p><p>Pour ce qui est de l&#039;encodage en UTF-8 du texte de la requête, cela ne devrait rien changer, puisque tous les mots clés SQL sont de l&#039;ascii sur 7 bits. Sauf si vous avez mis des accents dans les noms d&#039;objets…</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-06-24T13:39:33Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5471#p5471</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Probleme de message Parse]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5469#p5469"/>
+		<content type="html"><![CDATA[<p>Faut &#039;il que j&#039;encode tout le message en UTF-8 ou juste la requete passée en parametre ? <br />Faut &#039;il que rajoute juste un BOM (Marque d&#039;ordre des octets) ou que je passe par une fonction d&#039;encodage de caractere ? </p><p>Merci en tout cas de m&#039;aider, ca fais plaisir !</p>]]></content>
+		<author>
+			<name><![CDATA[Fooshi]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=823</uri>
+		</author>
+		<updated>2010-06-24T13:01:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5469#p5469</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Probleme de message Parse]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5468#p5468"/>
+		<content type="html"><![CDATA[<p>Effectivement, j&#039;ai lu un peu vite, msg continue à être le pointeur.</p><p>Pour ce qui est du retour, il signifie que dans un champ de type chaîne, une donnée qui était attendue en UTF8 n&#039;était pas compatible. Donc il est possible que vous ayez besoin d&#039;encoder la requête en utf8. Enfin les chaînes de caractère en paramètre.</p><p>Vous pouvez aussi modifier votre client_encoding, c&#039;est probablement plus simple de laisser le serveur faire le travail.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-06-24T12:46:21Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5468#p5468</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Probleme de message Parse]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5467#p5467"/>
+		<content type="html"><![CDATA[<p>@Marc cousin : Effectivement je force une chaine vide mais pas &#039;\0&#039;, le 2 eme memcpy fonctionne tres bien d&#039;ailleurs. Ce code vient de moi mais je m&#039;inspire des fonctions de la libpq pour construire les messages et oui je comprend trés bien comment il fonctionne.</p><p>@gleu : Car mon chef de projet et moi avons développé des fonctions de requetes TCP et de gestion memoire (Double liste chainée de block pool notament) plus efficace que la libpq selon mon chef de projet et que je rajoute en ce moment la couche de communication du client PostgreSQL.</p><p>Apres avoir modifié mon code comme ceci : </p><br /><p>do<br />&#160; &#160; {<br />&#160; &#160; &#160; &#160; msg_len = 0;<br />&#160; &#160; &#160; &#160; if (msg)&#160; &#160; &#160; &#160; memcpy(msg + msg_len, &quot;&quot;, 1);&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; // An empty string selects the non-prepared statement named.<br />&#160; &#160; &#160; &#160; msg_len += 1;<br />&#160; &#160; &#160; &#160; if (msg)&#160; &#160; &#160; &#160; memcpy(msg + msg_len, query, strlen(query));// Query string to analyse.<br />&#160; &#160; &#160; &#160; msg_len += strlen(query) + 1;<br />&#160; &#160; &#160; &#160; if (count &gt; 0 &amp;&amp; paramtypes)<br />&#160; &#160; &#160; &#160; {<br />&#160; &#160; &#160; &#160; &#160; &#160; if (msg)&#160; &#160; sql_put_int(sizeof(int16), count, msg + msg_len);&#160; &#160; &#160; &#160; <br />&#160; &#160; &#160; &#160; &#160; &#160; msg_len += sizeof(int16);<br />&#160; &#160; &#160; &#160; &#160; &#160; for (i=0; i&lt;count; i++)<br />&#160; &#160; &#160; &#160; &#160; &#160; {<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; if (msg)sql_put_int(sizeof(int32), paramtypes[i], msg + msg_len);// Object ID of the data type of the parameter.<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; msg_len += sizeof(int32);<br />&#160; &#160; &#160; &#160; &#160; &#160; }<br />&#160; &#160; &#160; &#160; }<br />&#160; &#160; &#160; &#160; else<br />&#160; &#160; &#160; &#160; {<br />&#160; &#160; &#160; &#160; &#160; &#160; if (msg)&#160; &#160; sql_put_int(sizeof(int16), 0, msg + msg_len);&#160; &#160; &#160; &#160; &#160; &#160; // Many types of data specified parameter.<br />&#160; &#160; &#160; &#160; &#160; &#160; msg_len += sizeof(int16);<br />&#160; &#160; &#160; &#160; }<br />&#160; &#160; &#160; &#160; msg_len ++;<br />&#160; &#160; &#160; &#160; if (msg) break;&#160; &#160; <br />&#160; &#160; &#160; &#160; msg = (char *) malloc(msg_len);&#160; &#160; &#160; &#160; <br />&#160; &#160; }<br />&#160; &#160; while (msg);<br />&#160; &#160; sql_send_msg(sql_conn, &#039;P&#039;, msg_len, msg);</p><p>Le serveur me renvoie : Invalid byte sequence for encoding &#039;UTF8&#039;, This error can also happen if the byte sequence does not match the encoding exceped by the server, wich is controlled by &#039;clients_encoding&#039;<br />Faut t&#039;il que j&#039;encode ma requete en UTF8 ?</p>]]></content>
+		<author>
+			<name><![CDATA[Fooshi]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=823</uri>
+		</author>
+		<updated>2010-06-24T12:33:03Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5467#p5467</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Probleme de message Parse]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5465#p5465"/>
+		<content type="html"><![CDATA[<p>Si je comprends bien, le code vient de la libpq. Et ma question est : mais pourquoi vouloir refaire ce que fait déjà (et bien) la libpq ?</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-06-24T11:27:29Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5465#p5465</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Probleme de message Parse]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5463#p5463"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Sans commentaire, ce code est assez incompréhensible.<br />D&#039;entrée, je bloque sur :<br />&#160; msg_len = 0;<br />&#160; &#160; &#160; &#160; IF (msg)&#160; &#160; &#160; &#160; memcpy(msg + msg_len, &quot;&quot;, 1);&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; // An empty string selects the non-prepared statement named.<br />&#160; &#160; &#160; &#160; msg_len += 1;<br />&#160; &#160; &#160; &#160; IF (msg)&#160; &#160; &#160; &#160; memcpy(msg + msg_len, query, strlen(query));// Query string TO analyse.</p><p>Il n&#039;y a aucune raison que ça marche :<br />Vous copiez une chaine vide (aucun caractère, suivi d&#039;un \0, donc juste un \0) dans msg, sur 1 octet, via le memcpy. Donc vous forcez msg à&#160; \0. Peu de chance ensuite pour que le second if(msg) serve à quelque chose.</p><p>D&#039;où vient ce code ? C&#039;est un copier-coller, comme vous l&#039;avez dit ? d&#039;où provient-il et avez vous compris comment il fonctionne ?</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-06-24T10:26:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5463#p5463</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Probleme de message Parse]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5462#p5462"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />En C j&#039;essaye d&#039;envoyer une commande &#039;Parse&#039; a un serveur PostgreSQL .</p><p>Dans mon cas à moi, je selectionne une instruction préparée non nommée (chaine vide donc), nombre de types de donnée de paramètres spécifiés = 0 codé sur 16 bits donc.</p><p>j&#039;ai donc codé une fonction pour réaliser cette commande Parse, qui m&#039;enregistre dans un buffer la chaine suivante :</p><p>&#039;P00073 SELECT intval, floatval, strval FROM test_sqlclient WHERE name=$1;00 &#039;</p><p>P = Marqueur de commande &#039;Parse&#039;<br />00073 = 4 octets qui indiquent la taille<br />00 = Nombre de types de données de paramètre spécifiés (a la fin aprés le point virgule)</p><p>Je vous donne ma fonction en C :</p><p>/* Construct the &#039;Parse&#039; message&#160; &#160; */<br />&#160; &#160; do<br />&#160; &#160; {<br />&#160; &#160; &#160; &#160; msg_len = 0;<br />&#160; &#160; &#160; &#160; IF (msg)&#160; &#160; &#160; &#160; memcpy(msg + msg_len, &quot;&quot;, 1);&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; // An empty string selects the non-prepared statement named.<br />&#160; &#160; &#160; &#160; msg_len += 1;<br />&#160; &#160; &#160; &#160; IF (msg)&#160; &#160; &#160; &#160; memcpy(msg + msg_len, query, strlen(query));// Query string TO analyse.<br />&#160; &#160; &#160; &#160; msg_len += strlen(query);<br />&#160; &#160; &#160; &#160; IF (count &gt; 0 &amp;&amp; paramtypes)<br />&#160; &#160; &#160; &#160; {<br />&#160; &#160; &#160; &#160; &#160; &#160; IF (msg)&#160; &#160; sql_put_int(sizeof(int16), count, msg + msg_len);&#160; &#160; &#160; &#160; <br />&#160; &#160; &#160; &#160; &#160; &#160; msg_len += sizeof(int16);<br />&#160; &#160; &#160; &#160; &#160; &#160; FOR (i=0; i&lt;count; i++)<br />&#160; &#160; &#160; &#160; &#160; &#160; {<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; IF (msg)sql_put_int(sizeof(int32), paramtypes[i], msg + msg_len);// Object ID of the DATA type of the parameter.<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; msg_len += sizeof(int32);<br />&#160; &#160; &#160; &#160; &#160; &#160; }<br />&#160; &#160; &#160; &#160; }<br />&#160; &#160; &#160; &#160; else<br />&#160; &#160; &#160; &#160; {<br />&#160; &#160; &#160; &#160; &#160; &#160; IF (msg)&#160; &#160; sql_put_int(sizeof(int16), 0, msg + msg_len);&#160; &#160; &#160; &#160; &#160; &#160; // Many types of DATA specified parameter.<br />&#160; &#160; &#160; &#160; &#160; &#160; msg_len += sizeof(int16);<br />&#160; &#160; &#160; &#160; }<br />&#160; &#160; &#160; &#160; IF (msg) break;&#160; &#160; <br />&#160; &#160; &#160; &#160; msg = (char *) malloc(msg_len);<br />&#160; &#160; }<br />&#160; &#160; while(msg);</p><p>&#160; &#160; FOR (i=0; i&lt;msg_len; i++)<br />&#160; &#160; fprintf(stdout,&quot;%c&quot;,msg[i]);<br />&#160; &#160; <br />&#160; &#160; sql_send_msg(sql_conn, &#039;P&#039;, msg_len, msg);</p><p>La fonction sql_send_msg ajoute le message type &#039;P&#039; , puis la taille calculée (taille du message + taille elle meme&quot;), puis le message.</p><p>C&#039;est un probleme un peu special que j&#039;ai l&#039;a (developper un client postgrsql sans lib) mais je bloque pas mal et je vois pas ou est le probleme (j&#039;ai presque fais un copier coller de la libpq bibliotheque de postgresql)</p><p>Merci d&#039;avance en tout ca</p>]]></content>
+		<author>
+			<name><![CDATA[Fooshi]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=823</uri>
+		</author>
+		<updated>2010-06-24T10:03:09Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5462#p5462</id>
+	</entry>
+</feed>

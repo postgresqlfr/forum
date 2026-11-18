@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / fonction et transaction]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5003&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5003"/>
+	<updated>2018-12-11T14:47:24Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5003</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  fonction et transaction]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28746#p28746"/>
+		<content type="html"><![CDATA[<p>Oui, c&#039;est possible mais cette mise à jour ne sera visible par les autres sessions qu&#039;une fois la transaction validée (comme pour toute mise à jour).</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2018-12-11T14:47:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28746#p28746</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  fonction et transaction]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28745#p28745"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous,</p><p>est-ce que, si je crée ma table mouchard comme UNLOGGED, je vais pouvoir la mettre à jour à l&#039;intérieur d&#039;une transaction ?</p><p>Je vais essayer mais j&#039;aimerai une confirmation !<br />Cordialement,<br />J. MAURICE</p>]]></content>
+		<author>
+			<name><![CDATA[trainvapeur]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8059</uri>
+		</author>
+		<updated>2018-12-11T14:08:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28745#p28745</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  fonction et transaction]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28728#p28728"/>
+		<content type="html"><![CDATA[<p>Merci rjuju pour ces précisions. Pour le mouchard, je vais effectivement m&#039;interesser aux traces (chapitre 19.8 du manuel) et à pg_audit. Ce point est très important pour nous puisque nous sommes en train d&#039;évaluer Postgre en testant différentes options dans le but de remplacer les bases Oracle que nous avons en production.</p><p>Mais ta réponse m&#039;inquiète beaucoup. L&#039;application que je développe récupère règulièrement des données sur une base Oracle (3 mois de données, 50go) pour les historiser sur 5 ans (500go). Il y a une vingtaine de tables à traiter. J&#039;avais pensé faire une boucle &#039;infinie&#039; en plpgsql mais cela ne va pas fonctionner parce que les tables Postgre ne seront pas mises à jour à chaque itération. Vrai? Il faut donc lancer une fonction qui fait l&#039;import des données et qui sera lancée par le planificateur des tâches sous windows, idem pour Linux. Vrai ?</p><p>La sueur perle sur mon front !!</p><p>Merci d&#039;avance<br />Jean</p>]]></content>
+		<author>
+			<name><![CDATA[trainvapeur]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8059</uri>
+		</author>
+		<updated>2018-12-10T08:20:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28728#p28728</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  fonction et transaction]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28719#p28719"/>
+		<content type="html"><![CDATA[<p>Oui chaque requête effectuée, appel de fonction ou pas, est forcément dans une transaction, même implicite.&#160; Le problème est connu depuis longtemps.&#160; Il y a trois solutions possibles:</p><p>- logger dans la table via&#160; une connexion externe (par exemple avec l&#039;extension dblink, ou pg_background)<br />- utiliser les transactions autonomes disponibles avec pg11 et CALL (procédure plutôt que fonction), mais je ne crois pas qu&#039;on puisse mixer des procédures avec d&#039;autres types de requête<br />- tracer les actions ailleurs, par exemple avec pg_audit</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2018-12-07T09:07:38Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28719#p28719</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[fonction et transaction]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28718#p28718"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous,</p><p>j&#039;ai l&#039;impression qu&#039;une transaction entoure chaque fonction. Est-ce vrai ?</p><p>A priori, cela ne me génerait pas trop sauf pour une table. Cette table est un mouchard dans lequel j&#039;enregistre tout ce qu&#039;il se passe dans l&#039;application (pendant les tests cela devrait me permettre de savoir ce qu&#039;il s&#039;est passé juste avant un plantage). Or, si la fonction se plante alors que des enregistrements auraient du être créés dans le mouchard, ils n&#039;y sont pas. Comment corriger ce problème ?</p><p>D&#039;avance merci<br />Jean</p>]]></content>
+		<author>
+			<name><![CDATA[trainvapeur]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8059</uri>
+		</author>
+		<updated>2018-12-07T07:27:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28718#p28718</id>
+	</entry>
+</feed>

@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Replication streaming maitre- esclave]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4156&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4156"/>
+	<updated>2017-03-08T14:36:26Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4156</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Replication streaming maitre- esclave]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25048#p25048"/>
+		<content type="html"><![CDATA[<p>Merci</p>]]></content>
+		<author>
+			<name><![CDATA[cecile]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7413</uri>
+		</author>
+		<updated>2017-03-08T14:36:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25048#p25048</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Replication streaming maitre- esclave]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25047#p25047"/>
+		<content type="html"><![CDATA[<p>Oui.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2017-03-08T14:34:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25047#p25047</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Replication streaming maitre- esclave]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25046#p25046"/>
+		<content type="html"><![CDATA[<p>Merci beaucoup.<br />Alors si jamais l&#039;étape 4 se produisait, on doit pouvoir trouver dans les logs une ligne sur l&#039;exécution de la commande restore_command ?</p>]]></content>
+		<author>
+			<name><![CDATA[cecile]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7413</uri>
+		</author>
+		<updated>2017-03-08T14:27:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25046#p25046</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Replication streaming maitre- esclave]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25045#p25045"/>
+		<content type="html"><![CDATA[<p>Ça me parait normal. Le fonctionnement général est le suivant :</p><br /><p>1) récupération du maximum d&#039;information depuis les journaux de transaction<br />2) une fois le dernier journal récupéré (archive_command renvoie != 0), connexion en streaming replication<br />3) tant que la streaming replication renvoie des données, récupération des données via la streaming<br />4) retour à la première étape si la streaming réplication ne renvoie plus de données (typiquement serveur secondaire trop en retard)</p><br /><p>Vous êtes probablement constamment dans l&#039;étape 3.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2017-03-08T14:16:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25045#p25045</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Replication streaming maitre- esclave]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25044#p25044"/>
+		<content type="html"><![CDATA[<p>J&#039;ai comme impression qui passe par la réplication par le flux.<br />Dans les logs aucune information sur le rejeu des wals archivés.</p>]]></content>
+		<author>
+			<name><![CDATA[cecile]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7413</uri>
+		</author>
+		<updated>2017-03-08T14:06:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25044#p25044</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Replication streaming maitre- esclave]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25043#p25043"/>
+		<content type="html"><![CDATA[<p>Vous ne voyez pas l&#039;exécution de la commande sauf si votre commande affiche un message.&#160; Vous voyez par contre un message dans les logs pour chaque archive restaurée avec succès <strong>via le paramètre restore_command</strong> (message du type « restored log file &quot;XXXX&quot; from archive ».&#160; Si les paramètres restore_command et primary_conninfo sont utilisés, il y a de fortes chances que le message n&#039;apparaisse pas si les données sont restaurées via la streaming replication .</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2017-03-08T14:01:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25043#p25043</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Replication streaming maitre- esclave]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25042#p25042"/>
+		<content type="html"><![CDATA[<p>Je confondais a quel moment le recovery.conf etait renommé. Merci.<br />Dans les log du slave on doit voir l&#039;exécution de la commande restore_command (cp dans mon cas)&#160; du recovery.conf au moins ?</p>]]></content>
+		<author>
+			<name><![CDATA[cecile]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7413</uri>
+		</author>
+		<updated>2017-03-08T13:55:09Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25042#p25042</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Replication streaming maitre- esclave]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25041#p25041"/>
+		<content type="html"><![CDATA[<p>La réplication par flux et par WAL revient au même, c&#039;est uniquement le canal de transmission qui change.</p><br /><p>Et le recovery.conf est renommé en recovery.done une fois que la <strong>restauration</strong> est terminée, ou que l&#039;on décide de promouvoir l&#039;instance.&#160; La procédure est relativement semblable car la même infrastructure est utilisée. Concrètement, une réplication est une restauration qui ne s&#039;arrête jamais, ou une restauration est une réplication qui s&#039;arrête à un point dans le temps, au choix.&#160; Conserver le recovery.conf revient à dire à postgres &quot;reste en serveur secondaire tant que je ne demande pas explicitement de basculer en tant que serveur primaire et donc mettre fin à la réplication&quot;.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2017-03-08T13:46:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25041#p25041</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Replication streaming maitre- esclave]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25040#p25040"/>
+		<content type="html"><![CDATA[<p>Bonjour Julien,</p><p>Merci pour ta réponse.<br />En fait, je veux comprendre une chose. Il me semble que seule la réplication par flux se déroule correctement. Pas la réplication par les WALs.<br />Je pense que le slave modifie le recovery.conf en recovery.done quand il a fini de rejouer tous les WALs archivés. Est c&#039;est le cas ?</p><p>Cordialement</p>]]></content>
+		<author>
+			<name><![CDATA[cecile]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7413</uri>
+		</author>
+		<updated>2017-03-08T13:43:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25040#p25040</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Replication streaming maitre- esclave]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25039#p25039"/>
+		<content type="html"><![CDATA[<p>Si vous voulez monitorer le retard entre le primaire et le secondaire et/ou que le secondaire est toujours en réplication, il faut plutôt regarder du côté de pg_stat_replication.&#160; Vous pouvez utiliser l&#039;action streaming_delta de la sonde check_pgactivity pour ça par exemple.</p><br /><p>edit: Tout dépend de ce que vous entendez par mode normal. Si le mode normal est &quot;être en réplication&quot; alors vous ne voulez pas promouvoir votre secondaire en primaire, et il faut donc conserver le recovery.conf</p><p>Je pense que vous confondez avec le mode récupération suite à un arrêt brutal, mais ce mode est géré entièrement en interne. Vous ne pouvez pas l&#039;empêcher et il n&#039;a rien à voir avec le recovery.conf</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2017-03-08T13:38:50Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25039#p25039</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Replication streaming maitre- esclave]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25038#p25038"/>
+		<content type="html"><![CDATA[<p>L&#039;esclave se trouve en mode récupération au démarrage. Il commence la lecture des fichiers WAL archivés dont il<br />a besoin. <br />À la fin du processus de récupération, le serveur renomme recovery.conf en recovery.done (pour éviter<br />de retourner accidentellement en mode de récupération), puis passe en mode de fonctionnement normal.<br />Il me semble que c&#039;est comme cela qu&#039;il fonctionne l&#039;esclave.</p>]]></content>
+		<author>
+			<name><![CDATA[cecile]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7413</uri>
+		</author>
+		<updated>2017-03-08T13:38:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25038#p25038</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Replication streaming maitre- esclave]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25037#p25037"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>de mémoire le recovery.conf ne change en recovery.done que quand la restauration est terminé.<br />Hors dans le cas de la réplication, par définition la restauration n&#039;est jamais terminée jusqu&#039;à ce que le slave soit promu master.</p><p>Cordialement.</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2017-03-08T13:19:02Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25037#p25037</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Replication streaming maitre- esclave]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25036#p25036"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>ma configuration sur le maitre et l&#039;esclave:</p><p>Debian 8<br />Postgresql 9.6.2<br />RAM 16<br />CPU 8</p><p>Recovery.conf sur l&#039;esclave<br />standby_mode = &#039;on&#039;<br />primary_conninfo = &#039;host=10.XXX.XXX.XXX port=5432 user=replicator password= toto&#039;<br />primary_slot_name = &#039;tata&#039;<br />restore_command = &#039;cp %p /postgresql/9.6/wals/%f&#039;<br />archive_cleanup_command = &#039;/usr/lib/postgresql/9.6/bin/pg_archivecleanup /postgresql/9.6/wals %r&#039;<br />recovery_target_timeline = &#039;latest&#039;</p><p>Sur le Master on insere 1000000 de lignes dans une table.<br />On démarre le salve. Il replique bien avec le master.<br />Le recovery.conf ne change pas pour devenir recovery.done. Pourquoi ?</p><p>Sinon<br />La réplication par le flux se passe bien entre les deux machines.<br />Que faire ?</p><p>Merci</p>]]></content>
+		<author>
+			<name><![CDATA[cecile]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7413</uri>
+		</author>
+		<updated>2017-03-08T13:07:03Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25036#p25036</id>
+	</entry>
+</feed>

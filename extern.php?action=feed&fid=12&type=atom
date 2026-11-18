@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Python]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;fid=12&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/index.php"/>
+	<updated>2023-01-16T12:46:10Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/index.php</id>
+	<entry>
+		<title type="html"><![CDATA[Cacher le mot de passe?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?id=3459&amp;action=new"/>
+		<summary type="html"><![CDATA[<p>pour me connecter voici ce que j&#039;utilise</p><p>conn&lt;-DBI::dbConnect(drv = RPostgres::Postgres(),<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;host =&quot;localhost&quot;, <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; port =5432, <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; dbname = &quot;test&quot;,<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; user = rstudioapi::askForPassword(&quot;Nom d&#039;utilisateur:&quot;),<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; password = rstudioapi::askForPassword(&quot;Mot de passe: &quot;))</p>]]></summary>
+		<author>
+			<name><![CDATA[Blanka]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=10944</uri>
+		</author>
+		<updated>2023-01-16T12:46:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?id=3459&amp;action=new</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Rêquete sql (postgis) via phyton]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?id=3322&amp;action=new"/>
+		<summary type="html"><![CDATA[<p>Bonjour,</p><p>Je travail sur postgresql 9.3 et python 2.7. <br />J&#039;ai une application/interface en python qui insert des données dans ma base de données via un fichier excel et d&#039;autres informations directement donnés par l&#039;utilisateur, en particulier un code &#039;srid&#039;. </p><p>Je travail sur la création de points (x,y,z) via postgis. Les colonnes où les points sont créé sont de ce type : geometry(&#039;POINT&#039;,srid). Le srid est un chiffre spécifique à la colonne et référe à un système de coordonnée. Pour faire simple j&#039;ai besoin d&#039;une table par srid. </p><p>j&#039;auto génère mes tables de types geometry comme ceci :</p><br /><p>Code :</p><p>Sélectionner tout - Visualiser dans une fenêtre à part</p><div class="codebox"><pre><code> CREATE OR REPLACE FUNCTION add_colsrid()
+  RETURNS void AS
+$BODY$
+    DECLARE 
+          srid integer;
+          requete text;
+    BEGIN
+        SELECT srid_py INTO srid FROM srid WHERE NOT EXISTS ( SELECT * FROM project WHERE project.proj_srid = srid.srid_py) ;
+        RAISE notice &#039;verif (%)&#039;, srid ;
+        IF srid IS NOT NULL THEN
+              requete := &#039;ALTER TABLE point ADD COLUMN&#039; || srid || &#039; geometry;&#039;;
+          EXECUTE requete;
+        END IF;
+    END;
+  $BODY$
+  LANGUAGE plpgsql VOLATILE  </code></pre></div><p>Pour résultat j&#039;ai une nouvelle colonne dans ma table point qui porte le nom columnXXX où XXX est le code srid (srid =&#039;1420&#039; alors le nom de la colonne est colunm1420). <br />Le soucie est que la colonne est au format geometry et non geometry(&#039;POINT&#039;,srid). Je ne peut pas préciser le srid directement dans ce code car il est de type varchar pour pouvoir créer le nom de la colonne et que dans geometry(&#039;POINT&#039;,srid) il est de type int.</p><p>Je doit donc modifier le type de la colonne en précisant le srid à utiliser. j&#039;ai eu l&#039;idée de passer par mon interface python pour cela. J&#039;ai essayé :</p><br /><p>Code :</p><div class="codebox"><pre><code>&quot;ALTER TABLE point ALTER COLUMN column||%s|| TYPE geometry(&#039;POINT&#039;,SELECT srid_conv FROM srid WHERE srid_projnum = %s)USING column||%s||::geometry&quot;)%(srid,projNum,srid)</code></pre></div><p> Explication :<br /> srid est de type varchar et est directement fourni par le code python. column||%s|| est sencé donnée colunm120 par exemple si le srid =&#039;120&#039;.<br /> SELECT srid_int FROM srid WHERE srid_projnum = %s est sencée retournée le srid en chiffre, qui est stockée dans la base de donnée dans le champ srid_int de la table srid. </p><p>Le problème est que cette syntaxe ne fonctionne pas et que je n&#039;ai qucune idée de ce qui pourrait fonctionner. Je débute dans les deux languages, j&#039;ai donc des soucies de syntaxe et aussi d&#039;optimisation du code. Je prend toute remarque pour optimiser mon code car il est relativement complexe pour le moment et je pense qu&#039;il y a des choses plus stables et plus simple qui existe.</p><p>Merci d&#039;avance</p>]]></summary>
+		<author>
+			<name><![CDATA[aurelie.guegan.15]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=4065</uri>
+		</author>
+		<updated>2014-10-01T11:57:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?id=3322&amp;action=new</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[comment installer psycopg1 à la place de psycopg2 sous debian wheezy ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?id=3161&amp;action=new"/>
+		<summary type="html"><![CDATA[<p>seulement je ne sais pas la différence entre psycopg et psycopg2.<br />est-ce que ça vient de la version de pg, de python, ou juste parce qu&#039;il y a des fonctionnalités diffférentes.....<br />j&#039;ai cherché et il y a une dizaine de fichiers impactés par la chaine &quot;psycopg&quot;, donc la modif devrait être possible....</p><p>on m&#039;a conseillé de faire &quot;import psycopg2 as psycopg&quot; dedans à la place, on verra bien.</p>]]></summary>
+		<author>
+			<name><![CDATA[Michael REMY]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=580</uri>
+		</author>
+		<updated>2014-05-27T05:43:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?id=3161&amp;action=new</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Choix d'une interface pour Python3.2]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?id=1564&amp;action=new"/>
+		<summary type="html"><![CDATA[<p>Bonjour,</p><p>très bien çà conforte ce que j&#039;avais comme idée et merci pour le lien je vais y jeter un oeil de suite.</p>]]></summary>
+		<author>
+			<name><![CDATA[gilou974]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=84</uri>
+		</author>
+		<updated>2011-07-28T08:30:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?id=1564&amp;action=new</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[choisir un module d'accès à PG]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?id=304&amp;action=new"/>
+		<summary type="html"><![CDATA[<p>Bonjour</p><p>Je conseille également Psycopg2, y&#039;a des couches d&#039;abstraction comme SqlAlchemy mais plutot multi-bases de données</p>]]></summary>
+		<author>
+			<name><![CDATA[KrysKool]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=46</uri>
+		</author>
+		<updated>2009-06-02T12:21:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?id=304&amp;action=new</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[connexion base de données  en postgres]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?id=33&amp;action=new"/>
+		<summary type="html"><![CDATA[<p>Bonjour</p><p>j&#039;apporte un petit éclaircissement au fichier pg_hba.conf</p><p>Je laisse par défaut ident sameuser pour la ligne contenant local</p><div class="codebox"><pre><code># &quot;local&quot; is for Unix domain socket connections only
+local   all         all                               ident sameuser</code></pre></div><p>çà permet de se connecter via su - postgres à partir du root.<br />ensuite pour la ligne host je remplace <strong>ident sameuser</strong> par <strong>md5</strong></p><div class="codebox"><pre><code># IPv4 local connections:
+host    all         all         127.0.0.1/32          md5
+# IPv6 local connections:
+host    all         all         ::1/128               md5</code></pre></div><p>ce qui permet de, à partir de script de pouvoir s&#039;indentifier avec le mot de passe de l&#039;utilisateur qui se trouve dans la base.</p><p>il convient de créer un autre utilisateur dans la base de données ainsi que qu&#039;une base de données associée et de les utilisés dans vos scripts python.</p>]]></summary>
+		<author>
+			<name><![CDATA[KrysKool]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=46</uri>
+		</author>
+		<updated>2008-10-30T10:08:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?id=33&amp;action=new</id>
+	</entry>
+</feed>

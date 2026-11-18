@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / PHP/SQL requete avec jointure de table]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=707&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=707"/>
+	<updated>2010-04-07T09:53:25Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=707</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  PHP/SQL requete avec jointure de table]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4442#p4442"/>
+		<content type="html"><![CDATA[<p>Désolé pour la réponse tardive. Merci pour votre réponse, j&#039;ai lu des explications sur les jointures sql, et j&#039;ai cette requete qui marche très bien : </p><p>$nbrebati = $bdd-&gt;prepare(&#039;SELECT count(*) AS nbre_bati FROM batiments b JOIN parcelles p ON (b.id_parcelle=p.id_parc)&#160; WHERE p. id_parc = ?&#039;);<br />$nbrebati-&gt;execute(array($_GET[&#039;info_parc&#039;]));</p><p>mais j&#039;ai tester aussi le code de gleu, qui marche.</p><p>Merci problème résolu et mes connaissances en sql améliorées.</p>]]></content>
+		<author>
+			<name><![CDATA[mamatt]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=696</uri>
+		</author>
+		<updated>2010-04-07T09:53:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4442#p4442</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  PHP/SQL requete avec jointure de table]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4416#p4416"/>
+		<content type="html"><![CDATA[<p>Un </p><div class="codebox"><pre><code>SELECT COUNT(*) AS nbre_bati FROM batiments WHERE id_parcelle IN (SELECT id_parc FROM parcelles WHERE id_zone_activite = ?)</code></pre></div><p>ne serait pas mieux ?</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-04-01T14:40:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4416#p4416</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  PHP/SQL requete avec jointure de table]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4413#p4413"/>
+		<content type="html"><![CDATA[<p>Vous avez une erreur ? Quelle est la requête finalement envoyée à PostgreSQL ?</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-04-01T12:12:45Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4413#p4413</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[PHP/SQL requete avec jointure de table]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=4409#p4409"/>
+		<content type="html"><![CDATA[<p>Bonjour, alors j&#039;ai un petit souci plus dans la construction de ma requête que dans mon code php, je travail avec wamp 2 et phppgadmin, postgresql et en PDO</p><p>J&#039;ai 3 tables : zone_activite, parcelle, bâtiments,</p><p>Chaque table contient&#160; un champ id en serial , et la table parcelles a en plus le champs id_zone_activite, qui contient l&#039;id de la za dans laquelle se situe la parcelle, et la table bâtiments a en plus le champs id_parc, qui contient l&#039;id de la parcelle dans laquelle se situe le bâtiment.</p><p>Je souhaite compter le nombre total de bâtiments par zone_activite.</p><p>et je n&#039;arrive pas a faire cette requete!!</p><p>j&#039;arrive a compter le nombre de parcelle par zone d&#039;activité en faisant la requête suivante : </p><div class="codebox"><pre><code>&lt;?php
+$nbreparc = $bdd-&gt;prepare(&#039;SELECT COUNT(id_parc) AS nbre_parc FROM parcelles WHERE id_zone_activite = ?&#039;) or die(print_r($bdd-&gt;errorInfo()));// on compte le nombre de parcelles lorsque le champ id_zone_activité = l&#039;id de la za
+$nbreparc-&gt;execute(array($_GET[&#039;info_za&#039;])); // id de la za récupéré via l&#039;url
+$donnees_parc = $nbreparc-&gt;fetch() ; // on tri les données récupérées
+echo &#039;Nombre total de parcelles de la za : &#039;.$donnees_parc[&#039;nbre_parc&#039;].&#039;&#039;; // on affiche le nombre de parcelles
+$nbreparc-&gt;closeCursor(); // Termine le traitement de la requête
+?&gt;</code></pre></div><p>je n&#039;arrive pas a compter le nombre de batiments, qui sont dans les parcelles de la za!!! j&#039;ai essayé ceci mais cela ne fonctionne pas : </p><div class="codebox"><pre><code>&lt;?php
+$idparc = $bdd-&gt;prepare(&#039;SELECT id_parc FROM parcelles WHERE id_zone_activite = ?&#039;) or die(print_r($bdd-&gt;errorInfo()));// on récupere les valeurs de l&#039;id de toute les parcelles pour faire la jointure avec la table des batiments
+$idparc-&gt;execute(array($_GET[&#039;info_za&#039;]));
+$donnees_nomparc = $idparc-&gt;fetch();// on tri les données récupérées
+
+$nbrebati = $bdd-&gt;prepare(&#039;SELECT COUNT(id_bati) AS nbre_bati FROM batiments WHERE id_parcelle = ?&#039;) or die(print_r($bdd-&gt;errorInfo())); // on compte le nombre de ligne où l&#039;id_parcelle = l&#039;id_parc récuperer par la requete précédente
+$nbrebati-&gt;execute(array($donnees_nomparc[&#039;id_parc&#039;])); / on tri les données récupérées
+$donnees_bati = $nbrebati-&gt;fetch();
+
+echo &#039;Nombre total de batiments de la za: &#039;.$donnees_bati[&#039;nbre_bati&#039;].&#039;&#039;; // on affiche le résultat
+?&gt;</code></pre></div><p>Une idée??</p>]]></content>
+		<author>
+			<name><![CDATA[mamatt]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=696</uri>
+		</author>
+		<updated>2010-04-01T07:52:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=4409#p4409</id>
+	</entry>
+</feed>

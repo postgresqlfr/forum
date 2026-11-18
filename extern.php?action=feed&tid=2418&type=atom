@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Estimer la fragmentation (en pourcentage) de tous mes index ?]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2418&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2418"/>
+	<updated>2012-12-12T08:11:36Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2418</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Estimer la fragmentation (en pourcentage) de tous mes index ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16062#p16062"/>
+		<content type="html"><![CDATA[<p>Il faut installer l&#039;extension, oui. Par contre, ça dépend vraiment du système d&#039;exploitation. Si le serveur est sous Windows, le module est déjà compilé. Si c&#039;est un Linux, il faut vérifier que le package postgresql-xxxx-contrib est installé. Dans ce cas, il n&#039;y a plus qu&#039;à faire la commande :</p><p>&lt;code&gt;<br />psql -d dbname -f SHAREDIR/contrib/module.sql<br />&lt;/code&gt;</p><p>Si sous Linux et que le package n&#039;est pas installé, il faut l&#039;installer avant. Si sous Linux et que c&#039;est une version compilée à la main (pas un package), alors là, oui, il faut compiler les contrib.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2012-12-12T08:11:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16062#p16062</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Estimer la fragmentation (en pourcentage) de tous mes index ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16061#p16061"/>
+		<content type="html"><![CDATA[<p>Merci.</p><br /><p>Etant en version 8.4 &quot;basique&quot; je dois commencer par installer cette extension. C&#039;est bien cela ?</p><br /><p><a href="http://www.postgresql.org/docs/8.4/static/contrib.html" rel="nofollow">http://www.postgresql.org/docs/8.4/static/contrib.html</a></p><br /><br /><p>Gôm</p>]]></content>
+		<author>
+			<name><![CDATA[gom]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=550</uri>
+		</author>
+		<updated>2012-12-11T23:05:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16061#p16061</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Estimer la fragmentation (en pourcentage) de tous mes index ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16057#p16057"/>
+		<content type="html"><![CDATA[<p>J&#039;ai oublié de préciser… pgstatindex&#160; (il n&#039;y a pas d&#039;underscore en fait) fait un scan complet de l&#039;index. Ce n&#039;est donc pas à exécuter toutes les 10 secondes sur tous les index de l&#039;instance <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2012-12-11T17:34:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16057#p16057</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Estimer la fragmentation (en pourcentage) de tous mes index ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16056#p16056"/>
+		<content type="html"><![CDATA[<p>Ça dépend… en pourcentage de quoi ? <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>Plus sérieusement, on obtient pour les index les informations les plus fiables avec l&#039;extension pgstattuple (en particulier la fonction pg_statindex). C&#039;est à un CREATE EXTENSION de distance, en 9.1 ou plus. Dans les versions antérieures, il faut exécuter un script pour créer les objets associés. <a href="http://www.postgresql.org/docs/9.1/static/pgstattuple.html" rel="nofollow">http://www.postgresql.org/docs/9.1/stat … tuple.html</a></p><p>Avec, il y a le nombre de pages (leaf_pages), leur pourcentage de remplissage (avg_leaf_density), et leur fragmentation (leaf_fragmentation), c&#039;est à dire le nombre de feuilles non-contigues physiquement dans l&#039;index.</p><p>On pourrait donc définir deux pourcentages: le pourcentage de remplissage (ça pourrait être le avg_leaf_density) et le pourcentage de fragmentation (leaf_fragmentation/leaf_pages*100).</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2012-12-11T17:33:06Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16056#p16056</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Estimer la fragmentation (en pourcentage) de tous mes index ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16055#p16055"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Savez-vous si c&#039;est possible via une requête SQL ?</p><p>Je sais le faire en SQL Server mais pas en PostgreSQL. <img src="http://forums.postgresql.fr/img/smilies/sad.png" width="15" height="15" alt="sad" /></p><p>J&#039;ai bien lu ça : <a href="http://www.dalibo.org/glmf109_operations_de_maintenance_sous_postgresql" rel="nofollow">http://www.dalibo.org/glmf109_operation … postgresql</a>, puis ça : <a href="http://blog.guillaume.lelarge.info/index.php/post/2007/01/20/pgAdmin-%3A-ajout-du-support-de-pgstattuple" rel="nofollow">http://blog.guillaume.lelarge.info/inde … gstattuple</a> mais ça ne répond pas à mon besoin.</p><br /><p>Gôm</p>]]></content>
+		<author>
+			<name><![CDATA[gom]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=550</uri>
+		</author>
+		<updated>2012-12-11T16:17:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16055#p16055</id>
+	</entry>
+</feed>

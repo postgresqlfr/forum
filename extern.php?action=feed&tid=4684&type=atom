@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Pusieurs occurences de fonctions présentes.]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4684&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4684"/>
+	<updated>2018-04-27T13:09:58Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4684</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Pusieurs occurences de fonctions présentes.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27406#p27406"/>
+		<content type="html"><![CDATA[<p>Il faudrait savoir si c&#039;est reproductible et avec quelle version de PostgreSQL?</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2018-04-27T13:09:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27406#p27406</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Pusieurs occurences de fonctions présentes.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27405#p27405"/>
+		<content type="html"><![CDATA[<p>Dernière petite question,</p><p>Dans les échanges avec dverite, j&#039;avais modifié le code en changeant le critère de recherche des arguments de (where f.proname=r.proname) par (where f.oid=r.oid) sans référencer le champ oid dans la liste des champs du record &quot;r&quot;</p><p>dverite obtenait une erreur, et moi non.</p><p>Celà voudrait t&#039;il dire qu&#039;un champ oid serait créé implicitement si ce champ n&#039;était pas indiqué ?</p><p>Le comportement différent serait t&#039;il lié à un paramètre de configuration particulier ?</p><p>Dans l&#039;attente de votre retour.</p>]]></content>
+		<author>
+			<name><![CDATA[Mlan2]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5297</uri>
+		</author>
+		<updated>2018-04-27T06:13:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27405#p27405</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Pusieurs occurences de fonctions présentes.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27404#p27404"/>
+		<content type="html"><![CDATA[<p>Merci à tous pour cet éclairage.</p>]]></content>
+		<author>
+			<name><![CDATA[Mlan2]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5297</uri>
+		</author>
+		<updated>2018-04-27T05:58:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27404#p27404</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Pusieurs occurences de fonctions présentes.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27403#p27403"/>
+		<content type="html"><![CDATA[<p>Oui, et il interdit toute ambiguité</p><div class="codebox"><pre><code># create function f1(v1 text) returns void as $$
+begin
+raise notice &#039;test&#039;;
+end; $$ language plpgsql;
+CREATE FUNCTION
+
+# create function f1(v1 text, v2 text default &#039;&#039;) returns void as $$
+begin
+raise notice &#039;test&#039;;
+end; $$ language plpgsql;
+
+# select f1(&#039;test&#039;::text);
+ERROR:  42725: function f1(text) is not unique
+LINE 1: select f1(&#039;test&#039;::text);
+               ^
+HINT:  Could not choose a best candidate function. You might need to add explicit type casts.</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2018-04-26T18:05:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27403#p27403</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Pusieurs occurences de fonctions présentes.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27402#p27402"/>
+		<content type="html"><![CDATA[<p>Est-ce que ça ne revient pas à demander si Postgres est capable de gérer sa fonctionnalité de &quot;surcharge&quot; dans tous les cas? La réponse est oui, sinon on serait bien embêtés.<br />Il est vrai que si on prend tout en compte: cast implicites de types en d&#039;autres types, arguments &quot;variadiques&quot;, valeurs par défaut, ordre de priorités du search_path, arguments IN et OUT, l&#039;algorithme qui doit trouver la bonne fonction est complexe, mais à ma connaissance il est&#160; totalement déterministe.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2018-04-26T16:34:02Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27402#p27402</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Pusieurs occurences de fonctions présentes.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27401#p27401"/>
+		<content type="html"><![CDATA[<p>Merci du retour.</p><p>En affichant dans le RAISE la liste des arguments, pour les fonctions en doublon, je constate bien à présent que les arguments sont différents, et que les doublons sont justifiés.</p><p>Une confirmation que je voudrai avoir cependant de votre part est que l&#039;appel d&#039;une des fonctions en doublon réalisé en passant les n paramètres de cette fonction exécutera bien le code de cette fonction, et non pas le code de la même fonction en doublon qui ne comporterait un nombre de paramètres différent de n.</p><p>D&#039;avance merci de votre retour.</p><p>Merci de votre collaboration.</p>]]></content>
+		<author>
+			<name><![CDATA[Mlan2]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5297</uri>
+		</author>
+		<updated>2018-04-26T15:23:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27401#p27401</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Pusieurs occurences de fonctions présentes.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27400#p27400"/>
+		<content type="html"><![CDATA[<p>Mais maintenant il ne doit plus y avoir de doublons, en considérant le couple (proname,parg).</p><p>Sur le schéma pg_catalog, voici ce que ça me sort (juste la fin) en mettant le RAISE NOTICE qui va bien</p><div class="quotebox"><blockquote><div><p>...<br />NOTICE:&#160; Nom de la fonction (xmlconcat2), (xml, xml)<br />NOTICE:&#160; Nom de la fonction (xmlexists), (text, xml)<br />NOTICE:&#160; Nom de la fonction (xmlvalidate), (xml, text)<br />NOTICE:&#160; Nom de la fonction (xpath), (text, xml, text[])<br />NOTICE:&#160; Nom de la fonction (xpath), (text, xml)<br />NOTICE:&#160; Nom de la fonction (xpath_exists), (text, xml, text[])<br />NOTICE:&#160; Nom de la fonction (xpath_exists), (text, xml)<br />DO</p></div></blockquote></div><p>On voit bien par exemple que xpath() a deux définitions, mais avec des arguments différents.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2018-04-26T14:57:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27400#p27400</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Pusieurs occurences de fonctions présentes.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27399#p27399"/>
+		<content type="html"><![CDATA[<p>Merci du retour.</p><p>Je suis étonné comme vous de ne pas avoir d&#039;erreur à l&#039;exécution. Il me parait logique en effet d&#039;ajouter le champ oid dans le record &quot;r&quot;, ce que j&#039;ai d&#039;ailleurs fait dans le code ci-dessous, et le résultat fourni (sans erreur) :</p><div class="codebox"><pre class="vscroll"><code>xxxx=&gt; DO
+xxxx-&gt; $$
+xxxx$&gt; DECLARE
+xxxx$&gt;  r record;
+xxxx$&gt;  user_name       VARCHAR      (255);
+xxxx$&gt;  schema_name     VARCHAR      (255);
+xxxx$&gt;  Function_Name   VARCHAR      (255);
+xxxx$&gt;
+xxxx$&gt;  parg        TEXT;
+xxxx$&gt;
+xxxx$&gt; BEGIN
+xxxx$&gt;   user_name       := &#039;xxxx&#039;;                         -- Le propriétaire
+xxxx$&gt;   schema_name     := &#039;yyyy&#039;;                         -- Le schema original
+xxxx$&gt;
+xxxx$&gt;   FOR r IN SELECT p.oid, p.proname, p.proowner, p.pronamespace
+xxxx$&gt;              FROM pg_proc p
+xxxx$&gt;             WHERE (p.proowner     = (select u.usesysid
+xxxx$&gt;                                        From  pg_user u
+xxxx$&gt;                                       Where (u.usename = user_name)))
+xxxx$&gt;               AND (p.pronamespace = (select oid from pg_namespace
+xxxx$&gt;                                       Where (nspname = schema_name)))
+xxxx$&gt;           ORDER BY p.proname
+xxxx$&gt;   LOOP
+xxxx$&gt;     Select pg_get_function_arguments (f.oid) into parg from pg_proc f where f.oid = r.oid;
+xxxx$&gt; --  RAISE NOTICE &#039;Nom de la fonction (%), (%)&#039;, r.proname, parg;
+xxxx$&gt;     RAISE NOTICE &#039;Nom de la fonction (%)&#039;, r.proname;
+xxxx$&gt;   END LOOP;
+xxxx$&gt;
+xxxx$&gt; END;
+xxxx$&gt; $$;
+NOTICE:  Nom de la fonction (fn_icont)
+NOTICE:  Nom de la fonction (fn_icont)
+NOTICE:  Nom de la fonction (fn_reconcimat)
+NOTICE:  Nom de la fonction (fn_reconcimat)
+DO
+xxxx=&gt;</code></pre></div><p>Le code est exécuté par psql depuis une fenêtre putty.</p>]]></content>
+		<author>
+			<name><![CDATA[Mlan2]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5297</uri>
+		</author>
+		<updated>2018-04-26T14:48:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27399#p27399</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Pusieurs occurences de fonctions présentes.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27398#p27398"/>
+		<content type="html"><![CDATA[<p>Ce bloc fait une erreur pour moi:</p><p>ERROR:&#160; record &quot;r&quot; has no field &quot;oid&quot;<br />CONTEXT:&#160; SQL statement &quot;Select pg_get_function_arguments (f.oid)&#160; &#160; &#160; &#160; &#160; &#160;from pg_proc f where f.oid = r.oid&quot;<br />PL/pgSQL function inline_code_block line 23 at SQL statement</p><br /><p>ce qui est logique puisque r est alimenté par<br />&#160; FOR r IN SELECT p.proname, p.proowner, p.pronamespace<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160;FROM pg_proc p</p><p>et qu&#039;il n&#039;y a pas d&#039;oid derrière ce SELECT, il faut justement l&#039;ajouter.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2018-04-26T14:21:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27398#p27398</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Pusieurs occurences de fonctions présentes.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27397#p27397"/>
+		<content type="html"><![CDATA[<p>Merci de la réponse.</p><p>J&#039;ai rejoué le code en tenant compte de ta remarque, mais le résultat est identique.</p><div class="codebox"><pre class="vscroll"><code>DO
+$$
+DECLARE
+ r record;
+ user_name       VARCHAR      (255);
+ schema_name     VARCHAR      (255);
+ Function_Name   VARCHAR      (255);
+ 
+ parg        TEXT;
+ 
+BEGIN
+  user_name       := &#039;xxxx&#039;;                         -- Le propriétaire
+  schema_name     := &#039;yyyy&#039;;                         -- Le schema original
+  
+  FOR r IN SELECT p.proname, p.proowner, p.pronamespace
+             FROM pg_proc p
+            WHERE (p.proowner     = (select u.usesysid
+                                       From  pg_user u
+                                      Where (u.usename = user_name)))
+              AND (p.pronamespace = (select oid from pg_namespace
+                                      Where (nspname = schema_name)))
+          ORDER BY p.proname
+  LOOP
+    Select pg_get_function_arguments (f.oid) into parg from pg_proc f where f.oid = r.oid;
+--  RAISE NOTICE &#039;Nom de la fonction (%), (%)&#039;, r.proname, parg;
+    RAISE NOTICE &#039;Nom de la fonction (%)&#039;, r.proname;
+  END LOOP;
+
+END;
+$$;</code></pre></div><p>Ci-dessous, le résultat obtenu (extrait) :</p><p>NOTICE:&#160; Nom de la fonction (fn_icont)<br />NOTICE:&#160; Nom de la fonction (fn_icont)<br />NOTICE:&#160; Nom de la fonction (fn_reconcimat)<br />NOTICE:&#160; Nom de la fonction (fn_reconcimat)</p><p>As tu une autre piste ?</p><p>D&#039;avance merci de ton retour.</p>]]></content>
+		<author>
+			<name><![CDATA[Mlan2]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5297</uri>
+		</author>
+		<updated>2018-04-26T13:37:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27397#p27397</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Pusieurs occurences de fonctions présentes.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27396#p27396"/>
+		<content type="html"><![CDATA[<p>Effectivement il n&#039;est pas possible d&#039;avoir dans le même schéma deux fonctions de même nom et mêmes arguments.</p><p>Il y a d&#039;ailleurs un index unique dans pg_proc qui l&#039;empêche:<br />&#160; &quot;pg_proc_proname_args_nsp_index&quot; UNIQUE, btree (proname, proargtypes, pronamespace)</p><p>Si je comprends bien la question, le code montré sort ces RAISE NOTICE avec des doublons,<br />mais c&#039;est parce qu&#039;il y a une erreur logique&#160; dans<br />&#160; Select pg_get_function_arguments (f.oid) into parg from pg_proc f where f.proname=r.proname;<br />ce SELECT renvoie plusieurs résultats par r.proname.</p><p>Ce qu&#039;il faudrait faire c&#039;est <br />...<br />FOR r IN SELECT p.oid, p.proname, p.proowner, p.pronamespace<br />...<br />&#160; Select pg_get_function_arguments (f.oid) into parg from pg_proc f where f.oid = r.oid;</p><p>puisque la clef primaire de pg_proc est pg_proc.oid, pas proname.</p><br /><p>Pour ce qui est de \ef il faut préciser les types des arguments,par exemple \ef mafonction(text,int)</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2018-04-26T12:07:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27396#p27396</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Pusieurs occurences de fonctions présentes.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27395#p27395"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Lors d&#039;une revue de code, j&#039;ai listé l&#039;ensemble des fonctions utilisées dans notre développement, et je me suis étonné de la présence de doublons de fonctions portant le même nom.</p><p>J&#039;ai bien noté que des fonctions de même nom ayant des paramètres différents faisaient l&#039;objet de fonctions différentes. En listant ces fonctions en doublons, et en affichant également leurs paramètres, je constate qu&#039;ils sont identiques pour chacune des fonctions en doublon.</p><p>Aussi, je m&#039;interroge sur la présence de ces doublons de fonctions. Celles-ci ont également le même type de retour.</p><p>Comment expliquer alors la présence de ces doublons. (présentes dans le même schéma et associées au même utilisateur).</p><p>Voici le code utilisé pour lister ces fonctions :</p><div class="codebox"><pre class="vscroll"><code>DO
+$$
+DECLARE
+ r record;
+ user_name       VARCHAR      (255);
+ schema_name     VARCHAR      (255);
+ Function_Name   VARCHAR      (255);
+ 
+ parg        TEXT;
+ 
+BEGIN
+  user_name       := &#039;xxxx&#039;;                         -- Le propriétaire
+  schema_name     := &#039;yyyy&#039;;                         -- Le schema original
+  
+  FOR r IN SELECT p.proname, p.proowner, p.pronamespace
+             FROM pg_proc p
+            WHERE (p.proowner     = (select u.usesysid
+                                       From  pg_user u
+                                      Where (u.usename = user_name)))
+              AND (p.pronamespace = (select oid from pg_namespace
+                                      Where (nspname = schema_name)))
+          ORDER BY p.proname
+  LOOP
+    Select pg_get_function_arguments (f.oid) into parg from pg_proc f where f.proname=r.proname;
+    RAISE NOTICE &#039;Nom de la fonction (%), (%)&#039;, r.proname, parg;
+  END LOOP;
+
+END;
+$$;</code></pre></div><p>Si je veux éditer une de ces fonctions depuis une session psql par la commande : \ef &lt;ma fonction&gt;, je ne peux le faire car il m&#039;indique qu&#039;il y a plus d&#039;une fonction de ce nom.</p><p>D&#039;ailleurs, comment pourrait t&#039;on faire pour éditer une des fonctions en doublon par la commande : \ef &lt;Ma fonction&gt; ?</p><br /><p>D&#039;avance merci de votre retour.</p><p>Cordialement.</p>]]></content>
+		<author>
+			<name><![CDATA[Mlan2]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5297</uri>
+		</author>
+		<updated>2018-04-26T10:22:06Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27395#p27395</id>
+	</entry>
+</feed>

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Contrainte UNIQUE mais doublon dans des tables]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5773&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5773"/>
+	<updated>2020-06-02T13:47:15Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5773</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Contrainte UNIQUE mais doublon dans des tables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31241#p31241"/>
+		<content type="html"><![CDATA[<p>En tout cas , merci à vous, je comprends mieux ce qu&#039;il se passe et je vais pouvoir agir.</p>]]></content>
+		<author>
+			<name><![CDATA[pitpoule]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=636</uri>
+		</author>
+		<updated>2020-06-02T13:47:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31241#p31241</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Contrainte UNIQUE mais doublon dans des tables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31240#p31240"/>
+		<content type="html"><![CDATA[<p>Tout à fait, par exemple:</p><div class="codebox"><pre><code>CREATE INDEX ON unetable(int_colonne) WHERE texte_colonne &gt; &#039;meh&#039;</code></pre></div><p>serait potentiellement corrompu.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2020-06-02T05:27:29Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31240#p31240</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Contrainte UNIQUE mais doublon dans des tables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31239#p31239"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>rjuju a écrit&#160;:</cite><blockquote><div><p> Cela vaut pour les colonnes de l&#039;index mais aussi pour les colonnes utilisées dans des expressions.</p></div></blockquote></div><p>Que je comprenne bien , les expressions dans les index ?</p>]]></content>
+		<author>
+			<name><![CDATA[pitpoule]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=636</uri>
+		</author>
+		<updated>2020-06-01T20:53:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31239#p31239</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Contrainte UNIQUE mais doublon dans des tables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31238#p31238"/>
+		<content type="html"><![CDATA[<p>Oui, tous les index portant sur des colonnes ayant un type avec une collation sont potentiellement corrompus.&#160; Cela vaut pour les colonnes de l&#039;index mais aussi pour les colonnes utilisées dans des expressions.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2020-06-01T15:30:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31238#p31238</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Contrainte UNIQUE mais doublon dans des tables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31237#p31237"/>
+		<content type="html"><![CDATA[<p>dverite, </p><p>Je pense, en effet, que l&#039;on est dans la cas de figure impliquant la libc</p><p>Ancien serveur primaire:<br />- Debian 8.11<br />- libc 2.19</p><p>Nouveau serveur primaire, après bascule:<br />- Debian 10.4<br />- libc 2.28</p><p>En dehors du problème de la contrainte UNIQUE, est ce que qu&#039;il faut reconstruire tous les index basés sur une colonne text ?</p>]]></content>
+		<author>
+			<name><![CDATA[pitpoule]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=636</uri>
+		</author>
+		<updated>2020-06-01T14:04:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31237#p31237</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Contrainte UNIQUE mais doublon dans des tables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31236#p31236"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>dverite a écrit&#160;:</cite><blockquote><div><div class="quotebox"><blockquote><div><p>Je ne comprends absolument pas comment s&#039;est possible.</p></div></blockquote></div><p>Pour les colonnes de type texte, Il suffit d&#039;avoir le COLLATE basé une locale qui s&#039;appelle pareil mais qui ne trie pas pareil entre le primaire et le secondaire. C&#039;est pourquoi le primaire et le secondaire devraient avoir exactement le même OS dans la même version.</p><p>Sur linux il y a une MAJ majeure récente de la libc qui a accru le risque ces derniers temps, cf <a href="https://blog-postgresql.verite.pro/2018/08/30/glibc-upgrade.html" rel="nofollow">https://blog-postgresql.verite.pro/2018 … grade.html</a><br />quand on ne réindexe pas suite à un upgrade, ou quand le couple (primaire,secondaire) a des versions décalées de la libc.</p></div></blockquote></div><p>En effet, une des colonnes de la clé unique est un champ text.</p>]]></content>
+		<author>
+			<name><![CDATA[pitpoule]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=636</uri>
+		</author>
+		<updated>2020-06-01T10:12:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31236#p31236</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Contrainte UNIQUE mais doublon dans des tables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31234#p31234"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Je ne comprends absolument pas comment s&#039;est possible.</p></div></blockquote></div><p>Pour les colonnes de type texte, Il suffit d&#039;avoir le COLLATE basé une locale qui s&#039;appelle pareil mais qui ne trie pas pareil entre le primaire et le secondaire. C&#039;est pourquoi le primaire et le secondaire devraient avoir exactement le même OS dans la même version.</p><p>Sur linux il y a une MAJ majeure récente de la libc qui a accru le risque ces derniers temps, cf <a href="https://blog-postgresql.verite.pro/2018/08/30/glibc-upgrade.html" rel="nofollow">https://blog-postgresql.verite.pro/2018 … grade.html</a><br />quand on ne réindexe pas suite à un upgrade, ou quand le couple (primaire,secondaire) a des versions décalées de la libc.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2020-05-30T10:41:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31234#p31234</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Contrainte UNIQUE mais doublon dans des tables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31231#p31231"/>
+		<content type="html"><![CDATA[<p>Quel est la définition de la table et des contraintes ? Quel système d&#039;exploitation pour le serveur primaire et le serveur secondaire ?</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2020-05-29T19:28:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31231#p31231</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Contrainte UNIQUE mais doublon dans des tables]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31230#p31230"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Suite à une bascule d&#039;une base standby en primaire, nous nous retrouvons avec des doublons sur une table malgré une contrainte UNIQUE. La bascule s&#039;est passé normalement.<br />Nous sommes sur une version pg 9.6.18. Le seul fait notable est que nous avons en même temps upgradé d&#039;une version 9.6.15 en 9.6.18</p><p>Sur tous les doublons, nous avons une ligne avec une date d&#039;avant la bascule et une autre d&#039;après (nous avons des colonnes d&#039;horodatage).</p><p>Je ne comprends absolument pas comment s&#039;est possible.</p><p>Merci pour votre aide</p>]]></content>
+		<author>
+			<name><![CDATA[pitpoule]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=636</uri>
+		</author>
+		<updated>2020-05-29T15:23:52Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31230#p31230</id>
+	</entry>
+</feed>

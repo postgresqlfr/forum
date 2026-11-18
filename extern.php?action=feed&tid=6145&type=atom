@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Guillemets qui s'insèrent lors de la création d'un json]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=6145&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=6145"/>
+	<updated>2021-10-12T17:32:40Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=6145</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Guillemets qui s'insèrent lors de la création d'un json]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32910#p32910"/>
+		<content type="html"><![CDATA[<p>Super merci pour la réponse, c&#039;est bien ça !</p>]]></content>
+		<author>
+			<name><![CDATA[PaulineJ]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9783</uri>
+		</author>
+		<updated>2021-10-12T17:32:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32910#p32910</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Guillemets qui s'insèrent lors de la création d'un json]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32909#p32909"/>
+		<content type="html"><![CDATA[<p>Ces guillemets font partie du format &quot;RECORD&quot; qui encapsule une ligne de résultat.</p><p>Déclarez plutôt la fonction en RETURNS SETOF json au lieu de RETURNS SETOF RECORD, ça devrait être plus conforme au résultat voulu.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2021-10-12T16:41:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32909#p32909</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Guillemets qui s'insèrent lors de la création d'un json]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32908#p32908"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je cherche à créer une fonction qui me permettrait d&#039;obtenir un recordset de json à partir d&#039;une table insérée grâce à PostGIS.<br />J&#039;arrive à obtenir le bon résultat si je fais une &quot;simple&quot; requête :</p><div class="codebox"><pre><code>        SELECT row_to_json(fc)
+FROM (
+        SELECT
+            &#039;Feature&#039; AS &quot;type&quot;,
+            ST_AsGeoJSON(geom,4326) :: json AS &quot;geometry&quot;,
+            (
+				SELECT json_strip_nulls(row_to_json(t))
+                FROM (
+                	SELECT &#039;20-07-2021&#039; AS day, ndvi,sf,vigueur
+				)t		
+            ) AS properties
+        FROM cartocep_tot84
+) AS fc;</code></pre></div><p>Résultat correct (exemple d&#039;une ligne de résultat) :</p><div class="codebox"><pre><code>{
+    &quot;type&quot;: &quot;Feature&quot;,
+    &quot;geometry&quot;: {
+        &quot;type&quot;: &quot;Point&quot;,
+        &quot;coordinates&quot;: [
+            -0.628998380703444,
+            44.8235552388883
+        ]
+    },
+    &quot;properties&quot;: {
+        &quot;day&quot;: &quot;20-07-2021&quot;,
+        &quot;ndvi&quot;: 0.58,
+        &quot;sf&quot;: 0.28,
+        &quot;vigueur&quot;: 0.48
+    }
+}</code></pre></div><p>Mais quand je veux insérer cette requête dans une procédure, je me retrouve avec plein de guillemets double qui s&#039;insèrent à chaque élément :<br />Voici ma procédure :</p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION public.get_geojson(measurement_date text)
+    RETURNS SETOF record 
+    LANGUAGE &#039;sql&#039;
+
+    COST 100
+    VOLATILE 
+    ROWS 1000
+AS $BODY$
+        SELECT row_to_json(fc)
+FROM (
+        SELECT
+            &#039;Feature&#039; AS &quot;type&quot;,
+            ST_AsGeoJSON(geom,4326) :: json AS &quot;geometry&quot;,
+            (
+				SELECT json_strip_nulls(row_to_json(t))
+                FROM (
+                	SELECT measurement_date AS day, ndvi,sf,vigueur
+				)t		
+            ) AS properties
+        FROM cartocep_tot84
+) AS fc
+$BODY$;
+
+ALTER FUNCTION public.get_geojson(text)
+    OWNER TO postgres;</code></pre></div><p>Et le mauvais résultat (exemple d&#039;une ligne de résultat) :</p><div class="codebox"><pre><code>(&quot;{&quot;&quot;type&quot;&quot;:&quot;&quot;Feature&quot;&quot;,&quot;&quot;geometry&quot;&quot;:{&quot;&quot;type&quot;&quot;:&quot;&quot;Point&quot;&quot;,&quot;&quot;coordinates&quot;&quot;:[-0.628998380703444,44.8235552388883]},&quot;&quot;properties&quot;&quot;:{&quot;&quot;day&quot;&quot;:&quot;&quot;20-07-2021&quot;&quot;,&quot;&quot;ndvi&quot;&quot;:0.58,&quot;&quot;sf&quot;&quot;:0.28,&quot;&quot;vigueur&quot;&quot;:0.48}}&quot;)</code></pre></div><p>Savez-vous d&#039;où pourraient provenir ces doubles guillemets intempestifs ? Et comment je pourrais faire en sorte qu&#039;ils n&#039;apparaissent pas ?<br />Merci d&#039;avance pour le temps que vous prendrez !</p><p>Pauline</p>]]></content>
+		<author>
+			<name><![CDATA[PaulineJ]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9783</uri>
+		</author>
+		<updated>2021-10-12T14:01:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32908#p32908</id>
+	</entry>
+</feed>

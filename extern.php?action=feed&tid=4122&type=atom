@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / [RESOLU] Mise en place de Foreign Data Wrappers Oracle]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4122&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4122"/>
+	<updated>2018-03-02T15:50:18Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4122</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] Mise en place de Foreign Data Wrappers Oracle]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27035#p27035"/>
+		<content type="html"><![CDATA[<p>C&#039;est ce qu&#039;on appelle un join pushdown. La jointure est envoyée au serveur distant. Un exemple en 9.5 et en 9.6 sur <a href="https://github.com/dalibo/workshops/blob/master/fr/096-postgresql_9.6.md#fdw--jointure-en-95" rel="nofollow">https://github.com/dalibo/workshops/blo … ture-en-95</a></p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2018-03-02T15:50:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27035#p27035</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] Mise en place de Foreign Data Wrappers Oracle]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27032#p27032"/>
+		<content type="html"><![CDATA[<p>Il semblerait que ce soit natif :&#160; <a href="https://raw.githubusercontent.com/laurenz/oracle_fdw/ORACLE_FDW_2_0_0/README.oracle_fdw" rel="nofollow">https://raw.githubusercontent.com/laure … oracle_fdw</a></p><p>Joins between foreign tables<br />----------------------------</p><p>From PostgreSQL 9.6 on, oracle_fdw can push down joins to the Oracle server,<br />that is, a join between two foreign tables will lead to a single Oracle query<br />that performs the join on the Oracle side.</p><p>There are some restrictions when this can happen:</p><p>- Both tables must be defined on the same foreign server.<br />- The join must be an inner join.<br />- Joins between three or more tables won&#039;t be pushed down.<br />- The join must be in a SELECT statement.<br />- oracle_fdw must be able to push down all join conditions and WHERE clauses.<br />- Cross joins without join conditions are not pushed down.<br />- If a join is pushed down, ORDER BY clauses will not be pushed down.</p><p>It is important that table statistics for both foreign tables have been<br />collected with ANALYZE for PostgreSQL to determine the best join strategy.</p>]]></content>
+		<author>
+			<name><![CDATA[damalaan]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1000</uri>
+		</author>
+		<updated>2018-03-02T12:50:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27032#p27032</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] Mise en place de Foreign Data Wrappers Oracle]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27031#p27031"/>
+		<content type="html"><![CDATA[<p>@gleu</p><p>Pourriez-vous préciser votre propos ?</p><p>Soit une base de données D avec deux tables foreign x et y qui proviennent de la base de données E.</p><p>Vous dites que &quot;la jointure peut être envoyée au serveur distant&quot;.</p><p>Comment ? Par quel mécanisme ?</p>]]></content>
+		<author>
+			<name><![CDATA[Michel Depiesse]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5329</uri>
+		</author>
+		<updated>2018-03-02T11:51:50Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27031#p27031</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] Mise en place de Foreign Data Wrappers Oracle]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27028#p27028"/>
+		<content type="html"><![CDATA[<p>Si vous faites des jointures entre deux tables distantes (du même serveur distant), la jointure peut être envoyé au serveur distant, ce qui améliorera les performances. Ça concerne les versions 9.6 et ultérieures.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2018-03-02T11:34:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27028#p27028</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] Mise en place de Foreign Data Wrappers Oracle]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27027#p27027"/>
+		<content type="html"><![CDATA[<p>Bonjour</p><p>Effectivement, je viens de me le faire, c&#039;est top !!<br />je n&#039;avais pas envisager ça au moment où j&#039;avais commencé ce post (1 an déjà ....), je n&#039;avais besoin que de quelques tables oracle.<br />ce qui me manque toujours c&#039;est les clefs et les index, sur des select simple (1 table ça va à peu près), mais dès qu&#039;on passe pas des jointures, les durées d&#039;exécution sont catastrophiques.</p><p>Comme vous êtes sur une version plus récente, y a t il eu des améliorations sur ce point ?</p>]]></content>
+		<author>
+			<name><![CDATA[damalaan]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1000</uri>
+		</author>
+		<updated>2018-03-02T10:09:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27027#p27027</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] Mise en place de Foreign Data Wrappers Oracle]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27005#p27005"/>
+		<content type="html"><![CDATA[<p>bonjour, merci pour ce post.<br />J&#039;ai testé cela sur PostgreSQL 10.2 et Oracle 12.2:<br />Au lieu de la commande CREATE FOREIGN TABLE ora_table à effectuer pour chaque table, j&#039;ai testé la commande qui permet de créer toutes les definitions de tables foreign du schéma distant d&#039;un seul coup:</p><p>--&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;&lt;schema oracle&gt;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &lt;schema local&gt;<br />IMPORT FOREIGN SCHEMA &quot;labo&quot; from SERVER oracle_labo INTO schema_labo_local;</p><p>Si on a plusieurs schémas distants, on peut créer des schémas postgres distincts, et faire cette commande pour chaque schéma.</p><p>Ensuite, on passe de l&#039;un à l&#039;autre avec une commande <br />set search_path=&#039;schema_labo_local&#039;;</p><p>Pour 1200 définitions de table, la commande s&#039;exécute en 5 à 10 secondes.</p>]]></content>
+		<author>
+			<name><![CDATA[fbamiere@yahoo.com]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2174</uri>
+		</author>
+		<updated>2018-03-01T13:27:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27005#p27005</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] Mise en place de Foreign Data Wrappers Oracle]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25000#p25000"/>
+		<content type="html"><![CDATA[<p>Comme promis, j&#039;ai fait un petit tuto sur le blog de developpez.com <a href="https://www.developpez.net/forums/blogs/190582-triaguae/b2474/wrappeur-donnees-oracle-posgresql/" rel="nofollow">https://www.developpez.net/forums/blogs … posgresql/</a></p>]]></content>
+		<author>
+			<name><![CDATA[damalaan]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1000</uri>
+		</author>
+		<updated>2017-03-02T07:17:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25000#p25000</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] Mise en place de Foreign Data Wrappers Oracle]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24953#p24953"/>
+		<content type="html"><![CDATA[<p>ça y est, je peux faire un select !!</p><div class="codebox"><pre><code>CREATE EXTENSION oracle_fdw;
+CREATE SERVER oracle_labo  FOREIGN DATA WRAPPER oracle_fdw OPTIONS (dbserver &#039;LABO&#039;);
+GRANT USAGE ON FOREIGN SERVER oracle_labo TO postgres;
+
+CREATE USER MAPPING FOR postgres SERVER oracle_labo
+          OPTIONS (user &#039;labo&#039;, password &#039;****&#039;);
+
+CREATE FOREIGN TABLE ora_table
+   (........
+)
+   SERVER oracle_labo
+   OPTIONS (table &#039;latable_oracle&#039;);</code></pre></div><p>En fait j&#039;ai enlevé le schema dans les options à la création de la table (la doc disant que c&#039;est optionnel)</p><p>A voir maintenant à l&#039;usage dans le temps.....<br />Quand j&#039;aurai un petit moment je remettrai un message avec l&#039;installation de a à z, ça peut servir....<br />Encore merci pour votre à tous !</p>]]></content>
+		<author>
+			<name><![CDATA[damalaan]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1000</uri>
+		</author>
+		<updated>2017-02-22T09:27:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24953#p24953</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] Mise en place de Foreign Data Wrappers Oracle]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24948#p24948"/>
+		<content type="html"><![CDATA[<p>Il faut configurer ça avec le CREATE USER MAPPING, voir <a href="https://github.com/laurenz/oracle_fdw#1-cookbook" rel="nofollow">https://github.com/laurenz/oracle_fdw#1-cookbook</a></p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2017-02-21T14:10:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24948#p24948</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] Mise en place de Foreign Data Wrappers Oracle]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24947#p24947"/>
+		<content type="html"><![CDATA[<p>Je suis carrément novice en gestion des accès <img src="http://forums.postgresql.fr/img/smilies/sad.png" width="15" height="15" alt="sad" /> mais je sens que qu&#039;il va falloir que j&#039;apprenne.</p><p>Sous oracle, un user &quot;labo&quot; peut se connecter à cette table.<br />Comment dois-je procéder pour qu&#039;un utilisateur connecté à pg puisse avoir accès à cette foreign table ?</p>]]></content>
+		<author>
+			<name><![CDATA[damalaan]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1000</uri>
+		</author>
+		<updated>2017-02-21T14:07:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24947#p24947</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] Mise en place de Foreign Data Wrappers Oracle]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24946#p24946"/>
+		<content type="html"><![CDATA[<p>Que la table &quot;LABO&quot;.&quot;LA_TABLE&quot; n&#039;existe pas ou n&#039;est pas accessible en lecture pour l&#039;utilisateur configuré ?</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2017-02-21T13:54:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24946#p24946</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] Mise en place de Foreign Data Wrappers Oracle]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24945#p24945"/>
+		<content type="html"><![CDATA[<p>J&#039;ai refait toute mon install sur une machine virtuelle, propre et neuve !<br />J&#039;ajoue que je ne sais pas ce qui a changé (à part la version de pg 9.6 au lieu de 9.5 ainsi que la version du oracle_fdw), mais à force de tripatouiller j&#039;ai du m........</p><p>Cette fois je pense qu&#039;il s&#039;agit d&#039;un problème de droit car voici l&#039;erreur quand je fais un select sur la foreign table</p><div class="codebox"><pre><code>ERREUR:  Oracle table &quot;LABO&quot;.&quot;LA_TABLE&quot; for foreign table &quot;ora_latable&quot; does not exist or does not allow read access
+DETAIL:  ORA-00942: Table ou vue inexistante
+HINT:  Oracle table names are case sensitive (normally all uppercase).</code></pre></div><p>Je suis connecté avec l&#039;utilisateur postgres.</p><p>Qu&#039;en penser ?</p>]]></content>
+		<author>
+			<name><![CDATA[damalaan]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1000</uri>
+		</author>
+		<updated>2017-02-21T13:52:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24945#p24945</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] Mise en place de Foreign Data Wrappers Oracle]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24939#p24939"/>
+		<content type="html"><![CDATA[<p>Le plus simple serait certainement de demander à l&#039;auteur.&#160; Dans tous les cas, le problème vient de la fonction OCIEnvCreate(), mais je ne connais personnellement absolument pas l&#039;écosystème oracle.</p><p>En cherchant avec votre code d&#039;erreur (HV00N), je suis tombé sur the thread : <a href="https://www.postgresql.org/message-id/flat/D960CB61B694CF459DCFB4B0128514C208902B3D@exadv11.host.magwien.gv.at#D960CB61B694CF459DCFB4B0128514C208902B3D@exadv11.host.magwien.gv.at" rel="nofollow">https://www.postgresql.org/message-id/f … wien.gv.at</a></p><p>Si cela ne vous aide pas, demandez ici : <a href="https://github.com/laurenz/oracle_fdw/issues" rel="nofollow">https://github.com/laurenz/oracle_fdw/issues</a></p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2017-02-21T08:23:00Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24939#p24939</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] Mise en place de Foreign Data Wrappers Oracle]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24938#p24938"/>
+		<content type="html"><![CDATA[<p>Je savais bien qu&#039;avec Oracle ça serait pas simple:(</p><p>J&#039;ai essayé les manips suivantes :<br />-installer Microsoft Visual C++ 2015 Redistributal” and Java Runtime Environment (version 7 or 8) (comme demandé dans le <a href="http://www.openscg.com/2016/04/how-to-install-and-configure-the-oracle-foreign-data-wrapper/" rel="nofollow">lien</a> )<br />-l&#039;instant client est déjà en place puisque j&#039;utilise aussi une connexion odbc pour autre chose<br />-j&#039;ai tout supprimé et tout recréé dans postgres&#160; comment je l&#039;ai décrit dans un post ci dessus.<br />-à la création de la table étrangère j&#039;ai spécifié le schéma où elle se trouve dans oracle </p><div class="codebox"><pre><code>.....
+SERVER oracle_labo
+   OPTIONS (schema &#039;LABO&#039;, table &#039;toto&#039;);</code></pre></div><p>Jusque là ça se passe bien</p><p>J&#039;ai vérifier les variable d&#039;environnement :<br />ORACLE_PATH : C:\oracle\instantclient_11_2<br />TNS_ADMIN : %ORACLE_PATH%<br />Path : beaucoup de chose dont C:\oracle\instantclient_11_2</p><p>et j&#039;ai toujours la même erreur <img src="http://forums.postgresql.fr/img/smilies/sad.png" width="15" height="15" alt="sad" /></p>]]></content>
+		<author>
+			<name><![CDATA[damalaan]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1000</uri>
+		</author>
+		<updated>2017-02-21T07:34:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24938#p24938</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] Mise en place de Foreign Data Wrappers Oracle]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24924#p24924"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />Pour ma part en créant la foreign table je spécifie dans quel schéma la table distante se situe, de plus assure toi que l&#039;utilisateur local avec lequel tu exécuté la requête sur La foreigner table à les droits sur le schéma et La foreign table. Et de plus il faut que l&#039;utilisateur distant ai les droits sur La table et le schéma distant.</p><p>Cordialement <br />Shishi</p>]]></content>
+		<author>
+			<name><![CDATA[shishi]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2146</uri>
+		</author>
+		<updated>2017-02-20T08:01:03Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24924#p24924</id>
+	</entry>
+</feed>

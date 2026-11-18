@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / insertion d'un objet en fonction du nom de la table selectionné]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2572&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2572"/>
+	<updated>2013-03-24T22:05:02Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2572</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  insertion d'un objet en fonction du nom de la table selectionné]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16923#p16923"/>
+		<content type="html"><![CDATA[<p>Ne pas utiliser de guillemets simples autour du nom de la table. Ne pas utiliser de guillemets simples pour les valeurs entières.</p><p>Cette fois-ci, c&#039;était simple. La prochaine fois, pensez à donner le message d&#039;erreur pour qu&#039;on n&#039;ait pas à jouer aux devinettes.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2013-03-24T22:05:02Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16923#p16923</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[insertion d'un objet en fonction du nom de la table selectionné]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16922#p16922"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />Voici mon problème, je voudrais lister les noms des tables que j&#039;avais dans ma base dans un menu déroulant, l&#039;utilisateur choisi la table dans laquelle il va insérer l&#039;objet, un formulaire sera alors affiché contenant des champs des&#160; attributs de cette table pour les remplir, l&#039;insertion s&#039;effectue. voilà mon code pour le moment:</p><div class="quotebox"><blockquote><div><p>&lt;?php<br />echo &quot;&lt;html&gt;&quot;;<br />echo &quot;&lt;body&gt;&quot;;<br />echo &quot;&lt;form name=&#039;ajout_obj&#039; action=&#039;test1.php&#039; method=&#039;post&#039;&gt;&quot;;<br />echo &quot;Classe :&quot;;<br />$dbconn = pg_connect(&quot;host=localhost port=5432 dbname=postgis user=user password=root&quot;)or die(&quot;Connexion impossible&quot;);<br />$result = pg_query ($dbconn, &quot;SELECT cname&#160; FROM classofclasses&quot;);<br /> echo &quot; &lt;select name=&#039;classe&#039;&gt;&quot;;<br />while ($row = pg_fetch_row($result)) { <br />echo &quot;&lt;option value=&#039;$row[0]&#039; name=&#039;$row[0]&#039;&gt; $row[0]&lt;/option&gt;&quot;;<br />}<br />echo &quot;&lt;/select&gt;&quot;;<br />echo &quot;&lt;INPUT name=&#039;valider&#039; type=&#039;submit&#039; value=&#039;Valider&#039;&gt;&quot;;<br />echo &quot;&lt;/form&gt;&quot;;<br />echo &quot;&lt;/body&gt;&quot;;<br />echo &quot;&lt;/html&gt;&quot;;<br />?&gt;</p></div></blockquote></div><div class="quotebox"><blockquote><div><p>&lt;?php<br />$dbconn = pg_connect(&quot;host=localhost port=5432 dbname=postgis user=user password=root&quot;)or die(&quot;Connexion impossible&quot;);</p><p>echo &quot;&lt;form name=&#039;ajout_obj1&#039; action=&#039;test2.php&#039;&#160; method=&#039;post&#039;&gt;&quot;;</p><p>if(isset($_POST[&#039;valider&#039;])){</p><p>$classe = $_POST[&#039;classe&#039;];<br />echo &quot;classe: $classe &lt;br&gt;&quot;;<br />$res = pg_query ($dbconn, &quot;SELECT *&#160; FROM $classe &quot;);<br /> $i = pg_num_fields($res);<br /> for ($j = 0; $j &lt; $i; $j++) {<br />&#160; &#160; &#160;$fieldname = pg_field_name($res, $j);<br />&#160; &#160; &#160;echo &quot;$fieldname\n:&quot;;<br />&#160; &#160;&#160; echo &quot;&lt;input type=&#039;text&#039; name=$fieldname&gt;&quot;;<br />&#160; &#160;&#160; echo &quot;&lt;br&gt;&quot;;<br />}&#160; <br />echo &quot;&lt;INPUT name=&#039;valider1&#039; type=&#039;submit&#039; value=&#039;Valider&#039;&gt;&quot;;<br />echo &quot;&lt;/form&gt;&quot;;<br />echo &quot;&lt;/body&gt;&quot;;<br />echo &quot;&lt;/html&gt;&quot;;<br />}</p></div></blockquote></div><p>Le problème est ici! lors de la récupération et l&#039;insertion des données: </p><div class="quotebox"><blockquote><div><p>if(isset($_POST[&#039;valider1&#039;]))<br />{<br />$classe = $_POST[&#039;classe&#039;];<br />$res = pg_query ($dbconn, &quot;SELECT *&#160; FROM $classe &quot;);<br />$i = pg_num_fields($res);<br /> for ($j = 0; $j &lt; $i; $j++) {<br />&#160; &#160; &#160;$fieldname[j] = pg_field_name($res, $j);<br />&#160; &#160;&#160; }<br />$id = $_POST[&#039;$fieldname[0]&#039;];</p><p>$name=$_POST[&#039;$fieldname[1]&#039;];</p><br /><p>$res=pg_query($dbconn, &quot;INSERT INTO &#039;$classe&#039; VALUES (&#039;$id&#039;,&#039;$name&#039;)&quot;);<br />if (!$res) { <br />&#160; &#160;echo &quot;erreur&quot;;<br />} else { </p><p>&#160; &#160; echo &quot;insertion effectué&quot;;<br />} <br />}</p></div></blockquote></div><p>Au début tout ça marcha bien , les attributs sont affichés, le problème réside dans le dernier code au niveau du nom de la table ($classe) et au niveau de la récupération des noms des champs! <br />Je suis débutante :\ heelp plz</p>]]></content>
+		<author>
+			<name><![CDATA[doha-i2m]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2033</uri>
+		</author>
+		<updated>2013-03-24T21:26:33Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16922#p16922</id>
+	</entry>
+</feed>

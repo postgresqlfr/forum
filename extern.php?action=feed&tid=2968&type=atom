@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Maintenance]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2968&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2968"/>
+	<updated>2014-01-29T09:09:22Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2968</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Maintenance]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19060#p19060"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Il a effectué un Vac full pour rentre l&#039;espace disque au system !<br />bref il ne savait pas qu&#039;en detruisant une table l&#039;espace était rendu au system !</p><p>Assadi,</p>]]></content>
+		<author>
+			<name><![CDATA[assadi]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2790</uri>
+		</author>
+		<updated>2014-01-29T09:09:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19060#p19060</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Maintenance]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19056#p19056"/>
+		<content type="html"><![CDATA[<p>Un dump via pg_dump ? normal, ça pose des verrous en accès partagé, incompatible avec les verrous en accès exclusif du VACUUM FULL, et du coup tout le monde reste bloqué derrière.</p><p>Pour l&#039;interdiction, ça ne peut être qu&#039;une règle interne. Mais la vraie bonne question est : pourquoi voulez-vous utiliser VACUUM FULL ?</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-01-28T23:12:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19056#p19056</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Maintenance]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19055#p19055"/>
+		<content type="html"><![CDATA[<p>Re: du coup<br />je me demande comment protéger mon serveur de prod.<br />interdire des actions de dump de 8h30 à 22h est ce possible ?</p><p>Cdt,</p>]]></content>
+		<author>
+			<name><![CDATA[assadi]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2790</uri>
+		</author>
+		<updated>2014-01-28T22:22:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19055#p19055</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Maintenance]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19054#p19054"/>
+		<content type="html"><![CDATA[<p>Re:Bonjour,</p><p>J&#039;ai reussi à reproduire le cas:<br />Ce matin j&#039;avais un dump en cours + l&#039;execution manuel par un user d&#039;un vaccuum full.<br />Encore merci,</p>]]></content>
+		<author>
+			<name><![CDATA[assadi]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2790</uri>
+		</author>
+		<updated>2014-01-28T22:16:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19054#p19054</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Maintenance]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19048#p19048"/>
+		<content type="html"><![CDATA[<p>Merci,</p><p>Si le problème se reproduit j&#039;executerai la requête.</p><p>aat</p>]]></content>
+		<author>
+			<name><![CDATA[assadi]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2790</uri>
+		</author>
+		<updated>2014-01-28T16:08:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19048#p19048</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Maintenance]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19045#p19045"/>
+		<content type="html"><![CDATA[<p>Voici ce qu&#039;il se passe. Vous lancez VACUUM FULL. Ce dernier réclame des verrous en accès exclusifs sur toutes les tables, dont pg_authid (OID 1260). Or cette dernière doit être bloquée par un autre processus. Les autres utilisateurs ne peuvent pas se connecter car, lorsque PostgreSQL essaie de lire la table pg_authid à la connexion, il ne peut pas vu que le VACUUM FULL a demandé un verrou exclusif. Bref, tout le monde est bloqué.</p><p>Il faudrait savoir qui bloque le VACUUM FULL. Un &quot;SELECT pid FROM pg_locks WHERE relation=1260 AND granted&quot; nous donnerait le pid, puis un &quot;SELECT * FROM pg_stat_activity WHERE pid=&lt;no_pid_precedente_requete&gt;&quot; nous indiquerait les infos sur la session bloquante (à noter que la colonne s&#039;appelle peut-être procpid pour cette dernière requête si votre version de PostgreSQL est une 9.2 ou antérieure.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-01-28T11:37:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19045#p19045</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Maintenance]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19040#p19040"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Un de mes utilisateurs à effectué un VACUUM FULL sur sa base ce matin et j&#039;ai constaté au niveau des logs<br />que plus personnes ne pouvaient se connecter à leur base.</p><p>Un postgresql:<br /> - base 1<br /> - base 2<br /> - base n</p><p>__logs__<br />&gt; debut du vacuum full<br />944822 2014-01-28 07:38:11 GMT [11285]: [3­1] xx.xx.xx.xx.xx user=userbase1,db=base 1LOG:&#160; process 11285 still waiting for AccessExclusiveLock on relation 1260 of database 0 after 1000.044 ms<br /> 944823 2014-01-28 07:38:11 GMT [11285]: [4­1] xx.xx.xx.xx.xx user=userbase1,db=base 1 STATEMENT:&#160; VACUUM FULL VERBOSE</p><p>&gt; ensuite d&#039;autres users tente de se connecter<br /> 944829 2014-01-28 07:38:12 GMT [11294]: [2­1] host_distant user=userbase2,db=base 2 LOG:&#160; process 11294 still waiting for AccessShareLock on relation 1260 of database 0 after 1000.287 ms<br /> 944830 2014-01-28 07:38:12 GMT [11295]: [2­1] host_distant user=userbase2,db=base 2 LOG:&#160; process 11295 still waiting for AccessShareLock on relation 1260 of database 0 after 1000.148 ms<br />944865 2014-01-28 07:39:11 GMT [11294]: [3­1] host_distant user=userbase2,db=base 2 FATAL:&#160; canceling authentication due to timeout<br />--<br />le user de la base 1 n&#039;est pas admin et ne peux se connecter qu&#039;à sa base...</p><p>questions:<br />Qu&#039;est ce que la database 0 ?<br />Est ce conseillé de faire un vacuum full sur une base ?<br />ou doit ton effectuer table par table ?</p><p>Merci,</p>]]></content>
+		<author>
+			<name><![CDATA[assadi]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2790</uri>
+		</author>
+		<updated>2014-01-28T10:18:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19040#p19040</id>
+	</entry>
+</feed>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / SP -gist : knn search dans KD-tree]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2155&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2155"/>
+	<updated>2012-07-11T11:06:10Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2155</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  SP -gist : knn search dans KD-tree]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14551#p14551"/>
+		<content type="html"><![CDATA[<p>Pour informations, la discussion doit avoir lieu sur <a href="http://forums.postgresql.fr/viewtopic.php?pid=14550" rel="nofollow">http://forums.postgresql.fr/viewtopic.php?pid=14550</a>. Je ferme donc la discussion ici.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-07-11T11:06:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14551#p14551</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[SP -gist : knn search dans KD-tree]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14547#p14547"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Est ce que quelqu&#039;un a déjà implémenté la recherche du plus proche voisin à l&#039;aide de SP gist ?</p><p>Je souhaiterais trouver, pour un point donné de la table courante, son plus proche voisin dans la table de référence.</p><p>CREATE TABLE table_courante(id_point serial PRIMARY KEY,id_image INTEGER,x_image FLOAT,y_image FLOAT)</p><p>CREATE TABLE table_ref(id_point serial PRIMARY KEY,id_image INTEGER,x_image FLOAT,y_image FLOAT).</p><p>Pour cela je recherche le plus proche voisin en terme de distance euclidienne (x-y) * (x-y).<br />Dans cet exemple, le vecteur est à 2 dimensions (x et y) mais dans ma vraie table il s&#039;agit d&#039;un vecteur à 64 dimensions (c&#039;est un point d&#039;intérêt avec 64 descripteurs<br />ex :table_ref.desc_0 - table_courante.desc_0) * (table_ref.desc_0 - table_courante.desc_0) + (table_ref.desc_1 - table_courante.desc_1) + etc... )</p><p>j&#039;aimerais que ma requête retourne l&#039;id du point de l&#039;image courant et l&#039;id du point de l&#039;image de référence pour laquelle la distance est la plus petite, et ce pour l&#039;ensemble de mes points courants.</p><p>Actuellement je suis capable de faire ça :</p><p>SELECT table_courante.id_point,table_ref.id_point <br />,((table_ref.x-table_courante.x)*(table_ref.x-table_courante.x) + (table_ref.y-table_courante.y)*(table_ref.y-table_courante.y)) AS distance <br />FROM table_ref, table_courante <br />WHERE table_courante.id_point=XXX <br />ORDER BY distance <br />LIMIT 1</p><p>et je fais une boucle où XXX prend toutes les valeurs de mon id du point courant (0, 1, 2 ...N)<br />Mais cette requête prend 3 secondes pour comparer 2 images.. or j&#039;ai 25 images à la sec.. et je dois être capable de faire du temps réel..<br />Je souhaiterais donc trouver un moyen de ne pas faire de boucle, et /ou trouver une requête complètement différente où la requête prendrait quelques centaines de ms maximum. A terme la table de ref contiendra des milliers de points..</p><p>ATTENTION : ce n&#039;est pas parce que l&#039;id du point de l&#039;image courante = l&#039;id du point de ref qu&#039;il s&#039;agit du même point. Cela n&#039;a rien à voir, ils sont chacun sur 2 images différentes<br />J&#039;espère que j&#039;ai été clair</p><p>Merci d&#039;avance pour votre aide<br />PS : je travaille sous postgre 9.1. avec un XP et un processeur de 2.5 Ghz<br />PPS : je débute, Be nice</p>]]></content>
+		<author>
+			<name><![CDATA[yannok]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1834</uri>
+		</author>
+		<updated>2012-07-11T09:12:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14547#p14547</id>
+	</entry>
+</feed>

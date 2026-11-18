@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / ignorer un trigger]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3757&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3757"/>
+	<updated>2016-02-12T20:53:36Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3757</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ignorer un trigger]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23063#p23063"/>
+		<content type="html"><![CDATA[<p>mince c&#039;est bien ce que je pensais...<br />oui en effet votre deuxième proposition est ce que j&#039;ai sous la main si je ne trouve pas de solution via le trigger.</p><p>merci !</p>]]></content>
+		<author>
+			<name><![CDATA[thomasp]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2145</uri>
+		</author>
+		<updated>2016-02-12T20:53:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23063#p23063</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  ignorer un trigger]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23062#p23062"/>
+		<content type="html"><![CDATA[<p>Bonsoir,</p><br /><p>pour désactiver un trigger il n&#039;y a pas à ma connaissance d&#039;autres possibilités que d&#039;utiliser ALTER TABLE ... DISABLE TRIGGER ... <br />De plus cette commande prend un verrou (SHARE ROW EXCLUSIVE) de telle manière qu&#039;aucune autre session ne puisse modifier la table de manière concurrente ce qui peut être embêtant si il y a pas mal d&#039;accès simultané.</p><br /><p>Les solutions alternatives ? Quelques pistes:</p><br /><p>&#160; &#160; - Le trigger pourrait être mis sur l&#039;INSERT non ?<br />&#160; &#160; - Un trigger est-il nécessaire ? Pourquoi ne pas faire une requête ad-hoc lorsque vous avez besoin du dernier commentaire ? Problème de performance ? Ajout d&#039;un index sur la table commentaires (CREATE INDEX ON commentaires(id_objet, date_creation)) ?<br />&#160; &#160; - Créer une table spécifique qui ne stocke qu&#039;une référence sur le dernier commentaire de chaque objet (à mettre à jour par exemple via un/des trigger(s) sur la table principale commentaires):</p><div class="codebox"><pre><code>CREATE TABLE last_commentaires(
+      id_objet integer
+    , id_last_commentaire integer
+
+    , PRIMARY KEY(id_objet, id_last_commentaire)
+    , FOREIGN KEY(id_objet) REFERENCES objets(id_objet)
+          ON DELETE CASCADE
+    , FOREIGN KEY(id_last_commentaire) REFERENCES commentaires(id_commentaire)
+          ON DELETE CASCADE
+);</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[edlm]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1635</uri>
+		</author>
+		<updated>2016-02-12T17:53:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23062#p23062</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[ignorer un trigger]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23061#p23061"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous !</p><p>Je voulais savoir s&#039;il est possible de faire une reqûete en mentionnant d&#039;ignorer un trigger. Je m&#039;explique :</p><p>J&#039;ai une table avec plusieurs centaines de milliers d&#039;enregistrements, ce sont des commentaires faits sur des objets (un commentaire = clé primaire).</p><div class="codebox"><pre><code>create table commentaires (
+  id_commentaire integer primary key
+  id_objet integer,
+  commentaire text,
+  date_creation timestamp,
+  is_last boolean</code></pre></div><p>J&#039;ai besoin de savoir quel est le commentaire le plus récent de chaque objet. Lorsque je supprime un commentaire, je dois donc trouver le nouveau commentaire le plus récent sur le même objet. <br />J&#039;ai fait un trigger &quot;AFTER DELETE&quot; qui va systématiquement chercher le nouveau commentaire le plus récent, que je marque en indiquant is_last = true.</p><div class="codebox"><pre><code>-- extrait trigger :
+if (TG_OP = &#039;DELETE&#039;) then
+  update commentaire 
+     set is_last = true 
+  where id_commentaire = public.Find_Last_Comment(OLD.id_object); -- cette fonction retourne l&#039;id du dernier commentaire pour l&#039;objet donné
+  return old;
+  end if;</code></pre></div><p>Tout fonctionne très bien lorsque je supprime les commentaires un à un. En revanche, lorsque je supprime un objet, je supprime ensuite tous les commentaires qui lui sont attribués :</p><div class="codebox"><pre><code>-- suppression d&#039;un seul commentaire :
+delete from commentaires 
+where id_commentaire = 12;
+
+-- suppression d&#039;un objet puis de tous ses commentaires :
+delete from objets
+where id_objet = 45660;
+
+delete from commentaires 
+where id_objet = 45660;</code></pre></div><p>Le problème est que je peux avoir plusieurs centaines de commentaires sur un même objet. Le trigger sur commentaires est donc fait autant de fois, alors que sa fonction n&#039;a plus de sens vu que le but est de trouver le dernier commentaire d&#039;un objet, objet qu&#039;on vient de supprimer... j&#039;ai essayé d&#039;adapter le trigger pour qu&#039;il en fasse le moins possible :</p><div class="codebox"><pre><code>-- extrait trigger :
+if (TG_OP = &#039;DELETE&#039;) then
+  if not exists (select true from objets where id_objet = OLD.id_objet) then
+  return null;
+  end if;
+
+  update commentaire 
+     set is_last = true 
+  where id_commentaire = Find_Last_Comment(OLD.id_object);
+  return old;
+  end if;</code></pre></div><p>mais même comme cela, le test d’existence de l&#039;objet est fait plusieurs centaines de fois et du coup la requête initiale &quot;delete from commentaires where id_objet = 45660&quot; est très très longue....</p><p>D&#039;où ma question : est-il possible de passer une commande en lui indiquant d&#039;ignorer un trigger :</p><div class="codebox"><pre><code>-- suppression d&#039;un seul commentaire, pas de chanagement:
+delete from commentaires
+where id_commentaire = 12
+
+-- suppression d&#039;un objet puis de tous ses commentaires en ignorant le trigger
+delete from objets
+where id_objet = 45660;
+
+delete from commentaires 
+where id_objet = 45660
+with trigger my_trigger not executed;</code></pre></div><p>J&#039;ai également pensé à mettre le trigger à disable, mais je n&#039;ai pas trouvé comment le faire que pour la session active. Si quelqu&#039;un d&#039;autre au même moment supprime un commentaire, pour lui le trigger doit rester actif !</p><p>Et sinon, voyez-vous un autre moyen ?<br />Merci beaucoup !</p>]]></content>
+		<author>
+			<name><![CDATA[thomasp]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2145</uri>
+		</author>
+		<updated>2016-02-12T16:18:03Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23061#p23061</id>
+	</entry>
+</feed>

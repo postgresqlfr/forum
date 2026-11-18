@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / [FONCTION] - Variable prise pour une colonne...]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3683&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3683"/>
+	<updated>2015-10-22T09:56:44Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3683</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [FONCTION] - Variable prise pour une colonne...]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22655#p22655"/>
+		<content type="html"><![CDATA[<p>Tout simplement, le pattern doit être à droite :</p><div class="codebox"><pre><code># select &#039;^[A-Z]{2}\#[0-9]{2}[0-5][0-9][A-D4][A-F][0-9]{3}[A-F0-9]{4}$&#039; ~ &#039;AZ#2323BA765AEF4&#039;;
+ ?column? 
+══════════
+ f
+(1 row)
+
+# select &#039;AZ#2323BA765AEF4&#039; ~ &#039;^[A-Z]{2}\#[0-9]{2}[0-5][0-9][A-D4][A-F][0-9]{3}[A-F0-9]{4}$&#039;;
+ ?column? 
+══════════
+ t</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2015-10-22T09:56:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22655#p22655</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [FONCTION] - Variable prise pour une colonne...]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22654#p22654"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Déjà merci de votre réponse. Je voudrais juste savoir parce que ça m&#039;intrigue pas mal aussi c&#039;est que ma RegEx retourne toujours false... Même pour des chaines de caractères qui sont correctes...</p><p>Du genre celle ci:<br />&#160; &#160; AZ#2323BA765AEF4</p><p>Du coup pour que vous puissiez m&#039;aider voici comment c&#039;est fait:</p><p>NN#YYWWTFVVVDDDD</p><p>NN : A à Z<br />YY : 0 - 9<br />WW : 0-5 puis 0-9<br />T: A à D ou 4<br />F: A à F<br />VVV: 0 à 9<br />DDDD A à F / 0 à 9</p>]]></content>
+		<author>
+			<name><![CDATA[Papychampi]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5287</uri>
+		</author>
+		<updated>2015-10-22T09:47:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22654#p22654</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [FONCTION] - Variable prise pour une colonne...]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22653#p22653"/>
+		<content type="html"><![CDATA[<p>Vous l&#039;avez déclaré en tant que &quot;_SN&quot; et vous l&#039;utilisez en tant que _SN (donc dans la parlance PG, _sn). Pas étonnant qu&#039;il ne soit pas d&#039;accord <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2015-10-22T09:30:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22653#p22653</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[[FONCTION] - Variable prise pour une colonne...]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22652#p22652"/>
+		<content type="html"><![CDATA[<p>Informations Utiles:</p><p>Version: 9.4</p><p>Logiciel: PgAdminIII</p><p>Autre langage: PHP / Javascript</p><br /><br /><p>Message:</p><p>Bonjour à tous,</p><p>J&#039;ai une petite fonction qui marcherais si ma variable était reconnue comme telle et pas comme une colonne... En gros cette fonction permet de vérifier le formatage d&#039;un numéro de série...</p><div class="quotebox"><blockquote><div><p>CREATE OR REPLACE FUNCTION check_sn(&quot;_SN&quot; text)<br />&#160; RETURNS boolean AS<br />$BODY$BEGIN<br />&#160; &#160; IF (&#039;^[A-Z]{2}\#[0-9]{2}[0-5][0-9][A-D4][A-F][0-9]{3}[A-F0-9]{4}$&#039; ~ _SN)<br />&#160; &#160; THEN<br />&#160; &#160; &#160; &#160; RAISE LOG &#039;Checking SN: OK!&#039;;<br />&#160; &#160; &#160; &#160; RETURN true;<br />&#160; &#160; ELSE<br />&#160; &#160; &#160; &#160; RAISE LOG &#039;Checking SN: FAILED!&#039;;<br />&#160; &#160; &#160; &#160; RETURN false;<br />&#160; &#160; END IF;<br />END;$BODY$<br />&#160; LANGUAGE plpgsql VOLATILE<br />&#160; COST 100;<br />ALTER FUNCTION check_sn(text)<br />&#160; OWNER TO postgres;</p></div></blockquote></div>]]></content>
+		<author>
+			<name><![CDATA[Papychampi]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5287</uri>
+		</author>
+		<updated>2015-10-22T09:27:55Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22652#p22652</id>
+	</entry>
+</feed>

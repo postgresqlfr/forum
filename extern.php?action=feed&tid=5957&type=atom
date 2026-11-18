@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / merci de déplacer dans la bonne catégorie svp]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5957&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5957"/>
+	<updated>2021-02-24T12:49:58Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5957</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  merci de déplacer dans la bonne catégorie svp]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32152#p32152"/>
+		<content type="html"><![CDATA[<p>Il ne faut pas essayer de faire un &quot;SELECT COUNT(*) FROM latable&quot;, sinon vous aurez une erreur si la table n&#039;existe pas.&#160; Comme indiqué précédemment :</p><div class="quotebox"><blockquote><div><p>Pour tester l&#039;existence de la table, vous devriez chercher directement l&#039;existence d&#039;une ligne correspondante dans les catalogues postgres (voir <a href="https://docs.postgresql.fr/13/catalog-pg-class.html" rel="nofollow">https://docs.postgresql.fr/13/catalog-pg-class.html</a> et <a href="https://docs.postgresql.fr/13/view-pg-tables.html" rel="nofollow">https://docs.postgresql.fr/13/view-pg-tables.html</a> ).</p><p>Vous pouvez du coup effecuter un SELECT count(*) INTO pour récupérer le nombre d&#039;enregistrement dans les catalogues pour vérifier l&#039;existence de la table.</p></div></blockquote></div><p>Vous pouvez également consulter <a href="https://docs.postgresql.fr/13/plpgsql-declarations.html" rel="nofollow">https://docs.postgresql.fr/13/plpgsql-declarations.html</a> pour plus de détails sur la syntaxe, notamment les paragraphes §42.5.3 et §42.5.4 pour des exemples d&#039;assignation de variable avec des requêtes statiques et dynamiques.&#160; Dans votre cas en requêtant le catalogue pour trouver une ligne correspondante à votre table vous pouvez utiliser une requête statique et utiliser directement la variable pour la clause WHERE.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2021-02-24T12:49:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32152#p32152</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  merci de déplacer dans la bonne catégorie svp]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32151#p32151"/>
+		<content type="html"><![CDATA[<p>Bonjour, voila ce que j&#039;aimerai que la fonctions fasse.</p><p>create or replace function comptageLignes(nomtable varchar) returns integer AS $$<br />DECLARE<br />nombreLignes integer;<br />BEGIN</p><p>&#160; &#160; PERFORM (EXECUTE &#039;SELECT COUNT(*) FROM &#039; || $1);<br />&#160; &#160; if (FOUND is false) then <br />&#160; &#160; &#160; &#160; return false;<br />&#160; &#160; else <br />&#160; &#160;&#160; &#160; &#160; &#160; &#160;EXECUTE &#039;SELECT COUNT(*) FROM &#039; || $1 INTO nombreLignes;<br />&#160; &#160;&#160; &#160; &#160; &#160; &#160;return nombreLignes;<br />&#160; &#160; end if;</p><p>END;<br />$$ language PLPGSQL;</p><p>Cela dit la ligne avec le PERFORM et le EXECUTE n&#039;est pas faisable et me renvoie une erreur.<br />Il y aurait un autre equivalent correct à cette ligne ?</p><p>Merci d&#039;avance</p>]]></content>
+		<author>
+			<name><![CDATA[sousou]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9320</uri>
+		</author>
+		<updated>2021-02-24T11:52:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32151#p32151</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  merci de déplacer dans la bonne catégorie svp]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32146#p32146"/>
+		<content type="html"><![CDATA[<p>Select count(*) into</p><p>Bonsoir, donc supposons que je souhaite faire une fonction qui vérifie uniquement l&#039;existance d&#039;une table, avec son nom passé en paramètre.<br />(sans prendre en compte les contraintes ou complication ou nombre de ligne trop élevé)<br />Cela donnerai : </p><p>create or replace function verifExistTable (varchar) returns integer AS $$<br />DECLARE<br />nombreLignes integer;<br />BEGIN<br />&#160; &#160; &#160;/*que dois je mettre ici ?*/<br />END;<br />$$ language PLPGSQL;</p><br /><p>requete que je tape : <br />select comptageLignes(&#039;Bookbay.auteurs&#039;);</p><p>Dois je utiliser :&#160; reltuples float4 ?</p><p>Merci d&#039;avance</p>]]></content>
+		<author>
+			<name><![CDATA[sousou]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9320</uri>
+		</author>
+		<updated>2021-02-23T20:21:29Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32146#p32146</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  merci de déplacer dans la bonne catégorie svp]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32135#p32135"/>
+		<content type="html"><![CDATA[<p>Ah je comprend mieux.&#160; Pour tester l&#039;existence de la table, vous devriez chercher directement l&#039;existence d&#039;une ligne correspondante dans les catalogues postgres (voir <a href="https://docs.postgresql.fr/13/catalog-pg-class.html" rel="nofollow">https://docs.postgresql.fr/13/catalog-pg-class.html</a> et <a href="https://docs.postgresql.fr/13/view-pg-tables.html" rel="nofollow">https://docs.postgresql.fr/13/view-pg-tables.html</a> ).</p><br /><p>Vous pouvez du coup effecuter un SELECT count(*) INTO pour récupérer le nombre d&#039;enregistrement dans les catalogues pour vérifier l&#039;existence de la table.</p><br /><p>Attention cependant, votre fonction a énormément de problèmes :</p><p>- la concaténation permet des injections SQL, c&#039;est une faille de sécurité<br />- vous utilisez un nom de table non qualifié, que se passe-t-il si plusieurs tables du même nom existent dans différents schéma, et que se passe-t-il si vous changer le(s) schémas par défaut ?<br />- un COUNT(*) peut potentiellement être très long.&#160; Avez-vous besoin d&#039;un nombre exact ou d&#039;une estimation ?&#160; La colonne reltuples de pg_class pourrait par exemple être une alternative<br />- vous utilisez un integer pour le nombre de lignes, mais votre table pourrait contenir bien plus de ligne que ce que permet de stocker un integer<br />- votre fonction ne permet pas de différencier une table vide d&#039;une table qui n&#039;existe pas</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2021-02-22T17:39:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32135#p32135</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  merci de déplacer dans la bonne catégorie svp]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32134#p32134"/>
+		<content type="html"><![CDATA[<p>En fait ce que j&#039;aimerai faire ca serait ca : </p><p>create or replace function comptageLignes(nomtable varchar) returns integer AS $$<br />DECLARE<br />nombreLignes integer;<br />BEGIN<br />&#160; &#160; IF EXISTS (execute &#039;SELECT COUNT(*) FROM &#039; || $1) THEN<br />&#160; &#160;&#160; &#160; &#160; &#160; execute &#039;SELECT COUNT(*) FROM &#039; || $1 INTO nombreLignes;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;return nombreLignes;<br />&#160; &#160; else<br />&#160; &#160;&#160; &#160; &#160; &#160; return 0;<br />&#160; &#160; end if;</p><p>END;<br />$$ language PLPGSQL;</p><p>Donc je voudrais tester l&#039;existence de la table dans le IF, si elle existe afficher le nombre de lignes dans la table, dans le cas contraire retourner 0</p><p>Ce que j&#039;ai en affichage : ERREUR:&#160; erreur de syntaxe sur ou près de « execute »<br />LIGNE 47 :&#160; IF EXISTS (execute &#039;SELECT COUNT(*) FROM &#039; || $1) THEN</p>]]></content>
+		<author>
+			<name><![CDATA[sousou]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9320</uri>
+		</author>
+		<updated>2021-02-22T16:56:35Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32134#p32134</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  merci de déplacer dans la bonne catégorie svp]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32133#p32133"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><p>Je ne suis pas certain de comprendre votre soucis avec EXECUTE / IF / PERFORM.&#160; Avez-vous un bout de code avec l&#039;erreur générée ?</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2021-02-22T16:49:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32133#p32133</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[merci de déplacer dans la bonne catégorie svp]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32132#p32132"/>
+		<content type="html"><![CDATA[<p>Bonjour, je cherche a creer une fonction qui prends en paramètre un nom de table et qui vérifie si la table existe bien, dans le cas ou elle existe, affiche le nombre de ligne de la table.<br />Voici le code que j&#039;ai pour l&#039;instant : </p><p>create or replace function comptageLignes(varchar) returns integer AS $$<br />DECLARE<br />nombreLignes integer;<br />BEGIN</p><p>//Passage qui doit verifier si la table existe, si non retourner 0 ou un message d&#039;erreur.<br />.....<br />......</p><p>//Ensuite le cas ou la table existe : <br />&#160; &#160; EXECUTE &#039;SELECT COUNT(*) FROM &#039; || $1 INTO nombreLignes;<br />&#160; &#160; RETURN nombreLignes;<br />END;<br />$$ language PLPGSQL;</p><p>Je ne parviens pas à vérifier l&#039;existance de la table puisque le nom de la table est passé en paramètre donc je dois forcément utiliser un EXECUTE mais impossible d&#039;utiliser EXECUTE avec un IF ou un PERFORM.<br />Merci d&#039;avance pour vos réponses</p>]]></content>
+		<author>
+			<name><![CDATA[sousou]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9320</uri>
+		</author>
+		<updated>2021-02-22T16:45:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32132#p32132</id>
+	</entry>
+</feed>

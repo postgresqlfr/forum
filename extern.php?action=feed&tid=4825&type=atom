@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / erreur sur condition if potsgres 10]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4825&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4825"/>
+	<updated>2018-07-11T00:18:47Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4825</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  erreur sur condition if potsgres 10]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27989#p27989"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>problème résolu après avoir créé la base sans passer par le template0.</p>]]></content>
+		<author>
+			<name><![CDATA[Sneg]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8177</uri>
+		</author>
+		<updated>2018-07-11T00:18:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27989#p27989</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  erreur sur condition if potsgres 10]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27988#p27988"/>
+		<content type="html"><![CDATA[<p>fonction test:</p><p>create or replace function test (val in int, offs in int, minVal in int, maxVal in int) returns int as $$<br />declare<br />&#160; &#160; xOffset integer;<br />&#160; &#160; newOffset integer;<br />&#160; &#160; newVal integer;<br />&#160; &#160; range integer;<br />begin<br />&#160; &#160; range=maxval-minval+1;<br />&#160; &#160; newOffset=(offs/abs(offs))*(abs(offs) % range);<br />&#160; &#160; newVal=val-minVal;</p><p>&#160; &#160; xOffset=newVal+newOffset;</p><p>&#160; &#160; if xOffset &gt; range then<br />&#160; &#160; &#160; &#160; xOffset=xOffset % range;<br />&#160; &#160; end if;</p><p>&#160; &#160;&#160; &#160; if xOffset &lt; 0 then<br />&#160; &#160; &#160; &#160; xOffset=range+xOffset;<br />&#160; &#160; end if;</p><p>&#160; &#160; return xOffset+minVal;<br />end; $$ language plpgsql immutable;</p><p>fonction decrypt:</p><p>create function decrypt (in s_in varchar, in s_key varchar) returns varchar as $$<br />declare lkey int;<br />ls int;<br />i int;<br />j int;<br />k int;<br />offs int;<br />newcode int;<br />resultat varchar;</p><p>begin<br />&#160; &#160; &#160; &#160; resultat:=&#039;&#039;;<br />&#160; &#160; &#160; &#160; lkey:=length(s_key);<br />&#160; &#160; &#160; &#160; ls:=length(s_in);<br />&#160; &#160; &#160; &#160; k:=1;</p><p>&#160; &#160; &#160; &#160; for i in 1..ls<br />&#160; &#160; &#160; &#160; loop<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; offs:=ascii(substr(s_key,k,1));<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; newcode:=test(ascii(substr(s_in,i,1)),-offs,32,121);<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; resultat:=resultat||chr(newcode);<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; k:=k+1;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; if&#160; k&gt;lkey then<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; k:=1;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; end if;<br />&#160; &#160; &#160; &#160; end loop;</p><p>&#160; &#160; &#160; &#160; return resultat;<br />end;$$ LANGUAGE &#039;plpgsql&#039;</p>]]></content>
+		<author>
+			<name><![CDATA[Sneg]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8177</uri>
+		</author>
+		<updated>2018-07-10T21:05:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27988#p27988</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  erreur sur condition if potsgres 10]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27987#p27987"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>est ce que tu as pris la 1ere fonction du 1er message ?</p><p>Cordialement.<br />Laurent.</p>]]></content>
+		<author>
+			<name><![CDATA[Sneg]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8177</uri>
+		</author>
+		<updated>2018-07-10T20:57:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27987#p27987</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  erreur sur condition if potsgres 10]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27986#p27986"/>
+		<content type="html"><![CDATA[<p>J&#039;ai essayé de le rejouer et il m&#039;indique (avec raison) que je n&#039;ai pas la fonction test.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2018-07-10T19:43:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27986#p27986</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  erreur sur condition if potsgres 10]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27985#p27985"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>super merci ça fonctionne par contre j&#039;ai une erreur lorsque je fais appel a cette fonction dans une autre fonction sur l&#039;encodage, une idée sur cette erreur ?<br />La base est en UTF8.</p><p>fonction decrypt</p><p>CREATE FUNCTION decrypt (in s_in varchar, in s_key varchar) RETURNS varchar AS<br />$$<br />DECLARE LKEY INT;<br /> LS INT;<br /> I&#160; INT;<br /> J&#160; INT;<br /> K&#160; INT;<br /> OFFS&#160; INT;<br /> NEWCODE INT;<br /> RESULTAT VARCHAR;<br />BEGIN<br />&#160; &#160; &#160; &#160; RESULTAT:=&#039;&#039;;<br />&#160; &#160; &#160; &#160; LKEY:=LENGTH(S_KEY);<br />&#160; &#160; &#160; &#160; LS:=LENGTH(S_IN);<br />&#160; &#160; &#160; &#160; K:=1;</p><p>&#160; &#160; &#160; &#160; FOR I IN 1..LS<br />&#160; &#160; &#160; &#160; LOOP<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; OFFS:=ASCII(SUBSTR(S_KEY,K,1));<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; NEWCODE:=test(ASCII(SUBSTR(S_IN,I,1)),-OFFS,32,121);<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; RESULTAT:=RESULTAT||CHR(NEWCODE);<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; K:=K+1;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; IF&#160; K&gt;LKEY&#160; then<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; K:=1;<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; END IF;<br />&#160; &#160; &#160; &#160; END LOOP;</p><p>&#160; &#160; &#160; &#160; RETURN RESULTAT;<br />END;<br />$$<br />LANGUAGE &#039;plpgsql&#039; </p><br /><p>select decrypt(&#039;H(u.()u3-&#039;,&#039;PREV&#039;)<br />ERROR: requested character too large for encoding: -8</p>]]></content>
+		<author>
+			<name><![CDATA[Sneg]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8177</uri>
+		</author>
+		<updated>2018-07-10T19:14:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27985#p27985</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  erreur sur condition if potsgres 10]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27944#p27944"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><p>OFFSET est un mot clé réservé.&#160; Il faut soit utiliser un autre nom de variable, soit l&#039;entourer de guillemets doubles (et dans ce cas faire attention à la casse dans le nom de la variable, par exemple la casse n&#039;est pas bonne dans l&#039;instruction du 2ème IF).</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2018-07-07T07:06:07Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27944#p27944</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  erreur sur condition if potsgres 10]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27943#p27943"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>OFFSET est un mot réservé, vous pouvez renommer la variable en v_offset (par exemple).</p>]]></content>
+		<author>
+			<name><![CDATA[jmarsac]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7302</uri>
+		</author>
+		<updated>2018-07-07T07:03:45Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27943#p27943</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[erreur sur condition if potsgres 10]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27941#p27941"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>je dois convertir une fonction existante sous oracle vers postgres 10. Le soucis est qu&#039;il me sort une erreur au niveau du IF si quelqu&#039;un a une idée sur le problème parce que la je sèche.</p><p>CREATE OR REPLACE FUNCTION test (val IN int, offs IN<br />int, minVal IN int, maxVal IN int) RETURNS INT AS<br />$$<br />DECLARE<br />Offset int;<br />newOffset int;<br />newVal int;<br />range int;<br />BEGIN<br />range:=maxval-minval+1;<br />newOffset:=(offs/abs(offs))*(abs(offs) % range);<br />newVal:=val-minVal;</p><p>Offset:=newVal+newOffset;</p><p>if Offset &gt; range then<br />Offset:=Offset;<br />end if;</p><p>if Offset&lt;0 then<br />Offset:=range+offset;<br />end if;<br />Offset:=Offset+minVal;<br />return Offset+minVal;</p><p>END;<br />$$ LANGUAGE plpgsql;</p><p>ERROR: syntax error at or near &quot;&gt;&quot;</p>]]></content>
+		<author>
+			<name><![CDATA[Sneg]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8177</uri>
+		</author>
+		<updated>2018-07-06T23:19:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27941#p27941</id>
+	</entry>
+</feed>

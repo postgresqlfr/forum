@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Création page web pour s'identifier]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1086&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1086"/>
+	<updated>2010-12-29T06:45:45Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1086</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Création page web pour s'identifier]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7160#p7160"/>
+		<content type="html"><![CDATA[<p>oui c&#039;est bien lors de l&#039;authentification</p><p>j&#039;ai adapté un code que j&#039;ai trouvé sur le net prévu pour MySQL et qui utilise le cryptage en md5; d&#039;où mon interrogation.</p><p>Encore merci pour vos remarques, c&#039;est toujours constructif!</p>]]></content>
+		<author>
+			<name><![CDATA[damalaan]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1000</uri>
+		</author>
+		<updated>2010-12-29T06:45:45Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7160#p7160</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Création page web pour s'identifier]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7159#p7159"/>
+		<content type="html"><![CDATA[<p>Quand vous parlez de md5, vous voulez parler de l&#039;authentification PostgreSQL en md5 ? je ne vois pas en quoi cela peut poser un problème quelconque ?</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-12-28T22:29:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7159#p7159</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Création page web pour s'identifier]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7158#p7158"/>
+		<content type="html"><![CDATA[<p>Finalement j&#039;ai décidé de procéder d&#039;une autre manière :<br />1-affichage de la page de connexion</p><div class="codebox"><pre><code>&lt;form action=&quot;/session2/connexion.php&quot; method=&quot;post&quot;&gt;
+    &lt;input name=&quot;name&quot; type=&quot;text&quot; size=&quot;12&quot; value=&quot;&quot; /&gt; Name&lt;br /&gt;
+    &lt;input name=&quot;pass&quot; type=&quot;password&quot; size=&quot;12&quot; value=&quot;&quot; /&gt; Password&lt;br /&gt;
+    &lt;input name=&quot;submit&quot; type=&quot;submit&quot; value=&quot;Connexion&quot; /&gt;
+&lt;/form&gt;</code></pre></div><p>2-sur le clic du bouton connexion on traite l&#039;identification avec le fichier connexion.php</p><div class="codebox"><pre><code>&lt;?php
+//initialisation de la session
+session_start();
+//si les champs ont été remplis
+if (!$_POST[&#039;name&#039;]==&quot;&quot; &amp;&amp; !$_POST[&#039;pass&#039;]==&quot;&quot;) 
+{
+  //on récupère les valeurs des champs
+  $name = $_POST[&#039;name&#039;];
+  $pass = $_POST[&#039;pass&#039;];
+  
+
+
+
+  //connexion à la base de donnée
+  $connect = @pg_connect(&quot;host=localhost port=5432 dbname=madbpg user=$name password=$pass&quot;);
+  //echo pg_last_error($connect);
+	
+	if (!$connect) {
+	header(&#039;Location: stop.php&#039;);
+	}
+    else {
+	echo &quot;connexion ok&quot;;
+         
+	$_SESSION[&#039;name&#039;] = $name;
+	$_SESSION[&#039;pass&#039;]= $pass;
+	echo &quot;&lt;a href=\&quot;lien.php\&quot;&gt;Cliquez ici&lt;\a&gt;&quot;;
+	}
+}
+?&gt;</code></pre></div><p>donc si la conexion foncttionne j&#039;affiche &quot;connexion ok&quot; , je passe le nom d&#039;utilisateur et son mot de passe dans la session et je teste avec un lien vers une page faisant appel à une requete sur la bdd</p><br /><p>3-affichage de la page lien et utilisation des variables de session</p><div class="codebox"><pre><code>&lt;?php
+require &#039;auth.php&#039;;
+echo $_SESSION[&#039;name&#039;];
+echo $_SESSION[&#039;pass&#039;];
+$name = $_SESSION[&#039;name&#039;];
+$pass = $_SESSION[&#039;pass&#039;];
+$connect = pg_connect(&quot;host=localhost port=5432 dbname=madbpg user=$name password=$pass&quot;);
+
+$result = pg_query($connect, &quot;SELECT * from tbl_pente&quot;);
+if (!$result) {
+  echo &quot;Une erreur s&#039;est produite.\n&quot;;
+  exit;
+}
+
+while ($row = pg_fetch_row($result)) {
+  echo &quot;ID: $row[0]  TYPE: $row[1] VAL: $row[2] REPET: $row[2]&quot;;
+  echo &quot;&lt;br /&gt;\n&quot;;
+}
+
+?&gt;</code></pre></div><p>et je vérifie l&#039;authentification à chaque page avec require &#039;auth.php&#039;</p><div class="codebox"><pre><code>&lt;?php
+session_start();
+//on vérifie que l&#039;utilisateur est identifé
+if (!isset($_SESSION[&#039;name&#039;])) {
+  //si la variable de session n&#039;existe pas
+  //on redirige l&#039;utilisateur vers le formulaire d&#039;identification
+  header(&#039;Location: ./index.php&#039;);
+  //on arrête l&#039;exécution
+  exit();}
+  else
+  {
+  $name=$_SESSION[&#039;name&#039;];
+  $pass=$_SESSION[&#039;pass&#039;];
+  }
+?&gt;</code></pre></div><p>mes soucis sont <br />-que le mot de passe passe en clair, impossible de le faire fonctionner en le<br />passant en md5<br />-que je n&#039;arrive pas à passer les variables de session telles quelles dans les connexions<br />je suis obligé de les repasser dans une variable classique avant (je pense que je vais faire un autre fichier php pour cela ça évitera de le faire pour chaque page)</p><p>dans l&#039;attente de vos remarques!</p>]]></content>
+		<author>
+			<name><![CDATA[damalaan]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1000</uri>
+		</author>
+		<updated>2010-12-28T19:42:33Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7158#p7158</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Création page web pour s'identifier]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7028#p7028"/>
+		<content type="html"><![CDATA[<p>Vous avez essayé la requête à partir de psql ? parce que rolpassword renvoie toujours ***** quelque soit le mot de passe.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-12-19T21:06:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7028#p7028</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Création page web pour s'identifier]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7026#p7026"/>
+		<content type="html"><![CDATA[<p>j&#039;ai donc utilisé la tbl pg_roles, et adapté un script conçu initialement pour mysql<br />mon souci est que l&#039;identification est tjs refusé : Votre nom ou votre mot de passe est incorrect</p><p>script pour se logger:</p><div class="codebox"><pre><code>&lt;form action=&quot;/session/session.php&quot; method=&quot;post&quot;&gt;
+	&lt;input name=&quot;name&quot; type=&quot;text&quot; size=&quot;12&quot; value=&quot;&quot; /&gt; Name&lt;br /&gt;
+	&lt;input name=&quot;pass&quot; type=&quot;text&quot; size=&quot;12&quot; value=&quot;&quot; /&gt; Password&lt;br /&gt;
+	&lt;input name=&quot;submit&quot; type=&quot;submit&quot; value=&quot;Connexion&quot; /&gt;
+&lt;/form&gt;</code></pre></div><p>et script d&#039;authentification</p><div class="codebox"><pre class="vscroll"><code>&lt;?php
+//initialisation de la session
+session_start();
+//si les champs ont été remplis
+if (!$_POST[&#039;name&#039;]==&quot;&quot; &amp;&amp; !$_POST[&#039;pass&#039;]==&quot;&quot;) 
+{
+  //on récupère les valeurs des champs
+  $name = $_POST[&#039;name&#039;];
+  $pass = md5($_POST[&#039;pass&#039;]);
+
+  //connexion à la base de donnée
+  $connect = pg_connect(&quot;host=localhost port=5432 dbname=madbpg user=postgres password=****&quot;);
+
+echo $name;
+  
+  $sql= &quot;SELECT rolpassword FROM pg_roles WHERE rolname like &#039;$name&#039;;&quot;;
+  echo $sql.&quot;&lt;/br&gt;&quot;;
+  $sql = pg_query($connect, $sql);
+
+  $row = pg_fetch_array($sql, 0, PGSQL_NUM);
+  
+ 
+$pass_sql= $row[0];
+  //on teste si le mot de passe correspond à la base de donnée
+  if ($pass_sql == $pass) 
+	{
+    //l&#039;utilisateur est valide
+    //on crée la variable de session avec son nom
+    $_SESSION[&#039;name&#039;] = $name;
+    $msg = &#039;Vous êtes correctement indentifié&#039;;
+	}
+  else {
+    //sinon on avertit l&#039;utilisateur
+    $msg = &#039;Votre nom ou votre mot de passe est incorrect&lt;br /&gt;&#039;;
+    $msg .= &#039;&lt;a href=&quot;/index.php&quot;&gt;Retour&lt;/a&gt;&#039;;}
+
+  //fermeture de la connexion
+  pg_close();}
+else {
+  //un des champs n&#039;est pas rempli
+  $msg = &#039;Votre nom et/ou votre mot de passe n\&#039;est pas renseigné&lt;br /&gt;&#039;;
+  $msg .= &#039;&lt;a href=&quot;/index.php&quot;&gt;Retour&lt;/a&gt;&#039;;}
+
+//on affiche le resultat
+echo $msg;
+?&gt;</code></pre></div><p>merci de votre aide</p>]]></content>
+		<author>
+			<name><![CDATA[damalaan]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1000</uri>
+		</author>
+		<updated>2010-12-19T20:02:55Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7026#p7026</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Création page web pour s'identifier]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6859#p6859"/>
+		<content type="html"><![CDATA[<p>Vous pouvez utiliser la table système mais il faudra passer par les autres SQL habituels (style CREATE USER).</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-12-02T22:49:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6859#p6859</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Création page web pour s'identifier]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=6858#p6858"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>je débute tout juste avec postgresql.<br />je m’exerce donc à créer une petite base (1 table pour le moment) avec des utilisateurs (roles) ayant des droits différents.<br />je voudrais interfacer ma base avec une page web, et utiliser les session de php pour autoriser (ou non)&#160; les différentes actions d&#039;un utilisateur dès lors qu&#039;il s&#039;est loggé et tout au long de la navigation sur le site.<br />Ma question est : puis-je utilisé pour identifier mes utilisateurs la table système pg_roles ou doit créer une table user de toutes pièces (et dans ce cas comment je gère les droits select, insert, update, delete sur les tables)?</p><p>Merci d&#039;avance</p>]]></content>
+		<author>
+			<name><![CDATA[damalaan]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1000</uri>
+		</author>
+		<updated>2010-12-02T21:52:52Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=6858#p6858</id>
+	</entry>
+</feed>

@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / [RESOLU] DDL sur tables volumineuses pour application 24/7]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2802&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2802"/>
+	<updated>2013-10-06T16:35:29Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2802</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] DDL sur tables volumineuses pour application 24/7]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18354#p18354"/>
+		<content type="html"><![CDATA[<p>Ce qui n&#039;empêche pas Le Bon Coin d&#039;être suffisamment heureux avec PostgreSQL et Slony pour ne pas avoir enfin d&#039;en changer... soit le coup de DDL n&#039;est pas si gênant, soit il y a d&#039;autres avantages majeurs par rapport aux autres SGBD. De plus, je n&#039;ai trouvé nul part d&#039;informations sur la raison de l&#039;indisponibilité de ce site la nuit... rien ne dit que c&#039;est dû à PostgreSQL.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2013-10-06T16:35:29Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18354#p18354</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] DDL sur tables volumineuses pour application 24/7]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18350#p18350"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>ruizsebastien a écrit&#160;:</cite><blockquote><div><p>Bonjour,</p><p>Je ne connais pas en détail toutes les possibilités offerte en matière de haute disponibilité, mais les solutions que propose pg_pool par exemple pourrait correspondre à ce que je cherche. Par exemple si on a deux clusters gérés par pg_pool, on peut imaginer que l&#039;on peut passer du ddl sur un cluster puis ensuite sur l&#039;autre (du coup sans interruption de service) ? Je me trompe ?<br />Sinon je me demande comment font les autres entreprises qui font du 24/7 pour faire évoluer leur modèle de données (je pense en particulier au site leboncoin qui est sous postgresql).</p><p>Cordialement.</p></div></blockquote></div><p>Le bon coin est indisponible la nuit justement pour assurer ces traitements là (reindexation, vacuum, DDL...)<br />Seule la lecture est possible, mais pas l&#039;joute de nouvelles annonces. C&#039;est son point faible.</p><p>Effectivement Oracle ou SQL Server permettent de faire du DDL et de la réindexation non bloquante sur des bases en prod 24/24 7/7.</p><p>A +</p>]]></content>
+		<author>
+			<name><![CDATA[SQLpro]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1054</uri>
+		</author>
+		<updated>2013-10-06T10:27:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18350#p18350</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] DDL sur tables volumineuses pour application 24/7]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18336#p18336"/>
+		<content type="html"><![CDATA[<p>merci pour ta réponse, ça va m&#039;aider à faire passer le message.</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2013-10-04T14:54:07Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18336#p18336</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] DDL sur tables volumineuses pour application 24/7]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18328#p18328"/>
+		<content type="html"><![CDATA[<p>Ce n&#039;est pas plus possible avec slony qu&#039;avec pgpool. Il faut évidemment que les structures soient identiques de chaque côté. De toute façon, il n&#039;est pas sérieux d&#039;envisager pgpool pour de la réplication.</p><p>Toute application, même 24/7, a des fenêtres de tir pour des opérations de maintenance. Il faut donc utiliser ces fenêtres de tir pour les faire. C&#039;est ce que tous nos clients font, même si cela ne veut pas dire que trouver ces fenêtres de tir est facile.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2013-10-04T12:21:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18328#p18328</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] DDL sur tables volumineuses pour application 24/7]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18327#p18327"/>
+		<content type="html"><![CDATA[<p>En cas d&#039;alter table en demande un verrou exclusif :</p><div class="quotebox"><blockquote><div><p>ACCESS EXCLUSIVE</p><p>&#160; &#160; Entre en conflit avec tous les modes (ACCESS SHARE, ROW SHARE, ROW EXCLUSIVE, SHARE UPDATE EXCLUSIVE, SHARE, SHARE ROW EXCLUSIVE, EXCLUSIVE et ACCESS EXCLUSIVE). Ce mode garantit que le détenteur est la seule transaction à accéder à la table de quelque façon que ce soit.</p><p>&#160; &#160; Acquis par les commandes ALTER TABLE, DROP TABLE, TRUNCATE, REINDEX, CLUSTER et VACUUM FULL. C&#039;est aussi le mode de verrou par défaut des instructions LOCK TABLE qui ne spécifient pas explicitement de mode de verrouillage.</p></div></blockquote></div><p>Avec Slony ok ce n&#039;est pas possible, mais avec pg_pool ?</p><p>C&#039;est le pourquoi de ma question d&#039;origine : comment minimiser au maximum les impacts d&#039;un changement DDL pour une application 24/7 ?</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2013-10-04T09:20:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18327#p18327</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] DDL sur tables volumineuses pour application 24/7]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18326#p18326"/>
+		<content type="html"><![CDATA[<p>la réplication implique une structure de table identique, si vous faites des ddls ils seront envoyés de l&#039;autre coté.<br />même avec slony vous vous retrouveriez dans un état étrange.</p><p>Les locks n&#039;impliquent que l&#039;écriture non ?</p>]]></content>
+		<author>
+			<name><![CDATA[kenrio]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=964</uri>
+		</author>
+		<updated>2013-10-04T08:57:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18326#p18326</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] DDL sur tables volumineuses pour application 24/7]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18325#p18325"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je ne connais pas en détail toutes les possibilités offerte en matière de haute disponibilité, mais les solutions que propose pg_pool par exemple pourrait correspondre à ce que je cherche. Par exemple si on a deux clusters gérés par pg_pool, on peut imaginer que l&#039;on peut passer du ddl sur un cluster puis ensuite sur l&#039;autre (du coup sans interruption de service) ? Je me trompe ?<br />Sinon je me demande comment font les autres entreprises qui font du 24/7 pour faire évoluer leur modèle de données (je pense en particulier au site leboncoin qui est sous postgresql).</p><p>Cordialement.</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2013-10-04T08:23:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18325#p18325</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] DDL sur tables volumineuses pour application 24/7]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18317#p18317"/>
+		<content type="html"><![CDATA[<p>Là, il va falloir être plus précis. Je ne vois vraiment pas le lien entre réplication et DDL bloquante ??</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2013-10-03T18:16:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18317#p18317</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] DDL sur tables volumineuses pour application 24/7]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18302#p18302"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Est-ce qu&#039;un système de réplication est envisageable pour ce cas particulier ?</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2013-10-03T09:39:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18302#p18302</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] DDL sur tables volumineuses pour application 24/7]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18297#p18297"/>
+		<content type="html"><![CDATA[<p>En dehors de la clause CONCURRENTLY pour le CREATE INDEX, je ne vois pas.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2013-10-02T19:10:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18297#p18297</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[[RESOLU] DDL sur tables volumineuses pour application 24/7]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18295#p18295"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Si nous avons une application qui doit tourner sans interruption (24/7) et que nous devons faire du DDL (alter table, changement de contrainte, etc...) sur des tables volumineuses (disons plusieurs centaines de millions de lignes), quelle est la meilleure solution pour ne pas provoquer d&#039;interruption de service à cause des locks générés.<br />Je pense au dbms_redefinition d&#039;Oracle qui permet de gérer ce genre de situations. Quelles sont les solutions offertes par postgresql ?</p><p>Merci par avance.</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2013-10-02T10:20:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18295#p18295</id>
+	</entry>
+</feed>

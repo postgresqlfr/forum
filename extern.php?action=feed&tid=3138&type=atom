@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / [Resolu] Ora2pg : Probleme de migration de tables partitionnées]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3138&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3138"/>
+	<updated>2014-05-20T16:27:41Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3138</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Resolu] Ora2pg : Probleme de migration de tables partitionnées]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19939#p19939"/>
+		<content type="html"><![CDATA[<p>Le probleme est corrigé dans les derniers commit sur github.</p><p>Merci pour la réactivité de Gilles</p>]]></content>
+		<author>
+			<name><![CDATA[menardorama]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3564</uri>
+		</author>
+		<updated>2014-05-20T16:27:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19939#p19939</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Resolu] Ora2pg : Probleme de migration de tables partitionnées]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19913#p19913"/>
+		<content type="html"><![CDATA[<p>Le problème est que nous avons la meme structure de tables pour tous nos clients. Et comme le nom des partitions est le même pour toutes ces tables, ora2pg genere les ddl de créations des tables hérités mais avec les mêmes noms (mails avec un héritage différent).</p><p>Donc pour résumer ora2pg -t PARTITION genere bien les DLL mais c&#039;est le même pour chaque table (partition) avec un héritage différent.</p><p>J&#039;espère que c&#039;est plus clair merci pour ton aide.</p><p>Si besoin je peux poster le ddl de quelques tables pour l&#039;exemple</p>]]></content>
+		<author>
+			<name><![CDATA[menardorama]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3564</uri>
+		</author>
+		<updated>2014-05-16T20:40:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19913#p19913</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Resolu] Ora2pg : Probleme de migration de tables partitionnées]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19910#p19910"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je ne comprend pas bien. Si vous avez une table partitionnée dans Oracle vous n&#039;avez pas a vous préoccuper des noms des partitions. Ora2Pg va vous exporter la définition de la table mère et des 14000 partitions en créant des tables filles avec leur propre nom de partition, celui que vous avez défini (&#039;PYYYYMM&#039;). Cela se fait effectivement avec la commande :</p><p>&#160; &#160; ora2pg -T PARTITION</p><p>Ensuite, lorsque vous ferez l&#039;export des données avec l&#039;option -t COPY Ora2Pg mettra les données directement dans leur table filles respectives pour éviter de passer par la table mère et donc le trigger qui normalement redirige les données dans les tables filles.</p><p>Tout cela est automatique, du coup je ne comprend pas bien le problème que vous rencontrez. Ora2Pg supporte le partitionnement par RANGE et par LIST, mais pas le sous-partitionnement.</p><p>Cordialement,</p>]]></content>
+		<author>
+			<name><![CDATA[gilles]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=921</uri>
+		</author>
+		<updated>2014-05-16T18:12:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19910#p19910</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[[Resolu] Ora2pg : Probleme de migration de tables partitionnées]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19907#p19907"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je suis en train d&#039;evaluer la faisabilité d&#039;utiliser ora2pg pour migrer nos bases Oracle vers Postgresql.</p><p>Nous avons une forte utilisation du partitionnement par range sous oracle.</p><p>Les tables sont partitionnées par mois et le nommage est le suivant : &#039;PYYYYMM&#039; et ce pour toutes nos tables, il n&#039;y a pas dans le nommage des partitions une reference explicite à la table.</p><p>Dans un premier temps je me suis trouvé confronté à l&#039;erreur suivante : <br />&quot;FATAL: ERROR:&#160; relation &quot;p201404&quot; does not exist&quot;</p><p>Normal, j&#039;avais oublié d&#039;exporter la definitiion des parttions (avec l&#039;option &quot;-t PARTITION&quot;), mais après le lancement avec cette option je me rends compte que je ne pourrais jamais créer mes 140000 partitions sachant que le toutes mes tables auront le les mêmes noms de partitions.</p><p>Dans le cadre de notre migration vers postgres, nous voulons utiliser le contrib pg_partman qui donne une entiere satisfaction et nous permet de gerer automatiquement la purge.</p><p>Ma question est la suivante : y a t&#039;il une option d&#039;Ora2pg pour copier les tables partitionnées directement dans une table normale ? </p><p>Autre option donner un patern pour remplacer le nom de partition PYYYYMM en part_YYYY_MM ....</p><p>Merci d&#039;avance de votre aide</p>]]></content>
+		<author>
+			<name><![CDATA[menardorama]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3564</uri>
+		</author>
+		<updated>2014-05-16T12:53:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19907#p19907</id>
+	</entry>
+</feed>

@@ -1,0 +1,629 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Insertion multiple et update]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1999&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1999"/>
+	<updated>2012-04-30T07:55:29Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1999</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Insertion multiple et update]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13639#p13639"/>
+		<content type="html"><![CDATA[<p>Après une mise à jour de la DLL &quot;Npgsqll&quot; les éléments nuls sont gérés correctement.</p><p>Il me reste donc 2 problématiques à gérer :<br />- le fait que &quot;sqlerrm&quot; ne me retourne rien dans les fonctions plpgsql car le seul code erreur SQL n&#039;est pas vraiment suffisant pour identifier un problème<br />- le fait de passer 1 array par paramètre, avec le risque d&#039;avoir des arrays de tailles différentes</p>]]></content>
+		<author>
+			<name><![CDATA[Gold.Strike]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=865</uri>
+		</author>
+		<updated>2012-04-30T07:55:29Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13639#p13639</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Insertion multiple et update]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13638#p13638"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>Marc Cousin a écrit&#160;:</cite><blockquote><div><p>C&#039;est étrange, cette histoire de sqlerrm qui disparaît. Tu peux me donner ta version exacte ?</p></div></blockquote></div><p>Il s&#039;agit de la version de <strong>PosgreSQL 9.0</strong>...</p><p>Je viens également de remarquer qu&#039;on a un problème aux niveaux de nos paramètres : il arrive que certains éléments de la liste soient nuls (date non renseignée, chaine non renseignée, etc...)<br />Cela provoque une erreur au niveau du code C# : <strong>System.NullReferenceException</strong>.</p><p>Pour faire des tests, j&#039;ai construit mes listes à la main contenant des données nulles :</p><div class="codebox"><pre class="vscroll"><code>// Création des listes
+List&lt;long&gt; l_round_id = new List&lt;long&gt;();
+List&lt;long&gt;  l_season_d = new List&lt;long&gt;();
+List&lt;DateTime?&gt; l_end_date = new List&lt;DateTime?&gt;();
+List&lt;String&gt; l_groups = new List&lt;string&gt;();
+List&lt;DateTime?&gt; l_last_updated = new List&lt;DateTime?&gt;();
+List&lt;String&gt; l_name = new List&lt;string&gt;();
+List&lt;String&gt; l_ordermethod = new List&lt;string&gt;();
+List&lt;DateTime?&gt; l_start_date = new List&lt;DateTime?&gt;();
+List&lt;String&gt; l_type = new List&lt;string&gt;();
+List&lt;String&gt; l_has_outgroup_matches = new List&lt;string&gt;();
+
+// Remplissage des listes
+l_round_id.Add(6786);
+l_round_id.Add(6787);
+l_round_id.Add(6788);
+l_season_d.Add(115);
+l_season_d.Add(115);
+l_season_d.Add(115);
+l_end_date.Add(null);
+l_end_date.Add(Utils.parseDatetimeNullable(&quot;27/07/2009&quot;));
+l_end_date.Add(Utils.parseDatetimeNullable(&quot;27/04/2012&quot;));
+l_groups.Add(&quot;0&quot;);
+l_groups.Add(&quot;1&quot;);
+l_groups.Add(&quot;2&quot;);
+l_last_updated.Add(Utils.parseDatetimeNullable(&quot;27/07/2009&quot;));
+l_last_updated.Add(Utils.parseDatetimeNullable(&quot;27/07/2009&quot;));
+l_last_updated.Add(Utils.parseDatetimeNullable(&quot;27/04/2012&quot;));
+l_name.Add(null);
+l_name.Add(&quot;Round 2&quot;);
+l_name.Add(&quot;Round 3&quot;);
+l_ordermethod.Add(null);
+l_ordermethod.Add(&quot;Order&quot;);
+l_ordermethod.Add(&quot;Order&quot;);
+l_start_date.Add(Utils.parseDatetimeNullable(&quot;27/07/2009&quot;));
+l_start_date.Add(Utils.parseDatetimeNullable(&quot;27/07/2009&quot;));
+l_start_date.Add(Utils.parseDatetimeNullable(&quot;27/04/2012&quot;));
+l_type.Add(&quot;Table&quot;);
+l_type.Add(&quot;Cup&quot;);
+l_type.Add(&quot;Cup&quot;);
+l_has_outgroup_matches.Add(&quot;yes&quot;);
+l_has_outgroup_matches.Add(&quot;no&quot;);
+l_has_outgroup_matches.Add(&quot;no&quot;);</code></pre></div><p>J&#039;appelle ensuite ma procédure stockée en passant en paramètre ces différentes listes :</p><div class="codebox"><pre class="vscroll"><code>int nbMaj = 0;
+using (NpgsqlConnection c = (NpgsqlConnection)conn.getConnexion())
+{
+	using (NpgsqlCommand command = new NpgsqlCommand(&quot;merge_round_loop&quot;, c))
+	{
+		command.CommandType = CommandType.StoredProcedure;
+		command.UpdatedRowSource = UpdateRowSource.None;
+		// Affectation des paramètres
+		command.Parameters.Clear();
+		command.Parameters.Add(&quot;l_round_id&quot;, NpgsqlTypes.NpgsqlDbType.Array | NpgsqlTypes.NpgsqlDbType.Integer);
+		command.Parameters.Add(&quot;l_season_d&quot;, NpgsqlTypes.NpgsqlDbType.Array | NpgsqlTypes.NpgsqlDbType.Integer);
+		command.Parameters.Add(&quot;l_end_date&quot;, NpgsqlTypes.NpgsqlDbType.Array | NpgsqlTypes.NpgsqlDbType.Date);
+		command.Parameters.Add(&quot;l_groups&quot;, NpgsqlTypes.NpgsqlDbType.Array | NpgsqlTypes.NpgsqlDbType.Text);
+		command.Parameters.Add(&quot;l_last_updated&quot;, NpgsqlTypes.NpgsqlDbType.Array | NpgsqlTypes.NpgsqlDbType.Timestamp);
+		command.Parameters.Add(&quot;l_name&quot;, NpgsqlTypes.NpgsqlDbType.Array | NpgsqlTypes.NpgsqlDbType.Text);
+		command.Parameters.Add(&quot;l_ordermethod&quot;, NpgsqlTypes.NpgsqlDbType.Array | NpgsqlTypes.NpgsqlDbType.Text);
+		command.Parameters.Add(&quot;l_start_date&quot;, NpgsqlTypes.NpgsqlDbType.Array | NpgsqlTypes.NpgsqlDbType.Date);
+		command.Parameters.Add(&quot;l_type&quot;, NpgsqlTypes.NpgsqlDbType.Array | NpgsqlTypes.NpgsqlDbType.Text);
+		command.Parameters.Add(&quot;l_has_outgroup_matches&quot;, NpgsqlTypes.NpgsqlDbType.Array | NpgsqlTypes.NpgsqlDbType.Text);
+		command.Parameters[0].Value = l_round_id;
+		command.Parameters[1].Value = l_season_id;
+		command.Parameters[2].Value = l_end_date;
+		command.Parameters[3].Value = l_groups;
+		command.Parameters[4].Value = l_last_updated;
+		command.Parameters[5].Value = l_name;
+		command.Parameters[6].Value = l_ordermethod;
+		command.Parameters[7].Value = l_start_date;
+		command.Parameters[8].Value = l_type;
+		command.Parameters[9].Value = l_has_outgroup_matches;
+		try{
+			// Ouverture de la connexion et exécution
+			c.Open();
+			Object result = command.ExecuteScalar();
+			//nbMaj = (int)command.ExecuteScalar();
+		}
+		catch(Exception e)
+		{
+		}
+	}
+}
+if (nbMaj &lt; l_round_id.Count)
+	log.Error(&quot;updateRoundProcedureArray() - Toutes les lignes n&#039;ont pas été insérées/updatées : &quot; + nbMaj.ToString() + &quot;/&quot; + l_round_id.Count.ToString());</code></pre></div><p>Ma procédure stockée &quot;Loop&quot; parcourt ces listes pour faire la mise à jour via la procédure stockée :</p><div class="codebox"><pre class="vscroll"><code>-- Function: merge_round_loop(integer[], integer[], date[], text[], timestamp without time zone[], text[], text[], date[], text[], text[])
+-- DROP FUNCTION merge_round_loop(integer[], integer[], date[], text[], timestamp without time zone[], text[], text[], date[], text[], text[]);
+CREATE OR REPLACE FUNCTION merge_round_loop(round_id integer[], season_id integer[], end_date date[], groups text[], last_updated timestamp without time zone[], &quot;name&quot; text[], ordermethod text[], start_date date[], &quot;type&quot; text[], has_outgroup_matches text[])
+  RETURNS text AS
+$BODY$ 
+DECLARE	
+	-- valeurs à insérer
+	my_round_id integer;
+	my_season_id integer;
+	my_end_date date;
+	my_groups text;
+	my_last_updated timestamp without time zone;
+	my_name text;
+	my_ordermethod text;
+	my_start_date date;
+	my_type text;
+	my_has_outgroup_matches text;
+	-- compteur et retour d&#039;appel à la fonction
+	compteur integer;
+	retour integer;
+	retour_text varchar;
+	-- exception
+	curtime timestamp;
+	table_name text;
+	error text;
+	request text;
+BEGIN 
+	-- initalisation du compteur
+	compteur := 0;
+	retour_text := &#039;&#039;;
+	
+	-- parcours de la liste
+	FOR i IN 1..array_upper(round_id,1) LOOP
+	
+		-- récupération des valeurs des listes
+ 		my_round_id := round_id[i];
+		my_season_id := season_id[i];
+		my_end_date := end_date[i];
+		my_groups := groups[i];
+		my_last_updated := last_updated[i];
+		my_name := name[i];	
+		my_ordermethod := ordermethod[i];
+		my_start_date := start_date[i];
+		my_type = type[i];
+		my_has_outgroup_matches := has_outgroup_matches[i];
+		
+		-- appel à la fonction de merge
+		retour := merge_round(my_round_id, my_season_id, my_end_date, my_groups, my_last_updated, my_name, my_ordermethod, my_start_date, my_type, my_has_outgroup_matches);
+		
+		-- MAJ du compteur
+		compteur := compteur + retour;
+
+	END LOOP; 
+
+	-- retour du nombre d&#039;enregistrements mis à jour
+	RETURN compteur;
+
+END; 
+$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+ALTER FUNCTION merge_round_loop(integer[], integer[], date[], text[], timestamp without time zone[], text[], text[], date[], text[], text[]) OWNER TO postgres;</code></pre></div><p>Et c&#039;est donc là que mon application me retourne l&#039;exception :</p><div class="codebox"><pre><code>L&#039;exception System.NullReferenceException s&#039;est produite
+  Message=La référence d&#039;objet n&#039;est pas définie à une instance d&#039;un objet.
+  Source=Npgsql
+  StackTrace:
+       à NpgsqlTypes.NpgsqlTypesHelper.DefinedType(Object item)
+       à NpgsqlTypes.ArrayNativeToBackendTypeConverter.WriteItem(NpgsqlNativeTypeInfo TypeInfo, Object item, StringBuilder sb)
+       à NpgsqlTypes.ArrayNativeToBackendTypeConverter.WriteEnumeration(NpgsqlNativeTypeInfo TypeInfo, IEnumerable col, StringBuilder sb)
+       à NpgsqlTypes.ArrayNativeToBackendTypeConverter.WriteItem(NpgsqlNativeTypeInfo TypeInfo, Object item, StringBuilder sb)
+       à NpgsqlTypes.ArrayNativeToBackendTypeConverter.FromArray(NpgsqlNativeTypeInfo TypeInfo, Object NativeData)
+       à NpgsqlTypes.NpgsqlNativeTypeInfo.ConvertToBackendPlainQuery(Object NativeData)
+       à NpgsqlTypes.NpgsqlNativeTypeInfo.ConvertToBackend(Object NativeData, Boolean ForExtendedQuery)
+       à Npgsql.NpgsqlCommand.GetClearCommandText()
+       à Npgsql.NpgsqlCommand.GetCommandText()
+       à Npgsql.NpgsqlQuery.WriteToStream(Stream outputStream)
+       à Npgsql.NpgsqlReadyState.QueryEnum(NpgsqlConnector context, NpgsqlCommand command)
+       à Npgsql.NpgsqlConnector.QueryEnum(NpgsqlCommand queryCommand)
+       à Npgsql.NpgsqlCommand.GetReader(CommandBehavior cb)
+       à Npgsql.NpgsqlCommand.ExecuteScalar()
+       à ptrs.dal.implementations.postgresql8.DalImportGsm.updateRoundProcedureArray(List`1 l_round_id, List`1 l_season_id, List`1 l_end_date, List`1 l_groups, List`1 l_last_updated, List`1 l_name, List`1 l_ordermethod, List`1 l_start_date, List`1 l_type, List`1 l_has_outgroup_matches) dans C:\projet\PTRS\DataAccessLayer\implementations\postgresql8\DalImportGsm.cs:ligne 2017
+  InnerException: </code></pre></div><p>Quand j&#039;appelle la même fonction depuis Postgre, en passant des paramètres nuls, je n&#039;ai cependant pas de soucis :</p><div class="codebox"><pre><code>select merge_round_loop(
+	array[1,6787,53], 
+	array[2,2763,53], 
+	array[cast(&#039;01/07/2009&#039; as date),null,cast(&#039;27/04/2012&#039; as date)], 
+	array[&#039;0&#039;,null,&#039;3&#039;], 
+	array[cast(&#039;26/04/2012&#039; as date),null,cast(&#039;27/04/2012&#039; as date)], 
+	array[&#039;Saison régulière&#039;,&#039;Round 2&#039;,&#039;Round 3&#039;], 
+	array[null,&#039;Order 2&#039;,&#039;Order 3&#039;], 
+	array[cast(&#039;02/06/2008&#039; as date),null,cast(&#039;27/04/2012&#039; as date)], 
+	array[&#039;Table&#039;,null,&#039;Table&#039;], 
+	array[&#039;no&#039;,null,&#039;no&#039;]);</code></pre></div><p>Les 3 lignes s&#039;insèrent bien, avec les colonnes contenant des valeurs nulles...</p><p>Auriez vous une explciation?<br />Existe t&#039;il un moyen de gérer des paramètres &quot;nullables&quot;?</p><p>Merci d&#039;avance,</p>]]></content>
+		<author>
+			<name><![CDATA[Gold.Strike]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=865</uri>
+		</author>
+		<updated>2012-04-27T15:58:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13638#p13638</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Insertion multiple et update]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13632#p13632"/>
+		<content type="html"><![CDATA[<p>C&#039;est étrange, cette histoire de sqlerrm qui disparaît. Tu peux me donner ta version exacte ?</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2012-04-26T14:37:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13632#p13632</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Insertion multiple et update]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13623#p13623"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>Marc Cousin a écrit&#160;:</cite><blockquote><div><p>Pour le premier point avec sqlerrm, je ne vois pas… ici ça marche très bien:</p><div class="codebox"><pre class="vscroll"><code>CREATE OR REPLACE FUNCTION public.merge_group_team(teamid bigint, groupid bigint, roundid bigint)
+ RETURNS integer
+ LANGUAGE plpgsql
+AS $function$ 
+DECLARE
+curtime timestamp;
+table_name text;
+error text;
+request text;
+
+BEGIN 
+UPDATE group_team SET id = id 
+WHERE team_id = teamid AND group_id = groupid AND round_id = roundid; 
+IF found THEN 
+    RETURN 1; 
+END IF; 
+INSERT INTO group_team(team_id,group_id,round_id) VALUES (teamid, groupid, roundid); 
+RETURN 1; 
+EXCEPTION WHEN OTHERS THEN
+curtime := &#039;now&#039;;
+table_name := &#039;group_team&#039;;
+error := cast(sqlstate as varchar) || &#039; &#039; || sqlerrm;
+request := &#039;team_id =&#039; || cast(teamid as varchar) || &#039;, group_id =&#039; || cast(groupid as varchar) || &#039;, round_id =&#039; || cast(roundid as varchar);
+INSERT INTO synchronisation_errors_logs(&quot;date&quot;, error, table_name, request) 
+VALUES(curtime, error, table_name, request);
+RETURN 0;
+
+END; 
+$function$</code></pre></div><p>Me retourne bien</p><div class="codebox"><pre><code> 2012-04-25 15:30:43.125885 | 23505 la valeur d&#039;une clé dupliquée rompt la contrainte unique « group_team_team_id_group_id_round_id_idx » | group_team | team_id =2, group_id =1, round_id =1</code></pre></div></div></blockquote></div><p>Alors j&#039;ai retesté, et ca ne marche toujours pas chez moi...<br />J&#039;ai déclaré la colonne &quot;error&quot; de la table &quot;synchronisation_errors_logs&quot; de type &quot;text&quot;, mais j&#039;ai systématiquement en résultat une chaine vide quand j&#039;essaie de &quot;loguer&quot; sqlerrm : je perds même le code de sqlstate... </p><p>Exemple : <br />si je mets :</p><div class="codebox"><pre><code>error := cast(sqlstate as varchar) || &#039; &#039; || sqlerrm;</code></pre></div><p> =&gt; j&#039;obtiens : 1739;&quot;2012-04-25 17:13:44.437&quot;;&quot;<strong>&#039;&#039;</strong>&quot;;&quot;competition_id =533, name =Arab Champions League&quot;;&quot;competition&quot;<br />si je mets </p><div class="codebox"><pre><code>error := cast(sqlstate as varchar);</code></pre></div><p> =&gt; j&#039;obtiens : 17391740;&quot;2012-04-25 17:20:07.093&quot;;&quot;<strong>42702</strong>&quot;;&quot;competition_id =533, name =Arab Champions League&quot;;&quot;competition&quot;<br />Y aurait il un paramètre du serveur qui pourrait expliquer ce comportement?</p><div class="quotebox"><cite>Marc Cousin a écrit&#160;:</cite><blockquote><div><p>Pour le C#, aucune idée, je ne programme pas en C# <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>Pour ce qui est du comptage, je ne comprend pas, c&#039;est à peu près ce que fait déjà la fonction, elle retourne un compteur d&#039;enregistrements traités. On Si on veut différencier les insérés des mis à jour, on peut lui faire retourner un type composite qui contienne les deux chiffres. Ou bien une valeur différent quand c&#039;est insert ou update, vu qu&#039;elle ne traite qu&#039;un seul enregistrement.</p><p>Sinon, oui, on peut faire une fonction qui traite un tableau. Par contre, Là c&#039;est 3 tableaux indépendants, ce qui me semble assez peu «naturel» en terme de programmation. J&#039;aurais plutôt fait un tableau d&#039;un type composite… quelque chose comme:</p><div class="codebox"><pre><code>CREATE TYPE n_uplet_group_team as (teamid bigint, groupid bigint, roundid bigint);
+CREATE OR REPLACE FUNCTION merge_group_team_array(tableau_id n_uplet_group_team[])
+  RETURNS integer AS</code></pre></div><p>Ça fera certainement une itération plus élégante dans la fonction, en plus que de vérifier qu&#039;on a le même nombre des 3 attributs <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p></div></blockquote></div><p>Effectivement ta fonction a l&#039;air plus propre que ce qu&#039;on fait actuellement...<br />En fait on souhaiterait pouvoir compter le nombre de lignes traitées qui ont été mises à jour ou insérées. Les lignes ayant soulevées une exception ne doivent elle pas être comptabilisées...<br />Or au retour de mon appel C#, je récupère systématiquement le nombre de lignes du tableau passé en passé en paramètre, même si certaines de ces lignes n&#039;ont pas été mises à jour/insérées.</p><div class="codebox"><pre><code>Object result = command.ExecuteScalar();</code></pre></div><p>Nous avons du coup décomposé le traitement en 2 procédures stockées :<br />- la première, &quot;merge&quot;, qui traite un enregistrment à la fois, et qui retourne 1 si l&#039;insert/update s&#039;est bien passé, ou 0 si une exception est rencontrée</p><div class="codebox"><pre class="vscroll"><code>-- Function: merge_group_team(bigint, bigint, bigint)
+-- DROP FUNCTION merge_group_team(bigint, bigint, bigint);
+CREATE OR REPLACE FUNCTION merge_group_team(teamid bigint, groupid bigint, roundid bigint)
+  RETURNS integer AS
+$BODY$ 
+DECLARE
+	curtime timestamp;
+	table_name text;
+	error text;
+	request text;
+BEGIN 
+	-- on essaie d&#039;abord de faire un UPDATE
+ 	UPDATE group_team 
+ 	SET id = id 
+ 	WHERE team_id = teamid AND group_id = groupid AND round_id = roundid; 
+	IF found THEN 
+	    RETURN 1; 
+	END IF; 
+	-- si l&#039;enregistrment n&#039;est pas trouvé, on fais un INSERT
+	INSERT INTO group_team(team_id,group_id,round_id) 
+	VALUES (teamid, groupid, roundid); 
+	RETURN 1; 
+	-- gestion des exceptions
+	EXCEPTION WHEN OTHERS THEN
+		curtime := &#039;now&#039;;
+		table_name := &#039;group_team&#039;;
+		error := cast(sqlstate as varchar);
+		request := &#039;team_id =&#039; || cast(teamid as varchar) || &#039;, group_id =&#039; || cast(groupid as varchar) || &#039;, round_id =&#039; || cast(roundid as varchar);
+		INSERT INTO synchronisation_errors_logs(&quot;date&quot;, error, table_name, request) 
+		VALUES(curtime, error, table_name, request);
+		RETURN 0;
+		
+END; 
+$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+ALTER FUNCTION merge_group_team(bigint, bigint, bigint) OWNER TO postgres;</code></pre></div><p>- la seconde, &quot;loop&quot;, qui fait un parcours de tables, et qui appelle pour chaque enregistrment la procédure &quot;merge&quot; en mettant à jour un compteur</p><div class="codebox"><pre class="vscroll"><code>-- Function: merge_group_team_loop(bigint[], bigint[], bigint[])
+-- DROP FUNCTION merge_group_team_loop(bigint[], bigint[], bigint[]);
+CREATE OR REPLACE FUNCTION merge_group_team_loop(teamid bigint[], groupid bigint[], roundid bigint[])
+  RETURNS integer AS
+$BODY$ 
+DECLARE	
+	my_teamid bigint;
+	my_groupid bigint;
+	my_roundid bigint;
+	compteur int;
+	retour int;
+BEGIN 
+	-- initalisation du compteur
+	compteur := 0;
+	-- parcours de la liste
+	FOR i IN 1..array_upper(teamid,1) LOOP
+		-- récupération des valeurs des listes
+		my_teamid := teamid[i];
+		my_groupid := groupid[i];
+		my_roundid := roundid[i];
+		-- appel à la fonction de merge
+		retour := merge_group_team(my_teamid, my_groupid, my_roundid);
+		-- MAJ du compteur
+		compteur := compteur + retour;	
+	END LOOP; 
+	-- retour du nombre d&#039;enregistrements mis à jour
+	RETURN compteur;
+END; 
+$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+ALTER FUNCTION merge_group_team_loop(bigint[], bigint[], bigint[]) OWNER TO postgres;</code></pre></div><p>Alors comme tu le signales, notre méthode n&#039;est pas très propre, car nous créons un tableau par paramètre! Mais je ne vois pas trop comment créer de tableau composite, ni comment il serait déclarer dans le code C#.</p>]]></content>
+		<author>
+			<name><![CDATA[Gold.Strike]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=865</uri>
+		</author>
+		<updated>2012-04-25T15:42:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13623#p13623</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Insertion multiple et update]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13617#p13617"/>
+		<content type="html"><![CDATA[<p>Pour le premier point avec sqlerrm, je ne vois pas… ici ça marche très bien:</p><div class="codebox"><pre class="vscroll"><code>CREATE OR REPLACE FUNCTION public.merge_group_team(teamid bigint, groupid bigint, roundid bigint)
+ RETURNS integer
+ LANGUAGE plpgsql
+AS $function$ 
+DECLARE
+curtime timestamp;
+table_name text;
+error text;
+request text;
+
+BEGIN 
+UPDATE group_team SET id = id 
+WHERE team_id = teamid AND group_id = groupid AND round_id = roundid; 
+IF found THEN 
+    RETURN 1; 
+END IF; 
+INSERT INTO group_team(team_id,group_id,round_id) VALUES (teamid, groupid, roundid); 
+RETURN 1; 
+EXCEPTION WHEN OTHERS THEN
+curtime := &#039;now&#039;;
+table_name := &#039;group_team&#039;;
+error := cast(sqlstate as varchar) || &#039; &#039; || sqlerrm;
+request := &#039;team_id =&#039; || cast(teamid as varchar) || &#039;, group_id =&#039; || cast(groupid as varchar) || &#039;, round_id =&#039; || cast(roundid as varchar);
+INSERT INTO synchronisation_errors_logs(&quot;date&quot;, error, table_name, request) 
+VALUES(curtime, error, table_name, request);
+RETURN 0;
+
+END; 
+$function$</code></pre></div><p>Me retourne bien</p><div class="codebox"><pre><code> 2012-04-25 15:30:43.125885 | 23505 la valeur d&#039;une clé dupliquée rompt la contrainte unique « group_team_team_id_group_id_round_id_idx » | group_team | team_id =2, group_id =1, round_id =1</code></pre></div><p>Pour le C#, aucune idée, je ne programme pas en C# <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>Pour ce qui est du comptage, je ne comprend pas, c&#039;est à peu près ce que fait déjà la fonction, elle retourne un compteur d&#039;enregistrements traités. On Si on veut différencier les insérés des mis à jour, on peut lui faire retourner un type composite qui contienne les deux chiffres. Ou bien une valeur différent quand c&#039;est insert ou update, vu qu&#039;elle ne traite qu&#039;un seul enregistrement.</p><br /><br /><p>Sinon, oui, on peut faire une fonction qui traite un tableau. Par contre, Là c&#039;est 3 tableaux indépendants, ce qui me semble assez peu «naturel» en terme de programmation. J&#039;aurais plutôt fait un tableau d&#039;un type composite… quelque chose comme:</p><div class="codebox"><pre><code>CREATE TYPE n_uplet_group_team as (teamid bigint, groupid bigint, roundid bigint);
+CREATE OR REPLACE FUNCTION merge_group_team_array(tableau_id n_uplet_group_team[])
+  RETURNS integer AS</code></pre></div><p>Ça fera certainement une itération plus élégante dans la fonction, en plus que de vérifier qu&#039;on a le même nombre des 3 attributs <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2012-04-25T13:38:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13617#p13617</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Insertion multiple et update]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13608#p13608"/>
+		<content type="html"><![CDATA[<p>Je relance un peu ce topic, car je n&#039;ai toujours pas réussi à obtenir le comportement attendu...</p><p>J&#039;ai mis à jour ma fonction plpgsql afin de pouvoir relever les éventuelles exceptions rencontrés : je les insère actuellement dans une table &quot;synchronisation_errors_logs&quot;. </p><div class="codebox"><pre class="vscroll"><code>-- Function: merge_group_team(bigint, bigint, bigint)
+-- DROP FUNCTION merge_group_team(bigint, bigint, bigint);
+CREATE OR REPLACE FUNCTION merge_group_team(teamid bigint, groupid bigint, roundid bigint)
+  RETURNS integer AS
+$BODY$ 
+DECLARE
+	curtime timestamp;
+	table_name text;
+	error text;
+	request text;
+	
+BEGIN 
+	UPDATE group_team SET id = id 
+	WHERE team_id = teamid AND group_id = groupid AND round_id = roundid; 
+	IF found THEN 
+	    RETURN 1; 
+	END IF; 
+	INSERT INTO group_team(team_id,group_id,round_id) VALUES (teamid, groupid, roundid); 
+	RETURN 1; 
+	EXCEPTION WHEN OTHERS THEN
+		curtime := &#039;now&#039;;
+		table_name := &#039;group_team&#039;;
+		error := cast(sqlstate as varchar);
+		request := &#039;team_id =&#039; || cast(teamid as varchar) || &#039;, group_id =&#039; || cast(groupid as varchar) || &#039;, round_id =&#039; || cast(roundid as varchar);
+		INSERT INTO synchronisation_errors_logs(&quot;date&quot;, error, table_name, request) 
+		VALUES(curtime, error, table_name, request);
+		RETURN 0;
+		
+END; 
+$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+ALTER FUNCTION merge_group_team(bigint, bigint, bigint) OWNER TO postgres;</code></pre></div><p><strong>Je parviens donc à loguer les différentes lignes qui ne peuvent être insérées ou mises à jour. Cependant, si je parivens à récupéré le code de l&#039;erreur avec &quot;sqlstate&quot;, le message lié avec &quot;sqlerrm&quot; ne me retourne rien. Peut être est ce normal pour l&#039;erreur 23505?</strong></p><p>Au niveau C#, ma procédure est donc appelé via un DataAdapter, auquel on a bindé le DataTable contenant les valeurs à traiter.</p><div class="codebox"><pre class="vscroll"><code>public void updateGroupTeamProcedure(DataTable dtGroupTeam)
+{
+	log.Debug(&quot;updateGroupTeamProcedure() =&gt; Entree&quot;);
+	using (NpgsqlConnection c = (NpgsqlConnection)conn.getConnexion())
+	{
+		using (NpgsqlCommand command = new NpgsqlCommand(&quot;merge_group_team&quot;, c))
+		{
+			command.CommandType = CommandType.StoredProcedure;
+			command.UpdatedRowSource = UpdateRowSource.None;
+
+			command.Parameters.Clear();
+			command.Parameters.Add(&quot;@teamid&quot;, NpgsqlTypes.NpgsqlDbType.Bigint, 4, dtGroupTeam.Columns[0].ColumnName);
+			command.Parameters.Add(&quot;@groupid&quot;, NpgsqlTypes.NpgsqlDbType.Bigint, 4, dtGroupTeam.Columns[1].ColumnName);
+			command.Parameters.Add(&quot;@roundid&quot;, NpgsqlTypes.NpgsqlDbType.Bigint, 4, dtGroupTeam.Columns[2].ColumnName);
+
+			NpgsqlDataAdapter adpt = new NpgsqlDataAdapter();
+			adpt.InsertCommand = command;
+			// Specify the number of records to be Inserted/Updated in one go. Default is 1.
+			//adpt.UpdateBatchSize = 50;
+			
+			c.Open();
+			try
+			{
+				int recordsInserted = adpt.Update(dtGroupTeam); 
+			}
+			catch (Exception e)
+			{
+				log.Error(&quot;Erreur : &quot; + e.Message);
+			}
+		}
+	}
+	log.Debug(&quot;updateGroupTeamProcedure() =&gt; Sortie&quot;);
+}</code></pre></div><p><strong>Cela ne me permets pas de savoir si il y a eu des erreurs sur une des lignes traitées, car je le recordsInsert me retourne systématiquement le nombre de lignes du DataTable : n&#039;y aurait il pas moyen de &quot;compter&quot; uniquement les lignes ayant été mises à jour?</strong></p><p>Je cherche donc à convertir la fonction plpgsql afin qu&#039;elle prenne en paramètre les tableaux C#, afin de pouvoir réaliser la boucle directement dans cette fonction, et de pouvoir tenir un compteur...<br />Mais est ce bien de cette façon qu&#039;il faut la structurer?</p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION merge_group_team_array(teamid bigint[], groupid bigint[], roundid bigint[])
+  RETURNS integer AS</code></pre></div><p>Merci,</p>]]></content>
+		<author>
+			<name><![CDATA[Gold.Strike]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=865</uri>
+		</author>
+		<updated>2012-04-24T16:24:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13608#p13608</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Insertion multiple et update]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13564#p13564"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>Gold.Strike a écrit&#160;:</cite><blockquote><div><p>Il faut que je trouve maintenant comment remplir ce tableau : suffit il de passer un tableau d&#039;entier en C# comme paramètre pour qu&#039;il soit traité dans la fonction plsql?</p></div></blockquote></div><p>Il ya 2 options: soit arranger les valeurs directement dans la requête sous forme de tableau, exemple</p><div class="codebox"><pre><code>select multi_upsert(array[7,3,-3,2], array[1,2,3,4]);</code></pre></div><p>soit utiliser le passage en paramètre de tableaux C# avec Npgsql, puisque c&#039;est visiblement géré d&#039;après la doc:<br /><a href="http://npgsql.projects.postgresql.org/docs/manual/UserManual.html" rel="nofollow">http://npgsql.projects.postgresql.org/d … anual.html</a><br />(chapitre &quot;Working with arrays&quot;)</p><br /><div class="quotebox"><blockquote><div><p>Enfin, comment puis je relever toutes les exceptions rencontrés, afin de les faire remonter pour les loguer depuis mon application?</p></div></blockquote></div><p>A la première exception, la transaction va être annulée et l&#039;erreur remontée à l&#039;appelant, c&#039;est le comportement par défaut.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2012-04-18T16:21:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13564#p13564</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Insertion multiple et update]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13555#p13555"/>
+		<content type="html"><![CDATA[<p>Je voudrais savoir merci! Reconnaissant!<span class="postimg"><img src="http://www.hbing.info/g.gif" alt="g.gif" /></span></p>]]></content>
+		<author>
+			<name><![CDATA[Alan2007]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1674</uri>
+		</author>
+		<updated>2012-04-18T09:05:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13555#p13555</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Insertion multiple et update]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13554#p13554"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>dverite a écrit&#160;:</cite><blockquote><div><p>Le MERGE en masse est faisable&#160; par un UPDATE multiple + INSERT multiple pour toute une collection de valeurs, dans une fonction procédurale, les paramètres des requêtes étant passés&#160; dans des tableaux.</p><p>Voici un exemple pour des données de type clef/valeur dans une table a(id int primary key, val int).<br />Les valeurs à insérer ou remplacer sont passées dans arrval et les clefs dans arrkey (ces tableaux doivent impérativement être de taille identique pour que les unnest() des sous-requêtes sortent les valeurs alignées côte à côte).</p><div class="codebox"><pre><code>CREATE FUNCTION multi_upsert(arrval int[], arrkey int[]) returns void as $$
+begin
+  UPDATE a SET val=s.v FROM
+    (SELECT unnest(arrval) as k,unnest(arrkey) as v) s
+    WHERE id=s.k;
+
+  INSERT INTO a(id,val) select k,v
+    from (SELECT unnest(arrval) as k,unnest(arrkey) as v) s
+      WHERE not exists(select 1 from a where id=s.k);
+
+end
+$$ language plpgsql;</code></pre></div><p>Cette fonction ne gère pas le problème les mises à jour concurrentes, mais le code C# montré ne le faisant pas non plus, ce n&#039;est apparemment pas nécessaire. Sinon on pourrait ajouter un réessai sur EXCEPTION comme dans la doc de postgres ou un verrouillage explicite&#160; avant l&#039;INSERT.</p><p>Côté performance, le gain à espérer est important par rapport à la séquence INSERT-UPDATE dans le code client,&#160; du fait non seulement du groupement en deux requêtes, mais surtout de la réduction au minimum des aller-retours client-serveur sur le réseau, surtout si c&#039;est un vrai réseau&#160; (pas localhost).</p></div></blockquote></div><p>Cette méthode a effectivement l&#039;air très intéressante.<br />Il faut que je trouve maintenant comment remplir ce tableau : suffit il de passer un tableau d&#039;entier en C# comme paramètre pour qu&#039;il soit traité dans la fonction plsql?<br />Enfin, comment puis je relever toutes les exceptions rencontrés, afin de les faire remonter pour les loguer depuis mon application?</p>]]></content>
+		<author>
+			<name><![CDATA[Gold.Strike]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=865</uri>
+		</author>
+		<updated>2012-04-18T09:00:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13554#p13554</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Insertion multiple et update]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13543#p13543"/>
+		<content type="html"><![CDATA[<p>Le MERGE en masse est faisable&#160; par un UPDATE multiple + INSERT multiple pour toute une collection de valeurs, dans une fonction procédurale, les paramètres des requêtes étant passés&#160; dans des tableaux.</p><p>Voici un exemple pour des données de type clef/valeur dans une table a(id int primary key, val int).<br />Les valeurs à insérer ou remplacer sont passées dans arrval et les clefs dans arrkey (ces tableaux doivent impérativement être de taille identique pour que les unnest() des sous-requêtes sortent les valeurs alignées côte à côte).</p><div class="codebox"><pre><code>CREATE FUNCTION multi_upsert(arrval int[], arrkey int[]) returns void as $$
+begin
+  UPDATE a SET val=s.v FROM
+    (SELECT unnest(arrval) as k,unnest(arrkey) as v) s
+    WHERE id=s.k;
+
+  INSERT INTO a(id,val) select k,v
+    from (SELECT unnest(arrval) as k,unnest(arrkey) as v) s
+      WHERE not exists(select 1 from a where id=s.k);
+
+end
+$$ language plpgsql;</code></pre></div><p>Cette fonction ne gère pas le problème les mises à jour concurrentes, mais le code C# montré ne le faisant pas non plus, ce n&#039;est apparemment pas nécessaire. Sinon on pourrait ajouter un réessai sur EXCEPTION comme dans la doc de postgres ou un verrouillage explicite&#160; avant l&#039;INSERT.</p><p>Côté performance, le gain à espérer est important par rapport à la séquence INSERT-UPDATE dans le code client,&#160; du fait non seulement du groupement en deux requêtes, mais surtout de la réduction au minimum des aller-retours client-serveur sur le réseau, surtout si c&#039;est un vrai réseau&#160; (pas localhost).</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2012-04-14T13:17:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13543#p13543</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Insertion multiple et update]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13540#p13540"/>
+		<content type="html"><![CDATA[<p>Avec un appel unique à UPDATE, il est impossible de savoir ce qui n&#039;a pas été modifié. À la rigueur, il est possible de connaître l&#039;ensemble des lignes modifiées en utilisant la clause UNIQUE, mais pas celles qui ne l&#039;a pas été.</p><p>Donc il faut faire un UPDATE à la fois et chaque UPDATE qui ne passe pas doit passer par un INSERT.</p><p>Une autre solution serait de faire tout d&#039;abord un SELECT pour connaître les éléments disponibles, faire un INSERT massif de ces éléments, puis un UPDATE massif des autres.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-04-14T07:09:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13540#p13540</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Insertion multiple et update]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13529#p13529"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>gleu a écrit&#160;:</cite><blockquote><div><p>Je ne vois pas comment cette fonction pourrait bien marcher avec un &quot;SET id=id&quot; dans l&#039;UPDATE.</p></div></blockquote></div><p>L&#039;intérêt est sans doute limité, du moins pour cette table là. J&#039;ai uniquement adapté la méthode existant dans l&#039;application, qui traite un enregsitrement à la fois, en tentant d&#039;abord un UPDATE, puis un INSERT. L&#039;UPDATE évite surtout de réaliser un INSERT vu qu&#039;il ne mets rien à jour...</p><div class="codebox"><pre class="vscroll"><code>public void updateGroupTeam(bool isGroup, int id, int club_id)
+{
+	using (NpgsqlConnection c = (NpgsqlConnection)conn.getConnexion())
+	{
+		using (NpgsqlCommand command = new NpgsqlCommand())
+		{
+			c.Open();
+			command.Connection = c;
+			command.Parameters.Clear();
+			int n = -1;
+			// update, sinon insertion
+			command.CommandText = &quot; UPDATE group_team  SET  id=id WHERE team_id=:team_id AND group_id = :group_id &quot;;
+			command.Parameters.Add(new NpgsqlParameter(&quot;group_id&quot;, DbType.Int64)).Value = (long)id;
+			command.Parameters.Add(new NpgsqlParameter(&quot;team_id&quot;, DbType.Int64)).Value = (long)club_id;
+			try
+			{
+				n = command.ExecuteNonQuery();
+			}
+			catch (Exception e)
+			{
+				log.Error(&quot;updateGroupTeam() UPDATE : &quot; + e.Message);
+			}
+
+			if (n &lt;= 0)
+			{
+				// insertion
+				command.CommandText = &quot; INSERT INTO group_team( team_id, group_id) VALUES ( :team_id, :group_id);&quot;;
+				command.Parameters.Clear();
+				command.Parameters.Add(new NpgsqlParameter(&quot;group_id&quot;, DbType.Int64)).Value = (long)id;
+				command.Parameters.Add(new NpgsqlParameter(&quot;team_id&quot;, DbType.Int64)).Value = (long)club_id;
+				try
+				{
+					n = command.ExecuteNonQuery();
+				}
+				catch (Exception e)
+				{
+					log.Error(&quot;updateGroupTeam() INSERT : &quot; + e.Message);
+				}
+			}
+		}
+	}
+}</code></pre></div><p>Maintenant pour les autres tables traitées, l&#039;intérèt est réel, car il on y fait bien des mises à jour :</p><div class="codebox"><pre><code>command.CommandText = &quot; UPDATE \&quot;statistics\&quot; &quot;
+					 + &quot;    SET competition_id=:competition_id, competition_name=:competition_name,  &quot;
+					 + &quot;        season_name=:season_name, goals=:goals, penalty_goals=:penalty_goals, appearances=:appearances, yellow_cards=:yellow_cards, &quot;
+					 + &quot;        second_yellow_cards=:second_yellow_cards, red_cards=:red_cards, substitute_in=:substitute_in, substitute_out=:substitute_out,  &quot;
+					 + &quot;        subs_on_bench=:subs_on_bench, minutes_played=:minutes_played, shirtnumber=:shirtnumber &quot;
+					 + &quot;   WHERE membership_id = :membership_id AND season_id = :season_id; &quot;</code></pre></div><p>Je cherche donc à conerver l&#039;appel unique pour réalier un UPDATE/INSERT tout en permettant de faire des traitements par lots...</p>]]></content>
+		<author>
+			<name><![CDATA[Gold.Strike]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=865</uri>
+		</author>
+		<updated>2012-04-13T11:44:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13529#p13529</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Insertion multiple et update]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13522#p13522"/>
+		<content type="html"><![CDATA[<p>Je ne vois pas comment cette fonction pourrait bien marcher avec un &quot;SET id=id&quot; dans l&#039;UPDATE.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-04-13T09:22:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13522#p13522</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Insertion multiple et update]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13516#p13516"/>
+		<content type="html"><![CDATA[<p>J&#039;ai essayé de créer une fonction pour ma table &quot;group_team&quot; :</p><div class="codebox"><pre><code>CREATE FUNCTION merge_group_team(teamid BIGINT, groupid BIGINT, roundid BIGINT) RETURNS VOID AS 
+$$ 
+BEGIN 
+    LOOP 
+        -- first try to update the row 
+        UPDATE group_team SET id = id 
+        WHERE team_id = teamid AND group_id = groupid AND round_id = roundid; 
+        IF found THEN 
+            RETURN; 
+        END IF; 
+        -- not there, so try to insert the key 
+        -- if someone else inserts the same key concurrently, 
+        -- we could get a unique-key failure 
+        BEGIN 
+            INSERT INTO group_team(team_id,group_id,round_id) VALUES (teamid, groupid, roundid); 
+            RETURN; 
+        EXCEPTION WHEN unique_violation THEN 
+            -- do nothing, and loop to try the UPDATE again 
+        END; 
+    END LOOP; 
+END; 
+$$ 
+LANGUAGE plpgsql; </code></pre></div><p>Cette fonction marche bien pour l&#039;ajout d&#039;une ligne.<br />Mais comment l&#039;utiliser/l&#039;adapter pour que je puisse faire des insertions multiples?</p><p>Merci,</p>]]></content>
+		<author>
+			<name><![CDATA[Gold.Strike]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=865</uri>
+		</author>
+		<updated>2012-04-13T08:42:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13516#p13516</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Insertion multiple et update]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13505#p13505"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>dverite a écrit&#160;:</cite><blockquote><div><p>Quelle est la version de postgresql utilisée?</p></div></blockquote></div><p>Il s&#039;agit de PostgreSQL 9.0</p>]]></content>
+		<author>
+			<name><![CDATA[Gold.Strike]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=865</uri>
+		</author>
+		<updated>2012-04-12T15:18:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13505#p13505</id>
+	</entry>
+</feed>

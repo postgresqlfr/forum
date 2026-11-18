@@ -1,0 +1,374 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Migration Vues Oracle avec jointures externes.]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=284&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=284"/>
+	<updated>2009-06-04T12:45:06Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=284</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Migration Vues Oracle avec jointures externes.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1633#p1633"/>
+		<content type="html"><![CDATA[<p>C&#039;est bon, c&#039;est bien ça. </p><p>Ce n&#039;est pas encore tout à fait clair, mais c&#039;est déjà mieux, à pratiquer encore.</p><p>Merci !</p>]]></content>
+		<author>
+			<name><![CDATA[djalouk]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=372</uri>
+		</author>
+		<updated>2009-06-04T12:45:06Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1633#p1633</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Migration Vues Oracle avec jointures externes.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1620#p1620"/>
+		<content type="html"><![CDATA[<p>Je ne l&#039;ai évidemment pas vérifié ...</p><p>SELECT p_entity.ENTITY_INCDE,ENTITY_DSC,RESULT_INCDE,ENTITY_GO_INCDE,DOC_AUTHOR,RESULT_REAL_DTE,RESULT_TYPE_INCDE,REF_EXCDE <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160;FROM p_resultat <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160;JOIN p_entity <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;ON (p_entity.entity_incde = p_resultat.result_incde)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160;JOIN r_go <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;ON (p_entity.entity_go_incde = r_go.go_incde)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160;LEFT JOIN r_resultat_type rr <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;ON (p_resultat.RESULT_TYPE_INCDE =&#160; rr.REF_INCDE)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160;LEFT JOIN&#160; a_entity_document aed <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;ON (p_entity.entity_incde =&#160; aed.ENTITY_INCDE)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160;LEFT JOIN p_document doc <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;ON (aed.DOC_INCDE = doc.DOC_INCDE)<br />WHERE<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160;p_entity.entity_status_incde = 4 <br />&#160; &#160; &#160; &#160; &#160; &#160; &#160;AND p_entity.entity_sec_lvl = 0</p><br /><p>&#160; &#160; &#160; &#160; &#160; &#160; &#160;ORDER BY p_entity.ENTITY_INCDE DESC</p><p>Au passage, je me suis permis de mettre les LEFT JOIN à la fin. Je trouve cela plus lisible (on est comme ça sûr dès la première lecture de la requête que les JOIN ne dépendent pas du LEFT JOIN).</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2009-06-03T16:42:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1620#p1620</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Migration Vues Oracle avec jointures externes.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1617#p1617"/>
+		<content type="html"><![CDATA[<p>Vraiment merci Flo, tu m&#039;as permis d&#039;avancer et de convertir un certain nombres de requêtes, tout fonctionne bien, je coince cependant sur celle-ci et donc, je sollicite à nouveau votre aide (je n&#039;ai pas encore tout saisi...mais j&#039;ai bon espoir...)</p><br /><p>J&#039;ai ceci</p><div class="codebox"><pre><code>SELECT p_entity.ENTITY_INCDE,ENTITY_DSC,RESULT_INCDE,ENTITY_GO_INCDE,DOC_AUTHOR,RESULT_REAL_DTE,RESULT_TYPE_INCDE,REF_EXCDE 
+             FROM p_resultat,r_resultat_type rr, p_entity, r_go, a_entity_document aed, p_document doc
+             WHERE p_entity.entity_incde = p_resultat.result_incde
+             AND p_entity.entity_go_incde = r_go.go_incde
+             AND p_entity.entity_status_incde = 4 
+             AND p_entity.entity_sec_lvl = 0
+             AND p_entity.entity_incde =  aed.ENTITY_INCDE(+)
+             AND p_resultat.RESULT_TYPE_INCDE =  rr.REF_INCDE(+)
+             AND aed.DOC_INCDE = doc.DOC_INCDE (+) 
+             ORDER BY p_entity.ENTITY_INCDE DESC</code></pre></div><p>et j&#039;ai commencé à écrire ceci, il reste une jointure à faire mais je ne vois pas bien comment faire :</p><div class="codebox"><pre><code>SELECT p_entity.ENTITY_INCDE,ENTITY_DSC,RESULT_INCDE,ENTITY_GO_INCDE,DOC_AUTHOR,RESULT_REAL_DTE,RESULT_TYPE_INCDE,REF_EXCDE 
+             FROM r_go,
+             p_entity INNER JOIN p_resultat LEFT OUTER JOIN r_resultat_type
+             ON (p_resultat.RESULT_TYPE_INCDE =  r_resultat_type.REF_INCDE)
+             ON (p_entity.entity_incde = p_resultat.result_incde),
+             a_entity_document LEFT OUTER JOIN p_document ON (a_entity_document.DOC_INCDE = p_document.DOC_INCDE)
+             
+             WHERE p_entity.entity_go_incde = r_go.go_incde
+             AND p_entity.entity_status_incde = 4 
+             AND p_entity.entity_sec_lvl = 0
+             and p_entity.entity_incde =  a_entity_document.ENTITY_INCDE(+)
+             
+			 ORDER BY p_entity.ENTITY_INCDE DESC</code></pre></div><p>désolé et encore merci, je continue à investiguer...</p>]]></content>
+		<author>
+			<name><![CDATA[djalouk]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=372</uri>
+		</author>
+		<updated>2009-06-03T13:33:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1617#p1617</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Migration Vues Oracle avec jointures externes.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1580#p1580"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>djalouk a écrit&#160;:</cite><blockquote><div><div class="codebox"><pre><code>FROM 
+    p_aap,
+    p_entity left join a_entity_go on (p_entity.entity_incde = a_entity_go.ENTITY_INCDE),
+    a_entity_go left join a_theme_go  on (a_entity_go.GO_INCDE = a_theme_go.go_incde)</code></pre></div></div></blockquote></div><p>Tu as mis 2 fois la table a_entity... En fait, si on met p_aap de côté pour l&#039;instant, ce que tu demandes au moteur, c&#039;est de calculer d&#039;une part la jointure entre p_entity et a_entity :</p><div class="codebox"><pre><code>    p_entity left join a_entity_go on (p_entity.entity_incde = a_entity_go.ENTITY_INCDE),</code></pre></div><p>D&#039;autre part la jointure entre a_entity et a_theme :</p><div class="codebox"><pre><code>    a_entity_go left join a_theme_go  on (a_entity_go.GO_INCDE = a_theme_go.go_incde)</code></pre></div><p>Et de faire le produit cartésien des 2... d&#039;où les lignes en trop.</p><p>Il aurait fallu écrire comme ceci :</p><br /><div class="codebox"><pre><code>    p_entity left join a_entity_go on (p_entity.entity_incde = a_entity_go.ENTITY_INCDE) 
+                left join a_theme_go  on (a_entity_go.GO_INCDE = a_theme_go.go_incde)</code></pre></div><p>et attention, tu as laissé la jointure entre p_aap et p_entity dans la clause where (c&#039;est pas très propre, il vaudrait mieux la mettre avec tout ça dans un inner join <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>Ca doit être donner quelque chose de ce genre, si je ne fais pas d&#039;erreur :</p><div class="codebox"><pre><code>FROM
+    p_aap 
+       INNER JOIN p_entity 
+             ON (p_aap.aap_incde = p_entity.entity_incde) 
+       LEFT OUTER JOIN a_entity_go 
+             ON (p_entity.entity_incde = a_entity_go.ENTITY_INCDE)
+       LEFT OUTER JOIN a_theme_go  
+             ON (a_entity_go.GO_INCDE = a_theme_go.go_incde)</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[flo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=216</uri>
+		</author>
+		<updated>2009-06-01T13:54:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1580#p1580</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Migration Vues Oracle avec jointures externes.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1578#p1578"/>
+		<content type="html"><![CDATA[<p>Je reviens à la charge car j&#039;ai un petit souci.</p><p>La transformation de cette requête (Oracle 9i) :</p><div class="codebox"><pre><code>SELECT  AAP_INCDE, AAP_CLOS_MODE, AAP_CLOS_DTE,  AAP_CLOS_TIM, AAP_CTC_1, AAP_CTC_2,  AAP_CTC_3, AAP_CTC_4, AAP_CTC_5,
+AAP_CTC_EMAIL_1, AAP_CTC_EMAIL_2, AAP_CTC_EMAIL_3,   AAP_CTC_EMAIL_4, AAP_CTC_EMAIL_5, AAP_SEND_1,
+AAP_SEND_2, AAP_SEND_EMAIL_1, AAP_SEND_EMAIL_2,    AAP_SEND_ADRESS, p_entity.ENTITY_INCDE, ENTITY_EXCDE, ENTITY_DSC,
+ENTITY_TYPE_INCDE, ENTITY_CRT_INCDE, ENTITY_CRT_DTE,   ENTITY_MDF_INCDE, ENTITY_MDF_DTE, ENTITY_PUB_INCDE,
+ENTITY_PUB_DTE, ENTITY_SEC_LVL, ENTITY_STATUS_INCDE,    ENTITY_VERSION, ENTITY_GO_INCDE, ENTITY_ROOT_INCDE,
+ENTITY_SUMMARY, ENTITY_DATA_1, ENTITY_DATA_2,    ENTITY_DATA_3, ENTITY_DATA_4, ENTITY_DATA_5,    ENTITY_FNC_INCDE
+FROM p_entity, a_theme_go, p_aap, a_entity_go
+where p_aap.aap_incde = p_entity.entity_incde 
+and p_entity.entity_status_incde = CAST(3 as integer)
+and	 p_entity.entity_incde = a_entity_go.ENTITY_INCDE(+)
+and a_entity_go.GO_INCDE = a_theme_go.go_incde(+)
+and a_theme_go.theme_incde  =  CAST(2 as integer)</code></pre></div><p>en cette requête (syntaxe standard - destination PostgreSQL 8.3):</p><div class="codebox"><pre><code>SELECT  AAP_INCDE, AAP_CLOS_MODE, AAP_CLOS_DTE,  AAP_CLOS_TIM, AAP_CTC_1, AAP_CTC_2,  AAP_CTC_3, AAP_CTC_4, AAP_CTC_5,
+AAP_CTC_EMAIL_1, AAP_CTC_EMAIL_2, AAP_CTC_EMAIL_3,   AAP_CTC_EMAIL_4, AAP_CTC_EMAIL_5, AAP_SEND_1,
+AAP_SEND_2, AAP_SEND_EMAIL_1, AAP_SEND_EMAIL_2,    AAP_SEND_ADRESS, p_entity.ENTITY_INCDE, ENTITY_EXCDE, ENTITY_DSC,
+ENTITY_TYPE_INCDE, ENTITY_CRT_INCDE, ENTITY_CRT_DTE,   ENTITY_MDF_INCDE, ENTITY_MDF_DTE, ENTITY_PUB_INCDE,
+ENTITY_PUB_DTE, ENTITY_SEC_LVL, ENTITY_STATUS_INCDE,    ENTITY_VERSION, ENTITY_GO_INCDE, ENTITY_ROOT_INCDE,
+ENTITY_SUMMARY, ENTITY_DATA_1, ENTITY_DATA_2,    ENTITY_DATA_3, ENTITY_DATA_4, ENTITY_DATA_5,    ENTITY_FNC_INCDE
+FROM p_aap,
+p_entity left join a_entity_go on (p_entity.entity_incde = a_entity_go.ENTITY_INCDE),
+a_entity_go left join a_theme_go  on (a_entity_go.GO_INCDE = a_theme_go.go_incde)
+where p_aap.aap_incde = p_entity.entity_incde 
+and p_entity.entity_status_incde = CAST(3 as integer)
+and a_theme_go.theme_incde  =  CAST(2 as integer)</code></pre></div><p>ne renvoit pas le même résultat (plein de lignes identiques dans la 2ème)</p><p>Je ne vois pas ou est mon erreur (surement une jointure mal faite puisque plein de doublons mais où...), si vous avez un tuyau, merci.</p>]]></content>
+		<author>
+			<name><![CDATA[djalouk]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=372</uri>
+		</author>
+		<updated>2009-06-01T13:03:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1578#p1578</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Migration Vues Oracle avec jointures externes.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1502#p1502"/>
+		<content type="html"><![CDATA[<p>Oui, c&#039;est un détail amusant, l&#039;histoire du LEFT OUTER JOIN plus rapide que la syntaxe + sous Oracle...</p><p>C&#039;est censé être identique, d&#039;après la doc, mais on est un certain nombre à avoir constaté que ce n&#039;était pas toujours le cas <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2009-05-22T13:38:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1502#p1502</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Migration Vues Oracle avec jointures externes.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1500#p1500"/>
+		<content type="html"><![CDATA[<p>Oui c&#039;est mieux en effet <img src="http://forums.postgresql.fr/img/smilies/wink.png" width="15" height="15" alt="wink" /></p><p>Pour info, cela fonctionne très bien, la syntaxe de flo est la bonne, la requête est d&#039;ailleurs beaucoup plus rapide avec la syntaxe LEFT OUTER JOIN à la place de (+).</p><p>Merci à tous !</p>]]></content>
+		<author>
+			<name><![CDATA[djalouk]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=372</uri>
+		</author>
+		<updated>2009-05-22T12:22:38Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1500#p1500</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Migration Vues Oracle avec jointures externes.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1497#p1497"/>
+		<content type="html"><![CDATA[<p>Salut,</p><p>Il vaut mieux vous vous appropriiez la syntaxe, cela sera plus rapide&#160; et plus profitable pour tout le monde je pense..<br />Pour résumer :<br />SELECT xxxxx<br />FROM a,b<br />WHERE a.champ_a=b.champ_b(+)</p><p>devient :<br />SELECT xxxx<br />FROM a LEFT JOIN b<br />ON (a.champ_a=b.champ_b)</p><p>Au passage, cette notation (normalisée dans SQL, édition 99 je crois) est celle qui est recommandée dans Oracle. Depuis la 9i de mémoire.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2009-05-20T16:42:03Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1497#p1497</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Migration Vues Oracle avec jointures externes.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1496#p1496"/>
+		<content type="html"><![CDATA[<p>Comme je vous sens chauds, j&#039;essaie également de transformer ce SELECT :</p><div class="codebox"><pre class="vscroll"><code>select
+          t_fnc_principal.entity_incde as entity_incde,
+          t_fnc_principal.entity_excde as entity_excde,
+          t_fnc_principal.entity_dsc as entity_dsc,
+          t_fnc_principal.entity_summary as entity_summary,
+          t_fnc_principal.entity_data_5 as entity_data_5,
+          t_fnc_principal.acro as  acro,
+          t_fnc_principal.proj_prj_titre as proj_prj_titre, 
+          t_fnc_principal.proj_obj_fin_porteur_projet as proj_obj_fin_projet,
+          t_fnc_principal.proj_pos_exist_projet as proj_pos_exist_projet,
+          t_fnc_principal.proj_methode_oeuvre as proj_methode_oeuvre,
+          t_fnc_principal.proj_apport_result as proj_apport_result,
+          t_fnc_principal.proj_mode_val as proj_mode_val,
+          t_fnc_principal.proj_nom_syn as proj_nom_syn,
+          t_fnc_principal.entity_data_4 as entity_data_4,
+          t_fnc_principal.entity_type_incde as entity_type_incde,
+          t_fnc_principal.entity_crt_dte as entity_crt_dte,
+          t_fnc_principal.entity_sec_lvl as entity_sec_lvl,
+          t_fnc_principal.entity_status_incde as entity_status_incde,
+          t_fnc_principal.entity_version as entity_version,
+          t_fnc_principal.entity_go_incde as entity_go_incde,
+          t_go_secondaire.go_secondaire as go_secondaire,
+          t_financeur.ref_dsc as ref_dsc
+          from
+                (select entity_incde, entity_excde, entity_dsc, entity_summary,
+                    entity_data_5, 
+                    pp.proj_prj_acro as acro, 
+                    pp.proj_prj_titre as proj_prj_titre, 
+                    pp.proj_obj_fin_porteur_projet ,
+                    pp.proj_pos_exist_projet ,
+                    pp.proj_methode_oeuvre ,
+                    pp.proj_apport_result ,
+                    pp.proj_mode_val ,
+                    pp.proj_nom_syn ,
+                    entity_data_4,
+           	        entity_type_incde, entity_crt_dte, entity_sec_lvl,
+                    entity_status_incde, entity_version, entity_go_incde
+                from   p_entity pe, p_projet pp
+                where  pe.entity_incde = pp.proj_incde) t_fnc_principal ,
+                (select p.entity_incde, a.go_incde as go_secondaire
+                from   p_entity p, a_entity_go a
+                where  a.entity_incde = p.entity_incde) t_go_secondaire, p_entity t_entity, 
+                (select  ref_incde, ref_dsc from a_bo_financement, r_financeur
+                     where fin_finceur_incde(+) = ref_incde ) t_financeur
+   
+   
+   
+   where t_fnc_principal.entity_incde(+) = t_entity.entity_incde
+   and   t_go_secondaire.entity_incde(+) = t_entity.entity_incde
+   and   t_financeur.ref_incde (+)       = t_entity.entity_incde 
+   and  t_entity.entity_status_incde!=12
+   and  t_entity.entity_status_incde!=14
+   and  t_entity.entity_status_incde!=13</code></pre></div><p>Merci !</p>]]></content>
+		<author>
+			<name><![CDATA[djalouk]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=372</uri>
+		</author>
+		<updated>2009-05-20T16:08:52Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1496#p1496</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Migration Vues Oracle avec jointures externes.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1491#p1491"/>
+		<content type="html"><![CDATA[<p>Il me semble qu&#039;il y a une erreur dans le sens de la jointure :<br />le + sous Oracle donne le côté où il peut y avoir des NULL (ici c&#039;est sur&#160; t_fnc_principal pour la première jointure, ce qui veut dire qu&#039;on doit prendre tous les éléments de t_entity)<br />Or le t_fnc_principal LEFT OUTER JOIN t_entity on signifie qu&#039;on prend tous les éléments de t_fcn_principal.<br />(la difficulté avec la syntaxe en + c&#039;est que selon les moteurs le + n&#039;est pas toujours du même côté : c&#039;est probablement de là que vient l&#039;erreur)</p><p><a href="http://www.orafaq.com/wiki/Outer_join" rel="nofollow">http://www.orafaq.com/wiki/Outer_join</a></p><br /><p>Ici t_entity est la table &quot;centrale&quot; (celle dont on prend toutes les lignes, qu&#039;il y ait ou non correspondance) et on fait des jointures externes sur les autres (qui sont elles-mêmes des résultats de requêtes)</p><p>Si je ne fais pas d&#039;erreur, le select devrait donner :</p><div class="codebox"><pre class="vscroll"><code>select t_fnc_principal.usr_incde as usr_fnc_principal,
+           t_fnc_secondaire.usr_incde as usr_fnc_secondaire,
+           t_go_principal.usr_incde as usr_go_principal,
+           t_go_secondaire.usr_incde as usr_go_secondaire,
+           t_go_secondaire.go_secondaire as go_secondaire,
+           t_fnc_secondaire.fnc_secondaire, t_go_principal.go_principal,
+           t_fnc_principal.fnc_principal,  t_bo_usr.usr_excde as bo_usr_excde, t_entity.*
+      from 	p_entity t_entity
+		LEFT OUTER JOIN 
+		(
+			select entity_incde, entity_go_incde as go_principal, usr_incde
+              		from p_entity, a_bo_usr_go
+             		where entity_go_incde = go_incde
+		) t_go_principal
+           	ON ( t_go_principal.entity_incde = t_entity.entity_incde )
+		LEFT OUTER JOIN
+           	(
+			select entity_incde, entity_fnc_incde as fnc_principal, usr_incde
+              		from p_entity, p_bo_usr
+             		where entity_fnc_incde = usr_fnc_incde
+		) t_fnc_principal
+                ON ( t_fnc_principal.entity_incde = t_entity.entity_incde )
+		LEFT OUTER JOIN
+                (
+			select p.entity_incde, fnc_incde as fnc_secondaire, usr_incde
+              		from p_entity p, a_entity_fnc a, p_bo_usr
+             		where a.entity_incde = p.entity_incde
+               		and fnc_incde = usr_fnc_incde
+		) t_fnc_secondaire
+           	ON ( t_fnc_secondaire.entity_incde = t_entity.entity_incde )
+		LEFT OUTER JOIN
+           	(
+			select p.entity_incde, a.go_incde as go_secondaire, usr_incde
+              		from p_entity p, a_entity_go a, a_bo_usr_go abug
+             		where a.entity_incde = p.entity_incde
+               		and a.go_incde = abug.go_incde
+		) t_go_secondaire
+           	ON ( t_go_secondaire.entity_incde = t_entity.entity_incde )
+		LEFT OUTER JOIN 
+			p_bo_usr t_bo_usr
+                ON ( t_bo_usr.usr_incde = t_entity.entity_crt_incde )</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[flo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=216</uri>
+		</author>
+		<updated>2009-05-20T15:11:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1491#p1491</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Migration Vues Oracle avec jointures externes.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1487#p1487"/>
+		<content type="html"><![CDATA[<p>t_fnc_principal, t_go_principal, t_fnc_secondaire, t_go_secondaire et t_bo_usr sont déjà déclarées au dessus. Ça devrait plutôt donner la requête suivante :</p><div class="codebox"><pre><code>CREATE VIEW &quot;v_pe&quot; (&quot;entity_data_5&quot;, &quot;entity_fnc_incde&quot;, &quot;usr_fnc_principal&quot;, &quot;usr_fnc_secondaire&quot;, &quot;usr_go_principal&quot;, &quot;usr_go_secondaire&quot;, &quot;go_secondaire&quot;, &quot;fnc_secondaire&quot;, &quot;go_principal&quot;, &quot;fnc_principal&quot;, &quot;bo_usr_excde&quot;, &quot;entity_incde&quot;, &quot;entity_excde&quot;, &quot;entity_dsc&quot;, &quot;entity_type_incde&quot;, &quot;entity_crt_incde&quot;, &quot;entity_crt_dte&quot;, &quot;entity_mdf_incde&quot;, &quot;entity_mdf_dte&quot;, &quot;entity_pub_incde&quot;, &quot;entity_pub_dte&quot;, &quot;entity_sec_lvl&quot;, &quot;entity_status_incde&quot;, &quot;entity_version&quot;, &quot;entity_go_incde&quot;, &quot;entity_root_incde&quot;, &quot;entity_summary&quot;, &quot;entity_data_1&quot;, &quot;entity_data_2&quot;, &quot;entity_data_3&quot;, &quot;entity_data_4&quot;) AS (select t_fnc_principal.usr_incde as usr_fnc_principal,
+           t_fnc_secondaire.usr_incde as usr_fnc_secondaire,
+           t_go_principal.usr_incde as usr_go_principal,
+           t_go_secondaire.usr_incde as usr_go_secondaire,
+           t_go_secondaire.go_secondaire as go_secondaire,
+           t_fnc_secondaire.fnc_secondaire, t_go_principal.go_principal,
+           t_fnc_principal.fnc_principal,  t_bo_usr.usr_excde as bo_usr_excde, t_entity.*
+      from (select entity_incde, entity_go_incde as go_principal, usr_incde
+              from p_entity, a_bo_usr_go
+             where entity_go_incde = go_incde) t_go_principal
+           LEFT OUTER JOIN t_entity on ( t_go_principal.entity_incde = t_entity.entity_incde ),
+           (select entity_incde, entity_fnc_incde as fnc_principal, usr_incde
+              from p_entity, p_bo_usr
+             where entity_fnc_incde = usr_fnc_incde) t_fnc_principal
+           LEFT OUTER JOIN t_entity on ( t_fnc_principal.entity_incde = t_entity.entity_incde ),
+           (select p.entity_incde, fnc_incde as fnc_secondaire, usr_incde
+              from p_entity p, a_entity_fnc a, p_bo_usr
+             where a.entity_incde = p.entity_incde
+               and fnc_incde = usr_fnc_incde) t_fnc_secondaire
+           LEFT OUTER JOIN t_entity on ( t_fnc_secondaire.entity_incde = t_entity.entity_incde ),
+           (select p.entity_incde, a.go_incde as go_secondaire, usr_incde
+              from p_entity p, a_entity_go a, a_bo_usr_go abug
+             where a.entity_incde = p.entity_incde
+               and a.go_incde = abug.go_incde) t_go_secondaire
+           LEFT OUTER JOIN t_entity on ( t_go_secondaire.entity_incde = t_entity.entity_incde ),
+           p_entity t_entity, p_bo_usr t_bo_usr
+           LEFT OUTER JOIN t_entity on ( t_bo_usr.usr_incde = t_entity.entity_crt_incde )
+);</code></pre></div><p>Pas sûr que ce soit exactement ça, la requête étant assez complexe.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2009-05-20T13:55:02Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1487#p1487</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Migration Vues Oracle avec jointures externes.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1486#p1486"/>
+		<content type="html"><![CDATA[<p>Voici la vue obtenue :</p><div class="codebox"><pre><code>CREATE VIEW &quot;v_pe&quot; (&quot;entity_data_5&quot;, &quot;entity_fnc_incde&quot;, &quot;usr_fnc_principal&quot;, &quot;usr_fnc_secondaire&quot;, &quot;usr_go_principal&quot;, &quot;usr_go_secondaire&quot;, &quot;go_secondaire&quot;, &quot;fnc_secondaire&quot;, &quot;go_principal&quot;, &quot;fnc_principal&quot;, &quot;bo_usr_excde&quot;, &quot;entity_incde&quot;, &quot;entity_excde&quot;, &quot;entity_dsc&quot;, &quot;entity_type_incde&quot;, &quot;entity_crt_incde&quot;, &quot;entity_crt_dte&quot;, &quot;entity_mdf_incde&quot;, &quot;entity_mdf_dte&quot;, &quot;entity_pub_incde&quot;, &quot;entity_pub_dte&quot;, &quot;entity_sec_lvl&quot;, &quot;entity_status_incde&quot;, &quot;entity_version&quot;, &quot;entity_go_incde&quot;, &quot;entity_root_incde&quot;, &quot;entity_summary&quot;, &quot;entity_data_1&quot;, &quot;entity_data_2&quot;, &quot;entity_data_3&quot;, &quot;entity_data_4&quot;) AS (select t_fnc_principal.usr_incde as usr_fnc_principal,
+           t_fnc_secondaire.usr_incde as usr_fnc_secondaire,
+           t_go_principal.usr_incde as usr_go_principal,
+           t_go_secondaire.usr_incde as usr_go_secondaire,
+           t_go_secondaire.go_secondaire as go_secondaire,
+           t_fnc_secondaire.fnc_secondaire, t_go_principal.go_principal,
+           t_fnc_principal.fnc_principal,  t_bo_usr.usr_excde as bo_usr_excde, t_entity.*
+      from (select entity_incde, entity_go_incde as go_principal, usr_incde
+              from p_entity, a_bo_usr_go
+             where entity_go_incde = go_incde) t_go_principal,
+           (select entity_incde, entity_fnc_incde as fnc_principal, usr_incde
+              from p_entity, p_bo_usr
+             where entity_fnc_incde = usr_fnc_incde) t_fnc_principal,
+           (select p.entity_incde, fnc_incde as fnc_secondaire, usr_incde
+              from p_entity p, a_entity_fnc a, p_bo_usr
+             where a.entity_incde = p.entity_incde
+               and fnc_incde = usr_fnc_incde) t_fnc_secondaire,
+           (select p.entity_incde, a.go_incde as go_secondaire, usr_incde
+              from p_entity p, a_entity_go a, a_bo_usr_go abug
+             where a.entity_incde = p.entity_incde
+               and a.go_incde = abug.go_incde) t_go_secondaire,
+           p_entity t_entity, p_bo_usr t_bo_usr,
+	   t_fnc_principal LEFT OUTER JOIN t_entity on ( t_fnc_principal.entity_incde = t_entity.entity_incde ),
+	   t_go_principal LEFT OUTER JOIN t_entity on ( t_go_principal.entity_incde = t_entity.entity_incde ),
+	   t_fnc_secondaire LEFT OUTER JOIN t_entity on ( t_fnc_secondaire.entity_incde = t_entity.entity_incde ),
+	   t_go_secondaire LEFT OUTER JOIN t_entity on ( t_go_secondaire.entity_incde = t_entity.entity_incde ),
+	   t_bo_usr LEFT OUTER JOIN t_entity on ( t_bo_usr.usr_incde = t_entity.entity_crt_incde )
+);</code></pre></div><p>J&#039;ai maintenant l&#039;erreur suivante :<br />ERROR: relation &quot;t_fnc_principal&quot; does not exist<br />État SQL :42P01</p><p>Désolé, mais là, je suis dépassé.</p><p>Merci pour votre aide.</p>]]></content>
+		<author>
+			<name><![CDATA[djalouk]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=372</uri>
+		</author>
+		<updated>2009-05-20T13:31:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1486#p1486</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Migration Vues Oracle avec jointures externes.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1484#p1484"/>
+		<content type="html"><![CDATA[<p>Oui, il faut enlever le « (+) ».</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2009-05-20T13:13:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1484#p1484</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Migration Vues Oracle avec jointures externes.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1483#p1483"/>
+		<content type="html"><![CDATA[<p>J&#039;ai testé ta ligne, même erreur, en fait je pense qu&#039;il n&#039;aime pas les (+).</p>]]></content>
+		<author>
+			<name><![CDATA[djalouk]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=372</uri>
+		</author>
+		<updated>2009-05-20T12:39:55Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1483#p1483</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Migration Vues Oracle avec jointures externes.]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1482#p1482"/>
+		<content type="html"><![CDATA[<p>Il faut utiliser la syntaxe LEFT OUTER JOIN</p><p>des exemples par ici : <a href="http://docs.postgresqlfr.org/current/tutorial-join.html" rel="nofollow">http://docs.postgresqlfr.org/current/tutorial-join.html</a></p><p>Concrètement tu remplaces les lignes du type : </p><div class="codebox"><pre><code>    [...] WHERE t_fnc_principal.entity_incde(+) = t_entity.entity_incde [...]</code></pre></div><p>par </p><div class="codebox"><pre><code> [...] FROM [...] t_fnc_principal LEFT OUTER JOIN t_entity on ( t_fnc_principal.entity_incde(+) = t_entity.entity_incde ) [...]</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[daamien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=19</uri>
+		</author>
+		<updated>2009-05-20T11:28:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1482#p1482</id>
+	</entry>
+</feed>

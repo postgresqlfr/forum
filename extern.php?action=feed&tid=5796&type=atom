@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Requête avec deux conditions]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5796&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5796"/>
+	<updated>2020-07-06T20:04:35Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5796</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête avec deux conditions]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31342#p31342"/>
+		<content type="html"><![CDATA[<p>Ja valide tout ce que vient de dire rjuju et j&#039;ajouterais que vous ne pouvez pas avoir la valeur true dans Variable2 vu que tout ce qui sort du case est dans ce cas une chaîne, et non pas un booléen. Le petit test ci-dessous le montre facilement :</p><div class="codebox"><pre><code>postgres=# create table matable (variable1 text, variable2 text);
+CREATE TABLE
+postgres=# insert into matable(variable1) values (&#039;A&#039;), (&#039;AB&#039;), (&#039;ABC&#039;), (&#039;ABCD&#039;);
+INSERT 0 4
+postgres=# UPDATE MaTable SET Variable2 = 
+postgres-# CASE WHEN Variable1 = &#039;ABC&#039; THEN  &#039;ABCD&#039;
+postgres-#                  WHEN Variable1 = &#039;ABCD&#039; THEN  &#039;ABC&#039;
+postgres-#  ELSE  NULL
+postgres-# END;
+UPDATE 4
+postgres=# table matable;
+┌───────────┬───────────┐
+│ variable1 │ variable2 │
+├───────────┼───────────┤
+│ A         │           │
+│ AB        │           │
+│ ABC       │ ABCD      │
+│ ABCD      │ ABC       │
+└───────────┴───────────┘
+(4 rows)</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2020-07-06T20:04:35Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31342#p31342</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête avec deux conditions]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31341#p31341"/>
+		<content type="html"><![CDATA[<p>C&#039;est ce que je comprends de votre problème.</p><br /><p>La clause WHERE sert à filtrer les lignes, la clause SELECT, ou dans ce cas SET sert à sélectionner ou calculer une valeur.</p><br /><p>Pour le reste, impossible de vous aider sans savoir les données en entrées ni ce que vous avez fait.&#160; Pouvez-vous nous montrer un exemple entier, avec structure de la table et données ?</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2020-07-06T14:30:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31341#p31341</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête avec deux conditions]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31340#p31340"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>rjuju a écrit&#160;:</cite><blockquote><div><p>Pourquoi ne pas utiliser quelquechose comme &quot;update matable set variable2 = case when... end where ...&quot; ?</p></div></blockquote></div><p>Merci @rjuju mais êtes-vous sûr que c&#039;est ça ? A quoi sert WHERE alors que la condition est contenue dans WHEN ? Merci <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>J&#039;ai appliqué votre proposition sans mettre WHERE et les cellules de Variable2 ont comme valeur &quot;true&quot; et non la valeur attendue (ABCD ou ABC)...<br />Finalement, en mettant cette version, les nouvelles valeurs de Variable2 sont correctes :</p><div class="codebox"><pre><code>UPDATE MaTable SET Variable2 = 
+	CASE WHEN Variable1 = &#039;ABC&#039; THEN  &#039;ABCD&#039;
+                 WHEN Variable1 = &#039;ABCD&#039; THEN  &#039;ABC&#039;
+		 ELSE  NULL			
+	END;</code></pre></div><p>Merci</p>]]></content>
+		<author>
+			<name><![CDATA[databaser]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2047</uri>
+		</author>
+		<updated>2020-07-06T14:14:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31340#p31340</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête avec deux conditions]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31339#p31339"/>
+		<content type="html"><![CDATA[<p>Pourquoi ne pas utiliser quelquechose comme &quot;update matable set variable2 = case when... end where ...&quot; ?</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2020-07-06T11:48:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31339#p31339</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête avec deux conditions]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31338#p31338"/>
+		<content type="html"><![CDATA[<p>C&#039;est pour éviter d&#039;utiliser deux requêtes distinctes, être un peu plus efficace. <br />De plus, comme c&#039;est un test, je n&#039;ai pas mis le UPDATE mais l&#039;objectif est de modifier la colonne Variable 2.</p><div class="codebox"><pre><code>UPDATE MaTable SET Variable2 = &#039;ABCD&#039; WHERE Variable1 = &#039;ABC&#039;;</code></pre></div><p>Utiliser deux conditions dans un WHERE, ça je sais mais le point complexe c&#039;est de modifier la variable2 en fonction du critère de la variable1, c&#039;est-à-dire que Variable1 = ABC, Variable2 devient ABCD, et si Variable 1 = ABCD, Variable2 doit devenir ABC. Merci <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[databaser]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2047</uri>
+		</author>
+		<updated>2020-07-06T10:29:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31338#p31338</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête avec deux conditions]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31336#p31336"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><p>Pourriez-vous être un peu plus explicite ?&#160; Il est tout à fait possible d&#039;utiliser deux conditions dans une clause WHERE, et pour le reste je ne suis pas certain de comprendre ce que vous cherchez à faire exactement.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2020-07-06T09:35:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31336#p31336</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Requête avec deux conditions]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31335#p31335"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;aimerais remplir une colonne en fonction d&#039;une autre colonne. Il y a deux conditions à intégrer donc je ne peux pas utiliser un WHERE.<br />Je tente le CASE WHEN mais la variable utilisée pour la condition et la variable pour le résultat sont deux variables différentes. Mon code ne marche pas.</p><p>1/ Sauriez-vous quelle instruction utiliser ? Le Case est peut-être inadéquat. Je n&#039;ai rien trouvé dans le tuto de PGS.<br />2/ Pourquoi mon code ne donne-t-il pas le résultat escompté ?</p><div class="codebox"><pre><code>SELECT Variable1, Variable2
+FROM MaTable
+WHERE
+    (
+	CASE WHEN Variable 1 = &#039;ABC&#039; THEN Variable 2 = &#039;ABCD&#039;
+                 WHEN Variable 1 = &#039;ABCD&#039; THEN Variable 2 = &#039;ABC&#039;
+                 ELSE NULL			
+    END );</code></pre></div><p>Merci <img src="http://forums.postgresql.fr/img/smilies/big_smile.png" width="15" height="15" alt="big_smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[databaser]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2047</uri>
+		</author>
+		<updated>2020-07-06T08:28:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31335#p31335</id>
+	</entry>
+</feed>

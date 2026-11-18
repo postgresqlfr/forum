@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / [Résolu] indisponibilité d'une réplication synchrone]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=6430&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=6430"/>
+	<updated>2022-12-15T14:33:03Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=6430</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] indisponibilité d'une réplication synchrone]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33940#p33940"/>
+		<content type="html"><![CDATA[<p>Compris, merci !</p>]]></content>
+		<author>
+			<name><![CDATA[FredP]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=10860</uri>
+		</author>
+		<updated>2022-12-15T14:33:03Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33940#p33940</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] indisponibilité d'une réplication synchrone]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33939#p33939"/>
+		<content type="html"><![CDATA[<p>Avec votre configuration actuelle non car vous demandez à ce que n&#039;importe quel serveur secondaire soit synchrone.</p><br /><p>Regardez du côté de <a href="https://www.postgresql.org/docs/current/runtime-config-replication.html#GUC-SYNCHRONOUS-STANDBY-NAMES" rel="nofollow">https://www.postgresql.org/docs/current … NDBY-NAMES</a> pour gérer une granularité différente.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2022-12-15T13:34:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33939#p33939</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] indisponibilité d'une réplication synchrone]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33938#p33938"/>
+		<content type="html"><![CDATA[<p>Une dernière question: en lisant votre réponse, j&#039;en comprends qu&#039;à partir du moment où 1 serveur secondaire répond, le primaire continue de fonctionner ? Si j&#039;avais eu un 2ème serveur en stand by en réplication, le primaire aurait continué de fonctionner tant que ce 2nd serveur ne tombe pas ?</p>]]></content>
+		<author>
+			<name><![CDATA[FredP]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=10860</uri>
+		</author>
+		<updated>2022-12-15T13:32:00Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33938#p33938</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] indisponibilité d'une réplication synchrone]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33937#p33937"/>
+		<content type="html"><![CDATA[<p>L&#039;unique but de la réplication synchrone est de justement arrêter toute activité sur le primaire tant que le(s) secondaires ne sont pas revenus.</p><br /><br /><p>La technique habituelle pour éviter un incident sur le primaire est d&#039;avoir N+1 serveurs secondaires, et de 1 à N serveurs en réplication synchrone (N étant le nombre de noeuds que vous pouvez vos permettre de perdre avant d&#039;impacter le primaire).</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2022-12-15T13:26:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33937#p33937</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] indisponibilité d'une réplication synchrone]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33936#p33936"/>
+		<content type="html"><![CDATA[<p>Ce qui m&#039;a étonné c&#039;est la dualité entre le fait que ce soit 2 serveurs synchronisés (auquel cas, je comprends parfaitement cette notion de blocage dès qu&#039;un des 2 est indisponible) et le fait que ce soit la réplication, donc le serveur de copie, qui puisse bloquer le serveur principal. <br />Je m&#039;attendais à avoir un mécanisme qui permette de continuer de faire fonctionner le primaire, comme un timer qui débloque la situation si le standby venait à ne plus répondre.</p><p>Merci en tout cas de lever ce doute, je vais passer sur de l&#039;asynchrone</p>]]></content>
+		<author>
+			<name><![CDATA[FredP]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=10860</uri>
+		</author>
+		<updated>2022-12-15T13:09:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33936#p33936</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] indisponibilité d'une réplication synchrone]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33935#p33935"/>
+		<content type="html"><![CDATA[<p>Le comportement est normal et attendu.&#160; Soit vous choisissez de garantir la disponibilité de vos données soit de votre service, mais les deux sont incompatibles par définition.</p><br /><br /><p>Si perdre des données en cas d&#039;incident majeur sur le serveur primaire n&#039;est pas un problème, passez en réplication asynchrone et mettez en place un outil de supervision du lag de réplication voire des scripts au dessus si vous vouls garantir un volume de données perdu maximum en cas de problème avec la réplication.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2022-12-15T11:12:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33935#p33935</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[[Résolu] indisponibilité d'une réplication synchrone]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33934#p33934"/>
+		<content type="html"><![CDATA[<p>Bonjour</p><p>Je suis sur un postgresql14 (installé sur SLES12SP5) sur lequel j&#039;ai fait la configuration pour avoir une réplication sur une autre machine identique (même versions postgresql14 et SLES12 SP5).<br />Tout va bien niveau config et réplication: quand on écrit sur le Primary, la réplication est bien faite sur le standby.</p><p>Il y a cependant un comportement qui m&#039;a étonné: si le standby devient injoignable (coupure réseau, machine éteinte ou postgresql14 pas démarré), le primary &quot;freeze&quot; : plus aucune requête ne fonctionne, je n&#039;ai plus accès aux données depuis mes applis web (je peux toujours aller en console consulter les bases).</p><p>Après avoir un peu cherché, j&#039;ai vu que cela venait du mode synchrone: quand il est activé, le primary attend donc une réponse du stand by... le problème étant qu&#039;il attend indéfiniment. Je m&#039;attendais à ce qu&#039;il y ait une tempo vu qu&#039;il ne s&#039;agit que d&#039;une réplication sur un serveur standby indispo. </p><p>Suis-je passé à côté d&#039;une configuration ?<br />Voici ma conf sur le primary:</p><p>shared_buffers = 1GB<br />effective_cache_size = 4GB<br />work_mem=128MB<br />maintenance_work_mem=512MB</p><p>autovacuum_vacuum_scale_factor = 0<br />autovacuum_vacuum_threshold = 10000<br />vacuum_cost_page_hit = 1<br />vacuum_cost_page_miss = 10<br />vacuum_cost_page_dirty = 20<br />autovacuum_vacuum_cost_delay = 4ms<br />autovacuum_vacuum_cost_limit = 400<br />autovacuum_max_workers=3<br /> <br />listen_addresses = &#039;localhost,172.25.157.182&#039;<br />wal_level = replica<br />synchronous_commit = on<br />max_wal_senders = 10<br />wal_keep_size = 64<br />wal_log_hints = on<br />wal_receiver_status_interval = 10s<br />hot_standby_feedback = on<br />synchronous_standby_names = &#039;*&#039;</p><br /><p>Comme workaround, je pourrai passer le synchronous commit à off ou local et jouer avec le wal_writer_delay, qu&#039;en pensez vous ? sachant que l&#039;important est de garder des données non corrompues sur la réplication, tant pis si on en perd au moment où le primary tombe.</p>]]></content>
+		<author>
+			<name><![CDATA[FredP]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=10860</uri>
+		</author>
+		<updated>2022-12-15T10:50:21Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33934#p33934</id>
+	</entry>
+</feed>

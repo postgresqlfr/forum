@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Le rôle n'existe pas... bien qu'il existe]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=6127&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=6127"/>
+	<updated>2021-09-24T07:45:39Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=6127</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Le rôle n'existe pas... bien qu'il existe]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32865#p32865"/>
+		<content type="html"><![CDATA[<p>Merci Daniel pour ta réponse</p><p>J&#039;ai exécuté la commande que tu as indiqué, et j&#039;obtiens ceci :<br />A | \x41<br /> u | \x75<br /> r | \x72<br /> é | \xe2809a<br /> l | \x6c<br /> i | \x69<br /> e | \x65<br /> F | \x46<br /> o | \x6f<br /> u | \x75<br /> g | \x67<br /> è | \xc5a0<br /> r | \x72<br /> e | \x65<br /> A | \x41<br /> u | \x75<br /> r | \x72<br /> é | \xe2809a<br /> l | \x6c<br /> i | \x69<br /> e | \x65<br />Je n&#039;ai pas trouvé de correspondance avec le caractère \xe2809a...en tout cas ce n&#039;est pas de l&#039;UTF-8!<br />Je vais essayé de voir si je peux renommer mon identifiant Windows.</p>]]></content>
+		<author>
+			<name><![CDATA[AurelieAPSA]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9747</uri>
+		</author>
+		<updated>2021-09-24T07:45:39Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32865#p32865</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Le rôle n'existe pas... bien qu'il existe]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32864#p32864"/>
+		<content type="html"><![CDATA[<p>Quand se produit l&#039;erreur &quot;FATAL:&#160; le rôle « AurélieFougère » n&#039;existe pas&quot; alors que \du montre que&#160; &quot;AurélieFougère&quot; est un rôle existant, c&#039;est que les deux termes n&#039;ont pas le même encodage.<br />Typiquement&#160; celui mentionné dans le fichier de log est encodé en UTF-8 alors que celui de la base est en LATIN1 ou vice versa.</p><p>Pour savoir quel est l&#039;encodage en base, on peut afficher les codes des caractères via une requête. Par exemple:</p><div class="codebox"><pre><code>test=&gt; create user &quot;Aurélie&quot;;
+CREATE ROLE
+test=&gt; select r,r::bytea from pg_user, regexp_split_to_table(usename,&#039;&#039;) as r where usename like &#039;Aur%&#039;;
+ r |   r    
+---+--------
+ A | \x41
+ u | \x75
+ r | \x72
+ é | \xc3a9
+ l | \x6c
+ i | \x69
+ e | \x65
+(7 lignes)</code></pre></div><p>Le code \xc3a9 en face du &#039;é&#039; montre que c&#039;est de l&#039;UTF-8 ,ce qui correspond effectivement à mon environnement quand je fais CREATE USER. Si c&#039;était \xe9 ça montrerait que c&#039;est du LATIN1. Si l&#039;authentification n&#039;utilise pas le même encodage que ce qui est en base, ça explique pourquoi ça n&#039;arrive pas à se connecter.</p><p>En principe on privilégie l&#039;UTF-8 parce qu&#039;il englobe tous les caractères de toutes les langues. Si nom d&#039;utilisateur n&#039;est pas stocké dans le bon encodage, il faudrait le recréer dans un environnement UTF-8 sûr (c.a.d. à mon sens pas la console Windows).</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2021-09-23T10:35:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32864#p32864</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Le rôle n'existe pas... bien qu'il existe]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32862#p32862"/>
+		<content type="html"><![CDATA[<p>Merci pour ta réponse Julien.</p><p>J&#039;ai testé en faisant un copier/coller du user mentionné dans les log, mais ça n&#039;a pas fonctionné j&#039;ai toujours le même message d&#039;erreur.</p>]]></content>
+		<author>
+			<name><![CDATA[AurelieAPSA]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9747</uri>
+		</author>
+		<updated>2021-09-23T08:05:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32862#p32862</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Le rôle n'existe pas... bien qu'il existe]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32861#p32861"/>
+		<content type="html"><![CDATA[<p>Le logiciel force l&#039;utilisateur de connexion?&#160; Cela me semble un bien mauvaise idée mais soit.</p><br /><br /><p>Le problème vient bien de l&#039;encodage, il faudrait savoir quel est l&#039;encodage utilisé soit par odoo soit par windows pour votre user.&#160; Peut être que copier/coller le nom d&#039;utilisateur depuis les logs suffirait créer le bon rôle.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2021-09-23T01:58:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32861#p32861</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Le rôle n'existe pas... bien qu'il existe]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32860#p32860"/>
+		<content type="html"><![CDATA[<p>Merci pour ta réponse.<br />Je suis d&#039;accord avec toi, je pense que c&#039;est un problème d&#039;accent mais je ne peux pas modifier mon identifiant Windows...donc j&#039;espère que quelqu&#039;un qui a rencontré le même problème et qui l&#039;a solutionné, saura me conseiller ;-)</p>]]></content>
+		<author>
+			<name><![CDATA[AurelieAPSA]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9747</uri>
+		</author>
+		<updated>2021-09-22T15:17:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32860#p32860</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Le rôle n'existe pas... bien qu'il existe]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32859#p32859"/>
+		<content type="html"><![CDATA[<p>Votre soucis vient probablement des accents. Personnellement, j&#039;aurais plutôt tendance à n&#039;utiliser que les caractères ASCII pour le nommage des objets (rôles comme bases, tables, vues, etc). Les problèmes liés aux encodages sont trop faciles pour s&#039;embêter avec ça.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2021-09-22T15:11:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32859#p32859</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Le rôle n'existe pas... bien qu'il existe]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=32858#p32858"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />Je souhaite travailler sur l’application ODOO. De ce fait j’ai installé PostgreSQL 13, ODOO 14 et Python 3.9.<br />Malheureusement ODOO ne se connecte pas au serveur PostgreSQL, dans les log j’ai le message suivant :</p><p>2021-09-22 16:02:05.758 CEST [17280] FATAL:&#160; le rôle « AurélieFougère » n&#039;existe pas</p><p>La connection à PostgreSQL se fait via mon identifiant Windows, et nom via le user « odoo ».<br />J’ai suivi les conseils de différents utilisateurs, et ai crée un rôle en respectant les majuscules ou tout en minuscules…sans succès</p><p>postgres=# \du<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Liste des r¶les<br />&#160; &#160;Nom du r¶le&#160; &#160;|&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Attributs&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; | Membre de<br />-----------------+---------------------------------------------------------------------------------+-----------<br /> AurÚlieFougÞre&#160; | Superutilisateur, CrÚer un r¶le, CrÚer une base&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;| {}<br /> AurélieFougère&#160; | Superutilisateur, CrÚer un r¶le, CrÚer une base&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;| {}<br /> auréliefougère&#160; | Superutilisateur, CrÚer un r¶le, CrÚer une base&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;| {}<br /> odoo&#160; &#160; &#160; &#160; &#160; &#160; | Superutilisateur, CrÚer un r¶le, CrÚer une base, RÚplication&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; | {}<br /> postgres&#160; &#160; &#160; &#160; | Superutilisateur, CrÚer un r¶le, CrÚer une base, RÚplication, Contournement RLS | {}<br /> testuser&#160; &#160; &#160; &#160; | Superutilisateur, CrÚer un r¶le, CrÚer une base&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;| {}</p><p>A chaque modification, j’ai redémarré le serveur postgresql.</p><p>Merci pour votre aide</p>]]></content>
+		<author>
+			<name><![CDATA[AurelieAPSA]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=9747</uri>
+		</author>
+		<updated>2021-09-22T15:05:21Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=32858#p32858</id>
+	</entry>
+</feed>

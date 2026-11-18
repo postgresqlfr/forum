@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Optimisation]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4469&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4469"/>
+	<updated>2017-12-11T08:41:20Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4469</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Optimisation]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26488#p26488"/>
+		<content type="html"><![CDATA[<p>Ok, peut c&#039;est la version car je travaille avec 9.4.5.</p>]]></content>
+		<author>
+			<name><![CDATA[simon]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7853</uri>
+		</author>
+		<updated>2017-12-11T08:41:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26488#p26488</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Optimisation]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26484#p26484"/>
+		<content type="html"><![CDATA[<p>Et si ce n&#039;est pas la version 10, il vérifie la table partitionnée parce qu&#039;il n&#039;a pas la certitude qu&#039;il n&#039;y a rien.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2017-12-10T20:05:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26484#p26484</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Optimisation]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26483#p26483"/>
+		<content type="html"><![CDATA[<p>Je vais supposer que vous parlez du partitionnement déclaratif ajouté dans la version 10.&#160; Les tables qui sont partitionnées ne peuvent pas contenir de données, postgres n&#039;essaiera donc pas de les parcourir.&#160; Si l&#039;exécuteur est capable de déterminer la partition au moment de la planification (pas de requête préparée avec paramètre sur la ou les colonnes participant au partitionnement donc), il excluera toutes les partitions inutiles.</p><p>Par exemple :</p><div class="codebox"><pre><code>rjuju=# \d+ simple
+                                   Table &quot;public.simple&quot;
+ Column |  Type   | Collation | Nullable | Default | Storage  | Stats target | Description 
+--------+---------+-----------+----------+---------+----------+--------------+-------------
+ id     | integer |           |          |         | plain    |              | 
+ val    | text    |           |          |         | extended |              | 
+Partition key: RANGE (id)
+Partitions: simple_0_1 FOR VALUES FROM (&#039;-100000&#039;) TO (1),
+            simple_1_2 FOR VALUES FROM (1) TO (100000),
+            simple_2_3 FOR VALUES FROM (100000) TO (200000)
+
+rjuju=# explain select * from simple where id = 1;
+                                        QUERY PLAN                                         
+-------------------------------------------------------------------------------------------
+ Append  (cost=0.29..8.31 rows=1 width=14)
+   -&gt;  Index Scan using simple_1_2_id_idx on simple_1_2  (cost=0.29..8.31 rows=1 width=14)
+         Index Cond: (id = 1)
+(3 rows)
+
+rjuju=# explain select * from simple_1_2 where id = 1;
+                                     QUERY PLAN                                      
+-------------------------------------------------------------------------------------
+ Index Scan using simple_1_2_id_idx on simple_1_2  (cost=0.29..8.31 rows=1 width=14)
+   Index Cond: (id = 1)
+(2 rows)</code></pre></div><p>Le coût estimé est donc exactement le même que si on utilise directement la bonne partition.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2017-12-10T14:39:06Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26483#p26483</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Optimisation]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26482#p26482"/>
+		<content type="html"><![CDATA[<p>Ok, par exemple: <br />si j&#039;ai R(a,b,c) que je fasse un partitionnement horizontal par range sur les valeurs de b; R1(a,b,c) R2(a,b,c) . Supposons que je fasse une requête dont la clause where fait référence aux valeurs dans R1 en exemple select * from r where b=...; Comment postgres va réagir pour le calcul du coût car a ma compréhension il fera le calcul de coût de parcours de R1 puis R(bien qu&#039;il est vide)&#160; puis la fusion des deux en tout on aura: c=cR1+cR+cFusion. Si ma réflexion est juste, je ne comprends pas prk cFusion car cR est vide. Merci</p>]]></content>
+		<author>
+			<name><![CDATA[simon]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7853</uri>
+		</author>
+		<updated>2017-12-10T12:16:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26482#p26482</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Optimisation]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26480#p26480"/>
+		<content type="html"><![CDATA[<p>À moins que vous ayez une question plus précise, la seule réponse que j&#039;ai est qu&#039;il fait la somme des coûts d&#039;accès aux différentes partitions.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2017-12-08T14:45:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26480#p26480</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Optimisation]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26479#p26479"/>
+		<content type="html"><![CDATA[<p>ok très bien, en fait je veux comprendre comment PostgreSQL estime le coût des requêtes sur une table partitionnée.</p>]]></content>
+		<author>
+			<name><![CDATA[simon]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7853</uri>
+		</author>
+		<updated>2017-12-08T11:53:54Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26479#p26479</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Optimisation]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26477#p26477"/>
+		<content type="html"><![CDATA[<p>Hi,</p><p>This is a french speaking community.&#160; Also, your question isnn&#039;t clear, what&#039;s exactly your issue?</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2017-12-08T04:44:33Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26477#p26477</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Optimisation]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26474#p26474"/>
+		<content type="html"><![CDATA[<p>hi,</p><p>Someone can help me to&#160; see different file using by PostgreSQL&#160; for manage table partitioned.<br />Thank.</p>]]></content>
+		<author>
+			<name><![CDATA[simon]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7853</uri>
+		</author>
+		<updated>2017-12-07T16:51:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26474#p26474</id>
+	</entry>
+</feed>

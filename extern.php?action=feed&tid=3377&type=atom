@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / [Résolu] Importation de fichiers CSV depuis machines Windows]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3377&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3377"/>
+	<updated>2014-11-27T11:05:44Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3377</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] Importation de fichiers CSV depuis machines Windows]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21019#p21019"/>
+		<content type="html"><![CDATA[<p>Ah petite subtilité (logique) que j&#039;avais oublié : le serveur va traiter un fichier qui est sur.....le serveur!!</p><p>il faudrait modifier le script powershell, copier votre fichier dans un repertoire, le traiter, (le supprimer)</p><div class="codebox"><pre><code>#copie en PS
+$dossier = &#039;C:\temp&#039;
+Copy-Item -Path &quot;Q:\moncsv.csv&quot;  -Destination $dossier</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[damalaan]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1000</uri>
+		</author>
+		<updated>2014-11-27T11:05:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21019#p21019</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] Importation de fichiers CSV depuis machines Windows]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21018#p21018"/>
+		<content type="html"><![CDATA[<p>Après la création du script PowerShell:</p><div class="quotebox"><blockquote><div><p>#connexion au réseau<br />$login= &quot;login&quot;<br />$mdp= &quot;mdp&quot;<br />$obj = New-Object -com Wscript.Network <br />$obj.MapNetworkDrive(&quot;K:&quot;,&quot;\\adress_ip\dossier&quot;, &quot;False&quot;, $login, $mdp)<br />#lancement de la commande PG<br /> &amp; &quot;C:\Program Files\PostgreSQL\9.3\bin\psql.exe&quot; -h localhost -p 5432 -d postgres -U postgres -c &quot;select dataimport();&quot;</p></div></blockquote></div><p>Puis la création de la fonction sur pgAdmin III:</p><div class="quotebox"><blockquote><div><p>CREATE OR REPLACE FUNCTION dataimport()<br />&#160; RETURNS void AS<br />$BODY$COPY &quot;tracabiliteImport&quot; FROM &#039;K:/fichier.csv&#039; DELIMITER &#039;;&#039; CSV; -- Ici j&#039;ai un slash au lieu d&#039;un anti slash</p><p>$BODY$<br />&#160; LANGUAGE sql VOLATILE<br />&#160; COST 100;<br />ALTER FUNCTION dataimport()<br />&#160; OWNER TO postgres;</p></div></blockquote></div><p>Lorsque que le script PowerShell est lancé, le connecteur réseau est bien créé (K:). L&#039;authentification à la base s&#039;est faite correctement. Cependant, l&#039;erreur suivante survient: </p><div class="quotebox"><blockquote><div><p>ERREUR: n&#039;a pas pu ouvrir le fichier K:\fichier.csv pour une lecture : No such file or directory</p></div></blockquote></div><p>C&#039;est incompréhensible car mon fichier se trouve à la bonne arborescence. (\\adress_ip\dossier\fichier.csv)</p>]]></content>
+		<author>
+			<name><![CDATA[Skullmachine]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=4425</uri>
+		</author>
+		<updated>2014-11-27T10:53:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21018#p21018</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] Importation de fichiers CSV depuis machines Windows]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21017#p21017"/>
+		<content type="html"><![CDATA[<p>oui c&#039;est une fonction créée de manière tout à fait classique en SQL ou PL/pgSQL avec CREATE OR REPLACE FUNCTION mafonction().......</p><p>et qu&#039;on appelle ensuite avec un select mafonction()</p><p>Attention aux antislashes (\), il me semble que PG considère ça comme un caractère d&#039;échappement, ils ne sont donc pas admis pour les chemins des fichiers (ne pas oublier que Postgres vient du monde UNIX); il faut donc noter un truc du genre C:/temp/moncsv.csv</p>]]></content>
+		<author>
+			<name><![CDATA[damalaan]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1000</uri>
+		</author>
+		<updated>2014-11-27T08:44:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21017#p21017</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] Importation de fichiers CSV depuis machines Windows]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21016#p21016"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Merci pour vos réponse rapide. <br />Est ce que du coup mafonction() est une fonction SQL qui lancerait mon COPY? </p><p>Merci <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[Skullmachine]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=4425</uri>
+		</author>
+		<updated>2014-11-27T08:04:35Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21016#p21016</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] Importation de fichiers CSV depuis machines Windows]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21015#p21015"/>
+		<content type="html"><![CDATA[<p>Bonjour</p><p>Si vous êtes sous Windows, pourquoi pas un script en PowerShell du style :</p><div class="codebox"><pre><code>#connexion au réseau
+$login= &quot;toto&quot;
+$mdp= &quot;titi&quot;
+$obj = New-Object -com Wscript.Network 
+$obj.MapNetworkDrive(&quot;K:&quot;,&quot;\\192.168.1.10\mondossier&quot;, &quot;False&quot;, $login, $mdp)
+
+#lancement de la commande PG
+
+ &amp; &quot;C:\Program Files\PostgreSQL\9.3\bin\psql.exe&quot; -h localhost -p 5432 -d mabase-U monuser-c &quot;select mafonction();&quot;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[damalaan]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1000</uri>
+		</author>
+		<updated>2014-11-27T07:22:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21015#p21015</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Résolu] Importation de fichiers CSV depuis machines Windows]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21012#p21012"/>
+		<content type="html"><![CDATA[<p>La commande COPY ne le permet pas. La seule solution que je vois est d&#039;écrire un outil qui ferait la connexion et lancerait le COPY.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-11-26T21:42:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21012#p21012</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[[Résolu] Importation de fichiers CSV depuis machines Windows]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=21011#p21011"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je viens vers vous car je cherche une solution répondant au problème qui suit. </p><p>J&#039;ai une BDD PostgreSQL 9.3 contenant une table me permettant de faire la traçabilité de pièces. Cette table doit être mise à jour par des fichiers .csv distant. Le soucis est que pour récupérer ces données, je dois me connecter à des ordinateurs sous Windows XP et Seven qui ont un login et un mot de passe de session chacun différent. </p><p>Ma requête actuelle non fonctionnelle est là suivante : </p><p>COPY &quot;nom_de_la_table&quot; FROM &#039;\\adresse_ip\fichier.csv&#039; DELIMITER &#039;;&#039; CSV HEADER ; </p><p>Lorsque je l&#039;exécute, l&#039;erreur suivante me parvient:</p><p>ERREUR:&#160; n&#039;a pas pu ouvrir le fichier « \\adresse_ip\fichier.csv » pour une lecture : Invalid argument</p><p>********** Erreur **********</p><p>ERREUR: n&#039;a pas pu ouvrir le fichier « \\adresse_ip\fichier.csv » pour une lecture : Invalid argument<br />État SQL :XX000</p><p>Pourriez vous me dire s&#039;il existe une solution me permettant de me loguer sur chaque ordinateur en intégrant le login et le mot de passe dans la requête SQL?</p><p>Merci d&#039;avance pour votre réponse,</p><p>Skullmachine</p>]]></content>
+		<author>
+			<name><![CDATA[Skullmachine]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=4425</uri>
+		</author>
+		<updated>2014-11-26T14:14:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=21011#p21011</id>
+	</entry>
+</feed>

@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Différences entre PQexec de libpq et l'outil cmd psql.exe ?]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=6253&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=6253"/>
+	<updated>2022-04-21T20:23:46Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=6253</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Différences entre PQexec de libpq et l'outil cmd psql.exe ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33379#p33379"/>
+		<content type="html"><![CDATA[<p>psql utilise PQexec pour lancer les commandes, mais il analyse le script de commandes pour trouver le début et la fin de chaque requête et les envoie une par une après découpage.</p><p>J&#039;ai l&#039;impression que c&#039;est l&#039;étape que vous n&#039;avez pas dans votre programme.</p><p>Ce découpage est fait dans psql avec un analyseur lexical dédié fait avec lex, qui lui même est une copie de l&#039;analyseur lexical du moteur SQL. Voir <a href="https://git.postgresql.org/gitweb/?p=postgresql.git;a=blob_plain;f=src/fe_utils/psqlscan.l" rel="nofollow">https://git.postgresql.org/gitweb/?p=po … psqlscan.l</a></p><div class="codebox"><pre><code> * This code is mainly concerned with determining where the end of a SQL
+ * statement is: we are looking for semicolons that are not within quotes,
+ * comments, or parentheses.  The most reliable way to handle this is to
+ * borrow the backend&#039;s flex lexer rules, lock, stock, and barrel.  The rules
+ * below are (except for a few) the same as the backend&#039;s, but their actions
+ * are just ECHO whereas the backend&#039;s actions generally do other things.</code></pre></div><p>On peut toujours envoyer un énorme bloc plein de requêtes SQL accolées à PQexec en espérant que ça va passer, mais à titre d&#039;exemple si on envoie ça à PQexec: </p><div class="codebox"><pre><code>CREATE DATABASE dbtest; select 1;</code></pre></div><p> ça échouera avec une erreur disant que CREATE DATABASE ne marche pas dans une transaction, alors qu&#039;avec psql ça passerait sans erreur, parce qu&#039;il aura découpé ça en 2 requêtes à envoyer séparément.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2022-04-21T20:23:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33379#p33379</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Différences entre PQexec de libpq et l'outil cmd psql.exe ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33377#p33377"/>
+		<content type="html"><![CDATA[<p>Si vous avez l&#039;erreur, c&#039;est que la fonction existe bel et bien. Soit votre outil ne se connecte pas à une base de données vierge, soit votre outil exécute deux fois l&#039;ordre de création de la fonction, soit autre chose.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2022-04-20T20:06:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33377#p33377</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Différences entre PQexec de libpq et l'outil cmd psql.exe ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33376#p33376"/>
+		<content type="html"><![CDATA[<p>erreur de duplication...</p>]]></content>
+		<author>
+			<name><![CDATA[Mudr0x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=10190</uri>
+		</author>
+		<updated>2022-04-20T17:04:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33376#p33376</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Différences entre PQexec de libpq et l'outil cmd psql.exe ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33375#p33375"/>
+		<content type="html"><![CDATA[<p>Merci de votre aide je vais effectivement reprendre sur le source de pg_restore.c</p><p>Mais c&#039;est juste cette erreur qui m&#039;étonne... pourquoi cette erreur qui m&#039;est retournée &quot;&quot;ERROR:&#160; function &quot;update_cash_cache&quot; already exists with same argument types&quot; alors qu&#039;elle n&#039;existe pas sur ma nouvelle DB vierge à laquelle je veux restaurer le schéma de ma DB de base? C&#039;est comme si PQexec exécute les requêtes de mon dump sur ma DB de base alors qu&#039;en argument je lui précise la connexion (PGconn) sur ma DB vierge...</p>]]></content>
+		<author>
+			<name><![CDATA[Mudr0x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=10190</uri>
+		</author>
+		<updated>2022-04-20T17:01:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33375#p33375</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Différences entre PQexec de libpq et l'outil cmd psql.exe ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33374#p33374"/>
+		<content type="html"><![CDATA[<p>Non, c&#039;est un programme et non pas une partie du protocole.</p><p>Vous pouvez toujours regarder le code source (https://github.com/postgres/postgres/blob/master/src/bin/pg_dump/pg_restore.c ) et réutiliser une partie de l&#039;API (https://github.com/postgres/postgres/blob/master/src/bin/pg_dump/pg_backup.h et autres) si vous voulez l&#039;intégrer dans votre outil.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2022-04-20T16:28:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33374#p33374</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Différences entre PQexec de libpq et l'outil cmd psql.exe ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33373#p33373"/>
+		<content type="html"><![CDATA[<p>Très bien, y&#039;a-t-il un équivalent de pg_restore dans libpq C++?</p>]]></content>
+		<author>
+			<name><![CDATA[Mudr0x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=10190</uri>
+		</author>
+		<updated>2022-04-20T16:20:54Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33373#p33373</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Différences entre PQexec de libpq et l'outil cmd psql.exe ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33372#p33372"/>
+		<content type="html"><![CDATA[<p>psql n&#039;a pas cette fonctionnalité, et je ne vois pas comment il pourrait l&#039;avoir vu qu&#039;il n&#039;est pas capable de parser les requêtes pour détecter la création d&#039;un object.</p><br /><p>En général on résoud ce problème en utilisant un dump au format custom et en le restaurant avec pg_restore, qui lui dispose d&#039;une option --clean permettant de supprimer les objects avant création.&#160; Mais cela n&#039;est possible que grace à la liste des objects contenu dans le format custom.&#160; Avec psql la seule chose possible à faire est d&#039;utiliser ON_ERROR_ROLLBACK probablement, mais les erreurs surviennent toujours, elles sont juste ignorées à coup de SAVEPOINT / ROLLBACK TO.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2022-04-20T16:14:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33372#p33372</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Différences entre PQexec de libpq et l'outil cmd psql.exe ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33371#p33371"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;ai effectué le dump directement via PgAdmin3 (qui utilise pg_dump normalement), mais je crois que j&#039;ai compris en fait il n&#039;y a pas de differences en fait entre PQexec et psql dans l&#039;execution de commande SQL si ce n&#039;est que comme je réutilise le meme schema et qu&#039;il existe déjà lors de la création de ma DB de base avec psql toutes les créations d&#039;entités (fonctions, relations etc...) qui existent déjà sont automatiquement abandonnées sans emettre d&#039;erreurs et avec PQexec une erreur est émise comme quoi l&#039;entité existent déjà... Je sais que j&#039;ai peut-être du mal à me faire comprendre alors avec un exemple de mon dump peut-être que ce sera plus clair:</p><div class="codebox"><pre class="vscroll"><code>-- Database: &quot;OT DB&quot; 
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 9.3.25
+-- Dumped by pg_dump version 9.3.25
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET client_encoding = &#039;UTF8&#039;;
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config(&#039;search_path&#039;, &#039;&#039;, false);
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+
+--
+-- TOC entry 1 (class 3079 OID 11750)
+-- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: 
+--
+
+CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
+
+
+--
+-- TOC entry 2954 (class 0 OID 0)
+-- Dependencies: 1
+-- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION plpgsql IS &#039;PL/pgSQL procedural language&#039;;
+
+
+--
+-- TOC entry 209 (class 1255 OID 17388)
+-- Name: update_cash_cache(); Type: FUNCTION; Schema: public; Owner: %USERNAME%
+--
+
+CREATE FUNCTION public.update_cash_cache() RETURNS void
+    LANGUAGE plpgsql
+    AS $$
+
+...</code></pre></div><p>Au niveau de CREATE FUNCTION public.update_cash_cache() j&#039;ai une erreur avec PQexec (alors que non avec psql): &quot;Error FUNCTION public.update_cash_cache() already exists&quot;.<br />Pour que ça passe je dois à chaque fois faire (pour toutes les entités me donnant cette erreur):</p><div class="codebox"><pre><code>DROP FUNCTION IF EXISTS public.update_cash_cache();
+CREATE FUNCTION public.update_cash_cache() RETURNS void
+    LANGUAGE plpgsql
+    AS $$
+...</code></pre></div><p>Et c&#039;est un peu laborieux de le faire, y aurait-il pas un moyen avec PQexec de skipper toutes les requêtes où les entités existent déjà comme le fait psql? Merci.</p>]]></content>
+		<author>
+			<name><![CDATA[Mudr0x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=10190</uri>
+		</author>
+		<updated>2022-04-20T15:45:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33371#p33371</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Différences entre PQexec de libpq et l'outil cmd psql.exe ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33369#p33369"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><p>Comment avez-vous effectué le dump exactement, si possible la ligne de commande générée.&#160; Avez-vous des exemples de commandes en erreur avec le retour côté client ainsi que les logs associés ?</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2022-04-20T13:29:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33369#p33369</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Différences entre PQexec de libpq et l'outil cmd psql.exe ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33368#p33368"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je suis novice sur Postgres et je voudrais savoir les differences entre PQexec et psql, car j&#039;ai fait un dump du schema de ma DB de base via PgAdmin3 que je veux réutiliser dans mon appli C++ pour recréer mes DBs sur cette base et lorsque je rétablis ce dump via psql ça marche nickel mais via PQexec j&#039;ai tout plein d&#039;erreurs de syntax ou directives inconnues, pourquoi ne sont-ils pas compatibles pour executer les mêmes commandes SQL? Je voudrais absolument pouvoir rétablir mon dump via PQexec et non psql car ça ne me plait pas de passer le dump via une commande de script etc... et en plus c&#039;est une usine à gaz voir presque impossible de gérer les exceptions et erreurs via psql.<br />Alors y aurait-il un moyen de rendre mon dump compatible avec PQexec? Merci d&#039;avance pour votre aide.</p>]]></content>
+		<author>
+			<name><![CDATA[Mudr0x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=10190</uri>
+		</author>
+		<updated>2022-04-20T13:03:52Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33368#p33368</id>
+	</entry>
+</feed>

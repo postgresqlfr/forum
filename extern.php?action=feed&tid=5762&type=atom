@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Eviter un ROLLBACK lors du chargement des données rejetées via COPY]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5762&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5762"/>
+	<updated>2020-05-23T12:45:59Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5762</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Eviter un ROLLBACK lors du chargement des données rejetées via COPY]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31207#p31207"/>
+		<content type="html"><![CDATA[<p>C&#039;est en effet le principe de pgloader. Dommage que vous ayez eu à développer ça vous-même.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2020-05-23T12:45:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31207#p31207</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Eviter un ROLLBACK lors du chargement des données rejetées via COPY]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31206#p31206"/>
+		<content type="html"><![CDATA[<p>Finalement, je n&#039;ai pas réussi à exécuter pgloader, il y avait plusieurs messages d&#039;erreur pour lesquels mes recherches sur Google n&#039;ont pas abouti. Ensuite j&#039;ai testé l&#039;ETL Talend, mais vu la volumétrie très importante des données à charger, le temps d&#039;exécution n&#039;était pas du tout raisonnable et en plus une bonne partie de mes données ayant le bon format et respectant les contraintes d&#039;intégrité, n&#039;étaient même pas chargées dans la base (pourquoi? aucune idée). </p><br /><p>J&#039;ai fini donc par développer en Python ma propre solution en passant par <a href="https://www.psycopg.org/docs/" rel="nofollow">psycopg2</a>. J&#039;utilise la méthode <a href="https://www.psycopg.org/docs/cursor.html#cursor.copy_from" rel="nofollow">copy_from </a> qui ne fait qu&#039;appeler la commande COPY de PostgreSQL et c&#039;est très intéressant car cela veut dire que l&#039;on bénéficie de la performance de la vraie commande COPY. Sauf que, dans le code que j&#039;ai développé, je fait ça dans un bloc <strong>try ... catch ...</strong> et s&#039;il y a une exception ( = échec du chargement), à ce moment-là dans une boucle <strong>while</strong>, je découpe le fichier par paquets (= un fichier intermédiaire/temporaire que le programme crée pendant l&#039;exécution) de 100 000 ligne et je continue le chargement en récupérant à chaque fois les numéros de lignes rejetées (cette information se trouve dans le message d&#039;exception lancée par COPY) et en sautant ces lignes problématiques dans ces fichiers temporaires/intermédiaires, j&#039;arrive à charger le reste de mes données (d&#039;ailleurs il me semble que c&#039;est un peu le même principe avec pgloader). Pendant l&#039;exécution du programme, les numéro de lignes rejetées sont sauvegardés dans une liste ce qui me permet à la fin, de faire un export de l&#039;ensemble des lignes problématique dans un fichier.</p><br /><p>Voilà, c&#039;était juste pour confirmer, dans le cas où ça pourrait intéresser ceux et celles qui ont eu mon problème, qu&#039;effectivement Psycopg2 avec un peu de développement est en effet une solution (parmi d&#039;autres).</p><br /><p>Je remercie encore une fois pour les commentaires et suggestions.</p>]]></content>
+		<author>
+			<name><![CDATA[TheMatrix]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8291</uri>
+		</author>
+		<updated>2020-05-23T11:21:06Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31206#p31206</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Eviter un ROLLBACK lors du chargement des données rejetées via COPY]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31178#p31178"/>
+		<content type="html"><![CDATA[<p>Merci beaucoup pour votre aide. Je vais d&#039;abord faire un test sur une machine virtuel Linux (virtualbox) sur mon ordinateur pour faire un premier test avec pgloader. J&#039;écrirai le résultat.</p>]]></content>
+		<author>
+			<name><![CDATA[TheMatrix]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8291</uri>
+		</author>
+		<updated>2020-05-11T22:23:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31178#p31178</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Eviter un ROLLBACK lors du chargement des données rejetées via COPY]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31177#p31177"/>
+		<content type="html"><![CDATA[<p>Ou d&#039;utiliser un autre ETL?&#160; Il me semble que kettle gère ce cas par exemple, et l&#039;outil est écrit en java il devrait donc tourner facilement sur windows.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2020-05-11T19:50:54Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31177#p31177</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Eviter un ROLLBACK lors du chargement des données rejetées via COPY]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31175#p31175"/>
+		<content type="html"><![CDATA[<p>Sur la page GitHub, certains semblent être arrivés à l&#039;installer sur Windows soit directement (mais avec difficultés) soit en installant le package apt dans le système Linux de Windows:<br /><a href="https://github.com/dimitri/pgloader/issues/652" rel="nofollow">https://github.com/dimitri/pgloader/issues/652</a></p><p>Sinon il existe toujours la possibilité d&#039;avoir une machine virtuelle Linux sur Windows et d&#039;y installer pgloader.</p>]]></content>
+		<author>
+			<name><![CDATA[pifor]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8375</uri>
+		</author>
+		<updated>2020-05-11T19:45:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31175#p31175</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Eviter un ROLLBACK lors du chargement des données rejetées via COPY]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31174#p31174"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>pifor a écrit&#160;:</cite><blockquote><div><p>Une solution c&#039;est <a href="https://pgloader.readthedocs.io/en/latest/pgloader.html#batches-and-retry-behaviour" rel="nofollow">pgloader</a>.</p></div></blockquote></div><p>Il me semble que c&#039;est un outil pour les environnements Linux/Unix, non? Je suis sous Windows 10.</p>]]></content>
+		<author>
+			<name><![CDATA[TheMatrix]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8291</uri>
+		</author>
+		<updated>2020-05-11T18:43:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31174#p31174</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Eviter un ROLLBACK lors du chargement des données rejetées via COPY]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31173#p31173"/>
+		<content type="html"><![CDATA[<p>Une solution c&#039;est <a href="https://pgloader.readthedocs.io/en/latest/pgloader.html#batches-and-retry-behaviour" rel="nofollow">pgloader</a>.</p>]]></content>
+		<author>
+			<name><![CDATA[pifor]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8375</uri>
+		</author>
+		<updated>2020-05-11T18:24:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31173#p31173</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Eviter un ROLLBACK lors du chargement des données rejetées via COPY]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31170#p31170"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous,</p><br /><br /><p>Je voulais poser une question concernant l&#039;utilisation de la commande COPY (à partir d&#039;une session psql). </p><br /><p>Environnement:</p><div class="codebox"><pre><code>OS: Windows 10 (64 bits)
+PostgreSQL: 10</code></pre></div><p>J&#039;utilise cette commande afin de charger des fichier CSV très volumineux dans un certain nombre de tables dans ma base. Le problème c&#039;est que depuis plusieurs jours, apparemment il y a des données erronées qui sont rejetées par les contraintes d&#039;intégrité définies sur les tables et dès le premier rejet, PostgreSQL fait un ROLLBACK complet. C&#039;est-ce qu&#039;il est d&#039;ailleurs écrit dans la documentation en ligne:<br /><a href="https://www.postgresql.org/docs/10/sql-copy.html" rel="nofollow">https://www.postgresql.org/docs/10/sql-copy.html</a></p><div class="quotebox"><blockquote><div><p><strong>COPY stops operation at the first error.</strong> This should not lead to problems in the event of a COPY TO, but the target table will already have received earlier rows in a COPY FROM. These rows will not be visible or accessible, but they still occupy disk space. This might amount to a considerable amount of wasted disk space if the failure happened well into a large copy operation. You might wish to invoke VACUUM to recover the wasted space.</p></div></blockquote></div><p>Je n&#039;ai pas la possibilité de nettoyer les fichiers avant le chargement dans PostgreSQL et d&#039;ailleurs ce n&#039;est pas le but. Au contraire, nous souhaitons pouvoir rassembler les lignes rejetées en un seul fichier et l&#039;envoyer à l&#039;équipe de développement, qui est responsable de la production de ces fichiers, afin de leur montrer le problème et donc faciliter/accélérer le travail d&#039;analyse de ces anomalies.</p><br /><p>Avec Oracle, je n&#039;aurai aucune difficulté, le programme SQL*Loader permet de récupérer facilement les lignes rejetées dans un fichier, tout en continuant à charger les données ayant le bon format dans les tables. Comment je peux faire pour avoir le même résultat sur PostgreSQL? C&#039;est-à-dire au lieu d&#039;un ROLLBACK, écrire les données rejetées dans un fichier? Le problème me paraît un grand classique notamment dans le cadre des missions de la reprise de données où parfois on trouve un peu tout dans les fichiers. Je serai vraiment étonné si une solution similaire/équivalent à SQL*Loader n&#039;existe pas pour régler le même problème sur PostgreSQL.</p><br /><p>Merci d&#039;avance,</p>]]></content>
+		<author>
+			<name><![CDATA[TheMatrix]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8291</uri>
+		</author>
+		<updated>2020-05-11T16:27:39Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31170#p31170</id>
+	</entry>
+</feed>

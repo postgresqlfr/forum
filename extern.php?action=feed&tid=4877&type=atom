@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Temps d'execution d'un update très long - est-ce normal ?]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4877&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4877"/>
+	<updated>2018-09-05T12:35:24Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4877</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Temps d'execution d'un update très long - est-ce normal ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28202#p28202"/>
+		<content type="html"><![CDATA[<p>Que les temps d&#039;exécution soient très variables peut aussi venir du fait que le sous-système disque serait virtualisé.</p><p>C&#039;est facile à gérer pour les admins (peut-être que le doublage de taille de la partition a juste consisté à bouger une réglette dans une interface?) mais les performances sont imprévisibles puisque les disques physiques sont partagés par plusieurs machines virtuelles.</p><p>Même sur un système disque dédié, les temps sont variables, pour bien faire il faut enchaîner entre 5 et 10 exécutions du test et considérer le temps médian comme résultat.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2018-09-05T12:35:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28202#p28202</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Temps d'execution d'un update très long - est-ce normal ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28201#p28201"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>rjuju a écrit&#160;:</cite><blockquote><div><p>Si mes calculs sont corrects, ça fait une moyenne de 6.7 Mo/s en lecture séquentielle, ce qui est très très peu.</p></div></blockquote></div><p>Ci-dessous les tous nouveaux comptes rendu EXPLAIN pour vous demandez votre avis :<br />Et maintenant que la taille disque a été augmentée et VACUUM FULL exécuté, est-ce que les performances de la lecture séquentielle se sont améliorées ? <br />-----------------------------------------------<br />EXPLAIN (ANALYSE,BUFFERS) SELECT COUNT(*) FROM wois_alarm<br />-----------------------------------------------<br />Aggregate&#160; (cost=218661.05..218661.06 rows=1 width=0) (actual time=16977.133..16977.134 rows=1 loops=1)<br />&#160; Buffers: shared hit=15339 read=89108<br />&#160; -&gt;&#160; Seq Scan on wois_alarm&#160; (cost=0.00..195818.24 rows=9137124 width=0) (actual time=0.039..8791.853 rows=9137124 loops=1)<br />&#160; &#160; &#160; &#160; Buffers: shared hit=15339 read=89108<br />Planning time: 0.093 ms<br />Execution time: 16977.185 ms</p><p>-----------------------------------------------<br />EXPLAIN (ANALYSE,BUFFERS) UPDATE wois_alarm SET engine_running = NULL<br />-----------------------------------------------<br />Update on wois_alarm&#160; (cost=0.00..195818.24 rows=9137124 width=66) (actual time=1521513.291..1521513.291 rows=0 loops=1)<br />&#160; Buffers: shared hit=139188764 read=601177 dirtied=751354 written=48382<br />&#160; -&gt;&#160; Seq Scan on wois_alarm&#160; (cost=0.00..195818.24 rows=9137124 width=66) (actual time=0.009..37118.155 rows=9137124 loops=1)<br />&#160; &#160; &#160; &#160; Buffers: shared hit=546 read=103901 written=48382<br />Planning time: 0.182 ms<br />Execution time: 1521523.794 ms</p>]]></content>
+		<author>
+			<name><![CDATA[Sylvain]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8238</uri>
+		</author>
+		<updated>2018-09-05T10:29:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28201#p28201</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Temps d'execution d'un update très long - est-ce normal ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28199#p28199"/>
+		<content type="html"><![CDATA[<p>C&#039;est très mauvais <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /> À titre de comparaison, sur le moins performant de mes vieux disques dur mécaniques 7200 RPM qui traînent, je dépasse les 75 Mo/s (d&#039;autres montent à 175 Mo/s).&#160; Je ne sais pas quel est le système disque utilisé, mais il serait bon de vérifier les performances attendues et réelles.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2018-09-05T07:49:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28199#p28199</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Temps d'execution d'un update très long - est-ce normal ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28198#p28198"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>rjuju a écrit&#160;:</cite><blockquote><div><p>Si mes calculs sont corrects, ça fait une moyenne de 6.7 Mo/s en lecture séquentielle, ce qui est très très peu.</p></div></blockquote></div><p>Et du coup... (désolé pour ignorance) c&#039;est bien / pas bien ? optimisable ?</p>]]></content>
+		<author>
+			<name><![CDATA[Sylvain]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8238</uri>
+		</author>
+		<updated>2018-09-05T07:38:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28198#p28198</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Temps d'execution d'un update très long - est-ce normal ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28197#p28197"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>gleu a écrit&#160;:</cite><blockquote><div><p>D&#039;où le fait qu&#039;il est préférable d&#039;exécuter ceci :</p><div class="codebox"><pre><code>UPDATE wois_alarm SET engine_running = NULL WHERE engine_running IS NOT NULL:</code></pre></div><p>ce qui vous avait été d&#039;ailleurs déjà suggéré.</p></div></blockquote></div><p>Oui tout à fait, mais j&#039;avais voulu voir la différence de performance à requête égale avant et après VACUUM</p>]]></content>
+		<author>
+			<name><![CDATA[Sylvain]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8238</uri>
+		</author>
+		<updated>2018-09-05T07:36:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28197#p28197</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Temps d'execution d'un update très long - est-ce normal ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28196#p28196"/>
+		<content type="html"><![CDATA[<p>D&#039;où le fait qu&#039;il est préférable d&#039;exécuter ceci :</p><div class="codebox"><pre><code>UPDATE wois_alarm SET engine_running = NULL WHERE engine_running IS NOT NULL:</code></pre></div><p>ce qui vous avait été d&#039;ailleurs déjà suggéré.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2018-09-05T06:40:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28196#p28196</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Temps d'execution d'un update très long - est-ce normal ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28195#p28195"/>
+		<content type="html"><![CDATA[<p>C&#039;est normal, votre UPDATE (s&#039;il n&#039;avait bien pas de clause WHERE) a réécrit l&#039;intégralité de la table, et a donc fortement augmenté la volumétrie.&#160; Un autovacuum a du se lancer depuis, mais l&#039;espace ne sera pas récupéré mais réutilisé lors des prochaines opérations en écriture.</p><br /><p>Le count(*) va donc devoir parcourir beaucoup plus de blocs, d&#039;où un temps d&#039;exécution plus élevé.&#160; Les fluctuations sur le temps d&#039;exécution sont probablement dus à une utilisation concurrente de la base,et à une différence sur le nombre d&#039;accès disque.</p><p>Concernant votre plan d&#039;exécution précédent:</p><br /><div class="quotebox"><blockquote><div><p>Aggregate&#160; (cost=382218.92..382218.94 rows=1 width=0) (actual time=294853.451..294853.452 rows=1 loops=1)<br />&#160; Buffers: shared hit=467 read=248049<br />&#160; -&gt;&#160; Seq Scan on wois_alarm&#160; (cost=0.00..355478.34 rows=10696234 width=0) (actual time=9.563..286475.286 rows=9137124 loops=1)<br />&#160; &#160; &#160; &#160; Buffers: shared hit=467 read=248049<br />Planning time: 0.095 ms<br />Execution time: 294853.512 ms</p></div></blockquote></div><br /><p>Si mes calculs sont corrects, ça fait une moyenne de 6.7 Mo/s en lecture séquentielle, ce qui est très très peu.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2018-09-04T19:14:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28195#p28195</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Temps d'execution d'un update très long - est-ce normal ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28194#p28194"/>
+		<content type="html"><![CDATA[<p>Par contre, après voir lancé le dernier UPDATE wois_alarm SET engine_running = NULL (qui était déjà pourtant à NULL auparavant),<br />et bien le SELECT COUNT(*) à pris de nouveau plus de temps :<br />1ère fois : 1 mn 40<br />2ème fois : 22 s <br />3ème fois : 52 s<br />4ème fois : 1 mn 25<br />5ème fois : 2 mn 02<br />J&#039;en découvre des choses, mais c&#039;est à n&#039;y rien comprendre !<br />J&#039;essaierai à nouveau demain avec EXPLAIN (ANALYZE,BUFFERS)</p>]]></content>
+		<author>
+			<name><![CDATA[Sylvain]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8238</uri>
+		</author>
+		<updated>2018-09-04T14:54:09Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28194#p28194</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Temps d'execution d'un update très long - est-ce normal ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28193#p28193"/>
+		<content type="html"><![CDATA[<p>Effectivement,<br />l&#039;administrateur réseau vient de multiplier par 2 l&#039;espace disque :<br />=&gt; lancement de la requête SELECT COUNT(*) FROM wois_alarm : temps d&#039;exécution = 2 mn 30<br />=&gt; exécution de VACUUM FULL wois_alarm, puis à nouveau SELECT COUNT(*) : temps d&#039;exécution = 1.5 s<br />quelle différence !!!<br />Par contre pour l&#039;UPDATE global, on passe de 35mn à 23mn</p>]]></content>
+		<author>
+			<name><![CDATA[Sylvain]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8238</uri>
+		</author>
+		<updated>2018-09-04T14:38:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28193#p28193</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Temps d'execution d'un update très long - est-ce normal ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28191#p28191"/>
+		<content type="html"><![CDATA[<p>53100 est un problème d&#039;espace disque. Vous devez disposer d&#039;environ le double de la taille de la table et de ses index pour être certain que l&#039;opération ne générera pas plus de données (à condition que les journaux de transactions soient sur un autre disque... dans le cas contraire, comptez plutôt 3 fois).</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2018-09-03T15:14:02Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28191#p28191</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Temps d'execution d'un update très long - est-ce normal ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28187#p28187"/>
+		<content type="html"><![CDATA[<p>il faut voir aussi si en fonction de la taille de la RAM et de la taille de la table, tous les blocs peuvent-ils être présents en même temps en mémoire ?</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2018-09-03T12:23:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28187#p28187</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Temps d'execution d'un update très long - est-ce normal ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28186#p28186"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>gleu a écrit&#160;:</cite><blockquote><div><p>J&#039;ai un peu l&#039;impression (étant donné le nombre de blocs lus par rapport au nombre de blocs écrits) que cette table est très fortement fragmentée. Il serait bon de le vérifier et de faire, le cas échéant, un &quot;VACUUM FULL wois_alarm&quot;. Ensuite, pour éviter que cette fragmentation revienne rapidement, il serait préférable de modifier le UPDATE ainsi :</p><div class="codebox"><pre><code>UPDATE wois_alarm SET engine_running = NULL WHERE engine_running IS NOT NULL;</code></pre></div></div></blockquote></div><p>Merci.<br />J&#039;ai un échec au bout de 30 s après avoir lancé VACUUM FULL wois_alarm :<br />********** Erreur **********<br />État SQL :53100</p><p>Je vais me rapprocher de l&#039;administrateur réseau et voir avec lui si l&#039;espace disque est suffisant ...<br />A suivre</p>]]></content>
+		<author>
+			<name><![CDATA[Sylvain]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8238</uri>
+		</author>
+		<updated>2018-09-03T11:47:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28186#p28186</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Temps d'execution d'un update très long - est-ce normal ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28185#p28185"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>ruizsebastien a écrit&#160;:</cite><blockquote><div><p>Bonjour,</p><p>vous avez un buffers shared hit très bas ce qui signifie que les blocs ne sont pas dans la RAM (normal lors d&#039;une première exécution).<br />Si vous relancez le count(*) encore vous devriez voir le shared it monter.</p></div></blockquote></div><p>---------------------------------------------------------------------------------------------------------------------------------<br />Merci.<br />J&#039;ai relancé 3 fois la requête, et voici ci dessous le plan d&#039;exécution :<br />Par contre, j&#039;ai lancé 2 fois également la requête simple, sans ANALYSE. première fois : 2mn30, 2eme fois : 4mn30<br />---------------------------------------------------------------------------------------------------------------------------------<br />Aggregate&#160; (cost=382218.92..382218.94 rows=1 width=0) (actual time=252857.729..252857.730 rows=1 loops=1)<br />&#160; Buffers: shared hit=403 read=248113<br />&#160; -&gt;&#160; Seq Scan on wois_alarm&#160; (cost=0.00..355478.34 rows=10696234 width=0) (actual time=0.045..244720.972 rows=9137124 loops=1)<br />&#160; &#160; &#160; &#160; Buffers: shared hit=403 read=248113<br />Planning time: 0.104 ms<br />Execution time: 252857.828 ms<br />---------------------------------------------------------------------------------------------------------------------------------<br />Aggregate&#160; (cost=382218.92..382218.94 rows=1 width=0) (actual time=230953.724..230953.725 rows=1 loops=1)<br />&#160; Buffers: shared hit=435 read=248081&quot;<br />&#160; -&gt;&#160; Seq Scan on wois_alarm&#160; (cost=0.00..355478.34 rows=10696234 width=0) (actual time=11.246..222865.570 rows=9137124 loops=1)<br />&#160; &#160; &#160; &#160; Buffers: shared hit=435 read=248081<br />Planning time: 0.204 ms<br />Execution time: 230953.779 ms<br />---------------------------------------------------------------------------------------------------------------------------------<br />Aggregate&#160; (cost=382218.92..382218.94 rows=1 width=0) (actual time=294853.451..294853.452 rows=1 loops=1)<br />&#160; Buffers: shared hit=467 read=248049<br />&#160; -&gt;&#160; Seq Scan on wois_alarm&#160; (cost=0.00..355478.34 rows=10696234 width=0) (actual time=9.563..286475.286 rows=9137124 loops=1)<br />&#160; &#160; &#160; &#160; Buffers: shared hit=467 read=248049<br />Planning time: 0.095 ms<br />Execution time: 294853.512 ms</p>]]></content>
+		<author>
+			<name><![CDATA[Sylvain]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8238</uri>
+		</author>
+		<updated>2018-09-03T11:45:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28185#p28185</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Temps d'execution d'un update très long - est-ce normal ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28183#p28183"/>
+		<content type="html"><![CDATA[<p>J&#039;ai un peu l&#039;impression (étant donné le nombre de blocs lus par rapport au nombre de blocs écrits) que cette table est très fortement fragmentée. Il serait bon de le vérifier et de faire, le cas échéant, un &quot;VACUUM FULL wois_alarm&quot;. Ensuite, pour éviter que cette fragmentation revienne rapidement, il serait préférable de modifier le UPDATE ainsi :</p><div class="codebox"><pre><code>UPDATE wois_alarm SET engine_running = NULL WHERE engine_running IS NOT NULL;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2018-09-03T11:31:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28183#p28183</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Temps d'execution d'un update très long - est-ce normal ?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28182#p28182"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>vous avez un buffers shared hit très bas ce qui signifie que les blocs ne sont pas dans la RAM (normal lors d&#039;une première exécution).<br />Si vous relancez le count(*) encore vous devriez voir le shared it monter.</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2018-09-03T09:48:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28182#p28182</id>
+	</entry>
+</feed>

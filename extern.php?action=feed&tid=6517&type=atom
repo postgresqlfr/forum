@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Optimisation Rendu vectoriel plus 1 million objets]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=6517&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=6517"/>
+	<updated>2023-04-19T12:05:05Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=6517</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Optimisation Rendu vectoriel plus 1 million objets]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34241#p34241"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><div class="quotebox"><cite>leandre a écrit&#160;:</cite><blockquote><div><p>Pour certaines couches geo_*_*_p (ponctuel), la géométrie peut être de type multilinestring pour conserver la forme exacte de la symbologie source Autocad. C&#039;est le cas par exemple des arbres qui ont une forme circulaire avec plusieurs arc formant le rendu d&#039;un arbre.<br /><a href="https://zupimages.net/viewer.php?id=23/16/41sy.png" rel="nofollow">https://zupimages.net/up/23/16/41sy.png</a></p></div></blockquote></div><p>C&#039;est une très mauvaise idée de stocker vos arbres en tant multilinesting pour conserver le dessin de la symbologie Autocad en BD.</p><p>Vos outils SIG (QGIS, GEO) sont capables de représenter les objets ponctuels avec une symbologie en fonction de certains attributs.<br />Il vaut mieux stocker tous les objets ponctuels issus d&#039;Autocad en tant que points ayant, par exemple, comme attributs le nom du bloc et/ou le nom du calque.</p><p>Dans QGIS, il suffit ensuite d&#039;utiliser une symbologie basée sur des règles.</p>]]></content>
+		<author>
+			<name><![CDATA[jmarsac]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7302</uri>
+		</author>
+		<updated>2023-04-19T12:05:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34241#p34241</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Optimisation Rendu vectoriel plus 1 million objets]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34240#p34240"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous,</p><p>Nous intégrons en base PostgreSQL-PostGIS les données de notre service topographique à partir de leurs fichiers AutoCAD.<br />Nous avons environ 1,5 million d&#039;objets au total, répartis sous différentes tables thématisées :<br />-- geo_00_topo : contient tous les points de levé (pour de l&#039;accrochage par exemple pour certains services métiers)<br />-- geo_01_bati_l : contient les objets linéaires du thème bati<br />-- geo_01_bati_p : contient les objets ponctuels du thème bati<br />-- geo_01_bati_s : contient les objets surfacique du thème bati<br />...etc...</p><p>Et nous avons au total 17 thèmes.<br />Pour certaines couches geo_*_*_p (ponctuel), la géométrie peut être de type multilinestring pour conserver la forme exacte de la symbologie source Autocad. C&#039;est le cas par exemple des arbres qui ont une forme circulaire avec plusieurs arc formant le rendu d&#039;un arbre.<br /><a href="https://zupimages.net/viewer.php?id=23/16/41sy.png" rel="nofollow"><span class="postimg"><img src="https://zupimages.net/up/23/16/41sy.png" alt="41sy.png" /></span></a></p><br /><p>Pour chacune de ces tables, il y a un id en clé primaire et un index de type GIST sur chaque GEOM.</p><p>Depuis quelques temps, nous rencontrons de grandes lenteurs sur la visualisation de ces données vectorielles, tant dans QGIS que notre outil GEO.</p><p>Aurions-nous possibilité d&#039;améliorer/d&#039;optimiser ces éléments à la source pour accélérer leur rendu ?</p><p>Nous pourrions aussi tenter un flux WMS, mais peut-être pouvons-nous déjà améliorer à la source certaines choses.<br />Nous sommes preneurs de toutes infos.</p><br /><p>Cordialement,<br />Léandre BERON</p>]]></content>
+		<author>
+			<name><![CDATA[leandre]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=11081</uri>
+		</author>
+		<updated>2023-04-19T08:53:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34240#p34240</id>
+	</entry>
+</feed>

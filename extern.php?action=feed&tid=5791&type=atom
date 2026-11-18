@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / standby ssl certificate]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5791&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5791"/>
+	<updated>2020-07-09T10:36:13Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5791</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  standby ssl certificate]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31352#p31352"/>
+		<content type="html"><![CDATA[<p>Pour moi elle sera chiffrée du fait de sslmode=require.<br />Je ne suis pas sûr que sslrootcert=/var/lib/pgsql/.postgresql/root.crt serve à quelque chose dans ce cas de figure.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2020-07-09T10:36:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31352#p31352</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  standby ssl certificate]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31351#p31351"/>
+		<content type="html"><![CDATA[<p>J&#039;ai le root.crt sur le standby</p><p>Donc si le pg_hba du primaire, j&#039;ai<br />hostssl replication&#160; &#160; &#160;all&#160; &#160; &#160; &#160; &#160; &#160; &#160;&lt;standby ip&gt;/32&#160; &#160; &#160; &#160; trust</p><p>et sur le standby:<br />primary_conninfo = &#039;host=&lt;primary ip&gt; user=postgres sslrootcert=/var/lib/pgsql/.postgresql/root.crt sslmode=require&#039;</p><p>La connection sera cryptée grace au root.crt?</p>]]></content>
+		<author>
+			<name><![CDATA[albourg]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7029</uri>
+		</author>
+		<updated>2020-07-08T13:58:03Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31351#p31351</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  standby ssl certificate]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31337#p31337"/>
+		<content type="html"><![CDATA[<p>Il n&#039;y a pas besoin de certificat côté client pour chiffrer la communication, on peut se contenter de <strong>sslmode=require</strong> dans la chaîne de connexion.</p><p>par défaut c&#039;est sslmode=prefer, c&#039;est-à-dire qu&#039;il essaie avec SSL puis si ça ne marche pas, sans SSL. C&#039;est pourquoi on trouve ce &quot;SSL off&quot; dans le message d&#039;erreur:</p><div class="quotebox"><blockquote><div><p>FATAL:&#160; could not connect to the primary server: FATAL:&#160; client certificates can only be checked if a root certificate store is available<br />&#160; &#160; &#160; &#160; FATAL:&#160; no pg_hba.conf entry for replication connection from host &quot;10.12.51.122&quot;, user &quot;postgres&quot;, SSL off</p></div></blockquote></div>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2020-07-06T10:17:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31337#p31337</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  standby ssl certificate]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31334#p31334"/>
+		<content type="html"><![CDATA[<p>It doesn&#039;t really work!<br />On master:<br />From pgadmin, if I give the root.crt to client</p><div class="codebox"><pre><code>hostssl dpa2            dpa2          192.168.20.140/32         md5 </code></pre></div><p>=&gt; client can connect if it has root.crt and password.</p><p>I would like standby to be able to connect using only root.crt<br />On primary I tried:</p><div class="codebox"><pre><code>hostssl replication     all             10.12.51.122/32        cert</code></pre></div><p>then </p><div class="codebox"><pre><code>hostssl replication     all             10.12.51.122/32        md5</code></pre></div><p>and in standby&#039;s postgreql.conf </p><div class="codebox"><pre><code>primary_conninfo = &#039;host=192.168.50.122 user=postgres sslrootcert=/var/lib/pgsql/.postgresql/root.crt&#039;</code></pre></div><p>But I get:</p><div class="codebox"><pre><code>2020-07-06 08:18:12.180 CEST [35311] FATAL:  could not connect to the primary server: FATAL:  client certificates can only be checked if a root certificate store is available
+        FATAL:  no pg_hba.conf entry for replication connection from host &quot;10.12.51.122&quot;, user &quot;postgres&quot;, SSL off</code></pre></div><p>certificates are right:</p><div class="codebox"><pre><code>[postgres@pgdpa01 data]$ openssl verify -CAfile root.crt server.crt
+server.crt: OK</code></pre></div><br /><p>I would just like ssl to be used between primary and standby, so that data are not in clear text on a wan. How how how?</p>]]></content>
+		<author>
+			<name><![CDATA[albourg]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7029</uri>
+		</author>
+		<updated>2020-07-06T06:22:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31334#p31334</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  standby ssl certificate]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31319#p31319"/>
+		<content type="html"><![CDATA[<p>En fait, fluxbb est un peu stupide et a inclus la parenthèse fermante dans l&#039;URL. Il suffisait de supprimer la parenthèse pour que j&#039;accède à la page <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>Pour indiquer les certificats, il suffit d&#039;utiliser les options de connect string détaillées dans <a href="https://www.postgresql.org/docs/12/libpq-connect.html#LIBPQ-CONNECT-SSLCERT" rel="nofollow">https://www.postgresql.org/docs/12/libp … CT-SSLCERT</a></p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2020-07-01T19:54:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31319#p31319</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  standby ssl certificate]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31318#p31318"/>
+		<content type="html"><![CDATA[<p>L&#039;URL que vous donnez ne correspond à aucune page (erreur 404).</p><p>Pour une authentification par certificat, cela se passe dans le fichier pg_hba.conf du serveur. <a href="https://www.postgresql.org/docs/12/auth-cert.html" rel="nofollow">https://www.postgresql.org/docs/12/auth-cert.html</a> donne les détails.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2020-07-01T19:46:52Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31318#p31318</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[standby ssl certificate]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31317#p31317"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>postgres 12.3 linux x86_64 centos 7.<br />J&#039;ai un standby qui se connecte au primaire, j&#039;ai mis &quot;trust&quot; dans pg_hba.conf.<br />J&#039;aimerais que le standby utilise un certificat (j&#039;ai déjà des certificats self-signed via la procédure <a href="https://www.postgresql.org/docs/12/ssl-tcp.html)" rel="nofollow">https://www.postgresql.org/docs/12/ssl-tcp.html)</a>.<br />Comment est-il possible se spécifier les certificats dans le connect string du standby pour éviter le &quot;trust&quot;?</p><p>Merci.</p>]]></content>
+		<author>
+			<name><![CDATA[albourg]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7029</uri>
+		</author>
+		<updated>2020-07-01T11:57:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31317#p31317</id>
+	</entry>
+</feed>

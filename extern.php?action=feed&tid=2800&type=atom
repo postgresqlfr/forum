@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / DUMP trop lent]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2800&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2800"/>
+	<updated>2013-10-22T10:31:30Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2800</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  DUMP trop lent]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18478#p18478"/>
+		<content type="html"><![CDATA[<p>Je ne connais pas l&#039;option nummactl pour avoir la valeure zone_reclaim_mode en revanche j&#039;ai ça comme valeure:<br />cat /proc/sys/vm/zone_reclaim_mode<br />0<br />et ça aussi:<br />cat /etc/sysctl.conf | grep zone_reclaim_mode<br />vm.zone_reclaim_mode=0</p><p>Je te t&#039;informerai du résultat du dump avec zip externe.</p>]]></content>
+		<author>
+			<name><![CDATA[lemjid]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1579</uri>
+		</author>
+		<updated>2013-10-22T10:31:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18478#p18478</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  DUMP trop lent]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18477#p18477"/>
+		<content type="html"><![CDATA[<p>Pas besoin de redémarrer pour voir la valeur par défaut de zone_reclaim_mode, numactl donne l&#039;information. Il ne reste donc qu&#039;un test avec pbzip2 pour voir le temps de sauvegarde avec une compression externe.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2013-10-22T10:09:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18477#p18477</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  DUMP trop lent]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18474#p18474"/>
+		<content type="html"><![CDATA[<p>Merci julien pour ta réponse,</p><p>Les dés sont jetés. Pas de plateforme NUMA:<br />[root@xxxxxx ~]# numactl --hardware<br />available: 1 nodes (0)<br />node 0 size: 8828 MB<br />node 0 free: 168 MB<br />node distances:<br />node&#160; &#160;0<br />0:&#160; 10<br />Pas de NUMA pas de &quot;zone_reclaim_mode&quot;! Pas de bras...<br />Je n&#039;ai pas vu la valeure par défaut car je n&#039;ai pas redémarrer la machine pour le voir (ce n&#039;est pas possible pour l&#039;instant). Si c&#039;est utile pour avancer je peut le faire ultérieurement le W.E.</p>]]></content>
+		<author>
+			<name><![CDATA[lemjid]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1579</uri>
+		</author>
+		<updated>2013-10-22T09:37:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18474#p18474</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  DUMP trop lent]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18469#p18469"/>
+		<content type="html"><![CDATA[<p>le paramètre zone_reclaim_mode n&#039;a un intérêt que s&#039;il s&#039;agit d&#039;une plateforme NUMA. Quelle est la valeur de ce paramètre par défaut lors du boot (sans surcharge au niveau du sysctl.conf) ?</p><br /><p>Pour le dump, je parlais d&#039;une commande du genre : &quot;pg_dump -Fc -Z0 | pbzip2 -c &gt; dump.bz2&quot;</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2013-10-22T07:53:52Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18469#p18469</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  DUMP trop lent]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18467#p18467"/>
+		<content type="html"><![CDATA[<p>Bonjour Julien,</p><p>Le sujet c&#039;est que j&#039;aurai bien aimé que le paramètre &quot;vm.zone_reclaim_mode&quot; marche ça sera génial. Mais je vais essayé avec un noyau plus récent. En revanche je n&#039;ai pas bien saisie ta proposition!! Est ce que tu veux dire que j&#039;imbrique la sortie de mon dump dans un zip? c.a.d je fais la sauvegarde de la base et en même temps je zippe le fichier de sortie &quot;$DB.dump&quot; avec (pgzip2 ou pzip)?</p><p>Une curiosité toujours sur &quot;vm.zone_reclaim_mode&quot; sur quelle distribution et version de linux tu l&#039;as essayé?</p><p>Bien à vous</p>]]></content>
+		<author>
+			<name><![CDATA[lemjid]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1579</uri>
+		</author>
+		<updated>2013-10-21T15:08:02Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18467#p18467</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  DUMP trop lent]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18464#p18464"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>je ne vois rien de particulièrement choquant concernant la configuration. Peut-être qu&#039;un noyau linux plus récent permettrait de meilleures performances.</p><br /><p>Le point de contention étant apparemment la compression par pg_dump, vous pouvez essayer un outil de compression multi threadé (pbzip2 ou pigz par exemple) par dessus un pg_dump non compressé (-Z0) afin de voir si vous gagnez en temps de sauvegarde tout en conservant une taille de dump raisonnable.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2013-10-21T11:49:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18464#p18464</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  DUMP trop lent]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18458#p18458"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />Je ne sais pas s&#039;il faudra fournir plus d&#039;informations? Ou si Julien (ou quelqu&#039;un d&#039;autre bien évidemment) pourra nous dire ce qu&#039;il pense de cette situation. Il sera très pénible pour moi de rester sur sa faim.</p><p>Bien à vous</p>]]></content>
+		<author>
+			<name><![CDATA[lemjid]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1579</uri>
+		</author>
+		<updated>2013-10-21T09:25:52Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18458#p18458</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  DUMP trop lent]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18436#p18436"/>
+		<content type="html"><![CDATA[<p>Normalement, pas besoin de redémarrer le serveur. Pas besoin de modifier le postgresql.conf non plus. Il y a certainement une raison pour laquelle le paramètre n&#039;a pas d&#039;impact pour votre serveur mais il sera difficile de savoir lequel.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2013-10-18T16:31:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18436#p18436</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  DUMP trop lent]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18431#p18431"/>
+		<content type="html"><![CDATA[<p>Voici d&#039;autre éléments:<br />sysctl.conf<br /># Controls IP packet forwarding<br />net.ipv4.ip_forward = 0<br /># Controls source route verification<br />net.ipv4.conf.default.rp_filter = 1<br /># Do not accept source routing<br />net.ipv4.conf.default.accept_source_route = 0<br /># Controls the System Request debugging functionality of the kernel<br />kernel.sysrq = 0<br /># Controls whether core dumps will append the PID to the core filename<br /># Useful for debugging multi-threaded applications<br />kernel.core_uses_pid = 1<br /># Controls the use of TCP syncookies<br />net.ipv4.tcp_syncookies = 1<br /># Controls the maximum size of a message, in bytes<br />kernel.msgmnb = 65536<br /># Controls the default maxmimum size of a mesage queue<br />kernel.msgmax = 65536<br /># Controls the maximum shared segment size, in bytes<br />kernel.shmmax = 68719476736<br /># Controls the maximum number of shared memory segments, in pages<br />kernel.shmall = 4294967296<br />#configuration postgresql<br />vm.dirty_background_ratio=5<br />vm.dirty_ratio=10<br />vm.swappiness=10<br />#perform_dump<br />vm.zone_reclaim_mode=0</p><p>/etc/fstab:<br />file system postgres:<br />/dev/VolGroup00/lv_softwares&#160; /softwares&#160; &#160; &#160; &#160; ext3&#160; &#160; defaults,noatime&#160; &#160; &#160; &#160; 1 2</p><p>Bien à vous</p>]]></content>
+		<author>
+			<name><![CDATA[lemjid]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1579</uri>
+		</author>
+		<updated>2013-10-18T07:50:39Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18431#p18431</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  DUMP trop lent]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18430#p18430"/>
+		<content type="html"><![CDATA[<p>Bonjour Guillaume bonjour Julien,</p><p>Je n&#039;ai pas de bonnes nouvelles à vous annoncer à propos du paramètre &quot;vm.zone_reclaim_mode&quot;.<br />Alors j&#039;ai fait un test 3 fois le dump d&#039;une base de ~40Go. avec la même commande &quot;$PGDUMP -Fc $DB -v &gt; $BACKUP_DIR/$DB.dump&quot; et j&#039;ai eu le même temps d&#039;exécution du dump avec le paramètres &quot;vm.zone_reclaim_mode=0&quot;. et sans ce paramètre. La 3ème fois j&#039;ai rajouté l&#039;option &quot;-Z 2&quot; et là il y a eu une différence significative. sauf la taille du dump qui à été un peu plus grand.<br />Une précision après avoir modifier le fichier &quot;/etc/sysctl.conf&quot;, je n&#039;ai pas redémarrer le serveur, j&#039;ai juste fait &quot;sysctl -p&quot;.<br />Faut il redémarrer le serveur? Est ce que j&#039;ai loupé une coche ou une étape? Faut il modifier qq paramètre postgresql.conf à fin de l&#039;associé au changement de sysctl? Si ça marche chez vous pourquoi pas chez moi?! faut il faire un autre test? SNIF...</p><p>Bien à vous</p>]]></content>
+		<author>
+			<name><![CDATA[lemjid]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1579</uri>
+		</author>
+		<updated>2013-10-18T07:41:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18430#p18430</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  DUMP trop lent]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18394#p18394"/>
+		<content type="html"><![CDATA[<p>Je ne manquerai pas de vous communiquer le résultat. Il faut juste me donner le temps pour demander un environnement de test identique. Dès que je l&#039;aurai je vous fait part des résultats.</p>]]></content>
+		<author>
+			<name><![CDATA[lemjid]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1579</uri>
+		</author>
+		<updated>2013-10-10T20:45:45Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18394#p18394</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  DUMP trop lent]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18393#p18393"/>
+		<content type="html"><![CDATA[<p>À priori, pour un collègue, ça a fait des miracles. J&#039;avoue que je suis intéressé par le résultat.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2013-10-10T20:19:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18393#p18393</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  DUMP trop lent]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18392#p18392"/>
+		<content type="html"><![CDATA[<p>OK! Julien,</p><p>Je rappel juste ma version OS et Postgresql pour être sûre.<br />PostgreSQL 8.4.7 on x86_64-redhat-linux-gnu, compiled by GCC gcc (GCC) 4.1.2 20080704 (Red Hat 4.1.2-50), 64-bit &quot;Linux xxxxxx 2.6.18-194.el5&quot;</p>]]></content>
+		<author>
+			<name><![CDATA[lemjid]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1579</uri>
+		</author>
+		<updated>2013-10-10T15:55:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18392#p18392</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  DUMP trop lent]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18390#p18390"/>
+		<content type="html"><![CDATA[<p>Oui, en spécifiant bien le nom complet (vm.zone_reclaim_mode).</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2013-10-10T12:55:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18390#p18390</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  DUMP trop lent]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18389#p18389"/>
+		<content type="html"><![CDATA[<p>Non je ne l&#039;ai pas fait. De plus ce paramètre n&#039;existe même pas dans mon &quot;sysctl.conf&quot; faut il le rajouter?<br />ça mérite d&#039;être testé. Je le ferai sur un environnement d&#039;étude et je vous communiquerai le résultat.</p><p>Merci davance</p>]]></content>
+		<author>
+			<name><![CDATA[lemjid]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1579</uri>
+		</author>
+		<updated>2013-10-10T12:48:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18389#p18389</id>
+	</entry>
+</feed>

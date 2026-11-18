@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Requête à optimiser]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2424&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2424"/>
+	<updated>2013-01-18T13:13:24Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2424</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête à optimiser]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16346#p16346"/>
+		<content type="html"><![CDATA[<p>Désolé moi aussi pour le temps de réponse !</p><br /><p>Le problème est résolu grâce à un changement fonctionnel. Techniquement rien n&#039;a pu être fait pour améliorer les choses !</p>]]></content>
+		<author>
+			<name><![CDATA[gom]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=550</uri>
+		</author>
+		<updated>2013-01-18T13:13:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16346#p16346</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête à optimiser]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16277#p16277"/>
+		<content type="html"><![CDATA[<p>Désolé pour le temps de réponse…</p><p>Juste «analyze».</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2013-01-08T09:26:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16277#p16277</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête à optimiser]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16224#p16224"/>
+		<content type="html"><![CDATA[<p>J&#039;ai fait ça :</p><br /><div class="codebox"><pre><code>DROP INDEX index_cible;
+
+VACUUM FULL ANALYZE table_cible;
+
+CREATE INDEX index_cible
+  ON table_cible
+  USING btree
+  (anneesem);</code></pre></div><br /><br /><p>Malheureusement, j&#039;ai peur que cela ne change rien, parce qu&#039;en fait si le plan d&#039;exécution change c&#039;est simplement par que les semaines dont je parlais n&#039;existent pas dans la table ! <img src="http://forums.postgresql.fr/img/smilies/sad.png" width="15" height="15" alt="sad" /></p><br /><div class="quotebox"><blockquote><div><p><strong>anneesem;count(*)</strong><br />&quot;2012S51&quot;;145345<br />&quot;2012S50&quot;;146918<br />&quot;2012S49&quot;;145560<br />&quot;2012S48&quot;;143669<br />&quot;2012S47&quot;;142365<br />&quot;2012S46&quot;;142066<br />&quot;2012S45&quot;;142442<br />&quot;2012S44&quot;;140548</p></div></blockquote></div>]]></content>
+		<author>
+			<name><![CDATA[gom]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=550</uri>
+		</author>
+		<updated>2012-12-28T17:05:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16224#p16224</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête à optimiser]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16223#p16223"/>
+		<content type="html"><![CDATA[<p>Non je n&#039;ai pas essayé.</p><br /><p>Faire un &quot;VACUUM ANALYZE table_cible&quot; ?</p>]]></content>
+		<author>
+			<name><![CDATA[gom]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=550</uri>
+		</author>
+		<updated>2012-12-28T16:40:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16223#p16223</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête à optimiser]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16222#p16222"/>
+		<content type="html"><![CDATA[<p>Ça donne l&#039;impression que les estimations sont totalement fausses avec 2012S44. Les stats sont à jour ? Parce que ça donne l&#039;impression que les stats son correctes pour les valeurs précédentes mais pas pour celle-ci (si par exemple les données sont injectées semaine par semaine, et que les stats ont été calculées avant l&#039;injection de cette semaine là, elle sera hors histogramme, et pas non plus dans les most common values. As-tu essayé de repasser les statistiques ?</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2012-12-28T16:37:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16222#p16222</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête à optimiser]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16221#p16221"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><div class="quotebox"><cite>Marc Cousin a écrit&#160;:</cite><blockquote><div><p>PostgreSQL n&#039;essaye pas de déduire des informations dues à la transitivité des opérateurs, pour les inégalités. Il ne le fait que pour les égalités.</p><p>Il ne va pas déduire de </p><p>&#160; join table_source b on (a.code = b.code and &#039;2011S02&#039; &lt;= b.annee_semaine and b.annee_semaine &lt;= a.annee_semaine)<br />&#160; &#160; where a.annee_semaine = &#039;2012S01&#039;</p><p>que</p><p>b.annee_semaine &lt;= &#039;2012S01&#039;</p><p>Je ne suis pas sûr que ça puisse avoir un impact énorme sur la requête, mais pouvez-vous essayer de remplacer a.annee_semaine par &#039;2012S01&#039; dans la clause de jointure, et réessayer (et nous montrer le nouveau plan) ?</p></div></blockquote></div><br /><p>Non cela ne change rien ... malheureusement !</p><br /><p>Voici 2 explain (les explain analyze sont en cours) de la même requête mais avec une condition différente.</p><br /><p>Temps de réponse catastrophiques ! <img src="http://forums.postgresql.fr/img/smilies/sad.png" width="15" height="15" alt="sad" /></p><div class="codebox"><pre><code>&quot;Bitmap Heap Scan on table_cible aa  (cost=2231.66..7442511.43 rows=143138 width=60)&quot;
+&quot;  Recheck Cond: ((anneesem)::text = &#039;2012S44&#039;::text)&quot;
+&quot;  -&gt;  Bitmap Index Scan on index_cible  (cost=0.00..2195.88 rows=143138 width=0)&quot;
+&quot;        Index Cond: ((anneesem)::text = &#039;2012S44&#039;::text)&quot;
+&quot;  SubPlan 1&quot;
+&quot;    -&gt;  GroupAggregate  (cost=0.00..51.87 rows=1 width=26)&quot;
+&quot;          -&gt;  Result  (cost=0.00..51.84 rows=2 width=26)&quot;
+&quot;                One-Time Filter: (($1)::text = &#039;2012S44&#039;::text)&quot;
+&quot;                -&gt;  Nested Loop  (cost=0.00..51.84 rows=2 width=26)&quot;
+&quot;                      -&gt;  Index Scan using index_source on table_source a  (cost=0.00..24.89 rows=1 width=22)&quot;
+&quot;                            Index Cond: (((dwh_gtin)::text = ($0)::text) AND ((dwh_anneesem)::text = &#039;2012S44&#039;::text))&quot;
+&quot;                      -&gt;  Index Scan using index_source on table_source b  (cost=0.00..26.93 rows=2 width=26)&quot;
+&quot;                            Index Cond: (((b.dwh_gtin)::text = ($0)::text) AND (&#039;2012S45&#039;::text &lt;= (b.dwh_anneesem)::text) AND ((b.dwh_anneesem)::text &lt;= (a.dwh_anneesem)::text))&quot;</code></pre></div><p>Temps de réponse exceptionnels !! <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /> Mais pourquoi ?! <img src="http://forums.postgresql.fr/img/smilies/neutral.png" width="15" height="15" alt="neutral" /></p><div class="codebox"><pre><code>&quot;Index Scan using index_cible on table_cible aa  (cost=0.00..56.24 rows=1 width=60)&quot;
+&quot;  Index Cond: ((anneesem)::text = &#039;2012S43&#039;::text)&quot;
+&quot;  SubPlan 1&quot;
+&quot;    -&gt;  GroupAggregate  (cost=0.00..51.87 rows=1 width=26)&quot;
+&quot;          -&gt;  Result  (cost=0.00..51.84 rows=2 width=26)&quot;
+&quot;                One-Time Filter: (($1)::text = &#039;2012S43&#039;::text)&quot;
+&quot;                -&gt;  Nested Loop  (cost=0.00..51.84 rows=2 width=26)&quot;
+&quot;                      -&gt;  Index Scan using index_source on table_source a  (cost=0.00..24.89 rows=1 width=22)&quot;
+&quot;                            Index Cond: (((dwh_gtin)::text = ($0)::text) AND ((dwh_anneesem)::text = &#039;2012S43&#039;::text))&quot;
+&quot;                      -&gt;  Index Scan using index_source on table_source b  (cost=0.00..26.93 rows=2 width=26)&quot;
+&quot;                            Index Cond: (((b.dwh_gtin)::text = ($0)::text) AND (&#039;2012S44&#039;::text &lt;= (b.dwh_anneesem)::text) AND ((b.dwh_anneesem)::text &lt;= (a.dwh_anneesem)::text))&quot;</code></pre></div><p>La seule différence est que la deuxième requête a comme condition &#039;2012S43&#039; sur &quot;table_cible&quot;. J&#039;obtiens le même plan d&#039;exécution pour toutes les semaines antérieures à &#039;2012S43&#039; jusqu&#039;à &#039;2012S01&#039;.</p><br /><p><strong>Le passage à la semaine &#039;2012S44&#039; serait la goutte qui fait <del>déborder le vase</del> imploser PostgreSQL ?!</strong></p><br /><br /><p>Gôm</p>]]></content>
+		<author>
+			<name><![CDATA[gom]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=550</uri>
+		</author>
+		<updated>2012-12-28T16:20:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16221#p16221</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête à optimiser]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16125#p16125"/>
+		<content type="html"><![CDATA[<p>PostgreSQL n&#039;essaye pas de déduire des informations dues à la transitivité des opérateurs, pour les inégalités. Il ne le fait que pour les égalités.</p><p>Il ne va pas déduire de </p><p>&#160; join table_source b on (a.code = b.code and &#039;2011S02&#039; &lt;= b.annee_semaine and b.annee_semaine &lt;= a.annee_semaine)<br />&#160; &#160; where a.annee_semaine = &#039;2012S01&#039;</p><p>que</p><p>b.annee_semaine &lt;= &#039;2012S01&#039;</p><p>Je ne suis pas sûr que ça puisse avoir un impact énorme sur la requête, mais pouvez-vous essayer de remplacer a.annee_semaine par &#039;2012S01&#039; dans la clause de jointure, et réessayer (et nous montrer le nouveau plan) ?</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2012-12-17T10:13:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16125#p16125</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête à optimiser]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16101#p16101"/>
+		<content type="html"><![CDATA[<p>Explain analyse en production :</p><p><span style="color: #FF0000"><br />&quot;Bitmap Heap Scan on table_cible aa&#160; (cost=1705.16..11308019.02 rows=124449 width=60) (actual time=150.471..6904607.438 rows=119066 loops=1)&quot;<br />&quot;&#160; Recheck Cond: ((annee_semaine)::text = &#039;2012S01&#039;::text)&quot;<br />&quot;&#160; -&gt;&#160; Bitmap Index Scan on index_cible&#160; (cost=0.00..1674.05 rows=124449 width=0) (actual time=146.611..146.611 rows=122400 loops=1)&quot;<br />&quot;&#160; &#160; &#160; &#160; Index Cond: ((annee_semaine)::text = &#039;2012S01&#039;::text)&quot;<br />&quot;&#160; SubPlan 1&quot;<br />&quot;&#160; &#160; -&gt;&#160; GroupAggregate&#160; (cost=0.00..90.25 rows=1 width=26) (actual time=57.981..57.982 rows=1 loops=119066)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; -&gt;&#160; Result&#160; (cost=0.00..90.07 rows=21 width=26) (actual time=6.759..57.941 rows=39 loops=119066)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; One-Time Filter: (($1)::text = &#039;2012S01&#039;::text)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; -&gt;&#160; Nested Loop&#160; (cost=0.00..90.07 rows=21 width=26) (actual time=6.757..57.891 rows=39 loops=119066)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; -&gt;&#160; Index Scan using index_source on table_source a&#160; (cost=0.00..24.63 rows=1 width=22) (actual time=3.993..3.994 rows=1 loops=119066)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Index Cond: (((dwh_gtin)::text = ($0)::text) AND ((annee_semaine)::text = &#039;2012S01&#039;::text))&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; -&gt;&#160; Index Scan using index_source on table_source b&#160; (cost=0.00..65.18 rows=21 width=26) (actual time=3.009..58.705 rows=42 loops=109205)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Index Cond: (((b.dwh_gtin)::text = ($0)::text) AND (&#039;2011S02&#039;::text &lt;= (b.annee_semaine)::text) AND ((b.annee_semaine)::text &lt;= (a.annee_semaine)::text))&quot;<br />&quot;Total runtime: 6908342.499 ms&quot;<br /></span></p>]]></content>
+		<author>
+			<name><![CDATA[Jibc]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1732</uri>
+		</author>
+		<updated>2012-12-14T10:37:00Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16101#p16101</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête à optimiser]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16098#p16098"/>
+		<content type="html"><![CDATA[<p>Merci de votre réponse.</p><br /><p>Ce que j&#039;ai omis de préciser avant de poster mon commentaire, c&#039;est que j&#039;avais déjà créé l&#039;index sur table_cible en production, et que c&#039;était en cours.<br />Ca dure entre 1h30 et 3h par semaine avec cet index sur table_cible. Trop long pour 50 semaines à calculer...</p><br /><p>Mon avis pour expliquer la longueur de ce traitement est que la requête parcours 1/5 de table_source (42M de ligne sur 200M) pour sommer l&#039;indicateur sur les 52 dernières semaines. Le moteur Postgre doit donc sûrement considérer qu&#039;il ne sert à rien d&#039;utiliser index_source_4 qui est juste sur annee_semaine.</p><br /><p>Le explain analyse en production est en cours.<br />Le explain analyse en recette donne ceci :</p><p><span style="color: #FF0000"><br />&quot;Bitmap Heap Scan on table_cible aa&#160; (cost=1513.65..23612788.82 rows=80654 width=60) (actual time=10.061..4533599.672 rows=80317 loops=1)&quot;<br />&quot;&#160; Recheck Cond: ((annee_semaine)::text = &#039;2011S20&#039;::text)&quot;<br />&quot;&#160; -&gt;&#160; Bitmap Index Scan on index_cible&#160; (cost=0.00..1493.49 rows=80654 width=0) (actual time=9.766..9.766 rows=80435 loops=1)&quot;<br />&quot;&#160; &#160; &#160; &#160; Index Cond: ((annee_semaine)::text = &#039;2011S20&#039;::text)&quot;<br />&quot;&#160; SubPlan 1&quot;<br />&quot;&#160; &#160; -&gt;&#160; GroupAggregate&#160; (cost=0.00..292.50 rows=1 width=26) (actual time=56.440..56.440 rows=1 loops=80317)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; -&gt;&#160; Result&#160; (cost=0.00..292.04 rows=59 width=26) (actual time=4.691..56.410 rows=44 loops=80317)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; One-Time Filter: (($1)::text = &#039;2011S20&#039;::text)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; -&gt;&#160; Nested Loop&#160; (cost=0.00..292.04 rows=59 width=26) (actual time=4.690..56.392 rows=44 loops=80317)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; -&gt;&#160; Index Scan using index_source on table_source a&#160; (cost=0.00..24.68 rows=2 width=22) (actual time=3.139..3.139 rows=1 loops=80317)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Index Cond: (((code)::text = ($0)::text) AND ((annee_semaine)::text = &#039;2011S20&#039;::text))&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; -&gt;&#160; Index Scan using index_source on table_source b&#160; (cost=0.00..133.32 rows=29 width=26) (actual time=1.568..53.914 rows=44 loops=79292)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Index Cond: (((b.code)::text = ($0)::text) AND (&#039;2010S21&#039;::text &lt;= (b.annee_semaine)::text) AND ((b.annee_semaine)::text &lt;= (a.annee_semaine)::text))&quot;<br />&quot;Total runtime: 4538565.077 ms&quot;<br /></span></p><br /><p>Le même explain analyse est en cours en production.</p><p><strong>Définition des tables :</strong></p><div class="codebox"><pre class="vscroll"><code>-- Table: table_source
+CREATE TABLE table_source
+(
+  col_seq integer NOT NULL DEFAULT nextval(&#039;sequence&#039;::regclass),
+  code character varying(13),         &lt;--- colonne utilisée dans la jointure
+  dimension1 integer,
+  dimension2 character varying(3),
+  indicateur integer,                 &lt;--- indicateur sommé dans la requête
+  indicateur1 real,
+  indicateur2 real,
+  indicateur3 real,
+  indicateur4 integer,
+  indicateur5 real,
+  indicateur6 real,
+  indicateur7 real,
+  indicateur8 real,
+  indicateur9 real,
+  indicateur10 real,
+  indicateur11 real,
+  indicateur12 real,
+  indicateur13 real,
+  dimension3 character varying(8),
+  indicateur14 real,
+  indicateur15 real,
+  indicateur16 real,
+  indicateur17 real,
+  indicateur18 real,
+  indicateur19 real,
+  indicateur20 real,
+  indicateur21 real,
+  indicateur22 real,
+  dimension4 character varying(2),
+  dimension5 character varying(10),
+  indicateur23 real,
+  indicateur24 integer,
+  indicateur25 integer,
+  indicateur26 real,
+  indicateur27 real,
+  indicateur28 real,
+  indicateur29 real,
+  indicateur30 real,
+  indicateur31 real,
+  indicateur32 real,
+  dimension6 character varying(4),
+  debut_valeur date,
+  fin_valeur date,
+  date_maj date,
+  dimension7 integer,
+  indicateur33 real,
+  indicateur34 real,
+  indicateur35 integer,
+  annee_semaine character varying(7), &lt;--- colonne utilisée dans la jointure
+  indicateur36 real
+);
+
+-- Index: index_source_1
+CREATE INDEX &quot;index_source_1&quot;
+  ON table_source
+  USING btree
+  (code);
+
+
+-- Index: index_source_2
+CREATE INDEX &quot;index_source_2&quot;
+  ON table_source
+  USING btree
+  (dimension2);
+
+-- Index: index_source_3
+CREATE INDEX &quot;index_source_3&quot;
+  ON table_source
+  USING btree
+  (dimension2, dimension1);
+
+-- Index: index_source_4
+CREATE INDEX &quot;index_source_4&quot;
+  ON table_source
+  USING btree
+  (annee_semaine);
+
+-- Index: index_source
+CREATE INDEX &quot;index_source&quot;
+  ON table_source
+  USING btree
+  (code, annee_semaine);         &lt;--- index source utilisé dans la requête
+
+-- Index: index_source_5
+CREATE INDEX &quot;index_source_5&quot;
+  ON table_source
+  USING btree
+  (code, dimension1, dimension2);</code></pre></div><div class="codebox"><pre><code>-- Table: table_cible
+CREATE TABLE table_cible
+(
+  annee_semaine character varying(7) NOT NULL,
+  code character varying(13) NOT NULL,
+  indicateur1 numeric(15,4),
+  indicateur2 numeric(15,5),
+  indicateur3 real,
+  indicateur4 real,
+  indicateur5 integer,
+  indicateur_moyen_mensuel integer,   &lt;--- indicateur calculé
+  indicateur6 real
+);
+
+-- Index: index_cible
+CREATE INDEX index_cible
+  ON table_cible
+  USING btree
+  (annee_semaine);                    &lt;--- index cible utilisé dans la requête</code></pre></div><p>Merci d&#039;avance</p>]]></content>
+		<author>
+			<name><![CDATA[Jibc]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1732</uri>
+		</author>
+		<updated>2012-12-14T08:52:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16098#p16098</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête à optimiser]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16095#p16095"/>
+		<content type="html"><![CDATA[<p>Comme vous ne donnez que le EXPLAIN, et pas EXPLAIN ANALYZE, on va jouer aux devinettes. À priori, il vous manque un index sur la colonne annee_semaine de la table table_cible.</p><p>Si ce n&#039;est pas ça, merci d&#039;inclure la définition des tables et un EXPLAIN ANALYZE de la requête.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-12-13T22:39:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16095#p16095</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Requête à optimiser]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16089#p16089"/>
+		<content type="html"><![CDATA[<p>Bonjour, </p><br /><p>J&#039;utilise un base postgreSQL 8.4 sur un serveur Linux redhat 4.1.2.</p><p>Je dois exécuter en production une requête 50 fois avec des paramètres différents. Le problème est que cette requêtes dure 3h à chaque fois :</p><p><span style="color: blue"><br />update table_cible aa<br />set indicateur_moyen_mensuel = (select sum(b.indicateur)/12<br />&#160; &#160; from table_source a<br />&#160; &#160; join table_source b on (a.code = b.code and &#039;2011S02&#039; &lt;= b.annee_semaine and b.annee_semaine &lt;= a.annee_semaine)<br />&#160; &#160; where a.annee_semaine = &#039;2012S01&#039;<br />&#160; &#160; and aa.code = a.code<br />&#160; &#160; and aa.annee_semaine = a.annee_semaine<br />&#160; &#160; group by a.code,a.annee_semaine)<br />where annee_semaine = &#039;2012S01&#039;;<br /></span></p><br /><p>Présentation de la requête : Calcul de table_cible.indicateur_moyen_mensuel qui est la moyenne de table_source.indicateur sur les douze derniers mois. On fait donc une auto-jointure.</p><p>La clé fonctionnelle en source et en cible est le code et l&#039;annee_semaine.<br />La table_source fait 35 Go et contient 200M de lignes. Pour une annee_semaine donnée, le nombre de lignes sur les 12 derniers mois est de 42M. C&#039;est donc le nombre de lignes lues dans table_source.<br />La table_cible fait 530 Mo et contient 6,5M de lignes.<br />Le plan d&#039;exécution utilise un index btree sur table_source(code, annee_semaine) (nommé index_source).</p><p>Le plan était le suivant :<br /><span style="color: #FF0000"><br />&quot;Seq Scan on table_cible aa&#160; (cost=0.00..11236640.54 rows=122839 width=60)&quot;<br />&quot;&#160; Filter: ((annee_semaine)::text = &#039;2012S01&#039;::text)&quot;<br />&quot;&#160; SubPlan 1&quot;<br />&quot;&#160; &#160; -&gt;&#160; GroupAggregate&#160; (cost=0.00..90.25 rows=1 width=26)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; -&gt;&#160; Result&#160; (cost=0.00..90.07 rows=21 width=26)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; One-Time Filter: (($1)::text = &#039;2012S01&#039;::text)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; -&gt;&#160; Nested Loop&#160; (cost=0.00..90.07 rows=21 width=26)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; -&gt;&#160; Index Scan using index_source on table_source a&#160; (cost=0.00..24.63 rows=1 width=22)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Index Cond: (((code)::text = ($0)::text) AND ((annee_semaine)::text = &#039;2012S01&#039;::text))&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; -&gt;&#160; Index Scan using index_source on table_source b&#160; (cost=0.00..65.18 rows=21 width=26)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Index Cond: (((b.code)::text = ($0)::text) AND (&#039;2011S02&#039;::text &lt;= (b.annee_semaine)::text) AND ((b.annee_semaine)::text &lt;= (a.annee_semaine)::text))&quot;<br /></span></p><br /><p>En recette, elle dure entre 20mn et 1h30 selon les semaines (alors que la volumétrie est la même sur toutes les semaines et similaire à celle de production).</p><p>La seule piste d&#039;optimisation que j&#039;ai trouvé est de créer un index btree sur table_cible.annee_semaine (nommé index_cible).</p><p>Le plan d&#039;exécution devient le suivant :<br /><span style="color: #FF0000"><br />&quot;Bitmap Heap Scan on table_cible aa&#160; (cost=1587.86..10889632.89 rows=119904 width=60)&quot;<br />&quot;&#160; Recheck Cond: ((annee_semaine)::text = &#039;2012S01&#039;::text)&quot;<br />&quot;&#160; -&gt;&#160; Bitmap Index Scan on index_cible&#160; (cost=0.00..1557.89 rows=119904 width=0)&quot;<br />&quot;&#160; &#160; &#160; &#160; Index Cond: ((annee_semaine)::text = &#039;2012S01&#039;::text)&quot;<br />&quot;&#160; SubPlan 1&quot;<br />&quot;&#160; &#160; -&gt;&#160; GroupAggregate&#160; (cost=0.00..90.25 rows=1 width=26)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; -&gt;&#160; Result&#160; (cost=0.00..90.07 rows=21 width=26)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; One-Time Filter: (($1)::text = &#039;2012S01&#039;::text)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; -&gt;&#160; Nested Loop&#160; (cost=0.00..90.07 rows=21 width=26)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; -&gt;&#160; Index Scan using index_source on agr_produit a&#160; (cost=0.00..24.63 rows=1 width=22)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Index Cond: (((code)::text = ($0)::text) AND ((annee_semaine)::text = &#039;2012S01&#039;::text))&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; -&gt;&#160; Index Scan using index_source on agr_produit b&#160; (cost=0.00..65.18 rows=21 width=26)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Index Cond: (((b.code)::text = ($0)::text) AND (&#039;2011S02&#039;::text &lt;= (b.annee_semaine)::text) AND ((b.annee_semaine)::text &lt;= (a.annee_semaine)::text))&quot;<br /></span></p><br /><p>En, recette, la requête a duré 45mn. C&#039;est toujours beauoup trop.</p><p>Je suis à court d&#039;idée. Quelqu&#039;un pourrait-il m&#039;aider ?</p><br /><p>Merci d&#039;avance</p><br /><p>Jibc</p>]]></content>
+		<author>
+			<name><![CDATA[Jibc]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1732</uri>
+		</author>
+		<updated>2012-12-13T17:48:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16089#p16089</id>
+	</entry>
+</feed>

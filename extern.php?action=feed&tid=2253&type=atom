@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / problème de sequence]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2253&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2253"/>
+	<updated>2012-09-14T14:52:24Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2253</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  problème de sequence]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15118#p15118"/>
+		<content type="html"><![CDATA[<p>Oui, complètement.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-09-14T14:52:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15118#p15118</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  problème de sequence]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15115#p15115"/>
+		<content type="html"><![CDATA[<p>Effectivement cela fonctionne<br />Merci</p><p>Donc si je comprend bien, currval est un process indépendant de ce que l&#039;on trouve en faisant le <br /> SELECT last_value FROM account_account_id_seq</p>]]></content>
+		<author>
+			<name><![CDATA[Anthony]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1942</uri>
+		</author>
+		<updated>2012-09-14T13:36:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15115#p15115</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  problème de sequence]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15113#p15113"/>
+		<content type="html"><![CDATA[<p>Ce n&#039;est pas un bug. Comme l&#039;indique le message d&#039;erreur, currval n&#039;est utilisable qu&#039;après (au moins) un setval car setval va enregistrer la valeur courante, le currval.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-09-14T12:10:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15113#p15113</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  problème de sequence]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15110#p15110"/>
+		<content type="html"><![CDATA[<p>Oui en effet, cette requête fonctionne correctement sur les deux serveurs. </p><p>Mais vous avez une idée de l&#039;echec sur le currval ? un bug de postgresql ?</p>]]></content>
+		<author>
+			<name><![CDATA[Anthony]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1942</uri>
+		</author>
+		<updated>2012-09-14T10:23:03Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15110#p15110</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  problème de sequence]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15109#p15109"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>vous pouvez utiliser SELECT last_value FROM account_account_id_seq</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2012-09-14T09:04:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15109#p15109</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[problème de sequence]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=15108#p15108"/>
+		<content type="html"><![CDATA[<p>Bonjour <br />je travaille sur deux machines distinctes (Win7 / Srv2008) ayant la même version de postgresql (9.1). <br />Sur le srv2008 un select currval me retourne une erreur alors sur le Win7, elle répond correctement. </p><p>La requête :<br />&#160; &#160;select currval(pg_get_serial_sequence(&#039;fid.account&#039;, &#039;account_id&#039;))</p><p>ERROR:&#160; currval of sequence &quot;account_account_id_seq&quot; is not yet defined in this session</p><p>********** Erreur **********</p><p>ERROR: currval of sequence &quot;account_account_id_seq&quot; is not yet defined in this session<br />État SQL :55000</p><br /><p>Pourtant je pense que ma séquence est bonne :</p><p>select * from information_schema.sequences where sequence_schema = &#039;fid&#039; and sequence_name like &#039;%account_id%&#039;<br />sequence_catalog ; sequence_schema ; sequence_name&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;;data_type<br />&quot;MAIN&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; ; &quot;fid&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; ; &quot;account_account_id_seq&quot; ;&quot;bigint&quot;</p><p>Ce comportement est aléatoire. <br />Si je recrée la séquence à la main, elle va fonctionner. <br />Mais ce n&#039;est pas la première fois que j&#039;ai cette erreur et je voudrais comprendre la cause.</p><p>Merci pour votre aide</p>]]></content>
+		<author>
+			<name><![CDATA[Anthony]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1942</uri>
+		</author>
+		<updated>2012-09-14T07:32:06Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=15108#p15108</id>
+	</entry>
+</feed>

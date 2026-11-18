@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Postgres 844 : Explain ncorrect]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1115&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1115"/>
+	<updated>2011-01-04T07:57:09Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1115</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Postgres 844 : Explain ncorrect]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7266#p7266"/>
+		<content type="html"><![CDATA[<p>Merci pour toutes ces réponses, cela clos le sujet sur cet &quot;Explain incorrect&quot;<br />Cordialement</p>]]></content>
+		<author>
+			<name><![CDATA[F.Chanson]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=409</uri>
+		</author>
+		<updated>2011-01-04T07:57:09Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7266#p7266</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Postgres 844 : Explain ncorrect]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7258#p7258"/>
+		<content type="html"><![CDATA[<p>Le plan est calculé à l&#039;exécution de la requête. Ou à l&#039;appel d&#039;explain.</p><p>On peut récupérer les vrais plans, via le module contrib autoexplain (cela permet de tracer les plans de toutes les requêtes dépassant une certaine durée). Attention, ça coûte un peu cher, vu le volume de données à logguer.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-01-03T19:37:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7258#p7258</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Postgres 844 : Explain ncorrect]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7254#p7254"/>
+		<content type="html"><![CDATA[<p>Ce plan est-il&#160; calculé via un explain , un explain analyse ?&#160; et y a t-il un moyen de récupérer le plan réellement exécute en positionnant un paramètre dans le fichier de configuration de Postgres ?</p>]]></content>
+		<author>
+			<name><![CDATA[F.Chanson]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=409</uri>
+		</author>
+		<updated>2011-01-03T16:53:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7254#p7254</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Postgres 844 : Explain ncorrect]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7253#p7253"/>
+		<content type="html"><![CDATA[<p>Non, le plan est calculé avant l&#039;exécution de la requête. Il n&#039;y a pas de réévaluation en cours d&#039;exécution.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-01-03T16:36:09Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7253#p7253</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Postgres 844 : Explain ncorrect]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7251#p7251"/>
+		<content type="html"><![CDATA[<p>J&#039;ai fais quelques tests en spécifiant des statistiques au niveau des &quot;colonnes&quot; et il n&#039;y a pas de résultats&#160; significatifs , donc pas d&#039;amélioration de mon explain ...&#160; par contre, le plan d&#039;exécution construit par l&#039;optimiseur est-il toujours le même entre un explain et un explain analyse ? , lors de l&#039;execution de la requête , l&#039;optimiseur change-il de plan s&#039;il s&#039;aperçoit que son plan d&#039;exécution n&#039;est pas le bon.</p><p>Exemple: si le plan issu&#160; d&#039;un explain remonte une estimation 100.000 rows , mais quant réalité le nb de rows retournés est &lt; 100 , l&#039; optimiseur changera -il son plan ?</p>]]></content>
+		<author>
+			<name><![CDATA[F.Chanson]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=409</uri>
+		</author>
+		<updated>2011-01-03T16:34:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7251#p7251</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Postgres 844 : Explain ncorrect]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7223#p7223"/>
+		<content type="html"><![CDATA[<p>Cela ne vous aidera pas pour ce problème. Une statistique plus fine est utile pour estimer le nombre d&#039;enregistrements d&#039;une clause where, pas pour une jointure (il va avoir principalement besoin d&#039;estimer le nombre moyen d&#039;enregistrements pour une valeur, c&#039;est quelque chose qu&#039;on a correctement même avec des statistiques assez grossières).</p><p>Vous pouvez toujours augmenter la finesse des statistiques et voir si ça aide, mais j&#039;en doute.</p><p>À ma connaissance, il utilise la taille d&#039;un index, pour estimer le nombre d&#039;entrées sorties nécessaires pour aller y chercher des informations. Je ne pense pas qu&#039;il collecte davantage d&#039;informations (mais là, je n&#039;en suis pas sûr <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /> )</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-01-03T10:25:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7223#p7223</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Postgres 844 : Explain ncorrect]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7221#p7221"/>
+		<content type="html"><![CDATA[<p>Bonjour et Bonne Année...&#160; et pour finir au sujet de cet explain, 2&#160; questions au sujet de l&#039;erreur d&#039;estimation&#160; (facteur 10)</p><p><em>L&#039;erreur d&#039;estimation se trouve sur cette ligne l<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; -&gt;&#160; Nested Loop&#160; (cost=22.08..7369.40 rows=957 width=108) (actual time=0.154..14.209 rows=92 loops=1)&quot; </em> </p><p>1)&#160; y-a-t-il un intérêt&#160; à positionner des statistiques au niveau des &quot;colonnes jointes pu requetables&quot; via la commande ALTER [ COLUMN ] column SET STATISTICS integer ? , car généralement ces colonnes sont indexées), ceci afin d&#039;aider l&#039;optimiseur ?</p><p>2) Quant une colonne est indexée, l&#039;optimiseur utilise-t-il les informations relatives aux indexes&#160; ou s&#039;appuie-il uniquement sur les statistiques collectés sur les colonnes, les tables ?</p>]]></content>
+		<author>
+			<name><![CDATA[F.Chanson]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=409</uri>
+		</author>
+		<updated>2011-01-03T10:18:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7221#p7221</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Postgres 844 : Explain ncorrect]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7113#p7113"/>
+		<content type="html"><![CDATA[<p>Pas tout à fait , mon schema de BB contient 30 tables.</p><p>Mon traitement est construit ainsi</p><p>1)&#160; construction du select de &quot;count &quot;&#160; par rapport aux critères contenues dans la&#160; clause &quot;where&quot;, a ce titre il va au max s&#039;appuyer sur 15 tables( qui contiennent les champs requetables). ce count remonte le nb de résultats de requête, affichage&#160; du nb de rows sur le formulaire. soit l&#039;utilisateur affine sa requete soit il demande le rapatriement des données</p><p>si le&#160; rapatriement&#160; est demandé<br />2) construction d&#039;un&#160; select &quot;id&quot; &quot;qui remonte uniquement l&#039;id des données&quot;&#160; identique au count, donc&#160; il va s&#039;appuyer au max sur 15 tables (qui contiennent les champs requetables)<br />3) construction d&#039;un select &quot;avec tous les champs demandées par l&#039;utilisateur&quot; et dans ce cas&#160; le traitement peut parcourir l&#039;ensemble des tables du modèle&#160; afin de récupérer les champs requis, la&#160; clause where&#160; dans ce cas comporte uniquement un&#160; &quot;where ID in (les ids remontés lors de la requete decrié en 2)&quot;</p><p>Donc le cout des requêtes 1 et 2 sont identiques , la requête 2 sera plus rapide car en cache</p><p>LA requête 3 dépendra des tables qu&#039;il faudra traverser (via des inner join) pour récupérer les infos demandées par l&#039;utilisateur.</p>]]></content>
+		<author>
+			<name><![CDATA[F.Chanson]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=409</uri>
+		</author>
+		<updated>2010-12-23T13:24:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7113#p7113</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Postgres 844 : Explain ncorrect]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7112#p7112"/>
+		<content type="html"><![CDATA[<p>Le problème du count, c&#039;est qu&#039;il va faire la requête complète. Donc si la requête ramène 100 000 enregistrements, le count ira chercher les 100 000 enregistrements. Il aura quasiment le même coût que la requête réelle.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-12-23T13:05:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7112#p7112</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Postgres 844 : Explain ncorrect]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7111#p7111"/>
+		<content type="html"><![CDATA[<p>Mieux vaut un count, plus facile à récupérer et même performance que le EXPLAIN ANALYZE.</p><p>Cela veut aussi dire que vous allez exécuter deux fois la requête, ce qui n&#039;est pas une bonne idée question performance.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-12-23T13:03:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7111#p7111</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Postgres 844 : Explain ncorrect]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7110#p7110"/>
+		<content type="html"><![CDATA[<p>Oui c&#039;est bien un formulaire de recherche dans cette Bd qui permet d&#039;accéder aux données.</p><p>Si je comprends bien, je ne peux pas utiliser l&#039;explain et je n&#039;arriverais pas par configuration&#160; postgres à établir un ratio me permettant de fiabiliser le résultat retourné par l&#039;explain&#160; &#160;et dans mon cas indiquer à l&#039;utilisateur que sa requête remonte trop de données.</p><p>Ce qui m&#039;intéresse serait d&#039;être proche de google et donc d&#039;avoir un&#160; facteur 2 ou 3&#160; mais&#160; pas 10 ou 100 !!!</p><p>Est-il préférable de faire un &quot;count&quot;&#160; (comme dans la première version du soft) ou d&#039;utiliser le camp rows de l&quot;explain analyse&quot;&#160; qui exécute&#160; réellement la requête mais ne remonte pas d&#039;infos </p><br /><p>L&#039;autre solution étant&#160; naturellement de jouer avec des select &quot;LIMIT 500 OFFSET 500&quot;</p>]]></content>
+		<author>
+			<name><![CDATA[F.Chanson]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=409</uri>
+		</author>
+		<updated>2010-12-23T11:19:29Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7110#p7110</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Postgres 844 : Explain ncorrect]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7109#p7109"/>
+		<content type="html"><![CDATA[<p>Non, le nombre de lignes est très approximatif (vous remarquerez que même google, quand ils vous retourne une estimation du nombre d&#039;enregistrements d&#039;une requêtes, se trompe régulièrement d&#039;un facteur 2 ou 3, alors qu&#039;il n&#039;y a pas de jointure sur 5 tables <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /> )</p><p>Habituellement, ce qui se fait, c&#039;est plutôt de limiter le nombre d&#039;enregistrements retourné par la requête à une valeur raisonnable… je présume que c&#039;est un formulaire de recherche ?</p><p>L&#039;utilisateur ira t&#039;il lire plus de 500 résultats par exemple ? Sinon, vous pouvez utiliser LIMIT 500 dans votre ordre pour ne lui en ramener que 500. Si à la fin de ces 500, il en veut davantage, vous pourrez toujours réexécuter la requête avec LIMIT 500 OFFSET 500 pour aller chercher les 500 suivants. Et vous lui affichez &#039;voici les résultats 1 à 500 d&#039;au moins 500&#039;. Cela lui permet de constater que sa requête n&#039;est pas assez sélective.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-12-23T11:04:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7109#p7109</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Postgres 844 : Explain ncorrect]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7108#p7108"/>
+		<content type="html"><![CDATA[<p>Merci ,pour&#160; la réponse rapide, je n&#039;ai pas de pb de performances pour le moment , mais cette base de données va rapidement faire 10 Millions de Rows, Nous avons une première version du logiciel qui exploite cette bd qui effectue&#160; d&#039;abord un &#039;select count &quot; puis un select de&#160; rapatriement des données si le valeur du count est &lt; à N données (N positionnée par l&#039;utilisateur) </p><p>Nous voulons supprimer le count par un explain&#160; en exploitant le champ&#160; (&quot;rows&quot;) afin d&#039;éviter de faire de&#160; 2 requêtes. Mais on s&#039;aperçoit que la valeur du champ &quot;rows&quot; de l&#039;explain est souvent erronée (facteur 10 , 100) ce qui rend inexploitable&#160; l&#039;utilisation de l&#039;explain dans notre cas.</p><p>Je recherche donc un moyen de sécuriser/fiabiliser&#160; l&#039;exploitation de ce champ (&quot;rows&quot;) , est-ce possible , en augmentant le nb d&#039;échantillon des stats ? en prenant un ratio , ...</p>]]></content>
+		<author>
+			<name><![CDATA[F.Chanson]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=409</uri>
+		</author>
+		<updated>2010-12-23T10:55:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7108#p7108</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Postgres 844 : Explain ncorrect]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7105#p7105"/>
+		<content type="html"><![CDATA[<p>L&#039;erreur d&#039;estimation se trouve sur cette ligne là:</p><p>&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; -&gt;&#160; Nested Loop&#160; (cost=22.08..7369.40 rows=957 width=108) (actual time=0.154..14.209 rows=92 loops=1)&quot;</p><p>Tout le reste en découle. Malgré tout, même un facteur 10 n&#039;est pas énorme, comme erreur, surtout dans le sens de la surestimation. Il ne s&#039;agit que d&#039;une optimisation statistique…</p><p>Bref, il s&#039;agit d&#039;estimer le nombre d&#039;enregistrements ramenés par la jointure entre imagefeatu4_ et md_metadatas2_, en filtrant sur l&#039;extension DATASTRIP. Il n&#039;a aucun moyen de savoir que cette jointure va ramener 1 enregistrement sur 10…il se contente d&#039;une estimation pessimiste du nombre d&#039;enregistrement pouvant être ramenés.</p><p>Avez vous réellement un problème de performance sur la requête, ou c&#039;est juste une question par simple curiosité ? <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>Ce genre d&#039;erreur d&#039;estimation est très fréquente, et normale.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-12-23T09:53:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7105#p7105</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Postgres 844 : Explain ncorrect]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7103#p7103"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />je souhaite exploiter, via un programme&#160; java,&#160; &#160;le résultat d&#039;un explain pour des raisons de performances (sans la clause analyse) , plutôt que celui d&#039;un &quot;count&quot; lors d&#039;un select et le pb est que l&#039;explain ne donne pas les résultats attendus (92 résultats via un count et 866 avec l&#039;explain), en général je constate une facteur 10</p><p>Y-t-il un moyen améliorer ..le résultat de l&#039;explain</p><p>la BD 844 postgres comporte 1Million de rows</p><p>Mes statistiques sont à 500 sur toutes les tables (default_statistics_target = 500)</p><p>Merci </p><br /><p>Voici le select <br />----------------<br />select <br />&#160; &#160; &#160; &#160; &#160; &#160; dgproductf0_.id as col_0_0_ <br />from <br />&#160; &#160; &#160; &#160; &#160; &#160; DG_PRODUCT dgproductf0_ <br />&#160; &#160; &#160; &#160; &#160; &#160; inner join FEATURE dgproductf0_1_ on dgproductf0_.id=dgproductf0_1_.id <br />&#160; &#160; &#160; &#160; &#160; &#160; inner join MD_METADATA metadatas1_ on dgproductf0_.id=metadatas1_.product <br />&#160; &#160; &#160; &#160; &#160; &#160; inner join FEATURE metadatas1_1_ on metadatas1_.id=metadatas1_1_.id <br />&#160; &#160; &#160; &#160; &#160; &#160; inner join METADATA_ID metadataid5_ on metadatas1_1_.fk_metadataID=metadataid5_.id <br />&#160; &#160; &#160; &#160; &#160; &#160; inner join MD_METADATA metadatas2_ on dgproductf0_.id=metadatas2_.product <br />&#160; &#160; &#160; &#160; &#160; &#160; inner join FEATURE metadatas2_1_ on metadatas2_.id=metadatas2_1_.id <br />&#160; &#160; &#160; &#160; &#160; &#160; inner join CATALOG_ID catalogide3_ on metadatas2_.fk_catalogID=catalogide3_.ID <br />&#160; &#160; &#160; &#160; &#160; &#160; inner join IMAGE_EXTENSION imagefeatu4_ on metadatas2_.fk_image_extension=imagefeatu4_.id <br />where <br />&#160; &#160; &#160; &#160; &#160; &#160; catalogide3_.profile=&#039;LEVEL0&#039; <br />&#160; &#160; &#160; &#160; &#160; &#160; and metadatas2_.attribute_description=&#039;DATASTRIP&#039; and <br />&#160; &#160; &#160; &#160; &#160; &#160; dgproductf0_.archive_searchByAllUsers=&#039;true&#039; and <br />&#160; &#160; &#160; &#160; &#160; &#160; (imagefeatu4_.orbit between &#039;12000&#039; and &#039;12100&#039;) and <br />&#160; &#160; &#160; &#160; &#160; &#160; (metadataid5_.EXTERNAL_ID like &#039;DS%&#039;) <br />group by dgproductf0_.id</p><p>et le résultat de l&#039;explain<br />------------------------------------------<br />&quot;HashAggregate&#160; (cost=13859.60..13868.26 rows=866 width=37) (actual time=51.707..51.766 rows=92 loops=1)&quot;<br />&quot;&#160; -&gt;&#160; Nested Loop&#160; (cost=22.08..13857.44 rows=866 width=37) (actual time=0.441..51.586 rows=92 loops=1)&quot;<br />&quot;&#160; &#160; &#160; &#160; -&gt;&#160; Nested Loop&#160; (cost=22.08..13833.87 rows=58 width=109) (actual time=0.426..50.352 rows=92 loops=1)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; -&gt;&#160; Nested Loop&#160; (cost=22.08..13752.29 rows=58 width=145) (actual time=0.414..49.090 rows=92 loops=1)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Join Filter: ((metadatas2_.fk_catalogid)::text = (catalogide3_.id)::text)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; -&gt;&#160; Index Scan using ib_t_catalogid_f_profile on catalog_id catalogide3_&#160; (cost=0.00..6.27 rows=1 width=118) (actual time=0.009..0.010 rows=1 loops=1)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Index Cond: ((profile)::text = &#039;LEVEL0&#039;::text)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; -&gt;&#160; Nested Loop&#160; (cost=22.08..13745.29 rows=58 width=181) (actual time=0.401..48.891 rows=92 loops=1)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; -&gt;&#160; Nested Loop&#160; (cost=22.08..13379.61 rows=892 width=218) (actual time=0.219..35.159 rows=1046 loops=1)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; -&gt;&#160; Nested Loop&#160; (cost=22.08..13016.89 rows=892 width=217) (actual time=0.205..20.162 rows=1046 loops=1)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; -&gt;&#160; Nested Loop&#160; (cost=22.08..8715.53 rows=957 width=145) (actual time=0.179..15.676 rows=92 loops=1)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; -&gt;&#160; Nested Loop&#160; (cost=22.08..7369.40 rows=957 width=108) (actual time=0.154..14.209 rows=92 loops=1)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; -&gt;&#160; Bitmap Heap Scan on image_extension imagefeatu4_&#160; (cost=22.08..2089.86 rows=957 width=37) (actual time=0.131..0.944 rows=1046 loops=1)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Recheck Cond: ((orbit &gt;= 12000) AND (orbit &lt;= 12100))&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; -&gt;&#160; Bitmap Index Scan on ib_t_image_extension_f_orbit&#160; (cost=0.00..21.84 rows=957 width=0) (actual time=0.116..0.116 rows=1046 loops=1)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Index Cond: ((orbit &gt;= 12000) AND (orbit &lt;= 12100))&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; -&gt;&#160; Index Scan using ib_t_md_metadata_fk_image_extension on md_metadata metadatas2_&#160; (cost=0.00..5.50 rows=1 width=144) (actual time=0.011..0.011 rows=0 loops=1046)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Index Cond: ((metadatas2_.fk_image_extension)::text = (imagefeatu4_.id)::text)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Filter: ((metadatas2_.attribute_description)::text = &#039;DATASTRIP&#039;::text)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; -&gt;&#160; Index Scan using feature_pkey on feature dgproductf0_1_&#160; (cost=0.00..1.39 rows=1 width=37) (actual time=0.011..0.012 rows=1 loops=92)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Index Cond: ((dgproductf0_1_.id)::text = (metadatas2_.product)::text)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; -&gt;&#160; Index Scan using ib_t_md_metadata_fk_product on md_metadata metadatas1_&#160; (cost=0.00..4.31 rows=15 width=72) (actual time=0.018..0.027 rows=11 loops=92)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Index Cond: ((metadatas1_.product)::text = (dgproductf0_1_.id)::text)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; -&gt;&#160; Index Scan using feature_pkey on feature metadatas1_1_&#160; (cost=0.00..0.39 rows=1 width=74) (actual time=0.011..0.011 rows=1 loops=1046)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Index Cond: ((metadatas1_1_.id)::text = (metadatas1_.id)::text)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; -&gt;&#160; Index Scan using metadata_id_pkey on metadata_id metadataid5_&#160; (cost=0.00..0.40 rows=1 width=37) (actual time=0.012..0.012 rows=0 loops=1046)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Index Cond: ((metadataid5_.id)::text = (metadatas1_1_.fk_metadataid)::text)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Filter: ((metadataid5_.external_id)::text ~~ &#039;DS%&#039;::text)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; -&gt;&#160; Index Scan using feature_pkey on feature metadatas2_1_&#160; (cost=0.00..1.39 rows=1 width=37) (actual time=0.010..0.010 rows=1 loops=92)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; Index Cond: ((metadatas2_1_.id)::text = (metadatas2_.id)::text)&quot;<br />&quot;&#160; &#160; &#160; &#160; -&gt;&#160; Index Scan using ib_t_dg_product_f_id on dg_product dgproductf0_&#160; (cost=0.00..0.39 rows=1 width=37) (actual time=0.010..0.011 rows=1 loops=92)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; Index Cond: ((dgproductf0_.id)::text = (dgproductf0_1_.id)::text)&quot;<br />&quot;&#160; &#160; &#160; &#160; &#160; &#160; &#160; Filter: dgproductf0_.archive_searchbyallusers&quot;<br />&quot;Total runtime: 51.962 ms&quot;</p><p>-------------------------------------------</p>]]></content>
+		<author>
+			<name><![CDATA[F.Chanson]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=409</uri>
+		</author>
+		<updated>2010-12-23T09:41:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7103#p7103</id>
+	</entry>
+</feed>

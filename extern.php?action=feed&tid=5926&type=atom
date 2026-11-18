@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Sql avec paramètres et condition IF]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5926&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5926"/>
+	<updated>2021-02-02T13:33:40Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5926</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Sql avec paramètres et condition IF]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31944#p31944"/>
+		<content type="html"><![CDATA[<p>Quand vous avez un problème avec une requête, n&#039;en exécutez pas deux à la fois. Si vous n&#039;aviez exécuté que le CREATE FUNCTION, vous auriez eu toujours une erreur mais un message bien plus explicatif :</p><div class="codebox"><pre><code>CREATE FUNCTION log_notice(text) AS $$;
+DECLARE
+    user ALIAS FOR $1;
+BEGIN
+    RAISE NOTICE &#039;creation user % done!&#039;, user;
+END;
+$$ LANGUAGE plpgsql;
+ERROR:  no language specified</code></pre></div><p>Du coup, on s&#039;aperçoit qu&#039;il manque la clause LANGUAGE, ce qui donne :</p><div class="codebox"><pre><code>CREATE FUNCTION log_notice(text) AS $$;
+DECLARE
+    user ALIAS FOR $1;
+BEGIN
+    RAISE NOTICE &#039;creation user % done!&#039;, user;
+END;
+$$ LANGUAGE plpgsql;
+ERROR:  function result type must be specified</code></pre></div><p>De nouveau une erreur, il manque le type en retour. En effet, c&#039;est une fonction, donc ça renvoit des données. Dans le cas présent, une procédure serait certainement plus intelligent mais continuons avec la fonction :</p><div class="codebox"><pre><code>CREATE FUNCTION log_notice(text) RETURNS boolean AS $$;
+DECLARE
+    user ALIAS FOR $1;
+BEGIN
+    RAISE NOTICE &#039;creation user % done!&#039;, user;
+    RETURN true;
+END;
+$$ LANGUAGE plpgsql;
+ERROR:  syntax error at or near &quot;;&quot;
+LINE 1: CREATE FUNCTION log_notice(text) RETURNS boolean AS $$;
+                                                              ^</code></pre></div><p>De nouveau une erreur. Le point-virgule derrière le premier $$ ne sert à rien. Il est même problématique. Donc on le supprime :</p><div class="codebox"><pre><code>CREATE FUNCTION log_notice(text) RETURNS boolean AS $$
+DECLARE
+    user ALIAS FOR $1;
+BEGIN
+    RAISE NOTICE &#039;creation user % done!&#039;, user;
+    RETURN true;
+END;
+$$ LANGUAGE plpgsql;
+CREATE FUNCTION</code></pre></div><p>Et assez logiquement, ça finit par fonctionner. La preuve :</p><div class="codebox"><pre><code>SELECT log_notice(&#039;toto&#039;);
+NOTICE:  creation user postgres done!
+┌────────────┐
+│ log_notice │
+├────────────┤
+│ t          │
+└────────────┘
+(1 row)</code></pre></div><p>Ceci étant dit, une procédure serait certainement plus intelligente :</p><div class="codebox"><pre><code>CREATE PROCEDURE log_notice(text) AS $$
+BEGIN
+    RAISE NOTICE &#039;creation user % done!&#039;, $1;
+END;
+$$ LANGUAGE plpgsql;
+
+CALL log_notice(&#039;Hannah&#039;);
+NOTICE:  creation user Hannah done!</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2021-02-02T13:33:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31944#p31944</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Sql avec paramètres et condition IF]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31940#p31940"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>dverite a écrit&#160;:</cite><blockquote><div><p>C&#039;est parce qu&#039;il y a d&#039;autres erreurs dans la déclaration. En fait il y en a 3:</p><p>Alternativement dans le script psql vous pouvez utiliser \echo pour faire un affichage côté client sans solliciter le SQL.</p><div class="codebox"><pre><code>  \echo [-n] [TEXTE]     écrit le texte sur la sortie standard (-n pour supprimer le retour à la ligne)</code></pre></div></div></blockquote></div><p>Bon, je clos cette discussion car c&#039;est ce que je recherchais depuis hier. Merci <strong>dverite</strong> et je garde de côté tes bons conseils.<br />C&#039;est une solution toute simple.<br />Pour la petite histoire, dans les exemples, je voyais bien &#039;LANGUAGE plpgsql&#039; mais je pensais que c&#039;était à remplacer par du code, la suite du programme.... Bref, je le saurai la prochaine fois.</p><p>Merci aussi à <strong>rjuju</strong> et <strong>gleu</strong>.</p>]]></content>
+		<author>
+			<name><![CDATA[Christof25]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8696</uri>
+		</author>
+		<updated>2021-02-02T13:19:41Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31940#p31940</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Sql avec paramètres et condition IF]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31938#p31938"/>
+		<content type="html"><![CDATA[<p>C&#039;est parce qu&#039;il y a d&#039;autres erreurs dans la déclaration. En fait il y en a 3:</p><div class="codebox"><pre><code>CREATE FUNCTION log_notice(text) AS $$;
+DECLARE
+    user ALIAS FOR $1;
+BEGIN
+    RAISE NOTICE &#039;creation user % done!&#039;, user;
+END;
+$$</code></pre></div><p>1. Sur la première ligne il ne doit pas y avoir de point virgule à la fin. </p><p>2. Après le $$ final (dernière ligne) il faut ajouter </p><div class="codebox"><pre><code> LANGUAGE plpgsql</code></pre></div><p>3. Il faut ajouter un point virgule final à la fin de tout ça pour clore le CREATE FUNCTION en tant qu&#039;instruction. Que ce soit directement collé à LANGUAGE plpgsql ou sur la ligne d&#039;après, le choix est libre.</p><p>Quand vous dites que dans la doc il n&#039;y a pas de point virgule, si il y est, mais sur la ligne d&#039;après après le LANGUAGE plpgsql qui fait partie de l&#039;ensemble de l&#039;instruction.</p><br /><br /><p>Alternativement dans le script psql vous pouvez utiliser \echo pour faire un affichage côté client sans solliciter le SQL.</p><div class="codebox"><pre><code>  \echo [-n] [TEXTE]     écrit le texte sur la sortie standard (-n pour supprimer le retour à la ligne)</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2021-02-02T10:34:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31938#p31938</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Sql avec paramètres et condition IF]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31937#p31937"/>
+		<content type="html"><![CDATA[<p>Là, sauf erreur de ma part, j&#039;ai un doute car dans la doc <a href="https://docs.postgresql.fr/9.3/sql-syntax-calling-funcs.html" rel="nofollow">https://docs.postgresql.fr/9.3/sql-synt … funcs.html</a> , il n&#039;y en avait pas.</p><p>Si je le rajoute, c&#039;est ce que je disais avant, la fonction n&#039;est plus reconnue...</p><div class="codebox"><pre><code>psql:test.sql:9: ERROR:  function log_notice(unknown) does not exist
+LINE 1: SELECT log_notice(&#039;TINTIN&#039;);
+               ^
+HINT:  No function matches the given name and argument types. You might need to add explicit type casts.</code></pre></div><p>Autre idée?</p>]]></content>
+		<author>
+			<name><![CDATA[Christof25]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8696</uri>
+		</author>
+		<updated>2021-02-02T09:43:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31937#p31937</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Sql avec paramètres et condition IF]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31936#p31936"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>END;<br />$$</p></div></blockquote></div><p>Comme supposé, il manque effectivement un ; après le $$.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2021-02-02T08:34:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31936#p31936</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Sql avec paramètres et condition IF]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31935#p31935"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>rjuju a écrit&#160;:</cite><blockquote><div><p>Le problème vient à priori des lignes précédentes.&#160; Peut être manqeue-t-il un ; à la fin de l&#039;instruction précédente ?.</p></div></blockquote></div><p>Je ne pense pas car il y en a à chaque ligne. Quand j&#039;en ai ajouté un après le $$ , c&#039;était pire, la fonction n&#039;était pas reconnue. Et même sans paramètre, ça coince....</p><div class="codebox"><pre><code>CREATE FUNCTION log_notice(text) AS $$;
+DECLARE
+    user ALIAS FOR $1;
+BEGIN
+    RAISE NOTICE &#039;creation user % done!&#039;, user;
+END;
+$$
+
+SELECT log_notice(&#039;TINTIN&#039;);</code></pre></div><p>Toujours l&#039;erreur...</p><div class="codebox"><pre><code>psql:test.sql:9: ERROR:  syntax error at or near &quot;SELECT&quot;
+LINE 8: SELECT log_notice(&#039;TINTIN&#039;);
+        ^</code></pre></div><p>Je sèche....</p>]]></content>
+		<author>
+			<name><![CDATA[Christof25]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8696</uri>
+		</author>
+		<updated>2021-02-02T08:17:03Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31935#p31935</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Sql avec paramètres et condition IF]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31934#p31934"/>
+		<content type="html"><![CDATA[<p>Le problème vient à priori des lignes précédentes.&#160; Peut être manqeue-t-il un ; à la fin de l&#039;instruction précédente ?</p><br /><p>Sinon, &#039;:p1&#039; est différent de :&#039;p1&#039;.&#160; Regardez le paragraphe &quot;SQL interpolation&quot; sur <a href="https://www.postgresql.org/docs/current/app-psql.html#APP-PSQL-INTERPOLATION" rel="nofollow">https://www.postgresql.org/docs/current … ERPOLATION</a> pour plus de détails.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2021-02-02T02:47:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31934#p31934</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Sql avec paramètres et condition IF]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31932#p31932"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>gleu a écrit&#160;:</cite><blockquote><div><p>Votre CREATE FUNCTION ne respecte pas la syntaxe. La doc sur CREATE FUNCTION se trouve sur <a href="https://docs.postgresql.fr/13/sql-createfunction.html" rel="nofollow">https://docs.postgresql.fr/13/sql-createfunction.html</a></p><p>De plus, vous avez mal copié mon RAISE NOTICE <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>Et tant que j&#039;y suis, la doc sur PL/pgsql : <a href="https://docs.postgresql.fr/13/plpgsql.html" rel="nofollow">https://docs.postgresql.fr/13/plpgsql.html</a></p></div></blockquote></div><p>Merci pour la doc.<br />Après avoir consulté la doc, normalement, ma fonction doit être OK.</p><div class="codebox"><pre><code>CREATE FUNCTION log_notice(text) AS $$;
+DECLARE
+    user ALIAS FOR $1;
+BEGIN
+    RAISE NOTICE &#039;creation user % done!&#039;, user;
+END;
+$$</code></pre></div><p>Par contre, pour l&#039;appel, j&#039;ai suivi <a href="https://docs.postgresql.fr/9.3/sql-syntax-calling-funcs.html" rel="nofollow">https://docs.postgresql.fr/9.3/sql-synt … funcs.html</a> et j&#039;ai donc mis cela :</p><div class="codebox"><pre><code>SELECT log_notice(&#039;:p1&#039;);</code></pre></div><p>Toujours une erreur :</p><div class="codebox"><pre><code>psql:test.sql:9: ERROR:  syntax error at or near &quot;SELECT&quot;
+LINE 8: SELECT log_notice(&#039;:p1&#039;);
+        ^</code></pre></div><p>Bref, pour un simple message d&#039;information.... pas évident.</p>]]></content>
+		<author>
+			<name><![CDATA[Christof25]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8696</uri>
+		</author>
+		<updated>2021-02-01T16:05:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31932#p31932</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Sql avec paramètres et condition IF]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31930#p31930"/>
+		<content type="html"><![CDATA[<p>Votre CREATE FUNCTION ne respecte pas la syntaxe. La doc sur CREATE FUNCTION se trouve sur <a href="https://docs.postgresql.fr/13/sql-createfunction.html" rel="nofollow">https://docs.postgresql.fr/13/sql-createfunction.html</a></p><p>De plus, vous avez mal copié mon RAISE NOTICE <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>Et tant que j&#039;y suis, la doc sur PL/pgsql : <a href="https://docs.postgresql.fr/13/plpgsql.html" rel="nofollow">https://docs.postgresql.fr/13/plpgsql.html</a></p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2021-02-01T14:41:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31930#p31930</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Sql avec paramètres et condition IF]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31929#p31929"/>
+		<content type="html"><![CDATA[<p>ok, mais ça coince encore. Pas évident ce langage....</p><div class="codebox"><pre><code>CREATE FUNCTION log_notice(text)
+DECLARE
+    user ALIAS FOR $1;
+BEGIN
+    raise notice &#039;creation user % done!&#039;;
+END;
+
+
+SELECT COUNT(*) = 0 AS user_not_exist FROM pg_roles WHERE rolname = :&#039;p1&#039; \gset
+
+\if :user_not_exist
+
+SELECT CASE
+    WHEN :&#039;p3&#039; = &#039;indus&#039; THEN &#039;roleadmin&#039;
+    ELSE &#039;roleread&#039;
+END AS profil
+\gset
+CREATE USER :p1 password :&#039;p2&#039; NOCREATEDB IN GROUP :&quot;profil&quot;;
+do $$
+BEGIN
+   log_notice :p1
+END $$;
+\endif</code></pre></div><p>Ca plante...</p><div class="codebox"><pre><code>psql -U $USER-d $BASE -f CreateUser.sql -v p1=&quot;tintin&quot; -v p2=&quot;xxxxx&quot; -v p3=&quot;indus&quot;
+psql:createUser.sql:3: ERROR:  syntax error at or near &quot;DECLARE&quot;
+LINE 2: DECLARE
+        ^
+psql:createUser.sql:5: ERROR:  syntax error at or near &quot;raise&quot;
+LINE 2:     raise notice &#039;creation user % done!&#039;;
+            ^
+psql:createUser.sql:6: WARNING:  there is no transaction in progress
+COMMIT</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[Christof25]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8696</uri>
+		</author>
+		<updated>2021-02-01T14:11:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31929#p31929</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Sql avec paramètres et condition IF]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31928#p31928"/>
+		<content type="html"><![CDATA[<p>Non, les variables PL/psql ne fonctionnent pas de la même façon que les variables psql.</p><p>Il faudrait certainement faire un :</p><div class="codebox"><pre><code>RAISE NOTICE &#039;creation user % done!&#039;, user;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2021-02-01T13:31:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31928#p31928</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Sql avec paramètres et condition IF]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31927#p31927"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>rjuju a écrit&#160;:</cite><blockquote><div><p>Le paramètre ne sera pas pris en compte dans le bloc de code, ce qui est votre problème original.&#160; Le seul moyen d&#039;y avoir accès serait de créer une vraie fonction, par exemple log_notice(text) que vous appelleriez en passant votre paramètre.</p></div></blockquote></div><p>Du genre? :</p><div class="codebox"><pre><code>CREATE FUNCTION log_notice(text)
+DECLARE
+    user ALIAS FOR $1;
+BEGIN
+    raise notice &#039;creation user :user done!&#039;;
+END;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[Christof25]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8696</uri>
+		</author>
+		<updated>2021-02-01T12:55:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31927#p31927</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Sql avec paramètres et condition IF]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31925#p31925"/>
+		<content type="html"><![CDATA[<p>Le paramètre ne sera pas pris en compte dans le bloc de code, ce qui est votre problème original.&#160; Le seul moyen d&#039;y avoir accès serait de créer une vraie fonction, par exemple log_notice(text) que vous appelleriez en passant votre paramètre.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2021-02-01T10:49:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31925#p31925</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Sql avec paramètres et condition IF]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31924#p31924"/>
+		<content type="html"><![CDATA[<div class="quotebox"><cite>gleu a écrit&#160;:</cite><blockquote><div><p>RAISE NOTICE ne fonctionne que dans une routine PL/pgsql.</p></div></blockquote></div><p>Merci.<br />Du coup, j&#039;ai ajouté cela :</p><div class="codebox"><pre><code>CREATE USER :p1 password :&#039;p2&#039; NOCREATEDB IN GROUP :&quot;profil&quot;;
+do $$
+BEGIN
+raise notice &#039;creation user :p1 done!&#039;;
+END $$;</code></pre></div><p>Ca marche mieux mais mon paramètre n&#039;est pas valorisé...<br />Il doit manquer une ligne de code...</p><div class="codebox"><pre><code>CREATE ROLE
+psql:createUser.sql:14: NOTICE:  creation user :p1 done!
+DO</code></pre></div><br /><p>une idée?</p>]]></content>
+		<author>
+			<name><![CDATA[Christof25]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8696</uri>
+		</author>
+		<updated>2021-02-01T10:26:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31924#p31924</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Sql avec paramètres et condition IF]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31923#p31923"/>
+		<content type="html"><![CDATA[<p>RAISE NOTICE ne fonctionne que dans une routine PL/pgsql.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2021-02-01T09:17:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31923#p31923</id>
+	</entry>
+</feed>

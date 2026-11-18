@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Migration]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=6364&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=6364"/>
+	<updated>2022-10-06T08:12:03Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=6364</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Migration]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33773#p33773"/>
+		<content type="html"><![CDATA[<p>Malheureusement, &quot;schéma utilisateur en cours&quot; n&#039;a pas vraiment de signification pour postgres donc je ne sais toujours pas ce que vous cherchez à faire.</p><br /><p>pg_depend ne retourne que des identifiants effectivement, mais vous pouvez soit utiliser pg_describe_object (https://www.postgresql.org/docs/current/functions-info.html ) soit joindre pg_depend aux catalogues voulus pour retrouver le nom correspondant.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2022-10-06T08:12:03Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33773#p33773</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Migration]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33772#p33772"/>
+		<content type="html"><![CDATA[<p>Oui j&#039;avais trouver le pg_depend mais il ne décrit pas les relations entre les objets dans le schéma d&#039;utilisateur en cours et c&#039;est ça que j&#039;essaie de retourner car : </p><p>Sous Oracle : USER_DEPENDENCIES décrit les dépendances entre les objets dans le schéma utilisateur courant. </p><p>Hors sous Postgre : Pg_Depend&#160; &#160;ne retour que les id</p>]]></content>
+		<author>
+			<name><![CDATA[Yas]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=10626</uri>
+		</author>
+		<updated>2022-10-06T08:01:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33772#p33772</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Migration]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33771#p33771"/>
+		<content type="html"><![CDATA[<p>USER_DEPENDENCIES est apparemment un catalogue spécifique à oracle.&#160; D&#039;après <a href="https://docs.oracle.com/en/database/oracle/oracle-database/12.2/refrn/USER_DEPENDENCIES.html#GUID-9289F1EB-D658-4C12-A986-D42A2F4334F6" rel="nofollow">https://docs.oracle.com/en/database/ora … 2A2F4334F6</a></p><div class="quotebox"><blockquote><div><p>USER_DEPENDENCIES describes dependencies between procedures, packages, functions, package bodies, and triggers owned by the current user, including dependencies on views created without any database links</p></div></blockquote></div><br /><p>J&#039;imagine que l&#039;équivalent sur postgres serait pg_depend : <a href="https://www.postgresql.org/docs/current/catalog-pg-depend.html" rel="nofollow">https://www.postgresql.org/docs/current … epend.html</a></p><br /><p>Quelle information cherchez-vous à récupérer exactement ?</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2022-10-06T03:24:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33771#p33771</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Migration]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33770#p33770"/>
+		<content type="html"><![CDATA[<p>Je vous remercie pour votre réponse. </p><p>Mais la requête que j&#039;ai utilisé sur postgre ne contient pas de Connect BY</p><p>SELECT DISTINCT MAX(LEVEL) AS LVL, DEP.NAME, DEP.TYPE FROM USER_DEPENDENCIES DEP Where NAME = REFERENCED_NAME<br />AND TYPE = REFERENCED_TYPE AND REFERENCED_TYPE = &#039;SEQUENCE&#039;</p><p>Et il ne reconnait pas USER_DEPENDECIES !!</p>]]></content>
+		<author>
+			<name><![CDATA[Yas]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=10626</uri>
+		</author>
+		<updated>2022-10-05T21:56:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33770#p33770</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Migration]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33769#p33769"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>la syntaxe CONNECT BY n&#039;est pas reconnue sous postgres.&#160; Il faut utiliser la syntaxe de CTE récursive, voir <a href="https://www.postgresql.org/docs/14/queries-with.html#QUERIES-WITH-RECURSIVE" rel="nofollow">https://www.postgresql.org/docs/14/quer … -RECURSIVE</a>.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2022-10-05T14:07:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33769#p33769</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Migration]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33768#p33768"/>
+		<content type="html"><![CDATA[<p>Bonjour je suis en train de faire la migration de Oracle 11g&#160; vers PostgrSql 14, il y a des requête qui ne marche pas vu la syntaxe est différentes entre les SGBD.</p><p>Ma requête sur oracle est la suivante : </p><p>SELECT DISTINCT MAX(LEVEL) AS LVL, DEP.NAME, DEP.TYPE FROM USER_DEPENDENCIES DEP&#160; CONNECT BY NOCYCLE PRIOR NAME = REFERENCED_NAME <br />AND PRIOR TYPE = REFERENCED_TYPE START WITH REFERENCED_TYPE = &#039;SEQUENCE&#039; <br />AND REFERENCED_NAME IN (&#039;SEQ_ID_HABILITATION&#039;) GROUP BY DEP.NAME, DEP.TYPE ORDER BY MAX(LEVEL) ASC;</p><p>Sous Postgre j&#039;ai essayé cette requête : </p><p>SELECT DISTINCT MAX(LEVEL) AS LVL, DEP.NAME, DEP.TYPE FROM USER_DEPENDENCIES DEP Where NAME = REFERENCED_NAME <br />AND TYPE = REFERENCED_TYPE AND REFERENCED_TYPE = &#039;SEQUENCE&#039;</p><p>cela ne fonctionne pas car dans le message d&#039;erreur il ne reconnait pas &quot; USER_DEPENDENCIES&quot;</p><p>Merci pour vos réponses .</p>]]></content>
+		<author>
+			<name><![CDATA[Yas]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=10626</uri>
+		</author>
+		<updated>2022-10-05T12:39:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33768#p33768</id>
+	</entry>
+</feed>

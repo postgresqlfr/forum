@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Requête avec tableau]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3716&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3716"/>
+	<updated>2015-12-14T14:24:57Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3716</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête avec tableau]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22807#p22807"/>
+		<content type="html"><![CDATA[<p>Bon bah du coup un gros GG à edlm qui m&#039;a bien aidé sur coup là!</p>]]></content>
+		<author>
+			<name><![CDATA[Papychampi]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5287</uri>
+		</author>
+		<updated>2015-12-14T14:24:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22807#p22807</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête avec tableau]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22806#p22806"/>
+		<content type="html"><![CDATA[<div class="codebox"><pre><code>SELECT family AS _family FROM product_types WHERE ptypeid = _ptypeid[j];  -- CETTE LIGNE LA BUG</code></pre></div><p>L&#039;errreur est claire: il manque une destination, c&#039;est à dire une variable dans laquelle mettre le résultat de la requête:</p><br /><div class="codebox"><pre><code>SELECT family AS _family FROM product_types WHERE ptypeid = _ptypeid[j] INTO myvariable;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[edlm]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1635</uri>
+		</author>
+		<updated>2015-12-11T10:41:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22806#p22806</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête avec tableau]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22805#p22805"/>
+		<content type="html"><![CDATA[<p>Ok merci! C&#039;est cool ça marche!</p><p>Seulement j&#039;ai un petit soucis sur une requête qui pourtant me parait basique:</p><div class="codebox"><pre class="vscroll"><code>DECLARE
+    i         integer;
+    j         integer;
+    _sorderid     integer;
+    _sdeliveryid     integer;
+    _dddd        integer;
+    _test        integer;
+    _ret         boolean;
+    _hex        text;
+    _family        text;
+    _ptypeidtab    integer[];
+BEGIN
+    /* Création de la commande + Récupère l&#039;identifiant */
+    INSERT INTO supplierorders (orderform, startdate, quantity, supplier) VALUES (_orderform, _stardate, _total, _supplier) RETURNING &quot;sorderid&quot; INTO STRICT _sorderid;
+    FOR j IN 1 .. _cadences LOOP
+
+        /* Vérification du numéro de série */
+        _ret := check_sn(_sn[j]);
+        
+        /* Détermination du numéro d&#039;incrément pour la famille de produit */
+        SELECT family AS _family FROM product_types WHERE ptypeid = _ptypeid[j];                                                                                                                               -- CETTE LIGNE LA BUG
+        SELECT max(x&#039;right( _sn[j], 4)&#039;::integer) AS _dddd FROM product WHERE ptypeid IN (SELECT ptypeid AS _ptypeidtab FROM product_types WHERE family = _family) ;
+        /* Si c&#039;est le premier produit on commence la numérotation à 1 */
+        IF (_dddd IS NULL)
+        THEN
+            _dddd = 0;
+        END IF;
+        
+        /* Création de la cadence + Récupère l&#039;identifiant */
+        INSERT INTO supplierdeliveries (sorderid, ptypeid, batch, quantity) VALUES (_sorderid, _ptypeid[j]::integer, _batch[j]::integer, _quantity[j]::integer) RETURNING &quot;sdeliveryid&quot; INTO STRICT _sdeliveryid;
+
+        /* Création des produits liés à la cadence */
+        FOR i IN 1 .. _quantity[j] LOOP
+            _hex = right(&#039;0000&#039; || int_to_hex(_dddd + i),4);
+            _sn[j] := left(_sn[j], -4) || UPPER(_hex);
+            
+            /* Insertion */
+            INSERT INTO product (sdeliveryid, ptypeid, sn, status, date) VALUES (_sdeliveryid, _ptypeid[j]::integer, _sn[j]::text, &#039;Ordered&#039;, _stardate);
+        END LOOP;
+    END LOOP;
+END;</code></pre></div><p>Avec ce code d&#039;erreur...</p><div class="codebox"><pre><code>la requête n&#039;a pas de destination pour les données résultantes</code></pre></div><p>Mais ce que je comprend pas c&#039;est que quand je le fait à la main ça marche donc je pense que ce n&#039;est qu&#039;une question d&#039;indice... Les tableaux commencent à partir de 1 ou 0 en postgresql?</p>]]></content>
+		<author>
+			<name><![CDATA[Papychampi]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5287</uri>
+		</author>
+		<updated>2015-12-11T09:48:33Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22805#p22805</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête avec tableau]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22804#p22804"/>
+		<content type="html"><![CDATA[<p>Merci.</p><br /><p>Donc la requête:</p><div class="codebox"><pre><code>SELECT ptypeid AS _ptypeidtab FROM product_types WHERE family = _family;                                     // retourne un tableau</code></pre></div><p>ne retourne pas un tableau contrairement au commentaire indiqué mais un ensemble de lignes de type entier (integer).</p><br /><p>Et la requête qui doit extraire les lignes de la table products ne serait plus:</p><div class="codebox"><pre><code>SELECT max(x&#039;right( sn, 4)&#039;::integer) AS _dddd FROM products WHERE ptypeid = _ptypeidtab;              // Doit faire une requête avec tout le contenu du tableau</code></pre></div><p>mais plutôt:</p><div class="codebox"><pre><code>SELECT max(x&#039;right( sn, 4)&#039;::integer) AS _dddd FROM products WHERE ptypeid IN (SELECT ptypeid AS _ptypeidtab FROM product_types WHERE family = _family) ; </code></pre></div><br /><p>Quoi que le &#039;x&#039; dans max(x&#039;right... doit être plutôt perturbant ;-)</p><br /><p>Voir même plus simple en fonction de la définition de la table products.</p><br /><p>Sinon sur le principe, et dans la mesure où ptypeid est automatiquement alimenté par la clause &quot;DEFAULT nextval...&quot; pourquoi voulez vous calculer vous même cet entier alors que la base va le créer automatiquement ? Mais bon peut être n&#039;ai je pas tout compris ou il y a des choses qui m&#039;échappent...</p>]]></content>
+		<author>
+			<name><![CDATA[edlm]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1635</uri>
+		</author>
+		<updated>2015-12-11T09:18:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22804#p22804</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête avec tableau]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22803#p22803"/>
+		<content type="html"><![CDATA[<p>Bien sûr:</p><div class="codebox"><pre><code>CREATE TABLE product_types
+(
+  ptypeid integer NOT NULL DEFAULT nextval(&#039;&quot;Product_Types_PTypeId_seq&quot;&#039;::regclass),
+  family text,
+  name text,
+  fab text,
+  version text,
+  subversion text,
+  pn text,
+  description text,
+  CONSTRAINT &quot;PK_Product_Type&quot; PRIMARY KEY (ptypeid)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE product_types
+  OWNER TO postgres;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[Papychampi]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5287</uri>
+		</author>
+		<updated>2015-12-11T08:38:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22803#p22803</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête avec tableau]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22802#p22802"/>
+		<content type="html"><![CDATA[<p>Merci pour ces précisions qui permettent de mieux comprendre ce que vous voulez faire mais il manque encore un élément essentiel à savoir la définition exacte de la table product_types.</p><br /><p>Est-il possible d&#039;avoir la requête SQL CREATE TABLE concernant cette fameuse table product_types au au minimum les types de chaque colonne ? Ou le résultat sous psql de \d product_types ?</p>]]></content>
+		<author>
+			<name><![CDATA[edlm]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1635</uri>
+		</author>
+		<updated>2015-12-11T08:35:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22802#p22802</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête avec tableau]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22801#p22801"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je fais des procédures stockées qui sont censée créer des commandes... Seulement les numéros de séries des produits doivent être incrémenté de la manière suivante:</p><div class="codebox"><pre><code>XXXXXXXXXXXXX_0001
+XXXXXXXXXXXXX_0002
+XXXXXXXXXXXXX_0003
+XXXXXXXXXXXXX_0004
+XXXXXXXXXXXXX_0005
+XXXXXXXXXXXXX_0006
+XXXXXXXXXXXXX_0007
+XXXXXXXXXXXXX_0008
+XXXXXXXXXXXXX_0009
+XXXXXXXXXXXXX_000A
+XXXXXXXXXXXXX_000B
+XXXXXXXXXXXXX_000C
+XXXXXXXXXXXXX_000D
+XXXXXXXXXXXXX_000E
+XXXXXXXXXXXXX_000F
+XXXXXXXXXXXXX_0010</code></pre></div><p>Pour cela j&#039;utilise:</p><div class="codebox"><pre><code>max(x&#039;right( sn, 4)&#039;::integer)</code></pre></div><p>qui récupère les 4 derniers caractères du dernier numéro de série rentré par l&#039;utilisateur<br />Voici la définition de la table product_types:</p><div class="codebox"><pre><code>PK           PTypeId          Clé primaire
+               Family            Famille principale du produit (US-CORE, US-ICC, US-RACK, US-8I-RJ)
+               Name             Désignation commerciale (US-COREV3, US-ICC2)
+               Fab                Type de fabrication (FAB_A, FAB_B,...)
+               Version          Version majeure du produit
+               SubVersion     Version additionnelle du produit
+               PN                 Part Number associé à l’état matériel du Produit (ne prend pas en compte des personnalisations logicielles comme l’ajout de licences)
+               Description     Description du produit</code></pre></div><p>Le truc étant que le numéro de série doit augmenter selon le dernier de la famille et pour une famille je peux avoir plusieurs PTypeId. Du coup, je suis obligé de faire un</p><div class="codebox"><pre><code>SELECT family AS _family FROM product_types WHERE ptypeid = _ptypeid;  </code></pre></div><p>Qui me récupère la famille pour un type de produit et ensuite faire un:</p><div class="codebox"><pre><code>SELECT ptypeid AS _ptypeidtab FROM product_types WHERE family = _family;</code></pre></div><p>qui me récupère tout les PTypeId qui ont cette famille...</p><p>et à partir de là je dois récupérer le plus haut incrément que je concatène au reste du numéro de série...</p><p>Je sais pas si je suis précis en fait...</p><p>En tous cas merci de m&#039;aider!</p>]]></content>
+		<author>
+			<name><![CDATA[Papychampi]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5287</uri>
+		</author>
+		<updated>2015-12-11T08:27:40Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22801#p22801</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête avec tableau]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22800#p22800"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><p>est-il possible d&#039;avoir la définition de la table product_types ou au minimum de la colonne ptypeid ?</p><br /><p>Que fait exactement:</p><div class="codebox"><pre><code>max(x&#039;right( sn, 4)&#039;::integer)</code></pre></div><p> ?</p><p>Pouvez vous expliquer ce que vous cherchez à faire d&#039;un point de vue logique ? Dans le style &quot;Je voudrais extraire le maximum des 4 1ers caractères convertis en nombre de...&quot;.</p><br /><p>Tout cela permettrait de comprendre le but de l&#039;opération et sur quelle structure de données s&#039;appuie les requêtes.</p>]]></content>
+		<author>
+			<name><![CDATA[edlm]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1635</uri>
+		</author>
+		<updated>2015-12-11T07:36:02Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22800#p22800</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête avec tableau]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22799#p22799"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Je vais essayer d&#039;être plus précis...</p><p>J&#039;ai une première requête qui me retourne un tableau contenant plusieurs id... et je dois faire une requête en faisant un WHERE id = {Le contenu de TOUT le tableau}</p><p>Je sais pas si c&#039;est plus précis... Par l&#039;exemple ce sera plus précis:</p><div class="codebox"><pre><code>SELECT family AS _family FROM product_types WHERE ptypeid = _ptypeid;                                         // retourne une chaine
+SELECT ptypeid AS _ptypeidtab FROM product_types WHERE family = _family;                                     // retourne un tableau
+SELECT max(x&#039;right( sn, 4)&#039;::integer) AS _dddd FROM products WHERE ptypeid = _ptypeidtab;              // Doit faire une requête avec tout le contenu du tableau</code></pre></div><p>PS: C&#039;est dans une fonction PGSQL mais la question est plus d&#039;ordre général que d&#039;ordre de PGSQL</p><p>Cordialement,</p>]]></content>
+		<author>
+			<name><![CDATA[Papychampi]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5287</uri>
+		</author>
+		<updated>2015-12-10T08:19:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22799#p22799</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête avec tableau]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22797#p22797"/>
+		<content type="html"><![CDATA[<p>Euh oui ou non. C&#039;est tellement vague comme question que je ne vois pas qui pourrait répondre quelque chose de plus précis <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2015-12-09T23:43:52Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22797#p22797</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Requête avec tableau]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22792#p22792"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous,</p><p>Je souhaite faire une requête avec un tableau... En fait je dois faire une requête avec toutes les données stockées dans les colonnes de ce tableau... Je voudrais savoir si c&#039;est possible et si oui de quelle manière?</p><p>Cordialement,</p><p>Papychampi</p>]]></content>
+		<author>
+			<name><![CDATA[Papychampi]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5287</uri>
+		</author>
+		<updated>2015-12-09T14:10:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22792#p22792</id>
+	</entry>
+</feed>

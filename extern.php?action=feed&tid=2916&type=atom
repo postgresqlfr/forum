@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Schéma bizarre de la BDD => récupération des tables impossible]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2916&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2916"/>
+	<updated>2013-12-18T22:55:39Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2916</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Schéma bizarre de la BDD => récupération des tables impossible]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18835#p18835"/>
+		<content type="html"><![CDATA[<p>Je ne connais pas assez java pour savoir comment se comporte cette fonction avec d&#039;autres moteurs, mais cela devrait être similaires sur la majorité d&#039;entre eux. En effet, toutes les informations que doit stocker le moteur (liste des tables, liste des colonnes etc) le sont sous forme de tables. Avec postgres, tout ceci est stocké dans le schéma «pg_catalog» (avec les mêmes informations de manière plus normalisées dans le schéma «information_schema».</p><p>En forçant la recherche des tables dans le schéma public, vous n&#039;avez plus que vos propres tables. Par contre, si vous stockez des tables dans d&#039;autres schémas, il faudra exécuter la fonction sur chacun de vos schémas.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2013-12-18T22:55:39Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18835#p18835</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Schéma bizarre de la BDD => récupération des tables impossible]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18834#p18834"/>
+		<content type="html"><![CDATA[<p>Bonsoir.</p><p>... et ça marche ! Avec cette ligne : res = md.getTables(null,&#160; &quot;public&quot;,&#160; &quot;%&quot;,&#160; new String[] {&quot;TABLE&quot;});</p><p>J&#039;ai une petite question supplémentaire, le &quot;public&quot; est spécifique à quoi ? phpPgAdmin ? Wamp ? Ou carrément PostgreSQL (ça m&#039;étonnerait) ? Simplement pour savoir si ça fonctionnera sur la base de données de mon prof <img src="http://forums.postgresql.fr/img/smilies/tongue.png" width="15" height="15" alt="tongue" /></p><p>En tout cas, merci pour cette réponse rapide et efficace !</p>]]></content>
+		<author>
+			<name><![CDATA[azn0viet]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2954</uri>
+		</author>
+		<updated>2013-12-18T22:37:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18834#p18834</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Schéma bizarre de la BDD => récupération des tables impossible]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18833#p18833"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>vous devriez essayer en spécifiant le schéma «public» (2ème argument de getTables() ) plutôt que tous les schémas.</p><p>J&#039;ai également déplacé le sujet dans la partie Java du forum, plus approprié pour cette question.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2013-12-18T22:26:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18833#p18833</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Schéma bizarre de la BDD => récupération des tables impossible]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=18832#p18832"/>
+		<content type="html"><![CDATA[<p>Bonsoir !</p><p>Je suis actuellement étudiant en informatique et pour le besoin d&#039;un projet, je me dois de configurer une base PostgreSQL en local. J&#039;ai choisi de le faire avec phpPgAdmin sous Wamp, mais le problème est que l&#039;arborescence de la BDD est bizarre, ce qui fait que je n&#039;arrive pas à récupérer les tables de la base.</p><p>Voici la structure de la base T3 sous pgAdmin III : <a href="https://dl.dropboxusercontent.com/u/61641764/Cours/structure_postgre.png" rel="nofollow">https://dl.dropboxusercontent.com/u/616 … ostgre.png</a></p><p>En rouge : les tables récupérées mais que je ne veux pas<br />En vert : les 2 tables que je souhaite récupérer </p><p>Voici la partie du code concerné (en JAVA) : </p><div class="codebox"><pre class="vscroll"><code>try {
+	Class.forName(&quot;org.postgresql.Driver&quot;);
+
+	try {
+		Connection c = DriverManager.getConnection(&quot;jdbc:postgresql://localhost:5432/T3&quot;,&quot;postgres&quot;, &quot;root&quot;);
+		
+		DatabaseMetaData md = null;
+		ResultSet res;
+		
+		
+		// Initialisation de la variable de méta données
+		try {
+			md = c.getMetaData();
+		} catch (SQLException e1) {
+			e1.printStackTrace();
+		}
+		
+		try {
+			res = md.getTables(null,  null,  &quot;%&quot;,  null);
+			while (res.next()) {
+                                System.out.println(res.getString(&quot;TABLE_NAME&quot;);
+			}
+		}catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+	} catch (SQLException e) {
+		e.printStackTrace();
+	}
+} catch (ClassNotFoundException e) {
+	e.printStackTrace();
+}</code></pre></div><p>Quelqu&#039;un aurait une idée ? Merci.</p>]]></content>
+		<author>
+			<name><![CDATA[azn0viet]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2954</uri>
+		</author>
+		<updated>2013-12-18T22:18:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=18832#p18832</id>
+	</entry>
+</feed>

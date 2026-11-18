@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Droits sur tous les schémas d'une base de données]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4925&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4925"/>
+	<updated>2018-10-22T10:06:50Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4925</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Droits sur tous les schémas d'une base de données]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28440#p28440"/>
+		<content type="html"><![CDATA[<p>Bonjour et un grand merci pour votre réponse. J&#039;ai repris tous les tests ce matin et cette fois, ça fonctionne conformément à vos différents messages. Vendredi, j&#039;avais quelque chose de bizarre : l&#039;utilisateur créateur de la table ne pouvait pas accéder à celle-ci en lecture/écriture alors qu&#039;il pouvait modifier sa structure...<br />Bref, j&#039;ai ajouté des &quot;encrypted password&quot; pour assigner un mot de passe à la suite de chaque création de rôle et remplacé la ligne &quot;GRANT USAGE,CREATE ON schema s to u1,u2,u3;&quot; par &quot;GRANT USAGE,CREATE ON schema s to read_only;&quot; et ça fonctionne toujours.<br />Je pense donc que vendredi je me suis embrouillé dans mes tests.<br />Encore merci pour toutes vos explications et votre patience.<br />Philippe NICOLAS</p>]]></content>
+		<author>
+			<name><![CDATA[EPTBSGL]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8273</uri>
+		</author>
+		<updated>2018-10-22T10:06:50Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28440#p28440</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Droits sur tous les schémas d'une base de données]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28436#p28436"/>
+		<content type="html"><![CDATA[<p>L&#039;exécution du script sous psql donne ça, pour la partie qui créé puis utilise des tables:</p><div class="codebox"><pre class="vscroll"><code>tst=&gt; SET ROLE u1;
+SET
+tst=&gt; CREATE TABLE s.test1(txt text);
+CREATE TABLE
+tst=&gt; INSERT INTO s.test1 values(&#039;je suis u1&#039;);
+INSERT 0 1
+tst=&gt; 
+tst=&gt; SET ROLE u2;
+SET
+tst=&gt; SELECT * FROM s.test1;
+    txt     
+------------
+ je suis u1
+(1 row)
+
+tst=&gt; INSERT INTO s.test1 values(&#039;je suis u2 et je ne peux pas écrire dans test1&#039;);
+ERROR:  permission denied for relation test1
+tst=&gt; 
+tst=&gt; SET ROLE u3;
+SET
+tst=&gt; CREATE TABLE s.test3(txt text);
+CREATE TABLE
+tst=&gt; INSERT INTO s.test3 values(&#039;je suis u3 avec ma table s.test3&#039;);
+INSERT 0 1
+tst=&gt; 
+tst=&gt; SET ROLE u1;
+SET
+tst=&gt; SELECT * FROM s.test1;
+    txt     
+------------
+ je suis u1
+(1 row)
+
+tst=&gt; SELECT * FROM s.test3;
+               txt                
+----------------------------------
+ je suis u3 avec ma table s.test3
+(1 row)</code></pre></div><p>L&#039;INSERT qui est rejeté pour cause de pas de permission montre justement que l&#039;utilisateur u2 ne peut<br />pas écrire dans la table qui appartient à u1 (en revanche il peut la lire). C&#039;est celui-là:</p><div class="codebox"><pre><code>tst=&gt; INSERT INTO s.test1 values(&#039;je suis u2 et je ne peux pas écrire dans test1&#039;);
+ERROR:  permission denied for relation test1</code></pre></div><p>Or c&#039;est le comportement voulu&#160; tel que décrit plus haut dans la discussion:</p><div class="quotebox"><blockquote><div><p>Je voudrais que l&#039;utilisateur créateur d&#039;une table ait tous les droits sur celle-ci et uniquement les droits de lecture sur les tables créées par les autres utilisateurs</p></div></blockquote></div><p>&quot;Uniquement les droits de lecture&quot;, ça veut dire qu&#039;une tentative d&#039;écriture doit être rejetée, et c&#039;est bien ce qui se passe.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2018-10-19T17:41:45Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28436#p28436</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Droits sur tous les schémas d'une base de données]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28435#p28435"/>
+		<content type="html"><![CDATA[<p>Si je fais ça, ça ne marche pas car, comme je l&#039;ai constaté, il ne peut pas y avoir plusieurs &quot;cédant&quot; (grantor) pour un même bénéficiaire (grantee - ici le groupe read_only). J&#039;ai donc une erreur &quot;ERROR: ERREUR: droit refusé pour la relation test1 &quot; sur la commande insert. En fait c&#039;est le dernier &quot;Alter default privilege&quot; qui modifie le précédent s&#039;il y a entre les deux 2 grantor ou grantee identiques (on voit ça très bien sur l&#039;interface de pgadmin).<br />J&#039;ai exactement déroulé votre script. Je pense donc que, si vous essayez, vous devriez avoir le même comportement.</p><p>En vous remerciant pour toute l&#039;aide apportée,</p><p>Philippe NICOLAS</p>]]></content>
+		<author>
+			<name><![CDATA[EPTBSGL]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8273</uri>
+		</author>
+		<updated>2018-10-19T15:52:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28435#p28435</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Droits sur tous les schémas d'une base de données]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28432#p28432"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>votre proposition &quot;ALTER DEFAULT PRIVILEGES in SCHEMA nomduschema GRANT SELECT ON TABLES TO read_only&quot; fonctionne pour l&#039;utilisateur courant qui cède le droit (grantor). Du coup quand c&#039;est l&#039;autre utilisateur du schéma qui crée la table le droit select n&#039;est plus affecté;</p></div></blockquote></div><p>Oui mais l&#039;autre utilisateur est courant dans sa session au moment où il créé la table donc je ne comprends pas pourquoi cette opposition entre l&#039;utilisateur courant et l&#039;autre utilisateur poserait problème ici, c&#039;est juste une inversion de point de vue.</p><br /><p>Voici un script d&#039;exemple&#160; exécutable dans une base initialement vide qui illustre ma réponse plus haut. Il y a 3 utilisateurs, un schéma, un rôle read only. Les utilisateurs créent des tables, les autres les lisent mais ne peuvent pas écrire dedans.</p><div class="codebox"><pre class="vscroll"><code>SET ROLE postgres;
+
+CREATE USER u1;
+CREATE USER u2;
+CREATE USER u3;
+CREATE ROLE read_only;
+
+GRANT read_only to u1,u2,u3;
+
+CREATE SCHEMA s;
+GRANT USAGE,CREATE ON schema s to u1,u2,u3;
+
+SET ROLE u1;
+ALTER DEFAULT PRIVILEGES in SCHEMA s GRANT SELECT ON TABLES
+TO read_only;
+
+SET ROLE u2;
+ALTER DEFAULT PRIVILEGES in SCHEMA s GRANT SELECT ON TABLES
+TO read_only;
+
+SET ROLE u3;
+ALTER DEFAULT PRIVILEGES in SCHEMA s GRANT SELECT ON TABLES
+TO read_only;
+
+
+SET ROLE u1;
+CREATE TABLE s.test1(txt text);
+INSERT INTO s.test1 values(&#039;je suis u1&#039;);
+
+SET ROLE u2;
+SELECT * FROM s.test1;
+INSERT INTO s.test1 values(&#039;je suis u2 et je ne peux pas écrire dans test1&#039;);
+
+SET ROLE u3;
+CREATE TABLE s.test3(txt text);
+INSERT INTO s.test3 values(&#039;je suis u3 avec ma table s.test3&#039;);
+
+SET ROLE u1;
+SELECT * FROM s.test1;
+SELECT * FROM s.test3;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2018-10-19T11:58:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28432#p28432</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Droits sur tous les schémas d'une base de données]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28431#p28431"/>
+		<content type="html"><![CDATA[<p>merci pour votre patience. Cette fois, ça fonctionne.<br />Philippe NICOLAS</p>]]></content>
+		<author>
+			<name><![CDATA[EPTBSGL]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8273</uri>
+		</author>
+		<updated>2018-10-19T11:53:29Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28431#p28431</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Droits sur tous les schémas d'une base de données]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28430#p28430"/>
+		<content type="html"><![CDATA[<p>Pour l&#039;erreur de syntaxe, le corps du bloc DO doit être dans une chaîne de caractères. La syntaxe complète copier-collable dans une fenêtre SQL doit être</p><div class="codebox"><pre><code>DO $$
+DECLARE
+  s text;
+BEGIN
+ FOR s IN SELECT schema_name FROM information_schema.schemata
+ LOOP
+   EXECUTE format(&#039;GRANT USAGE ON SCHEMA %I TO sig_bassee&#039;, s);
+ END LOOP;
+END;
+$$ language plpgsql;</code></pre></div><p>sachant que $$ peut être remplacé par $body$ ou $âutrechose$ si le corps du code utilise déjà ce séparateur.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2018-10-19T11:30:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28430#p28430</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Droits sur tous les schémas d'une base de données]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28429#p28429"/>
+		<content type="html"><![CDATA[<p>Pour ma question idiote, j&#039;ai la réponse : j&#039;ai fait un create &quot;create language plpgsql&quot; sur ma base et il me répond &quot;ERROR: ERREUR: le langage « plpgsql » existe déjà&quot;. J&#039;en déduis donc qu&#039;il faut saisir le code dans la fenêtre SQL de pgAdmin 4. Du coup, pourquoi ai-je une erreur de syntaxe sur &quot;DECLARE&quot; ?</p>]]></content>
+		<author>
+			<name><![CDATA[EPTBSGL]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8273</uri>
+		</author>
+		<updated>2018-10-19T10:16:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28429#p28429</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Droits sur tous les schémas d'une base de données]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28428#p28428"/>
+		<content type="html"><![CDATA[<p>Bonjour et encore merci.<br />1 - Je me suis sûrement mal exprimé. En fait, je voudrais que les droits soient affectés automatiquement à la table lors de sa création (je suis d&#039;accord que le créateur de la table a, de base, tous les droits dessus). Avec les privilèges par défaut, ça fonctionne si j&#039;ai 2 utilisateurs : je fais un alter default privileges in schema bassee for role u1 grant select on tables to u2 puis alter default privileges in schema bassee for role u2 grant select on tables to u1. Pour la 1ère ligne le &quot;cédant&quot; (grantor) est u1 et le bénéficiaire du droit select est u2. Donc quand u1 crée une table, il cède le droit select à u2. Pour la 2ème ligne, c&#039;est u2 qui cède le droit select à u1 pour les tables qu&#039;il crée. Le problème, c&#039;est qu&#039;on ne peut pas mettre 2 fois le même bénéficiaire (grantee) ou 2 fois le même &quot;cédant&quot; (grantor) ; donc, à partir de 3 utilisateurs, ça coince. D&#039;autre part si c&#039;est le groupe qui cède les droits, ça ne peut pas fonctionner puisque c&#039;est l&#039;utilisateur qui est propriétaire de sa table et non le groupe.<br />votre proposition &quot;ALTER DEFAULT PRIVILEGES in SCHEMA nomduschema GRANT SELECT ON TABLES TO read_only&quot; fonctionne pour l&#039;utilisateur courant qui cède le droit (grantor). Du coup quand c&#039;est l&#039;autre utilisateur du schéma qui crée la table le droit select n&#039;est plus affecté;<br />Je me casse la tête avec ça depuis plusieurs jours et je crois que je vais finir par faire un schéma dédié à chaque utilisateur... à moins qu&#039;il y ait une solution.</p><p>2 - Question idiote : pour ce qui est du code donnant des droits sur tous les schémas, j&#039;ai le message &quot;erreur de syntaxe sur ou près de « DECLARE »&quot;. En fait j&#039;utilise la fenêtre SQL de pgadmin 4. Sauf que le sql, ce n&#039;est pas du pl/pgsql. Du coup, je cherche à savoir si pl/pgsql est bien implémenté avec ma version de postgresql (9.5) sur centOS 7 mais je n&#039;y arrive pas. Pour utiliser pl/pgsql, il suffit de taper le code dans la fenêtre d&#039;édition SQSL de pgAdmin ? Faut-il écrire un fichier ? Pour info, j&#039;ai accès au serveur et je peux aussi me connecter en ligne de commande.<br />En tous cas, toutes vos indications me permettent de progresser et je vous en remercie</p><br /><p>Philippe NICOLAS</p>]]></content>
+		<author>
+			<name><![CDATA[EPTBSGL]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8273</uri>
+		</author>
+		<updated>2018-10-19T09:01:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28428#p28428</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Droits sur tous les schémas d'une base de données]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28427#p28427"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Je voudrais que l&#039;utilisateur créateur d&#039;une table ait tous les droits sur celle-ci</p></div></blockquote></div><p>C&#039;est le comportement de base, rien de spécial à faire.</p><div class="quotebox"><blockquote><div><p>uniquement les droits de lecture sur les tables créées par les autres utilisateurs</p></div></blockquote></div><p>Le plus simple est de les donner explicitement: après avoir créé une table, un utilisateur doit faire </p><div class="codebox"><pre><code>GRANT SELECT ON nouvelletable TO user_read;</code></pre></div><p>Ou bien il le fait une fois pour toutes, si ça concerne toutes ses créations, avec</p><div class="codebox"><pre><code>ALTER DEFAULT PRIVILEGES in SCHEMA nomduschema GRANT SELECT ON TABLES TO read_only;</code></pre></div><p>Il est aussi possible de passer provisoirement à un autre utilisateur (si on a le droit) en faisant </p><div class="codebox"><pre><code>SET ROLE username;</code></pre></div><p> et </p><div class="codebox"><pre><code>RESET ROLE;</code></pre></div><p> pour revenir à celui du départ, ce qui permet notamment à un superutilisateur de scripter des commandes en lieu et place de l&#039;utilisateur en question.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2018-10-18T11:39:09Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28427#p28427</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Droits sur tous les schémas d'une base de données]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28426#p28426"/>
+		<content type="html"><![CDATA[<p>Il faut boucler sur le résultat d&#039;une requête listant les schémas concernés, et il faut déclarer explicitement une variable pour ça.</p><div class="codebox"><pre><code>DO
+DECLARE
+  s text;
+BEGIN
+ FOR s IN SELECT schema_name FROM information_schema.schemata
+ LOOP
+   EXECUTE format(&#039;GRANT USAGE ON SCHEMA %I TO sig_bassee&#039;, s);
+ END LOOP;
+END;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2018-10-18T11:16:09Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28426#p28426</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Droits sur tous les schémas d'une base de données]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28422#p28422"/>
+		<content type="html"><![CDATA[<p>Encore merci pour votre réponse.<br />J&#039;ai une version 9.5.6 dans laquelle les méta-commandes \gexec et \g n&#039;existent pas. Si j&#039;exécute la commande, j&#039;ai bien une ligne par schéma qui est généré avec tout ce qu&#039;il faut dedans. Par contre, je ne vois pas bien comment je peux écrire ça. Je pensais à (j&#039;ai 17 schémas) :<br />DO<br />FOR i IN 1..17 LOOP<br />EXECUTE SELECT format(&#039;GRANT USAGE ON SCHEMA %I TO sig_bassee&#039;, schema_name) FROM information_schema.schemata<br />END LOOP;<br />A l&#039;exécution j&#039;ai une erreur de syntaxe sur FOR. Je ne comprends pas bien les instruction DO et EXECUTE (j&#039;ai regardé dans la doc mais ce n&#039;est pas très clair pour moi...).</p><p>J&#039;ai une autre question :<br />Le schéma &quot;monschema&quot; est utilisé par user1, user2, ..., ces utilisateurs faisant partie du groupe &quot;user_read&quot; (on peut imaginer de mettre en place d&#039;autres groupes&quot;).<br />Je voudrais que l&#039;utilisateur créateur d&#039;une table ait tous les droits sur celle-ci et uniquement les droits de lecture sur les tables créées par les autres utilisateurs. J&#039;ai essayé de jouer avec les privilège par défaut. Le problème, c&#039;est que celui qui transmet les droits doit être le propriétaire de la table. Hors, comme celui qui doit transmettre les droits doit être le propriétaire de la table, ça ne peut pas être le groupe (puisque le groupe ne peut pas se connecter). Je pensais déclencher une requête lors de la création de table (grant select on all tables in schema monschema to user_read) mais les triggers ne se déclenche que sur des drop, insert, ... mais pas create.<br />Auriez-vous une piste à me donner ?</p><p>En vous remerciant pour toute votre aide,<br />Philippe NICOLAS</p>]]></content>
+		<author>
+			<name><![CDATA[EPTBSGL]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8273</uri>
+		</author>
+		<updated>2018-10-17T14:01:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28422#p28422</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Droits sur tous les schémas d'une base de données]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28414#p28414"/>
+		<content type="html"><![CDATA[<p>Il est assez facile généralement de scripter ces ordres GRANT. Les schémas existants peuvent être listés via la table système&#160; pg_namespace ou la vue information_schema.schemata qui est plus sélective.</p><p>Avec un psql récent (9.6) on peut écrire quelque chose du style:</p><div class="codebox"><pre><code> SELECT format(&#039;GRANT USAGE ON SCHEMA %I TO nom_du_role&#039;, schema_name)
+    FROM information_schema.schemata \gexec</code></pre></div><p>Le SELECT va générer les ordres de GRANT, et \gexec va directement exécuter ces ordres sans qu&#039;il y ait besoin de plus de code.<br />On peut remplacer \gexec&#160; par \g pour voir les requêtes sans les exécuter dans la phase de mise au point.</p><br /><p>Le faire en plpgsql est un peu plus compliqué mais pas bien méchant non plus: dans un bloc DO, un EXECUTE pour chaque GRANT généré à l&#039;intérieur d&#039;un LOOP sur la requête de sélection de schémas.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2018-10-12T14:58:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28414#p28414</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Droits sur tous les schémas d'une base de données]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28413#p28413"/>
+		<content type="html"><![CDATA[<p>Merci pour votre réponse rapides. J&#039;avais effectivement déjà vu les privilèges par défaut mais dans ce cas précis, je cherche à affecter le même droit à tous les schémas déjà créés. Idem pour les tables. Pour avancer, j&#039;ai mis les droits un à un sur toutes les tables de chaque schéma. ça va bien parce que je n&#039;ai que 14 schémas (+ public) mais qu&#039;en serait-il si j&#039;avais un plus grand nombre de schémas ?<br />Peut-être faut-il écrire un script qui parcours systématiquement tous les schémas, créer une variable indexée (dans le code sql) et attribuer les droits ?</p>]]></content>
+		<author>
+			<name><![CDATA[EPTBSGL]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8273</uri>
+		</author>
+		<updated>2018-10-12T14:33:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28413#p28413</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Droits sur tous les schémas d'une base de données]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28411#p28411"/>
+		<content type="html"><![CDATA[<p>Pour 1), si c&#039;est pour de futures créations, à partir de la version 10 on peut faire:</p><div class="codebox"><pre><code>ALTER DEFAULT PRIVILEGES GRANT usage ON schemas TO nom_du_role;</code></pre></div><p>Pour 2) on peut faire, sur toutes versions il me semble:</p><div class="codebox"><pre><code>ALTER DEFAULT PRIVILEGES GRANT ... ON tables TO nom_du_role;</code></pre></div><p>Si c&#039;est pour des tables pré-existantes je pense qu&#039;il faut faire pour chaque schéma:</p><div class="codebox"><pre><code>GRANT ... ON ALL TABLES IN SCHEMA nom_schema TO nom_du_role;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2018-10-12T12:01:55Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28411#p28411</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Droits sur tous les schémas d'une base de données]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28410#p28410"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>1 - Je souhaite affecter le même droit à un groupe sur tous les schémas (par exemple Usage) d&#039;une base de données. Y a-t-il un moyen de faire cela ? J&#039;ai vu que l&#039;on pouvait le faire sur toutes les tables d&#039;un schéma (par exemple avec le droit read) mais je n&#039;ai pas trouvé pour les schémas.<br />2 - Y a-t-il moyen d&#039;affecter un ou plusieurs droit(s) à toutes les tables de tous les schémas ?</p><p>En vous remerciant d&#039;avance pour vos réponse,</p><p>Philippe NICOLAS</p>]]></content>
+		<author>
+			<name><![CDATA[EPTBSGL]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8273</uri>
+		</author>
+		<updated>2018-10-12T07:42:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28410#p28410</id>
+	</entry>
+</feed>

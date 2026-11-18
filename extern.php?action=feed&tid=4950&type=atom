@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Se prémunir des injections SQL]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4950&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4950"/>
+	<updated>2018-11-14T16:59:01Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4950</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Se prémunir des injections SQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28551#p28551"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><p>Histoire de &quot;terminer&quot; ce Post et au cas où quelqu&#039;un chercherait la même chose, voilà la procédure que j&#039;ai créé sous Windev pour réaliser la fonction de doubler les quote automatiquement.<br />J&#039;en ai profité pour supprimer les quotes multiples, afin de ne pas les doubler inutilement.</p><div class="codebox"><pre class="vscroll"><code>PROCEDURE Quote(sValeur est une chaîne)
+i,j sont des entiers 
+i = 1
+sChaineEntree, sChaineSortie sont des chaînes
+sChaineEntree = sValeur
+TANTQUE i &lt;= Taille(sChaineEntree)
+	SI sChaineEntree[[i]] = &quot;&#039;&quot; ALORS 				// si le caractère n&#039;est pas un quote, on passe
+		j = i + 1
+		SI sChaineEntree[[j]] = &quot;&quot; ALORS			// si le caractère suivant est vide, c&#039;est qu&#039;on arrive à la fin de la chaine
+			sChaineSortie += sChaineEntree[[i]] 	        // on complète celle-ci
+			GOTO suite					// et on passe à la phase de doublement des quote
+		FIN
+		TANTQUE j &lt;= Taille(sChaineEntree)			// par contre, si le caractère suivant n&#039;est pas vide
+			SI sChaineEntree[[i]] = sChaineEntree[[j]] ALORS	// on vérifie que ce n&#039;est pas un quote aussi
+				j++						// dans l&#039;affirmative, on passe au caractère suivant
+			SINON						// sinon le quote est unique
+				sChaineSortie += sChaineEntree[[i]]		// il est donc mis dans la chaine de sortie
+				i=j						// et on passe au caractère suivant
+				SORTIR						// (on passe directement au caractère non quote suivant)
+			FIN
+			SI j &gt; Taille(sChaineEntree) ALORS		// on vérifie si on est à la fin de la chaine
+				sChaineSortie += sChaineEntree[[i]] 	// si oui,on complète celle-ci
+				GOTO suite				// et on passe à la phase de doublement des quote
+			FIN
+		FIN
+	SINON								// le caractère n&#039;est pas un quote (voir + haut)
+		sChaineSortie += sChaineEntree[[i]]			// il est donc inscrit dans la chaine de sortie
+		i++
+	FIN
+FIN
+
+suite:
+// Doublement des quote restantes pour qu&#039;elles soient prises en compte comme caractère (et non comme fin de chaine)
+sChaineSortie = Remplace(sChaineSortie,&quot;&#039;&quot;,&quot;&#039;&#039;&quot;)
+
+RENVOYER sChaineSortie</code></pre></div><p>Évidemment, n&#039;étant pas codeur professionnel, il y a sasns doute mieux à faire mais j&#039;assume <img src="http://forums.postgresql.fr/img/smilies/big_smile.png" width="15" height="15" alt="big_smile" /></p><br /><p>Merci à tous de votre aide!<br />Bonne soirée.</p>]]></content>
+		<author>
+			<name><![CDATA[ramirez22]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8315</uri>
+		</author>
+		<updated>2018-11-14T16:59:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28551#p28551</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Se prémunir des injections SQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28510#p28510"/>
+		<content type="html"><![CDATA[<p>Merci de votre aide à tous.</p><div class="quotebox"><cite>gleu a écrit&#160;:</cite><blockquote><div><p>Il faut faire un appel à quote_literal dans ce cas. Cela donnerait :</p><div class="quotebox"><blockquote><div><p>EXECUTE recherche(quote_literal(maVariableContenantLaSaisieUtilisateur));</p></div></blockquote></div><p>(ce qui peut aussi se faire directement sur la première requête, sans passer par un PREPARE)</p></div></blockquote></div><p>J&#039;y ai vraiment cru <img src="http://forums.postgresql.fr/img/smilies/big_smile.png" width="15" height="15" alt="big_smile" /></p><br /><p>Hélas, lorsque je fais, par exemple :</p><div class="codebox"><pre><code>EXECUTE recherche(quote_literal(maVariable));</code></pre></div><p>Si je mets maVariable = bla</p><p>Je me retrouve avec une erreur car maVariable est remplacée par la valeur (normal) sans quote, donc erreur de postgreSQL : column &quot;bla&quot; does not exist at character ...</p><p>Si je mets maVariable = &#039;bla&#039;</p><p>Je me retrouve sans erreur PostgreSQL, mais mes valeurs enregistrées sont fausse : un SELECT me retourne la valeur &#039;bla&#039; (avec les quote).</p><div class="codebox"><pre><code>EXECUTE recherche(quote_literal(&#039;maVariable&#039;));
+
+ou
+
+set mavariable = &#039;bla&#039;     &lt;= (Ce n&#039;est qu&#039;une représentation de l&#039;affectation de mavariable)
+EXECUTE recherche(quote_literal(maVariable));
+
+SELECT * FROM matable
+&#039;bla&#039;</code></pre></div><p>Je pourrais par contre utiliser le $$ (je n&#039;ai pas fait ce test).<br />[EDIT] Je viens de réaliser le test, les $$ sont remplacés par des &#039;&#039; et mes valeurs sont encadrées par un &#039;... Dommage</p><div class="quotebox"><cite>dverite a écrit&#160;:</cite><blockquote><div><p>Si vous ne voulez pas utiliser le système de Windev,</p></div></blockquote></div><p>Exact, je ne veux pas utiliser le moteur HFSQL (système de PCSOFT / WINDEV) : il met des guillemets (&quot;) à chaque terme (les noms de colonnes, les valeurs...), il faut saisir la base de donnée sous l&#039;outil WINDEV (double de boulot) + d&#039;autres joyeusetés de ce genre.<br />Il est très bien quand on reste sous le système HFSQL client/serveur, mais je le trouve peu pratique lorsqu&#039;on le fait causer avec PostgreSQL (certes il est possible de forcer la non correction des requêtes, mais ça commence à faire un peu beaucoup de manip&#039;). De plus, je n&#039;ai pas le choix dans la base de donnée (postgreSQL only dixit ma boite). Enfin, HFSQL a à priori quelques problèmes de sécurité et mon application est &#039;sensible&#039;.</p><br /><p>Je crois que je vais essayer de créer ma propre fonction d&#039;échappement en m&#039;inspirant de PQescapeLiteral(). Ça va demander un peu de boulot, mais je pense que la sécurité des requêtes SQL le vaut bien <img src="http://forums.postgresql.fr/img/smilies/big_smile.png" width="15" height="15" alt="big_smile" /></p><br /><p>Merci de vos interventions, si vous voyez d&#039;autres pistes, je suis toujours curieux <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>Bonne soirée à toutes/tous<br />Ramirez22</p>]]></content>
+		<author>
+			<name><![CDATA[ramirez22]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8315</uri>
+		</author>
+		<updated>2018-11-07T18:19:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28510#p28510</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Se prémunir des injections SQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28509#p28509"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Bref, j&#039;ai vu qu&#039;en fonction de certains langage, il était possible de faire des requêtes paramétrées.</p></div></blockquote></div><p>Dans WinDev aussi visiblement. Si je cherche &quot;windev requêtes sql paramétrées&quot; dans google et le 1er résultat est:<br /><a href="https://doc.pcsoft.fr/?2032050" rel="nofollow">https://doc.pcsoft.fr/?2032050</a></p><p>avec ce style d&#039;exemple:</p><p>SELECT * FROM CLIENT WHERE NOM = {Param1} AND PRENOM = {Param2}</p><p>HExécuteRequête(REQ_Clients_nom_prénom, hRequêteDéfaut, ...<br />&quot;Dupond&quot;, &quot;Jean&quot;)</p><br /><p>Si vous ne voulez pas utiliser le système de Windev, il faut effectivement faire votre propre fonction d&#039;échappement, l&#039;équivalent du PQescapeLiteral () de la bibliothèque libpq (en C), ou du quote_literal() côté serveur.</p><p>Vous avez raison de remarquer que EXECUTE(paramètres) présente exactement&#160; le même risque qu&#039;appeler une requête non préparée avec les mêmes paramètres. L&#039;affirmation que requête préparée = protection contre les injections SQL est une sur-simplification. En réalité, si on utilise mal les requêtes préparées on est tout aussi vulnérable, et à l&#039;inverse si on construit sa requête SQL avec des paramètres injectés mais en respectant à 100% les règles de syntaxe, il y a zéro risque avec les entrées malveillantes.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2018-11-07T15:49:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28509#p28509</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Se prémunir des injections SQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28503#p28503"/>
+		<content type="html"><![CDATA[<p>Il faut faire un appel à quote_literal dans ce cas. Cela donnerait :</p><div class="quotebox"><blockquote><div><p>EXECUTE recherche(quote_literal(maVariableContenantLaSaisieUtilisateur));</p></div></blockquote></div><p>(ce qui peut aussi se faire directement sur la première requête, sans passer par un PREPARE)</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2018-11-07T13:17:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28503#p28503</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Se prémunir des injections SQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28502#p28502"/>
+		<content type="html"><![CDATA[<p>Bonjour et merci de la réponse.</p><br /><p>Malgré tout, n&#039;y a t&#039;il pas possibilité d&#039;injection (sauf erreur d&#039;interprétation de ma part) ?</p><br /><p>Petit exemple simple:</p><div class="codebox"><pre><code>PREPARE recherche(text) AS SELECT * FROM matable WHERE colonne1= $1;</code></pre></div><p>Il n&#039;y a pas de risque pour la préparation puisque aucune valeur saisie par l&#039;utilisateur n&#039;est utilisée</p><div class="codebox"><pre><code>EXECUTE recherche(maVariableContenantLaSaisieUtilisateur);</code></pre></div><p>Si la variable contient : &#039;%&#039;);DELETE FROM matable *; --&#039; n&#039;y a t&#039;il pas de risque que la requête reçue par le serveur corresponde à :</p><div class="codebox"><pre><code>EXECUTE recherche(&#039;%&#039;);DELETE FROM matable *; -- (tout ce qui suit n&#039;a pas d&#039;importance puisque considérée comme commentaire)</code></pre></div><br /><p>Cordialement,<br />Ramirez22</p>]]></content>
+		<author>
+			<name><![CDATA[ramirez22]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8315</uri>
+		</author>
+		<updated>2018-11-07T11:49:23Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28502#p28502</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Se prémunir des injections SQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28499#p28499"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>Jetez un oeil sur le &quot;PREPARE&quot; : <a href="https://docs.postgresql.fr/9.6/sql-prepare.html" rel="nofollow">https://docs.postgresql.fr/9.6/sql-prepare.html</a></p>]]></content>
+		<author>
+			<name><![CDATA[arthurr]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=62</uri>
+		</author>
+		<updated>2018-11-07T08:34:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28499#p28499</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Se prémunir des injections SQL]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28497#p28497"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><p>J&#039;ai bien saisi le risque des injections SQL et évidemment, je voudrais m&#039;en prémunir.<br />J&#039;ai commencé à chercher un peu sur le Net, mais ma &quot;jeunesse&quot; (c&#039;est une notion toute relative <img src="http://forums.postgresql.fr/img/smilies/big_smile.png" width="15" height="15" alt="big_smile" /> ) en SQL me limite.<br />Bref, j&#039;ai vu qu&#039;en fonction de certains langage, il était possible de faire des requêtes paramétrées.</p><br /><p>Pas de bol, je développe sous WINDEV et il semblerait que je ne puisse &quot;que&quot; envoyer des requêtes &quot;classiques&quot;.<br />J&#039;ai tenté de créer des fonctions, mais je suis toujours vulnérable lors du </p><div class="codebox"><pre><code>SELECT * FROM mafonction(valeurs);</code></pre></div><p>puisqu&#039;il suffit de terminer une valeur avec un </p><div class="codebox"><pre><code>&#039;; injection SQL ; --</code></pre></div><p>pour pouvoir prendre le contrôle sur la base.</p><br /><p>J&#039;ai bien 2 pistes pour améliorer la sécurité :<br />1 - faire une analyse de chaque champs de saisie et de transformer les &#039; en &#039;&#039;. Il ne me restera plus qu&#039;à vérifier que le caractère d&#039;échappement \ soit bien inactif (ou alors, le gérer également dans la mise en forme)<br />2 - utiliser les guillemets $$. Sachant que les balises peuvent comporter des valeurs entre les 2 $, cela laisse un sacré nombre de possibilités. D&#039;autant plus qu&#039;il est également envisageable d&#039;utiliser un générateur de nombre aléatoire pour les balises.<br />Exemple : </p><div class="codebox"><pre><code>SELECT * FROM matable WHERE colonne1 = $1234$chaine$1234</code></pre></div><p>Par contre, est-ce qu&#039;en cas d&#039;erreur de requête, le message d&#039;erreur renvoyé indique en clair les balises utilisées ? Du coup, dans ce cas, les $$ perdent toute utilité.<br />3 - Autre solution ?</p><br /><p>Bref, est-ce que vous avez une idée pour m&#039;aider à sécuriser mes requêtes SVP ?</p><br /><p>Merci de votre attention.</p><br /><p>Cordialement, Ramirez22</p>]]></content>
+		<author>
+			<name><![CDATA[ramirez22]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8315</uri>
+		</author>
+		<updated>2018-11-06T15:14:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28497#p28497</id>
+	</entry>
+</feed>

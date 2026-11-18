@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / node pgpool]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2433&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2433"/>
+	<updated>2012-12-18T15:05:24Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2433</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  node pgpool]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16140#p16140"/>
+		<content type="html"><![CDATA[<p>Je ne l&#039;avais pas fait, effectivement <img src="http://forums.postgresql.fr/img/smilies/hmm.png" width="15" height="15" alt="hmm" /> <br />Cela marche beaucoup mieux, pgbenchs a l&#039;appui.</p><p>Merci beaucoup rjuju</p>]]></content>
+		<author>
+			<name><![CDATA[tsn77130]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1906</uri>
+		</author>
+		<updated>2012-12-18T15:05:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16140#p16140</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  node pgpool]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16133#p16133"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>avez-vous configuré master_slave_mode =true et master_slave_sub_mode= &#039;stream&#039; (si vous utilisez la streaming réplication).</p><br /><p>Sinon, pgpool ne fait pas de load balancing en transaction. C&#039;est particulièrement gênant avec jdbc, qui fait des transactions explicites par défaut il me semble (setAutoCommit(true) pour le désactiver).</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2012-12-18T11:57:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16133#p16133</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[node pgpool]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=16132#p16132"/>
+		<content type="html"><![CDATA[<p>salut a tous,</p><p>j&#039;utilise pgpool en tant que pooler de connexion (aucun soucis) , et j&#039;essaie en ce moment de le passer en mode load balancer pour les requetes select.</p><p>J&#039;ai donc activé l&#039;option load_balance_mode = true,<br />et changé le <br />backend_hostname0 = &#039;localhost&#039;<br />backend_port0 = 5432<br />backend_weight0 = 1</p><p>en</p><p>backend_hostname0 = &#039;192.168.1.230&#039;<br />backend_port0 = 5432<br />backend_weight0 = 0.5<br />backend_hostname1 = &#039;192.168.1.231&#039;<br />backend_port1 = 5432<br />backend_weight1 = 0.5</p><p>pour y ajouter mes 2 hotes (localhost est le .230)<br />Le .230 étant le maitre, le .231 l&#039;esclave.</p><p>Mon soucis, c&#039;est que pgpool ne semble pas vouloir prendre les 2 hotes en compte.<br />Mes autorisations sur les serveurs postgres sont OK dans pg_hba.conf ; d&#039;ailleurs si je met seulement l&#039;un des 2 hotes en hostname0, ça fonctionne, les requetes lui sont bien envoyées. (avec pgbench ou via un select manuel par exemple)<br />Des que je met les 2, ca ne prend en compte que le premier que je déclare.</p><p>Pourtant, lorsque le lance pgpool avec l&#039;option de debug, il semble me prendre les 2 nodes</p><p>------<br />2012-12-18 12:12:42 DEBUG: pid 10173: key: backend_hostname0<br />2012-12-18 12:12:42 DEBUG: pid 10173: value: &#039;192.168.1.230&#039; kind: 4<br />2012-12-18 12:12:42 DEBUG: pid 10173: key: backend_port0<br />2012-12-18 12:12:42 DEBUG: pid 10173: value: 5432 kind: 2<br />2012-12-18 12:12:42 DEBUG: pid 10173: pool_config: port slot number 0 <br />2012-12-18 12:12:42 DEBUG: pid 10173: key: backend_weight0<br />2012-12-18 12:12:42 DEBUG: pid 10173: value: 0.5 kind: 3<br />2012-12-18 12:12:42 DEBUG: pid 10173: pool_config: weight slot number 0 weight: 0.500000<br />2012-12-18 12:12:42 DEBUG: pid 10173: key: backend_hostname1<br />2012-12-18 12:12:42 DEBUG: pid 10173: value: &#039;192.168.1.231&#039; kind: 4<br />2012-12-18 12:12:42 DEBUG: pid 10173: key: backend_port1<br />2012-12-18 12:12:42 DEBUG: pid 10173: value: 5432 kind: 2<br />2012-12-18 12:12:42 DEBUG: pid 10173: pool_config: port slot number 1 <br />2012-12-18 12:12:42 DEBUG: pid 10173: key: backend_weight1<br />2012-12-18 12:12:42 DEBUG: pid 10173: value: 0.5 kind: 3<br />2012-12-18 12:12:42 DEBUG: pid 10173: pool_config: weight slot number 1 weight: 0.500000<br />2012-12-18 12:12:42 DEBUG: pid 10173: key: enable_pool_hba<br />2012-12-18 12:12:42 DEBUG: pid 10173: value: true kind: 1<br />2012-12-18 12:12:42 DEBUG: pid 10173: num_backends: 2 num_backends: 2 total_weight: 1.000000<br />2012-12-18 12:12:42 DEBUG: pid 10173: backend 0 weight: 1073741823.500000<br />2012-12-18 12:12:42 DEBUG: pid 10173: backend 1 weight: 1073741823.500000<br />----</p><br /><br /><p>Est ce que je rate quelque chose ?</p><p>Merci d&#039;avance !</p>]]></content>
+		<author>
+			<name><![CDATA[tsn77130]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1906</uri>
+		</author>
+		<updated>2012-12-18T11:18:06Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=16132#p16132</id>
+	</entry>
+</feed>

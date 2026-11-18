@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Orphan temp table]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3982&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3982"/>
+	<updated>2016-10-24T07:19:46Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3982</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Orphan temp table]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24185#p24185"/>
+		<content type="html"><![CDATA[<p>Ne rien faire, ça me va :-), merci Julien.</p>]]></content>
+		<author>
+			<name><![CDATA[mortimer.pw]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=573</uri>
+		</author>
+		<updated>2016-10-24T07:19:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24185#p24185</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Orphan temp table]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24184#p24184"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><p>ces objets sont créés automatiquement par postgres lorsqu&#039;il utilise des objets temporaires. Autovacuum lorsqu&#039;il traite une base vérifie que la connexion associée à l&#039;objet temporaire existe encore, et si ce n&#039;est pas le cas (en cas de précédent crash par exemple), il affiche un message indiquant que l&#039;objet associé est maintenant orphelin. Vous pouvez les supprimer manuellement, mais une erreur manuelle est toujours possible, et l&#039;autovacuum finira par les supprimer de toutes façons, lorsqu&#039;il fera un VACUUM FREEZE (traitement anti wraparound).&#160; Ne rien faire est à mon avis la meilleure solution.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2016-10-24T06:25:52Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24184#p24184</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Orphan temp table]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=24182#p24182"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous,</p><p>Je suis sur un moteur 9.3.2 sous RedHat 4.1.2.</p><p>Suite à analyse des logs, j&#039;ai des messages :<br />2016-10-24 08:25:09 EAT [4507]: [1-1] user=,db=&#160; LOG:&#160; autovacuum: found orphan temp table &quot;pg_temp_14&quot;.&quot;tmpctrl&quot; in database &quot;geo&quot;<br />2016-10-24 08:25:09 EAT [4507]: [2-1] user=,db=&#160; LOG:&#160; autovacuum: found orphan temp table &quot;pg_temp_11&quot;.&quot;tmpctrl&quot; in database &quot;geo&quot;<br />2016-10-24 08:26:09 EAT [4558]: [1-1] user=,db=&#160; LOG:&#160; autovacuum: found orphan temp table &quot;pg_temp_14&quot;.&quot;tmpctrl&quot; in database &quot;geo&quot;<br />2016-10-24 08:26:09 EAT [4558]: [2-1] user=,db=&#160; LOG:&#160; autovacuum: found orphan temp table &quot;pg_temp_11&quot;.&quot;tmpctrl&quot; in database &quot;geo&quot;<br />2016-10-24 08:27:09 EAT [4649]: [1-1] user=,db=&#160; LOG:&#160; autovacuum: found orphan temp table &quot;pg_temp_14&quot;.&quot;tmpctrl&quot; in database &quot;geo&quot;<br />2016-10-24 08:27:09 EAT [4649]: [2-1] user=,db=&#160; LOG:&#160; autovacuum: found orphan temp table &quot;pg_temp_11&quot;.&quot;tmpctrl&quot; in database &quot;geo&quot;</p><p>En regardant les objets de la base, j&#039;ai un paquet de pg_temp_??? et pg_toast_temp_??? (environ une vingtaine de chaque) :<br />geo=# \dnS<br />&#160; &#160; &#160; &#160; List of schemas<br />&#160; &#160; &#160; &#160; Name&#160; &#160; &#160; &#160; |&#160; Owner&#160; &#160;<br />--------------------+----------<br /> geo&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; | postgres<br /> information_schema | postgres<br /> jrn_local&#160; &#160; &#160; &#160; &#160; | postgres<br /> pg_catalog&#160; &#160; &#160; &#160; &#160;| postgres<br />....<br />....<br /> pg_temp_11&#160; &#160; &#160; &#160; &#160;| postgres<br /> pg_temp_14&#160; &#160; &#160; &#160; &#160;| postgres<br />....<br />....<br /> pg_toast&#160; &#160; &#160; &#160; &#160; &#160;| postgres<br />....<br />....<br /> pg_toast_temp_11&#160; &#160;| postgres<br /> pg_toast_temp_14&#160; &#160;| postgres<br />....<br />....<br /> public&#160; &#160; &#160; &#160; &#160; &#160; &#160;| postgres<br />(41 rows)</p><p>Est-ce qu&#039;il suffit de supprimer ces schémas ?<br />Y-a-t&#039;il un risque (base en prod) ?</p><p>Comment ces schémas arrivent-ils ?<br />Pourquoi des pg_temp et des pg_toast_temp ?<br />Je sais qu&#039;il y a eu quelques plantages du serveur, mais PostgreSQL redémarre toujours correctement (après suppression du postmaster.pid).</p><p>D&#039;avance merci pour les réponses.</p>]]></content>
+		<author>
+			<name><![CDATA[mortimer.pw]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=573</uri>
+		</author>
+		<updated>2016-10-24T06:04:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=24182#p24182</id>
+	</entry>
+</feed>

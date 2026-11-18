@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Valeur vide / NULL dans un champ de type numérique]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=964&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=964"/>
+	<updated>2010-08-31T15:33:31Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=964</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Valeur vide / NULL dans un champ de type numérique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5974#p5974"/>
+		<content type="html"><![CDATA[<p>Merci à tous de vous être penchés sur le probleme.<br />Nous avons posé la question sur d&#039;autres forums, il n&#039;y a apparement pas de solution simple / rapide, nous allons probablement voir avec le client pour utiliser un autre SGBD en attendant une future version de l&#039;application qui corrigera le code SQL.<br />Cordialement.</p>]]></content>
+		<author>
+			<name><![CDATA[Esab75]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=876</uri>
+		</author>
+		<updated>2010-08-31T15:33:31Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5974#p5974</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Valeur vide / NULL dans un champ de type numérique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5973#p5973"/>
+		<content type="html"><![CDATA[<p>Oups, je n&#039;avais pas vu la dernière réponse de Marc. Du coup, je suis d&#039;accord en tout point avec lui <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-08-31T15:18:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5973#p5973</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Valeur vide / NULL dans un champ de type numérique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5972#p5972"/>
+		<content type="html"><![CDATA[<p>J&#039;ai du mal à croire que ce que propose Marc soit possible. J&#039;arrive au bon résultat mais il faut ajouter une conversion vers le type texte pour chaque donnée numérique à insérer (ou mettre à jour). Autrement dit modifier toutes les requêtes qui utilisent le type. Et dans ce cas-là, autant le faire correctement en indiquant NULL plutôt qu&#039;une chaîne vide.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2010-08-31T15:17:45Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5972#p5972</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Valeur vide / NULL dans un champ de type numérique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5971#p5971"/>
+		<content type="html"><![CDATA[<p>Pour le premier point :<br />- Vous n&#039;avez aucun problème avec MySQL, c&#039;est normal, il n&#039;est pas vraiment réputé pour sa rigueur quant à la validation de données<br />- Pour Oracle, c&#039;est un cas particulier (et à ma connaissance une non conformité à SQL) : une chaine vide vaut NULL. Donc il convertit vers NULL votre chaîne avant de la convertir vers un entier.<br />Pour SQL Server, aucune idée du pourquoi.</p><p>Tout ça simplement pour dire que ce n&#039;est pas parce que PostgreSQL refuse que c&#039;est de sa faute : il valide vos données.</p><p>Après recherche, la seule solution pour contourner votre problème (autre que la solution simple d&#039;écrire du code SQL correct bien sûr) est de créer un nouveau type de base : la conversion entre le type texte et le type integer ne peut pas apparemment pas être modifiée : le bon fonctionnement de PostgreSQL dépend bien sûr de la présence de ces opérateurs.</p><p>Pour créer un nouveau type de base, il faut écrire des procédures stockées en C, le but final étant de pouvoir définir de nouvelles fonctions d&#039;entrées sorties sur ce type.</p><p>Je reviens donc à la proposition initiale : corrigez le code.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-08-31T15:07:00Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5971#p5971</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Valeur vide / NULL dans un champ de type numérique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5970#p5970"/>
+		<content type="html"><![CDATA[<p>Merci pour vos réponses.</p><p>Nous n&#039;avons aucun souci sous MySQL, Oracle ou SQL Server pour insérer une chaine vide dans un champ numerique, il n&#039;y a que postgreSQL qui nous pose ce probleme.</p><p>@Marc Cousin : la version utilisée est la 8.4. Le lien que vous m&#039;avez donné pour CREATE CAST est bien pour la 8.4</p><p>J&#039;ai regardé la documentation, je ne suis pas certain d&#039;avoir bien compris.</p><p>En gros il faudrait creer un type perso (par exemple mynumeric) et l&#039;assigner a tout mes champs de type numeric, c&#039;est a dire modifier la structure de toutes mes tables ?</p><p>puis faire un CREATE CAST (toto AS numeric) WITH FUNCTION doMyCast(toto) AS IMPLICIT;</p><p>avec le code de la fonction equivalent à : </p><p>function doMyCast(toto)<br />{<br /> if (toto ==&#039;&#039;) {<br />return NULL<br />} else {<br />return toto<br />} <br />}</p><p>et cette &quot;conversion/transtypage&quot; serait automatique sur toute la base ?</p><p>Je ne comprends pas .</p><br /><br /><p>@flo : Nous avons pensé à la solution du trigger mais il faudrait mettre un trigger sur toutes les tables, il y en a beaucoup c&#039;est lourd, et celà affecterait beaucoup les performances .</p><br /><br /><p>Merci de votre aide.</p>]]></content>
+		<author>
+			<name><![CDATA[Esab75]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=876</uri>
+		</author>
+		<updated>2010-08-31T14:19:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5970#p5970</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Valeur vide / NULL dans un champ de type numérique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5969#p5969"/>
+		<content type="html"><![CDATA[<p>Que le trigger sera déclenché après le cast. Et que je pense que c&#039;est le cast de &#039;&#039; en numeric qui pose problème. D&#039;où la question sur la version de PostgreSQL: sur 8.3 et supérieur, ce cast n&#039;existe même plus à ma connaissance.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-08-31T13:20:57Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5969#p5969</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Valeur vide / NULL dans un champ de type numérique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5968#p5968"/>
+		<content type="html"><![CDATA[<p>Et comme solution temporaire, créer un trigger avant l&#039;insertion pour convertir les chaines&#160; vides en null? C&#039;est certes lourd, mais cela permettrait de ne pas modifier la structure des données, en attendant la correction des requêtes. S&#039;il n&#039;est vraiment pas envisageable de les mettre à jour tout de suite...<br />Evidemment, il faut espérer dans ce cas qu&#039;il n&#039;y ait pas de grosses opérations de mises à jour ou d&#039;insertion, sinon je suppose que les performances risqueraient de s&#039;en ressentir.</p><p>Marc, t&#039;en penses quoi?</p>]]></content>
+		<author>
+			<name><![CDATA[flo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=216</uri>
+		</author>
+		<updated>2010-08-31T13:10:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5968#p5968</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Valeur vide / NULL dans un champ de type numérique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5967#p5967"/>
+		<content type="html"><![CDATA[<p>Un exemple probablement pas, vu que comme je vous l&#039;ai dit avant, c&#039;est le genre de choses qu&#039;il ne faut pas faire.</p><p>Néanmoins, ce qui vous intéresse estCREATE CAST (<a href="http://docs.postgresql.fr/8.4/sql-createcast.html" rel="nofollow">http://docs.postgresql.fr/8.4/sql-createcast.html</a>) pour créer des fonctions de transtypage entre les différents types. Je présume par ailleurs que votre version de PostgreSQL est assez ancienne ? (sinon vous n&#039;auriez même pas de cast automatique de votre chaîne vers un numérique).</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-08-31T12:55:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5967#p5967</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Valeur vide / NULL dans un champ de type numérique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5966#p5966"/>
+		<content type="html"><![CDATA[<p>Merci pour votre réponse.</p><div class="quotebox"><cite>Marc Cousin a écrit&#160;:</cite><blockquote><div><p>À quelle valeur numérique pourrait on faire correspondre une chaîne vide ?</p></div></blockquote></div><p>J&#039;aimerais que celà correspond à NULL.</p><p>Je sais que le probleme viens du code SQL, on me le dit sur plusieurs forums,&#160; l&#039;application est ancienne et je n&#039;ai pas les moyens d&#039;optimiser tout le code SQL de l&#039;application pour le moment, c&#039;est pour ça que je souhaiterais trouver une solution ou un hack en attendant de pouvoir le faire.</p><div class="quotebox"><cite>Marc Cousin a écrit&#160;:</cite><blockquote><div><p>Sinon oui, on doit pouvoir bidouiller un type qui accepte des conversions de chaîne de ce type.</p></div></blockquote></div><p>Je n&#039;ai pas trouvé comment faire, quelqu&#039;un aurait il un exemple ?</p><p>Merci de votre aide.</p>]]></content>
+		<author>
+			<name><![CDATA[Esab75]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=876</uri>
+		</author>
+		<updated>2010-08-31T12:43:02Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5966#p5966</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Valeur vide / NULL dans un champ de type numérique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5965#p5965"/>
+		<content type="html"><![CDATA[<p>Une chaîne vide est une valeur de type chaîne. Elle n&#039;est donc pas utilisable pour un type numérique. À quelle valeur numérique pourrait on faire correspondre une chaîne vide ?</p><p>Vous feriez mieux d&#039;utiliser NULL pour le code mysql et le code postgresql. Cela marchera pour les deux moteurs.</p><p>Sinon oui, on doit pouvoir bidouiller un type qui accepte des conversions de chaîne de ce type. Mais ce n&#039;est clairement pas la bonne approche.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2010-08-31T12:20:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5965#p5965</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Valeur vide / NULL dans un champ de type numérique]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=5964#p5964"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;aurais besoin de votre aide SVP.</p><p>Nous avons une application PHP tournant sous MYSQL, et nous avons besoin d&#039;utiliser PostgreSQL pour un client.</p><p>le probleme est que lorsque nous insérons des chaines vides dans un champ de type numerique, nous obtenons une erreur.</p><p>Je pense qu&#039;il faudrait en fait utiliser NULL au lieu de la chaine vide .</p><p>Cependant nous aimerions eviter d&#039;avoir à recoder toutes les requetes de notre application, ma question c&#039;est de savoir s&#039;il est possible au niveau de la structure d&#039;une table (ou ailleur) de faire en sorte que notre colonne de type numérique accepte les valeurs vides ? ou bien les convertissent en NULL ?</p><br /><p>J&#039;ai regardé sur le forum, ainsi que sur google je n&#039;ai pas trouvé grand chose.</p><p>Dans la documentation j&#039;ai vu qu&#039;il est possible de définir ses propres types, est il possible par exemple de creer un type basé sur numerique et de faire en sorte qu&#039;il accepte nos valeurs vides ?<br />Si oui comment faire ? je n&#039;ai trouvé de solution</p><p>Merci</p>]]></content>
+		<author>
+			<name><![CDATA[Esab75]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=876</uri>
+		</author>
+		<updated>2010-08-31T11:57:27Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=5964#p5964</id>
+	</entry>
+</feed>

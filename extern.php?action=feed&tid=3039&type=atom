@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Faire un replace avec des valeurs d'une autre table]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3039&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3039"/>
+	<updated>2014-03-10T13:41:20Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3039</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Faire un replace avec des valeurs d'une autre table]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19374#p19374"/>
+		<content type="html"><![CDATA[<p>Oui, c&#039;est ça.</p><p>Ce n&#039;est d&#039;ailleurs pas forcément une bonne chose à faire pour la requête finale. Vous pouvez donc remplacer par &quot;group by t2.id&quot;.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2014-03-10T13:41:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19374#p19374</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Faire un replace avec des valeurs d'une autre table]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19370#p19370"/>
+		<content type="html"><![CDATA[<p>Bonjour rjuju.</p><p>En fait, c&#039;est la configuration de notre logiciel qui impose ce genre de contrainte par rapport au type de champ.</p><p>Sinon la requête est parfaite et très intéressante d&#039;un point de vue technique !</p><p>Ceci m&#039;emmène à une autre question, quand vous faites &quot;group by 1&quot; ça veut dire qu&#039;il y a un GROUP BY sur le premier champ appellé dans le SELECT ?</p>]]></content>
+		<author>
+			<name><![CDATA[Geo-x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1346</uri>
+		</author>
+		<updated>2014-03-10T11:04:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19370#p19370</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Faire un replace avec des valeurs d'une autre table]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19368#p19368"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>pourquoi varchar[] et pas integer[] ?</p><p>sinon, cette requête devrait marcher :</p><div class="codebox"><pre><code>SELECT t2.id, string_agg(t1.nom,&#039;,&#039;)
+FROM (SELECT id, unnest(champ1) as ref FROM table2) t2
+JOIN table1 t1 ON t2.ref::integer = t1.id
+group by 1;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2014-03-10T10:52:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19368#p19368</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Faire un replace avec des valeurs d'une autre table]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19365#p19365"/>
+		<content type="html"><![CDATA[<p>Bonjour @ tous.</p><p>Je sais que je vous sollicite beaucoup en ce moment, mais si vous étiez moins bon dans vos réponses il est fort probable que je vous demande moins de choses ;-)</p><p>Aujourd&#039;hui, j&#039;essaie une fois de plus d&#039;innover en voulant réaliser un relace avec des valerurs sources et destination issues d&#039;une autre table, je m&#039;explique :</p><p>1- J&#039;ai une table1 qui contient une liste d&#039;id associée à un nom</p><br /><p>id | nom<br />-----------------<br />1 | coucou<br />2 | chouette<br />3 | hibou</p><p>2- J&#039;ai une table2 qui contient un champ varchar[] qui contient le résultat de cette table 1</p><p>id&#160; | champ1<br />----------------<br />10 | {3,2}<br />20 | {3,1,2}</p><p>3- Ce que je souhaite faire, c&#039;est faire apparaitre avec ma requête les vrais valeurs (issues de la table1) associées au numéro de la table2 :</p><br /><p>id&#160; | resultat<br />-------------------------------<br />10 | hibou,chouette<br />20 | hibou,coucou,chouette</p><p>Pour ça, j&#039;ai déjà testé sur un numéro en particulier :</p><div class="codebox"><pre><code>select replace(replace(replace(array(SELECT unnest(champ1) from table2 where id=10)::varchar,&#039;{&#039;,&#039;&#039;),&#039;}&#039;,&#039;&#039;),foo.id,foo.nom) FROM (SELECT id::varchar,nom FROM table1)foo; </code></pre></div><p>Le problème c&#039;est que le résultat apparait sous la forme suivante :</p><p>id&#160; | resultat<br />-------------------------------<br />10 | &quot;hibou,2&quot;<br />10 | &quot;1,chouette&quot;</p><p>Est-ce que vous avez une solution pour ce genre de problèmatique ?</p><p>Par avance merci de votre aide.</p><p>Geo-x</p>]]></content>
+		<author>
+			<name><![CDATA[Geo-x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1346</uri>
+		</author>
+		<updated>2014-03-10T09:06:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19365#p19365</id>
+	</entry>
+</feed>

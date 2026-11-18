@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Valeur par defaut]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2732&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2732"/>
+	<updated>2013-08-13T14:25:05Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2732</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Valeur par defaut]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17859#p17859"/>
+		<content type="html"><![CDATA[<p>ok ! Merci bien pour toute ton aide.</p><p><em>share your knowledge</em></p>]]></content>
+		<author>
+			<name><![CDATA[atchopba]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2379</uri>
+		</author>
+		<updated>2013-08-13T14:25:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17859#p17859</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Valeur par defaut]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17858#p17858"/>
+		<content type="html"><![CDATA[<p>si tu as 0 c&#039;est que tous les champs dates correspondent à autre chose que &#039;1970-01...&#039; (une date ou un valeur NULL si elle est acceptée)<br />et tu sais par quelle valeur tu vas remplacer &#039;1970-01...&#039; pour chaque colonne de chaque table ?</p>]]></content>
+		<author>
+			<name><![CDATA[arthurr]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=62</uri>
+		</author>
+		<updated>2013-08-13T14:20:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17858#p17858</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Valeur par defaut]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17857#p17857"/>
+		<content type="html"><![CDATA[<p>Tu as de très bonnes idées. Par contre, il y a des tables où il me renvoie 0 qui signifie qu&#039;il n&#039;y a aucun enregistrement qui correspond. Ce que je pense faire maintenant, c&#039;est de créer plutôt un procédure ou fonction qui me permet de mettre les valeurs adéquates. Qu&#039;en penses-tu?</p>]]></content>
+		<author>
+			<name><![CDATA[atchopba]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2379</uri>
+		</author>
+		<updated>2013-08-13T14:10:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17857#p17857</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Valeur par defaut]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17856#p17856"/>
+		<content type="html"><![CDATA[<p>tu peux déjà lancer cette requête qui va te sortir une liste de select à effectuer pour savoir si tu as des données à 1970-01-01 pour tes colonne de type TIMESTAMP WITHOUT TIME ZONE :</p><div class="codebox"><pre><code>select &#039;select count(*) from &#039; || table_schema || &#039;.&#039; || table_name || &#039; where &#039; || column_name || &#039;=&#039;&#039;1970-01-01 00:00:00&#039;&#039;;&#039; from INFORMATION_SCHEMA.COLUMNS where data_type=&#039;timestamp without time zone&#039;;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[arthurr]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=62</uri>
+		</author>
+		<updated>2013-08-13T13:56:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17856#p17856</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Valeur par defaut]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17855#p17855"/>
+		<content type="html"><![CDATA[<p>J&#039;ai déjà pensé à ta solution, mais il y a plus de 429 tables. Parcourir toutes ces tables !!!!!!! Sachant que je ne sais pas qu&#039;elles sont toutes les tables qui sont à modifiées...<br />Je vais mourir quoi...</p>]]></content>
+		<author>
+			<name><![CDATA[atchopba]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2379</uri>
+		</author>
+		<updated>2013-08-13T13:37:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17855#p17855</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Valeur par defaut]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17854#p17854"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>le DATETIME de Mysql est équivalent au TIMESTAMP de PostgreSQL.<br />Le vrais problème est que la colonne était NOT NULL et que Mysql remplace une valeur NULL par &#039;0000-00-00 00:00:00&#039;<br />Le plus simple =&gt; passer la colonne en NULLABLE et updater toutes les valeurs &#039;1970-01-01 00:00:00&#039; à NULL</p><p>Si la colonne ne doit vraiment pas être NULL, je ne vois pas quelle valeur vous allez mettre dans le cas &#039;0000-00-00 00:00:00&#039; / &#039;1970-01-01 00:00:00&#039;</p>]]></content>
+		<author>
+			<name><![CDATA[arthurr]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=62</uri>
+		</author>
+		<updated>2013-08-13T13:21:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17854#p17854</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Valeur par defaut]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=17853#p17853"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>pendant une migration automatique de MySQL vers PostgreSQL, une &quot;erreur&quot; est survenue: les attributs qui étaient dans MySQL de type DATETIME NOT NULL et ayant pour valeur &quot;0000-00-00 00:00:00&quot; sont passés dans PostgreSQL TIMESTAMP WITHOUT TIME ZONE et sont automatiquement devenus dans tous mes champs &quot;1970-01-01 00:00:00&quot;.</p><p>Comment pourrai-je y remédier sans toutefois recommencer la migration? J&#039;ai déjà cherché dans pg_attribute, mais je vois le type des mes attributs. </p><p><em>(La leçon est retenue...la prochaine, je ferai un sed pour remplacer et mettre les valeurs adéquates).</em></p><p>Merci bien de me venir en aide.</p><br /><p><em>share you knowledge</em></p>]]></content>
+		<author>
+			<name><![CDATA[atchopba]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2379</uri>
+		</author>
+		<updated>2013-08-13T13:06:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=17853#p17853</id>
+	</entry>
+</feed>

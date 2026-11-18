@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Problème avec la fonction now()]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=6909&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=6909"/>
+	<updated>2024-06-10T09:08:32Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=6909</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème avec la fonction now()]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=35108#p35108"/>
+		<content type="html"><![CDATA[<p>Bon, je me réponds à moi même ;-)</p><p>Il faut utiliser la fonction clock_timestamp() et non la fonction now()</p>]]></content>
+		<author>
+			<name><![CDATA[plc]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=12567</uri>
+		</author>
+		<updated>2024-06-10T09:08:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=35108#p35108</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème avec la fonction now()]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=35107#p35107"/>
+		<content type="html"><![CDATA[<p>Version courte poour reproduire :</p><div class="codebox"><pre><code>select &#039;Before begin&#039;, now();
+begin;
+select &#039;In begin - 1&#039;, now();</code></pre></div><p>Attendre un peu</p><div class="codebox"><pre><code>select &#039;In begin - 2&#039;, now();
+end;
+select &#039;After begin&#039;, now();</code></pre></div><p>Result :</p><div class="codebox"><pre><code>   ?column?   |              now
+--------------+-------------------------------
+ Before begin | 2024-06-10 11:01:59.470195+02
+(1 row)
+
+BEGIN
+
+   ?column?   |              now
+--------------+-------------------------------
+ In begin - 1 | 2024-06-10 11:01:59.470478+02
+(1 row)
+
+   ?column?   |              now
+--------------+-------------------------------
+ In begin - 2 | 2024-06-10 11:01:59.470478+02
+(1 row)
+
+COMMIT
+
+  ?column?   |              now
+-------------+-------------------------------
+ After begin | 2024-06-10 11:02:10.642165+02
+(1 row)</code></pre></div><p>==&gt; &quot;Begin&quot; &quot;fige&quot; la fonction now(); Comment faire pour avoir le véritable timestamp ?</p>]]></content>
+		<author>
+			<name><![CDATA[plc]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=12567</uri>
+		</author>
+		<updated>2024-06-10T09:02:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=35107#p35107</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Problème avec la fonction now()]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=35106#p35106"/>
+		<content type="html"><![CDATA[<p>Bonjour</p><p>Je rencontre un problème assez surprenant avec la fonction now() (!)</p><p>J&#039;ai une fonction d&#039;intégration de données (qui n&#039;est pas instantanée, loi de là car elle fait des calculs d&#039;intersections dans Postgis). Cette fonction est appelée par un trigger qui se déclenche lorsqu&#039;un buffer de données atteint une certaine taille. Je tente de mesurer le temps d&#039;exécution en gardant une trace dans une table de débug. Cela donne cela (la fonction va appeler la sous fonction Integrate() jusqu&#039;à ce que la source de données soit épuisée. Dans mon cas d&#039;usage cela donne une centaine d&#039;iétartions à chaque fois)</p><br /><div class="codebox"><pre class="vscroll"><code>CREATE OR REPLACE FUNCTION IntegrateData()
+RETURNS trigger
+AS
+$$
+declare start_time timestamp;
+declare trigger_id integer;
+declare ndata integer;
+declare ndata_start integer;
+declare iterations integer;
+begin
+
+-- Immediatly reset counter
+update import_counter set counter=0, lastrun=now();
+
+select nextval ( &#039;trigger_id&#039; ) into trigger_id;
+select now() into start_time;
+
+select count(*) from import into ndata_start;
+insert into debug_trigger values ( trigger_id, start_time, NULL, NULL, NULL, ndata_start, NULL );
+
+select 0 into iterations;
+
+LOOP
+   call Integrate();
+   select count(*) from import into ndata;
+   select iterations + 1 into iterations;
+   insert into debug_trigger values ( trigger_id, NULL, now(), NULL, iterations, NULL, ndata);
+
+   EXIT WHEN ndata = 0;
+END LOOP;
+
+update import_counter set counter=ndata, lastrun=now();
+
+insert into debug_trigger values ( trigger_id, start_time, now(), now() - start_time, iterations, ndata_start, ndata);
+
+return new;
+end;
+$$
+LANGUAGE plpgsql VOLATILE;</code></pre></div><p>Mon problème est que tous les timestamps que je retrouve dans ma table de debug pour un appel au trigger sont strictement identiques à la milliseconde près. D&#039;après mes tests cela n&#039;est pas possible car la fonction d&#039;intégration n&#039;est pas instantannée, encore moins quand on l&#039;appelle une centaine de fois.</p><div class="codebox"><pre><code> id |           start            |            stop            | duration | iterations | ndata_start | ndata_stop
+----+----------------------------+----------------------------+----------+------------+-------------+------------
+  1 | 2024-06-10 08:53:11.893034 |                            |          |            |        1000 |
+.../...
+  1 | 2024-06-10 08:53:11.893034 | 2024-06-10 08:53:11.893034 | 00:00:00 |        128 |        1000 |          0</code></pre></div><p>J&#039;ai l&#039;impression que la fonction now() est mise en cache par l&#039;optimiseur lors de son premier appel et que du coup les données enregistrées ne reflètent pas la réalité.</p><p>Qu&#039;en pensez vous ? Quelle solution ?</p><p>Merci</p>]]></content>
+		<author>
+			<name><![CDATA[plc]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=12567</uri>
+		</author>
+		<updated>2024-06-10T07:09:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=35106#p35106</id>
+	</entry>
+</feed>

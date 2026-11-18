@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / écriture d'un large object]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4370&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4370"/>
+	<updated>2017-09-06T06:13:14Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4370</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  écriture d'un large object]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26014#p26014"/>
+		<content type="html"><![CDATA[<p>C&#039;est explicité dans la doc. Deuxième paragraphe du chapitre <a href="https://www.postgresql.org/docs/9.6/static/lo-interfaces.html" rel="nofollow">https://www.postgresql.org/docs/9.6/sta … faces.html</a> : &quot;All large object manipulation using these functions must take place within an SQL transaction block, since large object file descriptors are only valid for the duration of a transaction.&quot;</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2017-09-06T06:13:14Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26014#p26014</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  écriture d'un large object]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26013#p26013"/>
+		<content type="html"><![CDATA[<p>Merci pour la remarque!</p><p>En effet, si j&#039;entoure mes instructions par un BEGIN/END, ça marche. Mais cette disposition me semble par être explicitée dans la doc, mais dans l&#039;exemple fournis, oui.</p><p>Si, il y a 20 ans, j&#039;avais décrit PostgreSQL, open source avec toutes ses possibilités, on m&#039;aurait ris au nez.</p><p>Merci encore pour l&#039;aide fournie.</p>]]></content>
+		<author>
+			<name><![CDATA[skylendar]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7706</uri>
+		</author>
+		<updated>2017-09-05T20:40:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26013#p26013</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  écriture d'un large object]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26004#p26004"/>
+		<content type="html"><![CDATA[<p>Avez-vous ouvert une transaction avant ce code ? parce que le Large Object n&#039;est ouvert que pour la durée de la transaction en cours.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2017-09-04T06:32:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26004#p26004</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[écriture d'un large object]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=26003#p26003"/>
+		<content type="html"><![CDATA[<p>Tout d&#039;abord et comme d&#039;habitude, bonsoir et merci de lire ce message et d&#039;y répondre si vous pouvez.</p><p>Ceci dit, je tente d&#039;écrire un programme en C qui crée un &#039;large object&#039; et de l&#039;initialiser avec une image.</p><p>Voilà ce que cela donne:</p><p>int fd, w, size=10000;<br />char image[10000];</p><p>Oid o = lo_creat(conn, INV_READ|INV_WRITE);<br />if(!o) return false;</p><p>fd = lo_open(conn, o, INV_READ|INV_WRITE);<br />if(fd == -1) return false;<br />/* ici, fd = 0 */</p><p>w = lo_write(conn, fd, image, size);<br />fprintf(f, &quot;%s\n&quot;, PQerrorMessage(conn))</p><p>Et c&#039;est là le problème: lo_open retourne 0, une valeur apparemment valide mais que lo_write n&#039;accepte pas. PQerrorMessage renvoie : &quot;descripteur invalide de « Large Object » : 0&quot;</p><p>Que se passe-t-il donc ? Où est mon erreur ?</p><p>Sur postgresql 9.6.5 linux-i86_64, binaire téléchargé depuis postgresql.com.</p><p>Merci encore de lire cette question.</p>]]></content>
+		<author>
+			<name><![CDATA[skylendar]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=7706</uri>
+		</author>
+		<updated>2017-09-03T21:14:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=26003#p26003</id>
+	</entry>
+</feed>

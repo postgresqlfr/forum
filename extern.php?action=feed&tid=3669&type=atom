@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Configuration postgres réinitialisée par défaut et database supprimée]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3669&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3669"/>
+	<updated>2015-10-15T12:56:00Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3669</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Configuration postgres réinitialisée par défaut et database supprimée]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22600#p22600"/>
+		<content type="html"><![CDATA[<p>Y a peu de détail sur le post initial, et Suse sont parmi les premiers à avoir proposé btrfs en standard, donc ça aurait pu <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>Pour en revenir à la question initiale, si le fichier postgresql.conf a été réinitialisé, c&#039;est forcément le résultat d&#039;une opération externe (PostgreSQL n&#039;y touche jamais).</p><p>La seule explication simpje que je voie, c&#039;est le FS qui se retrouve vide après le redémarrage (un disque dur qui ment sur son cache), mais ça fait une vraiment belle corruption pour perdre tout le contenu du répertoire, et le script de démarrage de PostgreSQL qui voyant un répertoire vide recréerait une instance vide à l&#039;intérieur (beaucoup de scripts d&#039;init font ça).</p><p>L&#039;autre possibilité, c&#039;est une manœuvre utilisateur…</p><p>Le lost+found est comment sur ce système de fichiers ? Comment s&#039;est passé le recovery suite au redémarrage ? Y a des logs de ce boot là ? (et de l&#039;éventuel fsck ?)</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2015-10-15T12:56:00Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22600#p22600</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Configuration postgres réinitialisée par défaut et database supprimée]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22599#p22599"/>
+		<content type="html"><![CDATA[<p>Non on est en ext4.<br />Et puis ça me ferait mal qu&#039;il revienne à un snapshot du début de la vie du PC, c&#039;est à dire il y a environ 2 ans.</p>]]></content>
+		<author>
+			<name><![CDATA[sgirard]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5255</uri>
+		</author>
+		<updated>2015-10-15T12:02:50Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22599#p22599</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Configuration postgres réinitialisée par défaut et database supprimée]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22598#p22598"/>
+		<content type="html"><![CDATA[<p>PostgreSQL ne remet pas à jour de lui-même ses fichiers de configuration. Il n&#039;y touche en fait même pas.</p><p>Ça ressemble plutôt au système qui serait revenu en arrière. Il n&#039;y aurait pas du BTRFS ou un truc du genre, et on serait revenu à un snapshot ancien ?</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2015-10-15T10:32:35Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22598#p22598</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Configuration postgres réinitialisée par défaut et database supprimée]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=22596#p22596"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>j&#039;ai eu un petit problème avec postgres chez un client.</p><p>On utilise aujourd&#039;hui postgres 9.1.5 sur OpenSuse 12.1.</p><p>Ce qui s&#039;est passé, c&#039;est que le client utilisait notre application, connectée à postgres, sans soucis.</p><p>Il a arrêté la machine, et donc le PC proprement.</p><p>postgres est configuré sur nos PC pour démarrer automatiquement au démarrage du système.<br />Le système attend que cette connexion soit effectuée avant de continuer.</p><p>Le client a démarré son PC, mais il a trouvé que notre application mettait du temps à apparaitre, du coup il a couper l&#039;alimentation de la machine.<br />Le genre de chose que les systèmes aiment particulièrement.</p><p>Il le redémarre à nouveau, et là notre application apparait rapidement, mais n&#039;arrive pas à se connecter à la base de données postgres.</p><p>Effectivement, après un rapide coup d&#039;oeil dans le système, on remarque que :<br />&#160; &#160; - postgres est reconfiguré avec les valeurs par défaut<br />&#160; &#160; - que notre base n&#039;est plus dans le système postgres</p><p>Heureusement on avait un backup assez récent, on a pu l&#039;aider.</p><p>Par contre, j&#039;ai été incapable de trouver la cause de ce problème.</p><p>Les logs postgres ne disant rien car réinitialisés, et les logs systèmes (/var/log/messages) pas mieux.</p><p>Est-ce que quelqu&#039;un aurait une idée de ce qui aurait pu se passer ?<br />Et si oui, comment évité ceci à nouveau ?</p><p>Merci</p>]]></content>
+		<author>
+			<name><![CDATA[sgirard]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=5255</uri>
+		</author>
+		<updated>2015-10-15T09:50:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=22596#p22596</id>
+	</entry>
+</feed>

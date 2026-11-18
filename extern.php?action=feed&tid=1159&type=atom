@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Gestion de droits sur un user public]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1159&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1159"/>
+	<updated>2011-01-18T13:30:36Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1159</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Gestion de droits sur un user public]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7565#p7565"/>
+		<content type="html"><![CDATA[<p>Bonjour, voici une version moins sale pour mettre à jour des droits de visualisation :</p><div class="codebox"><pre class="vscroll"><code>#!/bin/bash
+
+# Le script doit être exécuté en tant que user postgres
+
+# Donne des droits en lecture seule à un utilisateur sur 
+# les schemas publics d&#039;une base de donnée postgres. Les 
+# droits sont limités à la visualisation des tables
+# publiques de la base ( lecture seule : SELECT ).
+
+USERNAME=&quot;mon_user&quot;
+DATABASENAME=&quot;ma_db&quot;
+MAXCONNECTIONS=&quot;15&quot;
+PSQL=&quot;/usr/lib/postgresql/8.3/bin/psql&quot;
+
+# Mise à jour des droits sur les schemas
+
+REQUETE=&quot;select n.nspname
+from pg_namespace n
+where n.nspname &lt;&gt; &#039;pg_catalog&#039;
+  and n.nspname &lt;&gt; &#039;information_schema&#039;
+  and n.nspname !~ &#039;^pg_toast&#039;
+  and n.nspname &lt;&gt; &#039;pg_temp_1&#039;;&quot;
+
+for schema in `$PSQL -At -d $DATABASENAME -c &quot;$REQUETE&quot;`
+do
+    $PSQL -a -d $DATABASENAME -c &quot;GRANT USAGE ON SCHEMA $schema TO $USERNAME&quot;
+done
+
+# Mise à jour des droits sur les tables
+
+REQUETE=&quot;select n.nspname||&#039;.&#039;||c.relname
+from pg_class c, pg_namespace n
+where c.relnamespace=n.oid
+  and n.nspname &lt;&gt; &#039;pg_catalog&#039;
+  and n.nspname &lt;&gt; &#039;information_schema&#039;
+  and n.nspname !~ &#039;^pg_toast&#039;
+  and c.relkind=&#039;r&#039;;&quot;
+
+for table in `$PSQL -At -d $DATABASENAME -c &quot;$REQUETE&quot;`
+do
+    $PSQL -a -d $DATABASENAME -c &quot;GRANT SELECT ON TABLE $table TO $USERNAME;&quot;
+done
+
+# Nombre de connections autorisées
+
+$PSQL -a -d $DATABASENAME -c &quot;ALTER USER $USERNAME CONNECTION LIMIT $MAXCONNECTIONS;&quot;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[peyo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=430</uri>
+		</author>
+		<updated>2011-01-18T13:30:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7565#p7565</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Gestion de droits sur un user public]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7476#p7476"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Pourquoi est-ce ennuyeux de passer par une vue ?</p></div></blockquote></div><p>Le problème n&#039;est pas de passé par une vue. Le problème est de faire appel à une table de statistiques qui est vide ou pas à jour si le collecteur de statistiques est désactivé. Autant accéder directement à l&#039;information réelle, qui se trouve dans la table pg_class.</p><div class="quotebox"><blockquote><div><p>quand vous écrivez &quot;from pg_class c&quot;, c devient un alias de pg_class ?</p></div></blockquote></div><p>Oui, c&#039;est cela.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-01-13T09:11:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7476#p7476</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Gestion de droits sur un user public]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7475#p7475"/>
+		<content type="html"><![CDATA[<p>Merci je regarde ça attentivement. Pourquoi est-ce ennuyeux de passer par une vue ? le filtre sur le schema rend les bonnes tables. Sympa le coup du -At ça va m&#039;éviter un paquet de filtres.<br />J&#039;ai encore du mal avec le langage , quand vous écrivez<br />from pg_class c<br />c devient un alias de pg_class ?</p>]]></content>
+		<author>
+			<name><![CDATA[peyo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=430</uri>
+		</author>
+		<updated>2011-01-13T09:00:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7475#p7475</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Gestion de droits sur un user public]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7463#p7463"/>
+		<content type="html"><![CDATA[<p>Pour infos, j&#039;ai modifié trois fois le message ci-dessus, donc ne pas hésiter à relire si vous avez été plus rapide que moi.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-01-12T15:51:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7463#p7463</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Gestion de droits sur un user public]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7462#p7462"/>
+		<content type="html"><![CDATA[<p>Merci pour le partage de ce script.</p><p>Je m&#039;étonne de l&#039;utilisation de la vue système pg_stat_all_tables pour ça. Surtout qu&#039;elle contient aussi des objets systèmes. Il est certainement mieux d&#039;utiliser cette requête :</p><div class="codebox"><pre><code>select n.nspname||&#039;.&#039;||c.relname
+from pg_class c, pg_namespace n
+where c.relnamespace=n.oid
+  and n.nspname = &#039;le_schema&#039;
+  and c.relkind=&#039;r&#039;;</code></pre></div><p>ou pour tous les schémas utilisateurs :</p><div class="codebox"><pre><code>select n.nspname||&#039;.&#039;||c.relname
+from pg_class c, pg_namespace n
+where c.relnamespace=n.oid
+  and n.nspname &lt;&gt; &#039;pg_catalog&#039;
+  and n.nspname &lt;&gt; &#039;information_schema&#039;
+  and n.nspname !~ &#039;^pg_toast&#039;
+  and c.relkind=&#039;r&#039;;</code></pre></div><p>Et je vois votre grep qui a certainement pour but de ne conserver que les lignes de résultats. Utilisez plutôt les options -At. Par exemple :</p><div class="codebox"><pre><code>export REQUETE=&quot;select n.nspname||&#039;.&#039;||c.relname from pg_class c, pg_namespace n where c.relnamespace=n.oid and n.nspname &lt;&gt; &#039;pg_catalog&#039; and n.nspname &lt;&gt; &#039;information_schema&#039; and not n.nspname  ~ &#039;^pg_toast&#039; and c.relkind=&#039;r&#039;&quot;
+psql -At -c &quot;$REQUETE&quot; yang
+public.counters
+public.services</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2011-01-12T15:48:13Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7462#p7462</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Gestion de droits sur un user public]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7461#p7461"/>
+		<content type="html"><![CDATA[<p>ok merci, vu, faut le faire à la mano...</p><p>voici donc un script bash qui donne des droits de SELECT à un user pour de multiples tables d&#039;un schéma dans mabase</p><p>#!/bin/bash&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;</p><p># update des droits du user anonyme sur le schema mon_shema de mabase&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;<br />for table in `echo &quot;SELECT relname FROM pg_stat_all_tables WHERE schemaname=&#039;mon_shema&#039;;&quot; | psql mabase | grep -v &quot;pg_&quot; | grep &quot;^ &quot;`;<br />do<br />&#160; &#160; echo &quot;GRANT SELECT ON TABLE mon_shema.$table TO anonyme;&quot;<br />&#160; &#160; echo &quot;GRANT SELECT ON TABLE mon_shema.$table TO anonyme;&quot; | psql mabase<br />done</p><p># REVOKE&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; <br />#for table in `echo &quot;SELECT relname FROM pg_stat_all_tables WHERE schemaname=&#039;mon_shema&#039;;&quot; | psql mabases | grep -v &quot;pg_&quot; | grep &quot;^ &quot;`;<br />#do&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;<br />#&#160; &#160; echo &quot;REVOKE ALL PRIVILEGES ON mon_shema.$table FROM anonyme CASCADE;&quot;<br />#&#160; &#160; echo &quot;REVOKE ALL PRIVILEGES ON mon_shema.$table FROM anonyme CASCADE;&quot; | psql mabase&#160; &#160; &#160; &#160;<br />#done</p>]]></content>
+		<author>
+			<name><![CDATA[peyo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=430</uri>
+		</author>
+		<updated>2011-01-12T15:23:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7461#p7461</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Gestion de droits sur un user public]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7451#p7451"/>
+		<content type="html"><![CDATA[<p>Le privilège SELECT est un privilège de table, pas de base. Sur une base, c&#039;est grant connect qu&#039;on peut donner (ou révoquer en fait, puisque tout le monde a ce grant par défaut). Pour le privilège SELECT, vous devrez le faire table par table.</p><p>Pour limiter le nombre de connexions par un utilisateur, c&#039;est dans ALTER USER que vous trouverez la solution.</p><p>Il y a aussi des GRANT à faire sur les schemas, et mettre ces schemas dans le search_path.</p><p>Désolé, c&#039;est un peu expéditif, mais je n&#039;ai pas pour le moment le temps de vous en dire plus <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-01-12T12:40:09Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7451#p7451</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Gestion de droits sur un user public]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=7450#p7450"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />J&#039;ai installé pg sur un serveur spatialisé par postgis. Tout fonctionne très bien, le serveur rend plusieurs milliers d&#039;objets vectoriels à distance de manière très fluide, c&#039;est génial.</p><p>Maintenant je souhaite ouvrir le service au public, c&#039;est là que je bloque, mes connaissances en administration de droits étant nulles.</p><p>Ce que je voudrais : créer un utilisateur &quot;anonyme&quot; ayant :</p><p>- les droits select et connect sur la base qui s&#039;appelle &quot;ressources_publiques&quot;<br />- limiter le nombre de connexions simultanées à 10 pour ce role<br />- mettre fin à la connexion après deux heures d&#039;innactivité pour ce user (est-ce possible ?)</p><p>Mais je n&#039;y arrive pas ...</p><p>avec pgadmin j&#039;ai crée un role de connexion &quot;anonyme&quot; ça c bon, je peux me connecter à la base, mais je ne vois rien...</p><p>j&#039;ai essayé </p><p>GRANT SELECT ON DATABASE ressources_publiques TO anonyme<br />GRANT SELECT ON DATABASE ressources_publiques TO GROUP anonyme</p><p>dans psql en tant que user postgres mais ça ne fonctionne pas.</p><p>A titre d&#039;information, j&#039;ai deux bases sur le serveur :<br />la base postgres (celle là à priori le user anonyme n&#039;a pas à y toucher)<br />la base ressources_publiques<br />cette dernière contient deux shémas :<br />- irennes (qui contient les tables georeferencées)<br />- public (qui contient les fonctions de spatialisation comme le calcul de surface sur les objets etc...)</p><p>Je pense que mon pg_hba.conf est bon, j&#039;ai tout ouvert pour tous les users depuis l&#039;ip du poste à partir duquel je me connecte. j&#039;a pas d&#039;erreurs de ce coté là.</p><p>Merci de l&#039;aide que vous pouvez m&#039;apporter.</p><p>peyo</p><p>(pg 8.3.12 sous debian lenny)</p>]]></content>
+		<author>
+			<name><![CDATA[peyo]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=430</uri>
+		</author>
+		<updated>2011-01-12T11:33:37Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=7450#p7450</id>
+	</entry>
+</feed>

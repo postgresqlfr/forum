@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / [Gentoo] probleme dans l'emerge /installation]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=234&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=234"/>
+	<updated>2009-04-07T13:44:12Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=234</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [Gentoo] probleme dans l'emerge /installation]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1122#p1122"/>
+		<content type="html"><![CDATA[<p>Probleme resolu</p><br /><p>apparament mon pc, n&#039;arrivais plus a compiller ce qui provoquais ces erreur.</p><p>surment une mauvaise manip de ma part, resolut grace a</p><p><a href="http://www.gentoo.org/doc/fr/gcc-upgrading.xml" rel="nofollow">http://www.gentoo.org/doc/fr/gcc-upgrading.xml</a></p><p>j&#039;ai mis a jour gcc, qui a du recevoir un changement ou je ne sais pas, ce qui provoquai l&#039;erreur</p>]]></content>
+		<author>
+			<name><![CDATA[dragondark]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=327</uri>
+		</author>
+		<updated>2009-04-07T13:44:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1122#p1122</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[[Gentoo] probleme dans l'emerge /installation]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=1120#p1120"/>
+		<content type="html"><![CDATA[<p>Bonjour</p><p>j&#039;ai installer postgres par le passé (version 8.0.15, via l&#039;emerge que propose gentoo), puis désinstaler pour installer dessus&#160; la version 8.3.7 manuelement.<br />elles fonctionnais parfaitement mais j&#039;avais un probleme de librairie, donc par soucis de propreter, j&#039;ai tout desinstaller.</p><p>puis j&#039;ai voulu reinstaller la version 8.0.15 pour la mettre a jours avec la version 8.3.7. le probleme c&#039;est que j&#039;ai du cafouiller quelque part etant donné que maintenant quand je lance</p><p>#emerge postgresql</p><p>je tombe sur une erreur</p><div class="codebox"><pre class="vscroll"><code> 
+/usr/lib/gcc/x86_64-pc-linux-gnu/4.1.2/../../../../x86_64-pc-linux-gnu/bin/ld: cannot find -lpq
+collect2: ld returned 1 exit status
+make[4]: *** [libecpg.so.5.0] Error 1
+make[4]: Leaving directory `/var/tmp/portage/dev-db/postgresql-8.0.15/work/postgresql-8.0.15/src/interfaces/ecpg/ecpglib&#039;
+make[3]: *** [all] Error 2
+make[3]: Leaving directory `/var/tmp/portage/dev-db/postgresql-8.0.15/work/postgresql-8.0.15/src/interfaces/ecpg&#039;
+make[2]: *** [all] Error 2
+make[2]: Leaving directory `/var/tmp/portage/dev-db/postgresql-8.0.15/work/postgresql-8.0.15/src/interfaces&#039;
+make[1]: *** [all] Error 2
+make[1]: Leaving directory `/var/tmp/portage/dev-db/postgresql-8.0.15/work/postgresql-8.0.15/src&#039;
+make: *** [all] Error 2
+*
+ * ERROR: dev-db/postgresql-8.0.15 failed.
+ * Call stack:
+ *               ebuild.sh, line   49:  Called src_compile
+ *             environment, line 2931:  Called die
+ * The specific snippet of code:
+ *       emake -j1 LD=&quot;$(tc-getLD) $(get_abi_LDFLAGS)&quot; || die &quot;main emake failed&quot;;
+ *  The die message:
+ *   main emake failed
+ *
+ * If you need support, post the topmost build error, and the call stack if relevant.
+ * A complete build log is located at &#039;/var/tmp/portage/dev-db/postgresql-8.0.15/temp/build.log&#039;.
+ * The ebuild environment file is located at &#039;/var/tmp/portage/dev-db/postgresql-8.0.15/temp/environment&#039;.
+ *
+
+&gt;&gt;&gt; Failed to emerge dev-db/postgresql-8.0.15, Log file:
+
+&gt;&gt;&gt;  &#039;/var/tmp/portage/dev-db/postgresql-8.0.15/temp/build.log&#039;
+
+ * Messages for package dev-db/postgresql-8.0.15:
+
+ *
+ * ERROR: dev-db/postgresql-8.0.15 failed.
+ * Call stack:
+ *               ebuild.sh, line   49:  Called src_compile
+ *             environment, line 2931:  Called die
+ * The specific snippet of code:
+ *       emake -j1 LD=&quot;$(tc-getLD) $(get_abi_LDFLAGS)&quot; || die &quot;main emake failed&quot;;
+ *  The die message:
+ *   main emake failed
+ *
+ * If you need support, post the topmost build error, and the call stack if relevant.
+ * A complete build log is located at &#039;/var/tmp/portage/dev-db/postgresql-8.0.15/temp/build.log&#039;.
+ * The ebuild environment file is located at &#039;/var/tmp/portage/dev-db/postgresql-8.0.15/temp/environment&#039;.</code></pre></div><p>d&#039;apres ce que je peux voir</p><div class="codebox"><pre><code> *       emake -j1 LD=&quot;$(tc-getLD) $(get_abi_LDFLAGS)&quot; || die &quot;main emake failed&quot;;
+ *  The die message:
+ *   main emake failed</code></pre></div><p>ca viendrais de la commande emake qu&#039;il n&#039;arrive pas a executer<br />donc j&#039;ai regarde mon PATH :</p><br /><br /><div class="codebox"><pre><code># ld.so.conf autogenerated by env-update; make all changes to
+# contents of /etc/env.d directory
+/usr/local/lib
+//usr/lib32/opengl/xorg-x11/lib
+//usr/lib64/opengl/xorg-x11/lib
+/lib
+/usr/lib
+/lib64
+/usr/lib64
+/usr/local/lib64
+/lib32
+/usr/lib32
+/usr/local/lib32
+/usr/x86_64-pc-linux-gnu/lib
+/usr/lib/gcc/x86_64-pc-linux-gnu/4.1.2
+/usr/lib/gcc/x86_64-pc-linux-gnu/4.1.2/32
+/usr/lib64/nspr
+/usr/lib64/nss
+/usr/lib64/qca1
+/usr/lib/qt4
+/usr/lib64/qt4
+/usr/lib32/qt4
+/usr/kde/3.5/lib
+/usr/kde/3.5/lib64
+/usr/kde/3.5/lib32
+/usr/qt/3/lib
+/usr/qt/3/lib64
+/usr/qt/3/lib32</code></pre></div><p>on peux voir qu&#039;il est senser en faire partis :</p><br /><p>je regarde ma variable PATH pres un </p><p>#env-update</p><p>#echo $PATH</p><br /><div class="codebox"><pre><code>/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/bin:/usr/x86_64-pc-linux-gnu/gcc-bin/4.1.2:/usr/kde/3.5/sbin:/usr/kde/3.5/bin:/usr/qt/3/bin</code></pre></div><p>et la on peux remarquer qu&#039;il en manque. et je ne sais pas pourquoi :s<br />en esperant que cela vienne de là</p><p>c&#039;est pourquoi je demande si vous pouvez me dire si cela viens bien de la, <br />et si vous avez une solution a me proposer</p><p>cordialement<br />dragondark</p>]]></content>
+		<author>
+			<name><![CDATA[dragondark]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=327</uri>
+		</author>
+		<updated>2009-04-07T12:18:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=1120#p1120</id>
+	</entry>
+</feed>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / [resolu] Performance de \copy]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4189&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4189"/>
+	<updated>2017-04-06T21:13:30Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4189</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [resolu] Performance de \copy]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25200#p25200"/>
+		<content type="html"><![CDATA[<p>Bonsoir et merci de vos réponses, j&#039;ai fait des essais avec FREEZE (je recrée mes tables a chaque fois donc elle sont vides)&#160; et effectivement, j&#039;ai gagné près de 30 % de temps de remplissage.</p><p>Merci a tous</p>]]></content>
+		<author>
+			<name><![CDATA[meles]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=789</uri>
+		</author>
+		<updated>2017-04-06T21:13:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25200#p25200</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [resolu] Performance de \copy]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25199#p25199"/>
+		<content type="html"><![CDATA[<p>pg_bulkload peut être plus rapide en prenant des libertés avec certaines contraintes et en parallélisant</p><p>Voir <a href="http://ossc-db.github.io/pg_bulkload/index.html" rel="nofollow">http://ossc-db.github.io/pg_bulkload/index.html</a></p><p>Sinon copy sera d&#039;autant plus rapide qu&#039;il écrit dans une table sans contrainte d&#039;intégrité référentielle, sans index, sans trigger.<br />Si la table est créée à vide, ou qu&#039;elle subit un TRUNCATE, il est préférable de supprimer ces propriétés pour le chargement et les remettre après. S&#039;il y a déjà des données dedans ça dépend combien il y en a en proportion des nouvelles, et si d&#039;autres sessions peuvent en avoir besoin pendant l&#039;import.</p><p>Si la table n&#039;existe pas au départ, l&#039;option FREEZE peut aider aussi, voir la doc de COPY relative à la version de PostgreSQL utilisée.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2017-04-06T16:06:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25199#p25199</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [resolu] Performance de \copy]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25188#p25188"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>De ma propre expérience copy est très performant et souvent meilleur que les ETL quand il s&#039;agit de charger des données sans transformation.<br />Si vous avez des performances dégradées il faudrait plutôt regarder du côté des traces de votre instance postgresql et voir s&#039;il n&#039;y a pas des contentions du côté de l&#039;autovacuum ou du checkpoint.<br />Les ordres copy sont lancés directement sur le serveur ? Avec les csv aussi sur le serveur ?</p><p>Cordialement.</p>]]></content>
+		<author>
+			<name><![CDATA[ruizsebastien]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=2075</uri>
+		</author>
+		<updated>2017-04-06T06:35:15Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25188#p25188</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[[resolu] Performance de \copy]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25187#p25187"/>
+		<content type="html"><![CDATA[<p>Bonsoir à tous,<br />&#160; pour mes besoins au boulot, je crée régulièrement une BDD sous postgresql en important une ribambelle de CSV avec la commande copy via des scripts sql lus par psql. Les plus grosse tables doivent faire quelques dizaine de milliers lignes, voire centaines pour 2 ou 3 d&#039;entre elles (mais avec peu de colonnes), mais pas beaucoup plus.</p><p>Je trouve pas ça toujours très rapide (j&#039;utilise une station de travail comme serveur).</p><p>Y&#039;a il une methode plus rapide/efficace pour injecter mes données en bases ? un ETL ? python+pandas ? Une stratégie a adopter dans les scripts ?</p><p>Cordialement</p>]]></content>
+		<author>
+			<name><![CDATA[meles]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=789</uri>
+		</author>
+		<updated>2017-04-05T21:43:06Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25187#p25187</id>
+	</entry>
+</feed>

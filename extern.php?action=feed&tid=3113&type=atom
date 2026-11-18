@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / L'ordre des indexes a-t-il une importance ? (cas multi index)]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3113&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3113"/>
+	<updated>2014-04-29T11:06:46Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3113</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  L'ordre des indexes a-t-il une importance ? (cas multi index)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19781#p19781"/>
+		<content type="html"><![CDATA[<p>Salut</p><div class="quotebox"><cite>guk92 a écrit&#160;:</cite><blockquote><div><p>Donc considérons que j&#039;ai une table avec trois colonnes : a, b, et c.<br />Si je crée l&#039;index mon_index(a, c) alors l&#039;index agira dans les cas suivants :</p><div class="codebox"><pre><code>SELECT * FROM ma_table WHERE a = 1;
+SELECT * FROM ma_table WHERE a = 1 AND b = 1 AND c = 1;
+SELECT * FROM ma_table WHERE a = 1 OR b = 1 OR c = 1;</code></pre></div><p>...</p></div></blockquote></div><p>Je ne pense que l&#039;index agira dans le cas </p><div class="codebox"><pre><code>SELECT * FROM ma_table WHERE a = 1 OR b = 1 OR c = 1;</code></pre></div><p>Le OR n&#039;est pas <a href="http://blog.developpez.com/sqlpro/p10994/langage-sql-norme/optimisation_de_requetes_sql_sargable_c" rel="nofollow"> sargable.</a><br />@+</p>]]></content>
+		<author>
+			<name><![CDATA[alassanediakite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1475</uri>
+		</author>
+		<updated>2014-04-29T11:06:46Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19781#p19781</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  L'ordre des indexes a-t-il une importance ? (cas multi index)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19765#p19765"/>
+		<content type="html"><![CDATA[<p>Pour la 4, je ne dis pas le contraire. Il faut exécuter ANALYZE de temps en temps. Cela permet au planificateur d&#039;avoir une estimation récente des données présentes dans la table. Maintenant, si le dernier ANALYZE est suffisamment récent, que vous ajoutez un index *après*, et que vous exécutez votre requête immédiatement après, il pourra être utilisé par le planificateur sans avoir à refaire d&#039;ANALYZE.</p><br /><p>Pour le 6, ANALYZE calcule des statistiques sur les données présentes en base. Plus exactement sur un échantillon. Le planificateur utilise ces statistiques pour calculer le coût de chaque plan d&#039;exécution, ce qui lui permettra de sélectionner le moins cher. Plus les statistiques sont proches de la réalité, meilleur sera le plan. Pour être proche de la réalité, elles doivent être calculées assez fréquemment. Tout du moins avec une fréquence en accord avec celle des INSERT/UPDATE/DELETE. ANALYZE ne sert pas à choisir entre btree et hash. De toute façon, je ne connais pas un seul cas où un index hash a été sélectionné au détriment d&#039;un index btree.</p><br /><p>J&#039;ai oublié récemment un article dans GLMF sur le planificateur de requêtes de PostgreSQL. Voir <a href="http://boutique.ed-diamond.com/gnulinux-magazine/564-gnulinux-magazine-170.html" rel="nofollow">http://boutique.ed-diamond.com/gnulinux … e-170.html</a> pour les détails. Et trois documents de conférences : <a href="http://www.dalibo.org/comprendre_explain" rel="nofollow">http://www.dalibo.org/comprendre_explain</a>, <a href="http://www.dalibo.org/plans_d_execution_et_explain" rel="nofollow">http://www.dalibo.org/plans_d_execution_et_explain</a>, <a href="http://www.dalibo.org/understanding_explain" rel="nofollow">http://www.dalibo.org/understanding_explain</a> (la deuxième a été donnée par Mac Cousin, qui a une façon différente mais très intéressante d&#039;aborder le même problème). J&#039;espère que cela vous intéressera et je suis preneur de tout retour sur ces documents.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-04-28T13:45:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19765#p19765</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  L'ordre des indexes a-t-il une importance ? (cas multi index)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19764#p19764"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>dans postgres, l&#039;index sera bien utilisé pour les cas:</p><div class="codebox"><pre><code> 
+SELECT * FROM ma_table WHERE c = 1;
+SELECT * FROM ma_table WHERE b = 1 AND c = 1;</code></pre></div><p>Ce pendant, il sera moins efficace que si il y avait une condition a=1.</p><br /><p>Par contre je ne suis pas sûr pour la troisième, à tester.</p><div class="codebox"><pre><code> 
+SELECT * FROM ma_table WHERE b = 1 OR c = 1;</code></pre></div><p>Pour le 3<br />tu as bien raison, il faut mettre la colonne qui a le plus petit nombre de valeurs en premier.<br />Pour le ANALYZE, comme a bien dit gleu, il faut exécuter un analyze périodique pour mettre&#160; à jour test stats, si ma mémoire est bonne c&#039;est le même mécanisme chez oracle.</p>]]></content>
+		<author>
+			<name><![CDATA[Postgres.0]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1310</uri>
+		</author>
+		<updated>2014-04-28T13:02:59Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19764#p19764</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  L'ordre des indexes a-t-il une importance ? (cas multi index)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19759#p19759"/>
+		<content type="html"><![CDATA[<p>Bonsoir, merci pour vos réponses gleu.</p><br /><br /><p>Pour la 3. , sur stackoverflow, j&#039;ai lu : </p><div class="quotebox"><blockquote><div><p>The column with the least distinct values ought to be first and the column with the most distinct values last</p></div></blockquote></div><br /><p>Pour la 4. , notre formateur Oracle nous a dit que les index ne servaient à rien, si de temps en temps on n&#039;effectuait pas la commande ANALYZE. Sur le coup, j&#039;ai pensé que c&#039;était l&#039;équivalent d&#039;un VACUUM PostgreSQL mais pour &quot;nettoyer&quot; l&#039;index. <br /><strong>6.</strong> Lorsque je lis la doc, cela dit en gros que ANALYZE sert à choisir le meilleur algo de recherche (le terme <em>&quot;plan d&#039;exécution&quot;</em> correspond mieux peut-être) ... mais je suppose que 90% du temps c&#039;est du B-tree et hash ?</p><br /><p>Pour la 5., en effet j&#039;ai voulu dire &quot;index implicite&quot;.</p>]]></content>
+		<author>
+			<name><![CDATA[guk92]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1398</uri>
+		</author>
+		<updated>2014-04-27T21:53:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19759#p19759</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  L'ordre des indexes a-t-il une importance ? (cas multi index)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19758#p19758"/>
+		<content type="html"><![CDATA[<div class="quotebox"><blockquote><div><p>Mon formateur Oracle nous a dit que l&#039;ordre des indexes ont une importance. Par exemple, si j&#039;ai un index avec deux colonnes, et que la colonne n°1 de l&#039;index n&#039;est pas utilisé, alors l&#039;index n&#039;agira pas.</p></div></blockquote></div><p>Il a raison.</p><p>1. Oui.<br />2. Oui (ou alors un index sur a et un index sur c).<br />3. Je ne pense pas que cela a une grande importance.<br />4. ANALYZE ne remet pas les index à jour. Ils sont mis à jour à chaque opération DML (INSERT, UPDATE, DELETE and co). Par contre, il faut bien exécuter ANALYZE de manière périodique.<br />5. Je suppose que vous voulez dire d&#039;index implicite (et non pas de jointure implicite). Dans ce cas, oui, PostgreSQL ne crée pas d&#039;index lors de l&#039;ajout d&#039;une clé étrangère. Et donc oui, il est généralement bien de créer un index sur les colonnes impliquées par une clé étrangère.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2014-04-27T20:01:00Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19758#p19758</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[L'ordre des indexes a-t-il une importance ? (cas multi index)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=19757#p19757"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><br /><br /><p>Mon formateur Oracle nous a dit que l&#039;ordre des indexes ont une importance. Par exemple, si j&#039;ai un index avec deux colonnes, et que la colonne n°1 de l&#039;index n&#039;est pas utilisé, alors l&#039;index n&#039;agira pas.</p><br /><p>Je suis donc allé dans la doc PostgreSQL pour voir le comportement de celui-ci (chapitres 11.3 et 11.5) :<br /><a href="http://docs.postgresqlfr.org/9.2/indexes-multicolumn.html" rel="nofollow">http://docs.postgresqlfr.org/9.2/indexe … olumn.html</a><br /><a href="http://docs.postgresqlfr.org/9.2/indexes-bitmap-scans.html" rel="nofollow">http://docs.postgresqlfr.org/9.2/indexe … scans.html</a></p><br /><p>Mais je ne suis pas sur d&#039;avoir tout à fait compris si c&#039;était <strong>bien équivalent</strong>.</p><br /><p>Donc considérons que j&#039;ai une table avec trois colonnes : a, b, et c.<br />Si je crée l&#039;index mon_index(a, c) alors l&#039;index agira dans les cas suivants :</p><div class="codebox"><pre><code>SELECT * FROM ma_table WHERE a = 1;
+SELECT * FROM ma_table WHERE a = 1 AND b = 1 AND c = 1;
+SELECT * FROM ma_table WHERE a = 1 OR b = 1 OR c = 1;</code></pre></div><p>Mais pas dans ces cas là, parce que &quot;a&quot; n&#039;est pas présent :</p><div class="codebox"><pre><code>SELECT * FROM ma_table WHERE c = 1;
+SELECT * FROM ma_table WHERE b = 1 AND c = 1;
+SELECT * FROM ma_table WHERE b = 1 OR c = 1;</code></pre></div><br /><p><strong>1.</strong> Est-ce que c&#039;est bien le cas ? (pour les 2 exemples cités au-dessus).</p><br /><p><strong>2.</strong> Si je souhaite utiliser parmi les 3 cas :<br />* le cas où &quot;a&quot; seul est appelé<br />* &quot;a&quot; et &quot;c&quot; sont appelés<br />* le cas où seul &quot;c&quot; est appelé<br />... alors je devrais créer 2 indexes : mon_index1(a, c) et mon_index2(c) ?</p><br /><p><strong>3.</strong> Considérons que les colonnes &quot;a&quot; et &quot;c&quot; sont utilisés dans la requête. Si la colonne &quot;a&quot; contient 10 valeurs distinctes, et &quot;c&quot; 10000 valeurs distinctes, alors il faut de préférence placer &quot;a&quot; en premier, et &quot;c&quot; en seconde position dans l&#039;index ? </p><br /><p><strong>4.</strong> La commande ANALYZE permet de remettre les index à jour si je comprend bien. Dans un cas général, est-t-il conseillé d&#039;utiliser une tâche planifiée, pour exécuter ANALYZE de temps en temps (traitement de nuit) ?</p><br /><p><strong>5.</strong> Lorsqu&#039;on crée une FOREIGN KEY (cas de jointure), PostgreSQL ne crée pas de jointure implicite (contrairement aux PRIMARY KEY et UNIQUE). La documentation dit :</p><div class="quotebox"><blockquote><div><p>Since a DELETE of a row from the referenced table or an UPDATE of a referenced column will require a scan of the referencing table for rows matching the old value, it is often a good idea to index the referencing columns too. Because this is not always needed, and there are many choices available on how to index, declaration of a foreign key constraint does not automatically create an index on the referencing columns.</p></div></blockquote></div><p>... je suppose qu&#039;il est préférable pour moi de créer explicitement un INDEX sur les colonnes sur lesquels j&#039;effectue des jointures ?</p><br /><br /><br /><p>Je vous remercie par avance, cordialement <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[guk92]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1398</uri>
+		</author>
+		<updated>2014-04-27T16:56:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=19757#p19757</id>
+	</entry>
+</feed>

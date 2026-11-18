@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Migration Oracle => PostgreSQL (savepoint)]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4755&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4755"/>
+	<updated>2018-05-25T12:17:26Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4755</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Migration Oracle => PostgreSQL (savepoint)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27654#p27654"/>
+		<content type="html"><![CDATA[<p>Merci pour ta réponse.</p><p>Je comprends que ce n’est pas possible de migrer ce code tel quel sous PostgreSQL, mais je cherche à me rapprocher au plus du fonctionnement d’oracle. <br />J’ai fini par abandonner l’idée de faire un COMMIT dans une procédure (vivement la version 11 de PostgreSQL), en revanche j’arrive à reproduire le système de savepoint d’oracle grâce à plusieurs bloc BEGIN imbriqués et grâce aux exceptions. Cependant mon approche à des limites, comme le fait de dupliquer le code de certaines procédures mais aussi le fait que je suis restreint pour annuler une partie de la procédure (je suis obligé de tester mes conditions dans le bloc BEGIN concerné).</p><br /><p>Je voulais donc savoir si quelqu’un avait déjà eu ce problème et s’il a pu le résoudre.</p>]]></content>
+		<author>
+			<name><![CDATA[Mael]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8099</uri>
+		</author>
+		<updated>2018-05-25T12:17:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27654#p27654</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Migration Oracle => PostgreSQL (savepoint)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27651#p27651"/>
+		<content type="html"><![CDATA[<p>Ces exemples n&#039;ont pas de sens au niveau de PostgreSQL.. Par exemple, un ROLLBACK vers un savepoint d&#039;une autre fonction est totalement impossible. Un COMMIT seul est impossible. Etc. Mais si je comprends bien, il ne s&#039;agit pas des fonctions complètes, dès lors il est difficile de se prononcer sur leur migration possible à PL/pgsql.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2018-05-25T09:44:08Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27651#p27651</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Migration Oracle => PostgreSQL (savepoint)]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=27635#p27635"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />Je cherche à migrer du code pl/sql vers du pl/pgsql et je rencontre quelques problèmes notamment pour ce qui est de migrer des procédures qui comportent des savepoints.<br />Voici un exemple simple sous oracle illustrant mon problème :</p><br /><div class="quotebox"><blockquote><div><p>CREATE TABLE exemple ( id INTEGER, string VARCHAR2(50), date_creation TIMESTAMP);</p><p>CREATE OR REPLACE PROCEDURE p1 AS<br />BEGIN<br />&#160; &#160; p4();<br />&#160; &#160; INSERT INTO exemple VALUES (1, &#039;Procédure 1&#039;, current_timestamp);<br />&#160; &#160; SAVEPOINT sp1_1;<br />&#160; &#160; INSERT INTO exemple VALUES (2, &#039;Procédure 1&#039;, current_timestamp);<br />&#160; &#160; ROLLBACK TO SAVEPOINT sp1_1;<br />&#160; &#160; p3();<br />END;<br />/</p><br /><p>CREATE OR REPLACE PROCEDURE p2 AS<br />BEGIN<br />&#160; &#160; INSERT INTO exemple VALUES (1, &#039;Procédure 2&#039;, current_timestamp);<br />&#160; &#160; COMMIT;<br />&#160; &#160; INSERT INTO exemple VALUES (2, &#039;Procédure 2&#039;, current_timestamp);<br />&#160; &#160; SAVEPOINT sp1_1;<br />&#160; &#160; p3();<br />END;<br />/</p><br /><p>CREATE OR REPLACE PROCEDURE p3 AS<br />BEGIN<br />&#160; &#160; INSERT INTO exemple VALUES (1, &#039;Procédure 3&#039;, current_timestamp);<br />&#160; &#160; ROLLBACK TO sp1_1;<br />&#160; &#160; COMMIT;<br />END;<br />/</p><p>CREATE OR REPLACE PROCEDURE p4 AS<br />BEGIN<br />&#160; &#160; INSERT INTO exemple VALUES (1, &#039;Procédure 4&#039;, current_timestamp);<br />&#160; &#160; SAVEPOINT sp4_1;<br />&#160; &#160; INSERT INTO exemple VALUES (2, &#039;Procédure 4&#039;, current_timestamp);<br />END;<br />/</p></div></blockquote></div><br /><p>Bien sûr, les rollback to de cet exemple ne sont pas arbitraire, il y a des tests de conditions qui déterminent s’il y a un rollback, un rollback to ou rien du tout.<br />J’ai commencé à élaborer une solution grâce à la gestion d’exceptions mais je me retrouve bloqué lorsque je suis dans la configuration ci-dessus&#160; avec le dernier rollback to sp1_1 dans P3.<br />De plus lorsque j’utilise les exceptions pour me permettre d’annuler certaines modifications, je suis obligé de regrouper les procédures P4, P1, P3 et les procédures P2 et P3 (ce qui me fait dupliquer le code de P3).</p><br /><p>Mes questions sont donc :<br />- Est-ce qu’il y a un moyen de migrer ce code sous PostgreSQL 10&#160; pour qu’il corresponde au code Oracle (savepoint) ?<br />- Si oui, comment le migrer et est-il possible de le faire sans dupliquer le code de P3 ?</p><p>Merci d’avance de votre aide.</p>]]></content>
+		<author>
+			<name><![CDATA[Mael]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8099</uri>
+		</author>
+		<updated>2018-05-24T06:19:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=27635#p27635</id>
+	</entry>
+</feed>

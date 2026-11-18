@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Erreur dans une fonction: ERROR:  set-valued function called in contex]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1484&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1484"/>
+	<updated>2011-06-22T14:39:24Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1484</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Erreur dans une fonction: ERROR:  set-valued function called in contex]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10011#p10011"/>
+		<content type="html"><![CDATA[<p>Il semble, d&#039;après le lien que Marc m&#039;as fourni, qu&#039;il-y-ait plus facile que d&#039;utiliser les &#039;quote_xxxxx&#039;:<br />n&#039;utiliser que la description des parms (int4, text, etc...) et donc utiliser $n dans le corps de la fonction - cette doc précise justement qu&#039;escape &amp; quote de telles valeurs sont automatiques.<br />J&#039;ai quand même demandé la confirmation sur la ML Pg.</p><p>SI c&#039;est bien ça, ça permettrait d&#039;utiliser mon idée de fonctions polymorphes en lieu et place de vues.</p><p>Évidemment les vues sont plus rapides puisque prepared et plus sécurisées de base, mais (IMHO) l&#039;overhead introduit par mon système est relativement négligeable par rapport à la création/modification de centaines de vues/fonctions par groupe d&#039;utilisateurs; à la condition expresse que mes fonctions soient inattaquables pour une injection.<br />L&#039;intérêt de ma méthode par rapport à celle de Fredéric est que la seule modif d&#039;un privilège sur une colonne est immédiatement répercutée, sans avoir à modifier des tas de vues/fonctions dans la foulée.<br />Mais bon, jsuis pas un hyper-spécialiste (même pas un spécialiste tout court, d&#039;ailleurs): je recherche juste le moyen de faire secure, effficace &amp; surtout simple - fusse au prix d&#039;une latence légèrement supérieure.<br />Je dis ça dans l&#039;optique de CE projet: un ERP - parce qu&#039;il est évident que si j&#039;avais des centaines de requêtes à la seconde, la problématique de latence serait toute autre et considérée beaucoup plus du point de vue de Frédéric que de celui que j&#039;axprime maintenant:)</p>]]></content>
+		<author>
+			<name><![CDATA[Jiff]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=434</uri>
+		</author>
+		<updated>2011-06-22T14:39:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10011#p10011</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Erreur dans une fonction: ERROR:  set-valued function called in contex]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=10003#p10003"/>
+		<content type="html"><![CDATA[<p>@Marc: Au sujet de: &quot;EXECUTE query USING&quot;, je suppose que tu fais allusion aux seules 2 pages qui en parle: ecpg-...</p><p>Le seul soucis, c&#039;est qu&#039;avec cette syntaxe, si je veux mettre les noms des colonnes en parms externes, je dois savoir combien il-y-a en a (&#039;SELECT ?, ?, ?, ?&#039; etc); sauf que justement ça n&#039;est pas le cas: le nombre de parms est inconnu.</p><p>OU bien, tu veux dire que je construire la string de query par itération, en ajoutant justement un &#039;, ?&#039; par colonne voulue (pour rester dans le même exemple, évidemment.)<br />Peux-tu me préciser cela, STP?</p>]]></content>
+		<author>
+			<name><![CDATA[Jiff]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=434</uri>
+		</author>
+		<updated>2011-06-21T13:54:01Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=10003#p10003</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Erreur dans une fonction: ERROR:  set-valued function called in contex]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9995#p9995"/>
+		<content type="html"><![CDATA[<p>Ah, en fait après réflexion, je ne pense pas que je pourrai couvrir tous les cas avec uniquement des vues (par ex. pour afficher les familles &amp; s/s familles d&#039;article je me vois mal créer une vue par cas de figure; donc ça ne peut se faire que par une fonction.)<br />Et je ne comprends pas le PB de &quot;recompilation&quot;.</p><p>Oui, quand j&#039;ai commencé à vraiment m&#039;interesser aux DBs il-y-a 1 an, je me demandais à quoi pouvait bien servir les schémas - quand j&#039;ai commencé à analyser mon projet d&#039;ERP, j&#039;ai compris tout de suite l&#039;intérêt.&#160; Mais je l&#039;ai loupé pour les vues.</p><p>Sur le dernier point je suis dubitatif: comme on ne sait jamais quel colonne risque d&#039;être éventuellement ajoutée, l&#039;intervention humaine semble de rigueur; et si on reconstruit automatiquement les vues à la fin des modifications les concernant, ça fait l&#039;affaire. (mais là, jsuis pas sur d&#039;être sur la même longueur d&#039;onde que toi...)</p>]]></content>
+		<author>
+			<name><![CDATA[Jiff]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=434</uri>
+		</author>
+		<updated>2011-06-21T11:10:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9995#p9995</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Erreur dans une fonction: ERROR:  set-valued function called in contex]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9994#p9994"/>
+		<content type="html"><![CDATA[<p>Oui, car toucher aux privilèges (et non pas droits) pose des problèmes de &quot;recompilation&quot; donc de perf.... Mieux vaut que le schéma soit le plus stable possible </p><p>Pour les tables spécifiques, ça n&#039;est pas une obligation. De plus tu peut jouer sur les schéma en ventilant tes vues sur des schémas différents et donner des privilèges au niveau du schéma. Ainsu qune même vue peut exister dans deux schémas différents avec des colonnes différentes et des privilèges spécifiques.</p><p>Enfin, une bonne chose aurait été que PG implémente les trigger DDL comme c&#039;est le cas de SQL Server, car tu aurait pu gérer automatiquement par du SQL dynamique l&#039;attribution des privilèges en cas d&#039;évolution des structures des tables et vues</p><p>A +</p>]]></content>
+		<author>
+			<name><![CDATA[SQLpro]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1054</uri>
+		</author>
+		<updated>2011-06-21T10:31:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9994#p9994</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Erreur dans une fonction: ERROR:  set-valued function called in contex]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9991#p9991"/>
+		<content type="html"><![CDATA[<p>Merci pour les liens.<br />J&#039;ai déjà lu cela plusieurs fois dans tes articles et posts.<br />Par contre, ça veut aussi (sans doute) dire que je vais être obligé d&#039;ajouter des tables spécifiques, telle que les champs utilisés ou non par vue et par groupe d&#039;utilisateur, pour pouvoir régénérer automatiquement mes vues lors d&#039;une modification de(s) vue(s) (?)<br />Et si je veux pouvoir garder le côté auto-adaptatif de mon pgm client, il devra lui aussi avoir accès à ces tables (ou plutôt à des vues de ces tables.)</p><p>Et donc, puisqu&#039;une vue donne un accès indépendant des droits des tables/colonnes, je suppose que ne touche plus à ces droits?</p>]]></content>
+		<author>
+			<name><![CDATA[Jiff]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=434</uri>
+		</author>
+		<updated>2011-06-21T09:17:31Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9991#p9991</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Erreur dans une fonction: ERROR:  set-valued function called in contex]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9986#p9986"/>
+		<content type="html"><![CDATA[<p>Une vue et le grant associé est pourtant la meilleure solution en terme d&#039;évolutivité, et de performances.<br />En principe on devrait toujours développer les applications clientes à partie des vues et jamais en accès direct aux tables.<br />C&#039;est le MED (Modèle Externe de Données), composé de vues, procédures et trigger, généralement le grand oublié des développeurs !<br />Quelques références sur le sujet :<br /><a href="http://www.cybermed.jussieu.fr/Broussais/InforMed/LIVRES/TraitInfo/Fic/Chapitre4/Chap4.html" rel="nofollow">http://www.cybermed.jussieu.fr/Broussai … Chap4.html</a><br /><a href="http://errachidiaista.co.cc/cc/fichiers/ResumeTheorique2.doc" rel="nofollow">http://errachidiaista.co.cc/cc/fichiers … rique2.doc</a></p><p>A +</p>]]></content>
+		<author>
+			<name><![CDATA[SQLpro]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1054</uri>
+		</author>
+		<updated>2011-06-21T07:44:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9986#p9986</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Erreur dans une fonction: ERROR:  set-valued function called in contex]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9985#p9985"/>
+		<content type="html"><![CDATA[<p>Ok, c&#039;est bien ce qui me semblait question droits.</p><p>Pour les vues, c&#039;est ingérable vu le nombre de profils users susceptibles d&#039;exister, à moins de les régénérer automatiquement dès qu&#039;une modif de droits a lieu; et ça me semble assez dangereux parce qu&#039;une vue peut donner l&#039;accès à une colonne interdite par ailleurs.<br />C&#039;était ma première idée, mais j&#039;ai vite laissé tomber.<br />En fait, ce que je veux faire est une coopération entre client (en python) &amp; server: à la connexion, le client lit tous ses droits et s&#039;auto-configure en fonction de ceux-ci; les requêtes ou appels aux fonctions sont donc conformes aux droits.<br />Si qqun &quot;bricole&quot;, il génèrera fatalement tôt ou tard une exception qui sera logguée.</p><p>Niveau fonction je me suis effectivement aperçu que les discussions étaient nombreuses et animées.</p><p>Pour ce qui est des modifs je suis farpaitement d&#039;accord: 1 seul appel et le multi-processing se fait au niveau server.<br />Pour l&#039;instant je n&#039;ai pas identifié de cas où une rule serait nécessaire, et j&#039;espère que ça restera comme ça: j&#039;ai lu plusieurs papiers sur les interactions &amp; effets de bord possibles avec les triggers et ça n&#039;encourage pas à s&#039;en servir.</p>]]></content>
+		<author>
+			<name><![CDATA[Jiff]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=434</uri>
+		</author>
+		<updated>2011-06-21T07:32:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9985#p9985</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Erreur dans une fonction: ERROR:  set-valued function called in contex]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9984#p9984"/>
+		<content type="html"><![CDATA[<p>En émettant les requêtes à partir du client, on peut aussi y avoir des injections SQL… ça dépend évidemment de comment est codé le client, et de ce qui s&#039;y passe (se méfier de tous les champs que peuvent remplir les utilisateurs). Mais elles ne contourneront pas les privilèges de l&#039;utilisateur. Si une colonne est interdite d&#039;accès, elle reste interdite d&#039;accès, injection SQL ou pas. Cela n&#039;est évidemment possible que si chaque client se connecte avec un utilisateur différent. Si tout le monde utilise le même compte, c&#039;est impossible.</p><p>L&#039;autre solution, c&#039;est d&#039;interdire l&#039;accès aux tables aux utilisateurs, leur faire des vues qui n&#039;affichent que ce qu&#039;ils doivent voir, et leur donner à chacun des droits sur ces vues. Mais ça laisse le problème de l&#039;écriture dans les tables (on ne peut pas écrire dans les vues simplement pour le moment dans Postgres, il va y avoir une amélioration de ce point de vue en 9.1).</p><p>L&#039;utilisation de fonctions, c&#039;est assez compliqué de vous répondre, et sujet à débat. Ce qui suit n&#039;est donc que mon point de vue.</p><p>Préférez le SQL quand vous pouvez, puis les fonctions en SQL si nécessaire, et les fonctions dans un autre langage (PLPgSQL si possible, c&#039;est le plus simple) après. C&#039;est vraiment fait pour quand les traitements en SQL deviennent trop compliqués, ou impossibles (encore que c&#039;est de plus en plus rare de ne pas pouvoir faire un traitement en SQL pur). Je m&#039;en sers aussi pas mal pour les modifications de données, c&#039;est souvent plus simple (du côté du client, et de mon point de vue) de faire un appel à une fonction qui fait son insertion dans plusieurs tables que de faire plusieurs insertions consécutives (sans parler des latences entre le client et le serveur pour chaque requête). Ça aussi va pas mal changer avec les writable CTEs de la 9.1.</p><p>Pour ce qui est des rules, honnêtement, ne vous en servez qu&#039;en cas de dernière extrémité. C&#039;est très vicieux, il y a pas mal de pièges, et ça rend le débogage et la maintenance très pénibles.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-06-21T06:48:00Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9984#p9984</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Erreur dans une fonction: ERROR:  set-valued function called in contex]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9982#p9982"/>
+		<content type="html"><![CDATA[<p>Ben moi, je ne me suis pas couché, on est à égalité <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p><p>Si je comprends bien: pas la peine de passer par des fonctions appartenant à l&#039;admin ni d&#039;interdire l&#039;accès aux schémas, juste avoir des droits sur les colonnes et émettre les requêtes à partir du client ? (mais dans ce cas, comment éviter une injection puisque plus rien ne lui fait barrage ??)<br />Sinon, à quel type de process dois-je réserver l&#039;utilisation de fonctions, en dehors des triggers et éventuelles rules; les inserts/updates/deletes?</p><p>Merci pour le lien; ça ne semble effectivement ni trop compliqué ni trop contraignant; je digère ça et je RE avec qq chose qui prenne tout ça en compte.</p>]]></content>
+		<author>
+			<name><![CDATA[Jiff]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=434</uri>
+		</author>
+		<updated>2011-06-21T06:25:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9982#p9982</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Erreur dans une fonction: ERROR:  set-valued function called in contex]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9981#p9981"/>
+		<content type="html"><![CDATA[<p>Ok. Je dois être un peu obtus, ou peut-être que je me suis levé trop tôt, mais je ne vois pas l&#039;intérêt de la fonction par rapport à une requête simple, dans ce cas.</p><p>Pour l&#039;injection SQL, c&#039;est assez simple: que se passe t&#039;il à l&#039;heure actuelle si quelqu&#039;un, dans l&#039;appel de la fonction, vous passe par exemple un nom de colonne qui contient «&#039;;SELECT * FROM ma_table_super_critique» ? (ça ne va pas marcher exactement comme ça, ça dépendra de ce qui se trouve avant dans l&#039;ordre SQL généré, mais on peut finir par trouver quelque chose qui passe).<br />Pour être tranquille vis-à-vis de ça, vous avez deux stratégies simples:<br />- protéger les chaînes de caractères que vous concaténez dans l&#039;ordre SQL, ça se fait avec quote_ident, quote_litteral, quote_nullable : <a href="http://docs.postgresql.fr/9.0/plpgsql-statements.html#plpgsql-quote-literal-example" rel="nofollow">http://docs.postgresql.fr/9.0/plpgsql-s … al-example</a><br />- passer les chaînes de caractères en paramètres. Comme ce sont des paramètres de l&#039;exécution de la requête, et plus le code lui-même de la requête, aucun risque que quelqu&#039;un y mette quelque chose qui permette une injection. Ça se fait avec EXECUTE query USING (c&#039;est sur la même page de manuel qu&#039;au dessus).</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-06-21T05:12:19Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9981#p9981</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Erreur dans une fonction: ERROR:  set-valued function called in contex]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9980#p9980"/>
+		<content type="html"><![CDATA[<p>C&#039;est justement ce que je fais: un groupe Pal qui contient tous les autres groupes et users, des autorisations par colonnes et par groupes et un grant du/des groupes aux users qui n&#039;ont aucun accès direct aux schémas.</p><p>Sinon, dans la fonction, j&#039;ai juste ajouté le nom de la table et la vérification des droits sur les colonnes demandées, avec génération d&#039;une exception si un droit n&#039;est pas bon (maintenant, il va falloir que je trouve comment aller alimenter ma table de surveillance sans qu&#039;elle ne soit affectée par le rollback subséquent; je sens que je vais m&#039;amuser un certain temps...)</p><p>Au sujet de l&#039;injection SQL, je suis preneur de toutes infos &amp; conseils, également sites/articles, étant donné que je ne connais malheureusement que de nom.</p>]]></content>
+		<author>
+			<name><![CDATA[Jiff]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=434</uri>
+		</author>
+		<updated>2011-06-21T04:58:53Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9980#p9980</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Erreur dans une fonction: ERROR:  set-valued function called in contex]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9976#p9976"/>
+		<content type="html"><![CDATA[<p>Si vous n&#039;avez besoin que des droits sur les colonnes, pourquoi ne pas tout faire directement avec soit des grant par colonnes sur des groupes d&#039;utilisateur, soit des vues ? Ça me semble très compliqué, ce que vous êtes en train de faire. Sans même parler du fait que la fonction au dessus est très facile à détourner avec une injection SQL.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-06-21T04:41:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9976#p9976</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Erreur dans une fonction: ERROR:  set-valued function called in contex]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9967#p9967"/>
+		<content type="html"><![CDATA[<p>Bon, je me réponds à moi-même personnellement tout seul à la dernière question: les tests montrent ~ 20% d&#039;overhead avec le contrôle des droits intégré à la fonction (table de taille moyenne: 15 colonnes.)</p><p>Ça n&#039;est pas beaucoup, et c&#039;est même acceptable SI on prend en compte le contexte des opérations: HD PATA 7200 RPM standard sur lequel cohabite l&#039;OS, mono CPU assez vieux: AthlonXP-2600+, machine non-dédiée, 1.5GB de RAM - on passe de 760ns (sans contrôle des droits) à 950ns de temps d&#039;exécution, mais ça reste... des ns.)</p><p>Donc, vu le trafic prévisible (léger: ERP), la pénalité de retard ne grève pas le budget (et surtout question sécurité je ne vois pas mieux.)</p><p>JE SUIS LE POUCE DU MONDE!! (ben wai, parce c&#039;est pô encore le pied et que je suis très très loin d&#039;en être le mètre:)</p>]]></content>
+		<author>
+			<name><![CDATA[Jiff]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=434</uri>
+		</author>
+		<updated>2011-06-20T23:37:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9967#p9967</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Erreur dans une fonction: ERROR:  set-valued function called in contex]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9964#p9964"/>
+		<content type="html"><![CDATA[<p>Merci, maintenant ça fonctionne comme prévu (j&#039;ai même compris pourquoi:)<br />J&#039;avoue que j&#039;en chibave avec SQL, notamment avec la syntaxe (où mettre et ne pas mettre un &#039;;&#039; par exemple) et je comprends mieux pourquoi un pote programmeur m&#039;avait dit il-y-a qq années que dans un projet important on utilisait des spécialistes différents pour les tâches PGM/DB.</p><p>Au sujet du dernier point, je ne peux faire autrement parce que mon système de sécurité est basé sur les droits accordés sur les colonnes; si j&#039;utilise &#039;*&#039;, la requête plantera automatiquement puisqu&#039;elle est appelée avec les droits de l&#039;utilisateur qui n&#039;a pas spécialement accès à toutes les colonnes d&#039;une table.</p><p>J&#039;aimerai d&#039;ailleurs avoir ton avis sur la première idée que j&#039;avais: <br />Je pensais bloquer les accès utilisateurs aux schémas et n&#039;utiliser que des fonctions de type SECURITY DEFINER; le PB avec ce type d&#039;architecture c&#039;est que la fonction doit, à chaque appel, d&#039;abord vérifier les droits de l&#039;appelant; ça m&#039;a parut plutôt lourd et peu rapide et j&#039;ai abandonné - maintenant si tu juges que c&#039;est une bonne solution, je peux tout à fait revenir à cette solution (d&#039;ailleurs, j&#039;aimerai autant, parce que c&#039;est imparable question sécurité des données puisque l&#039;utilisateur ne peut QUE passer par les fonctions pour atteindre les données.)<br />Merci d&#039;avance.<br />JY</p>]]></content>
+		<author>
+			<name><![CDATA[Jiff]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=434</uri>
+		</author>
+		<updated>2011-06-20T16:21:02Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9964#p9964</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Erreur dans une fonction: ERROR:  set-valued function called in contex]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=9961#p9961"/>
+		<content type="html"><![CDATA[<p>Il y a plusieurs choses qui ne vont pas:</p><p>* Pourquoi mettre entre parenthèses, dans le SELECT, la liste des colonnes. En faisant ça, postgres vous fabrique un type composite, il ne garde pas à chaque colonne son identité.<br />* Vous utilisez du RECORD partout. Je comprends bien pourquoi, vous ne pouvez pas connaître les types au moment de l&#039;écriture de la fonction. Le problème, c&#039;est que lui non plus ne les connait pas au moment de l&#039;exécution. <br />Vous devez donc lui préciser, par quelque chose comme:<br />SELECT&#160; * FROM&#160; tsttst(&#039;id&#039;, FALSE, 1000, 1, variadic array[&#039;id&#039;, &#039;a&#039;, &#039;b&#039;]) AS t(id int, a text, b text);</p><p>* Dernier point: si vous ne mettez pas * dans le SELECT appelant, la fonction ne vous retourne qu&#039;un attribut, qui est un composite des colonnes retournées par la fonction.</p><p>Ensuite, si vous retournez de toutes façons tous les enregistrements de qry, utilisez directement «RETURN QUERY EXECUTY qry», ça sera plus simple que de faire vous même la boucle.</p>]]></content>
+		<author>
+			<name><![CDATA[Marc Cousin]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=312</uri>
+		</author>
+		<updated>2011-06-20T15:25:05Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=9961#p9961</id>
+	</entry>
+</feed>

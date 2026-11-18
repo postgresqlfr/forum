@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Récupéré résultat d'un SELECT dans une procédure stockée]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5006&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5006"/>
+	<updated>2018-12-10T13:27:56Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5006</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Récupéré résultat d'un SELECT dans une procédure stockée]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28738#p28738"/>
+		<content type="html"><![CDATA[<p>Ceci dit, vous pouvez aussi faire une fonction fourre-tout, mais c&#039;est un peu galère à utliser (ceci est un commentaire totalement subjectif et qui ne concerne que moi <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /> ). En voici un exemple :</p><div class="codebox"><pre class="vscroll"><code>postgres=# create or replace function get_all(r text) returns setof record language plpgsql
+as
+$$
+begin
+return query execute r;
+end
+$$;
+CREATE FUNCTION
+
+postgres=# select * from get_all(&#039;select * from employes&#039;) as emp (nom text, service integer);
+┌───────────┬─────────┐
+│    nom    │ service │
+├───────────┼─────────┤
+│ Sharon    │       1 │
+│ Jennifer  │       2 │
+│ Guillaume │       4 │
+│ a         │         │
+│ b         │         │
+│ c         │         │
+└───────────┴─────────┘
+(6 rows)
+
+postgres=# \d services
+                                            Table &quot;public.services&quot;
+┌───────────────┬───────────────────────┬───────────┬──────────┬───────────────────────────────────────────────┐
+│    Column     │         Type          │ Collation │ Nullable │                    Default                    │
+├───────────────┼───────────────────────┼───────────┼──────────┼───────────────────────────────────────────────┤
+│ num_service   │ integer               │           │ not null │ nextval(&#039;services_num_service_seq&#039;::regclass) │
+│ nom_service   │ character varying(20) │           │          │                                               │
+│ localisation  │ character varying(20) │           │          │                                               │
+│ departement   │ integer               │           │          │                                               │
+│ date_creation │ date                  │           │          │                                               │
+└───────────────┴───────────────────────┴───────────┴──────────┴───────────────────────────────────────────────┘
+Indexes:
+    &quot;services_pkey&quot; PRIMARY KEY, btree (num_service)
+Referenced by:
+    TABLE &quot;employes_big&quot; CONSTRAINT &quot;employes_big_num_service_fkey&quot; FOREIGN KEY (num_service) REFERENCES services(num_service)
+
+postgres=# select * from get_all(&#039;select num_service, nom_service from services&#039;) as serv (a integer, b varchar(20));
+┌───┬──────────────┐
+│ a │      b       │
+├───┼──────────────┤
+│ 1 │ Comptabilité │
+│ 2 │ R&amp;D          │
+│ 3 │ Commerciaux  │
+│ 4 │ Consultants  │
+└───┴──────────────┘
+(4 rows)
+
+postgres=# select * from get_all(&#039;select e.*, s.* from employes e join services s on e.service=s.num_service&#039;)  es (nom text, service integer, num_service integer, nom_service varchar(20), localisation varchar(20), departement integer, date_creation date);
+┌───────────┬─────────┬─────────────┬──────────────┬──────────────┬─────────────┬───────────────┐
+│    nom    │ service │ num_service │ nom_service  │ localisation │ departement │ date_creation │
+├───────────┼─────────┼─────────────┼──────────────┼──────────────┼─────────────┼───────────────┤
+│ Sharon    │       1 │           1 │ Comptabilité │ Paris        │          75 │ 2006-09-03    │
+│ Jennifer  │       2 │           2 │ R&amp;D          │ Rennes       │          40 │ 2009-08-03    │
+│ Guillaume │       4 │           4 │ Consultants  │ Nantes       │          44 │ 2009-08-03    │
+└───────────┴─────────┴─────────────┴──────────────┴──────────────┴─────────────┴───────────────┘
+(3 rows)</code></pre></div><p>Difficile de savoir si ça correspond mieux à ce que vous attendez vu que vous n&#039;avez fourni pratiquement aucune information sur ce que vous vouliez obtenir (et notamment sur ce que fait SQLServer que ne ferait pas PostgreSQL). Cette méthode (ci-dessus) déplace juste le probème de la spécification des colonnes et des types de données à l&#039;appel de la fonction, plutôt qu&#039;à sa création. Mais du coup, il faut l&#039;indiquer à chaque appel de fonction. Bref, encore une fois, ça dépend beaucoup de votre cas, de votre besoin et de vos pré-requis. Mais c&#039;est une autre méthode tout à fait fonctionnel.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2018-12-10T13:27:56Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28738#p28738</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Récupéré résultat d'un SELECT dans une procédure stockée]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28737#p28737"/>
+		<content type="html"><![CDATA[<p>Pour ce que vous voulez faire, oui.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2018-12-10T13:18:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28737#p28737</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Récupéré résultat d'un SELECT dans une procédure stockée]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28735#p28735"/>
+		<content type="html"><![CDATA[<p>Merci Beaucoup <br />tres gentil cette réponse détaillé , donc toujours il faut déclaré tel sortie une &#039;TABLE&#039; sinon un &#039;TYPE&#039; c&#039;est ça ?</p>]]></content>
+		<author>
+			<name><![CDATA[amine_oxa]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8408</uri>
+		</author>
+		<updated>2018-12-10T11:54:48Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28735#p28735</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Récupéré résultat d'un SELECT dans une procédure stockée]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28734#p28734"/>
+		<content type="html"><![CDATA[<p>Si vous voulez utiliser une fonction stockées, le mieux est de créer un type composite, composé des différentes colonnes en sortie. Cela donnerait quelque chose comme ceci (exemple complet) :</p><div class="codebox"><pre class="vscroll"><code>postgres=# select * from employes;
+┌───────────┬─────────┐
+│    nom    │ service │
+├───────────┼─────────┤
+│ Sharon    │       1 │
+│ Jennifer  │       2 │
+│ Guillaume │       4 │
+│ a         │         │
+│ b         │         │
+│ c         │         │
+└───────────┴─────────┘
+(6 rows)
+
+postgres=# select * from services;
+┌─────────────┬──────────────┬──────────────┬─────────────┬───────────────┐
+│ num_service │ nom_service  │ localisation │ departement │ date_creation │
+├─────────────┼──────────────┼──────────────┼─────────────┼───────────────┤
+│           1 │ Comptabilité │ Paris        │          75 │ 2006-09-03    │
+│           2 │ R&amp;D          │ Rennes       │          40 │ 2009-08-03    │
+│           3 │ Commerciaux  │ Limoges      │          52 │ 2006-09-03    │
+│           4 │ Consultants  │ Nantes       │          44 │ 2009-08-03    │
+└─────────────┴──────────────┴──────────────┴─────────────┴───────────────┘
+(4 rows)
+
+postgres=# select e.*, s.* from employes e join services s on e.service=s.num_service;
+┌───────────┬─────────┬─────────────┬──────────────┬──────────────┬─────────────┬───────────────┐
+│    nom    │ service │ num_service │ nom_service  │ localisation │ departement │ date_creation │
+├───────────┼─────────┼─────────────┼──────────────┼──────────────┼─────────────┼───────────────┤
+│ Sharon    │       1 │           1 │ Comptabilité │ Paris        │          75 │ 2006-09-03    │
+│ Jennifer  │       2 │           2 │ R&amp;D          │ Rennes       │          40 │ 2009-08-03    │
+│ Guillaume │       4 │           4 │ Consultants  │ Nantes       │          44 │ 2009-08-03    │
+└───────────┴─────────┴─────────────┴──────────────┴──────────────┴─────────────┴───────────────┘
+(3 rows)
+
+postgres=# \gdesc
+┌───────────────┬───────────────────────┐
+│    Column     │         Type          │
+├───────────────┼───────────────────────┤
+│ nom           │ text                  │
+│ service       │ integer               │
+│ num_service   │ integer               │
+│ nom_service   │ character varying(20) │
+│ localisation  │ character varying(20) │
+│ departement   │ integer               │
+│ date_creation │ date                  │
+└───────────────┴───────────────────────┘
+(7 rows)
+
+postgres=# create type es as (nom text, service integer, num_service integer, nom_service varchar(20), localisation varchar(20), departement integer, date_creation date);
+CREATE TYPE
+postgres=# create or replace function get_es() returns setof es language plpgsql
+as
+$$
+begin
+return query select e.*, s.* from employes e join services s on e.service=s.num_service;
+end
+$$;
+CREATE FUNCTION
+postgres=# select * from get_es();
+┌───────────┬─────────┬─────────────┬──────────────┬──────────────┬─────────────┬───────────────┐
+│    nom    │ service │ num_service │ nom_service  │ localisation │ departement │ date_creation │
+├───────────┼─────────┼─────────────┼──────────────┼──────────────┼─────────────┼───────────────┤
+│ Sharon    │       1 │           1 │ Comptabilité │ Paris        │          75 │ 2006-09-03    │
+│ Jennifer  │       2 │           2 │ R&amp;D          │ Rennes       │          40 │ 2009-08-03    │
+│ Guillaume │       4 │           4 │ Consultants  │ Nantes       │          44 │ 2009-08-03    │
+└───────────┴─────────┴─────────────┴──────────────┴──────────────┴─────────────┴───────────────┘
+(3 rows)</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2018-12-10T09:56:38Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28734#p28734</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Récupéré résultat d'un SELECT dans une procédure stockée]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28733#p28733"/>
+		<content type="html"><![CDATA[<p>Merci pour votre réponse , j&#039;ai plusieurs tables avec des jointures (peu complexe ) et je veux récupéré tous les colonnes de tous les tables , est ce que à chaque fois je dois déclarer une table avec toutes les colonnes ?? peut être en créant une vue mais personnellement je veux utilisé une procédure stockée à cause des contraintes avec mon application web </p><p>merci encore</p>]]></content>
+		<author>
+			<name><![CDATA[amine_oxa]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8408</uri>
+		</author>
+		<updated>2018-12-10T09:31:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28733#p28733</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Récupéré résultat d'un SELECT dans une procédure stockée]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28732#p28732"/>
+		<content type="html"><![CDATA[<p>Il faut bien lui déclarer qu&#039;on renvoie plusieurs lignes, et ça passera donc soit par un RETURNS TABLE, soit par un RETURNS SETOF.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2018-12-10T08:44:24Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28732#p28732</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Récupéré résultat d'un SELECT dans une procédure stockée]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=28729#p28729"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous </p><p>je suis nouveau sur PGSQL et je veux savoir comment recuperer le resultat d&#039;un simple select qui existe dans une procédure stockée , j&#039;etais sur SQL SERVER et c&#039;etai simple . Est ce que c&#039;est possible de le faire avec postgresql sans declarer (RETURN TABLE)</p><p>Merci de m&#039;aider</p>]]></content>
+		<author>
+			<name><![CDATA[amine_oxa]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8408</uri>
+		</author>
+		<updated>2018-12-10T08:28:34Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=28729#p28729</id>
+	</entry>
+</feed>

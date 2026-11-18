@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / [RESOLU] l'option FREEZE de VACUUM]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=4195&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=4195"/>
+	<updated>2017-04-12T15:29:21Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=4195</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] l'option FREEZE de VACUUM]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25242#p25242"/>
+		<content type="html"><![CDATA[<p>Salut<br />Merci gleu, c&#039;est très claire<br />@+</p>]]></content>
+		<author>
+			<name><![CDATA[alassanediakite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1475</uri>
+		</author>
+		<updated>2017-04-12T15:29:21Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25242#p25242</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  [RESOLU] l'option FREEZE de VACUUM]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25229#p25229"/>
+		<content type="html"><![CDATA[<p>En même temps, des slides, ça n&#039;aide pas à comprendre. C&#039;est forcément très succinct.</p><p>Bon, va falloir s&#039;accrocher...</p><p>Chaque ligne d&#039;une table contient les colonnes utilisateurs et les colonnes systèmes. Parmi les colonnes systèmes, il existe une colonne indiquant par quel numéro de transaction une ligne a été créée et par quel numéro de transaction elle a été supprimée. Pour faire très (très très très) schématique, une ligne est considérée visible par une transaction si elle a été créée avant la transaction en cours et si elle n&#039;a pas été supprimée. Le numéro de transaction est un entier sur 4 octets, donc avec un maximum de 4 milliards de valeurs. Or, sur les systèmes actuels, il est facile de dépasser 4 milliards de valeurs. Donc si on ne fait qu&#039;incrémenter l&#039;identifiant, on va finir par atteindre la valeur maximale. Si on l&#039;atteint, on a deux possibilités : soit on arrête le système (pas bon), soit on revient à 0. Mais si on revient à 0, l&#039;identifiant de transaction courant devient antérieur à tous les identifiants enregistrés au niveau des lignes, ce qui fait qu&#039;aucune ligne n&#039;est visible. C&#039;est pas bon non plus. Il faut donc que l&#039;identifiant de la transaction la plus ancienne ne soit pas toujours 0, mais un identifiant qui change suivant le rythme des modifications effectuées sur l&#039;instance. Donc PostgreSQL utilise les identifiants de façon cyclique mais pour cela, il doit avoir un pointeur sur l&#039;identifiant le plus ancien. Et pour cela, il faut que les identifiants enregistrés au niveau des lignes ne restent pas sur leur valeur initiale. À partir du moment où une ligne est considérée comme visible par tout le monde, son identifiant de création doit être remplacé par un identifiant constant qui n&#039;est pas pris en compte dans la comparaison. Il s&#039;appelle le FrozenXid et l&#039;opération qui permet le remplacement de l&#039;identifiant s&#039;appelle un Freeze. VACUUM est chargé de cette opération. Il peut le faire automatiquement suivant la configuration des paramètres *freeze* ou on peut le forcer à le faire en utilisant l&#039;option FREEZE de VACUUM (ou de COPY sur les dernières versions de PostgreSQL).</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2017-04-12T05:58:52Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25229#p25229</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[[RESOLU] l'option FREEZE de VACUUM]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=25227#p25227"/>
+		<content type="html"><![CDATA[<p>Salut<br />Je voudrais comprendre l&#039;action de l&#039;option FREEZE de VACUUM.<br />Je viens de lire...</p><div class="quotebox"><blockquote><div><p>FREEZE: l&#039;identifiant de la ligne est passé à une valeur spéciale “toujours visible”</p></div></blockquote></div><p> dans <a href="http://2014.pgday.fr/slides/vacuum.pdf" rel="nofollow"> ce document (page 12) </a> et je ne comprend pas le sens.<br />Merci d&#039;avance.</p>]]></content>
+		<author>
+			<name><![CDATA[alassanediakite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1475</uri>
+		</author>
+		<updated>2017-04-11T14:44:06Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=25227#p25227</id>
+	</entry>
+</feed>

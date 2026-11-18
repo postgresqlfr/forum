@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Problème d’exécution d’un progamme ecpg  (postgresql 8.4.10 )]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=2099&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=2099"/>
+	<updated>2012-06-11T08:01:00Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=2099</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème d’exécution d’un progamme ecpg  (postgresql 8.4.10 )]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14170#p14170"/>
+		<content type="html"><![CDATA[<p>Merci pour les informations et les précisions.</p><p>Pour la communauté, le code corrigé et testé a partir des informations données par Monsieur&#160; &quot;dverite&quot;. </p><p>EXEC SQL BEGIN DECLARE SECTION;<br />/* calcul la date de creation du message dans la table */<br />&#160; &#160; const char *select_timestamp = &quot;SELECT ( now()- ? * &#039;1 day&#039;::interval )::varchar&quot;;<br />EXEC SQL END DECLARE SECTION;</p><p>memset(timestamp_d,&#160; &#160; &#039;\0&#039;, TAILLE_BUFFER);<br />memset(date,&#160; &#160; &#039;\0&#039;, TAILLE_BUFFER);<br />sprintf(date,&quot;%s&quot;,360);</p><p>EXEC SQL WHENEVER SQLERROR SQLPRINT<br />EXEC SQL PREPARE stmt_select_timestamp&#160; &#160; &#160;FROM :select_timestamp;<br />EXEC SQL EXECUTE stmt_select_timestamp&#160; &#160; &#160;INTO :timestamp_d USING :date;<br />EXEC SQL DEALLOCATE PREPARE stmt_select_timestamp;<br />timestamp_d[11] = NUL;</p>]]></content>
+		<author>
+			<name><![CDATA[mderf]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1783</uri>
+		</author>
+		<updated>2012-06-11T08:01:00Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14170#p14170</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème d’exécution d’un progamme ecpg  (postgresql 8.4.10 )]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14168#p14168"/>
+		<content type="html"><![CDATA[<p>En version 8.2 ECPG injecte certainement&#160; le paramètre dans la requête, sans utiliser le PREPARE côté serveur.<br />Mais depuis 8.3, ECPG utilise le PREPARE côté serveur (voir les notes de version de la doc).</p><br /><p>Or le vrai PREPARE est strict sur ce qui peut être paramètre ou pas, en gros seuls les litéraux peuvent être des paramètres. DAYS étant&#160; un mot clef et non un litéral, l&#039;expression &quot;360 DAYS&quot; ne convient pas comme paramètre.</p><p>C&#039;est un problème, les autres interfaces comme PDO ou DBD::Pg qui ont opté pour les PREPARE côté serveur ont le même.</p><br /><p>La solution est de faire en SQL:</p><div class="codebox"><pre><code>PREPARE stmt_X as SELECT ( now()- $1 * &#039;1 day&#039;::interval )::varchar</code></pre></div><p>et de passer juste le nombre de jours dans le paramètre, sans &quot;DAYS&quot; évidemment.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2012-06-08T19:42:26Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14168#p14168</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Problème d’exécution d’un progamme ecpg  (postgresql 8.4.10 )]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14164#p14164"/>
+		<content type="html"><![CDATA[<p>Il me semble qu&#039;il manque les guillemets autour du point d&#039;interrogation. Cela étant dit, même si j&#039;ai fait un peu d&#039;ECPG, je suis loin d&#039;être un expert.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2012-06-08T15:27:51Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14164#p14164</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Problème d’exécution d’un progamme ecpg  (postgresql 8.4.10 )]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=14158#p14158"/>
+		<content type="html"><![CDATA[<p>Problème d’exécution d’un programme ecpg&#160; (postgresql 8.4.10 serveur red hat enterprise 5.3 64 bit ).</p><p>Bonjour,<br />J’ai un problème dû à la migration d’une base de données 8.2.4 vers 8.4.10.<br />Le problème se situe au niveau d’un programme C incluant du sql en un mot&#160; ECPG <br />La&#160; compilation du programme est OK.</p><p>Lors de l’exécution de mon programme j ai un bug :<br />&#160; &#160; &#160; &#160; &#160;SQL error: syntax error at or near &quot;$1&quot; on line 367<br />&#160; &#160; &#160; &#160; &#160;SQL error: too many arguments on line 368<br />&#160; &#160; &#160; &#160; &#160;SQL error: invalid statement name &quot;stmt_select_timestamp&quot; on line 369</p><br /><p>ci-dessous les lignes de code incriminées :<br />&#160; &#160; &#160; &#160; EXEC SQL BEGIN DECLARE SECTION;<br />&#160; &#160; &#160; &#160; /* calcul la date de creation du message dans la table */<br />&#160; &#160;&#160; &#160;const char *select_timestamp = &quot;SELECT ( now()- interval ? )::varchar&quot;;<br />&#160; &#160; &#160; &#160; EXEC SQL END DECLARE SECTION;</p><p>&#160; &#160; memset(timestamp_d,&#160; &#160; &#039;\0&#039;, TAILLE_BUFFER);<br />&#160; &#160; memset(date,&#160; &#160; &#039;\0&#039;, TAILLE_BUFFER);<br />&#160; &#160; sprintf(date,&quot;&#160; &#160; %s days&quot;,360);</p><br /><p>&#160; &#160; EXEC SQL WHENEVER SQLERROR SQLPRINT <br />&#160; &#160; &#160; EXEC SQL PREPARE stmt_select_timestamp &#160; &#160; FROM :select_timestamp;<br />&#160; &#160; EXEC SQL EXECUTE stmt_select_timestamp &#160; &#160; INTO :timestamp_d USING :date;<br />&#160; &#160; &#160; EXEC SQL DEALLOCATE PREPARE stmt_select_timestamp;<br />&#160; &#160; &#160; timestamp_d[11] = NUL;</p>]]></content>
+		<author>
+			<name><![CDATA[mderf]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1783</uri>
+		</author>
+		<updated>2012-06-08T14:56:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=14158#p14158</id>
+	</entry>
+</feed>

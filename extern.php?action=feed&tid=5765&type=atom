@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Requête pour créer une table de variation]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5765&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5765"/>
+	<updated>2020-05-22T14:49:25Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5765</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête pour créer une table de variation]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31204#p31204"/>
+		<content type="html"><![CDATA[<p>Effectivement la solution &quot;simple&quot; pour le tri par date ne semble pas faire l&#039;affaire.<br />Voici une solution différente qui ajoute un étage de requête avec un regroupement intermédiaire par date:</p><div class="codebox"><pre><code>select numero,tableau,unnest(dates) as d,version from
+ (select numero,tableau, array_agg(date) as dates, dense_rank() over (partition by numero order by min(date)) as version  
+from (select numero,date, array_agg( array[debut,fin] order by debut) as tableau from testdata group by numero,date) AS liste
+group by numero,tableau) s
+order by numero,d;</code></pre></div><p>cf&#160; <a href="https://www.db-fiddle.com/f/o13bBV4hjLWwJYjSiSDLRa/3" rel="nofollow">https://www.db-fiddle.com/f/o13bBV4hjLWwJYjSiSDLRa/3</a></p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2020-05-22T14:49:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31204#p31204</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête pour créer une table de variation]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31201#p31201"/>
+		<content type="html"><![CDATA[<p>Voici le lien : <a href="https://www.db-fiddle.com/f/o13bBV4hjLWwJYjSiSDLRa/2" rel="nofollow">https://www.db-fiddle.com/f/o13bBV4hjLWwJYjSiSDLRa/2</a></p>]]></content>
+		<author>
+			<name><![CDATA[Dev_France]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8897</uri>
+		</author>
+		<updated>2020-05-19T19:12:29Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31201#p31201</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête pour créer une table de variation]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31200#p31200"/>
+		<content type="html"><![CDATA[<p>Il faudrait reposter l&#039;URL car ça ne doit pas être la même, c&#039;est&#160; versionné.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2020-05-19T13:00:18Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31200#p31200</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête pour créer une table de variation]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31199#p31199"/>
+		<content type="html"><![CDATA[<p>J&#039;ai mis à jour le db-fiddle.<br />Tu verras que j&#039;y ai mis un cas précis qui te montrera ma problématique.</p>]]></content>
+		<author>
+			<name><![CDATA[Dev_France]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8897</uri>
+		</author>
+		<updated>2020-05-19T12:16:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31199#p31199</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête pour créer une table de variation]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31198#p31198"/>
+		<content type="html"><![CDATA[<p>Je ne sais pas ce qui diffère du résultat attendu.<br />J&#039;ai mis un test sur db-fiddle ici: <a href="https://www.db-fiddle.com/f/o13bBV4hjLWwJYjSiSDLRa/0" rel="nofollow">https://www.db-fiddle.com/f/o13bBV4hjLWwJYjSiSDLRa/0</a><br />Si vous voulez, vous pouvez changer les données de la table avec une série de valeurs qui met en évidence le problème.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2020-05-19T11:33:06Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31198#p31198</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête pour créer une table de variation]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31197#p31197"/>
+		<content type="html"><![CDATA[<p>Dverite,</p><p>J&#039;ai essayé mais hélas, j&#039;ai un classement qui ne correspond pas à un classement par date.<br />C&#039;est compliqué car il faut &quot;influencer&quot; le champ <strong>tableau</strong>.</p><p>Je ne sais pas si une autre solution peut être possible.</p>]]></content>
+		<author>
+			<name><![CDATA[Dev_France]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8897</uri>
+		</author>
+		<updated>2020-05-19T09:07:52Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31197#p31197</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête pour créer une table de variation]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31196#p31196"/>
+		<content type="html"><![CDATA[<p>Hmm. Le tri par le tableau n&#039;est pas fait pour trier mais pour générer un nouveau rang (dense_rank()) dès que la valeur change dans la même partition. On ne peut pas changer ce tri sans que ça invalide complètement l&#039;idée qui fonde cette requête.</p><p>Mais on doit pouvoir influer dans le sens voulu en triant par date la sous-requête &quot;liste&quot;, autrement dit:</p><div class="codebox"><pre><code>select liste.*, dense_rank() over (partition by numero order by tableau)
+from (select numero,date, array_agg( array[debut,fin] order by debut) as tableau
+          from NomDeTable group by numero,date ORDER BY date) AS liste
+order by numero, date;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2020-05-18T17:33:39Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31196#p31196</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête pour créer une table de variation]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31195#p31195"/>
+		<content type="html"><![CDATA[<p>Par contre, j&#039;ai une requête à faire.</p><br /><p>Le script fonctionne bien sauf pour un élément qui est important à prendre en compte.<br />Lorsqu&#039;il incrémente les différentes versions, il les classe par tab_temp. </p><p><strong>=&gt; Or, il faudrait que l&#039;ordre (et uniquement l&#039;ordre) d&#039;incrémentation se fasse par date.</strong></p><br /><p><span class="bbu">Actuellement : </span><br /> date&#160; &#160; &#160;départ&#160; arrivee&#160; &#160; version<br />20/01&#160; &#160; &#160; &#160;2&#160; &#160; &#160; &#160; &#160; &#160;3&#160; &#160; &#160; &#160; &#160; &#160;<strong>v2</strong><br />20/01&#160; &#160; &#160; &#160;3&#160; &#160; &#160; &#160; &#160; &#160;5&#160; &#160; &#160; &#160; &#160; &#160;<strong>v2</strong><br />20/01&#160; &#160; &#160; &#160;5&#160; &#160; &#160; &#160; &#160; &#160;9&#160; &#160; &#160; &#160; &#160; &#160;<strong>v2</strong><br />21/01&#160; &#160; &#160; &#160;2&#160; &#160; &#160; &#160; &#160; &#160;3&#160; &#160; &#160; &#160; &#160; &#160;<strong>v1</strong><br />21/01&#160; &#160; &#160; &#160;3&#160; &#160; &#160; &#160; &#160; &#160;5&#160; &#160; &#160; &#160; &#160; &#160;<strong>v1</strong><br />21/01&#160; &#160; &#160; &#160;5&#160; &#160; &#160; &#160; &#160; &#160;9&#160; &#160; &#160; &#160; &#160; &#160;<strong>v1</strong></p><br /><p><span class="bbu">Ma cible :</span><br /> date&#160; &#160; &#160;départ&#160; arrivee&#160; &#160; version<br />20/01&#160; &#160; &#160; &#160;2&#160; &#160; &#160; &#160; &#160; &#160;3&#160; &#160; &#160; &#160; &#160; &#160;<strong>v1</strong><br />20/01&#160; &#160; &#160; &#160;3&#160; &#160; &#160; &#160; &#160; &#160;5&#160; &#160; &#160; &#160; &#160; &#160;<strong>v1</strong><br />20/01&#160; &#160; &#160; &#160;5&#160; &#160; &#160; &#160; &#160; &#160;9&#160; &#160; &#160; &#160; &#160; &#160;<strong>v1</strong><br />21/01&#160; &#160; &#160; &#160;2&#160; &#160; &#160; &#160; &#160; &#160;3&#160; &#160; &#160; &#160; &#160; &#160;<strong>v2</strong><br />21/01&#160; &#160; &#160; &#160;3&#160; &#160; &#160; &#160; &#160; &#160;5&#160; &#160; &#160; &#160; &#160; &#160;<strong>v2</strong><br />21/01&#160; &#160; &#160; &#160;5&#160; &#160; &#160; &#160; &#160; &#160;9&#160; &#160; &#160; &#160; &#160; &#160;<strong>v2</strong></p>]]></content>
+		<author>
+			<name><![CDATA[Dev_France]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8897</uri>
+		</author>
+		<updated>2020-05-18T11:22:44Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31195#p31195</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête pour créer une table de variation]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31191#p31191"/>
+		<content type="html"><![CDATA[<p>Cher dverite,</p><br /><p>Permet moi de répondre avec simpliciter :<br />Merci.</p><p>J&#039;ai appliqué ta logique d&#039;implémentation à mon cas et il marche à merveille. J&#039;obtiens satisfaction totale.</p><br /><p>Merci pour ce professionnalisme.</p>]]></content>
+		<author>
+			<name><![CDATA[Dev_France]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8897</uri>
+		</author>
+		<updated>2020-05-15T14:49:25Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31191#p31191</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête pour créer une table de variation]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31190#p31190"/>
+		<content type="html"><![CDATA[<p>Si ce nombre 3 est fixé par le modèle, ça pourrait être plus simplement des colonnes debut1,fin1,debut2,fin2,debut3,fin3.<br />Si on considère que le nombre est variable, ça pourrait être un tableau, à une ou deux dimensions.</p><p>Par exemple cette requête regroupe en tableau à 2 dimensions:</p><div class="codebox"><pre><code>select numero,date, array_agg( array[debut,fin] order by debut) as tableau
+from NomDeTable
+group by numero,date;</code></pre></div><p>Après la question du versionnage doit pouvoir être abordée un classement inter-ligne par le tableau.</p><p>La requête ci-dessous ne devrait pas être loin de ce qui est cherché:</p><div class="codebox"><pre><code>select liste.*, dense_rank() over (partition by numero order by tableau)
+from (select numero,date, array_agg( array[debut,fin] order by debut) as tableau from NomDeTable group by numero,date) AS liste
+order by numero, date;</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2020-05-15T14:27:54Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31190#p31190</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête pour créer une table de variation]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31189#p31189"/>
+		<content type="html"><![CDATA[<p>Du coup, on aura une ligne par numéro et par jour, avec par un exemple, un nouveau champ qui concatène toutes les valeurs arrivées et départs :</p><p>numero&#160; &#160;date&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; valeurs_concat<br />001&#160; &#160; &#160; &#160; 20/01/2020&#160; &#160; &#160; 1-2-3-4-5-9<br />001&#160; &#160; &#160; &#160; 21/01/2020&#160; &#160; &#160; 1-2-3-4-5-9<br />001&#160; &#160; &#160; &#160; 14/06/2020&#160; &#160; &#160; 1-2-3-4-7-9</p><br /><p>Est-ce bien cela ?<br />Si oui, comment composer une telle table ? </p><p>Merci à vous</p>]]></content>
+		<author>
+			<name><![CDATA[Dev_France]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8897</uri>
+		</author>
+		<updated>2020-05-15T13:16:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31189#p31189</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête pour créer une table de variation]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31188#p31188"/>
+		<content type="html"><![CDATA[<p>Donc le triplet c&#039;est 3 lignes, et ça c&#039;est compliqué du point de vue relationnel, qui ne gère pas de relations inter-lignes en-dehors des contraintes d&#039;unicité.<br />Pour pouvoir dire qu&#039;un groupe de 3 lignes est égal ou pas à une autre groupe de 3 lignes, et ça sur toute la longueur de la table, typiquement il faudrait les aggréger pour qu&#039;un triplet devienne une seule ligne.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2020-05-15T12:58:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31188#p31188</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête pour créer une table de variation]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31187#p31187"/>
+		<content type="html"><![CDATA[<p>Très bien.</p><br /><p>Chaque numéro est composé d&#039;un triplet de lignes (arrivée, départ) qui est sensé être identique d&#039;un jour à l&#039;autre :</p><br /><p>Exemple : <br />Le <strong>20/01/2020</strong>, pour le numéro 003, j&#039;ai trois lignes <br />départ&#160; arrivee<br />1&#160; &#160; &#160; &#160; &#160; &#160;2<br />3&#160; &#160; &#160; &#160; &#160; &#160;4<br />5&#160; &#160; &#160; &#160; &#160; &#160;9</p><br /><p>Le <strong>21/01/2020</strong>, pour ce même numéro,<br />départ&#160; arrivee<br />1&#160; &#160; &#160; &#160; &#160; &#160;2<br />3&#160; &#160; &#160; &#160; &#160; &#160;4<br />5&#160; &#160; &#160; &#160; &#160; &#160;9<br />Etc. pour chaque jour.</p><br /><p>Or, il arrive quelques jours dans l&#039;année, ce triplet de lignes soit différent d&#039;un jour à l&#039;autre :<br />Le <strong>14/06/2020</strong>, pour ce même numéro,<br />départ&#160; arrivee<br />1&#160; &#160; &#160; &#160; &#160; &#160;2<br />3&#160; &#160; &#160; &#160; &#160; &#160;4<br /><strong>7</strong>&#160; &#160; &#160; &#160; &#160; &#160;9</p><br /><p>Pour cela, si pour un même numéro, j&#039;ai des triplets différents (au moins une valeur différente) d&#039;un jour à l&#039;autre, alors je souhaiterai versionner mes numéros :<br /><strong>20/01/2020</strong><br />départ&#160; arrivee version<br />1&#160; &#160; &#160; &#160; &#160; &#160;2&#160; &#160; &#160; &#160; v1<br />3&#160; &#160; &#160; &#160; &#160; &#160;4&#160; &#160; &#160; &#160; v1<br />5&#160; &#160; &#160; &#160; &#160; &#160;9&#160; &#160; &#160; &#160; v1<br /><strong>21/01/2020</strong><br />départ&#160; arrivee<br />1&#160; &#160; &#160; &#160; &#160; &#160;2&#160; &#160; &#160; &#160; v1<br />3&#160; &#160; &#160; &#160; &#160; &#160;4&#160; &#160; &#160; &#160; v1<br />5&#160; &#160; &#160; &#160; &#160; &#160;9&#160; &#160; &#160; &#160; v1<br /><strong>14/06/2020</strong><br />départ&#160; arrivee<br />1&#160; &#160; &#160; &#160; &#160; &#160;2&#160; &#160; &#160; &#160; v2<br />3&#160; &#160; &#160; &#160; &#160; &#160;4&#160; &#160; &#160; &#160; v2<br /><strong>7</strong>&#160; &#160; &#160; &#160; &#160; &#160;9&#160; &#160; &#160; &#160; v2</p><br /><p>J&#039;espère avoir été suffisamment clair.</p><br /><p>Merci à vous</p>]]></content>
+		<author>
+			<name><![CDATA[Dev_France]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8897</uri>
+		</author>
+		<updated>2020-05-15T12:10:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31187#p31187</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête pour créer une table de variation]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31186#p31186"/>
+		<content type="html"><![CDATA[<p>Peut-être que vous devriez expliquer la logique qui permet d&#039;obtenir la colonne &quot;Variation&quot; parce qu&#039;en regardant juste l&#039;exemple ça n&#039;a rien d&#039;évident.</p>]]></content>
+		<author>
+			<name><![CDATA[dverite]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=642</uri>
+		</author>
+		<updated>2020-05-15T11:32:06Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31186#p31186</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Requête pour créer une table de variation]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=31185#p31185"/>
+		<content type="html"><![CDATA[<p>Merci pour votre réponse.</p><p>Je souhaiterai modifier la table.</p>]]></content>
+		<author>
+			<name><![CDATA[Dev_France]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8897</uri>
+		</author>
+		<updated>2020-05-15T09:53:28Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=31185#p31185</id>
+	</entry>
+</feed>

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Erreur pg_restore "opérateur n'existe pas"]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=5540&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=5540"/>
+	<updated>2019-06-26T14:23:17Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=5540</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Erreur pg_restore "opérateur n'existe pas"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29919#p29919"/>
+		<content type="html"><![CDATA[<p>C&#039;est bien pg_restore 9.4.4 qui est utilisé. PostGIS est bien installé dans le schéma public.<br />On a aussi du retard dans la version de postGIS: j&#039;ai réussi à faire fonctionner pg_restore en utilisant une version plus récente d&#039;une fonction:</p><div class="codebox"><pre><code>diff postgis--2.1.8.sql.26062019 postgis--2.1.8.sql
+3461c3461
+&lt;       AS &#039;SELECT $1 &amp;&amp; $2 AND _ST_Intersects($1,$2)&#039;
+---
+&gt;       AS &#039;SELECT $1 OPERATOR(@extschema@.&amp;&amp;) $2 AND @extschema@._ST_Intersects($1,$2)&#039;</code></pre></div><p>et en modifiant le paramètrage de l&#039;extension:</p><div class="codebox"><pre><code>diff postgis.control.26062019 postgis.control
+5c5,6
+&lt; relocatable = true
+---
+&gt; relocatable = false
+&gt; schema = public</code></pre></div>]]></content>
+		<author>
+			<name><![CDATA[pifor]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8375</uri>
+		</author>
+		<updated>2019-06-26T14:23:17Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29919#p29919</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Erreur pg_restore "opérateur n'existe pas"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29917#p29917"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><div class="quotebox"><blockquote><div><p>PostgreSQL 9.4.4</p></div></blockquote></div><p>vous avez 19 versions mineures de retard, soit plus de 4 ans.&#160; Je vous conseille vivement de mettre à jour au plus vite.</p><br /><br /><p>Quelle version de pg_restore utilisez-vous ?&#160; Postgis est-il bien installé dans le schéma public?</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2019-06-26T14:07:09Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29917#p29917</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Erreur pg_restore "opérateur n'existe pas"]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=29911#p29911"/>
+		<content type="html"><![CDATA[<p>Bonjour</p><p>Nous utilisons :</p><div class="codebox"><pre><code># select version();
+                                                    version
+---------------------------------------------------------------------------------------------------------------
+ PostgreSQL 9.4.4 on x86_64-unknown-linux-gnu, compiled by gcc (GCC) 4.4.7 20120313 (Red Hat 4.4.7-16), 64-bit
+(1 ligne)</code></pre></div><p>avec:</p><div class="codebox"><pre><code># select postgis_full_version();
+NOTICE:  Function postgis_topology_scripts_installed() not found. Is topology support enabled and topology.sql installed?
+                                                                postgis_full_version
+----------------------------------------------------------------------------------------------------------------------------------------------------
+ POSTGIS=&quot;2.1.8 r13780&quot; GEOS=&quot;3.4.2-CAPI-1.8.2 r3921&quot; PROJ=&quot;Rel. 4.9.1, 04 March 2015&quot; GDAL=&quot;GDAL 1.9.2, released 2012/10/08&quot; LIBXML=&quot;2.7.6&quot; RASTER
+(1 ligne)</code></pre></div><p>Nous exportons une base avec pg_dump et nous l&#039;importons avec pg_restore. <br />Avant de lancer pg_restore, je supprime la base cible et je la recrée vide.<br />Le pg_restore est lancé sans option particulière:</p><div class="codebox"><pre><code>pg_restore -v -d &lt;base&gt; -h &lt;hostname&gt; -p &lt;port&gt; -U &lt;compte superuser&gt; &lt;fichier dump&gt;.</code></pre></div><p>pg_restore a plusieurs erreurs du type suivant:</p><div class="codebox"><pre><code>pg_restore: [programme d&#039;archivage (db)] could not execute query: ERREUR:  l&#039;opérateur n&#039;existe pas : public.geometry &amp;&amp; public.geometry
+LIGNE 1 : SELECT $1 &amp;&amp; $2 AND _ST_Intersects($1,$2)
+                    ^
+ASTUCE : Aucun opérateur ne correspond au nom donné et aux types d&#039;arguments.
+Vous devez ajouter des conversions explicites de type.
+REQUÊTE : SELECT $1 &amp;&amp; $2 AND _ST_Intersects($1,$2)
+CONTEXTE : fonction SQL « st_intersects » durant « inlining »
+    La commande était : CREATE MATERIALIZED VIEW dr_vue_cons_geo_zone_batie_hors_zae AS
+ WITH zone_bati_hors_zae AS (
+         SELECT sbat.gid,
+    ...
+ </code></pre></div><p>La base source et la base cible ont exactement la même version PostgreSQL et la même version de PostGIS.<br />On est bloqué sur cette erreur car la seule référence que j&#039;ai trouvé pour ce type d&#039;erreur est liée à des upgrades&#160; mais on ne fait pas d&#039;upgrade.</p><p>Est-ce que quelqu&#039;un a une piste ?</p><p>Merci.</p>]]></content>
+		<author>
+			<name><![CDATA[pifor]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8375</uri>
+		</author>
+		<updated>2019-06-26T07:52:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=29911#p29911</id>
+	</entry>
+</feed>

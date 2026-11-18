@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Trigger for Update]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=3891&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=3891"/>
+	<updated>2016-07-28T10:21:43Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=3891</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Trigger for Update]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23720#p23720"/>
+		<content type="html"><![CDATA[<p>Merci pour ta réponse. Oui je l&#039;ai finalement avec NEW et OLD<br />IF (TG_OP = &#039;UPDATE&#039;) THEN<br />&#160; &#160; &#160; &#160; IF (NEW.valid_to != OLD.valid_to) THEN <br />&#160; &#160; &#160; &#160; &#160; &#160; INSERT INTO audit VALUES(uuid_generate_v4(), ...);<br />&#160; &#160; &#160; &#160; ELSIF (NEW.rate != OLD.rate) THEN<br />&#160; &#160; &#160; &#160; &#160; &#160; INSERT INTO audit VALUES(...);<br />&#160; &#160; &#160; &#160; ELSIF(NEW.workflow_state != OLD.workflow_state) THEN<br />&#160; &#160; &#160; &#160; &#160; &#160; INSERT INTO audit VALUES(...<br />&#160; &#160;END IF;</p>]]></content>
+		<author>
+			<name><![CDATA[morista]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=6803</uri>
+		</author>
+		<updated>2016-07-28T10:21:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23720#p23720</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Trigger for Update]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23712#p23712"/>
+		<content type="html"><![CDATA[<p>J&#039;avoue que je ne vois pas ce qui vous pose problème. Vous utilisez OLD pour les anciennes valeurs, et NEW pour les nouvelles, comme vous le faites déjà pour le DELETE et l&#039;INSERT.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2016-07-27T19:33:55Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23712#p23712</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Trigger for Update]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=23711#p23711"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><p>J&#039;ai une table audite que je souhaite gérer avec un trigger. <br />Pour les Insertions et les Suppression c&#039;est déjà. Par contre <br />pour chaque Update je veux enregistrer en meme temps <br />la valeur modifier et son ancien valeur. Can you help me please ??<br />Voici ma fonction<br />CREATE OR REPLACE FUNCTION &quot;log_mission&quot; ()&#160; RETURNS trigger<br />&#160; VOLATILE<br />AS $dbvis$<br />BEGIN <br />&#160; &#160;IF (TG_OP = &#039;DELETE&#039;) THEN<br />&#160; &#160; &#160;INSERT INTO audit VALUES(uuid_generate_v4(), OLD.account_id, current_timestamp, &#039;Mission&#039;, &#039;Suppresion&#039;, &#039;&#039;, &#039;&#039;, OLD.account_id);<br />&#160; &#160; &#160;RETURN OLD;<br />&#160; &#160;ELSIF (TG_OP = &#039;UPDATE&#039;) THEN<br />&#160; &#160; &#160;INSERT INTO audit VALUES(uuid_generate_v4(), NEW.account_id, current_timestamp, &#039;Mission&#039;, &#039;Modification&#039;, &#039;&#039;, &#039;&#039;, NEW.account_id);<br />&#160; &#160; &#160; &#160; <br />&#160; &#160;ELSIF (TG_OP = &#039;INSERT&#039;) THEN<br />&#160; &#160; &#160;INSERT INTO audit VALUES(uuid_generate_v4(), NEW.account_id, current_timestamp, &#039;Mission&#039;, &#039;Création&#039;, &#039;&#039;, &#039;&#039;, NEW.account_id);<br />&#160; &#160;END IF;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; <br />&#160; &#160;RETURN NEW;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; <br />&#160; END;<br />$dbvis$ LANGUAGE plpgsql</p>]]></content>
+		<author>
+			<name><![CDATA[morista]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=6803</uri>
+		</author>
+		<updated>2016-07-27T10:57:16Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=23711#p23711</id>
+	</entry>
+</feed>

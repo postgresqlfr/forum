@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / sauvegarde inefficiente]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=6700&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=6700"/>
+	<updated>2023-11-24T06:17:10Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=6700</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  sauvegarde inefficiente]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34690#p34690"/>
+		<content type="html"><![CDATA[<p>Le problème est uniquement lié à un trop grand nombre de verrous nécessaires, changer le shared_buffers n&#039;aidera pas.</p><br /><br /><p>Je précise également que le problème ici n&#039;est pas exactement la taille de la base, du moins pas la taille sur disque, mais le nombre d&#039;objets à sauvegarder.&#160; La base pourrait être miniscule, par exemple si toutes les tables sont vides, et toujours nécessiter des centaines de milliers de verrous si vous aviez un très grand nombre de tables.&#160; Utiliser la sauvegarde physique / PITR permet de ne pas dépendre de max_locks_per_transaction.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2023-11-24T06:17:10Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34690#p34690</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  sauvegarde inefficiente]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34688#p34688"/>
+		<content type="html"><![CDATA[<p>Bonjour Julien,</p><p>Merci pour toutes ces informations...</p><p>bon j&#039;ai repris les fondamentaux en lançant juste la ligne de commande et :</p><p>Postgres m&#039;a répondu^^</p><p>pg_dump: erreur : échec de la requête : ERROR:&#160; out of shared memory<br />ASTUCE : You might need to increase max_locks_per_transaction.</p><p>Bref deux soucis identifié :</p><p>une valeur de share_buffers trop basse et un nombre de verrous par transaction trop bas...par rapport à la taille de la base à sauvegarder</p>]]></content>
+		<author>
+			<name><![CDATA[tholot]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8409</uri>
+		</author>
+		<updated>2023-11-23T11:30:12Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34688#p34688</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  sauvegarde inefficiente]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34684#p34684"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><p>Avez-vous vérifié dans pg_stat_activity / pg_locks si pg_dump était bloqué par une autre requête?&#160; En effet pg_dump commence par acquérir un verrou de type AccessShareLock sur chacun des objets de la base sauvegardée, donc si vous avez une transaction ouverte qui contient un verrou exclusif sur un des objets pg_dump sera en attente jusqu&#039;à la fin de cette transaction.</p><br /><p>Au dela de ce problème, avez-vous considéré l&#039;utilisation de sauvegarde PITR?&#160; Les sauvegardes logiques ont de nombreuses limitations (pas de possibilité de restaurer à un point après le début du pg_dump, lenteur de restauration etc).</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2023-11-23T06:03:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34684#p34684</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[sauvegarde inefficiente]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=34682#p34682"/>
+		<content type="html"><![CDATA[<p>Bonjour à tous</p><p>J&#039;ai un script shell de sauvegarde que j&#039;utilise depuis 10 ans sur un cluster de 6 bases de données sur ubuntu</p><p>Je l&#039;ai fait évoluer depuis postgres 9.1 jusque la migration du week-end dernier de postgres 12 à 14.</p><p>Toutes mes sauvegardes marchent sauf sur une base et je bloque à comprendre pourquoi...</p><p>les droits, comptes et option du pg_dump sont identiques et ce font avec 7 jobs parallélisés en directory (-Fd) </p><p>le script se lance crée le répertoire pour cette base puis plus rien à l&#039;affichage on voit bien le processus select et 1 job de sauvegarde et puis ca s&#039;arrête sans rien écrire.</p><p>Je précise que pour toutes les autres bases il n&#039;y aucun soucis le processus de select s&#039;initialise puis 7 connections pg_dump puis les 7 copy...</p><p>Bref je manque d&#039;imagination... des idées inspirations?</p>]]></content>
+		<author>
+			<name><![CDATA[tholot]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=8409</uri>
+		</author>
+		<updated>2023-11-22T20:37:20Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=34682#p34682</id>
+	</entry>
+</feed>

@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Utilisation d'un RECORD dans un trigger]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=1921&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=1921"/>
+	<updated>2012-05-15T09:59:32Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=1921</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Utilisation d'un RECORD dans un trigger]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13797#p13797"/>
+		<content type="html"><![CDATA[<p>@geoetl</p><p>Finalement tout le code que vous m&#039;avez donné lors de votre dernier post a finit par me servir sur une toutes autre base et je vous en remercie.</p><p>Pour information, il ne faut pas faire EXECUTE avant un insert into dans ce cas là ;-)</p><p>Encore merci.</p><p>Geo-x</p>]]></content>
+		<author>
+			<name><![CDATA[Geo-x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1346</uri>
+		</author>
+		<updated>2012-05-15T09:59:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13797#p13797</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Utilisation d'un RECORD dans un trigger]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=13013#p13013"/>
+		<content type="html"><![CDATA[<p>Merci Julien pour la réponse,</p><p>Le besoin a finalement été modifié, je n&#039;utiliserais donc pas forcément cet code là (cette fois-ci).</p><p>Pour info finalement on m&#039;a demande de concaténer l’ensemble des résultat dans un seul champ texte ça donne quelque chose du genre :</p><div class="codebox"><pre><code>SELECT array_to_string(array_agg(id_troncon),&#039; / &#039;) AS id_troncon,COUNT(*) AS nb_id_troncon INTO variable FROM
+(SELECT id_troncon FROM diag_route WHERE ST_Overlaps (NEW.wkb_geometry,diag_route.wkb_geometry)=TRUE OR ST_Contains (NEW.wkb_geometry,diag_route.wkb_geometry)=TRUE);
+		
+NEW.troncon_trav=variable.id_troncon;
+NEW.nb_troncon_trav=variable.nb_id_troncon;</code></pre></div><p>A bientôt et merci pour votre aide!</p>]]></content>
+		<author>
+			<name><![CDATA[Geo-x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1346</uri>
+		</author>
+		<updated>2012-02-27T15:42:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=13013#p13013</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Utilisation d'un RECORD dans un trigger]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12986#p12986"/>
+		<content type="html"><![CDATA[<p>essayons de comprendre le sujet...</p><p>1- J&#039;ai une succession de troncons sur une route avec un ID/troncon (table 2)</p><p>//donc cette table 2 contient des troncons avec un id ok.<br />la notion de route on s&#039;en moque semble t il&#160; ( simple regroupement de troncon successif)</p><br /><br /><p>2- Je dessine une ligne à cheval sur 2/3/3/4... troncons (TABLE 1)</p><p>alors... tu dessine un ligne dans la table 1 et cette ligne couperait X troncon....<br />si c&#039;est ca alors tu dessinerais une ligne en zig-zag et cette ligne couperait ici 1 foi le T2, deux fois le T3, une foi le T4 etc...<br />bizard mais continuons</p><p>3- Le trigger entre en jeu, et récupére l&#039;ID des 2/3/4... troncons et je l&#039;intègre dans un champ idtroncon1/idtroncon2/idtroncon3/idtroncon4... </p><p>je dirais plutot que : la ligne coupe tes troncons, tu chercherais donc a recuperer les valeurs des 4 intersections (ce que ne fait pas ton trigger...),<br />tu peux grouper et compter puisqu&#039;il y a deux foi le troncon n°3 qui est intersecté, tu recupere dans ton example les 3 lignes suivantes</p><p>id_dessin : id_troncon : nbdechevauchement<br />ligne dessiné : coupe t2 : 1 foi<br />ligne dessiné : coupe t3 : 2 foi<br />ligne dessiné : coupe t4 : 1 foi</p><p>donc ton resultat est a stocker dans une table de relation entre table1 et table 2, cette table contient 2 colonnes qui forment une PK_double (id_dessin+ id_troncon), chacun etant une FK de table 1 et table 2. quant au champ nbdechevauchement, libre a toi de le mettre ou pas.</p><p>donc tu obtiens 4 lignes suite a l&#039;intersection ( disons 3 lignes si y&#039;a un group by sur tronçon)<br />donc ton trigger doit boucler sur ces 3 lignes pour les inserer dans la table de relation :</p><p>---------------------</p><p>DECLARE meschevauchement RECORD;</p><br /><p>FOR meschevauchement&#160; IN <br />&#160; &#160; &#160;SELECT blabla bla WHERE ST_intersect (NEW.wkb_geometry1, test_sdf.wkb_geometry) group by blabla...<br />&#160; &#160; &#160;LOOP</p><p>&#160; &#160; &#160; &#160; &#160; &#160; &#160; insert into table_de_realtion values (id_dessin, id_troncon, nbchevauchement)<br />&#160; &#160; &#160; &#160; &#160; &#160; &#160; ou alors c&#039;est EXECUTE &#039;INSERT INTO &#039;&#160; je sais plus..........</p><p>&#160; &#160; &#160;END LOOP;</p><p>etc.....</p><p>va voir le loop ici par exemple :<br /><a href="http://www.postgresql.org/docs/8.3/interactive/plpgsql-control-structures.html#PLPGSQL-CONTROL-STRUCTURES-LOOPS" rel="nofollow">http://www.postgresql.org/docs/8.3/inte … URES-LOOPS</a></p><p>bye,<br />Julien</p><p>------------</p>]]></content>
+		<author>
+			<name><![CDATA[geoetl]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1574</uri>
+		</author>
+		<updated>2012-02-22T21:55:04Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12986#p12986</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Utilisation d'un RECORD dans un trigger]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12966#p12966"/>
+		<content type="html"><![CDATA[<p>Chaque ID de troncon doit être séparé pour pouvoir les traiter derrière. Je n&#039;ai jamais utilisé de curseur dans un trigger je vais regarder comment faire et je reviens pour vous tenir au courant.</p>]]></content>
+		<author>
+			<name><![CDATA[Geo-x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1346</uri>
+		</author>
+		<updated>2012-02-21T13:52:43Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12966#p12966</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Utilisation d'un RECORD dans un trigger]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12965#p12965"/>
+		<content type="html"><![CDATA[<p>Cela dépend de ce que vous voulez faire, gérer spécifiquement chacune des lignes ou gérer le fait qu&#039;il y ai au moins une ligne trouvée ?</p><p>Un record ne contient par définition qu&#039;un seul enregistrement. Il faut utiliser un curseur pour pouvoir gérer un ensemble d&#039;enregistrement.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2012-02-21T13:51:22Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12965#p12965</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Utilisation d'un RECORD dans un trigger]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12964#p12964"/>
+		<content type="html"><![CDATA[<p>Et oui peut être faut-il que je mette en place un count suivit d&#039;un LOOP?</p>]]></content>
+		<author>
+			<name><![CDATA[Geo-x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1346</uri>
+		</author>
+		<updated>2012-02-21T13:45:47Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12964#p12964</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Utilisation d'un RECORD dans un trigger]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12963#p12963"/>
+		<content type="html"><![CDATA[<p>Bonjour.</p><p>Vous pouvez utiliser troncon.nom_champ pour accéder aux différents champs du record.<br />Mais si la requête renvoie plus d&#039;un enregistrement ça devrait poser soucis.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2012-02-21T13:44:36Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12963#p12963</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Utilisation d'un RECORD dans un trigger]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=12962#p12962"/>
+		<content type="html"><![CDATA[<p>Bonjour @ tous,</p><p>je n&#039;ai pas trouvé la réponse à ma question dans les sujets existant, je me penche donc vers vous.</p><p>Voici le problème :</p><p>J&#039;utilise l&#039;extension postgis. J&#039;essaie de mettre en place un trigger, qui :</p><p>1- J&#039;ai une succession de troncons sur une route avec un ID/troncon (<strong>TABLE 2</strong>)<br />2- Je dessine une ligne à cheval sur 2/3/3/4... troncons (<strong>TABLE 1</strong>)<br />3- Le trigger entre en jeu, et récupére l&#039;ID des 2/3/4... troncons et je l&#039;intègre dans un champ idtroncon1/idtroncon2/idtroncon3/idtroncon4... (<strong>TABLE 1</strong>)</p><p>Voici mon trigger actuel :</p><div class="codebox"><pre><code>CREATE OR REPLACE FUNCTION touches_test()
+RETURNS trigger AS
+$BODY$
+
+DECLARE troncon record;
+BEGIN
+
+	SELECT DISTINCT materiau_cana INTO troncon FROM test_sdf WHERE ST_Overlaps (NEW.wkb_geometry1,test_sdf.wkb_geometry)=TRUE;
+	
+	NEW.modif=troncon;    ----Et là, la question qui, tue, comment je récupère ce qui se trouve dans mon record???
+	NEW.modif2=troncon;
+
+  RETURN NEW;
+  
+END;
+$BODY$
+LANGUAGE &#039;plpgsql&#039; VOLATILE
+ALTER FUNCTION touches_test() OWNER TO postgres;</code></pre></div><p>Au cas ou vous auriez loupé la question caché dans le code :</p><p>Et là, la question qui, tue, comment je récupère ce qui se trouve dans mon record???</p><p>Merci d&#039;avance!</p><p>Geo-x</p>]]></content>
+		<author>
+			<name><![CDATA[Geo-x]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1346</uri>
+		</author>
+		<updated>2012-02-21T13:33:58Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=12962#p12962</id>
+	</entry>
+</feed>

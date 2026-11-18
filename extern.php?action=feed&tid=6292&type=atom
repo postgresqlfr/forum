@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title type="html"><![CDATA[Forums PostgreSQL.fr / Résolu - pg_dump d'une table - pas clair : avec ou sans séquence?]]></title>
+	<link rel="self" href="http://forum.postgresql.fr/extern.php?action=feed&amp;tid=6292&amp;type=atom"/>
+	<link href="http://forums.postgresql.fr/viewtopic.php?id=6292"/>
+	<updated>2022-06-15T07:35:49Z</updated>
+	<generator>FluxBB</generator>
+	<id>http://forums.postgresql.fr/viewtopic.php?id=6292</id>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Résolu - pg_dump d'une table - pas clair : avec ou sans séquence?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33549#p33549"/>
+		<content type="html"><![CDATA[<p>&quot;ça n&#039;a vraiment aucune importance)&quot;</p><p>A titre personnel je trouve que c&#039;est mieux pour les 2 profils, ceux qui recherchent de l&#039;aide ou ceux qui&#160; souhaitent en apporter.</p>]]></content>
+		<author>
+			<name><![CDATA[PmGs7]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3886</uri>
+		</author>
+		<updated>2022-06-15T07:35:49Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33549#p33549</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Résolu - pg_dump d'une table - pas clair : avec ou sans séquence?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33548#p33548"/>
+		<content type="html"><![CDATA[<p>Pas besoin de clôturer. (certains changent le titre du thread pour l&#039;indiquer mais ça n&#039;a vraiment aucune importance)</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2022-06-15T07:27:42Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33548#p33548</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Résolu - pg_dump d'une table - pas clair : avec ou sans séquence?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33547#p33547"/>
+		<content type="html"><![CDATA[<p>Merci @rjuju et @gleu</p><p>j&#039;ai compris la raison &quot;la sequence pour t1 n&#039;est pas une dépendance mais une &quot;extension&quot; de la table&quot;</p><p>C&#039;est clair, mais en l&#039;occurrence la doc, selon moi, l&#039;est moins car n&#039;évoque pas ce comportement différent entre &quot;extension&quot; et dépendance.</p><p>Comment cloture-t-on un sujet sur ce forum?</p>]]></content>
+		<author>
+			<name><![CDATA[PmGs7]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3886</uri>
+		</author>
+		<updated>2022-06-15T07:17:30Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33547#p33547</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Résolu - pg_dump d'une table - pas clair : avec ou sans séquence?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33546#p33546"/>
+		<content type="html"><![CDATA[<p>Une seconde tu veux dire <img src="http://forums.postgresql.fr/img/smilies/smile.png" width="15" height="15" alt="smile" /></p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2022-06-15T07:06:09Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33546#p33546</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Résolu - pg_dump d'une table - pas clair : avec ou sans séquence?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33545#p33545"/>
+		<content type="html"><![CDATA[<p>Comme j&#039;ai gratté rjuju d&#039;une minute :-D</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2022-06-15T07:00:03Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33545#p33545</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Résolu - pg_dump d'une table - pas clair : avec ou sans séquence?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33544#p33544"/>
+		<content type="html"><![CDATA[<p>Je vois.</p><br /><p>Le comportement est à priori correct, car la sequence pour t1 n&#039;est pas une dépendance mais une &quot;extension&quot; de la table, la séquence étant détenue par la table.&#160; L&#039;idée étant que la sauvegarde type &quot;pg_dump -t t&quot; avec:</p><div class="codebox"><pre><code>CREATE TABLE t(id serial);</code></pre></div><p>Donne le même résultat que la création originale.&#160; Les choses sont probablement beaucoup plus claires depuis les nouvelles versions et la clause &quot;GENERATED ALWAYS AS IDENTITY&quot;, mais la signification est la même, (big)serial est simplement une version non standard pour la même chose.</p><br /><p>J&#039;imagine que lorsque vous avez créé t2, vous n&#039;avez pas effectué</p><div class="codebox"><pre><code>ALTER SEQUENCE public.t2_id_seq OWNED BY public.t2.id;</code></pre></div><p>ce qui fait que les deux objets sont effectivements uniquement dépendant l&#039;un de l&#039;autre mais pas un même objet logique.</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2022-06-15T06:59:33Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33544#p33544</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Résolu - pg_dump d'une table - pas clair : avec ou sans séquence?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33543#p33543"/>
+		<content type="html"><![CDATA[<p>Pour moi, la doc est conforme. Il y a une grosse différence entre t1/t1_id_seq et t2/t2_id_seq : la séquence t1_id_seq appartient à la table t1 alors que la séquence t2_id_seq n&#039;appartient pas à la table t2. Vous avez dû créer la table t1 avec un serial, ce qui crée une séquence et surtout une dépendance de la colonne id de la table t1 et de sa séquence, ce que vous n&#039;avez pas dû faire avec la table t2. Cela se voit avec l&#039;instruction &quot;ALTER SEQUENCE public.t1_id_seq OWNED BY public.t1.id;&quot; qui n&#039;existe que pour la table t1.</p><p>Bref, les deux tables sont différentes, ce qui génère un dump différent. Rien de plus normal.</p>]]></content>
+		<author>
+			<name><![CDATA[gleu]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3</uri>
+		</author>
+		<updated>2022-06-15T06:59:32Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33543#p33543</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Résolu - pg_dump d'une table - pas clair : avec ou sans séquence?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33542#p33542"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><p>Merci pour votre réponse.</p><br /><p>La cmd pour générées les dump est la &quot;standard&quot; à savoir :</p><p>&#160; &#160; pg_dump mabase<br />&#160; &#160; pg_dump -t t1 mabase<br />&#160; &#160; pg_dump -t t2 mabase</p><br /><p>La doc est celle de la version 11<br />&#160; &#160; <a href="https://www.postgresql.org/docs/11/app-pgdump.html" rel="nofollow">https://www.postgresql.org/docs/11/app-pgdump.html</a><br />Note<br />When -t is specified, pg_dump makes no attempt to dump any other database objects that the selected table(s) might depend upon. </p><br /><p>Le dump de t1 n&#039;est, selon moi, pas conforme à la doc.</p><p>Ce n&#039;est pas un pb majeur, mais ennuyeux/plus compliqué pour réaliser un script.</p><br /><p>PS : il semble que la différence de comportement soit liée à la différence de codage du &quot;default&quot; dans la séquence ( t1 : &quot;alter&quot; sur la table créée, t2 : directement avec la création de la table)</p>]]></content>
+		<author>
+			<name><![CDATA[PmGs7]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3886</uri>
+		</author>
+		<updated>2022-06-15T05:42:11Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33542#p33542</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Réponse à&#160;:  Résolu - pg_dump d'une table - pas clair : avec ou sans séquence?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33540#p33540"/>
+		<content type="html"><![CDATA[<p>Bonjour,</p><br /><p>je n&#039;ai pas tout compris.&#160; Comment avez-vous générés les 3 dumps en questions, quel comportement exactement n&#039;est pas ou est conforme à la doc (et où dans la doc?)?</p>]]></content>
+		<author>
+			<name><![CDATA[rjuju]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=1368</uri>
+		</author>
+		<updated>2022-06-15T02:58:21Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33540#p33540</id>
+	</entry>
+	<entry>
+		<title type="html"><![CDATA[Résolu - pg_dump d'une table - pas clair : avec ou sans séquence?]]></title>
+		<link rel="alternate" href="http://forums.postgresql.fr/viewtopic.php?pid=33538#p33538"/>
+		<content type="html"><![CDATA[<p>Bonjour,<br />Je bute ce soir sur un problème que je n&#039;arrive pas à expliquer.</p><p>J&#039;ai une base avec 2 tables t1 et t2 presque identiques, comportant chacune une séquence et une seule ligne de donnée.</p><p>Le dump de la base est correct.</p><p>Le dump de la table t1 est complet (avec séquence, le dump permet de recréer cette table dans une autre base), ce qui n&#039;est pas conforme à la doc</p><p>Le dump de la table t2 est confrome à la doc, cad sans la séquence.</p><p>Je mets ci-dessous les 3 dumps, si un lecteur a un peu de temps, j&#039;apprécierais qu&#039;il utilise le 1er sur son serveur t voit s&#039;il reproduit le pb.</p><p>Par ailleurs je suis à la recherche de toute idée pour approfondir et comprendre.</p><p>Merci d&#039;avance.</p><p>------------------------------------------ dump base<br />-<br />-- PostgreSQL database dump<br />--</p><p>-- Dumped from database version 11.14 (Debian 11.14-0+deb10u1)<br />-- Dumped by pg_dump version 11.14 (Debian 11.14-0+deb10u1)</p><p>SET statement_timeout = 0;<br />SET lock_timeout = 0;<br />SET idle_in_transaction_session_timeout = 0;<br />SET client_encoding = &#039;UTF8&#039;;<br />SET standard_conforming_strings = on;<br />SELECT pg_catalog.set_config(&#039;search_path&#039;, &#039;&#039;, false);<br />SET check_function_bodies = false;<br />SET xmloption = content;<br />SET client_min_messages = warning;<br />SET row_security = off;</p><p>SET default_tablespace = &#039;&#039;;</p><p>SET default_with_oids = false;</p><p>--<br />-- Name: t1; Type: TABLE; Schema: public; Owner: PmGs<br />--</p><p>CREATE TABLE public.t1 (<br />&#160; &#160; id bigint NOT NULL,<br />&#160; &#160; name character varying(255) NOT NULL,<br />&#160; &#160; created_at timestamp(0) without time zone,<br />&#160; &#160; updated_at timestamp(0) without time zone<br />);</p><br /><p>ALTER TABLE public.t1 OWNER TO PmGs;</p><p>--<br />-- Name: t1_id_seq; Type: SEQUENCE; Schema: public; Owner: PmGs<br />--</p><p>CREATE SEQUENCE public.t1_id_seq<br />&#160; &#160; START WITH 1<br />&#160; &#160; INCREMENT BY 1<br />&#160; &#160; NO MINVALUE<br />&#160; &#160; NO MAXVALUE<br />&#160; &#160; CACHE 1;</p><br /><p>ALTER TABLE public.t1_id_seq OWNER TO PmGs;</p><p>--<br />-- Name: t1_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: PmGs<br />--</p><p>ALTER SEQUENCE public.t1_id_seq OWNED BY public.t1.id;</p><br /><p>--<br />-- Name: t2_id_seq; Type: SEQUENCE; Schema: public; Owner: PmGs<br />--</p><p>CREATE SEQUENCE public.t2_id_seq<br />&#160; &#160; START WITH 1<br />&#160; &#160; INCREMENT BY 1<br />&#160; &#160; NO MINVALUE<br />&#160; &#160; NO MAXVALUE<br />&#160; &#160; CACHE 1;</p><br /><p>ALTER TABLE public.t2_id_seq OWNER TO PmGs;</p><p>--<br />-- Name: t2; Type: TABLE; Schema: public; Owner: PmGs<br />--</p><p>CREATE TABLE public.t2 (<br />&#160; &#160; id bigint DEFAULT nextval(&#039;public.t2_id_seq&#039;::regclass) NOT NULL,<br />&#160; &#160; name character varying(32),<br />&#160; &#160; created_at timestamp without time zone DEFAULT now(),<br />&#160; &#160; updated_at timestamp without time zone<br />);</p><br /><p>ALTER TABLE public.t2 OWNER TO PmGs;</p><p>--<br />-- Name: t1 id; Type: DEFAULT; Schema: public; Owner: PmGs<br />--</p><p>ALTER TABLE ONLY public.t1 ALTER COLUMN id SET DEFAULT nextval(&#039;public.t1_id_seq&#039;::regclass);</p><br /><p>--<br />-- Data for Name: t1; Type: TABLE DATA; Schema: public; Owner: PmGs<br />--</p><p>COPY public.t1 (id, name, created_at, updated_at) FROM stdin;<br />1&#160; &#160; Admin&#160; &#160; 2022-06-11 20:28:33&#160; &#160; 2022-06-11 20:28:33<br />\.</p><br /><p>--<br />-- Data for Name: t2; Type: TABLE DATA; Schema: public; Owner: PmGs<br />--</p><p>COPY public.t2 (id, name, created_at, updated_at) FROM stdin;<br />1&#160; &#160; xxx&#160; &#160; \N&#160; &#160; \N<br />\.</p><br /><p>--<br />-- Name: t1_id_seq; Type: SEQUENCE SET; Schema: public; Owner: PmGs<br />--</p><p>SELECT pg_catalog.setval(&#039;public.t1_id_seq&#039;, 1, true);</p><br /><p>--<br />-- Name: t2_id_seq; Type: SEQUENCE SET; Schema: public; Owner: PmGs<br />--</p><p>SELECT pg_catalog.setval(&#039;public.t2_id_seq&#039;, 31, true);</p><br /><p>--<br />-- Name: t1 t1_pkey; Type: CONSTRAINT; Schema: public; Owner: PmGs<br />--</p><p>ALTER TABLE ONLY public.t1<br />&#160; &#160; ADD CONSTRAINT t1_pkey PRIMARY KEY (id);</p><br /><p>--<br />-- Name: t2 t2_pkey; Type: CONSTRAINT; Schema: public; Owner: PmGs<br />--</p><p>ALTER TABLE ONLY public.t2<br />&#160; &#160; ADD CONSTRAINT t2_pkey PRIMARY KEY (id);</p><br /><p>--<br />-- PostgreSQL database dump complete<br />--</p><p>---------------------------------- dump table t1<br />--<br />-- PostgreSQL database dump<br />--</p><p>-- Dumped from database version 11.14 (Debian 11.14-0+deb10u1)<br />-- Dumped by pg_dump version 11.14 (Debian 11.14-0+deb10u1)</p><p>SET statement_timeout = 0;<br />SET lock_timeout = 0;<br />SET idle_in_transaction_session_timeout = 0;<br />SET client_encoding = &#039;UTF8&#039;;<br />SET standard_conforming_strings = on;<br />SELECT pg_catalog.set_config(&#039;search_path&#039;, &#039;&#039;, false);<br />SET check_function_bodies = false;<br />SET xmloption = content;<br />SET client_min_messages = warning;<br />SET row_security = off;</p><p>SET default_tablespace = &#039;&#039;;</p><p>SET default_with_oids = false;</p><p>--<br />-- Name: t1; Type: TABLE; Schema: public; Owner: PmGs<br />--</p><p>CREATE TABLE public.t1 (<br />&#160; &#160; id bigint NOT NULL,<br />&#160; &#160; name character varying(255) NOT NULL,<br />&#160; &#160; created_at timestamp(0) without time zone,<br />&#160; &#160; updated_at timestamp(0) without time zone<br />);</p><br /><p>ALTER TABLE public.t1 OWNER TO PmGs;</p><p>--<br />-- Name: t1_id_seq; Type: SEQUENCE; Schema: public; Owner: PmGs<br />--</p><p>CREATE SEQUENCE public.t1_id_seq<br />&#160; &#160; START WITH 1<br />&#160; &#160; INCREMENT BY 1<br />&#160; &#160; NO MINVALUE<br />&#160; &#160; NO MAXVALUE<br />&#160; &#160; CACHE 1;</p><br /><p>ALTER TABLE public.t1_id_seq OWNER TO PmGs;</p><p>--<br />-- Name: t1_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: PmGs<br />--</p><p>ALTER SEQUENCE public.t1_id_seq OWNED BY public.t1.id;</p><br /><p>--<br />-- Name: t1 id; Type: DEFAULT; Schema: public; Owner: PmGs<br />--</p><p>ALTER TABLE ONLY public.t1 ALTER COLUMN id SET DEFAULT nextval(&#039;public.t1_id_seq&#039;::regclass);</p><br /><p>--<br />-- Data for Name: t1; Type: TABLE DATA; Schema: public; Owner: PmGs<br />--</p><p>COPY public.t1 (id, name, created_at, updated_at) FROM stdin;<br />1&#160; &#160; Admin&#160; &#160; 2022-06-11 20:28:33&#160; &#160; 2022-06-11 20:28:33<br />\.</p><br /><p>--<br />-- Name: t1_id_seq; Type: SEQUENCE SET; Schema: public; Owner: PmGs<br />--</p><p>SELECT pg_catalog.setval(&#039;public.t1_id_seq&#039;, 1, true);</p><br /><p>--<br />-- Name: t1 t1_pkey; Type: CONSTRAINT; Schema: public; Owner: PmGs<br />--</p><p>ALTER TABLE ONLY public.t1<br />&#160; &#160; ADD CONSTRAINT t1_pkey PRIMARY KEY (id);</p><br /><p>--<br />-- PostgreSQL database dump complete<br />--</p><p>---------------------------- dump table t2<br />--<br />-- PostgreSQL database dump<br />--</p><p>-- Dumped from database version 11.14 (Debian 11.14-0+deb10u1)<br />-- Dumped by pg_dump version 11.14 (Debian 11.14-0+deb10u1)</p><p>SET statement_timeout = 0;<br />SET lock_timeout = 0;<br />SET idle_in_transaction_session_timeout = 0;<br />SET client_encoding = &#039;UTF8&#039;;<br />SET standard_conforming_strings = on;<br />SELECT pg_catalog.set_config(&#039;search_path&#039;, &#039;&#039;, false);<br />SET check_function_bodies = false;<br />SET xmloption = content;<br />SET client_min_messages = warning;<br />SET row_security = off;</p><p>SET default_tablespace = &#039;&#039;;</p><p>SET default_with_oids = false;</p><p>--<br />-- Name: t2; Type: TABLE; Schema: public; Owner: PmGs<br />--</p><p>CREATE TABLE public.t2 (<br />&#160; &#160; id bigint DEFAULT nextval(&#039;public.t2_id_seq&#039;::regclass) NOT NULL,<br />&#160; &#160; name character varying(32),<br />&#160; &#160; created_at timestamp without time zone DEFAULT now(),<br />&#160; &#160; updated_at timestamp without time zone<br />);</p><br /><p>ALTER TABLE public.t2 OWNER TO PmGs;</p><p>--<br />-- Data for Name: t2; Type: TABLE DATA; Schema: public; Owner: PmGs<br />--</p><p>COPY public.t2 (id, name, created_at, updated_at) FROM stdin;<br />1&#160; &#160; xxx&#160; &#160; \N&#160; &#160; \N<br />\.</p><br /><p>--<br />-- Name: t2 t2_pkey; Type: CONSTRAINT; Schema: public; Owner: PmGs<br />--</p><p>ALTER TABLE ONLY public.t2<br />&#160; &#160; ADD CONSTRAINT t2_pkey PRIMARY KEY (id);</p><br /><p>--<br />-- PostgreSQL database dump complete<br />--</p>]]></content>
+		<author>
+			<name><![CDATA[PmGs7]]></name>
+			<uri>http://forums.postgresql.fr/profile.php?id=3886</uri>
+		</author>
+		<updated>2022-06-14T20:56:06Z</updated>
+		<id>http://forums.postgresql.fr/viewtopic.php?pid=33538#p33538</id>
+	</entry>
+</feed>
